@@ -1,0 +1,113 @@
+name: Windows build
+
+on:
+  push:
+    branches: [ 'claude/**', main, master ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # windows-2025 carries Visual Studio 2026 (toolset v145) since June 2026.
+    runs-on: windows-2025
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [ Debug ]
+    env:
+      # Built one at a time with BuildProjectReferences=false, so a failure in
+      # one library does not hide the errors of the libraries above it.
+      # These are static libraries; nothing links yet, so order does not matter.
+      PROJECTS: >-
+        zlib/ZLib.vcxproj
+        guids/Guids.vcxproj
+        _Utility/Utility.vcxproj
+        engine/Engine.vcxproj
+        effect/Effect.vcxproj
+
+    steps:
+      - name: Checkout (code only, Artwork excluded)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/Artwork/
+
+      - name: Locate MSBuild and report toolchain
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          & $vswhere -latest -products * -format text | Select-String -Pattern '^(displayName|installationVersion|installationPath):'
+          $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
+          if (-not $msbuild) { throw "MSBuild not found" }
+          "MSBUILD=$msbuild" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $msbuild -version -nologo
+          $vsPath = & $vswhere -latest -products * -property installationPath
+          $toolsets = Get-ChildItem "$vsPath\MSBuild\Microsoft\VC\*\Platforms\Win32\PlatformToolsets" -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -Unique
+          "Win32 platform toolsets: $($toolsets -join ', ')"
+          if ($toolsets -notcontains 'v145') { Write-Warning "Toolset v145 (VS 2026) not found on this image" }
+          $atl = Test-Path "$vsPath\VC\Tools\MSVC\*\atlmfc\include\atlbase.h"
+          "ATL/MFC installed: $atl"
+
+      - name: Build libraries (${{ matrix.configuration }}|Win32)
+        id: build
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          New-Item -ItemType Directory -Force out/logs | Out-Null
+          $failed = @()
+          foreach ($p in $env:PROJECTS -split '\s+' | Where-Object { $_ }) {
+            $name = [IO.Path]::GetFileNameWithoutExtension($p)
+            Write-Host "::group::$name"
+            & $env:MSBUILD $p -nologo -m -p:Configuration=${{ matrix.configuration }} -p:Platform=Win32 `
+              -p:BuildProjectReferences=false `
+              -fl "-flp:logfile=out/logs/$name.log;verbosity=normal" `
+              -fl1 "-flp1:logfile=out/logs/$name.errors.log;errorsonly" `
+              -clp:ErrorsOnly
+            if ($LASTEXITCODE -ne 0) { $failed += $name }
+            Write-Host "::endgroup::"
+          }
+          if ($failed.Count) { Write-Host "Failed: $($failed -join ', ')"; exit 1 }
+
+      - name: Error summary
+        if: always()
+        shell: pwsh
+        run: |
+          $rx = '(?<file>[^\s:][^:]*?)\((?<line>\d+)[^)]*\)\s*:\s*(fatal )?error (?<code>[A-Z]+\d+)\s*:\s*(?<msg>.*?)(\s+\[[^\]]+\])?$'
+          $out = @("## Build errors (${{ matrix.configuration }}|Win32)", "", "| Project | Errors | Top codes |", "|---|---:|---|")
+          $detail = @()
+          foreach ($log in Get-ChildItem out/logs/*.errors.log -ErrorAction SilentlyContinue) {
+            $name = $log.BaseName -replace '\.errors$',''
+            $errs = Get-Content $log | ForEach-Object { if ($_ -match $rx) { [pscustomobject]@{ File = (Split-Path $Matches.file -Leaf); Line = $Matches.line; Code = $Matches.code; Msg = $Matches.msg } } } |
+                    Sort-Object File, Line, Code, Msg -Unique
+            $codes = ($errs | Group-Object Code | Sort-Object Count -Descending | Select-Object -First 5 | ForEach-Object { "$($_.Name)x$($_.Count)" }) -join ', '
+            $out += "| $name | $(@($errs).Count) | $codes |"
+            if (@($errs).Count) {
+              $detail += "", "### $name (first 25 distinct)", '```'
+              $detail += $errs | Select-Object -First 25 | ForEach-Object { "$($_.File)($($_.Line)): $($_.Code): $($_.Msg)" }
+              $detail += '```'
+            }
+          }
+          ($out + $detail) -join "`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: build-logs-${{ matrix.configuration }}
+          path: out/logs/
+          if-no-files-found: warn
+
+      - name: Fail if any project failed
+        if: steps.build.outcome == 'failure'
+        shell: pwsh
+        run: exit 1

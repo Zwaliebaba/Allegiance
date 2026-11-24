@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Imported automatically by every .vcxproj below this directory, before
+  Microsoft.Cpp.Default.props. Holds only properties that must be known before
+  the C++ defaults are evaluated. Compiler/linker settings live in
+  msbuild\Allegiance.Cpp.props, which each project imports as a property sheet.
+-->
+<Project>
+  <PropertyGroup>
+    <AllegianceRoot>$(MSBuildThisFileDirectory)</AllegianceRoot>
+    <PlatformToolset>v145</PlatformToolset>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <!-- The codebase is ANSI throughout (char* with the A-suffixed Win32 APIs). -->
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+</Project>
