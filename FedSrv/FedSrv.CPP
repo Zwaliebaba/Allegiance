@@ -7863,7 +7863,8 @@ void    BuildIGCFiles (char* szArtworkPath, bool bEncrypt = false, bool bMaps = 
         MapFileSite*    pSite = new MapFileSite;
 
         SQL_GO(MapIDs);
-        for (int i = 0; i < g_cMapsCount; i++)
+        int i;
+        for (i = 0; i < g_cMapsCount; i++)
         {
             if (SQL_SUCCEEDED(SQL_GETROW(MapIDs)))
             {

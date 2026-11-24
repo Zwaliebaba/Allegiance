@@ -26,7 +26,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;DIRECTINPUT_VERSION=0x0800;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- Same order as the original makefile.inc: project-local dirs (added by
            each project) first, then the shared ones. -->
       <AdditionalIncludeDirectories>$(AllegianceRoot)Inc;$(AllegianceRoot)zlib;$(AllegianceRoot)guids;$(AllegianceRoot)Zone;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

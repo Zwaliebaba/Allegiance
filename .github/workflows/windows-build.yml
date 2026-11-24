@@ -1,8 +1,9 @@
 name: Windows build
 
 on:
+  # PR branches are built by the pull_request trigger; building their pushes too doubled the minutes.
   push:
-    branches: [ 'claude/**', main, master ]
+    branches: [ main, master ]
   pull_request:
   workflow_dispatch:
 

@@ -305,7 +305,8 @@ public:
         ZString str = "MeshGeo([\n";
 
         int count = m_vertices.GetCount();
-        for(int index = 0; index < count; index++) {
+        int index;
+        for(index = 0; index < count; index++) {
             str += Indent(indent + 1) + ::GetString(m_vertices[index]);
 
             if (index + 1 == count) {
@@ -1551,7 +1552,8 @@ public:
         //
 
         int count = GetChildCount();
-        for (int index = 0; index < count - 1; index++) {
+        int index;
+        for (index = 0; index < count - 1; index++) {
             if (radius > m_radii[index]) {
                 break;
             }
@@ -1576,7 +1578,8 @@ public:
             // Insert before index
             //
 
-            for (int inew = count - 1; inew > index; inew--) {
+            int inew;
+            for (inew = count - 1; inew > index; inew--) {
                 m_radii.Set(inew, m_radii[inew - 1]);
             }
 
@@ -1640,7 +1643,8 @@ public:
         float radius = pcontext->GetLOD();
 
         int count = GetChildCount();
-        for (int index = 0; index < count - 1; index++) {
+        int index;
+        for (index = 0; index < count - 1; index++) {
             if (radius > m_radii[index]) {
                 break;
             }
