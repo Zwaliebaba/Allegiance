@@ -32,6 +32,12 @@
 #include "time.h"
 #include "malloc.h"
 
+// The float overloads of abs, floor, pow, sin, ... come from <cmath> in the
+// modern CRT. zmath.h used to define them itself (compiled out since VS.NET
+// 2003); without <cmath>, abs(float) is ambiguous between the integer overloads.
+#include <cmath>
+#include <cstdlib>
+
 #ifdef DREAMCAST
 #include "dreamcast.h"
 #endif

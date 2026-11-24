@@ -33,10 +33,11 @@ namespace FilterAutomata
 
         Cell (void) : actionCode (ACTION_DO_NOTHING), iNextState (0) {}
 
-        operator = (const Cell& cell)
+        Cell& operator = (const Cell& cell)
         {
             actionCode = cell.actionCode;
             iNextState = cell.iNextState;
+            return *this;
         }
     };
 
@@ -47,10 +48,11 @@ namespace FilterAutomata
     {
         Cell        cell[256];
 
-        operator = (const State& state)
+        State& operator = (const State& state)
         {
             for (int i = 0; i < 256; i++)
                 cell[i] = state.cell[i];
+            return *this;
         }
     };
 

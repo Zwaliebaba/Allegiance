@@ -52,7 +52,7 @@ jobs:
           "MSBUILD=$msbuild" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           & $msbuild -version -nologo
           $vsPath = & $vswhere -latest -products * -property installationPath
-          $toolsets = Get-ChildItem "$vsPath\MSBuild\Microsoft\VC\*\Platforms\Win32\PlatformToolsets" -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -Unique
+          $toolsets = Get-ChildItem "$vsPath\MSBuild\Microsoft\VC\*\Platforms\Win32\PlatformToolsets\*" -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -Unique
           "Win32 platform toolsets: $($toolsets -join ', ')"
           if ($toolsets -notcontains 'v145') { Write-Warning "Toolset v145 (VS 2026) not found on this image" }
           $atl = Test-Path "$vsPath\VC\Tools\MSVC\*\atlmfc\include\atlbase.h"

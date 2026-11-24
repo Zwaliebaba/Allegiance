@@ -46,6 +46,9 @@ gets decided when FedSrv is ported.
 - The message-compiler sources exist. They use a `.msg` extension: `FedSrv/fedmsg.msg`,
   `sentinal/sentmsg.msg`, `lobby/lobbymsg.msg`, `Club/AllClubMsg.msg`. They need an `mc.exe` build
   step, not a reconstruction.
+- `ddraw.h` and `d3d.h` (Direct3D 7-era immediate mode) are still in the Windows SDK; the first CI
+  run resolved them. Compatibility shims are only needed for headers that really are gone:
+  `d3drm.h`, `dplay.h` and `dplobby.h`.
 - `zlib/zlib.h` includes `ddraw.h` and `d3d.h` even though nothing in `zlib` uses DirectX. Every
   module inherits DirectX through it. These includes move into `engine` during the D3D11 port, once
   the downstream modules that rely on the transitive include have been found.
@@ -76,8 +79,8 @@ gets decided when FedSrv is ported.
 
 - Two-phase lookup and `typename`, string-literal constness, for-loop scope, secure-CRT fixes.
 - Old ATL 3 code (`statreg.cpp`, `atlimpl.cpp`, `CComModule`) moved to the current ATL module classes.
-- Compile-time shims for the dead DirectX APIs (`d3d.h` / `d3dtypes.h` era types, DirectPlay 4), so
-  everything links before behaviour changes. The shims are written for this project, not vendored from
+- Compile-time shims for the DirectX headers that are no longer in the SDK (`d3drm.h`, `dplay.h`,
+  `dplobby.h`), so everything links before behaviour changes. The shims are written for this project, not vendored from
   old SDKs, and they are deleted as Phase 3 replaces each API.
 - Zone and Club code paths removed. `/permissive-` turned on.
 
@@ -130,3 +133,15 @@ msbuild Allegiance.slnx -p:Configuration=Debug -p:Platform=x86
 CI builds each library on its own (`-p:BuildProjectReferences=false`), so one failure doesn't hide the
 errors of the others. The error summary is on the workflow run page, and the full logs are attached to
 the run.
+
+## Conformance fix log
+
+Fixes are made per CI round, and each change keeps the original runtime behaviour.
+
+| Pattern | Fix | Sites |
+|---|---|---|
+| VC6 for-loop scope (loop variable used after the loop) | Declare the variable before the loop | `zlib/zstring.cpp` |
+| Default-int declarations (`static Foo(`, `operator =` with no return type) | Explicit `void` / `bool` / `T&` return types | `_Utility/listwrappers.h`, `engine/value.h`, `engine/context.h`, `soundengine/ds3dutil.h`, `clintlib/badwords.cpp`, `WinTrek/WinTrek.cpp` |
+| `CastMember(X);` with no such macro (VC6 read it as an undefined `int` member function) | Removed | `engine/geometry.h`, `engine/image.h` |
+| `abs(float)` ambiguous: the float overloads now live in `<cmath>` | `zlib.h` includes `<cmath>` and `<cstdlib>` | `zlib` |
+| C2712: `__try` in a function that needs object unwinding (`/EHsc`) | Body moved into `Win32MainBody`; `Win32Main` keeps only the SEH frame. Also `delete` changed to `delete[]` for the `new[]` spacer | `zlib/Win32app.cpp` |

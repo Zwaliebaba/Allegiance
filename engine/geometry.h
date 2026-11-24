@@ -9,7 +9,6 @@
 
 class WrapGeo : public Geo {
 public:
-    CastMember(WrapGeo);
     WrapGeo(Geo* pgeo);
     WrapGeo(Geo* pgeo, Value* pvalue1);
 

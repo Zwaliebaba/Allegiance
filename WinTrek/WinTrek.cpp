@@ -5738,7 +5738,7 @@ public:
         }
     }
 
-    virtual UpdateCommandView(void)
+    virtual void UpdateCommandView(void)
     {
         assert (CommandCamera(m_cm));
 
