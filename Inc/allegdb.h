@@ -13,7 +13,12 @@
 
 #include <oledb.h>
 #include <sqloledb.h>
+// zlib/alloc.h defines "new" as a macro in debug builds; ATL uses
+// new(std::nothrow), which the macro breaks. Suspend it for the ATL headers.
+#pragma push_macro("new")
+#undef new
 #include <atldbcli.h>
+#pragma pop_macro("new")
 #include <..\test\TCLib\TCThread.h>
 
 class CSQLCore;
