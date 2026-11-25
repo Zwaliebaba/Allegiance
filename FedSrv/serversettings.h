@@ -14,6 +14,14 @@
 const char c_szServerSettingsFile[] = "server.json";
 
 //
+// The named mutex that says a server is running on this machine (it used to
+// come from AllSrvModuleIDL.idl)
+//
+
+#define szAllSrvRunning TEXT("{5B5ED2A6-E7C0-11D2-8B4B-00C04F681633}_Running")
+#define szAllSrvRunningGlobal (TEXT("Global\\") szAllSrvRunning)
+
+//
 // The service name (not a setting, but it used to share regkey.h)
 //
 

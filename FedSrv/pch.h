@@ -58,6 +58,7 @@
 
 #include <TCLib.h>
 #include <..\TCLib\AutoHandle.h>
+#include <..\TCLib\AutoCriticalSection.h>
 
 #include <TCAtl.h>
 #include <..\TCAtl\ObjectMap.h>
