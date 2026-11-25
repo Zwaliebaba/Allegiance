@@ -23,7 +23,7 @@
     COM_INTERFACE_ENTRY(IDispatch)                                          \
     COM_INTERFACE_ENTRY(ISupportErrorInfo)                                  \
     COM_INTERFACE_ENTRY(IPersistStreamInit)                                 \
-    COM_INTERFACE_ENTRY2(IPersistStream, IPersistStreamInit)                \
+    COM_INTERFACE_ENTRY_IID(IID_IPersistStream, IPersistStreamInit)                \
     COM_INTERFACE_ENTRY2(IPersist, IPersistStreamInit)                      \
     COM_INTERFACE_ENTRY(IMarshal)
 

@@ -5,7 +5,10 @@
 // AGCEventLogger.h : Declaration of the CAGCEventLogger class
 
 #include <AGC.h>
+#pragma push_macro("new")
+#undef new
 #include <atldbcli.h>
+#pragma pop_macro("new")
 #include <..\TCLib\AutoHandle.h>
 #include <..\TCLib\ObjectLock.h>
 #include <..\TCLib\RangeSet.h>

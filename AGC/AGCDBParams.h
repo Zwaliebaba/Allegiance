@@ -32,7 +32,7 @@ public:
     COM_INTERFACE_ENTRY(IDispatch)
     COM_INTERFACE_ENTRY(IPersistStreamInit)
     COM_INTERFACE_ENTRY(IPersistPropertyBag)
-    COM_INTERFACE_ENTRY2(IPersistStream, IPersistStreamInit)
+    COM_INTERFACE_ENTRY_IID(IID_IPersistStream, IPersistStreamInit)
     COM_INTERFACE_ENTRY2(IPersist, IPersistStreamInit)
     COM_INTERFACE_ENTRY_AUTOAGGREGATE(IID_IMarshal, m_punkMBV.p,
       CLSID_TCMarshalByValue)

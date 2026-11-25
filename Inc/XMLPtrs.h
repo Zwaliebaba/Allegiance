@@ -6,7 +6,7 @@
 // XMLPtrs.h : Smart pointer declarations for MSXML interface pointers.
 //
 
-#include "..\..\Extern\sbn\include\msxml.h"
+#include <msxml.h>  // was ..\..\Extern\sbn\include\msxml.h; the Windows SDK carries it
 
 #ifdef __cplusplus
   extern "C++"

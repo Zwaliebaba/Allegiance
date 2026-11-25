@@ -197,3 +197,9 @@ Fixes are made per CI round, and each change keeps the original runtime behaviou
 | More `std::vector` iterators passed where ATL expects raw pointers (`CComEnum::Init`) | `.data()` / `.data() + size()` | `AGC/IAGCCollectionImpl.h`, `AGC/IAGCRangesImpl.h`, `AGC/TCStrings.cpp` |
 | `TCLib.h` includes `zassert.h` after ATL may have defined the CRT `assert` | `#undef assert` first | `test/Inc/TCLib.h` |
 | zlib's "no other assert" `#error` versus current CRT/ATL headers that include `<assert.h>` themselves. The earlier per-file `#undef assert` patches were order-dependent and broke when `<assert.h>` arrived after `zassert.h`. | Reverted. `zassert.h` now re-establishes zlib's `assert` at the end of every inclusion, outside its include guard, instead of failing | `zlib/zassert.h` |
+| `COM_INTERFACE_ENTRY2(IPersistStream, IPersistStreamInit)`: current ATL static-asserts that the second argument derives from the first | `COM_INTERFACE_ENTRY_IID(IID_IPersistStream, ...)`, the standard ATL idiom, which exposes the same layout-compatible vtable (10 maps) | `AGC`, `test/TCAtl` |
+| `::CrossProduct`: an inline friend that only argument-dependent lookup can find | Namespace-scope declaration added | `zlib/vector.h` |
+| Address of a returned temporary (`&::CrossProduct(...)`) | Local variable | `AGC/AGCVector.cpp` |
+| Hard-coded `..\..\Extern\sbn\include\msxml.h` | `<msxml.h>` from the Windows SDK | `Inc/XMLPtrs.h` |
+| Indented typeless `const` declarations (the earlier scan missed indented lines) | `const int` | `FedSrv/FedSrv.CPP` |
+| Deferred to the `/permissive-` switch: `&CComVariant(x)` (address of a class temporary) is still accepted in permissive mode with warning C4238 | none yet | `AGC/AGCCommand.cpp`, `AGC/AGCVector.cpp`, `AGC/IAGCRangesImpl.h` |

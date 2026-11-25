@@ -47,7 +47,7 @@ public:
     COM_INTERFACE_ENTRY(IPersistPropertyBag)
     COM_INTERFACE_ENTRY(IPersistStorage)
     COM_INTERFACE_ENTRY(IPersistStreamInit)
-    COM_INTERFACE_ENTRY2(IPersistStream, TCPersistStreamInitImplBase)
+    COM_INTERFACE_ENTRY_IID(IID_IPersistStream, TCPersistStreamInitImplBase)
     COM_INTERFACE_ENTRY(IObjectSafety)
     COM_INTERFACE_ENTRY_AUTOAGGREGATE(IID_IMarshal, m_punkMBV.p,
       CLSID_TCMarshalByValue)

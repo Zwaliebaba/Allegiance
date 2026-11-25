@@ -22,7 +22,7 @@
 	  COM_INTERFACE_ENTRY(ISupportErrorInfo)                                  \
     COM_INTERFACE_ENTRY(IPersistStreamInit)                                 \
     COM_INTERFACE_ENTRY(IPersistPropertyBag)                                \
-    COM_INTERFACE_ENTRY2(IPersistStream, IPersistStreamInit)                \
+    COM_INTERFACE_ENTRY_IID(IID_IPersistStream, IPersistStreamInit)                \
     COM_INTERFACE_ENTRY2(IPersist, IPersistStreamInit)                      \
     COM_INTERFACE_ENTRY_AUTOAGGREGATE(IID_IMarshal, m_punkMBV.p,            \
       CLSID_TCMarshalByValue)
@@ -44,8 +44,8 @@ public:
   typedef TCObjectLock<T>                            XLock;
   typedef range<RT>                                  XRange;
   typedef rangeset<XRange>                           XRangeSet;
-  typedef XRangeSet::iterator                        XRangeIt;
-  typedef XRangeSet::reverse_iterator                XRangeRevIt;
+  typedef typename XRangeSet::iterator               XRangeIt;
+  typedef typename XRangeSet::reverse_iterator       XRangeRevIt;
   typedef IDispatchImpl<ITF, &__uuidof(ITF), plibid> IAGCRangesImplBase;
 
 // Construction

@@ -178,4 +178,8 @@ public:
     static Vector RandomPosition(float radius);
 };
 
+// The friend above is only visible through argument-dependent lookup; AGC
+// calls it as ::CrossProduct, so declare it at namespace scope as well.
+Vector CrossProduct(const Vector& v1, const Vector& v2);
+
 #endif
