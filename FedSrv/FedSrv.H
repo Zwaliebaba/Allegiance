@@ -20,11 +20,7 @@ const int c_cPlayersMax   = 500; // max players allowed on a server
 const int c_cDronesMax    = 500; // max drones  allowed on a server
 const int c_cShipsMax     = c_cPlayersMax + c_cDronesMax;
 
-#if defined(ALLSRV_STANDALONE)
   const short c_cMaxPlayersPerGame = 64;
-#else // defined(ALLSRV_STANDALONE)
-  const short c_cMaxPlayersPerGame = 0x7FFF;
-#endif // defined(ALLSRV_STANDALONE)
 
 
 HRESULT pascal FedSrv_Init();
@@ -75,11 +71,7 @@ class MapFileSite : public IMissionSite, public IIgcSite
 class FedSrvSiteBase :
   public IMissionSite,
   public IIgcSite,
-#ifndef ALLSRV_STANDALONE
-  public IFedMessagingSite, public ISQLSite, public ISQLSite2
-#else // !ALLSRV_STANDALONE
   public IFedMessagingSite
-#endif // !ALLSRV_STANDALONE
 {
 public:
   FedSrvSiteBase() :
@@ -240,12 +232,6 @@ struct Global
     fProtocol(false),
     fPaused(false),
     fDoublePrecision(true)
-#if !defined(ALLSRV_STANDALONE)
-    ,
-    csqlSilentThreads(0),
-    csqlNotifyThreads(0),
-    sql(&siteFedSrv)
-#endif    
   {
     ZeroMemory(rgTechs, sizeof(rgTechs));
     ZeroMemory(&serverCounters, sizeof(serverCounters));
@@ -257,9 +243,6 @@ struct Global
     // Explicitly initialize the ZString objects
     strLobbyServer.SetEmpty();
     strArtPath.SetEmpty();
-#if !defined(ALLSRV_STANDALONE)
-    strSQLConfig.Empty();
-#endif    
   }
 
   SERVICE_STATUS_HANDLE ssh;
@@ -316,12 +299,6 @@ struct Global
   bool                fProtocol;
   bool                fPaused;
   bool                fDoublePrecision;
-#if !defined(ALLSRV_STANDALONE)
-  CSQLCore            sql;
-  DWORD               csqlSilentThreads;
-  DWORD               csqlNotifyThreads;
-  CComBSTR            strSQLConfig;
-#endif
 };
 
 
@@ -350,9 +327,7 @@ void RecordSquadGame(const SideListIGC*  psides, IsideIGC* psideWon);
 
 void GetInvitations(int nInvitationID, MissionID missionID);
 
-#if defined(ALLSRV_STANDALONE)
 void StartDefaultGames();
-#endif
 
 ItreasureIGC*  CreateTreasure(Time now, IshipIGC* pship, DataTreasureIGC* pdt, const Vector& position, float dv);
 

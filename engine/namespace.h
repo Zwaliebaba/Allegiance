@@ -29,7 +29,6 @@ public:
     virtual void             WriteToTextFile(int indent, ZFile* pfile)           = 0;
     virtual void             WriteToBinaryFile(ZFile* pfile)                     = 0;
 
-#ifndef DREAMCAST  // these mothods break VC5
 
     float FindNumber(const ZString& strName, float valueDefault = 0)
     {
@@ -105,7 +104,6 @@ public:
         return pvalue;
     }
 
-#endif
 };
 
 typedef TList<TRef<INameSpace> > INameSpaceList;

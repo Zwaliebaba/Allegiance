@@ -16,7 +16,7 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Settings | JSON files instead of the registry: `settings.json` per user for the client, `server.json` for all users for the server, or either next to the executable. A small built-in reader and writer (`zlib/zsettings.*`), no third-party JSON library. Registry values are not imported. The only registry use left is the Windows service entry, if the server is installed as one. |
 | AGC | Removed. Its event system became a small plain C++ module in the server that writes a daily log file (`logs\server-<date>.log`); `LogAllEvents` in `server.json` adds the game events (chat, kills, logins) to the default set. No database or Windows event log output. |
 | Server administration | The DCOM admin objects (`IAdminServer` and the rest) are removed with no replacement for now; a server is configured through `server.json`. A later admin protocol will run on the MsQuic listener. Training mission 7, the one in-repo user of the admin objects, starts its server as a child process. Windows performance counters are dropped. |
-| Scope | Tier 1 is built. Tier 2 stays in the repo, outside the solution. Tier 3 is deleted once nothing in Tier 1 or 2 references it. |
+| Scope | Tier 1 is built. Tier 2 stayed in the repo, outside the solution, until the dead code cleanup deleted it. Tier 3 is deleted once nothing in Tier 1 or 2 references it. |
 | Verification | GitHub Actions on `windows-2025` (VS 2026). `.github/workflows/windows-build.yml`. |
 
 ## Module tiers
@@ -24,7 +24,8 @@ solution that compiles, runs on current Windows, and builds its art from source.
 **Tier 1 (built):** `zlib` (Microsoft's base library, not the compression library), `guids`, `_Utility`,
 `engine`, `effect`, `soundengine`, `Igc`, `clintlib`, `training`, `WinTrek` (client); `mdlc`, `xmunge`,
 `cvh`, `qhull` (art tools); `FedSrv`, built as the original standalone LAN server flavour `AllSrv32`
-(`ALLSRV_STANDALONE`) with the helper library it needs from `test/` (`TCLib`). (`sharemem`, the
+(`ALLSRV_STANDALONE`; the database-backed Zone server code it compiled out has since been deleted) with
+the helper library it needs from `test/` (`TCLib`). (`sharemem`, the
 performance-counter library, and `AGC` are deleted; see "Server administration" and "AGC removed".)
 
 `xmunge` is not built yet. It is written entirely against Direct3D Retained Mode (frames, mesh
@@ -32,7 +33,9 @@ builders, progressive meshes), which Windows no longer has. Making it compile wo
 D3DRM stand-in only to discard it, so it is rewritten in Phase 4 on the engine's own `.x` parser plus
 meshoptimizer.
 
-**Tier 2 (parked):** `lobby`, `AllSrvUI`, `srvconfig`, `cliconfig`.
+**Tier 2 (parked, then deleted):** `lobby`, `AllSrvUI`, `srvconfig`, `cliconfig`. They drove the registry, DCOM and AGC
+interfaces that are gone, so they could not be revived without a rewrite, and the dead code cleanup deleted them
+(see "Dead code cleanup"). The lobby protocol headers the game still uses moved to `Inc/`.
 
 **Tier 3 (delete):**
 
@@ -41,7 +44,7 @@ meshoptimizer.
 | `MSRGuard`, `SymGuard`, `patch`, `fsmon`, `dreamcast` | Deleted. |
 | `Zone`, `Club` | Deleted in Phase 2 with the Zone and Club code paths (see Phase 2). |
 | `sentinal`, `fedperf` | Deleted. Only the VS.NET 2003 `Server.vcproj` compiled them into the server; the original nmake build never did. |
-| `AutoUpdate` | Kept for now. Referenced by `lobby/pch.h` (Tier 2). |
+| `AutoUpdate` | Deleted in the dead code cleanup, with `lobby`. |
 | `test` | Kept: `FedSrv` builds on `test/TCLib`, `test/TCAtl` and `test/Inc` (as `AGC` did), so these are effectively Tier 1 support code rather than tests. |
 
 ### FedSrv and AGC
@@ -402,9 +405,10 @@ browser looks only for the LAN session (`FEDSRV_STANDALONE_PRIVATE_GUID`), and t
 games from `server.json` were only created after a lobby connection succeeded. Now the server hosts the
 LAN session and creates the `server.json` games at startup; `"PublicLobby": 1` restores the public
 session and lobby. Games from `server.json` are never deleted: after a round they go back to "not
-started" (unless `bAllowRestart` is off) and wait for players. A dedicated server keeps running when its
-last game is deleted, which only happens to a lobby-created game nobody joins within 15 seconds; it used
-to shut down then, and drop its lobby connection, unless an admin session held it up.
+started" (unless `bAllowRestart` is off) and wait for players, so a dedicated server keeps running. The
+code that shut a standalone server down when its last game was deleted now only stops a training server;
+in practice it never fired, because the only games ever deleted were lobby-created ones that nobody joined,
+and only the database server (never built, and removed in the dead code cleanup) took those.
 
 Training mission 7 ("live" training against the Bios) used the admin objects to have COM start a local
 AllSrv32, create the game, start it once the player had joined, and kill it afterwards. The client now
@@ -460,6 +464,20 @@ to MP4 files that Media Foundation plays, about a third of the size; the AVIs we
 to fit the screen, keeping the aspect ratio; the sound plays through an audio-only Media Engine whose
 position the frames follow. A key press still skips a movie. `intro.avi` was on the game CD and is not in
 the repository, so the intro is skipped unless an `intro.mp4` is put in the artwork folder.
+
+#### Dead code cleanup
+
+Before the x64 and `/permissive-` work, so those ports only touch code that is used:
+
+| What | How |
+|---|---|
+| Directories no project builds and nothing in the build includes (about 100,000 lines): the Tier 2 tools and `lobby`; `cadet`, `drones`, `edit`, `engineapp`, `engineapptemplate`, `fedsrvdll`, `jpeg`, `mdl`, `mdledit`, `me`, `mesh2pl`, `offline`, `qh2mesh`, `shadowswitcher`, `soundtest`, `techtree`, `AutoUpdate`, `Reloader`, `test/TCDeploy`, `test/TCObj`, `test/TCGuid`; `SrvHost` (a VB6 front end for the DCOM server), `Setup` (1999 redistributables and Zone DLLs), `AllGuard` | Deleted. What "included" means was worked out by resolving every `#include` through each project's own include directories, not by file name: the build reads only `lobby`'s three message headers (moved to `Inc/`) and `offline/mission.h`, which was entirely `#if 0` |
+| Source files in built directories that no project compiles and nothing includes (63), e.g. most of `test/TCAtl`, the client's old offline mode, Dreamcast's `zlib/dcbase.cpp` | Deleted |
+| The database-backed Zone server compiled out of `AllSrv32` (`!ALLSRV_STANDALONE`: ODBC queries, DB logging, lobby-created games, IGC files built from the database) | Removed with `unifdef -DALLSRV_STANDALONE`; the define is gone. The AllegDB query classes stay, as data holders the standalone server uses |
+| `#if 0` blocks and the Dreamcast port's branches in built code | Removed with `unifdef -k -UDREAMCAST`; the vendored qhull is left as it is |
+
+`database/` and `databasepcg/` stay: they are the game-balance data (ships, parts, civilisations) the
+static core `.igc` files were generated from, not code.
 
 ### Phase 4: art pipeline
 
@@ -566,7 +584,7 @@ DirectDraw path, runs on a headless runner. The first run crashed during engine 
 
 ### Phase 5: optional
 
-x64, C++20, replacing `ZString` and the custom containers, XAudio2, a D3D12 backend, Tier 2 modules.
+x64, C++20, replacing `ZString` and the custom containers, XAudio2, a D3D12 backend, a new lobby service.
 
 ## Building
 

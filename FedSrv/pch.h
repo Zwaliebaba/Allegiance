@@ -33,11 +33,7 @@
 
 
 // ZLib Includes
-#if !defined(ALLSRV_STANDALONE)
-  #define __MODULE__ "AllSrv"
-#else // !defined(ALLSRV_STANDALONE)
   #define __MODULE__ "AllSrv32"
-#endif // !defined(ALLSRV_STANDALONE)
 #include <guids.h>
 #include <zlib.h>
                      
@@ -83,7 +79,6 @@
 #include "fsside.h"
 #include "fscluster.h"
 #include "fsmission.h"
-#include "fedsrvsql.h"
 #include "fedsrv.h"
 extern Global g;
 #include "fsship.h"

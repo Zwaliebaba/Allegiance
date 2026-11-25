@@ -34,14 +34,14 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)FedSrv;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)test\Inc;$(AllegianceRoot)WinTrek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)FedSrv;$(AllegianceRoot)training;$(AllegianceRoot)test\Inc;$(AllegianceRoot)WinTrek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WINTREK;igc_static;IGC_SHIP;_USRDLL;DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)FedSrv;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)test\Inc;$(AllegianceRoot)WinTrek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)FedSrv;$(AllegianceRoot)training;$(AllegianceRoot)test\Inc;$(AllegianceRoot)WinTrek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WINTREK;igc_static;IGC_SHIP;_USRDLL;DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
