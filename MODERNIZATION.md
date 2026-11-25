@@ -140,6 +140,24 @@ geometry list in `makegeo.mak`) and builds incrementally through Inputs and Outp
 has no reference output, so Stage A is verified by loading and rendering in game, unless original
 retail `.mdl` files are available to compare against.
 
+#### Hard-coded paths in the art tools
+
+The original art build assumed a fixed `%FEDROOT%` layout (`%FEDROOT%\src\artwork\...`,
+`%FEDROOT%\objs\debug\<tool>\<tool>.exe`, `%FEDROOT%\src\tools\build\awk.exe`, `%FEDROOT%\src\bin\qhull`).
+
+| Where | Treatment |
+|---|---|
+| `cvh/main.cpp`: `system("%fedroot%\\src\\bin\\qhull ...")` (2 sites) | Fixed in code. Uses `qhull.exe` next to `cvh.exe` (same build output directory) or `ALLEGIANCE_QHULL`, and quotes paths so spaces work |
+| `Artwork/tools/*.bat`, `*.awk`, `Artwork/*/makefile`, `makegeo.mak` (about 70 path lines; `awk.exe` was never in the release; `sed.exe` is bundled) | Replaced by `Art.proj`, whose paths are relative to `$(AllegianceRoot)` and the build output. Deleted once `Art.proj` covers them. |
+| `Artwork/tools/pmesh*/convpm.bat` + MSR progressive-mesh binaries | Replaced by the `xmunge` rewrite (meshoptimizer), then deleted |
+| Art data (`.x`, `.mdl`) | Checked: no absolute texture or include paths |
+
+#### Smoke test
+
+CI runs `tools/ci/mdlc-smoke.ps1` after the build. It converts one bitmap and one animation, and
+compiles `fontsource.mdl`. This establishes whether `mdlc`, which starts the engine with its software
+DirectDraw path, runs on a headless runner.
+
 ### Phase 5: optional
 
 x64, C++20, replacing `ZString` and the custom containers, XAudio2, a D3D12 backend, Tier 2 modules.

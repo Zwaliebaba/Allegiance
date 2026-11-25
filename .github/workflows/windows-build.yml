@@ -93,6 +93,26 @@ jobs:
           }
           if ($failed.Count) { Write-Host "Failed: $($failed -join ', ')"; exit 1 }
 
+      # Art toolchain smoke test (Phase 4): mdlc starts the engine with its software
+      # DirectDraw path. This tells us whether art can be converted on a headless
+      # runner at all. Only the three input files are fetched, not all of Artwork/.
+      - name: Fetch smoke-test art
+        if: always()
+        shell: cmd
+        run: |
+          mkdir out\smoke-src
+          git cat-file blob HEAD:Artwork/256/acbuild.bmp > out\smoke-src\acbuild.bmp
+          git cat-file blob HEAD:Artwork/256/animlaunch.bmp > out\smoke-src\animlaunch.bmp
+          git cat-file blob HEAD:Artwork/256/fontsource.mdl > out\smoke-src\fontsource.mdl
+
+      - name: mdlc smoke test
+        id: smoke
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 10
+        shell: pwsh
+        run: ./tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/Win32/Debug/mdlc.exe -Art out/smoke-src -Out out/art-smoke
+
       - name: Error summary
         if: always()
         shell: pwsh
@@ -119,10 +139,12 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: build-logs-${{ matrix.configuration }}
-          path: out/logs/
+          path: |
+            out/logs/
+            out/art-smoke/
           if-no-files-found: warn
 
       - name: Fail if any project failed
-        if: steps.build.outcome == 'failure'
+        if: steps.build.outcome == 'failure' || steps.smoke.outcome == 'failure'
         shell: pwsh
         run: exit 1
