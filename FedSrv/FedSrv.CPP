@@ -321,8 +321,6 @@ HRESULT pascal FedSrv_Terminate(void)
 
   _AGCModule.TriggerEvent(NULL, AllsrvEventID_Terminate, "", -1, -1, -1, 0);
 
-  g.pzas = NULL;
-
   return(S_OK);
 }
 
@@ -465,9 +463,7 @@ void JoinMission(CFSPlayer * pfsPlayer, DWORD dwCookie, const char * szPW)
   else
   #endif // defined(ALLSRV_STANDALONE)
   {
-#ifdef USEAUTH  
-  pfsMission->RemovePlayerByName(pfsPlayer->GetName(), QSR_DuplicateLocalLogon);
-#endif
+    // Zone-authenticated builds dropped an earlier logon with the same name here
   }
 
   const MissionParams*    pmp = pMission->GetMissionParams();
@@ -5018,71 +5014,19 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         // Now we need to look them up to make sure they logged in
         
         bool fValid = false; // whether we have a valid character
-        LPBYTE pZoneTicket = (LPBYTE) FM_VAR_REF(pfmLogon, ZoneTicket);
-        #if !defined(ALLSRV_STANDALONE)
-          if (pZoneTicket) // it's all in the Zone Ticket
-          {
-            hr = g.pzas->DecryptTicket(pZoneTicket, pfmLogon->cbZoneTicket);
-            // Since they came in through the lobby, their token MUST be valid, but since we're paranoid, let's check again
-            switch (hr)
-            {
-              case ZT_NO_ERROR:
-              {
-                if (lstrcmpi(g.strAuthServer, g.pzas->GetAuthServer())) // you MUST use the auth server that we expect
-                {
-                  szReason = "Your account authentication did not go through the expected server.";
-                  break;
-                }
-                bool fValidNow = false;
-                fValid = g.pzas->HasToken(g.m_szToken, &fValidNow);
-                if (!fValid)
-                  szReason = "Your Allegiance Zone subscription has expired.";
-                else if (!fValidNow)
-                {
-                  fValid = false; // not considered valid anymore
-                  szReason = "This account is not authorized to play on the Allegiance Zone.";
-                  fRetry = true;
-                }
-                break;
-              }
-
-              case ZT_E_BUFFER_TOO_SMALL:
-                _AGCModule.TriggerEvent(NULL, AllsrvEventID_IncreaseTokensMax, "", -1, -1, -1, 0);
-                break;
-
-              case ZT_E_AUTH_INVALID_TICKET:
-                _AGCModule.TriggerEvent(NULL, AllsrvEventID_InvalidZoneTicket, "", -1, -1, -1, 0);
-                szReason = "Could not validate Zone ID.";
-                break;
-
-              default:
-                _AGCModule.TriggerEvent(NULL, AllsrvEventID_DecryptTicketFailed, "", -1, -1, -1, 0);
-            }
-          }
-          else
-          {
-              _AGCModule.TriggerEvent(NULL, AllsrvEventID_NoTicket, "", -1, -1, -1, 0);
-              szReason = "No login credentials found.";
-          }
-
-          lstrcpy(pqd->szCharacterName, g.pzas->GetName());
-          pqd->characterID = g.pzas->GetAccountID();
-          
-        #else // !defined(ALLSRV_STANDALONE)
-          if (0 < pfmLogon->cbCharacterName && pfmLogon->cbCharacterName <= c_cbName)
-          {
-            fValid = true;
-            lstrcpy(pqd->szCharacterName, FM_VAR_REF(pfmLogon, CharacterName));
-            pqd->characterID = GetNextCharacterID();
-            pqd->fCanCheat = false;
-          }
-          else
-          {
-            _AGCModule.TriggerEvent(NULL, AllsrvEventID_NoTicket, "", -1, -1, -1, 0);
-            szReason = "No player name found.";
-            lstrcpy(pqd->szCharacterName, "<invalid>");
-          }
-        #endif // !defined(ALLSRV_STANDALONE)
+        if (0 < pfmLogon->cbCharacterName && pfmLogon->cbCharacterName <= c_cbName)
+        {
+          fValid = true;
+          lstrcpy(pqd->szCharacterName, FM_VAR_REF(pfmLogon, CharacterName));
+          pqd->characterID = GetNextCharacterID();
+          pqd->fCanCheat = false;
+        }
+        else
+        {
+          _AGCModule.TriggerEvent(NULL, AllsrvEventID_NoTicket, "", -1, -1, -1, 0);
+          szReason = "No player name found.";
+          lstrcpy(pqd->szCharacterName, "<invalid>");
+        }
 
         lstrcpy(pqd->szReason, szReason);
         pqd->fRetry = fRetry;
@@ -6314,12 +6258,6 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       TrapHackBoot(pfmMissionParams->missionparams.Invalid(true) == NULL);
       pfmMissionParams->missionparams.bObjectModelCreated =
         !!pfsMission->GetMissionDef()->misparms.bObjectModelCreated;
-
-      #if !defined(ALLSRV_STANDALONE)
-        TrapHackBoot(pfmMissionParams->missionparams.bClubGame == true);
-      #else // !defined(ALLSRV_STANDALONE)
-        TrapHackBoot(pfmMissionParams->missionparams.bClubGame == false);
-      #endif // !defined(ALLSRV_STANDALONE)
 
       // players can't change this stuff
       TrapHackBoot(pfmMissionParams->missionparams.bLockGameOpen
@@ -7712,9 +7650,6 @@ void LoadSettings()
     DWORD cbValue;
     if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, HKLM_FedSrv, 0, KEY_READ, &hKey))
     {
-        if (FAILED(LoadRegString(hKey, "AuthServer", g.strAuthServer)))
-          g.strAuthServer = "Pointweb01"; // default for all developers
-
         dwValue=0;
         cbValue = sizeof(dwValue);
         if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "nUpdatesPerSecond", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
@@ -8608,32 +8543,6 @@ HRESULT pascal FedSrv_Init()
   _makepath(path_buffer, drive, dir, NULL, NULL);
   SetCurrentDirectory(path_buffer);
 
-  //
-  // Art path for the core (.igc) and collision hull (.cvh) files: the
-  // registry ArtPath if set, otherwise the "artwork" folder next to the exe,
-  // the same rule the client uses (WinTrek/trekapp.cpp). Nothing in this
-  // source drop set it, so the first core load asserted in UTL::getFile.
-  //
-  {
-    char szArt[_MAX_PATH + 16];
-    lstrcpy(szArt, path_buffer);
-    lstrcat(szArt, "artwork");
-
-    HKEY hKey;
-    if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey))
-    {
-      char  szValue[_MAX_PATH];
-      DWORD cbValue = sizeof(szValue);
-      DWORD dwType;
-      if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "ArtPath", NULL, &dwType, (unsigned char*)szValue, &cbValue)
-          && dwType == REG_SZ && szValue[0] != 0)
-        lstrcpyn(szArt, szValue, sizeof(szArt));
-      ::RegCloseKey(hKey);
-    }
-
-    UTL::SetArtPath(szArt);
-  }
-
   LoadTechBits(); // only for the IfYouBuildIt cheat
 
   bool fSWMRGInit = FSWMRGInitialize(&g.swmrg, "FedSrv");
@@ -8652,15 +8561,6 @@ HRESULT pascal FedSrv_Init()
                       sizeof(SERVER_COUNTERS));
   memset(g.pServerCounters, 0x00, sizeof(SERVER_COUNTERS));
 
-  #if !defined(ALLSRV_STANDALONE)
-    g.pzas = CreateZoneAuthServer();
-    if (!g.pzas)
-    {
-      _AGCModule.TriggerEvent(NULL, AllsrvEventID_ZoneAuthServer, "", -1, -1, -1, 0);
-      return E_FAIL;
-    }
-  #endif // !defined(ALLSRV_STANDALONE)
-  
 
   // create event used by fm to signal a message has arrived
   // let's try NOT signaling on this event, since it may signal us too often

@@ -24,14 +24,10 @@ enum ScreenID {
     ScreenIDGameScreen          =   4,
     ScreenIDGameOverScreen      =   5,
     ScreenIDTrainScreen         =   6,
-    ScreenIDZoneClubScreen      =   7,
-    ScreenIDSquadsScreen        =   8,
+    ScreenIDLobbyScreen         =   7,
     ScreenIDGameStarting        =   9,
-    ScreenIDCharInfo            =   10,
     ScreenIDTrainSlideshow      =   11,
-    ScreenIDPostTrainSlideshow  =   12,
-    ScreenIDLeaderBoard         =   13,
-    ScreenIDZoneEvents          =   14
+    ScreenIDPostTrainSlideshow  =   12
 };
 
 
@@ -183,9 +179,6 @@ public:
 
     virtual void                screen(ScreenID s)        = 0;
     virtual ScreenID            screen(void) const        = 0;
-    virtual void        CharInfoScreenForPlayer(int idZone) = 0;
-    virtual void        SquadScreenForPlayer(const char * szName, int idZone, const char * szSquad) = 0;
-    virtual void        LeaderBoardScreenForPlayer(const ZString & strCharacter) = 0;
 
     virtual void SetTarget(ImodelIGC*   pmodel, CommandID cid) = 0;
     virtual void SetAccepted(ImodelIGC* pmodel, CommandID cid) = 0;

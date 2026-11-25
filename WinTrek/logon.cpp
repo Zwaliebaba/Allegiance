@@ -15,36 +15,16 @@ private:
     TRef<Pane>           m_ppane;
     TRef<ButtonPane>     m_pbuttonLogon;
     TRef<ButtonPane>     m_pbuttonAbort;
-    TRef<ButtonPane>     m_pbuttonSignUp;
-    TRef<ButtonPane>     m_pbuttonCDKey;
-    TRef<ButtonPane>     m_pbuttonSavePassword;
     TRef<EditPane>       m_peditName;
-    TRef<EditPane>       m_peditPassword;
-    TRef<Pane>           m_ppanePassword;
     TRef<LogonSite>      m_psite;
     TRef<IKeyboardInput> m_pfocus;
-    LogonType            m_lt;
 
 public:
-    LogonPopup(Modeler* pmodeler, LogonSite* psite, LogonType lt,
-               LPCSTR szPrompt, LPCSTR szName, LPCSTR szPW, BOOL fRememberPW) :
-        m_psite(psite),
-        m_lt(lt)
+    LogonPopup(Modeler* pmodeler, LogonSite* psite, LPCSTR szPrompt, LPCSTR szName) :
+        m_psite(psite)
     {
-        enum LogonNameType { lntCallsign, lntZone, lntPassport } logonNameType;
-        if (lt == LogonLAN)
-            logonNameType = lntCallsign;
-        else if (trekClient.GetCfgInfo().bUsePassport)
-            logonNameType = lntPassport;
-        else
-            logonNameType = lntZone;
-
         TRef<INameSpace> pnsLogonData = pmodeler->CreateNameSpace("logondata", pmodeler->GetNameSpace("gamepanes"));
         pnsLogonData->AddMember("promptText", new ModifiableString(szPrompt));
-        pnsLogonData->AddMember("Callsign", new ModifiableNumber((float)lntCallsign));
-        pnsLogonData->AddMember("ZoneID", new ModifiableNumber((float)lntZone));
-        pnsLogonData->AddMember("PassportID", new ModifiableNumber((float)lntPassport));
-        pnsLogonData->AddMember("logonNameType", new ModifiableNumber((float)logonNameType));
 
         TRef<INameSpace> pns = pmodeler->GetNameSpace("logon");
         CastTo(m_ppane, pns->FindMember("popup"));
@@ -53,48 +33,13 @@ public:
         AddEventTarget(&LogonPopup::OnButtonLogon, m_pbuttonLogon->GetEventSource());
         CastTo(m_pbuttonAbort,        pns->FindMember("abortButtonPane"));
         AddEventTarget(&LogonPopup::OnButtonAbort, m_pbuttonAbort->GetEventSource());
-        CastTo(m_pbuttonSignUp,       pns->FindMember("signUpButtonPane"));
-        AddEventTarget(&LogonPopup::OnButtonSignUp, m_pbuttonSignUp->GetEventSource());
-        CastTo(m_pbuttonCDKey,        pns->FindMember("cdKeyButtonPane"));
-        AddEventTarget(&LogonPopup::OnButtonCDKey, m_pbuttonCDKey->GetEventSource());
         CastTo(m_peditName,     (Pane*)pns->FindMember("nameEditPane"    ));
         AddEventTarget(&LogonPopup::OnNameClick,     m_peditName->GetClickEvent());
 
-        CastTo(m_pbuttonSavePassword, pns->FindMember("savePasswordButtonPane"));
-        CastTo(m_ppanePassword, pns->FindMember("passwordPane"));
-        CastTo(m_peditPassword, (Pane*)pns->FindMember("passwordEditPane"));
-        AddEventTarget(&LogonPopup::OnPasswordClick, m_peditPassword->GetClickEvent());
-        m_peditPassword->SetType(EditPane::Password);
-        m_peditPassword->SetString(ZString());
-
-        m_peditName->SetString(ZString());
-
-        // !!! disable logon button if name is empty
-        // Get defaults
-        if (LogonLAN == lt)
-        {
-            m_ppanePassword->SetHidden(true);
-            m_pbuttonSavePassword->SetHidden(true);
-            m_pbuttonCDKey->SetHidden(true);
-            m_pbuttonSignUp->SetHidden(true);
-        }
-        else
-        {
-            m_peditPassword->SetString(szPW);
-            m_pbuttonSavePassword->SetChecked(!!fRememberPW);
-        }
-
         m_peditName->SetString(szName);
-        m_peditName->SetMaxLength((LogonLAN != lt && trekClient.GetCfgInfo().bUsePassport) 
-          ? (c_cbPassportName - 1)
-          : (c_cbName - 1)
-          );
+        m_peditName->SetMaxLength(c_cbName - 1);
 
-        if (m_peditName->GetString().IsEmpty()) {
-            SetFocus(m_peditName);
-        } else {
-            SetFocus(m_peditPassword);
-        }
+        SetFocus(m_peditName);
 
         pmodeler->UnloadNameSpace(pns);
     }
@@ -113,8 +58,6 @@ public:
             // Grab info from the controls
             //
             ZString strName = m_peditName->GetString();
-            ZString strPassword = m_peditPassword->GetString();
-            bool fRememberPW = m_pbuttonSavePassword->GetChecked();
 
             if (strName[0] != ' ' && strName[0] != '\0') // give 'em a msg box?
             {
@@ -130,7 +73,7 @@ public:
                 // Tell the site
                 //
 
-                m_psite->OnLogon(strName, strPassword, fRememberPW);
+                m_psite->OnLogon(strName);
             }
         }
 
@@ -141,20 +84,6 @@ public:
     {
         m_psite->OnAbort();
         ClosePopup(NULL);
-        return true;
-    }
-
-    bool OnButtonSignUp()
-    {
-        GetWindow()->ShowWebPage("http://www.zone.com/allegiance/minilaunch1.asp");
-        return true;
-    }
-
-    bool OnButtonCDKey()
-    {
-        TRef<IPopup> ppopupCDKey = CreateCDKeyPopup();
-        GetWindow()->GetPopupContainer()->OpenPopup(ppopupCDKey, false);
-
         return true;
     }
 
@@ -176,12 +105,6 @@ public:
     bool OnNameClick()
     {
         SetFocus(m_peditName);
-        return true;
-    }
-
-    bool OnPasswordClick()
-    {
-        SetFocus(m_peditPassword);
         return true;
     }
 
@@ -234,18 +157,6 @@ public:
                 OnButtonAbort();
                 return true;
             } 
-            else if (ks.vk == VK_TAB) 
-            {
-                if (m_pfocus == m_peditName 
-                    && (LogonAllegianceZone == m_lt || LogonFreeZone == m_lt)) 
-                {
-                    SetFocus(m_peditPassword);
-                } else 
-                {
-                    SetFocus(m_peditName);
-                }
-                return true;
-            }
         }
 
         return m_pfocus->OnKey(pprovider, ks, fForceTranslate);
@@ -263,9 +174,9 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 
-TRef<IPopup> CreateLogonPopup(Modeler* pmodeler, LogonSite* psite, LogonType lt, LPCSTR szPrompt, LPCSTR szName, LPCSTR szPW, BOOL fRememberPW)
+TRef<IPopup> CreateLogonPopup(Modeler* pmodeler, LogonSite* psite, LPCSTR szPrompt, LPCSTR szName)
 {
-    return new LogonPopup(pmodeler, psite, lt, szPrompt, szName, szPW, fRememberPW);
+    return new LogonPopup(pmodeler, psite, szPrompt, szName);
 }
 
 

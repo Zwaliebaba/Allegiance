@@ -2052,16 +2052,8 @@ public:
 
     void screen(ScreenID s)
     {
-        screen(s, -1);
-    }
-
-    void screen(ScreenID s, int idPlayer, const char * szPlayerName = NULL, const char * szOther = NULL)
-    {
-
         static bool bSwitchingScreens = false;
         static ScreenID sNextScreen;
-        ZString strPlayerName = szPlayerName ? szPlayerName : ""; // make copy of player name cause previous screen is going to be destroyed
-        ZString strOther = szOther ? szOther : "";
 
         sNextScreen = s;
 
@@ -2195,22 +2187,12 @@ public:
                     SetScreen(CreateTrainingScreen(GetModeler()));
                     break;
 
-                case ScreenIDZoneClubScreen:
-                    SetScreen(CreateZoneClubScreen(GetModeler(), GetTime()));
-                    break;
-
-                case ScreenIDSquadsScreen:
-                    SetScreen(CreateSquadsScreen(GetModeler(), szPlayerName ? PCC(strPlayerName) : NULL, idPlayer, szOther ? PCC(strOther) : NULL));
+                case ScreenIDLobbyScreen:
+                    SetScreen(CreateLobbyScreen(GetModeler(), GetTime()));
                     break;
 
                 case ScreenIDGameStarting:
                     SetScreen(CreateGameStartingScreen(GetModeler()));
-                    break;
-
-                case ScreenIDCharInfo:
-                    if(idPlayer==-1)
-                        idPlayer = trekClient.GetZoneClubID();
-                    SetScreen(CreateCharInfoScreen(GetModeler(), idPlayer));
                     break;
 
                 case ScreenIDTrainSlideshow:
@@ -2252,14 +2234,6 @@ public:
                     break;
                 }
 
-                case ScreenIDZoneEvents:
-                    SetScreen(CreateZoneEventsScreen(GetModeler()));
-                    break;
-
-                case ScreenIDLeaderBoard:
-                    SetScreen(CreateLeaderBoardScreen(GetModeler(), strPlayerName));
-                    break;
-
                 default:
                     ZError("Bad screen id");
                     break;
@@ -2273,22 +2247,7 @@ public:
         bSwitchingScreens = false;
 
         if (s != sNextScreen)
-            screen(sNextScreen, NULL);
-    }
-
-    void        CharInfoScreenForPlayer(int idZone)
-    {
-        screen(ScreenIDCharInfo, idZone);
-    }
-
-    void        SquadScreenForPlayer(const char * szName, int idZone, const char * szSquad)
-    {
-        screen(ScreenIDSquadsScreen, idZone, szName, szSquad);
-    }
-
-    void        LeaderBoardScreenForPlayer(const ZString & strCharacter)
-    {
-        screen(ScreenIDLeaderBoard, -1, PCC(strCharacter));
+            screen(sNextScreen);
     }
 
     void OpenPopup(IPopup* ppopup, const Point& point)
@@ -9300,26 +9259,3 @@ TRef<TrekWindow> TrekWindow::Create(
         );
 }
 
-// forward squad message to squad screen
-void ForwardSquadMessage(FEDMESSAGE *pSquadMessage);
-
-void WinTrekClient::ForwardSquadMessage(FEDMESSAGE * pSquadMessage)
-{
-    ::ForwardSquadMessage(pSquadMessage);
-}
-
-// forward CharacterInfo message to CharacterInfo screen
-void ForwardCharInfoMessage(FEDMESSAGE *pCharInfoMessage);
-
-void WinTrekClient::ForwardCharInfoMessage(FEDMESSAGE * pCharInfoMessage)
-{
-    ::ForwardCharInfoMessage(pCharInfoMessage);
-}
-
-// forward LeaderBoard message to the LeaderBoard screen
-void ForwardLeaderBoardMessage(FEDMESSAGE *pCharInfoMessage);
-
-void WinTrekClient::ForwardLeaderBoardMessage(FEDMESSAGE * pLeaderBoardMessage)
-{
-    ::ForwardLeaderBoardMessage(pLeaderBoardMessage);
-}

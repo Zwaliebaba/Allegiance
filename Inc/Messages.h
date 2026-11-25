@@ -21,7 +21,7 @@
    one server, and many clients, the server is always up to date by definition.
    ***Also gets incremented for changes to parts.h***
 */
-const int MSGVER = 198;
+const int MSGVER = 199; // 199: Zone ticket removed from LOGONREQ, bClubGame from MissionParams
  
 
 /*
@@ -40,7 +40,6 @@ struct PassengerData
 
 DEFINE_FEDMSG(C, LOGONREQ, 1)   // First message the client sends to the server.
   FM_VAR_ITEM(CharacterName);   // Setting character name/pw to non-NULL implies 
-  FM_VAR_ITEM(ZoneTicket);      // Encrypted
   FM_VAR_ITEM(CDKey);           // Scrambled using CharacterName
   FM_VAR_ITEM(MissionPassword); // The password (if any) required for the mission.
   USHORT    fedsrvVer;
@@ -133,7 +132,6 @@ DEFINE_FEDMSG(CS, PROJECTILE_INSTANCE, 12)
   Vector            position;
 END_FEDMSG
 
-// keep in sync copy in ClubMessages.h
 struct RankInfo
 {
     int     requiredRanking;

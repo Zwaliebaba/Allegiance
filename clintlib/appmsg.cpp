@@ -2095,7 +2095,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
             // Make sure we have the right static core
             if (lstrcmp(m_pMissionInfo->GetIGCStaticFile(), m_szIGCStaticFile) != 0
-                && !ResetStaticData(m_pMissionInfo->GetIGCStaticFile(), &m_pCoreIGC, now, GetIsZoneClub()))
+                && !ResetStaticData(m_pMissionInfo->GetIGCStaticFile(), &m_pCoreIGC, now, false))
             {
                 // we have the wrong file - let's bail.
                 Disconnect();
@@ -2905,41 +2905,6 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
         }
         break;
 
-        case FM_S_SQUAD_INFO:
-        case FM_S_SQUAD_DETAILS:
-        case FM_S_SQUAD_DETAILS_PLAYER:
-        case FM_S_SQUAD_LOG_INFO:
-        case FM_S_SQUAD_DELETED:
-        case FM_S_SQUAD_TEXT_MESSAGE:
-        case FM_S_SQUAD_CREATE_ACK:
-        {
-            ForwardSquadMessage(pfm); // forward message to squads screen
-        }
-        break;
-
-        case FM_S_CHARACTER_INFO_GENERAL:
-        case FM_S_CHARACTER_INFO_BY_CIV:
-        case FM_S_CHARACTER_INFO_MEDAL:
-        {
-            ForwardCharInfoMessage(pfm); // forward message to character info screen
-        }
-        break;
-
-        case FM_S_SQUAD_INFO_DUDEX:
-        {
-            // forward messages that go to either of these screens
-            ForwardSquadMessage(pfm); 
-            ForwardCharInfoMessage(pfm); 
-        }
-        break;
-
-        case FM_S_LEADER_BOARD_QUERY_FAIL:
-        case FM_S_LEADER_BOARD_LIST:
-        {
-            ForwardLeaderBoardMessage(pfm); // forward message to leader board screen
-        }
-        break;
-
         case FM_S_ENTER_GAME:
         {
             ClearLoadout ();
@@ -3242,19 +3207,6 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
         }
         break;
 
-        case FM_S_CLUB_RANK_INFO:
-        {
-            CASTPFM(pfmRankInfo, S, CLUB_RANK_INFO, pfm);
-
-            // copy the new rank info into our internal table
-            if (m_vRankInfo)
-                delete [] m_vRankInfo;
-            m_cRankInfo = pfmRankInfo->cRanks;
-            m_vRankInfo = new RankInfo[m_cRankInfo];
-            memcpy(m_vRankInfo, FM_VAR_REF(pfmRankInfo, ranks), m_cRankInfo * sizeof(RankInfo));
-        }
-        break;
-
         // ************ Lobby Messages *************
 
         case FM_L_AUTO_UPDATE_INFO: 
@@ -3390,24 +3342,6 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             OnLogonLobbyAck(false, pfmLogonNack->fRetry, FM_VAR_REF(pfmLogonNack, Reason));
             assert(m_fLoggedOnToLobby == false);
             m_szLobbyCharName[0] = '\0';
-        }
-        break;
-
-        case FM_S_LOGON_CLUB_ACK:
-        {
-            CASTPFM(pfmLogonAck, S, LOGON_CLUB_ACK, pfm);
-            SetZoneClubID(pfmLogonAck->nMemberID);
-            m_fLoggedOnToClub = true;
-            OnLogonClubAck(true, false, NULL);
-        }
-        break;
-
-        case FM_S_LOGON_CLUB_NACK:
-        {
-            CASTPFM(pfmLogonNack, S, LOGON_CLUB_NACK, pfm);
-            OnLogonClubAck(false, pfmLogonNack->fRetry, FM_VAR_REF(pfmLogonNack, Reason));
-            assert(m_fLoggedOnToClub == false);
-            m_szClubCharName[0] = '\0';
         }
         break;
 

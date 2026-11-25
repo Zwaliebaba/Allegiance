@@ -13,21 +13,14 @@
 
 extern bool g_bEnableSound = true;
 extern bool g_bCheckFiles;
-extern bool g_fZoneAuth;
 bool    g_bSkipAutoUpdate = false;
-bool    g_bDownloadZoneMessage = true;
-bool    g_bDisableZoneClub = false;
+bool    g_bDownloadMessageOfDay = true;
 bool    g_bDisableNewCivs = true;
 bool    g_bQuickstart = false;
 bool    g_bReloaded = false;
 int     g_civStart    = -1;
 bool    g_bDownloadNewConfig = true;
-bool    g_bAskForCDKey = 
-#ifdef USEAUTH
-  true;
-#else
-  false;
-#endif
+bool    g_bAskForCDKey = false;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -560,11 +553,9 @@ public:
                 } else if (str == "nosound") {
                     g_bEnableSound = false;
                 } else if (str == "nomessage")  {
-                    g_bDownloadZoneMessage = false;
+                    g_bDownloadMessageOfDay = false;
                 } else if (str == "nomovies")  {
                     bMovies = false;
-                } else if (str == "zone")  {
-                    g_bDisableZoneClub = false;
                 } else if (str == "newcivs")  {
                     g_bDisableNewCivs = false;
                 } else if (str == "map")  {
@@ -584,8 +575,6 @@ public:
                     // using internet connect
                 } else if (str == "multi") { 
                     bSingleInstance = false;
-                } else if (str == "noauth") {
-                    g_fZoneAuth = false;
                 } else if (str == "cdkey") {
                     g_bAskForCDKey = true;
                 }                 

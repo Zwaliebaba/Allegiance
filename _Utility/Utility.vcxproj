@@ -44,7 +44,6 @@
     <ClCompile Include="CollisionQueue.cpp" />
     <ClCompile Include="Messages.cpp" />
     <ClCompile Include="Endpoint.cpp" />
-    <ClCompile Include="zauth.cpp" />
     <ClCompile Include="allegdb.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

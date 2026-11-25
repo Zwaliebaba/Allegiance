@@ -35,8 +35,7 @@ meshoptimizer.
 | Module | Status |
 |---|---|
 | `MSRGuard`, `SymGuard`, `patch`, `fsmon`, `dreamcast` | Deleted. |
-| `Zone` | Kept for now. `_Utility`, `clintlib`, `WinTrek` and `training` include `Zone.h` / `zauth.h`. Removed in Phase 2 together with the Zone auth code paths. |
-| `Club` | Kept for now. `clintlib/pch.h` and `WinTrek/pch.h` include `Club/ClubMessages.h`. Removed with the Zone code paths. |
+| `Zone`, `Club` | Deleted in Phase 2 with the Zone and Club code paths (see Phase 2). |
 | `sentinal`, `fedperf` | Deleted. Only the VS.NET 2003 `Server.vcproj` compiled them into the server; the original nmake build never did. |
 | `AutoUpdate` | Kept for now. Referenced by `lobby/pch.h` (Tier 2). |
 | `test` | Kept: `AGC` and `FedSrv` build on `test/TCLib`, `test/TCAtl` and `test/Inc`, so these are effectively Tier 1 support code rather than tests. |
@@ -106,7 +105,38 @@ moves into Tier 1 and is ported with the server, keeping the admin and event fea
 - Compile-time shims for the DirectX headers that are no longer in the SDK (`d3drm.h`, `dplay.h`,
   `dplobby.h`), so everything links before behaviour changes. The shims are written for this project, not vendored from
   old SDKs, and they are deleted as Phase 3 replaces each API.
-- Zone and Club code paths removed. `/permissive-` turned on (not done yet).
+- Zone and Club code paths removed. The MSN Gaming Zone services they talked to no longer exist, and
+  nothing built ran them: `USEAUTH` (Zone authentication) was never defined, and `AllSrv32` is the
+  standalone server, which compiles out every `!ALLSRV_STANDALONE` Zone-server path. Removed:
+  - the Club client: `ConnectToClub` and its connection, the Club messages (`Club/ClubMessages.h`),
+    the character info, squads, leaderboard and Zone events screens (`WinTrek/CharInfoScreen.cpp`,
+    `SquadsScreen.cpp`, `leaderboardscreen.cpp`, `zoneeventsscreen.cpp`, `ZoneSquad.*`) and their art;
+  - Zone authentication: `_Utility/zauth.cpp`, the server's ticket check, the `AuthServer` setting, the
+    `-noauth` and `-zone` switches, and the Zone events in `AGC/AGCEvents.xml` (2007-2009, 2023, 6023);
+  - the Zone variant of the games list (zone icon, event-details download from `ZoneEventDetailsURL`);
+  - the `Zone/` and `Club/` directories, and the Zone/Club keys in the client config file
+    (`ZAuth`, `ClubLobby`, `Club`, `ClubMessageURL`, `ZoneEventsURL`, `ZoneEventDetailsURL`,
+    `PassportUpdateURL`, `ZoneAuthGUID`, `ClubMessageCRC`, `UsePassport`).
+
+  The Internet button now opens a plain lobby screen (`WinTrek/LobbyScreen.cpp`, formerly
+  `ZoneClubScreen.cpp`): config download, auto-update and message of the day, then the free lobby. The
+  logon popup asks only for a call sign. Main menu: LAN, Internet and Training.
+
+  Protocol: `MSGVER` is 199 (Zone ticket out of `FM_C_LOGONREQ`, `bClubGame` out of `MissionParams`) and
+  `LOBBYVER` is 9 (ticket out of `FM_C_LOGON_LOBBY`). Old and new clients, servers and lobbies do not
+  interoperate, and an old client can't even reach a new lobby's auto-update: it sends the old
+  `FM_C_LOGON_LOBBY` layout, which a new lobby misreads (`FM_C_LOGON_LOBBY_OLD` covers only much older
+  clients). That is acceptable because nothing speaking the 2004 protocol is left to stay compatible with:
+  the Zone lobbies are gone.
+
+  If characters and persistent multiplayer come back, the removed screens are a starting point: the last
+  commit that has them is `84f18ae` (`git checkout 84f18ae -- WinTrek/CharInfoScreen.cpp ...`, plus their
+  MDL and bitmaps from `Artwork/256`). They need a new server behind them; the Club server ran on SQL
+  Server and Zone authentication.
+
+  The parked Tier 2 code (`lobby`, `cliconfig`, and the pigs under `test/`) still has Zone references and
+  is not built; `lobby/pch.h` includes the deleted `zauth.h`.
+- `/permissive-` turned on (not done yet).
 - The old build system is deleted (190 files): the nmake makefiles, `makefile.inc`/`makeexe.inc`/`makedep.inc`,
   the VC6 `.dsp`/`.dsw` and VS.NET `.vcproj`/`.sln` files, `VSNet.Readme`, and `build/`, the 1999 build-lab
   scripts (build numbering, BVT scripts, setup packaging, all hard-wired to `%FEDROOT%`). Git history keeps
@@ -304,9 +334,11 @@ msbuild Artwork\Art.proj -p:Configuration=Debug
 
 This takes about two minutes the first time; later runs reconvert only what changed. The art goes to
 `out\art\`. The last step creates `out\bin\Win32\Debug\artwork` as a junction to it, which is
-where `Allegiance.exe` and `AllSrv32.exe` look for their art. They only use a different location when
-`HKLM\SOFTWARE\WOW6432Node\Microsoft\Microsoft Games\Allegiance\1.0` has an `ArtPath` value (the
-game is 32-bit, hence `WOW6432Node`). `-p:ArtLinkClient=false` skips the junction.
+where `Allegiance.exe` and `AllSrv32.exe` look for their art (the server asks for `Artwork\`; Windows
+paths are case-insensitive). The client uses a different location only when
+`HKLM\SOFTWARE\WOW6432Node\Microsoft\Microsoft Games\Allegiance\1.0` has an `ArtPath` value, and the
+server only when the `Server` key below it does (the game is 32-bit, hence `WOW6432Node`).
+`-p:ArtLinkClient=false` skips the junction.
 
 Without building it yourself, the same output is attached to every CI run as the `art-Debug`
 artifact. Unzip it into an `artwork` folder next to the exes.
@@ -328,21 +360,21 @@ Fixes are made per CI round, and each change keeps the original runtime behaviou
 | DirectInput 7 (`DirectInputCreate`, `IDirectInputDevice2`, `DIDEVTYPE_*`) not in the SDK | Ported to DirectInput 8. All DI8 game-controller types map to the engine's joystick. Unused dynamic-load path removed. `DIRECTINPUT_VERSION=0x0800` is set globally. | `engine/dinput.cpp` |
 | C2712 in `ThingGeoImpl::~ThingGeoImpl` (`__try` in a destructor of a class with `TRef` members) | Guarded release moved into a static member that has no objects of its own. The members are released inside it, so the implicit member destructors afterwards do nothing. | `effect/thinggeo.cpp` |
 | `dplay.h` / `dplobby.h` not in the SDK | Compile-only stand-ins in `compat/dplay/`. All GUIDs are null, so `CoCreateInstance` fails and the existing "DirectPlay unavailable" paths run. No call can reach `dplayx.dll` with a guessed ABI. Removed in Phase 3. | `Inc/messagecore.h` and users |
-| Zone auth SDK (`zoneauth.h`, `zoneauthdecrypt.h`) not in the source release | `_Utility/zauth.cpp` reimplemented behind the same interface as "Zone unavailable": every authentication fails. The factories return objects rather than NULL because the callers never check for NULL. | `_Utility/zauth.cpp` |
+| Zone auth SDK (`zoneauth.h`, `zoneauthdecrypt.h`) not in the source release | `_Utility/zauth.cpp` reimplemented behind the same interface as "Zone unavailable": every authentication fails. The factories return objects rather than NULL because the callers never check for NULL. | `_Utility/zauth.cpp` (deleted with the Zone code) |
 | Debug `#define new new(__FILE__, __LINE__)` (`zlib/alloc.h`) breaks ATL's `new(std::nothrow)` | `push_macro`/`pop_macro` around the ATL include | `Inc/allegdb.h` |
 | Original bug: when a hat direction is bound in the key-mapping UI, the stored joystick index was the leftover loop counter (always one past the last joystick). That broke the saved mapping, its "Joy N Hat ..." label and duplicate detection. | Use the joystick that axis 5 (the hat, which drives `m_ppboolHatButton`) is mapped to | `WinTrek/trekinput.cpp` |
 | ICQ chat relay (`icqmapi.dll`, proprietary ICQ API, header not in the release, service gone) | Handler for `FM_S_ICQ_CHAT_ACK` made a no-op, which is what the original did when the DLL was missing. The hard-coded ICQ licence key is removed with it. | `WinTrek/WinTrek.cpp` |
 | ATL 3 implementation files (`atlimpl.cpp`, `statreg.cpp`) included into precompiled headers | Removed; current ATL is header-only plus `atls.lib` | `FedSrv/pch.cpp`, `AGC/pch.cpp` |
 | `<ZoneAuthDecrypt.h>` included but unused | Include removed | `FedSrv/pch.h` |
 | Library pieces removed in C++17 (`std::bind1st`, `std::binary_function`) | `_HAS_AUTO_PTR_ETC=1` restores them for now; they get replaced with lambdas and plain function objects in the Phase 5 library cleanup | `soundengine`, `AGC`, `test/TCLib` |
-| More default-int forms: `static IsXValid(...)`, `const c_numGrooveLevels = 3;` | Explicit `bool` / `int` | `Zone/Member.h`, `Zone/Squad.h`, `WinTrek/WinTrek.h` |
+| More default-int forms: `static IsXValid(...)`, `const c_numGrooveLevels = 3;` | Explicit `bool` / `int` | `Zone/Member.h`, `Zone/Squad.h` (both deleted with the Zone code), `WinTrek/WinTrek.h` |
 | `<assert.h>` pulled in by current CRT/ATL headers trips zlib's "own assert only" guard; the guard's `Don't` was also lexed as an unterminated character literal | `#undef assert` before `zlib.h` in TCLib; message reworded | `test/TCLib/pch.h`, `zlib/zassert.h` |
 | qhull's `__STDC__` check: MSVC defines it only in standard C mode | `/std:c17` plus `/Zc:__STDC__` for qhull | `qhull/qhull.vcxproj` |
 | zlib's global `swap(Type&, Type&)` template made every `std::sort` over a global-namespace type ambiguous (current algorithms call `swap` unqualified) | Replaced with `using std::swap;`, which does the same thing | `zlib/zmath.h` |
 | `<typeinfo.h>` (pre-standard header) removed from the CRT | `<typeinfo>` | `test/`, `FedSrv/AdminUtil.h` |
-| More typeless declarations (`static c = 0;`, `const cbData = ...;`) | Explicit `int` | `WinTrek/CharInfoScreen.cpp`, `WinTrek/ZoneSquad.cpp`, `AGC/AGCOrientation.cpp` |
+| More typeless declarations (`static c = 0;`, `const cbData = ...;`) | Explicit `int` | `WinTrek/CharInfoScreen.cpp`, `WinTrek/ZoneSquad.cpp` (both deleted with the Club screens), `AGC/AGCOrientation.cpp` |
 | Member-function pointers the scanner could not attribute (inherited member, or taken through another object) | `&TeamPane::OnButtonSize`, `&ConsoleDataImpl::OnBackButton` | `WinTrek/teampane.cpp`, `WinTrek/console.cpp` |
-| `new TEvent<ZString>>::Delegate(this)`: a stray `>` that VC6 accepted | `TEvent<ZString>::Delegate` | `WinTrek/leaderboardscreen.cpp` |
+| `new TEvent<ZString>>::Delegate(this)`: a stray `>` that VC6 accepted | `TEvent<ZString>::Delegate` | `WinTrek/leaderboardscreen.cpp` (deleted with the Club screens) |
 | zlib's `class IEventTarget` clashes with the DOM interface of the same name in the SDK's `mshtml.h`, which ATL's control/host headers pull in | Renamed to `IZEventTarget` (6 uses in 2 files) | `zlib/event.h`, `WinTrek/chatpane.cpp` |
 | Dependent type names without `typename` in the connection-point macros (two-phase lookup) | `typedef typename ...` | `test/TCAtl/EventsCP.h`, `test/TCAtl/DualEventsCP.h` |
 | `std::vector::begin()` used as a raw pointer (VC6's iterator was one) | `.data()` | `test/TCLib` |

@@ -198,7 +198,6 @@ class  WinTrekClient :
 */
         virtual HRESULT   ConnectToServer(BaseClient::ConnectInfo & ci, DWORD dwCookie, Time now, const char* szPassword, bool bStandalonePrivate);
         virtual HRESULT   ConnectToLobby(BaseClient::ConnectInfo * pci); // pci is NULL if relogging in
-        virtual HRESULT   ConnectToClub(BaseClient::ConnectInfo * pci);
 
         virtual void      JoinMission(MissionInfo * pMission, const char* szMissionPassword);
         virtual void      CreateMissionReq();
@@ -210,7 +209,6 @@ class  WinTrekClient :
 #endif
         virtual void      OnLogonAck(bool fValidated, bool bRetry, LPCSTR szFailureReason);
         virtual void      OnLogonLobbyAck(bool fValidated, bool bRetry, LPCSTR szFailureReason);
-        virtual void      OnLogonClubAck(bool fValidated, bool bRetry, LPCSTR szFailureReason);
         virtual HRESULT   OnSessionLost(char * szReason, FedMessaging * pthis);
         void              FlushSessionLostMessage();
         virtual void      Disconnect();
@@ -233,8 +231,6 @@ class  WinTrekClient :
 
         virtual const char* GetArtPath()  { return GetModeler()->GetArtPath(); }
 
-        const char*       GetNameLogonClubServer() { return m_szClubCharName; };
-        const char*       GetNameLogonZoneServer() { return m_szLobbyCharName; };
 
         IObject*          LoadRadarIcon(const char* szName);
 
@@ -252,9 +248,6 @@ class  WinTrekClient :
         TRef<ISoundInstance>  StartSound(SoundID soundId, ISoundPositionSource* psource = NULL)
             { return GetWindow()->StartSound(soundId, psource); };
 
-        void              ForwardSquadMessage(FEDMESSAGE* pSquadMessage); // forward message to squads screen
-        void              ForwardCharInfoMessage(FEDMESSAGE* pCharInfoMessage); // forward message to character info screen
-        void              ForwardLeaderBoardMessage(FEDMESSAGE* pCharInfoMessage); // forward message to character info screen
         SideID            GetLastWinner() { return m_sideidLastWinner; };
         bool              GetWonLastGame() { return m_bWonLastGame; };
         bool              GetLostLastGame() { return m_bLostLastGame; };

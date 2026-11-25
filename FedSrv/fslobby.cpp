@@ -64,8 +64,7 @@ HRESULT FedSrvLobbySite::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxn
 
     case FM_L_TOKEN:
     {
-      CASTPFM(pfmToken, L, TOKEN, pfm);
-      Strcpy(g.m_szToken, FM_VAR_REF(pfmToken, Token));
+      // The lobby's Zone subscription token; only Zone ticket checks used it
     }
     break;
     

@@ -37,5 +37,4 @@
 #include "guids.h"
 #include "zlib.h"
 #include "utility.h"
-#include "zauth.h"
 #endif

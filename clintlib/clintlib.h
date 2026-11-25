@@ -93,8 +93,6 @@ public:
     virtual void OnLostConnection(const char * szReason) = 0;
     virtual void OnEnterModalState() = 0;
     virtual void OnLeaveModalState() = 0;
-    virtual void OnLogonClub() = 0;
-    virtual void OnLogonClubFailed(bool bRetry, const char * szReason) = 0;
     virtual void OnLogonLobby() = 0;
     virtual void OnLogonLobbyFailed(bool bRetry, const char * szReason) = 0;
     virtual void OnLogonGameServer() = 0;
@@ -163,8 +161,6 @@ public:
     virtual void OnLostConnection(const char * szReason) {};
     virtual void OnEnterModalState() {};
     virtual void OnLeaveModalState() {};
-    virtual void OnLogonClub() {};
-    virtual void OnLogonClubFailed(bool bRetry, const char * szReason) {};
     virtual void OnLogonLobby() {};
     virtual void OnLogonLobbyFailed(bool bRetry, const char * szReason) {};
     virtual void OnLogonGameServer() {};
@@ -569,24 +565,14 @@ class CfgInfo
 public:
   void Load(const char * szConfig);
 
-  ZString strClubLobby;
   ZString strPublicLobby;
-  ZString strClub;
-  ZString strZAuth;
-  ZString strClubMessageURL;
   ZString strPublicMessageURL;
-  ZString strZoneEventsURL;
-  ZString strZoneEventDetailsURL;
   ZString strTrainingURL;
-  ZString strPassportUpdateURL;
-  GUID    guidZoneAuth;
   int     crcFileList;
   int     nFilelistSize;
   ZString strFilelistSite;
   ZString strFilelistDirectory;
-  int     crcClubMessageFile;
   int     crcPublicMessageFile;
-  bool    bUsePassport;
 };
 
 struct LANServerInfo : public IObject
@@ -658,9 +644,7 @@ public: //todo: make protected
     struct ConnectInfo // everything we need to connect and log on to the server
     {
     public:
-      ConnectInfo() :
-        pZoneTicket(NULL),
-        cbZoneTicket(0)
+      ConnectInfo()
       {
         ZeroMemory(&ftLastArtUpdate, sizeof(ftLastArtUpdate));
         ZeroMemory(szName, sizeof(szName));
@@ -668,21 +652,16 @@ public: //todo: make protected
       FILETIME  ftLastArtUpdate;
       ZString   strServer;
       char      szName  [c_cbName];
-      LPBYTE    pZoneTicket;
-      CB        cbZoneTicket;
       GUID      guidSession;
     };
     
     bool                m_fLoggedOn   : 1;
-    bool                m_fZoneClub   : 1;
     bool                m_fIsLobbied  : 1;
     bool                m_fLoggedOnToLobby   : 1;
-    bool                m_fLoggedOnToClub    : 1; 
     bool                m_serverOffsetValidF : 1;
     bool                m_terminatedF        : 1;
     FedMessaging        m_fm;
     FedMessaging        m_fmLobby;
-    FedMessaging        m_fmClub;
     ConnectInfo         m_ci; // we're just going to remember this from when they log into the lobby, and reuse it when they log into the game server
     DWORD               m_serverLag;
     DWORD               m_serverOffset;
@@ -697,10 +676,8 @@ public: //todo: make protected
     Cookie              m_cookie;
     MessageType         m_messageType;
     char                m_szCharName[c_cbName]; 
-    char                m_szClubCharName[c_cbName]; // name specified when logging into Club server
     char                m_szLobbyCharName[c_cbName];// name specified when logging into Lobby server
     char                m_szIGCStaticFile[30];
-    int                 m_nMemberID; // For Zone Club server
 
     // igc
     ImissionIGC*        m_pCoreIGC;
@@ -745,10 +722,6 @@ public: //todo: make protected
 
     IAutoDownload *                 m_pAutoDownload;
 
-#ifdef USEAUTH
-    TRef<IZoneAuthClient>           m_pzac;
-#endif
-
     TList<TRef<LANServerInfo> >*    m_plistFindServerResults;
 
 public:
@@ -784,7 +757,6 @@ public:
     // messaging
     virtual HRESULT     ConnectToLobby(ConnectInfo * pci); // pci is NULL if relogging in
     virtual HRESULT     ConnectToServer(ConnectInfo & ci, DWORD dwCookie, Time now, const char* szPassword, bool bStandalonePrivate);
-    virtual HRESULT     ConnectToClub(ConnectInfo * pci);
     virtual void        FindStandaloneServersByName(const char* szName, TList<TRef<LANServerInfo> >& listResults);
     bool                LoggedOn()                  
     {
@@ -793,10 +765,6 @@ public:
     bool                LoggedOnToLobby()                  
     {
       return m_fLoggedOnToLobby; 
-    }
-    bool                LoggedOnToClub()                  
-    {
-      return m_fLoggedOnToClub; 
     }
     virtual void      OverrideCamera(ImodelIGC*    pmodel) {}
     const ZString&      GetCDKey()
@@ -807,10 +775,8 @@ public:
 
     virtual void        OnLogonAck(bool fValidated, bool bRetry, LPCSTR szFailureReason) = 0;
     virtual void        OnLogonLobbyAck(bool fValidated, bool bRetry, LPCSTR szFailureReason) = 0;
-    virtual void        OnLogonClubAck(bool fValidated, bool bRetry, LPCSTR szFailureReason) {};
     virtual void        Disconnect();
     virtual void        DisconnectLobby();
-    virtual void        DisconnectClub();
     void                SetCookie(Cookie cookie)    
     {
       m_cookie = cookie;
@@ -825,22 +791,10 @@ public:
     {
       m_fmLobby.SendMessages(m_fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
     }
-    void                SendClubMessages()
-    {
-      m_fmClub.SendMessages(m_fmClub.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
-    }
     virtual HRESULT     ReceiveMessages(void);
     virtual HRESULT     OnSessionLost(char * szReason, FedMessaging * pthis);
     virtual void        OnSessionFound(FedMessaging * pthis, FMSessionDesc * pSessionDesc);
     virtual HRESULT     HandleMsg(FEDMESSAGE* pfm, Time lastUpdate, Time now);
-    bool                GetIsZoneClub()
-    {
-      return m_fZoneClub;
-    }
-    void                SetIsZoneClub(bool fzc)
-    {
-      m_fZoneClub = fzc;
-    }
     bool                GetIsLobbied()
     {
       return m_fIsLobbied;
@@ -849,21 +803,6 @@ public:
     {
       m_fIsLobbied = fzc;
     }
-#ifdef USEAUTH
-    TRef<IZoneAuthClient> GetZoneAuthClient()
-    {
-      return m_pzac;
-    }
-    TRef<IZoneAuthClient> CreateZoneAuthClient()
-    {
-      m_pzac = ::CreateZoneAuthClient();
-      return m_pzac;
-    }
-    void                FreeZoneAuthClient()
-    {
-      m_pzac = NULL;
-    }
-#endif    
     //HRESULT     HandleShipUpdate(Time timeUpdate, const LightShipUpdate& shipupdate);
     //HRESULT     HandleShipUpdate(Time timeUpdate, const HeavyShipUpdate& shipupdate);
 
@@ -1699,10 +1638,6 @@ public:
         }
     }
 
-    virtual void ForwardSquadMessage(FEDMESSAGE* pSquadMessage) {} // forward message to squads screen
-    virtual void ForwardCharInfoMessage(FEDMESSAGE* pCharInfoMessage) {} // forward message to character info screen
-    virtual void ForwardLeaderBoardMessage(FEDMESSAGE* pLeaderBoardMessage) {} // forward message to leader board screen
-
     virtual void OnReload(IpartIGC* ppart, bool bConsumed) {};
     virtual void OnQuitSide();
     virtual void OnJoinSide();
@@ -1712,9 +1647,6 @@ public:
     virtual void AddPlayerToSide(PlayerInfo* pPlayerInfo, SideID sideID);
     virtual void RemovePlayerFromMission(PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam = NULL);
     virtual void RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam = NULL);
-
-    void         SetZoneClubID(int nMemberID) { m_nMemberID = nMemberID; }
-    int          GetZoneClubID() { return m_nMemberID; }
 
     IshipIGC*   GetLastSender(void) const
     {

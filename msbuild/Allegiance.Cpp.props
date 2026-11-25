@@ -31,7 +31,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;WINVER=0x0A00;_WIN32_WINNT=0x0A00;DIRECTINPUT_VERSION=0x0800;_HAS_AUTO_PTR_ETC=1;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- Same order as the original makefile.inc: project-local dirs (added by
            each project) first, then the shared ones. -->
-      <AdditionalIncludeDirectories>$(AllegianceRoot)Inc;$(AllegianceRoot)zlib;$(AllegianceRoot)guids;$(AllegianceRoot)Zone;$(AllegianceRoot)compat\dplay;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Inc;$(AllegianceRoot)zlib;$(AllegianceRoot)guids;$(AllegianceRoot)compat\dplay;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

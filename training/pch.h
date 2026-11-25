@@ -51,8 +51,6 @@
 #include "engine.h"
 #include "effect.h"
 #include "utility.h"
-#include "Zone.h"
-#include "zauth.h"
 #include "igc.h"
 
 #include "trekinput.h"

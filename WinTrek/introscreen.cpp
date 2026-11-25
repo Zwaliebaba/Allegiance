@@ -23,9 +23,6 @@ private:
 
     TRef<ButtonPane>    m_pbuttonPlayLan;
     TRef<ButtonPane>    m_pbuttonPlayInt;
-#ifdef USEAUTH
-    TRef<ButtonPane>    m_pbuttonZoneClub;
-#endif
     //TRef<ButtonPane> m_pbuttonTraining;
     TRef<ButtonPane>    m_pbuttonTrainingBig;
     TRef<ButtonPane>    m_pbuttonZoneWeb;
@@ -46,9 +43,6 @@ private:
         hoverNone,
         hoverPlayLan,
         hoverPlayInt,
-#ifdef USEAUTH
-        hoverZoneClub,
-#endif        
         hoverTrain,
         hoverZoneWeb,
         hoverOptions,
@@ -508,16 +502,11 @@ public:
     IntroScreen(Modeler* pmodeler) :
         m_pmodeler(pmodeler)
     {
-        
-        trekClient.DisconnectClub();
 
         TRef<INameSpace> pnsIntroScreen = m_pmodeler->CreateNameSpace("introscreendata", m_pmodeler->GetNameSpace("gamepanes"));
         pnsIntroScreen->AddMember("hoverNone",       new Number(hoverNone        ));
         pnsIntroScreen->AddMember("hoverPlayLan",    new Number(hoverPlayLan        ));
         pnsIntroScreen->AddMember("hoverPlayInt",    new Number(hoverPlayInt)    );
-#ifdef USEAUTH
-        pnsIntroScreen->AddMember("hoverZoneClub",   new Number(hoverZoneClub    ));
-#endif
         pnsIntroScreen->AddMember("hoverZoneWeb",    new Number(hoverZoneWeb        ));
         pnsIntroScreen->AddMember("hoverTrain",      new Number(hoverTrain        ));
         pnsIntroScreen->AddMember("hoverOptions",    new Number(hoverOptions      ));
@@ -533,9 +522,6 @@ public:
         CastTo(m_ppane, pns->FindMember("screen"));
         CastTo(m_pbuttonPlayLan,    pns->FindMember("playLanButtonPane"));
         CastTo(m_pbuttonPlayInt,    pns->FindMember("playIntButtonPane"));
-#ifdef USEAUTH
-        CastTo(m_pbuttonZoneClub,   pns->FindMember("zoneClubButtonPane" ));
-#endif
         //CastTo(m_pbuttonTraining,   pns->FindMember("trainButtonPane"));
         CastTo(m_pbuttonTrainingBig,pns->FindMember("trainBigButtonPane"));
         CastTo(m_pbuttonZoneWeb,    pns->FindMember("zoneWebButtonPane" ));
@@ -552,9 +538,6 @@ public:
         AddEventTarget(&IntroScreen::OnButtonTraining,    m_pbuttonTrainingBig->GetEventSource());
         AddEventTarget(&IntroScreen::OnButtonExit,        m_pbuttonExit->GetEventSource());
         AddEventTarget(&IntroScreen::OnButtonHelp,        m_pbuttonHelp->GetEventSource());
-#ifdef USEAUTH
-        AddEventTarget(&IntroScreen::OnButtonZoneClub,    m_pbuttonZoneClub->GetEventSource());
-#endif
         AddEventTarget(&IntroScreen::OnButtonInternet,    m_pbuttonPlayInt->GetEventSource());
         AddEventTarget(&IntroScreen::OnButtonLAN,         m_pbuttonPlayLan->GetEventSource());
         AddEventTarget(&IntroScreen::OnButtonZoneWeb,     m_pbuttonZoneWeb->GetEventSource());
@@ -565,9 +548,6 @@ public:
 
         AddEventTarget(&IntroScreen::OnHoverPlayLan,      m_pbuttonPlayLan->GetMouseEnterEventSource());
         AddEventTarget(&IntroScreen::OnHoverPlayInt,      m_pbuttonPlayInt->GetMouseEnterEventSource());
-#ifdef USEAUTH
-        AddEventTarget(&IntroScreen::OnHoverZoneClub,     m_pbuttonZoneClub->GetMouseEnterEventSource());
-#endif
         //AddEventTarget(OnHoverTrain,        m_pbuttonTraining->GetMouseEnterEventSource());
         AddEventTarget(&IntroScreen::OnHoverTrain,        m_pbuttonTrainingBig->GetMouseEnterEventSource());
         AddEventTarget(&IntroScreen::OnHoverZoneWeb,      m_pbuttonZoneWeb->GetMouseEnterEventSource());
@@ -580,9 +560,6 @@ public:
 
         AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonPlayLan->GetMouseLeaveEventSource());
         AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonPlayInt->GetMouseLeaveEventSource());
-#ifdef USEAUTH
-        AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonZoneClub->GetMouseLeaveEventSource());
-#endif
         //AddEventTarget(OnHoverNone,     m_pbuttonTraining->GetMouseLeaveEventSource());
         AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonTrainingBig->GetMouseLeaveEventSource());
         AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonZoneWeb->GetMouseLeaveEventSource());
@@ -660,7 +637,7 @@ public:
 
     bool OnQuickstart()
     {
-        OnButtonZoneClub();
+        OnButtonInternet();
         return false;
     }
 
@@ -679,8 +656,8 @@ public:
         // pop up the call sign/login dialog
         //
 
-        TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this, LogonLAN, 
-            "Enter a call sign to use for this game.", trekClient.GetSavedCharacterName(), "", false);
+        TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this,
+            "Enter a call sign to use for this game.", trekClient.GetSavedCharacterName());
         GetWindow()->GetPopupContainer()->OpenPopup(plogonPopup, false);
 
         return true;
@@ -692,7 +669,6 @@ public:
         {
             // go train, because we have all the training files installed
             trekClient.SetIsLobbied(false);
-            trekClient.SetIsZoneClub(false);
             GetWindow()->screen(ScreenIDTrainScreen);
         }
         else
@@ -775,7 +751,7 @@ public:
         return true;
     }
 
-    void OnLogon(const ZString& strName, const ZString& strPassword, BOOL fRememberPW)
+    void OnLogon(const ZString& strName)
     {
         // remember the character name for next time
         trekClient.SaveCharacterName(strName);
@@ -794,7 +770,6 @@ public:
     bool OnTryLogon()
     {
         trekClient.SetIsLobbied(false);
-        trekClient.SetIsZoneClub(false);
 
         BaseClient::ConnectInfo ci;
         ci.guidSession = m_guidSession;
@@ -820,8 +795,8 @@ public:
         if (bRetry)
         {
             // pop up the call sign/login dialog
-            TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this, LogonLAN, 
-                szReason, trekClient.GetSavedCharacterName(), "", false);
+            TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this,
+                szReason, trekClient.GetSavedCharacterName());
             GetWindow()->GetPopupContainer()->OpenPopup(plogonPopup, false);
         }
         else
@@ -951,22 +926,11 @@ public:
         return true;
     }
 
-    bool OnButtonZoneClub()
-    {
-        if (CheckNetworkDrivers())
-        {
-            trekClient.SetIsZoneClub(true);
-            GetWindow()->screen(ScreenIDZoneClubScreen);
-        }
-        return true;
-    }
-
     bool OnButtonInternet()
     {
         if (CheckNetworkDrivers())
         {
-            trekClient.SetIsZoneClub(false);
-            GetWindow()->screen(ScreenIDZoneClubScreen);
+            GetWindow()->screen(ScreenIDLobbyScreen);
         }
         return true;
     }
@@ -1017,14 +981,6 @@ public:
         m_pnumberCurrentHover->SetValue(hoverPlayInt);
         return true;
     }
-
-#ifdef USEAUTH
-    bool OnHoverZoneClub()
-    {
-        m_pnumberCurrentHover->SetValue(hoverZoneClub);
-        return true;
-    }
-#endif
 
     bool OnHoverTrain()
     {

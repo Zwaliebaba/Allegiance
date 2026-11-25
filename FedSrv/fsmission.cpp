@@ -112,10 +112,8 @@ CFSMission::CFSMission(
   // keep track of whether this is a lobbied and/or club game
   m_misdef.misparms.bLobbiedGame = g.fmLobby.IsConnected();
 #if !defined(ALLSRV_STANDALONE)
-  m_misdef.misparms.bClubGame = true;
   strcpy(m_misdef.misparms.szIGCStaticFile, IGC_ENCRYPT_CORE_FILENAME);
 #else // !defined(ALLSRV_STANDALONE)
-  m_misdef.misparms.bClubGame = false;
   strcpy(m_misdef.misparms.szIGCStaticFile, IGC_STATIC_CORE_FILENAME);
   // hardcode this cap in one more place to make it harder to work around.
   m_misdef.misparms.nTotalMaxPlayersPerGame = min(c_cMaxPlayersPerGame, misparms.nTotalMaxPlayersPerGame);
@@ -462,18 +460,9 @@ void CFSMission::RemovePlayerFromMission(CFSPlayer * pfsPlayer, QuitSideReason r
     g.fmLobby.SendMessages(g.fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
   }
 
-  if (!HasPlayers(NULL, true)          && // no one left in the mission
-      !m_misdef.misparms.bAllowEmptyTeams && // game doesn't allow empty sides
-      m_misdef.misparms.bClubGame && // not a standalone server
-      (IMPLIES( GetMissionDef()->misparms.bObjectModelCreated, GetStage() != STAGE_NOTSTARTED )) // not an admin created game that has started
-     )
-  {
-    m_bShouldDelete = true;
-  }
-  else
-  {
-    SetLobbyIsDirty();
-  }
+  // Zone club servers deleted a mission once its last player left; a
+  // standalone server keeps it (bClubGame, now removed, was always false here).
+  SetLobbyIsDirty();
 }
 
 
@@ -1600,13 +1589,6 @@ void CFSMission::SetMissionParams(const MissionParams & misparmsNew)
   // don't even think about changing the IGC static stuff.
   misparms.verIGCcore = m_misdef.misparms.verIGCcore;
   strncpy(misparms.szIGCStaticFile, m_misdef.misparms.szIGCStaticFile, c_cbFileName);
-
-  // make sure it's properly marked as a club or non-club game too.
-  #if !defined(ALLSRV_STANDALONE)
-    misparms.bClubGame = true;
-  #else // !defined(ALLSRV_STANDALONE)
-    misparms.bClubGame = false;
-  #endif // !defined(ALLSRV_STANDALONE)
 
   int numTeamsOld = m_misdef.misparms.nTeams;
 

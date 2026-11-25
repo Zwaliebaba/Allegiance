@@ -13,16 +13,11 @@
 #include "zlib.h"
 #include "utility.h"
 #include "igc.h"
-#include "Zone.h"
 #include "messagesAll.h"
 #include "messages.h"
 #include "messagesLC.h"
-#include "..\Club\ClubMessages.h"
 #include "AutoDownload.h"
 
-#ifdef USEAUTH
-#include "zauth.h"
-#endif
 #include "clintlib.h"
 
 #include "engine.h"

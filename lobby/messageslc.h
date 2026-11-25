@@ -12,7 +12,7 @@
 #define _MESSAGES_LC_H_ 
 
 #include "MessageCore.h"
-#define LOBBYVER 8
+#define LOBBYVER 9 // 9: Zone ticket removed from LOGON_LOBBY
 
  /*
   *************************************************
@@ -93,12 +93,12 @@ END_FEDMSG
 //
 // If LOGON_LOBBY ever changes, existing clients will not be able to AutoUpdate to this lobby's version.
 // unless we pull another LOGON_LOBBY_OLD trick.  
+// LOBBYVER 9 changed it without one (see MODERNIZATION.md, Phase 2): no 2004-protocol lobby is left.
 //
 
 #define CL_LOGON_KEY ("%x:%s: Corrupt artwork file ") // just to confuse a hacker
 
-DEFINE_FEDMSG(C, LOGON_LOBBY, 265) // if the lobby is in club mode, everyone has to have a valid ticket, otherwise the ticket is ignored
-  FM_VAR_ITEM(ZoneTicket);    // Encrypted
+DEFINE_FEDMSG(C, LOGON_LOBBY, 265)
   FM_VAR_ITEM(CDKey);         // Scrambled with the key CL_LOGON_KEY, dwTime, CharacterName
   short verLobby;    
   int   crcFileList; 

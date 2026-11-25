@@ -1066,7 +1066,6 @@ struct MissionParams
     bool        bAllowFriendlyFire  : 1;                //Allow friends to damage friends
     bool        bObjectModelCreated : 1;                //Was this game created by admin tools or the server app?
     bool        bLobbiedGame        : 1;                //Is this game listed in an internet lobby?
-    bool        bClubGame           : 1;                //Is this game on the zone club?
     bool        bAutoStart          : 1;                //Does the game start automatically when all sides are ready?
     bool        bAutoRestart        : 1;                //Does the game restart automatically
     bool        bAllowRestart       : 1;                //Can the game be restarted at all?
@@ -1177,7 +1176,6 @@ struct MissionParams
         bShowHomeSector                 = false;
         bObjectModelCreated             = false;
         bLobbiedGame                    = false;
-        bClubGame                       = false;
         bAutoStart                      = false;
         bAutoRestart                    = false;
         bAllowRestart                   = true;
@@ -1264,7 +1262,7 @@ struct MissionParams
             {
                 return "You must choose one or more winning conditions.";
             }
-            else if (bAutoRestart || (bObjectModelCreated && bClubGame) || bAllowEmptyTeams)
+            else if (bAutoRestart || bAllowEmptyTeams)
             {
                 return "HACK: one or more admin-only flags are set.";
             }

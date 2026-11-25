@@ -36,10 +36,6 @@ DEFINE_GUID(FEDLOBBYCLIENTS_GUID, 0xf3e93155, 0x7c62, 0x48be, 0x8c, 0xb5, 0xb2, 
 // {F5BFFE91-B1C9-4eed-A53E-0AAD8FB526A2}
 DEFINE_GUID(FEDFREELOBBYCLIENTS_GUID, 0xf5bffe91, 0xb1c9, 0x4eed, 0xa5, 0x3e, 0xa, 0xad, 0x8f, 0xb5, 0x26, 0xa2);
 
-// FEDCLUB_GUID. The guid of the dplay session application of the lobby that the clients connect to
-// {357C7F39-ECB6-4038-A27E-DB272A336315}
-DEFINE_GUID(FEDCLUB_GUID, 0x357c7f39, 0xecb6, 0x4038, 0xa2, 0x7e, 0xdb, 0x27, 0x2a, 0x33, 0x63, 0x15);
-
 // FS_DPLAY_LOBBY_GUID. currently defunct. Used with dplay lobby, which we don't support anymore
 // **NOT** the guid for the lobby app!!
 // {8AF97637-62F4-11d2-8801-0000F803A4CD}

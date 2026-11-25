@@ -61,7 +61,6 @@ private:
     TRef<ModifiableNumber> m_pnumberCanChooseMaxPlayers;
     TRef<ModifiableNumber> m_pnumberIsCustomMap;
 
-    bool                 m_bIsZoneClub;
     bool                 m_bLockGameOpen;
     bool                 m_bIgnoreGameTypeComboChanges;
     bool                 m_fQuitting;
@@ -164,7 +163,6 @@ private:
         m_pcomboFlagCount      ->SetSelection(FindClosestValue(missionparams.nGoalFlagsCount, "FlagCountValues"));
         m_pcomboConquestBases  ->SetSelection(FindClosestValue(missionparams.iGoalConquestPercentage, "ConquestPercentValues"));
         m_pcomboTerritory      ->SetSelection(FindClosestValue(missionparams.iGoalTerritoryPercentage, "TerritoryValues"));
-        m_bIsZoneClub = missionparams.bClubGame;
         m_bLockGameOpen = missionparams.bLockGameOpen;
     }
 
@@ -666,14 +664,11 @@ public:
 
     bool OnTeamCountChange(int max)
     {
-        if (!m_bIsZoneClub)
-        {
-            m_ptextMaxPlayers->SetString(
-                ZString(GetBaseMissionParams().nMinPlayersPerTeam) + " - " 
-                    + ZString(GetBaseMissionParams().nTotalMaxPlayersPerGame 
-                        / (int)FindValue(m_pcomboTeamCount->GetSelection(), "TeamCountValues"))
-                );
-        }
+        m_ptextMaxPlayers->SetString(
+            ZString(GetBaseMissionParams().nMinPlayersPerTeam) + " - " 
+                + ZString(GetBaseMissionParams().nTotalMaxPlayersPerGame 
+                    / (int)FindValue(m_pcomboTeamCount->GetSelection(), "TeamCountValues"))
+            );
         return true;
     }
 
@@ -774,16 +769,8 @@ public:
 
         misparams.nTeams = FindValue(m_pcomboTeamCount->GetSelection(), "TeamCountValues");
         
-        if (m_bIsZoneClub)
-        {
-            misparams.nMinPlayersPerTeam = FindValue(m_pcomboMaxPlayers->GetSelection(), "MinPlayersValues");
-            misparams.nMaxPlayersPerTeam = FindValue(m_pcomboMaxPlayers->GetSelection(), "MaxPlayersValues");
-        }
-        else
-        {
-            misparams.nMinPlayersPerTeam = 1;
-            misparams.nMaxPlayersPerTeam = misparams.nTotalMaxPlayersPerGame / misparams.nTeams;
-        }
+        misparams.nMinPlayersPerTeam = 1;
+        misparams.nMaxPlayersPerTeam = misparams.nTotalMaxPlayersPerGame / misparams.nTeams;
 
         misparams.iMaxImbalance = FindValue(m_pcomboMaxImbalance->GetSelection(), "MaxImbalanceValues");
         misparams.iMinRank = FindValue(m_pcomboSkillLevel->GetSelection(), "GameSkillLevelMin");
@@ -884,7 +871,6 @@ public:
     bool CanEdit()
     {
         return trekClient.GetPlayerInfo()->IsMissionOwner() 
-            && !(trekClient.MyMission()->WasObjectModelCreated() && m_bIsZoneClub)
             && trekClient.MyMission()->GetStage() == STAGE_NOTSTARTED;
     }
 
@@ -892,18 +878,23 @@ public:
     {
         bool bEnable = CanEdit();
 
-        m_pnumberCanChooseMaxPlayers->SetValue((m_bIsZoneClub && bEnable) ? 1.0f : 0.0f);
+        //
+        // These were only editable on Zone club games: max players, the
+        // password, stats counting and squad games.
+        //
+
+        m_pnumberCanChooseMaxPlayers->SetValue(0.0f);
 
         m_peditPaneGameName->SetReadOnly(!bEnable);
-        m_peditPaneGamePassword->SetReadOnly(!bEnable || !m_bIsZoneClub);
-        m_peditPaneGamePassword->SetType((bEnable && m_bIsZoneClub) ? EditPane::Normal : EditPane::Password);
+        m_peditPaneGamePassword->SetReadOnly(true);
+        m_peditPaneGamePassword->SetType(EditPane::Password);
         
         m_pbuttonEjectPods->SetEnabled(bEnable);
         m_pbuttonFriendlyFire->SetEnabled(bEnable);
-        m_pbuttonStatsCount->SetEnabled(bEnable && m_bIsZoneClub);
+        m_pbuttonStatsCount->SetEnabled(false);
         m_pbuttonDefections->SetEnabled(bEnable);
         m_pbuttonJoiners->SetEnabled(bEnable);
-        m_pbuttonSquadGame->SetEnabled(bEnable && m_bIsZoneClub);
+        m_pbuttonSquadGame->SetEnabled(false);
         m_pbuttonInvulnerableStations->SetEnabled(bEnable);
         m_pbuttonDevelopment->SetEnabled(bEnable);
         m_pbuttonAllowShipyards->SetEnabled(bEnable);

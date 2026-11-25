@@ -637,9 +637,8 @@ public:
             TList<TRef<LANServerInfo> >::Iterator iterNew(listResults);
             if (iterNew.Value ()->strGameName == TRAINING_MISSION_7_GAME_NAME)
             {
-                // set ourselves to not be in the lobby or the zone
+                // set ourselves to not be in the lobby
                 trekClient.SetIsLobbied(false);
-                trekClient.SetIsZoneClub(false);
 
                 // set up the connection info
                 BaseClient::ConnectInfo     ci;

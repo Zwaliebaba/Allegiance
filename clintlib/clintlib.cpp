@@ -258,16 +258,6 @@ public:
         ForEachSink( OnLeaveModalState() )
     }
 
-    void OnLogonClub() 
-    {
-        ForEachSink( OnLogonClub() )
-    }
-
-    void OnLogonClubFailed(bool bRetry, const char * szReason) 
-    {
-        ForEachSink( OnLogonClubFailed(bRetry, szReason) )
-    }
-
     void OnLogonLobby() 
     {
         ForEachSink( OnLogonLobby() )
@@ -515,16 +505,6 @@ public:
     void OnLeaveModalState()
     {
         m_psink->OnLeaveModalState();
-    }
-
-    void OnLogonClub() 
-    {
-        m_psink->OnLogonClub();
-    }
-
-    void OnLogonClubFailed(bool bRetry, const char * szReason) 
-    {
-        m_psink->OnLogonClubFailed(bRetry, szReason);
     }
 
     void OnLogonLobby() 
@@ -1046,10 +1026,8 @@ BaseClient::BaseClient(void)
     m_pMissionInfo(NULL),
     m_fLoggedOn(false),
     m_fLoggedOnToLobby(false),
-    m_fLoggedOnToClub(false),
     m_fm(this),
     m_fmLobby(this),
-    m_fmClub(this),
     m_ship(NULL),
     m_pshipLastSender(NULL),
     m_moneyLastRequest(0),
@@ -1057,7 +1035,6 @@ BaseClient::BaseClient(void)
     m_viewCluster(NULL),
     m_cUnansweredPings(0),
     m_pAutoDownload(NULL),
-    m_fZoneClub(false),
     m_fIsLobbied(false),
     m_dwCookieToJoin(NA),    
     m_bInGame(false),
@@ -1076,7 +1053,6 @@ BaseClient::BaseClient(void)
     m_plistMissions = new ListDelegate(&m_mapMissions);
     m_pClientEventSource = new ClientEventSource();
     m_szCharName[0] = '\0';
-    m_szClubCharName[0] = '\0';
     m_szLobbyCharName[0] = '\0';
     m_szIGCStaticFile[0] = '\0';
     m_pMissionInfo = NULL;
@@ -1084,9 +1060,6 @@ BaseClient::BaseClient(void)
 
 BaseClient::~BaseClient(void)
 {
-#ifdef USEAUTH
-    FreeZoneAuthClient();
-#endif
     CoUninitialize();
     TMapListWrapper<DWORD, MissionInfo*>::Iterator iterMissions(m_mapMissions);
 
@@ -1098,10 +1071,6 @@ BaseClient::~BaseClient(void)
 
     if (m_pMissionInfo)
         delete m_pMissionInfo;
-
-    if (m_ci.pZoneTicket)
-        HeapFree(GetProcessHeap(), 0, m_ci.pZoneTicket);
-
 
     m_fm.Shutdown();
 
@@ -1215,8 +1184,6 @@ HRESULT BaseClient::ConnectToServer(ConnectInfo & ci, DWORD dwCookie, Time now, 
     // we need to treat this as a reconnect and dump first connection...
     // we should see about reusing the connection
 
-    assert(IFF(ci.cbZoneTicket > 0, ci.pZoneTicket));
-
     Reinitialize(now);
     
     assert (!m_fm.IsConnected() && !m_fLoggedOn);
@@ -1246,13 +1213,11 @@ HRESULT BaseClient::ConnectToServer(ConnectInfo & ci, DWORD dwCookie, Time now, 
         SetMessageType(c_mtGuaranteed);
         BEGIN_PFM_CREATE(m_fm, pfmLogon, C, LOGONREQ)
             FM_VAR_PARM(ci.szName, CB_ZTS)
-            FM_VAR_PARM(ci.pZoneTicket, ci.cbZoneTicket)
             FM_VAR_PARM((PCC)m_strCDKey.Scramble(bStandalonePrivate ? "corrupt wave file" : ci.szName), CB_ZTS)
             FM_VAR_PARM(szPassword, CB_ZTS)
         END_PFM_CREATE
         pfmLogon->fedsrvVer = MSGVER;
         pfmLogon->dwCookie = dwCookie;
-        //pfmLogon->zgs = m_fm.GetEncryptedZoneTicket();
         pfmLogon->time = Time::Now ();
         debugf("Logging on to game server \"%s\"...\n",
           ci.strServer.IsEmpty() ? "" : (LPCSTR)ci.strServer);
@@ -1275,16 +1240,11 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
 
     if (pci)
     {
-        if (m_ci.pZoneTicket)
-          HeapFree(GetProcessHeap(), 0, m_ci.pZoneTicket);
-
         m_ci = *pci;
     }
 
     // but we always use config-specified lobby server. Is this too restrictive to derived clients?
-    m_ci.strServer = GetIsZoneClub() ? GetCfgInfo().strClubLobby : GetCfgInfo().strPublicLobby;
-
-    assert(IFF(m_ci.cbZoneTicket > 0, m_ci.pZoneTicket));
+    m_ci.strServer = GetCfgInfo().strPublicLobby;
     
     // TODO: Remove this when we are ready to enforce CD Keys
     if (m_strCDKey.IsEmpty())
@@ -1302,7 +1262,7 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
         iterMissions.Next();
     }
     m_mapMissions.SetEmpty();
-    hr = m_fmLobby.JoinSession(GetIsZoneClub() ? FEDLOBBYCLIENTS_GUID : FEDFREELOBBYCLIENTS_GUID, m_ci.strServer, m_ci.szName);
+    hr = m_fmLobby.JoinSession(FEDFREELOBBYCLIENTS_GUID, m_ci.strServer, m_ci.szName);
     assert(IFF(m_fmLobby.IsConnected(), SUCCEEDED(hr)));
     if (m_fmLobby.IsConnected())
     {
@@ -1313,7 +1273,6 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
 
         // Let's formally announce ourselves to the server
         BEGIN_PFM_CREATE(m_fmLobby, pfmLogon, C, LOGON_LOBBY)
-            FM_VAR_PARM(m_ci.pZoneTicket, m_ci.cbZoneTicket)
             FM_VAR_PARM(PCC(m_strCDKey.Scramble(szEncryptionKey)), CB_ZTS)
         END_PFM_CREATE
         pfmLogon->verLobby = LOBBYVER;
@@ -1328,52 +1287,6 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
         SendLobbyMessages();
     }
     retailf("$$MSRGuard:Set:UserName=%s\n", m_szLobbyCharName);
-    m_cUnansweredPings = 0;
-    m_serverOffsetValidF = false;
-    return hr;
-}
-
-
-HRESULT BaseClient::ConnectToClub(ConnectInfo * pci) // pci is NULL if relogging in
-{
-    HRESULT hr = S_OK;
-    
-    if (m_fmClub.IsConnected())
-        return S_OK;
-
-    // review:  in the event of retry logon after logon failure 
-    // we need to treat this as a reconnect and dump first connection...
-    // we should see about reusing the connection
-
-    if (pci)
-    {
-        if (m_ci.pZoneTicket)
-          HeapFree(GetProcessHeap(), 0, m_ci.pZoneTicket);
-
-        m_ci = *pci;
-    }
-    assert(IFF(m_ci.cbZoneTicket > 0, m_ci.pZoneTicket));
-    
-    if (m_fmClub.IsConnected())
-        return S_OK;
-
-    assert(m_fLoggedOnToClub == false);
-    
-    hr = m_fmClub.JoinSession(FEDCLUB_GUID, m_ci.strServer, m_ci.szName);
-    assert(IFF(m_fmClub.IsConnected(), SUCCEEDED(hr)));
-    if (m_fmClub.IsConnected())
-    {
-        // Let's formally announce ourselves to the server
-        BEGIN_PFM_CREATE(m_fmClub, pfmLogon, C, LOGON_CLUB)
-            FM_VAR_PARM(pci->szName, CB_ZTS)
-            FM_VAR_PARM(m_ci.pZoneTicket, m_ci.cbZoneTicket)
-        END_PFM_CREATE
-        pfmLogon->verClub = ALLCLUBVER;
-
-        debugf("Logging on to Club Server...\n");
-        lstrcpy(m_szClubCharName, pci->szName);
-        SendClubMessages();
-    }
     m_cUnansweredPings = 0;
     m_serverOffsetValidF = false;
     return hr;
@@ -1420,16 +1333,6 @@ void BaseClient::DisconnectLobby()
 
     if (m_fmLobby.IsConnected())
         m_fmLobby.Shutdown();
-}
-
-void BaseClient::DisconnectClub()
-{
-    m_fLoggedOnToClub = false;
-
-    if (m_fmClub.IsConnected())
-        m_fmClub.Shutdown();
-
-    m_szClubCharName[0] = '\0';
 }
 
 void BaseClient::Disconnect(void) 
@@ -1874,14 +1777,6 @@ HRESULT BaseClient::ReceiveMessages(void)
             hr = m_fmLobby.ReceiveMessages();
     }
 
-    if (m_fmClub.IsConnected())
-    {
-        if (FAILED(hr)) // preserve fail sign
-            m_fmClub.ReceiveMessages();
-        else
-            hr = m_fmClub.ReceiveMessages();
-    }
-
     return(hr);
 }
 
@@ -1893,8 +1788,6 @@ HRESULT BaseClient::OnSessionLost(char * szReason, FedMessaging * pthis)
 
     if (pthis == &m_fm)
         Disconnect();
-    else if (pthis == &m_fmClub)
-        DisconnectClub();
     else if (pthis == &m_fmLobby)
         DisconnectLobby();
     else
@@ -2429,9 +2322,13 @@ ZString BaseClient::LookupRankName(RankID rank, CivID civ)
     const char* szRankNameTemplate = "Unknown (%d)";
     int nClosestRank = -1;
 
-    if (m_cRankInfo <= 0 || !GetIsZoneClub())
+    //
+    // Rank names come from the server's rank info. The Zone Club server sent
+    // it; AllSrv32 does not, which leaves the name blank as before.
+    //
+
+    if (m_cRankInfo <= 0)
     {
-        assert(!m_fm.IsConnected() || !GetIsZoneClub());
         szRankNameTemplate = "";
     }
     else
@@ -3965,54 +3862,17 @@ void CfgInfo::Load(const char * szConfig)
     const char * c_szCfgApp = "Allegiance";
     char szStr[128]; // random number;
     
-    GetPrivateProfileString(c_szCfgApp, "ZAuth", "auth.zone.com", 
-                                  szStr, sizeof(szStr), szConfig);
-    strZAuth = szStr;
-
-    GetPrivateProfileString(c_szCfgApp, "ClubLobby", "", 
-                                   szStr, sizeof(szStr), szConfig);
-    strClubLobby = szStr;
-
     GetPrivateProfileString(c_szCfgApp, "PublicLobby", "", 
                                    szStr, sizeof(szStr), szConfig);
     strPublicLobby = szStr;
-
-    GetPrivateProfileString(c_szCfgApp, "Club", "", 
-                                   szStr, sizeof(szStr), szConfig);
-    strClub = szStr;
-
-    GetPrivateProfileString(c_szCfgApp, "ClubMessageURL", "http://fdl.msn.com/zone/allegiance/messageoftheday.mdl", // http://a-markcu1/test/messageoftheday.mdl
-                                   szStr, sizeof(szStr), szConfig);
-    strClubMessageURL = szStr;
 
     GetPrivateProfileString(c_szCfgApp, "PublicMessageURL", "http://fdl.msn.com/zone/allegiance/messageoftheday.mdl", // http://a-markcu1/test/messageoftheday.mdl
                                    szStr, sizeof(szStr), szConfig);
     strPublicMessageURL = szStr;
 
-    GetPrivateProfileString(c_szCfgApp, "ZoneEventsURL", "", szStr, sizeof(szStr), szConfig);
-    strZoneEventsURL = szStr;
-
-    GetPrivateProfileString(c_szCfgApp, "ZoneEventDetailsURL", "http://fdl.msn.com/zone/allegiance/zoneevents.mdl", 
-                                   szStr, sizeof(szStr), szConfig);
-    strZoneEventDetailsURL = szStr;
-
     GetPrivateProfileString(c_szCfgApp, "TrainingURL", "http://www.zone.com/allegiance/downloads.asp", 
                                    szStr, sizeof(szStr), szConfig);
     strTrainingURL = szStr;
-
-    GetPrivateProfileString(c_szCfgApp, "PassportUpdateURL", "http://www.zone.com/allegiance/passportupdate.html", 
-                                   szStr, sizeof(szStr), szConfig);
-    strPassportUpdateURL = szStr;
-
-    GetPrivateProfileString(c_szCfgApp, "ZoneAuthGUID", "{00000000-0000-0000-C000-000000000046}", 
-                                   szStr, sizeof(szStr), szConfig);
-    int cbStr = strlen(szStr) + 1;
-    LPOLESTR wszStr = (LPOLESTR)_alloca(sizeof(OLECHAR) * cbStr);
-    MultiByteToWideChar(CP_ACP, 0, PCC(szStr), cbStr, wszStr, cbStr);
-    if (cbStr == 1 || !ZSucceeded(IIDFromString(wszStr, &guidZoneAuth)))
-    {
-        guidZoneAuth = GUID_NULL;
-    }
 
     GetPrivateProfileString(c_szCfgApp, "FilelistCRC", "0", 
                                    szStr, sizeof(szStr), szConfig);
@@ -4038,19 +3898,10 @@ void CfgInfo::Load(const char * szConfig)
                                    szStr, sizeof(szStr), szConfig);
     strFilelistDirectory = szStr;
 
-    GetPrivateProfileString(c_szCfgApp, "ClubMessageCRC", "0", 
-                                    szStr, sizeof(szStr), szConfig);
-    _strupr(szStr);
-    crcClubMessageFile = UTL::hextoi(szStr);
-
     GetPrivateProfileString(c_szCfgApp, "PublicMessageCRC", "0", 
                                     szStr, sizeof(szStr), szConfig);
     _strupr(szStr);
     crcPublicMessageFile = UTL::hextoi(szStr);
-
-    GetPrivateProfileString(c_szCfgApp, "UsePassport", "0", 
-                                   szStr, sizeof(szStr), szConfig);
-    bUsePassport = atoi(szStr) != 0;
 }
 
 void _debugf(const char* format, ...)
