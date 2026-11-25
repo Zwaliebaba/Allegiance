@@ -31,10 +31,10 @@ public:
     bool OnEvent()
     {
         StaticType value = (m_pobject->*m_pfn)();
-        if (GetValueInternal() != value)
+        if (this->GetValueInternal() != value)
             {
-            GetValueInternal() = value;
-            Changed();
+            this->GetValueInternal() = value;
+            this->Changed();
             }
         return true;
     }

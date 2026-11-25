@@ -139,9 +139,10 @@ private:
             int ysize = m_data[index].m_size.Y();
             unsigned char ch = index;
 
+            WinRect rectBitmap(0, 0, m_width, m_height);   // a WinRect is a RECT
             ZVerify(::FillRect(
                 hdcBitmap, 
-                &(RECT)WinRect(0, 0, m_width, m_height), 
+                &rectBitmap, 
                 (HBRUSH)::GetStockObject(BLACK_BRUSH)
             ));
             ZVerify(::TextOut(hdcBitmap, 0, 0, (PCC)&ch, 1));

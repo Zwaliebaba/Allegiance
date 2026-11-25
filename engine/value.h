@@ -313,8 +313,8 @@ public:
 
     void SetValue(const StaticType& value)
     {
-        GetValueInternal() = value;
-        Changed();
+        this->GetValueInternal() = value;
+        this->Changed();
     }
 
     bool IsConstant()
@@ -355,7 +355,7 @@ protected:
 
     void Evaluate()
     {
-         GetValueInternal() = GetWrappedValue()->GetValue();
+         this->GetValueInternal() = this->GetWrappedValue()->GetValue();
     }
 
 public:

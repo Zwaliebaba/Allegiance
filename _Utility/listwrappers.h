@@ -46,9 +46,9 @@ public:
         int nCount = 0;
 // VSNet 2003 port: resolve error C2475
 #if _MSC_VER >= 1300
-        for (Slink_utl<T, ListEventSource>* link = first(); link != NULL; link = (link->next)())
+        for (Slink_utl<T, ListEventSource>* link = this->first(); link != NULL; link = (link->next)())
 #else
-        for (Slink_utl<T, ListEventSource>* link = first(); link != NULL; link = link->next)
+        for (Slink_utl<T, ListEventSource>* link = this->first(); link != NULL; link = link->next)
 #endif
             nCount++;
 
@@ -65,9 +65,9 @@ public:
         int nIndex = 0;
 // VSNet 2003 port: resolve error C2475
 #if _MSC_VER >= 1300
-        for (Link* link = first(); link != NULL; link = (link->next)())
+        for (Link* link = this->first(); link != NULL; link = (link->next)())
 #else
-        for (Link* link = first(); link != NULL; link = link->next)
+        for (Link* link = this->first(); link != NULL; link = link->next)
 #endif
         {
             if ((ItemID)link == pitem)
@@ -85,7 +85,7 @@ public:
 
     virtual IEventSource* GetChangedEvent()
     {
-        return sink.GetEvent();
+        return this->sink.GetEvent();
     }
 };
 
