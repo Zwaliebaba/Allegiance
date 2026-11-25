@@ -191,13 +191,13 @@ The original build only gathers art from `Artwork/256`, through these inputs:
 The client reads only that output directory. Everything else was deleted, and git history keeps it:
 
 - `Artwork/old256`, `cadet` (art for the separate Cadet product, never integrated), `ship`, `sounds`, `soundpac1`, `training`, `team2.igc` and `team4.igc`.
-- 1,028 files in `Artwork/256`:
+- About 800 files in `Artwork/256`:
   - prebuilt `.mdl` and intermediate `.x` files that `makegeo.mak` regenerates;
   - bitmaps and models that no manifest names;
   - `artwork_new/`, `icons/` and stray scripts and notes.
 - The progressive-mesh tools and unused templates and scripts in `Artwork/tools`.
 
-The remaining `Artwork/tools` batch files, awk scripts and `sed.exe` go when `Art.proj` replaces them. A before-and-after check confirms that every input the manifests need is still present.
+The remaining `Artwork/tools` batch files, awk scripts and `sed.exe` go when `Art.proj` replaces them. A before-and-after check confirms that all 3,186 inputs the manifests need are still present. That check covers every model's optional `_static.x`, `-low.x` and `_bound.x` sources. The first version of the cleanup missed them: `makegeo.mak` names each model as `$(@B)`, so a regex read the literal `$(@B)` instead of the name, and 234 sources were deleted. They have been restored.
 
 Kept on purpose:
 
