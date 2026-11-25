@@ -34,8 +34,8 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceGenDir)AGC\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)AGC;$(AllegianceRoot)test\Inc;$(AllegianceRoot)lobby;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;_CONSOLE;AGC_HOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)test\Inc;$(AllegianceRoot)lobby;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -43,8 +43,8 @@
       <DelayLoadDLLs>netapi32.dll;advapi32.dll</DelayLoadDLLs>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceGenDir)AGC\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)AGC;$(AllegianceRoot)test\Inc;$(AllegianceRoot)lobby;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;_CONSOLE;AGC_HOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)test\Inc;$(AllegianceRoot)lobby;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -58,6 +58,7 @@
     <ClCompile Include="fscluster.cpp" />
     <ClCompile Include="allsrvmodule.cpp" />
     <ClCompile Include="fslobby.cpp" />
+    <ClCompile Include="serverevents.cpp" />
     <ClCompile Include="srvqguids.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -65,6 +66,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="serversettings.h" />
+    <ClInclude Include="serverevents.h" />
+    <ClInclude Include="serverevents_defs.h" />
+    <ClInclude Include="eventsite.h" />
+    <ClInclude Include="gameparamdata.h" />
     <ClInclude Include="BitArray.h" />
     <ClInclude Include="FedSrv.H" />
     <ClInclude Include="FedSrvApp.h" />
@@ -91,7 +96,7 @@
       <OutputDirectory>$(AllegianceGenDir)AllSrv32\</OutputDirectory>
     </AllegianceMessage>
     <ResourceCompile Include="AllSrv.build.rc">
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceGenDir)AGC\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemGroup>
@@ -108,15 +113,8 @@
     <ProjectReference Include="..\test\TCLib\TCLib.vcxproj">
       <Project>{CB0673C1-D288-4824-BA88-17230F780DED}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\AGC\AGCGuid.vcxproj">
-      <Project>{98F5F2A7-FBF2-4C2A-AEA7-D4B1F4DB0070}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\guids\Guids.vcxproj">
       <Project>{CB4A5507-7890-4D3E-ACAB-CD2B1E126D40}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\AGC\AGC.vcxproj">
-      <Project>{8E3F6558-2352-4F7F-8621-7BC414AC16B1}</Project>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

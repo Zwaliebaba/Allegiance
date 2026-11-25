@@ -97,8 +97,7 @@ const FloatConstantID    c_fcidClusterDivisor       = 38;
 const FloatConstantID    c_fcidMax                  = 40;
 
 //
-// Note: if you add or change any new ObjectTypes, then please notify
-// Mark C or John T so that AGCIDL.idl will be updated.
+// Note: AGC_AdminUser in FedSrv/serverevents.h mirrors OT_allsrvUser.
 //
 //
 typedef  short   ObjectType;
@@ -637,7 +636,7 @@ typedef char BuyableGroupID;
 
 
 */
-enum STAGE // Keep in sync with AGCGameStage in AGCIDL.h
+enum STAGE
 {
   STAGE_NOTSTARTED,
   STAGE_STARTING,
@@ -1029,8 +1028,8 @@ class ImapMakerIGC
 struct MissionParams
 {
     //------------------------------------------------------------------------------
-    // If you add or remove properties, please update 
-    // AGCGameParameters.cpp, AGCGameParameters.h, and AGCIDL.h.
+    // If you add or remove properties, please update training mission 7's game
+    // (CreateTrainingGame in FedSrv.CPP) if it needs them.
     // 
     //------------------------------------------------------------------------------
     char        strGameName[c_cbGameName];              //Name of game
@@ -2619,7 +2618,7 @@ struct  ExplosionData
 //
 // PLEASE! Update HandleCOMChatEvents in FedSrv.cpp if you change this enum
 //
-enum ChatTarget // if you change this please update AGCChatTarget in AGCIDL.idl
+enum ChatTarget
 {
     CHAT_EVERYONE = 0, CHAT_LEADERS, CHAT_ADMIN, CHAT_SHIP,
     

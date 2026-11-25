@@ -10,9 +10,7 @@
 
 
 #include "pch.h"
-#include <..\TCLib\CoInit.h>
 #include <..\TCLib\AutoHandle.h>
-#include <agc.h>
 
 
 #ifdef _DEBUG
@@ -312,7 +310,7 @@ HRESULT pascal FedSrv_Terminate(void)
   #endif // !defined(ALLSRV_STANDALONE)
   timeEndPeriod(1);
 
-  _AGCModule.TriggerEvent(NULL, AllsrvEventID_Terminate, "", -1, -1, -1, 0);
+  g_events.TriggerEvent(NULL, AllsrvEventID_Terminate, "", -1, -1, -1, 0);
 
   return(S_OK);
 }
@@ -2467,7 +2465,7 @@ void LogTrapHack(AGCEventID idEvent, CFSPlayer* pfsPlayer,
   }
 
   // Trigger the event
-  _AGCModule.TriggerContextEvent(NULL, idEvent, pszContext,
+  g_events.TriggerContextEvent(NULL, idEvent, pszContext,
     pszSubject, idSource, -1, -1, 2,
     "Expr", VT_LPSTR, pExpr,
     "Line", VT_I4   , nLine);
@@ -2688,53 +2686,6 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
                                      NA, "%d chats sent in 3 seconds.", cChats);
                     
   }
-#if defined(ALLOW_TESTAGCEVENTS_CHEAT)
-  else if (!lstrcmpi(strToken, "testagcevents"))
-  {
-    // Do nothing if no one is listening
-    AGCEventID idEvent = EventID_ChatMessage;
-    HAGCLISTENERS hListeners = GetAGCGlobal()->EventListeners(idEvent, -1, -1, -1);
-    if (!hListeners)
-      return true;
-
-    // Create an AGCVector (to test object persistence)
-    IAGCVectorPtr spVector1, spVector2;
-    ZSucceeded(GetAGCGlobal()->MakeAGCVector(&Vector(10, 20, 30), &spVector1));
-    ZSucceeded(GetAGCGlobal()->MakeAGCVector(&Vector(100, 200, 300), &spVector2));
-
-    // Get the current VariantDate
-    DATE date = GetLocalVariantDateTime();
-
-    // Create a CY object
-    CY cy = {99, 12};
-
-    LPCSTR pszContext = pfsShip->GetIGCShip() ?
-      pfsShip->GetIGCShip()->GetMission()->GetContextName() : NULL;
-
-    // Trigger a chat event with all types of parameters
-    _AGCModule.TriggerContextEvent(hListeners, idEvent, pszContext,
-      "TestAGCEvents cheat", -1, -1, -1, 19,
-      "VT_LPWSTR"  , VT_LPWSTR  , L"I'm a wide string",
-      "VT_BSTR"    , VT_BSTR    , (BSTR)CComBSTR(L"I'm a BSTR"),
-      "VT_UNKNOWN" , VT_UNKNOWN , (IAGCVector*)spVector2,
-      "VT_DISPATCH", VT_DISPATCH, (IAGCVector*)spVector1,
-      "VT_BOOL"    , VT_BOOL    , VARIANT_TRUE,
-      "VT_I1"      , VT_I1      , 0x69,
-      "VT_I2"      , VT_I2      , 0xF00D,
-      "VT_UI1"     , VT_UI1     , 0x96,
-      "VT_UI2"     , VT_UI2     , 0xD00F,
-      "VT_ERROR"   , VT_ERROR   , E_NOTIMPL,
-      "VT_R4"      , VT_R4      , 1.56f,
-      "VT_R8"      , VT_R8      , pi,
-      "VT_CY"      , VT_CY      , cy,
-      "VT_DATE"    , VT_DATE    , date,
-      "Message"    , VT_LPSTR   , "This is just a test",
-      "Type"       , VT_LPSTR   , "Cheat!",
-      "Target"     , VT_LPSTR   , "AllSrv",
-      "Source"     , VT_I4      , -1,
-      "Source Name", VT_LPSTR   , "Cheater");
-  }
-#endif // defined(ALLOW_TESTAGCEVENTS_CHEAT)
   else
     fIsCheat = false;
 
@@ -2829,7 +2780,7 @@ void HandleCOMChatEvents(const char *szMessage, const char *szDest, ShipID shipi
     pfsMission->GetIGCMission()->GetContextName() : NULL;
 
   // Trigger the event if anyone is listening
-  _AGCModule.TriggerContextEvent(NULL, idEvent, pszContext,
+  g_events.TriggerContextEvent(NULL, idEvent, pszContext,
     szSource, idSource, idGame, idTeam, 7,
     "Message"      , VT_LPSTR, szMessage,
     "Type"         , VT_LPSTR, pszType,
@@ -3979,7 +3930,7 @@ int FedSrvSiteBase::OnMessageBox(FedMessaging * pthis, const char * strText, con
 int FedSrvSiteBase::OnMessageBox(const char * strText, const char * strCaption, UINT nType)
 {
   printf("%s:\n%s\n\n", strCaption, strText);
-  _AGCModule.TriggerEvent(NULL, AllsrvEventID_MessageBox, "", -1, -1, -1, 2,  
+  g_events.TriggerEvent(NULL, AllsrvEventID_MessageBox, "", -1, -1, -1, 2,  
       "Caption", VT_LPSTR, strCaption,
       "Message", VT_LPSTR, strText);
   return 0; // which is intentionally not actually a valid MessageBox return code, since we're not actually throwing up a message box
@@ -4000,7 +3951,7 @@ void FedSrvSiteBase::OnSQLErrorRecord(SSERRORINFO * perror, OLECHAR * postrError
 {
   // don't make the event an error event, because this may or may not be fatal. 
   // But we certainly want to see them all in any case.
-  _AGCModule.TriggerEvent(NULL, AllsrvEventID_DatabaseErrorSQL, "", -1, -1, -1, 5,
+  g_events.TriggerEvent(NULL, AllsrvEventID_DatabaseErrorSQL, "", -1, -1, -1, 5,
     "Message"      , VT_LPWSTR, perror->pwszMessage,
     "Procedure"    , VT_LPWSTR, perror->pwszProcedure,
     "Native"       , VT_I4,     perror->lNative,
@@ -4017,7 +3968,7 @@ void FedSrvSiteBase::OnOLEDBErrorRecord(BSTR bstrDescription, GUID guid, DWORD d
   StringFromGUID2(guid, szGUID, sizeofArray(szGUID));
 
   // These are always fatal, because we have no idea what we can do about it.
-  _AGCModule.TriggerEvent(NULL, AllsrvEventID_DatabaseErrorOLEDB, "", -1, -1, -1, 5,
+  g_events.TriggerEvent(NULL, AllsrvEventID_DatabaseErrorOLEDB, "", -1, -1, -1, 5,
     "Desc",     VT_BSTR,  bstrDescription,
     "Guid",     VT_LPWSTR,szGUID,
     "HelpID",   VT_I4,    dwHelpContext,
@@ -4040,7 +3991,7 @@ HRESULT FedSrvSiteBase::OnDestroyConnection(FedMessaging * pthis, CFMConnection 
   if (pfsPlayer) // need to clean up after them if they didn't log off
   {
     PlaySound("AppGPFault", NULL, SND_ALIAS | SND_PURGE | SND_ASYNC);
-    _AGCModule.TriggerEvent(NULL, AllsrvEventID_PlayerDropped, "", -1, -1, -1, 2,  
+    g_events.TriggerEvent(NULL, AllsrvEventID_PlayerDropped, "", -1, -1, -1, 2,  
         "PlayerName", VT_LPSTR, pfsPlayer->GetName(),
         "ConxID", VT_I4, cnxn.GetID());
     if (NULL != g.pServerCounters)
@@ -4056,7 +4007,7 @@ HRESULT FedSrvSiteBase::OnDestroyConnection(FedMessaging * pthis, CFMConnection 
 
 HRESULT FedSrvSiteBase::OnSessionLost(FedMessaging * pthis) 
 {
-  _AGCModule.TriggerEvent(NULL, AllsrvEventID_SessionLost, "", -1, -1, -1, 1,  
+  g_events.TriggerEvent(NULL, AllsrvEventID_SessionLost, "", -1, -1, -1, 1,  
       "Time", VT_I4, Time::Now().clock());
   // todo: gracefully shut down
   return S_OK;
@@ -4247,7 +4198,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
   if (!pfsPlayer && (pfm->fmid != FM_C_LOGONREQ))
   {
-    _AGCModule.TriggerEvent(NULL, AllsrvEventID_MsgFromUnknownPlayer, "", -1, -1, -1, 2,  
+    g_events.TriggerEvent(NULL, AllsrvEventID_MsgFromUnknownPlayer, "", -1, -1, -1, 2,  
         "PlayerID", VT_I4, cnxnFrom.GetID(),
         "MsgName", VT_LPSTR, g_rgszMsgNames[pfm->fmid]);
   }
@@ -4940,7 +4891,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         }
         else
         {
-          _AGCModule.TriggerEvent(NULL, AllsrvEventID_NoTicket, "", -1, -1, -1, 0);
+          g_events.TriggerEvent(NULL, AllsrvEventID_NoTicket, "", -1, -1, -1, 0);
           szReason = "No player name found.";
           lstrcpy(pqd->szCharacterName, "<invalid>");
         }
@@ -4985,7 +4936,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 #endif
         }
         assert(lstrlen(szVerError) < sizeof(szVerError));
-        _AGCModule.TriggerEvent(NULL, AllsrvEventID_BadClientVersion, "", -1, -1, -1, 2,
+        g_events.TriggerEvent(NULL, AllsrvEventID_BadClientVersion, "", -1, -1, -1, 2,
             "ServerVer", VT_I4, MSGVER,
             "ClientVer", VT_I4, pfmLogon->fedsrvVer);
         BEGIN_PFM_CREATE(g.fm, pfmLogonAck, S, LOGONACK)
@@ -5966,7 +5917,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
             LPCSTR pszContext = pfsPlayer->GetIGCShip() ?
               pfsPlayer->GetIGCShip()->GetMission()->GetContextName() : NULL;
 
-            _AGCModule.TriggerContextEvent(NULL, AllsrvEventID_MoneyError,
+            g_events.TriggerContextEvent(NULL, AllsrvEventID_MoneyError,
               pszContext, pfsPlayer->GetName(), -1, -1, -1, 3,
                 "PlayerName", VT_LPSTR, pfsPlayer->GetName(),
                 "MoneyGiven", VT_I4, pfmBucketDonate->moneyGiven,
@@ -6217,7 +6168,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         LPCSTR pszContext = pfsMission->GetIGCMission()->GetContextName();
 
         // Send an AGC event
-        _AGCModule.TriggerContextEvent(NULL, EventID_GameStateChange, pszContext,
+        g_events.TriggerContextEvent(NULL, EventID_GameStateChange, pszContext,
           pfsMission->GetMissionDef()->misparms.strGameName,
           pfsMission->GetMissionID(), -1, -1, 0);
       }
@@ -6396,13 +6347,13 @@ void DisconnectFromLobby()
   // Disconnect from the lobby server
   if (g.fmLobby.IsConnected())
   {
-    _AGCModule.TriggerEvent(NULL, AllsrvEventID_DisconnectingLobby,
+    g_events.TriggerEvent(NULL, AllsrvEventID_DisconnectingLobby,
       "", -1, -1, -1, 1,
       "LobbyServer", VT_LPSTR, (LPCTSTR)g.strLobbyServer);
 
     g.fmLobby.Shutdown();
 
-    _AGCModule.TriggerEvent(NULL, AllsrvEventID_DisconnectedLobby,
+    g_events.TriggerEvent(NULL, AllsrvEventID_DisconnectedLobby,
       "", -1, -1, -1, 1,
       "LobbyServer", VT_LPSTR, (LPCTSTR)g.strLobbyServer);
   }
@@ -7059,7 +7010,7 @@ void AnnouncePause()
   pfmPause->fPause = g.fPaused;
 
   AGCEventID idEvent = g.fPaused ? AllsrvEventID_Pause : AllsrvEventID_Continue;
-  _AGCModule.TriggerEvent(NULL, idEvent, "", -1, -1, -1, 0);
+  g_events.TriggerEvent(NULL, idEvent, "", -1, -1, -1, 0);
   char * szMode = g.fPaused ? "paused." : "continued.";
   printf("Server %s.\n", szMode);
   g.fmLobby.SendMessages(g.fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
@@ -7100,7 +7051,7 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
     g.strLobbyServer = pszLobby_OverrideCFG;
 
   printf("Connecting to lobby: %s ... ", PCC(g.strLobbyServer));
-  _AGCModule.TriggerEvent(NULL, AllsrvEventID_Connecting, "", -1, -1, -1, 1,
+  g_events.TriggerEvent(NULL, AllsrvEventID_Connecting, "", -1, -1, -1, 1,
     "LobbyServer", VT_LPSTR, PCC(g.strLobbyServer));
   HRESULT hr = g.fmLobby.JoinSession(
 #if defined(ALLSRV_STANDALONE)
@@ -7120,7 +7071,7 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
   // Save the new LobbyServer value
   g.strLobbyServer = PCC(g.strLobbyServer);
 
-  _AGCModule.TriggerEvent(NULL, AllsrvEventID_ConnectedLobby,
+  g_events.TriggerEvent(NULL, AllsrvEventID_ConnectedLobby,
     "", -1, -1, -1, 1,
     "LobbyServer", VT_LPSTR, PCC(g.strLobbyServer));
 
@@ -7224,7 +7175,7 @@ DWORD ProcessMsgPump(int dwSleep, DWORD nCount, LPHANDLE pHandles)
             break;
           
           case WM_QUIT:
-            _Module.StopAllsrv();
+            g_service.StopAllsrv();
             break;
 
           default:
@@ -7335,14 +7286,14 @@ HRESULT HostSession(bool fPublic)
 
   printf(fPublic ? "Preparing public session for clients ... " : "Preparing LAN session for clients ... ");
   #if !defined(ALLSRV_STANDALONE)
-  _AGCModule.TriggerEvent(NULL, AllsrvEventID_HostSession, "", -1, -1, -1, 0);
+  g_events.TriggerEvent(NULL, AllsrvEventID_HostSession, "", -1, -1, -1, 0);
   #endif
 
   HRESULT hr = g.fm.HostSession(guidSession, false, 0 /*g.hPlayerEvent*/, g.fProtocol);
   if (FAILED(hr))
   {
     #if !defined(ALLSRV_STANDALONE)
-    _AGCModule.TriggerEvent(NULL, AllsrvEventID_CantHostSession, "", -1, -1, -1, 0);
+    g_events.TriggerEvent(NULL, AllsrvEventID_CantHostSession, "", -1, -1, -1, 0);
     #endif
     printf("failed.\n");
     return hr;
@@ -7366,14 +7317,14 @@ HRESULT HostSession(bool fPublic)
       if (FAILED(ConnectToLobby(NULL)))
       {
         #if !defined(ALLSRV_STANDALONE)
-          _AGCModule.TriggerEvent(NULL, AllsrvEventID_ConnectError, "", -1, -1, -1, 0);
+          g_events.TriggerEvent(NULL, AllsrvEventID_ConnectError, "", -1, -1, -1, 0);
         #endif // !defined(ALLSRV_STANDALONE)
       }
     }
     else
     {
       #if !defined(ALLSRV_STANDALONE)
-      _AGCModule.TriggerEvent(NULL, AllsrvEventID_NoLobby, "", -1, -1, -1, 0);
+      g_events.TriggerEvent(NULL, AllsrvEventID_NoLobby, "", -1, -1, -1, 0);
       #endif
     }
   }
@@ -7456,12 +7407,7 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
     g.pServerCounters->timeCycleTarget = dwUpdateInterval;
 
   printf("Preparing server...\n");
-  // Enter this thread into the COM STA
-  HRESULT hr = CoInitialize(NULL);
-  ZSucceeded(hr);
-
-  // Initialize the ATL module
-  _Module.Init(g.hInst);
+  HRESULT hr = S_OK;
 
   // Create a uniquely-named mutex to indicate that the server is running
   TCHandle shMutexRunning = CreateUniqueMutex();
@@ -7575,7 +7521,7 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
     dwWait = ProcessMsgPump(dwSleep, 1, rgeventHandles);
   }
 
-  HAGCLISTENERS hListeners = GetAGCGlobal()->EventListeners(
+  HAGCLISTENERS hListeners = g_events.EventListeners(
     EventID_ServerShutdown, -1, -1, -1);
   if (hListeners)
   {
@@ -7584,7 +7530,7 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
     DWORD cchName = sizeofArray(szName);
     GetComputerNameA(szName, &cchName);
 
-    _AGCModule.TriggerEvent(hListeners, EventID_ServerShutdown, "", -1, -1, -1, 1,
+    g_events.TriggerEvent(hListeners, EventID_ServerShutdown, "", -1, -1, -1, 1,
       "Server", VT_LPSTR, szName);
   }
 
@@ -7604,12 +7550,6 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
 
   // destroy IGC stuff
   UnloadDbCache();
-
-  // Terminate the ATL module
-  _Module.Term();
-
-  // Remove this thread from the COM STA
-  CoUninitialize();
 
   ExitThread(0);
   return 0;
@@ -8249,7 +8189,7 @@ static bool ParseTrainingArgs(int argc, char *argv[])
 //   AllSrv32 -service             how the service control manager starts it
 //   AllSrv32 -training <civ> -stopevent <handle>   (trainingserver.h)
 //
-// There is no COM registration any more: AllSrv exposes no COM classes.
+// There is no COM any more: no registration, no COM classes, no AGC.
 //
 int __cdecl main(int argc, char *argv[])
 {
@@ -8277,10 +8217,10 @@ int __cdecl main(int argc, char *argv[])
     const char * szSwitch = (argc > 1 && (*argv[1]=='-' || *argv[1]=='/')) ? argv[1] + 1 : NULL;
 
     if (szSwitch && !lstrcmpi("install", szSwitch))
-      return _Module.InstallService(argc, argv) ? 0 : 1;
+      return g_service.InstallService(argc, argv) ? 0 : 1;
 
     if (szSwitch && (!lstrcmpi("remove", szSwitch) || !lstrcmpi("uninstall", szSwitch)))
-      return _Module.RemoveService() ? 0 : 1;
+      return g_service.RemoveService() ? 0 : 1;
 
   #if !defined(ALLSRV_STANDALONE)
     // These run before AGC, as they always did not need it either
@@ -8304,17 +8244,8 @@ int __cdecl main(int argc, char *argv[])
       return 1;
     }
 
-    // Enter this thread into the COM MTA (AGC's objects are COM objects in
-    // this process; nothing is exposed outside it)
-    TCCoInit init(COINIT_MULTITHREADED);
-    ZSucceeded((HRESULT)init);
-    if (init.Failed())
-      return (HRESULT)init;
-
-    // Initialize AGC
-    HRESULT hr;
-    ZSucceeded(hr = _Module.InitAGC());
-    RETURN_FAILED(hr);
+    // Start the event log (serverevents.h)
+    g_service.InitEvents();
 
     if (g.fService)
     {
@@ -8334,11 +8265,11 @@ int __cdecl main(int argc, char *argv[])
     }
     else
     {
-      _Module.RunAsExecutable();
+      g_service.RunAsExecutable();
     }
 
-    // Terminate AGC
-    _Module.TermAGC();
+    // Stop the event log
+    g_service.TermEvents();
 
     // Indicate success
     return 0;
@@ -8382,7 +8313,7 @@ HRESULT pascal FedSrv_Init()
   int iCon = 0;
   HRESULT hr = S_OK;
 
-  _AGCModule.TriggerEvent(NULL, AllsrvEventID_Initialize, "", -1, -1, -1, 0);
+  g_events.TriggerEvent(NULL, AllsrvEventID_Initialize, "", -1, -1, -1, 0);
 
   // Set cur dir = exe dir
   HMODULE hmod = GetModuleHandle(NULL);
@@ -10957,7 +10888,7 @@ IshipIGC*   PickNewLeader(const ShipListIGC*    pships,
 
     bool FedSrvApp::OnAssert(const char* psz, const char* pszFile, int line, const char* pszModule)
     {
-        _AGCModule.TriggerEvent(NULL, EventID_AGCAssert, "", -1, -1, -1, 3, 
+        g_events.TriggerEvent(NULL, EventID_AGCAssert, "", -1, -1, -1, 3, 
             "File", VT_LPSTR, pszFile,
             "Line", VT_I4, line,
             "Text", VT_LPSTR, psz);

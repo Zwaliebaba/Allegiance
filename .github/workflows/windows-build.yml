@@ -26,7 +26,6 @@ jobs:
       # Built one at a time, in dependency order, with BuildProjectReferences=false,
       # so a failure in one project does not hide the compile errors of the
       # projects that depend on it. (Their link step will still fail.)
-      # AGCGuid must precede the projects that include the AGC headers it generates.
       PROJECTS: >-
         zlib/ZLib.vcxproj
         guids/Guids.vcxproj
@@ -34,12 +33,10 @@ jobs:
         engine/Engine.vcxproj
         effect/Effect.vcxproj
         soundengine/SoundEngine.vcxproj
-        AGC/AGCGuid.vcxproj
         Igc/Igc.vcxproj
         clintlib/ClintLib.vcxproj
         training/Training.vcxproj
         test/TCLib/TCLib.vcxproj
-        AGC/AGC.vcxproj
         FedSrv/AllSrv32.vcxproj
         WinTrek/Allegiance.vcxproj
         mdlc/mdlc.vcxproj

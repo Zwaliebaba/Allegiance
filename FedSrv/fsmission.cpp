@@ -235,7 +235,7 @@ CFSMission::CFSMission(
 
   LPCSTR pszContext = GetIGCMission() ? GetIGCMission()->GetContextName() : NULL;
 
-  _AGCModule.TriggerContextEvent(NULL, EventID_GameCreated, pszContext,
+  g_events.TriggerContextEvent(NULL, EventID_GameCreated, pszContext,
     pszGame, idGame, -1, -1, 0);
 }
 
@@ -250,11 +250,9 @@ CFSMission::~CFSMission()
 
   LPCSTR pszContext = GetIGCMission() ? GetIGCMission()->GetContextName() : NULL;
 
-  _AGCModule.TriggerContextEvent(NULL, EventID_GameDestroyed, pszContext,
+  g_events.TriggerContextEvent(NULL, EventID_GameDestroyed, pszContext,
     pszGame, idGame, -1, -1, 0);
 
-  // Destroy any existing AGC game associated with the IGC mission
-  GetAGCGlobal()->RemoveAGCObject(m_pMission, true);
 
   Vacate();
 
@@ -1379,7 +1377,7 @@ void CFSMission::SetSideName(SideID sid, const char* szName)
 
   LPCSTR pszContext = GetIGCMission() ? GetIGCMission()->GetContextName() : NULL;
 
-  _AGCModule.TriggerContextEvent(NULL, EventID_TeamInfoChange, pszContext,
+  g_events.TriggerContextEvent(NULL, EventID_TeamInfoChange, pszContext,
     strNameOld, idTeam, -1, -1, 3,
     "GameID"     , VT_I4   , idGame,
     "GameName"   , VT_LPSTR, pszGame,
@@ -2019,7 +2017,7 @@ void CFSMission::StartGame()
     LPCSTR pszContext = GetIGCMission() ? GetIGCMission()->GetContextName() : NULL;
 
     GetSite()->SendChat(NULL, CHAT_EVERYONE, NA, NA, "The game has started.");
-    _AGCModule.TriggerContextEvent(NULL, AllsrvEventID_GameStarted, pszContext, "", -1, -1, -1, 0);
+    g_events.TriggerContextEvent(NULL, AllsrvEventID_GameStarted, pszContext, "", -1, -1, -1, 0);
 
     DoPayday();
   }
@@ -2440,7 +2438,7 @@ void CFSMission::GameOver(IsideIGC * psideWin, const char* pszReason)
   LPCSTR pszContext = GetIGCMission() ? GetIGCMission()->GetContextName() : NULL;
 
   // the game will actually end when we get around to checking whether a team has won
-  _AGCModule.TriggerContextEvent(NULL, AllsrvEventID_GameEnded, pszContext,
+  g_events.TriggerContextEvent(NULL, AllsrvEventID_GameEnded, pszContext,
       "", -1, -1, -1, 1,
       "Reason", VT_LPSTR, pszReason);
 }
@@ -3062,7 +3060,7 @@ void CFSMission::ProcessGameOver()
   
   LPCSTR pszContext = GetIGCMission() ? GetIGCMission()->GetContextName() : NULL;
 
-  _AGCModule.TriggerContextEvent(NULL, AllsrvEventID_GameOver, pszContext,
+  g_events.TriggerContextEvent(NULL, AllsrvEventID_GameOver, pszContext,
     "", -1, -1, -1, 0);
 
   // if the game is an auto-restart game, reset the start time.

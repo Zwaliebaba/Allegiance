@@ -15,10 +15,6 @@
     <Project Path="training/Training.vcxproj" Id="1dc45108-9797-4f75-9891-60197544974b" />
     <Project Path="test/TCLib/TCLib.vcxproj" Id="cb0673c1-d288-4824-ba88-17230f780ded" />
   </Folder>
-  <Folder Name="/AGC/">
-    <Project Path="AGC/AGCGuid.vcxproj" Id="98f5f2a7-fbf2-4c2a-aea7-d4b1f4db0070" />
-    <Project Path="AGC/AGC.vcxproj" Id="8e3f6558-2352-4f7f-8621-7bc414ac16b1" />
-  </Folder>
   <Folder Name="/Server/">
     <Project Path="FedSrv/AllSrv32.vcxproj" Id="482b8658-01bb-4af0-bafc-15476eeffbb4" />
   </Folder>

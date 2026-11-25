@@ -1,12 +1,11 @@
 /*-------------------------------------------------------------------------
  * fedsrv\AllSrvModule.H
  *
- * How AllSrv runs: as a console program, or as a Windows service. Also the
- * ATL module the AGC objects need inside the process.
+ * How AllSrv runs: as a console program, or as a Windows service.
  *
- * AllSrv used to be a DCOM server as well (the IAdmin* objects, for
- * AllSrvUI and the client's training mission 7); that is gone. See
- * MODERNIZATION.md, "Server administration: the DCOM admin layer is gone".
+ * AllSrv used to be a DCOM server and an AGC host as well; both are gone.
+ * See MODERNIZATION.md, "Server administration: the DCOM admin layer is
+ * gone" and "AGC removed: server events go to a log file".
  *
  * Owner:
  *
@@ -28,23 +27,20 @@
 
 // zlib/alloc.h defines "new" as a macro in debug builds; ATL uses
 // new(std::nothrow), which the macro breaks. Suspend it for the ATL headers.
+// (ATL is still used for a few helpers, e.g. CComBSTR and TCLib; there is no
+// ATL module, COM registration or COM server any more.)
 #pragma push_macro("new")
 #undef new
 #include <atlbase.h>
+#include <atlcom.h>
 #pragma pop_macro("new")
 
-#include <AGC.h>
-
-//You may derive a class from CComModule and use it if you want to override
-//something, but do not change the name of _Module
-class CServiceModule : public CComModule
+class CServiceModule
 {
 // Construction / Destruction
 public:
-  HRESULT      Init(HINSTANCE hInst);
-  void         Term();
-  HRESULT      InitAGC();
-  void         TermAGC();
+  void         InitEvents();
+  void         TermEvents();
 
 // Operations
 public:
@@ -60,18 +56,9 @@ protected:
   static void  WINAPI ServiceControl(DWORD dwCode);
   static void  SetSvcStatus(DWORD state, DWORD exitcode);
   static DWORD WINAPI ServerTerminateThread(DWORD dwUnused);
-
-// Data Members
-protected:
-  IAGCEventLoggerPtr m_spEventLogger;
 };
 
-extern CServiceModule _Module;
-
-#pragma push_macro("new")
-#undef new
-#include <atlcom.h>
-#pragma pop_macro("new")
+extern CServiceModule g_service;
 
 void PrintSystemErrorMessage(LPCTSTR szBuf, DWORD dwErrorCode);
 void WINAPI _ServiceMain(DWORD dwArgc, LPTSTR* lpszArgv);

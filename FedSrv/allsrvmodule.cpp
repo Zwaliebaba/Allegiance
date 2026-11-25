@@ -3,7 +3,7 @@
  * fedsrv\AllSrvModule.CPP
  * 
  * How AllSrv runs: as a console program, or as a Windows service (see
- * allsrvmodule.h). Also sets up AGC and its event logger.
+ * allsrvmodule.h).
  * 
  * Owner: 
  * 
@@ -11,33 +11,18 @@
  *-----------------------------------------------------------------------*/
 
 #include "pch.h"
-#include <AGC.h>
-
-#ifdef _DEBUG
-  #include "FedSrvApp.h"
-  #include <AGCDebugHook.h>
-  CComObjectGlobal<CAGCDebugHook> g_DebugHook;
-#endif // _DEBUG
 
 
 /////////////////////////////////////////////////////////////////////////////
 // Global Initialization
 
-CAGCModule _AGCModule;
-CServiceModule _Module;
+CServiceModule g_service;
 
 
 /////////////////////////////////////////////////////////////////////////////
 // External Declarations
 
 extern Global g;
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Object Map: empty, since AllSrv no longer exposes COM classes
-
-BEGIN_OBJECT_MAP(ObjectMap)
-END_OBJECT_MAP()
 
 
 /*-------------------------------------------------------------------------
@@ -65,9 +50,9 @@ void PrintSystemErrorMessage(LPCTSTR szText, DWORD dwErrorCode)
   printf("%s", (LPCTSTR)szText);
   printf("%s", (LPCTSTR)lpMsgBuf);
 
-  _AGCModule.TriggerEvent(NULL, AllsrvEventID_SystemError, "", -1, -1, -1, 2,
+  g_events.TriggerEvent(NULL, AllsrvEventID_SystemError, "", -1, -1, -1, 2,
       "Text", VT_LPSTR, szText,
-      "Message", VT_LPSTR, lpMsgBuf);
+      "Message", VT_LPSTR, (LPCSTR)lpMsgBuf);
 
   LocalFree( lpMsgBuf );
 }
@@ -77,96 +62,20 @@ void PrintSystemErrorMessage(LPCTSTR szText, DWORD dwErrorCode)
 
 
 /*-------------------------------------------------------------------------
- * CServiceModule::Init
+ * CServiceModule::InitEvents / TermEvents
  *-------------------------------------------------------------------------
  * Purpose:
- *    Init some COM/ATL/AGC stuff
- * 
+ *    Start and stop the server event log (serverevents.h). This was where
+ *    AGC and its event logger were set up.
  */
-HRESULT CServiceModule::Init(HINSTANCE hInst)
+void CServiceModule::InitEvents()
 {
-  // Initialize the ATL module
-  HRESULT hr;
-  ZSucceeded(hr = CComModule::Init(ObjectMap, hInst));
-  RETURN_FAILED(hr);
-
-  // Indicate success
-  return S_OK;
+  g_events.Init(g.fWantInt3);
 }
 
-
-/*-------------------------------------------------------------------------
- * CServiceModule::Term
- *-------------------------------------------------------------------------
- * Purpose:
- *    Terminate some COM/ATL/AGC stuff
- * 
- */
-void CServiceModule::Term()
+void CServiceModule::TermEvents()
 {
-  CComModule::Term();
-}
-
-
-HRESULT CServiceModule::InitAGC()
-{
-  // Initialize AGC
-  HRESULT hr;
-  ZSucceeded(hr = _AGCModule.Init());
-  RETURN_FAILED(hr);
-
-  _AGCModule.SetDebugBreakOnErrors(g.fWantInt3);
-
-  #ifdef _DEBUG
-    _AGCModule.GetAGCGlobal()->SetDebugHook(&g_DebugHook);
-  #endif // _DEBUG
-
-  // Create the set of available AGCEventID ranges
-  CComPtr<IAGCEventIDRanges> spRanges;
-  ZSucceeded(hr = spRanges.CoCreateInstance(L"AGC.EventIDRanges"));
-  RETURN_FAILED(hr);
-
-  // Add our ranges to it
-  ZSucceeded(spRanges->AddByValues(EventID_AGC_LowerBound, EventID_AGC_UpperBound));
-  ZSucceeded(spRanges->AddByValues(AllsrvEventID_Allsrv_LowerBound, AllsrvEventID_Allsrv_UpperBound));
-  ZSucceeded(spRanges->AddByValues(EventID_Admin_LowerBound, EventID_Admin_UpperBound));
-
-  // Set the ranges of available events
-  GetAGCGlobal()->SetAvailableEventIDRanges(spRanges);
-
-  // Create the event logger object
-  ZSucceeded(hr = m_spEventLogger.CreateInstance("AGC.EventLogger"));
-  RETURN_FAILED(hr);
-
-  // Initialize the event logger object
-  CComBSTR bstrEventSource(__MODULE__);
-  CComBSTR bstrSettingsFile(ZSettings::Get().GetPath().c_str()); // server.json
-  IAGCEventLoggerPrivatePtr spPrivate(m_spEventLogger);
-  ZSucceeded(hr = spPrivate->Initialize(bstrEventSource, bstrSettingsFile));
-  RETURN_FAILED(hr);
-
-  // Indicate success
-  return S_OK;
-}
-
-void CServiceModule::TermAGC()
-{
-  // Shutdown the event logger object
-  if (NULL != m_spEventLogger)
-  {
-    IAGCEventLoggerPrivatePtr spPrivate(m_spEventLogger);
-    assert(NULL != spPrivate);
-
-    // Terminate the event logger
-    ZSucceeded(spPrivate->Terminate());
-
-    // Release the event logger
-    spPrivate = NULL;
-    m_spEventLogger = NULL;
-  }
-
-  // Terminate AGC
-  _AGCModule.Term();
+  g_events.Term();
 }
 
 
@@ -562,7 +471,7 @@ void WINAPI CServiceModule::ServiceMain(
 
 void WINAPI _ServiceMain(DWORD dwArgc, LPTSTR* lpszArgv)
 {
-    _Module.ServiceMain(dwArgc, lpszArgv);
+    g_service.ServiceMain(dwArgc, lpszArgv);
 }
 
 
@@ -576,7 +485,7 @@ void WINAPI _ServiceMain(DWORD dwArgc, LPTSTR* lpszArgv)
 void CServiceModule::StopAllsrv()
 { 
   if (g.fService)
-    _Module.ServiceControl(SERVICE_CONTROL_STOP);
+    g_service.ServiceControl(SERVICE_CONTROL_STOP);
   else
   {
     if(g.hKillReceiveEvent)

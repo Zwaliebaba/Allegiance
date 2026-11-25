@@ -13,7 +13,8 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project. Stage B: new MDL version with 32-bit / BC7 DDS textures generated from the 24-bit source BMPs. |
 | Level of detail | Reduced LOD meshes are dropped. They were a 1999 performance optimisation (the models are hundreds to a few thousand triangles). Every LOD slot uses the full-detail mesh, which removes `xmunge -reduce`, the MSR progressive-mesh binaries and meshoptimizer. |
 | Networking | MsQuic (Schannel build) behind the existing `FedMessaging` interface, replacing DirectPlay 4. This replaced the first plan of an own Winsock UDP layer; with QUIC providing reliability and loss recovery, no loopback / packet-loss harness was built, and LAN play is verified by hand. Windows 11 or Server 2022 and later. |
-| Settings | JSON files instead of the registry: `settings.json` per user for the client, `server.json` for all users for the server, or either next to the executable. A small built-in reader and writer (`zlib/zsettings.*`), no third-party JSON library. Registry values are not imported. The only registry use left is Windows' own: AGC's COM registration and the service entry. |
+| Settings | JSON files instead of the registry: `settings.json` per user for the client, `server.json` for all users for the server, or either next to the executable. A small built-in reader and writer (`zlib/zsettings.*`), no third-party JSON library. Registry values are not imported. The only registry use left is the Windows service entry, if the server is installed as one. |
+| AGC | Removed. Its event system became a small plain C++ module in the server that writes a daily log file (`logs\server-<date>.log`); `LogAllEvents` in `server.json` adds the game events (chat, kills, logins) to the default set. No database or Windows event log output. |
 | Server administration | The DCOM admin objects (`IAdminServer` and the rest) are removed with no replacement for now; a server is configured through `server.json`. A later admin protocol will run on the MsQuic listener. Training mission 7, the one in-repo user of the admin objects, starts its server as a child process. Windows performance counters are dropped. |
 | Scope | Tier 1 is built. Tier 2 stays in the repo, outside the solution. Tier 3 is deleted once nothing in Tier 1 or 2 references it. |
 | Verification | GitHub Actions on `windows-2025` (VS 2026). `.github/workflows/windows-build.yml`. |
@@ -23,8 +24,8 @@ solution that compiles, runs on current Windows, and builds its art from source.
 **Tier 1 (built):** `zlib` (Microsoft's base library, not the compression library), `guids`, `_Utility`,
 `engine`, `effect`, `soundengine`, `Igc`, `clintlib`, `training`, `WinTrek` (client); `mdlc`, `xmunge`,
 `cvh`, `qhull` (art tools); `FedSrv`, built as the original standalone LAN server flavour `AllSrv32`
-(`ALLSRV_STANDALONE`); `AGC` and the helper libraries it needs from `test/` (`TCLib`). (`sharemem`, the
-performance-counter library, is deleted; see "Server administration".)
+(`ALLSRV_STANDALONE`) with the helper library it needs from `test/` (`TCLib`). (`sharemem`, the
+performance-counter library, and `AGC` are deleted; see "Server administration" and "AGC removed".)
 
 `xmunge` is not built yet. It is written entirely against Direct3D Retained Mode (frames, mesh
 builders, progressive meshes), which Windows no longer has. Making it compile would mean writing a
@@ -41,13 +42,13 @@ meshoptimizer.
 | `Zone`, `Club` | Deleted in Phase 2 with the Zone and Club code paths (see Phase 2). |
 | `sentinal`, `fedperf` | Deleted. Only the VS.NET 2003 `Server.vcproj` compiled them into the server; the original nmake build never did. |
 | `AutoUpdate` | Kept for now. Referenced by `lobby/pch.h` (Tier 2). |
-| `test` | Kept: `AGC` and `FedSrv` build on `test/TCLib`, `test/TCAtl` and `test/Inc`, so these are effectively Tier 1 support code rather than tests. |
+| `test` | Kept: `FedSrv` builds on `test/TCLib`, `test/TCAtl` and `test/Inc` (as `AGC` did), so these are effectively Tier 1 support code rather than tests. |
 
 ### FedSrv and AGC
 
 13 of the 23 `.cpp` files in `FedSrv` use AGC (the COM automation / admin event layer). Decision: AGC
 moves into Tier 1 and is ported with the server, keeping the admin and event features intact. (Later
-the DCOM admin objects were removed; see "Server administration". AGC's events and logger remain.)
+the DCOM admin objects were removed, and then AGC itself; see "Server administration" and "AGC removed".)
 
 ## Findings that correct the first analysis
 
@@ -61,9 +62,10 @@ the DCOM admin objects were removed; see "Server administration". AGC's events a
   `VSNet.Readme` listed them as missing, and the first analysis repeated that without checking.
 - The original server build compiled neither `sentinal` nor `fedperf`; only the VS.NET 2003
   `.vcproj` did. Its `ALLSRV_STANDALONE` flavour (`AllSrv32`) is the LAN server.
-- AGC's event definitions are generated from `AGC/AGCEvents.xml` by stylesheets in Microsoft's
-  pre-standard `WD-xsl` dialect with embedded JScript. Only MSXML 3 runs those, so the build keeps
-  the original `cscript XMLXForm.js` step (`AllegianceXslt` in `Directory.Build.targets`).
+- AGC's event definitions were generated from `AGC/AGCEvents.xml` by stylesheets in Microsoft's
+  pre-standard `WD-xsl` dialect with embedded JScript. Only MSXML 3 runs those, so the build kept
+  the original `cscript XMLXForm.js` step (`AllegianceXslt`). Both went with AGC; the definitions are
+  now `FedSrv/serverevents_defs.h`.
 - `cvh` does not link qhull; it runs a `qhull` executable, so qhull is built as a console tool.
 - `zlib/zlib.h` includes `ddraw.h` and `d3d.h` even though nothing in `zlib` uses DirectX. Every
   module inherits DirectX through it. These includes move into `engine` during the D3D11 port, once
@@ -90,11 +92,11 @@ the DCOM admin objects were removed; see "Server administration". AGC's events a
   excluded.
 - Projects for all remaining Tier 1 modules (except `xmunge`, see above), generated from the
   original makefiles' source lists, include paths and defines.
-- `Directory.Build.targets`: `AllegianceXslt` (AGC's XML to IDL/MC/RC2/headers) and
-  `AllegianceMessage` (`mc.exe` for `.msg`/`.mc`). MIDL uses MSBuild's built-in `Midl` items.
+- `Directory.Build.targets`: `AllegianceMessage` (`mc.exe` for `.msg`/`.mc`), and `AllegianceXslt`
+  (AGC's XML to IDL/MC/RC2/headers) until AGC was removed. MIDL uses MSBuild's built-in `Midl` items.
 - Generated files shared between projects go to `out/gen/<Platform>/<Configuration>/<module>/`.
-  `AGCGuid` (the original `AGCGuid.lib`) owns AGC's code generation, so it builds before every
-  project that includes the AGC headers.
+  `AGCGuid` (the original `AGCGuid.lib`) owned AGC's code generation, so it built before every
+  project that included the AGC headers (removed with AGC).
 - Resource scripts: the makefiles concatenated module `.rc` + generated message `.rc` +
   `#define FLAVOR` + `Inc/VerRes.rc` with `copy`/`type`. Each executable now has a small
   `*.build.rc` that `#include`s the same pieces.
@@ -321,22 +323,21 @@ sections:
   "CombatXSize": 1024,
   "Music": 1,
   "CharacterName": "Pilot",
-  "SquadMemberships": { "Pilot": [12, 40] },
-  "EventLog": { "EnabledNTEvents": "default" }
+  "SquadMemberships": { "Pilot": [12, 40] }
 }
 ```
 
 Numbers stand in for `REG_DWORD`, so flags stay 0 or 1. `true`/`false` and numeric strings (`"1"`, `"0x10"`)
 also read as numbers, so hand edits are forgiving. Strings are UTF-8 in the file and the ANSI code page in
 the game, as before. The squad memberships per character were a `REG_BINARY` array of IDs and are now a
-JSON array. The AGC event logger, configured through `IAGCEventLoggerPrivate::Initialize`, now gets the
-settings file's path instead of a registry key, and keeps its five values in the `EventLog` section.
+JSON array. (The AGC event logger kept its configuration in an `EventLog` section until AGC was removed;
+see "AGC removed".)
 
 `zlib/zsettings.h` is the interface: `ZSettingsFile` for one file, and the `ZSettings` functions for the
 process's own file. It is a small reader and writer (strict RFC 8259 on input, a UTF-8 byte order mark
-allowed), without ZString or the rest of zlib, so AGC uses it too. Every write re-reads the file, applies the
+allowed), without ZString or the rest of zlib, so any module can use it. Every write re-reads the file, applies the
 change, and writes it back to a temporary file that is then renamed over the original, under a named mutex
-per file. The server process and the AGC logger inside it, or two clients, don't lose each other's changes,
+per file. Two processes, or two objects in one process, writing the same file don't lose each other's changes,
 and a crash mid-write leaves the old file. Reads come from the copy last read. A file that doesn't parse
 is ignored (the defaults apply), a debugger trace says where it failed, and it is kept as `<name>.bad` when
 the next write replaces it.
@@ -362,10 +363,9 @@ repository, from the registry's art path), the `TCPropBagOnRegKey` COM class (re
 bags; in AGC's IDL but not in its object map), and TCLib's registry-switched lock tracing
 (`_ENABLE_TRACE_LOCKS`, never defined).
 
-What stays in the registry is Windows' own: COM class and type library registration for AGC (which
-registers itself on first use), and the service entry if the server is installed as a service. The
-server's own COM registration, its event-log source and the performance counters went with the DCOM
-admin layer (see "Server administration" below).
+What stays in the registry is Windows' own: the service entry, if the server is installed as a service.
+The server's own COM registration, its event-log source and the performance counters went with the DCOM
+admin layer, and AGC's COM registration with AGC (see "Server administration" and "AGC removed" below).
 
 The parked Tier 2 tools `cliconfig`, `srvconfig` and `AllSrvUI` exist to edit the old registry values.
 Nothing reads those values any more; reviving one of these tools means porting it to `zsettings.h`.
@@ -413,10 +413,35 @@ The Windows performance counters (`sharemem`, `Inc/sharemem.h`, the `AllSrv` cou
 The server still keeps the same statistics in memory (`g.serverCounters`, `FedSrv/counters.h`), for the
 admin protocol to report later.
 
-Left for the next step, de-COMing AGC: AGC is still an in-process COM server that registers itself on
-first use, which writes to HKCR and so needs administrator rights once. The event logger still writes
-to the Windows event log, now without a registered event source, so Event Viewer shows the raw text
-without its message resources. AGC's own `AdminSessionHelper` class is unused and goes then.
+AGC, still an in-process COM server at this point, was removed next (below).
+
+#### AGC removed: server events go to a log file
+
+AGC (Active Game Core, about 17,000 lines plus 3,300 lines of IDL) was a COM object model over the game
+(games, ships, stations, sectors, teams and their collections), an event system, and an event logger
+that wrote events to the Windows event log and to a database. With the admin layer gone, the only
+part anything used was the event system: the server raised about 40 kinds of event (start and stop,
+lobby connection, logins, chat, kills, hack detection, errors), and the logger was the only listener.
+Nothing in the client used AGC. AGC registered itself as a COM server on first use (writing HKCR, so
+the server needed administrator rights once).
+
+All of `AGC/`, its two projects (`AGC`, `AGCGuid`), `Inc/AGCIDL.idl`, the XSLT build step and the
+server's COM start-up (`CoInitialize`, the ATL module) are gone. In their place:
+
+| Piece | Now |
+|---|---|
+| Event definitions | `FedSrv/serverevents_defs.h`: the IDs, names, severities and message formats, converted once from `AGCEvents.xml` (64 events; the pigs' were dropped). Edited directly from now on |
+| Raising an event | `g_events.TriggerEvent` / `TriggerContextEvent` (`FedSrv/serverevents.h`), with the same arguments as before: (name, `VT_` type, value) triplets. The values are taken by their C++ type through a variadic template, so a wrong `VT_` tag can no longer misread the argument list |
+| Output | `logs\server-<date>.log` next to the settings file (`%ProgramData%\Allegiance\logs`, or next to the executable for a portable install), one line per event: time, severity, name, context, message, in UTF-8. Warnings and errors also go to the console |
+| Which events | The 44 that went to the Windows event log by default are logged; `"LogAllEvents": 1` in `server.json` logs all of them, which adds chat, kills, sector changes and logins. The per-event enable ranges and their `EventLog` section are gone |
+| Errors | An event of severity Error still ends the process, as AGC did (in a debug build it first breaks into an attached debugger if `fWantInt3` is on) |
+| Database logging | Dropped (it needed an OLE DB connection string that nothing set) |
+| Ship events | `CAGCSite` became `FedSrv/eventsite.h`; the "ship killed" positions are text instead of `AGCVector` objects |
+| Game parameters | `gameparamdata.h` moved to `FedSrv/` |
+
+ATL is still included for a few helpers (`CComBSTR`, `test/TCLib`, `test/TCAtl`), but there is no ATL
+module, COM server, COM class or COM registration of the repository's own left in the built code (the
+client still uses DirectX's COM interfaces, which need none of that).
 
 ### Phase 4: art pipeline
 
