@@ -42,6 +42,8 @@ float4 ScreenToClip(float4 p)
 
 float4 Shade(float4 color, float2 uv)
 {
+    float4 result = color;
+
     if (g_flags.x & 1) {
         float4 texel = g_texture.Sample(g_sampler, uv);
 
@@ -65,14 +67,19 @@ float4 Shade(float4 color, float2 uv)
             discard;
         }
 
+        //
+        // One exit point: FXC warns (X4000) about early returns from branches
+        // on constant-buffer values
+        //
+
         if (g_flags.x & 2) {
             // D3DTBLEND_DECAL: texture colour, texture alpha (always opaque)
-            return float4(texel.rgb, 1.0);
+            result = float4(texel.rgb, 1.0);
+        } else {
+            // D3DTBLEND_MODULATE without texture alpha: alpha from the vertex
+            result = float4(texel.rgb * color.rgb, color.a);
         }
-
-        // D3DTBLEND_MODULATE without texture alpha: alpha from the vertex
-        return float4(texel.rgb * color.rgb, color.a);
     }
 
-    return color;
+    return result;
 }

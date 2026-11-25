@@ -58,35 +58,34 @@ struct VertexOut
     float2 clip     : SV_ClipDistance0;
 };
 
+//
+// One exit point: FXC warns (X4000) about early returns from branches on
+// constant-buffer values
+//
+
 float4 Light(VertexIn input)
 {
 #ifdef TL_NORMAL
-    float bright = dot(input.normal, g_light.xyz);
-    float ambient = g_params.x;
+    float  bright  = dot(input.normal, g_light.xyz);
+    float  ambient = g_params.x;
+    float  b       = saturate(bright + ambient);
+    float4 result  = float4(1, 1, 1, 1);
 
     if (g_tlmode.x == TLModeGlobalColor) {
-        return g_global;
-    }
-
-    if (g_tlmode.x == TLModeDirectional) {
-        float b = saturate(bright + ambient);
-        return float4(b, b, b, 1);
-    }
-
-    if (g_tlmode.x == TLModeBidirectional) {
+        result = g_global;
+    } else if (g_tlmode.x == TLModeDirectional) {
+        result = float4(b, b, b, 1);
+    } else if (g_tlmode.x == TLModeBidirectional) {
         float3 rgb =
             bright >= 0
                 ? saturate( bright * g_color.rgb    + ambient)
                 : saturate(-bright * g_colorAlt.rgb + ambient);
-        return float4(rgb, 1);
+        result = float4(rgb, 1);
+    } else if (g_tlmode.x == TLModeMaterial) {
+        result = float4(g_global.rgb * b, g_global.a);
     }
 
-    if (g_tlmode.x == TLModeMaterial) {
-        float b = saturate(bright + ambient);
-        return float4(g_global.rgb * b, g_global.a);
-    }
-
-    return float4(1, 1, 1, 1);
+    return result;
 #else
     return input.color;
 #endif

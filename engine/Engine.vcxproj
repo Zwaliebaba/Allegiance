@@ -40,6 +40,7 @@
       <VariableName>g_%(Filename)</VariableName>
       <ObjectFileOutput></ObjectFileOutput>
       <AdditionalIncludeDirectories>$(ProjectDir)shaders;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsErrors>true</TreatWarningAsErrors>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
