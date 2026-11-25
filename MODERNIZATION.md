@@ -115,6 +115,7 @@ moves into Tier 1 and is ported with the server, keeping the admin and event fea
 | Rendering | DirectDraw 4 + Direct3D 3, MMX software rasterizer | D3D11 backend; a few shaders emulate the fixed-function pipeline (lights, materials, fog, colour-key alpha) |
 | Input | DirectInput 2/7 | DirectInput 8 |
 | Audio | DirectSound / DS3D | Unchanged at first; XAudio2 later |
+| Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Same `IDiskPlayer` interface, playing the WAVs from `Artwork/redbook` (track order from `tracks.lst`) |
 | Networking | DirectPlay 4 inside `FedMessaging` | Own Winsock UDP layer: reliable-ordered and unreliable channels, fragmentation, timeouts, broadcast LAN discovery replacing `EnumSessions` |
 
 The DirectPlay surface used by `FedMessaging` is about 15 calls: `Open`, `Close`, `EnumSessions`,
@@ -132,8 +133,8 @@ geometry list in `makegeo.mak`) and builds incrementally through Inputs and Outp
 |---|---|---|
 | Images | `mdlc -convert` (24-bit BMP to 16-bit MDL) | Same, rebuilt |
 | Animations | `mdlc -compressanim` | Same |
-| Flatten / extract / bounds | `xmunge` on Direct3D Retained Mode | `xmunge` on the engine's own `.x` parser (`engine/xfile.cpp`) |
-| Levels of detail | MSR progressive-mesh binaries + `xmunge -reduce` | meshoptimizer at the original ratios (0.5 and 0.01) |
+| Flatten / extract / bounds | `xmunge` on Direct3D Retained Mode | `xmunge` rewritten as portable C++17 on its own text `.x` reader (done) |
+| Levels of detail | MSR progressive-mesh binaries + `xmunge -reduce` | Dropped: every LOD slot uses the full-detail mesh |
 | Collision hulls | `cvh` + qhull | Same; qhull from vcpkg |
 | Model compile | `sed` templates + `mdlc -optimize` | Template substitution in MSBuild, then `mdlc` |
 
@@ -150,14 +151,50 @@ The original art build assumed a fixed `%FEDROOT%` layout (`%FEDROOT%\src\artwor
 |---|---|
 | `cvh/main.cpp`: `system("%fedroot%\\src\\bin\\qhull ...")` (2 sites) | Fixed in code. Uses `qhull.exe` next to `cvh.exe` (same build output directory) or `ALLEGIANCE_QHULL`, and quotes paths so spaces work |
 | `Artwork/tools/*.bat`, `*.awk`, `Artwork/*/makefile`, `makegeo.mak` (about 70 path lines; `awk.exe` was never in the release; `sed.exe` is bundled) | Replaced by `Art.proj`, whose paths are relative to `$(AllegianceRoot)` and the build output. Deleted once `Art.proj` covers them. |
-| `Artwork/tools/pmesh*/convpm.bat` + MSR progressive-mesh binaries | Replaced by the `xmunge` rewrite (meshoptimizer), then deleted |
+| `Artwork/tools/pmesh*/convpm.bat` + MSR progressive-mesh binaries | Deleted with the reduced LODs |
 | Art data (`.x`, `.mdl`) | Checked: no absolute texture or include paths |
+
+#### xmunge
+
+The rewrite keeps `-flatten`, `-extract` and `-bound` and matches Direct3D Retained Mode's behaviour:
+
+- It loads only the first top-level frame.
+- An animated frame's matrix is replaced by scale · rotation · translation from its keys. Missing key types are identity, rotations use slerp, and times clamp to the key range.
+- `-bound` pieces are written in model space.
+
+These rules were worked out against the art, and a separate reference implementation produces the same vertices on all 579 models in `Artwork/256`. The reader accepts the eight hand-edited files with unbalanced braces (`beam.x`, `bullet.x`, `circle.x`, …) the way D3DRM did.
+
+#### Art directory cleanup
+
+The original build only gathers art from `Artwork/256`, through these inputs:
+
+- `bitmap.txt`, `copymdl.txt` and `fontsource.mdl`.
+- The sources named in `makegeo.mak` (`<geo>.x`, `_static.x`, `_bound.x`, text MDLs).
+- Wildcard copies of `*.wav`, `*.rtf`, `*.avi`, `*.igc` and `*.mml`.
+
+The client reads only that output directory. Everything else was deleted, and git history keeps it:
+
+- `Artwork/old256`, `cadet` (art for the separate Cadet product, never integrated), `ship`, `sounds`, `soundpac1`, `training`, `team2.igc` and `team4.igc`.
+- 1,028 files in `Artwork/256`:
+  - prebuilt `.mdl` and intermediate `.x` files that `makegeo.mak` regenerates;
+  - bitmaps and models that no manifest names;
+  - `artwork_new/`, `icons/` and stray scripts and notes.
+- The progressive-mesh tools and unused templates and scripts in `Artwork/tools`.
+
+The remaining `Artwork/tools` batch files, awk scripts and `sed.exe` go when `Art.proj` replaces them. A before-and-after check confirms that every input the manifests need is still present.
+
+Kept on purpose:
+
+- `Artwork/redbook`: the soundtrack. The game plays music as audio-CD tracks through MCI (`soundengine/redbooksound.cpp`), so the port has no music without a CD. A Phase 3 follow-up replaces the CD player with file playback from these WAVs.
+- The 41 files below. They are referenced by name from code or a shipped MDL, but the original build never put them in the art output, so they were missing at runtime even in 2004. They are latent bugs to check when the client first runs: either the referencing code is dead, or the file should be added to a manifest. Also, `makegeo.mak` builds `fig02pit.mdl` from `fig02pit.x`, but no `fig02pit.x` source exists.
+
+  `BtnMissionDetails.bmp`, `BtnMount.bmp`, `BtnReject.bmp`, `BtnReqPos.bmp`, `BtnSell.bmp`, `BtnTeamRoom.bmp`, `btnCharInfo2Zone.bmp`, `btncombo.bmp`, `btnmain.bmp`, `btnmaingames.bmp`, `btnpicksector.bmp`, `cmdformation.bmp`, `concmdbardisplay.bmp`, `conenergyweaponsdisplay.bmp`, `confabsel.bmp`, `conmissilesdisplay.bmp`, `conordersdisplay.bmp`, `conradarasteroids.bmp`, `conradarships.bmp`, `conradarstations.bmp`, `conradartarget.bmp`, `conradartreasures.bmp`, `conselectiondisplay.bmp`, `conshrunkcmdbardisplay.bmp`, `console.mdl`, `constationdisplay.bmp`, `conteambarsel.bmp`, `conweaponsdisplay.bmp`, `credits.bmp`, `hudgauge.bmp`, `loadout1.mdl`, `loadout11.mdl`, `loadout3.mdl`, `loadout4.mdl`, `loadout5.mdl`, `loadout9.mdl`, `loadoutbomber.mdl`, `loadouttacticalfighter.mdl`, `messageoftheday.mdl`, `techtree.mdl`, `temp.mdl`
 
 #### Smoke test
 
 CI runs `tools/ci/mdlc-smoke.ps1` after the build. It converts one bitmap and one animation, and
 compiles `fontsource.mdl`. This establishes whether `mdlc`, which starts the engine with its software
-DirectDraw path, runs on a headless runner.
+DirectDraw path, runs on a headless runner. The first run crashed during engine start-up: `FontImpl::GetSizes` asserted on a zero-width glyph, which current GDI reports for some characters. The assert is relaxed to reject only negative widths; the Debug client used the same path.
 
 ### Phase 5: optional
 
