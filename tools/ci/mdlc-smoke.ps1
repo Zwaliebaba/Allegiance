@@ -39,7 +39,25 @@ function Invoke-Mdlc([string] $Label, [string[]] $MdlcArgs, [string] $Expect) {
     $size = if (Test-Path $outFile) { (Get-Item $outFile).Length } else { 0 }
     $text = ((Get-Content $log -ErrorAction SilentlyContinue) + (Get-Content "$log.err" -ErrorAction SilentlyContinue)) -join ' | '
     $script:results += [pscustomobject]@{ Step = $Label; Result = $(if ($ok) { 'OK' } else { 'FAIL' }); Process = $state; Output = "$Expect ($size bytes)"; Message = $text }
+
+    # On a crash, rerun under the console debugger to get a symbolised stack.
+    if ($finished -and $p.ExitCode -lt 0 -and $script:cdb) {
+        $stack = Join-Path $Out "$Label.stack.txt"
+        # Start-Process does not quote array elements, so build the command line by hand.
+        $cdbArgs = "-g -G -y `"$(Split-Path $Mdlc)`" -c `".lines -e; r; kpn 40; q`" `"$Mdlc`" " + ($MdlcArgs -join ' ')
+        $d = Start-Process -FilePath $script:cdb -ArgumentList $cdbArgs -WorkingDirectory $Out `
+            -NoNewWindow -PassThru -RedirectStandardOutput $stack -RedirectStandardError "$stack.err"
+        if (-not $d.WaitForExit($TimeoutSeconds * 2000)) { $d.Kill() }
+        Write-Host "---- $Label crash stack (cdb) ----"
+        Get-Content $stack -ErrorAction SilentlyContinue | Select-String -Pattern '^\s*[0-9a-f]{2} |ExceptionAddress|ExceptionCode|Access violation|^\(|\.cpp|\.h' | Select-Object -First 60 | ForEach-Object { Write-Host $_.Line }
+    }
 }
+
+$script:cdb = @(
+    "${env:ProgramFiles(x86)}\Windows Kits\10\Debuggers\x86\cdb.exe",
+    "${env:ProgramFiles}\Windows Kits\10\Debuggers\x86\cdb.exe"
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
+Write-Host "cdb: $(if ($script:cdb) { $script:cdb } else { 'not found' })"
 
 Invoke-Mdlc 'convert-bitmap' @('-convert', 'acbuild.bmp', 'acbuildbmp.mdl') 'acbuildbmp.mdl'
 Invoke-Mdlc 'compile-font'   @('fontsource', 'font.mdl') 'font.mdl'

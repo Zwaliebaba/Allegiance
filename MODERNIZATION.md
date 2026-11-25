@@ -11,6 +11,7 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Toolchain | Visual Studio 2026, platform toolset v145, `.slnx` solution, Win32 first, x64 later. |
 | Renderer | New Direct3D 11 backend behind the engine's existing `Engine` / `Surface` / rasterizer seam. DirectDraw 4, Direct3D 3 and the MMX software rasterizer are removed. |
 | Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project. Stage B: new MDL version with 32-bit / BC7 DDS textures generated from the 24-bit source BMPs. |
+| Level of detail | Reduced LOD meshes are dropped. They were a 1999 performance optimisation (the models are hundreds to a few thousand triangles). Every LOD slot uses the full-detail mesh, which removes `xmunge -reduce`, the MSR progressive-mesh binaries and meshoptimizer. |
 | Networking | Own Winsock UDP transport behind the existing `FedMessaging` interface, replacing DirectPlay 4. Built in Phase 3 with a loopback / packet-loss test harness that runs in CI. |
 | Scope | Tier 1 is built. Tier 2 stays in the repo, outside the solution. Tier 3 is deleted once nothing in Tier 1 or 2 references it. |
 | Verification | GitHub Actions on `windows-2025` (VS 2026). `.github/workflows/windows-build.yml`. |
