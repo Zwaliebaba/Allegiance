@@ -34,9 +34,10 @@ public:
 // Helper functions
 //
 
-// Creates a new disk player object (CD, minidisk, etc.).  strDevice can be 
-// empty (choose any device), a path ("E:\"), or a volume label.  
-HRESULT CreateDiskPlayer(TRef<IDiskPlayer>& pdiskplayer, const ZString& strDevice = "");
+// Creates the music player. It plays the WAVs listed in strFolder\tracks.lst
+// (the artwork's redbook folder): track n of the original Audio CD is line
+// n - 1 (track 1 was the data track). Fails if there is no track list.
+HRESULT CreateDiskPlayer(TRef<IDiskPlayer>& pdiskplayer, const ZString& strFolder);
 
 // Creates a new disk player object that only has stubs for each of the calls
 HRESULT CreateDummyDiskPlayer(TRef<IDiskPlayer>& pdiskplayer);

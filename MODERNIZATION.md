@@ -155,7 +155,7 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
 | Rendering | DirectDraw 4 + Direct3D 3 (DirectX 6), software rasterizer | D3D11 backend. Stage 1 (below): a D3D11 rasterizer with the engine's CPU transform and lighting. Stage 2: transform and lighting in shaders |
 | Input | DirectInput 2/7 | DirectInput 8 |
 | Audio | DirectSound / DS3D | Unchanged at first; XAudio2 later |
-| Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Same `IDiskPlayer` interface, playing the WAVs from `Artwork/redbook` (track order from `tracks.lst`) |
+| Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Done: the same `IDiskPlayer` interface plays the WAVs from `Artwork/redbook` (copied to `out\Artwork\redbook` by `Art.proj`; CD track n is line n - 1 of `tracks.lst`) through the Media Foundation Media Engine, audio only. The music gain sets the player's volume instead of the system mixer's CD line |
 | Networking | DirectPlay 4 inside `FedMessaging` | MsQuic: a reliable ordered stream and unreliable datagrams per connection, plus a UDP probe for LAN discovery (see "Networking" below) |
 | Settings | `HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.0` (and `...\Server`) | A JSON file per program (see "Settings" below) |
 

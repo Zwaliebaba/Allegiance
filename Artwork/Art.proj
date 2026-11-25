@@ -13,6 +13,7 @@
     256\bitmap.txt   bitmaps converted to <name>bmp.mdl
     256\copymdl.txt  text MDL files copied as-is
     256\*.wav *.rtf *.avi *.igc *.mml   copied as-is
+    redbook\*.wav, tracks.lst          the music, copied to redbook\
     256\fontsource.mdl                  compiled to font.mdl, with the fonts in
                                         $(ArtFontDir) (default bin\, not in git:
                                         Eurostile is not freely licensed) loaded
@@ -236,6 +237,21 @@
   </Target>
 
   <!--
+    The soundtrack: redbook\*.wav and tracks.lst, played by the client's music
+    player (they were the Audio CD's tracks). Hard links where the volume
+    allows, since the WAVs are about 260 MB. A checkout without them (CI's art
+    job) copies nothing.
+  -->
+  <ItemGroup>
+    <ArtMusic Include="$(MSBuildThisFileDirectory)redbook\*.wav;$(MSBuildThisFileDirectory)redbook\tracks.lst" />
+  </ItemGroup>
+
+  <Target Name="Music">
+    <Copy SourceFiles="@(ArtMusic)" DestinationFolder="$(ArtOutDir)redbook" SkipUnchangedFiles="true"
+          UseHardlinksIfPossible="true" />
+  </Target>
+
+  <!--
     Point the exe directory's Artwork at $(ArtOutDir) with a directory junction
     (no admin rights needed). rmdir without /s removes only a junction or an empty
     directory, such as the one the client creates when it finds no art; a real
@@ -252,7 +268,7 @@
     <Message Importance="high" Text="Artwork: $(ArtLinkDir) -> $(ArtOutDir)" />
   </Target>
 
-  <Target Name="Build" DependsOnTargets="Copies;Bitmaps;Animations;Fonts;Models;TextModels;LinkArtwork" />
+  <Target Name="Build" DependsOnTargets="Copies;Music;Bitmaps;Animations;Fonts;Models;TextModels;LinkArtwork" />
 
   <Target Name="Clean">
     <!-- Remove the junction itself first, so nothing follows it into $(ArtOutDir). -->

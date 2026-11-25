@@ -9,542 +9,250 @@
 #include "redbooksound.h"
 #include "ds3dutil.h"
 
+#include <math.h>
+#include <mfapi.h>
+#include <mfmediaengine.h>
+#include <audiosessiontypes.h>
+
+#pragma comment(lib, "mfplat.lib")
+#pragma comment(lib, "mfuuid.lib")
+
 using std::list;
 
 namespace SoundEngine {
 
+//////////////////////////////////////////////////////////////////////////////
 //
-// A class dedicated to controling the volume of the CD player(s) on a system
+// The music player: the game's soundtrack, which shipped as Audio-CD tracks
+// played through MCI, now comes from the WAVs in Artwork/redbook, played by
+// the Media Foundation Media Engine (audio only). Track n (the CD's track
+// numbering; track 1 was the data track) is line n - 1 of tracks.lst.
 //
-class CDVolume
+//////////////////////////////////////////////////////////////////////////////
+
+class MusicNotify : public IMFMediaEngineNotify
 {
-public:
-    enum { c_nMaxChannels = 8 };
-
-private:
-    struct MixerLineData
-    {
-        HMIXEROBJ hmixer;
-        DWORD cChannels;
-        MIXERCONTROL mixercontrol;
-        MIXERCONTROLDETAILS_UNSIGNED vmixercontrolsOld[c_nMaxChannels];
-    };
+    LONG          m_cRef;
+    volatile LONG m_fEnded;     // the current track played to its end
+    volatile LONG m_fError;     // the current track could not be played
 
 public:
+    MusicNotify() : m_cRef(1), m_fEnded(0), m_fError(0) {}
 
-    list<MixerLineData> m_listMixerLines;
-
-    CDVolume()
+    void Reset()
     {
-        UINT uMaxDevices = mixerGetNumDevs();
-        
-        // find all of the CD line controls and store their ID and starting volume
-        for (UINT uDeviceID = 0; uDeviceID < uMaxDevices; ++uDeviceID)
-        {
-            HMIXEROBJ hmixer;
-            
-            //
-            // open the mixer in question
-            //
-            if (MMSYSERR_NOERROR != mixerOpen((LPHMIXER)&hmixer, uDeviceID, NULL, NULL, MIXER_OBJECTF_MIXER))
-            {
-                debugf("Failed to open mixer %d\n", uDeviceID);
-                continue;
-            }
-
-            //
-            // look for a mixer line attached to a CD
-            //
-            MIXERLINE mixerline;
-
-            mixerline.cbStruct = sizeof(mixerline);
-            mixerline.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC;
-            if (MMSYSERR_NOERROR != mixerGetLineInfo(hmixer, &mixerline, MIXER_GETLINEINFOF_COMPONENTTYPE)
-                || mixerline.cControls == 0)
-            {
-                debugf("Failed to find CD line on mixer %d\n", uDeviceID);
-                mixerClose((HMIXER)hmixer);
-                continue;
-            }
-
-            //
-            // look for a volume control for that mixer line
-            //
-            MIXERLINECONTROLS mixerlinecontrols; 
-            MixerLineData mixerlinedata;
-
-            mixerlinecontrols.cbStruct = sizeof(mixerlinecontrols);
-            mixerlinecontrols.dwLineID = mixerline.dwLineID;
-            mixerlinecontrols.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
-            mixerlinecontrols.cControls = 1;
-            mixerlinecontrols.cbmxctrl = sizeof(MIXERCONTROL);
-            mixerlinecontrols.pamxctrl = &(mixerlinedata.mixercontrol);
-
-            mixerlinedata.hmixer = hmixer;
-            mixerlinedata.cChannels = mixerline.cChannels;
-
-            if (MMSYSERR_NOERROR != 
-                mixerGetLineControls(hmixer, &mixerlinecontrols, MIXER_GETLINECONTROLSF_ONEBYTYPE))
-            {
-                debugf("Failed to find CD volume fader on mixer %d\n", uDeviceID);
-                mixerClose((HMIXER)hmixer);
-                continue;
-            }
-            
-            // don't try to use more than 8 channels (not likely to be a problem)
-            if (mixerlinedata.cChannels > c_nMaxChannels)
-                mixerlinedata.cChannels = 1;
-
-            //
-            // Get the initial volume settings (so we can restore them when we are done)
-            //
-            MIXERCONTROLDETAILS mixercontroldetails;
-
-            mixercontroldetails.cbStruct = sizeof(MIXERCONTROLDETAILS);
-            mixercontroldetails.dwControlID = mixerlinedata.mixercontrol.dwControlID;
-            mixercontroldetails.cChannels = mixerlinedata.cChannels;
-            mixercontroldetails.cMultipleItems = 0;
-            mixercontroldetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
-            mixercontroldetails.paDetails = &(mixerlinedata.vmixercontrolsOld);
-            
-            if (MMSYSERR_NOERROR !=
-                mixerGetControlDetails(hmixer, &mixercontroldetails, MIXER_GETCONTROLDETAILSF_VALUE))
-            {
-                debugf("Failed to get previous volume levels for mixer %d\n", uDeviceID);
-                mixerClose((HMIXER)hmixer);
-                continue;
-            }
-
-            // add this to the list of volume controls
-            m_listMixerLines.push_back(mixerlinedata);
-        }
+        InterlockedExchange(&m_fEnded, 0);
+        InterlockedExchange(&m_fError, 0);
     }
 
-    ~CDVolume()
+    bool IsDone() const { return m_fEnded || m_fError; }
+
+    // IUnknown
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppv)
     {
-        // restore the volume settings for all of the CD players
-        while (!m_listMixerLines.empty())
+        if (riid == __uuidof(IUnknown) || riid == __uuidof(IMFMediaEngineNotify))
         {
-            MixerLineData& mixerlinedata = m_listMixerLines.back();
-
-            MIXERCONTROLDETAILS mixercontroldetails;
-
-            mixercontroldetails.cbStruct = sizeof(MIXERCONTROLDETAILS);
-            mixercontroldetails.dwControlID = mixerlinedata.mixercontrol.dwControlID;
-            mixercontroldetails.cChannels = mixerlinedata.cChannels;
-            mixercontroldetails.cMultipleItems = 0;
-            mixercontroldetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
-            mixercontroldetails.paDetails = &(mixerlinedata.vmixercontrolsOld);
-            
-            ZVerify(mixerSetControlDetails(mixerlinedata.hmixer, &mixercontroldetails, MIXER_SETCONTROLDETAILSF_VALUE) 
-                == MMSYSERR_NOERROR);
-            ZVerify(mixerClose((HMIXER)mixerlinedata.hmixer) == MMSYSERR_NOERROR);
-
-            m_listMixerLines.pop_back();
+            *ppv = static_cast<IMFMediaEngineNotify*>(this);
+            AddRef();
+            return S_OK;
         }
+        *ppv = NULL;
+        return E_NOINTERFACE;
+    }
+    STDMETHODIMP_(ULONG) AddRef()  { return InterlockedIncrement(&m_cRef); }
+    STDMETHODIMP_(ULONG) Release()
+    {
+        LONG cRef = InterlockedDecrement(&m_cRef);
+        if (cRef == 0)
+            delete this;
+        return cRef;
     }
 
-    HRESULT SetGain(float fGain)
+    // IMFMediaEngineNotify: called on Media Foundation's threads
+    STDMETHODIMP EventNotify(DWORD event, DWORD_PTR, DWORD)
     {
-        if (fGain > 0.0f)
-        {
-            return E_INVALIDARG;
-        }
-
-        const float fMinGain = -40;
-        float fClippedGain = max(fMinGain, fGain);
-
-        // set the volume on every CD player (since we can't map to the right one)
-        // restore the volume settings for all of the CD players
-        std::list<MixerLineData>::iterator mixerline;
-        for (mixerline = m_listMixerLines.begin(); mixerline != m_listMixerLines.end(); ++mixerline)
-        {
-            MixerLineData& mixerlinedata = *mixerline;
-
-            // translate the gain to a linear volume setting.
-            MIXERCONTROLDETAILS_UNSIGNED volume;
-            volume.dwValue = (DWORD)(mixerlinedata.mixercontrol.Bounds.dwMinimum
-                + (mixerlinedata.mixercontrol.Bounds.dwMaximum - mixerlinedata.mixercontrol.Bounds.dwMinimum) 
-                    * (1 - fClippedGain/fMinGain));
-
-            // set the volume for this control
-            MIXERCONTROLDETAILS mixercontroldetails;
-
-            mixercontroldetails.cbStruct = sizeof(MIXERCONTROLDETAILS);
-            mixercontroldetails.dwControlID = mixerlinedata.mixercontrol.dwControlID;
-            mixercontroldetails.cChannels = 1;
-            mixercontroldetails.cMultipleItems = 0;
-            mixercontroldetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
-            mixercontroldetails.paDetails = &volume;
-            
-            ZVerify(mixerSetControlDetails(mixerlinedata.hmixer, &mixercontroldetails, MIXER_SETCONTROLDETAILSF_VALUE) 
-                == MMSYSERR_NOERROR);
-        }
-
+        if (event == MF_MEDIA_ENGINE_EVENT_ENDED)
+            InterlockedExchange(&m_fEnded, 1);
+        else if (event == MF_MEDIA_ENGINE_EVENT_ERROR)
+            InterlockedExchange(&m_fError, 1);
         return S_OK;
     }
 };
 
-//
-// An implementation of a generic disk player wrapper that wraps a CD player
-//
-
-class DiskPlayerImpl : public IDiskPlayer, private WorkerThread
+class DiskPlayerImpl : public IDiskPlayer
 {
-    UINT m_idDevice;
-    
-    // the device name
-    ZString m_strElementName;
-
-    // a critical section controling access to the queued track and current track
-    CriticalSection m_csTrack;
-
-    enum { trackEmpty = -1, trackStop = 0 };
-
-    // the next track to play (trackEmpty if the queue is empty, or trackStop 
-    // if a stop is queued).
-    volatile int m_nQueuedTrack;
-
-    // the current track of the CD player (or trackStop if the cd player is stopped).
-    volatile int m_nCurrentTrack;
-
-    CDVolume m_cdvolume;
+    std::vector<ZString>  m_vstrTracks;     // file paths, for tracks 2, 3, ...
+    IMFMediaEngine*       m_pengine;
+    MusicNotify*          m_pnotify;
+    bool                  m_fStarted;       // MFStartup succeeded
+    int                   m_nCurrentTrack;  // 0 when stopped
+    float                 m_fGain;          // dB, 0 to -100
 
 public:
 
     DiskPlayerImpl() :
-        m_nQueuedTrack(trackEmpty), 
-        m_nCurrentTrack(trackStop)
+        m_pengine(NULL),
+        m_pnotify(NULL),
+        m_fStarted(false),
+        m_nCurrentTrack(0),
+        m_fGain(0)
     {
-    };
+    }
 
     ~DiskPlayerImpl()
     {
-        StopThread();
+        if (m_pengine)
+        {
+            m_pengine->Shutdown();
+            m_pengine->Release();
+        }
+        if (m_pnotify)
+            m_pnotify->Release();
+        if (m_fStarted)
+            MFShutdown();
     }
 
-    HRESULT Init(const ZString& strDevice)
+    HRESULT Init(const ZString& strFolder)
     {
-        DWORD dwError; 
+        //
+        // The track list
+        //
 
-        // try to open the device
-        MCI_OPEN_PARMS mciOpenParms;
-        DWORD dwFlags;
-
-        mciOpenParms.lpstrDeviceType = (LPCSTR) MCI_DEVTYPE_CD_AUDIO;
-        dwFlags = MCI_OPEN_TYPE | MCI_OPEN_TYPE_ID;
-
-        // translate the device name into an element name, if appropriate
-        if (!strDevice.IsEmpty())
+        ZString strList = strFolder + "\\tracks.lst";
+        FILE*   pfile = fopen(strList, "rt");
+        if (!pfile)
         {
-            m_strElementName = TranslateElementName(strDevice);
-            mciOpenParms.lpstrElementName = m_strElementName;
-            dwFlags |= MCI_OPEN_ELEMENT;
-        }
-
-        // try opening it to make sure it exists
-        dwError = mciSendCommand(NULL, MCI_OPEN, dwFlags, (UINT_PTR)&mciOpenParms);
-        if (dwError)
-        {
-            char cbError[256];
-            mciGetErrorString(dwError, cbError, 256);
-            debugf("Open failed for CD Audio device '%': %s\n", (const char*)strDevice, cbError);
+            debugf("Music: no track list %s\n", (const char*)strList);
             return E_FAIL;
         }
-        mciSendCommand(mciOpenParms.wDeviceID, MCI_CLOSE, 0, NULL);
 
-        // start the background (io) thread
-        StartThread(THREAD_PRIORITY_NORMAL, 200);
+        char szLine[MAX_PATH];
+        while (fgets(szLine, sizeof(szLine), pfile))
+        {
+            char* pch = szLine + strlen(szLine);
+            while (pch > szLine && (pch[-1] == '\n' || pch[-1] == '\r' || pch[-1] == ' ' || pch[-1] == '\t'))
+                *--pch = '\0';
+            char* pchStart = szLine;
+            while (*pchStart == ' ' || *pchStart == '\t')
+                ++pchStart;
+            if (*pchStart)
+                m_vstrTracks.push_back(strFolder + "\\" + pchStart);
+        }
+        fclose(pfile);
+
+        if (m_vstrTracks.empty())
+            return E_FAIL;
+
+        //
+        // The Media Engine, audio only
+        //
+
+        HRESULT hr = MFStartup(MF_VERSION);
+        if (FAILED(hr))
+            return hr;
+        m_fStarted = true;
+
+        IMFMediaEngineClassFactory* pfactory = NULL;
+        hr = CoCreateInstance(CLSID_MFMediaEngineClassFactory, NULL, CLSCTX_INPROC_SERVER,
+                              IID_PPV_ARGS(&pfactory));
+        if (FAILED(hr))
+            return hr;
+
+        IMFAttributes* pattributes = NULL;
+        hr = MFCreateAttributes(&pattributes, 2);
+        if (SUCCEEDED(hr))
+        {
+            m_pnotify = new MusicNotify();
+            pattributes->SetUnknown(MF_MEDIA_ENGINE_CALLBACK, m_pnotify);
+            pattributes->SetUINT32(MF_MEDIA_ENGINE_AUDIO_CATEGORY, AudioCategory_GameMedia);
+            hr = pfactory->CreateInstance(MF_MEDIA_ENGINE_AUDIOONLY, pattributes, &m_pengine);
+            pattributes->Release();
+        }
+        pfactory->Release();
+
+        if (FAILED(hr))
+        {
+            debugf("Music: could not create the Media Engine (0x%08x)\n", hr);
+            return hr;
+        }
 
         return S_OK;
-    }
-
-    void ThreadInit()
-    {
-        DWORD dwError; 
-
-        // try to open the device
-        MCI_OPEN_PARMS mciOpenParms;
-        DWORD dwFlags;
-        ZString strElementName;
-
-        mciOpenParms.lpstrDeviceType = (LPCSTR) MCI_DEVTYPE_CD_AUDIO;
-        dwFlags = MCI_OPEN_TYPE | MCI_OPEN_TYPE_ID;
-
-        if (!m_strElementName.IsEmpty())
-        {
-            mciOpenParms.lpstrElementName = m_strElementName;
-            dwFlags |= MCI_OPEN_ELEMENT;
-        }
-
-        dwError = mciSendCommand(NULL, MCI_OPEN, dwFlags, (UINT_PTR)&mciOpenParms);
-        if (dwError)
-        {
-            char cbError[256];
-            mciGetErrorString(dwError, cbError, 256);
-            debugf("Open failed for CD Audio device '%': %s\n", (const char*)m_strElementName, cbError);
-        }
-        m_idDevice = mciOpenParms.wDeviceID;
-
-
-        // Set the time format to track/minute/second/frame (TMSF).
-        MCI_SET_PARMS mciSetParms;
-        mciSetParms.dwTimeFormat = MCI_FORMAT_TMSF;
-
-        dwError = mciSendCommand(m_idDevice, MCI_SET, MCI_SET_TIME_FORMAT, (UINT_PTR)&mciSetParms);
-        if (dwError)
-        {
-            char cbError[256];
-            mciGetErrorString(dwError, cbError, 256);
-            debugf("Set format failed for CD Audio device: %s\n", cbError);
-        } 
-    }
-
-    // called for background thread; changes state (since that can involve 
-    // slow blocking calls) and updates the state (since the state is read 
-    // frequently and querying the device is a bit slow)  
-    bool ThreadIteration()
-    {
-        // fetch the current requested state and copy it to the current state
-        int nRequestedTrack;
-        int nOldTrack;
-        {
-            CriticalSectionLock lock(m_csTrack);
-
-            nOldTrack = m_nCurrentTrack;
-            nRequestedTrack = m_nQueuedTrack;
-            
-            if (nRequestedTrack != trackEmpty)
-                m_nCurrentTrack = nRequestedTrack;
-            m_nQueuedTrack = trackEmpty;
-        }
-
-        // if there is a new state requested, make that change
-        if (nRequestedTrack != trackEmpty)
-        {
-            if (nRequestedTrack == trackStop)
-                StopImpl();
-            else 
-                PlayImpl(nRequestedTrack);
-        }
-        // otherwise, just update the current state
-        else 
-        {
-            if ((nOldTrack != trackStop) && (IsPlayingImpl() != S_OK))
-            {
-                CriticalSectionLock lock(m_csTrack);
-                m_nCurrentTrack = trackStop;
-            }
-        }
-
-        return true;
-    }
-
-    void ThreadCleanup()
-    {
-        StopImpl();
-        mciSendCommand(m_idDevice, MCI_CLOSE, 0, NULL);
-    }
-
-    ZString TranslateElementName(const ZString& strDevice)
-    {
-        if (strDevice.Find(':') != -1)
-        {
-            return strDevice;
-        }
-        else
-        {
-            // get a list of all of the drives on the system
-            char cTemp;
-            int nDrivesStringLength = GetLogicalDriveStrings(1, &cTemp);
-            if (nDrivesStringLength == 0)
-            {
-                ZError("Error getting drives list\n");
-                return strDevice;
-            }
-
-            char* cbDrives = (char*)_alloca(nDrivesStringLength);
-    
-            nDrivesStringLength = GetLogicalDriveStrings(nDrivesStringLength, cbDrives);
-
-            if (nDrivesStringLength == 0)
-            {
-                ZError("Error getting drives list\n");
-                return strDevice;
-            }
-
-            // search through the list of drives looking for a CD-ROM who's volume 
-            // label matches strDevice
-            while (cbDrives[0] != '\0')
-            {
-                const int c_nVolumeNameLength = 1024;
-                char cbVolumeName[c_nVolumeNameLength];
-                
-                if (GetDriveType(cbDrives) == DRIVE_CDROM
-                    && GetVolumeInformation(cbDrives, cbVolumeName, 
-                        c_nVolumeNameLength, NULL, NULL, NULL, NULL, 0))
-                {
-                    if (_stricmp(strDevice, cbVolumeName) == 0)
-                    {
-                        return cbDrives;
-                    }
-                }
-
-                cbDrives += strlen(cbDrives) + 1;
-            }
-
-            return strDevice;
-        }
     }
 
     // plays one track
     virtual HRESULT Play(int nTrack)
     {
-        CriticalSectionLock lock(m_csTrack);
-
-        if (nTrack <= 0)
-        {
+        int iFile = nTrack - 2;
+        if (iFile < 0 || iFile >= (int)m_vstrTracks.size())
             return E_INVALIDARG;
-        }
 
-        m_nQueuedTrack = nTrack;
+        if (nTrack == m_nCurrentTrack && IsPlaying() == S_OK)
+            return S_OK;
 
-        return S_OK;
+        const char* szPath = m_vstrTracks[iFile];
+        int         cwch   = MultiByteToWideChar(CP_ACP, 0, szPath, -1, NULL, 0);
+        BSTR        bstr   = SysAllocStringLen(NULL, cwch);
+        if (!bstr)
+            return E_OUTOFMEMORY;
+        MultiByteToWideChar(CP_ACP, 0, szPath, -1, bstr, cwch);
+
+        m_pnotify->Reset();
+        HRESULT hr = m_pengine->SetSource(bstr);
+        SysFreeString(bstr);
+        if (FAILED(hr))
+            return hr;
+
+        SetGain(m_fGain);
+        hr = m_pengine->Play();
+        m_nCurrentTrack = SUCCEEDED(hr) ? nTrack : 0;
+        return hr;
     }
 
-    // stops the CD player
+    // stops the music
     virtual HRESULT Stop()
     {
-        CriticalSectionLock lock(m_csTrack);
-
-        m_nQueuedTrack = trackStop;
-
+        if (m_nCurrentTrack)
+        {
+            m_pengine->Pause();
+            m_nCurrentTrack = 0;
+        }
         return S_OK;
     }
 
-    // returns S_OK if the CD player is playing, S_FALSE otherwise
+    // returns S_OK while a track is playing, S_FALSE otherwise
     virtual HRESULT IsPlaying()
     {
-        CriticalSectionLock lock(m_csTrack);
-        int nTrack;
-        
-        if (m_nQueuedTrack != trackEmpty)
-        {
-            nTrack = m_nQueuedTrack;
-        }
-        else
-        {
-            nTrack = m_nCurrentTrack;
-        }
+        if (m_nCurrentTrack && m_pnotify->IsDone())
+            m_nCurrentTrack = 0;
 
-        return (nTrack == trackStop) ? S_FALSE : S_OK;
+        return m_nCurrentTrack ? S_OK : S_FALSE;
     }
 
-    // returns the current track of the CD player
+    // returns the current track
     virtual HRESULT GetCurrentTrack(int& nTrack)
     {
-        CriticalSectionLock lock(m_csTrack);
-        
-        if (m_nQueuedTrack != trackEmpty)
-        {
-            nTrack = m_nQueuedTrack;
-        }
-        else
-        {
-            nTrack = m_nCurrentTrack;
-        }
-
-        return (nTrack != trackStop) ? S_OK : E_FAIL;
+        IsPlaying();
+        nTrack = m_nCurrentTrack;
+        return m_nCurrentTrack ? S_OK : E_FAIL;
     }
 
-    // sets the gain on the CD player, from 0 to -100 dB
+    // sets the music gain, from 0 to -100 dB (it used to set the system
+    // mixer's CD line volume)
     virtual HRESULT SetGain(float fGain)
     {
-        return m_cdvolume.SetGain(fGain);
-    };
-
-    // plays one track (blocking)
-    HRESULT PlayImpl(int nTrack)
-    {
-        MCI_PLAY_PARMS mciPlayParms;
-        mciPlayParms.dwFrom = MCI_MAKE_TMSF(nTrack, 0, 0, 0);
-        mciPlayParms.dwTo = MCI_MAKE_TMSF(nTrack + 1, 0, 0, 0);
-        DWORD dwError = mciSendCommand(m_idDevice, MCI_PLAY, MCI_FROM | MCI_TO, (UINT_PTR)&mciPlayParms);
-
-        // if the track is out of range, retry without the stop point in case 
-        // this is the last track on the CD.  (review: we could store it, but
-        // this case handles switching the CD)
-        if (dwError == MCIERR_OUTOFRANGE)
-            dwError = mciSendCommand(m_idDevice, MCI_PLAY, MCI_FROM, (UINT_PTR)&mciPlayParms);
-
-        // this is the highest track on the CD
-        if (dwError)
-        {
-            char cbError[256];
-            mciGetErrorString(dwError, cbError, 256);
-            debugf("Play track %d failed for CD Audio device: %s\n", nTrack, cbError);
-            return E_FAIL;
-        }
-        return S_OK;
-    };
-
-    // stops the CD player (blocking)
-    HRESULT StopImpl()
-    {
-        DWORD dwError = mciSendCommand(m_idDevice, MCI_STOP, 0, NULL);
-        if (dwError)
-        {
-            char cbError[256];
-            mciGetErrorString(dwError, cbError, 256);
-            debugf("Stop failed for CD Audio device: %s\n", cbError);
-            return E_FAIL;
-        }
-        return S_OK;
-    };
-
-    // returns S_OK if the CD player is playing, S_FALSE otherwise (blocking)
-    HRESULT IsPlayingImpl()
-    {
-        MCI_STATUS_PARMS mciStatusParams;
-        mciStatusParams.dwItem = MCI_STATUS_MODE;
-
-        DWORD dwError = mciSendCommand(m_idDevice, MCI_STATUS, MCI_STATUS_ITEM, (UINT_PTR)&mciStatusParams);
-        if (dwError)
-        {
-            char cbError[256];
-            mciGetErrorString(dwError, cbError, 256);
-            debugf("Status:Mode failed for CD Audio device: %s\n", cbError);
-            return E_FAIL;
-        }
-        return (mciStatusParams.dwReturn == MCI_MODE_PLAY) ? S_OK : S_FALSE;
-    };
-
-    // returns the current track of the CD player (blocking)
-    HRESULT GetCurrentTrackImpl(int& nTrack)
-    {
-        MCI_STATUS_PARMS mciStatusParams;
-        mciStatusParams.dwItem = MCI_STATUS_CURRENT_TRACK;
-
-        DWORD dwError = mciSendCommand(m_idDevice, MCI_STATUS, MCI_STATUS_ITEM, (UINT_PTR)&mciStatusParams);
-        if (dwError)
-        {
-            char cbError[256];
-            mciGetErrorString(dwError, cbError, 256);
-            debugf("Status:Track failed for CD Audio device: %s\n", cbError);
-            return E_FAIL;
-        }
-        nTrack = mciStatusParams.dwReturn;
-        return S_OK;
-    };
+        m_fGain = fGain;
+        double dVolume = (fGain <= -100.0f) ? 0.0 : pow(10.0, fGain / 20.0);
+        return m_pengine->SetVolume(dVolume > 1.0 ? 1.0 : dVolume);
+    }
 };
-    
-// Creates a new disk player object (CD, minidisk, etc.).  strDevice can be 
-// empty (choose any device), a path ("E:\"), or a volume label.  
-HRESULT CreateDiskPlayer(TRef<IDiskPlayer>& pdiskplayer, const ZString& strDevice)
+
+// Creates the music player, reading tracks.lst in strFolder (normally the
+// artwork's redbook folder)
+HRESULT CreateDiskPlayer(TRef<IDiskPlayer>& pdiskplayer, const ZString& strFolder)
 {
     TRef<DiskPlayerImpl> pdiskplayerimpl = new DiskPlayerImpl();
 
-    HRESULT hr = pdiskplayerimpl->Init(strDevice);
+    HRESULT hr = pdiskplayerimpl->Init(strFolder);
 
     if (SUCCEEDED(hr))
         pdiskplayer = pdiskplayerimpl;
