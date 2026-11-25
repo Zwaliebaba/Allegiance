@@ -154,6 +154,22 @@ The original art build assumed a fixed `%FEDROOT%` layout (`%FEDROOT%\src\artwor
 | `Artwork/tools/pmesh*/convpm.bat` + MSR progressive-mesh binaries | Deleted with the reduced LODs |
 | Art data (`.x`, `.mdl`) | Checked: no absolute texture or include paths |
 
+#### Art.proj status
+
+Done:
+
+- Bitmaps: the 1,447 entries in `bitmap.txt`.
+- The six animations.
+- The font.
+- The copied files: `copymdl.txt` plus the `wav`, `rtf`, `avi`, `igc` and `mml` wildcards.
+
+The models from `makegeo.mak` are next. Every step is incremental: a run with nothing changed does nothing, and touching one bitmap reconverts only that bitmap. These are checked locally with a stand-in `mdlc` that only creates the output files, so the real conversion runs only in CI.
+
+Two `mdlc` changes support this:
+
+- `-batch <file>` runs one command per line in a single process. A Debug `mdlc` spends about 2.4 s starting the engine, so one process per bitmap would take about an hour. Each converted namespace is unloaded after it is written, which keeps memory flat in the 32-bit process.
+- Failures now exit with code 1. `ModelerSite::Error` used to call `_exit(0)`, and output files that could not be written were skipped without an error, so the original build could not notice a failed conversion.
+
 #### xmunge
 
 The rewrite keeps `-flatten`, `-extract` and `-bound` and matches Direct3D Retained Mode's behaviour:
@@ -212,6 +228,16 @@ msbuild Allegiance.slnx -p:Configuration=Debug -p:Platform=x86
 CI builds each library on its own (`-p:BuildProjectReferences=false`), so one failure doesn't hide the
 errors of the others. The error summary is on the workflow run page, and the full logs are attached to
 the run.
+
+Then build the art with the tools from that build:
+
+```
+msbuild Artwork\Art.proj -p:Configuration=Debug
+```
+
+The art goes to `out\art\`, the directory the client and server read. In CI, a separate `art` job
+does this with the tools from the build job, and attaches the result to the run as the `art-Debug`
+artifact.
 
 ## Conformance fix log
 

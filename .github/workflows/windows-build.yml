@@ -145,7 +145,80 @@ jobs:
             out/art-smoke/
           if-no-files-found: warn
 
+      - name: Upload art tools
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v5
+        with:
+          name: art-tools-${{ matrix.configuration }}
+          path: |
+            out/bin/Win32/${{ matrix.configuration }}/mdlc.*
+            out/bin/Win32/${{ matrix.configuration }}/xmunge.*
+            out/bin/Win32/${{ matrix.configuration }}/cvh.*
+            out/bin/Win32/${{ matrix.configuration }}/qhull.*
+          retention-days: 3
+          if-no-files-found: error
+
       - name: Fail if any project failed
         if: steps.build.outcome == 'failure' || steps.smoke.outcome == 'failure'
         shell: pwsh
         run: exit 1
+
+  # Phase 4: convert the art with the tools the build job produced. Runs on its
+  # own runner so the build job's checkout can keep skipping Artwork/.
+  art:
+    needs: build
+    runs-on: windows-2025
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [ Debug ]
+    steps:
+      - name: Checkout (Artwork/256 and Art.proj only)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /Artwork/Art.proj
+            /Artwork/256/
+
+      - name: Fetch art tools
+        uses: actions/download-artifact@v5
+        with:
+          name: art-tools-${{ matrix.configuration }}
+          path: out/bin/Win32/${{ matrix.configuration }}
+
+      - name: Build art
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
+          New-Item -ItemType Directory -Force out/logs | Out-Null
+          & $msbuild Artwork/Art.proj -nologo -p:Configuration=${{ matrix.configuration }} `
+            -fl "-flp:logfile=out/logs/art.log;verbosity=normal" -clp:Summary
+          $code = $LASTEXITCODE
+          $files = Get-ChildItem out/art -File -ErrorAction SilentlyContinue
+          $mb = [math]::Round((($files | Measure-Object Length -Sum).Sum) / 1MB, 1)
+          $byExt = $files | Group-Object Extension | Sort-Object Count -Descending | ForEach-Object { "$($_.Name) $($_.Count)" }
+          "## Art (${{ matrix.configuration }})", "", "$(@($files).Count) files, $mb MB: $($byExt -join ', ')" -join "`n" |
+            Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          exit $code
+
+      - name: Upload art
+        uses: actions/upload-artifact@v5
+        with:
+          name: art-${{ matrix.configuration }}
+          path: out/art/
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload art logs
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: art-logs-${{ matrix.configuration }}
+          path: |
+            out/logs/
+            out/artobj/
+          if-no-files-found: warn

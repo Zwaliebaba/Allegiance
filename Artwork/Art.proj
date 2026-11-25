@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Art build: turns the sources in Artwork/256 into the flat directory the client
+  and server read. Replaces Artwork/256/makefile, makegeo.mak and the
+  Artwork/tools batch/awk/sed chain.
+
+    msbuild Artwork\Art.proj -p:Configuration=Debug
+
+  The tools (mdlc, xmunge, cvh, qhull) must already be built for the same
+  configuration; this project does not build C++.
+
+  Inputs are the original manifests, unchanged:
+    256\bitmap.txt   bitmaps converted to <name>bmp.mdl
+    256\copymdl.txt  text MDL files copied as-is
+    256\*.wav *.rtf *.avi *.igc *.mml   copied as-is
+    256\fontsource.mdl                  compiled to font.mdl
+
+  Each step is incremental (Inputs/Outputs). mdlc runs in -batch mode so a step
+  starts the engine once, not once per file.
+-->
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <AllegianceRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..'))</AllegianceRoot>
+    <ArtSource Condition="'$(ArtSource)' == ''">$(MSBuildThisFileDirectory)256\</ArtSource>
+    <ArtToolDir Condition="'$(ArtToolDir)' == ''">$(AllegianceRoot)out\bin\Win32\$(Configuration)\</ArtToolDir>
+    <ArtOutDir Condition="'$(ArtOutDir)' == ''">$(AllegianceRoot)out\art\</ArtOutDir>
+    <ArtIntDir Condition="'$(ArtIntDir)' == ''">$(AllegianceRoot)out\artobj\</ArtIntDir>
+    <Mdlc>$(ArtToolDir)mdlc.exe</Mdlc>
+  </PropertyGroup>
+
+  <!-- Manifests -->
+
+  <Target Name="ReadManifests">
+    <ReadLinesFromFile File="$(ArtSource)bitmap.txt">
+      <Output TaskParameter="Lines" ItemName="_BitmapName" />
+    </ReadLinesFromFile>
+    <ReadLinesFromFile File="$(ArtSource)copymdl.txt">
+      <Output TaskParameter="Lines" ItemName="_CopyMdlName" />
+    </ReadLinesFromFile>
+
+    <ItemGroup>
+      <ArtBitmap Include="@(_BitmapName->'$(ArtSource)%(Identity).bmp')" Condition="'%(Identity)' != ''" />
+      <ArtCopy Include="@(_CopyMdlName->'$(ArtSource)%(Identity).mdl')" Condition="'%(Identity)' != ''" />
+      <ArtCopy Include="$(ArtSource)*.wav;$(ArtSource)*.rtf;$(ArtSource)*.avi;$(ArtSource)*.igc;$(ArtSource)*.mml" />
+
+      <!-- Animation strips: frames across, frames down (from Artwork/256/makefile). -->
+      <ArtAnimation Include="animlaunch"  X="4" Y="4" />
+      <ArtAnimation Include="animloadout" X="4" Y="4" />
+      <ArtAnimation Include="animinvest"  X="4" Y="4" />
+      <ArtAnimation Include="animradar"   X="4" Y="4" />
+      <ArtAnimation Include="animsector"  X="2" Y="4" />
+      <ArtAnimation Include="animteam"    X="1" Y="3" />
+      <_ArtAnimationSource Include="@(ArtAnimation->'$(ArtOutDir)%(Identity)bmp.mdl')" />
+    </ItemGroup>
+
+    <Error Condition="!Exists('%(ArtBitmap.FullPath)')" Text="bitmap.txt names %(ArtBitmap.Filename), but %(ArtBitmap.FullPath) does not exist." />
+    <Error Condition="!Exists('%(ArtCopy.FullPath)')" Text="copymdl.txt names %(ArtCopy.Filename), but %(ArtCopy.FullPath) does not exist." />
+  </Target>
+
+  <Target Name="CheckTools">
+    <Error Condition="!Exists('$(Mdlc)')" Text="$(Mdlc) not found. Build mdlc/mdlc.vcxproj ($(Configuration)|Win32) first, or set ArtToolDir." />
+    <MakeDir Directories="$(ArtOutDir);$(ArtIntDir)" />
+  </Target>
+
+  <!-- 24-bit BMP to 16-bit image MDL -->
+
+  <Target Name="Bitmaps"
+          DependsOnTargets="ReadManifests;CheckTools"
+          Inputs="@(ArtBitmap);$(Mdlc)"
+          Outputs="@(ArtBitmap->'$(ArtOutDir)%(Filename)bmp.mdl')">
+    <WriteLinesToFile File="$(ArtIntDir)bitmaps.batch"
+                      Lines="@(ArtBitmap->'-convert &quot;%(FullPath)&quot; &quot;$(ArtOutDir)%(Filename)bmp.mdl&quot;')"
+                      Overwrite="true" />
+    <Exec Command="&quot;$(Mdlc)&quot; -batch &quot;$(ArtIntDir)bitmaps.batch&quot;" WorkingDirectory="$(ArtSource)" />
+  </Target>
+
+  <!-- Bitmap strips to frame-animation MDL; reads the converted <name>bmp.mdl -->
+
+  <Target Name="Animations"
+          DependsOnTargets="Bitmaps"
+          Inputs="@(_ArtAnimationSource);$(Mdlc)"
+          Outputs="@(ArtAnimation->'$(ArtOutDir)%(Identity).mdl')">
+    <WriteLinesToFile File="$(ArtIntDir)animations.batch"
+                      Lines="@(ArtAnimation->'-compressanim %(X) %(Y) %(Identity)bmp &quot;$(ArtOutDir)%(Identity).mdl&quot;')"
+                      Overwrite="true" />
+    <Exec Command="&quot;$(Mdlc)&quot; -batch &quot;$(ArtIntDir)animations.batch&quot;" WorkingDirectory="$(ArtOutDir)" />
+  </Target>
+
+  <!-- Font -->
+
+  <Target Name="Fonts"
+          DependsOnTargets="CheckTools"
+          Inputs="$(ArtSource)fontsource.mdl;$(Mdlc)"
+          Outputs="$(ArtOutDir)font.mdl">
+    <Exec Command="&quot;$(Mdlc)&quot; fontsource &quot;$(ArtOutDir)font.mdl&quot;" WorkingDirectory="$(ArtSource)" />
+  </Target>
+
+  <!-- Files used as-is -->
+
+  <Target Name="Copies" DependsOnTargets="ReadManifests;CheckTools">
+    <Copy SourceFiles="@(ArtCopy)" DestinationFolder="$(ArtOutDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="Copies;Bitmaps;Animations;Fonts" />
+
+  <Target Name="Clean">
+    <RemoveDir Directories="$(ArtOutDir);$(ArtIntDir)" />
+  </Target>
+
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+
+</Project>
