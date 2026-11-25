@@ -107,7 +107,7 @@ public:
     }
 
     // Initialize enumerator object with the temporary CComVariant vector
-    RETURN_FAILED(pEnum->Init(vecTemp.begin(), vecTemp.end(), NULL, AtlFlagCopy));
+    RETURN_FAILED(pEnum->Init(vecTemp.data(), vecTemp.data() + vecTemp.size(), NULL, AtlFlagCopy));
 
     // Copy the new object to the [out] parameter
     RETURN_FAILED(spEnum->QueryInterface(IID_IEnumVARIANT, (void**)ppunkEnum));
