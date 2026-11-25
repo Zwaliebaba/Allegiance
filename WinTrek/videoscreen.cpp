@@ -127,10 +127,13 @@ public:
 
         m_indexVideo++;
         switch (m_indexVideo) {
-            case 0: str = "msr_games.avi"; break;
-            case 1: str = "logo1.avi";     break;
-            case 2: str = "logo2.avi";     break;
-            case 3: str = "intro.avi";     break;
+            // H.264/AAC MP4, converted once from the original Indeo AVIs;
+            // the intro movie was on the CD and is not in the repository,
+            // so it is skipped unless an intro.mp4 is provided
+            case 0: str = "msr_games.mp4"; break;
+            case 1: str = "logo1.mp4";     break;
+            case 2: str = "logo2.mp4";     break;
+            case 3: str = "intro.mp4";     break;
             default: 
                 return;
         };

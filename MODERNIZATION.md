@@ -198,7 +198,7 @@ Design:
 | Gamma | DirectDraw gamma ramp | The same curve in the presentation pixel shader |
 | Device loss | `TestCooperativeLevel`, full rebuild | `DXGI_ERROR_DEVICE_REMOVED`/`RESET` re-creates the device. Nothing is lost, because surfaces live in system memory |
 | Tools | `mdlc` initialised DirectDraw with `-software` | The engine creates the D3D11 device only on first use, so `mdlc` needs no GPU. BMP import uses `GetDIBits`. The 1,405 24-bit sources get identical pixels. The 37 16-bit (555) sources are read at their own depth, so the 565 conversion is unchanged. The 7 8-bit sources now come out in their palette colours; the old conversion ignored palettes (zero colour masks), so they almost certainly came out black |
-| Movies | DirectShow `IAMMultiMediaStream` into a DirectDraw surface | Stubbed: the video image reports the movie as finished. Media Foundation playback is a follow-up |
+| Movies | DirectShow `IAMMultiMediaStream` into a DirectDraw surface | Media Foundation (later; see "Movies" below): a source reader decodes RGB32 frames into a system-memory surface, and an audio-only Media Engine plays the sound and serves as the clock |
 
 Deleted:
 
@@ -211,7 +211,7 @@ Known gaps to check when testing:
 
 - The 2D/3D synchronisation costs a full-frame upload and readback around each 3D layer. At 800x600 this should be a few milliseconds, but it is unmeasured. Stage 2 removes it (below).
 - Pixel-exactness against the DirectX 6 output is unverified (half-pixel rule, colour-key edges with linear filtering).
-- Movies are skipped.
+- Movies are skipped (played again since; see "Movies").
 
 #### Rendering, stage 2: GPU-resident frame, transform and lighting in shaders
 
@@ -450,6 +450,17 @@ ATL is still included for a few helpers (`CComBSTR`, `test/TCLib`, `test/TCAtl`)
 module, COM server, COM class or COM registration of the repository's own left in the built code (the
 client still uses DirectX's COM interfaces, which need none of that).
 
+#### Movies
+
+The movies (`msr_games`, `logo1`, `logo2`; 320x240 at 15 fps, 6 to 13 seconds, 8-bit or 16-bit PCM sound)
+were Indeo 4 and Indeo 5 AVIs, which Windows 10 and 11 can no longer decode (the Indeo codecs were removed
+from Windows). They were converted once, with ffmpeg 6.1 (`libx264 -profile:v main -crf 18`, AAC 128 kb/s),
+to MP4 files that Media Foundation plays, about a third of the size; the AVIs were deleted.
+`engine/videoimage.cpp` decodes the video with a source reader into an engine surface and draws it scaled
+to fit the screen, keeping the aspect ratio; the sound plays through an audio-only Media Engine whose
+position the frames follow. A key press still skips a movie. `intro.avi` was on the game CD and is not in
+the repository, so the intro is skipped unless an `intro.mp4` is put in the artwork folder.
+
 ### Phase 4: art pipeline
 
 `Artwork/Art.proj` replaces the nmake/awk/sed/batch chain (`Artwork/256/makefile`, `makegeo.mak`,
@@ -527,7 +538,7 @@ The original build only gathers art from `Artwork/256`, through these inputs:
 
 - `bitmap.txt`, `copymdl.txt` and `fontsource.mdl`.
 - The sources named in `makegeo.mak` (`<geo>.x`, `_static.x`, `_bound.x`, text MDLs).
-- Wildcard copies of `*.wav`, `*.rtf`, `*.avi`, `*.igc` and `*.mml`.
+- Wildcard copies of `*.wav`, `*.rtf`, `*.avi` (now `*.mp4`, see "Movies"), `*.igc` and `*.mml`.
 
 The client reads only that output directory. Everything else was deleted, and git history keeps it:
 
