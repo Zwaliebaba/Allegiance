@@ -641,7 +641,9 @@ msbuild Artwork\Art.proj -p:Configuration=Debug
 
 The art goes to `out\Artwork\`, and `out\bin\x64\<Configuration>\Artwork` is made a directory
 junction to it, because that is where `Allegiance.exe` and `AllSrv32.exe` look for their art
-(`-p:ArtLink=false` skips the junction). Elsewhere, set `ArtPath` in `settings.json` and `server.json`. In CI, a
+(`-p:ArtLink=false` skips the junction). Building `Allegiance.exe` or `AllSrv32.exe` also makes that
+junction in its own output directory if it is missing and `out\Artwork` exists (`Directory.Build.targets`),
+so a build made after the art still finds it. Elsewhere, set `ArtPath` in `settings.json` and `server.json`. In CI, a
 separate `art` job does this with the tools from the build job, and attaches the result to the run as
 the `art-Debug` artifact.
 

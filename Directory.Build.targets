@@ -8,6 +8,11 @@
 
   It runs before MIDL, the C/C++ compiler and the resource compiler. (The
   AllegianceXslt step, which generated AGC's event headers, went with AGC.)
+
+  Also a post-build step for the projects that set AllegianceLinkArtwork:
+
+    AllegianceLinkArtwork  Makes $(TargetDir)Artwork a directory junction to
+                           out\Artwork, where the exes look for their art.
 -->
 <Project>
   <ItemDefinitionGroup>
@@ -33,5 +38,27 @@
     <Error Condition="'$(_AllegianceMcExe)' == ''" Text="mc.exe not found in the Windows SDK executable path: $(WindowsSDK_ExecutablePath)" />
     <MakeDir Directories="%(AllegianceMessage.OutputDirectory)" />
     <Exec Command="&quot;$(_AllegianceMcExe)&quot; -r &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; -h &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; &quot;%(AllegianceMessage.FullPath)&quot;" />
+  </Target>
+
+  <!--
+    Allegiance.vcxproj and AllSrv32.vcxproj set AllegianceLinkArtwork: they look for an
+    "Artwork" directory next to the exe. Artwork\Art.proj makes that a junction to
+    out\Artwork, but only in the exe directories that exist when it runs, so an exe
+    directory that comes later (the first x64 build, say) would have no art. This makes the
+    junction after the build instead. It does nothing when out\Artwork has not been built
+    yet (Art.proj links it then) or $(TargetDir)Artwork already exists, and it only warns
+    if mklink fails. -p:ArtLink=false skips it, as it does for Art.proj. rmdir without /s
+    removes only a dangling junction or an empty directory.
+  -->
+  <PropertyGroup>
+    <_AllegianceArtOutDir>$(AllegianceRoot)out\Artwork</_AllegianceArtOutDir>
+    <_AllegianceArtLinkDir>$(TargetDir)Artwork</_AllegianceArtLinkDir>
+  </PropertyGroup>
+
+  <Target Name="AllegianceLinkArtwork"
+          AfterTargets="Build"
+          Condition="'$(AllegianceLinkArtwork)' == 'true' and '$(ArtLink)' != 'false' and Exists('$(_AllegianceArtOutDir)') and !Exists('$(_AllegianceArtLinkDir)')">
+    <Exec EchoOff="true" StandardOutputImportance="high"
+          Command="(rmdir &quot;$(_AllegianceArtLinkDir)&quot; 2&gt;nul &amp; mklink /J &quot;$(_AllegianceArtLinkDir)&quot; &quot;$(_AllegianceArtOutDir)&quot; &gt;nul &amp;&amp; echo Artwork: $(_AllegianceArtLinkDir) -^&gt; $(_AllegianceArtOutDir)) || (echo $(MSBuildThisFileFullPath) : warning : could not link $(_AllegianceArtLinkDir) to $(_AllegianceArtOutDir). &amp; exit /b 0)" />
   </Target>
 </Project>

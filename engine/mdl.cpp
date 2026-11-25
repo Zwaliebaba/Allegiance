@@ -21,6 +21,11 @@ public:
         return sizeof(ZString);
     }
 
+    int GetAlignment()
+    {
+        return alignof(ZString);
+    }
+
     void Destruct(BYTE*& pbyte)
     {
         ((ZString*)pbyte)->m_pdata = NULL;
@@ -75,13 +80,18 @@ public:
 
     int GetSize()
     {
-        return 4;
+        return sizeof(TRef<IObject>);
+    }
+
+    int GetAlignment()
+    {
+        return alignof(TRef<IObject>);
     }
 
     void Destruct(BYTE*& pbyte)
     {
         *(TRef<IObject>*)pbyte = NULL;
-        pbyte += 4;
+        pbyte += sizeof(TRef<IObject>);
     }
 
     void StackRead(BYTE*& pbyte, ObjectStack& stack)
@@ -89,7 +99,7 @@ public:
         TRef<IObject> pobject = stack.Pop();
 
         *(TRef<IObject>*)pbyte = pobject;
-        pbyte += 4;
+        pbyte += sizeof(TRef<IObject>);
     }
 
     void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack)
@@ -97,7 +107,7 @@ public:
         TRef<IObject> pobject = stack.Pop();
 
         *(TRef<IObject>*)pbyte = pobject;
-        pbyte += 4;
+        pbyte += sizeof(TRef<IObject>);
     }
 
     ZString GetCPPType()
@@ -129,13 +139,18 @@ public:
 
     int GetSize()
     {
-        return 4;
+        return sizeof(TRef<IObjectList>);
+    }
+
+    int GetAlignment()
+    {
+        return alignof(TRef<IObjectList>);
     }
 
     void Destruct(BYTE*& pbyte)
     {
         *(TRef<IObjectList>*)pbyte = NULL;
-        pbyte += 4;
+        pbyte += sizeof(TRef<IObjectList>);
     }
 
     void StackRead(BYTE*& pbyte, ObjectStack& stack)
@@ -143,7 +158,7 @@ public:
         TRef<IObjectList> plist; CastTo(plist, (IObject*)stack.Pop());
 
         *(TRef<IObjectList>*)pbyte = plist;
-        pbyte += 4;
+        pbyte += sizeof(TRef<IObjectList>);
     }
 
     void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack)
@@ -151,7 +166,7 @@ public:
         TRef<IObjectList> plist; CastTo(plist, (IObject*)stack.Pop());
 
         *(TRef<IObjectList>*)pbyte = plist;
-        pbyte += 4;
+        pbyte += sizeof(TRef<IObjectList>);
     }
 
     ZString GetCPPType()
@@ -193,6 +208,12 @@ public:
     {
         ZUnimplemented();
         return 0;
+    }
+
+    int GetAlignment()
+    {
+        ZUnimplemented();
+        return 1;
     }
 
     virtual bool IsStruct()
@@ -250,6 +271,19 @@ private:
     ZString        m_strName;
     ZString        m_strParent;
 
+    // offset rounded up to a multiple of align (a power of two)
+    static int AlignOffset(int offset, int align)
+    {
+        return (offset + align - 1) & ~(align - 1);
+    }
+
+    // Moves pbyte to the offset from pbase (the start of the struct) where a
+    // member of type ptype goes.
+    static void AlignPointer(BYTE* pbase, BYTE*& pbyte, MDLType* ptype)
+    {
+        pbyte = pbase + AlignOffset((int)(pbyte - pbase), ptype->GetAlignment());
+    }
+
 public:
     StructMDLType(const ZString& strName, const ZString& strParent) :
         m_strName(strName),
@@ -272,45 +306,58 @@ public:
 
     ZString GetCPPString(const ZString& strIdentifier)
     {
+        //
+        // The members are declared as a C++ struct, Data, so the compiler works out
+        // their offsets for the platform being built. They are the offsets this type
+        // uses at run time (AlignPointer), on Win32 and on x64:
+        //
+        //    struct Data {
+        //        float m_char;
+        //    };
+        //
+        //    Data& GetData() { return *(Data*)GetDataPointer(); }
+        //
+        //    float& GetChar() { return GetData().m_char; }
+        //
+
         ZString str =
             "class " + strIdentifier + " : public " + m_strParent + " {\n"
             "public:\n";
 
-        int offset = 0;
-        MemberDataList::Iterator iter(m_list);
+        if (!m_list.IsEmpty()) {
+            ZString strData = "    struct Data {\n";
+            ZString strGets;
 
-        while (!iter.End()) {
-            MemberData& data = iter.Value();
+            MemberDataList::Iterator iter(m_list);
 
-            // float& GetChar() { return *(float*)(GetDataPointer() + 0); } 
+            while (!iter.End()) {
+                MemberData& data = iter.Value();
 
-            ZString strType = data.m_ptype->GetCPPType();
-            ZString strName = data.m_str;
-            strName = strName.Left(1).ToUpper() + strName.RightOf(1);
+                ZString strType   = data.m_ptype->GetCPPType();
+                ZString strMember = "m_" + data.m_str;
+                ZString strName   = data.m_str.Left(1).ToUpper() + data.m_str.RightOf(1);
+
+                strData += "        " + strType + " " + strMember + ";\n";
+
+                strGets +=
+                      "    "
+                    + strType
+                    + "& Get"
+                    + strName
+                    + "() { return GetData()."
+                    + strMember
+                    + "; }\n";
+
+                iter.Next();
+            }
 
             str +=
-                  "    "
-                + strType
-                + "& Get"
-                + strName
-                + "() { return *("
-                + strType
-                + "*)(GetDataPointer() + "
-                + ZString(offset)
-                + "); }\n";
-
-            offset += data.m_ptype->GetSize();
-
-            /*
-            str +=
-                  strType
-                + "m_"
-                + data.m_ptype->GetHungarianPrefix()
-                + data.m_str
-                + ";\n";
-            */
-
-            iter.Next();
+                  strData
+                + "    };\n"
+                  "\n"
+                  "    Data& GetData() { return *(Data*)GetDataPointer(); }\n"
+                  "\n"
+                + strGets;
         }
 
         str += "};\n";
@@ -326,19 +373,38 @@ public:
 
     int GetSize()
     {
-        int size = 0;
+        int offset = 0;
 
         MemberDataList::Iterator iter(m_list);
 
         while (!iter.End()) {
             MemberData& data = iter.Value();
 
-            size += data.m_ptype->GetSize();
+            offset = AlignOffset(offset, data.m_ptype->GetAlignment()) + data.m_ptype->GetSize();
 
             iter.Next();
         }
 
-        return size;
+        return AlignOffset(offset, GetAlignment());
+    }
+
+    int GetAlignment()
+    {
+        int align = 1;
+
+        MemberDataList::Iterator iter(m_list);
+
+        while (!iter.End()) {
+            MemberData& data = iter.Value();
+
+            if (data.m_ptype->GetAlignment() > align) {
+                align = data.m_ptype->GetAlignment();
+            }
+
+            iter.Next();
+        }
+
+        return align;
     }
 
     virtual bool IsStruct()
@@ -348,41 +414,53 @@ public:
 
     void Destruct(BYTE*& pbyte)
     {
+        BYTE* pbase = pbyte;
         MemberDataList::Iterator iter(m_list);
 
         while (!iter.End()) {
             MemberData& data = iter.Value();
 
+            AlignPointer(pbase, pbyte, data.m_ptype);
             data.m_ptype->Destruct(pbyte);
 
             iter.Next();
         }
+
+        pbyte = pbase + GetSize();
     }
 
     void StackRead(BYTE*& pbyte, ObjectStack& stack)
     {
+        BYTE* pbase = pbyte;
         MemberDataList::Iterator iter(m_list);
 
         while (!iter.End()) {
             MemberData& data = iter.Value();
 
+            AlignPointer(pbase, pbyte, data.m_ptype);
             data.m_ptype->StackRead(pbyte, stack);
 
             iter.Next();
         }
+
+        pbyte = pbase + GetSize();
     }
 
     void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack)
     {
+        BYTE* pbase = pbyte;
         MemberDataList::Iterator iter(m_list);
 
         while (!iter.End()) {
             MemberData& data = iter.Value();
 
+            AlignPointer(pbase, pbyte, data.m_ptype);
             data.m_ptype->Read(pbyte, psite, stack);
 
             iter.Next();
         }
+
+        pbyte = pbase + GetSize();
     }
 
     ZString GetCPPType()
