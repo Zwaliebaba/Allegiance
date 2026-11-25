@@ -146,7 +146,8 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
 
   The parked Tier 2 code (`lobby`, `cliconfig`, and the pigs under `test/`) still has Zone references and
   is not built; `lobby/pch.h` includes the deleted `zauth.h`.
-- `/permissive-` turned on (not done yet).
+- `/permissive-` turned on (`ConformanceMode` in `msbuild/Allegiance.Cpp.props`); the fixes are in the
+  conformance fix log below.
 - The old build system is deleted (190 files): the nmake makefiles, `makefile.inc`/`makeexe.inc`/`makedep.inc`,
   the VC6 `.dsp`/`.dsw` and VS.NET `.vcproj`/`.sln` files, `VSNet.Readme`, and `build/`, the 1999 build-lab
   scripts (build numbering, BVT scripts, setup packaging, all hard-wired to `%FEDROOT%`). Git history keeps
@@ -701,7 +702,14 @@ Fixes are made per CI round, and each change keeps the original runtime behaviou
 | Address of a returned temporary (`&::CrossProduct(...)`) | Local variable | `AGC/AGCVector.cpp` |
 | Hard-coded `..\..\Extern\sbn\include\msxml.h` | `<msxml.h>` from the Windows SDK | `Inc/XMLPtrs.h` |
 | Indented typeless `const` declarations (the earlier scan missed indented lines) | `const int` | `FedSrv/FedSrv.CPP` |
-| Deferred to the `/permissive-` switch: `&CComVariant(x)` (address of a class temporary) is still accepted in permissive mode with warning C4238 | none yet | `AGC/AGCCommand.cpp`, `AGC/AGCVector.cpp`, `AGC/IAGCRangesImpl.h` |
+| `&CComVariant(x)` (address of a class temporary), which permissive mode accepted with warning C4238 | Went with AGC, the only code that did it | (`AGC/` removed) |
+| `/permissive-`: a member of a dependent base class named without `this->` | `this->` | `test/TCLib/AutoHandle.h` (`DECLARE_TCPtr`), `engine/value.h` (`TModifiableValue`) |
+| `/permissive-`: a dependent nested type without `typename` | `typename` | `zlib/event.h` |
+| `/permissive-`: a template calls `::GetString` / `::Write` / `::GetFunctionName` qualified, which finds only the overloads declared before it (two-phase lookup) | Called through `ValueGetString` / `ValueWrite` / `ValueGetFunctionName`, global forwarders that call unqualified, so argument-dependent lookup finds later overloads (`Matrix`, fonts) at instantiation; the `float` and `bool` overloads are declared ahead of them | `engine/value.h` |
+| `/permissive-`: a non-dependent use of a class defined later (`TLookup` uses `IObjectPair`) | `IObjectPair` moved from `mdl.h` into `value.h`, ahead of `TLookup` | `engine/value.h`, `engine/mdl.h` |
+| Empty member-initializer list (`TArray(TValue pvalue[count]) :`) | `:` removed | `zlib/tarray.h` |
+| `and`, `or`, `not`, `bit_and`, `bit_or` defined as macros; the first three are keywords | Macros removed; the code uses the standard alternative tokens, `bitand` / `bitor` included | `training/pch.h` and four `training/*.cpp` |
+| Extra qualification on an in-class member declaration (`void PaneImage::Render()` inside `PaneImage`) | Qualification removed | `engine/paneimage.cpp`, `engine/model.h`, `FedSrv/BitArray.h`, `test/TCLib/UtilityThread.cpp`, `test/TCLib/WorkerThread.cpp` |
 | `_com_ptr_t = CComPtr<T>`: the template assignment cannot deduce through the conversion | Assign the raw `.p`, which `_com_ptr_t` QueryInterfaces as before | `AGC/IAGCRangesImpl.h` |
 | Current ATL's `GetPropertyMap()` returns `const ATL_PROPMAP_ENTRY*` | Property-map helpers take `const` (none of them write through it) | `test/TCAtl/PropertyClass.*` |
 | The server linked AGC's import library, which the original build never did (only `AGCGuid.lib`) | Reference kept for build order only (`LinkLibraryDependencies=false`) | `FedSrv/AllSrv32.vcxproj` |
