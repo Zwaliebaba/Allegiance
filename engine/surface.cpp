@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "d3d11engine.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -60,6 +61,15 @@ public:
     TRef<PrivateContext>      m_pcontext;
 
     //
+    // GPU copy (3D surfaces only) and which copy is current. At least one
+    // always is; both are after an upload or a readback.
+    //
+
+    TRef<D3D11Target>         m_pgpu;
+    bool                      m_bCpuCurrent;
+    bool                      m_bGpuCurrent;
+
+    //
     // Transforms and clipping
     //
 
@@ -86,6 +96,9 @@ public:
 
         m_id          = 0;
         m_idConverted = -1;
+
+        m_bCpuCurrent = true;
+        m_bGpuCurrent = false;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -95,9 +108,8 @@ public:
     //////////////////////////////////////////////////////////////////////////////
 
     //
-    // Every surface keeps its pixels in system memory. 2D drawing is done on
-    // the CPU, as it always was; the D3D11 rasterizer and presenter copy the
-    // pixels to and from the GPU at scene boundaries.
+    // Every surface has its pixels in system memory. 3D surfaces also get a
+    // GPU copy once something draws into them (see GPU residency below).
     //
 
     void AllocateSurface()
@@ -184,6 +196,8 @@ public:
     
     void Write(ZFile* pfile)
     {
+        SyncCpu();
+
         BinarySurfaceInfo bsi;
 
         bsi.m_size      = m_size;
@@ -264,6 +278,7 @@ public:
 
         m_ppf = ppf;
         AllocateSurface();
+        DropGpu();
 
         if (m_psite) {
             m_psite->UpdateSurface(this);
@@ -466,6 +481,222 @@ public:
 
     //////////////////////////////////////////////////////////////////////////////
     //
+    // GPU residency
+    //
+    // Only 3D surfaces use the GPU. Pixel access brings the CPU copy up to
+    // date (a readback if the GPU copy is the current one); GPU drawing brings
+    // the GPU copy up to date (an upload if the CPU copy is). 2D drawing into
+    // a 3D surface is done on the GPU, so after the first frame the window
+    // frame and the 3D panes are not copied in either direction.
+    //
+    //////////////////////////////////////////////////////////////////////////////
+
+    D3D11Device* GetGpuDevice()
+    {
+        if (!m_bDeviceFormat || !m_stype.Test(SurfaceType3D())) {
+            return NULL;
+        }
+
+        return m_pengine->GetD3D11Device();
+    }
+
+    void DropGpu()
+    {
+        m_pgpu        = NULL;
+        m_bGpuCurrent = false;
+        m_bCpuCurrent = true;
+    }
+
+    //
+    // A GPU copy that is valid for the current device and size. If it had to
+    // be (re)created its contents are undefined and the CPU copy is all there
+    // is; after a device loss that copy may be a frame old.
+    //
+
+    D3D11Device* EnsureGpuTarget()
+    {
+        D3D11Device* pdevice = GetGpuDevice();
+
+        if (pdevice == NULL) {
+            return NULL;
+        }
+
+        if (m_pgpu == NULL) {
+            m_pgpu = new D3D11Target();
+        }
+
+        bool bRecreated;
+
+        if (!D3D11EnsureTarget(pdevice, m_pgpu, m_size, bRecreated)) {
+            DropGpu();
+            return NULL;
+        }
+
+        if (bRecreated) {
+            m_bGpuCurrent = false;
+            m_bCpuCurrent = true;
+        }
+
+        return pdevice;
+    }
+
+    void UploadToGpu(D3D11Device* pdevice)
+    {
+        D3D11Upload(pdevice, m_pgpu, m_pbits, m_pitch, m_ppf);
+        m_bGpuCurrent = true;
+    }
+
+    //
+    // bDiscard: the draw covers the whole surface, so there is no need to
+    // upload first
+    //
+
+    D3D11Target* BeginGpuDraw(bool bDiscard)
+    {
+        D3D11Device* pdevice = EnsureGpuTarget();
+
+        if (pdevice == NULL) {
+            return NULL;
+        }
+
+        if (!m_bGpuCurrent && !bDiscard) {
+            UploadToGpu(pdevice);
+        }
+
+        m_bGpuCurrent = true;
+        m_bCpuCurrent = false;
+        SurfaceChanged();
+
+        return m_pgpu;
+    }
+
+    bool UsesGpu()
+    {
+        return GetGpuDevice() != NULL;
+    }
+
+    D3D11Target* BeginGpuDraw()
+    {
+        return BeginGpuDraw(false);
+    }
+
+    ID3D11ShaderResourceView* GetGpuSource()
+    {
+        if (m_pgpu == NULL) {
+            return NULL;
+        }
+
+        D3D11Device* pdevice = EnsureGpuTarget();
+
+        if (pdevice == NULL) {
+            return NULL;
+        }
+
+        if (!m_bGpuCurrent) {
+            UploadToGpu(pdevice);
+        }
+
+        return m_pgpu->m_psrv;
+    }
+
+    bool MakeGpuResident()
+    {
+        D3D11Device* pdevice = EnsureGpuTarget();
+
+        if (pdevice == NULL) {
+            return false;
+        }
+
+        if (!m_bGpuCurrent) {
+            UploadToGpu(pdevice);
+        }
+
+        return true;
+    }
+
+    void SyncCpu()
+    {
+        if (m_bCpuCurrent) {
+            return;
+        }
+
+        m_bCpuCurrent = true;
+
+        D3D11Device* pdevice = m_pengine->GetD3D11Device();
+
+        if (m_pgpu != NULL && pdevice != NULL && m_pgpu->IsValid(pdevice, m_size)) {
+            MakeWritable();
+            D3D11Readback(pdevice, m_pgpu, m_pbits, m_pitch, m_ppf);
+        }
+    }
+
+    //
+    // 2D on the GPU. A blit source is read through its own GPU copy if it has
+    // one, otherwise through the texture cache.
+    //
+
+    bool GpuBlt(
+        const WinRect&      rectTarget,
+        PrivateSurfaceImpl* psurfaceSource,
+        const WinRect&      rectSource,
+        const WinRect&      rectScissor
+    ) {
+        if (psurfaceSource == this || !UsesGpu()) {
+            return false;
+        }
+
+        D3D11Device*              pdevice = m_pengine->GetD3D11Device();
+        D3D11KeyMode              keyMode = D3D11KeyNone;
+        ID3D11ShaderResourceView* psrv    = psurfaceSource->GetGpuSource();
+
+        if (psrv != NULL) {
+            if (psurfaceSource->HasColorKey()) {
+                keyMode = D3D11KeyBlack;
+            }
+        } else {
+            psrv = pdevice->GetTexture(psurfaceSource);
+
+            if (psurfaceSource->HasColorKey()) {
+                keyMode = D3D11KeyAlpha;
+            }
+        }
+
+        if (psrv == NULL) {
+            return false;
+        }
+
+        D3D11Target* ptarget = BeginGpuDraw(false);
+
+        if (ptarget == NULL) {
+            return false;
+        }
+
+        D3D11Blit(pdevice, ptarget, rectTarget, psrv, psurfaceSource->GetSize(), rectSource, keyMode, rectScissor);
+        return true;
+    }
+
+    bool GpuFill(const WinRect& rect, const Color& color)
+    {
+        if (!UsesGpu()) {
+            return false;
+        }
+
+        bool bAll =
+               rect.XMin() <= 0 && rect.YMin() <= 0
+            && rect.XMax() >= m_size.X() && rect.YMax() >= m_size.Y();
+
+        D3D11Target* ptarget = BeginGpuDraw(bAll);
+
+        if (ptarget == NULL) {
+            return false;
+        }
+
+        D3D11Fill(m_pengine->GetD3D11Device(), ptarget, rect, color);
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //
     // Surface Access calls
     //
     //////////////////////////////////////////////////////////////////////////////
@@ -477,6 +708,7 @@ public:
 
     const BYTE* GetPointer()
     {
+        SyncCpu();
         return m_pbits;
     }
 
@@ -490,8 +722,10 @@ public:
 
     BYTE* GetWritablePointer()
     {
+        SyncCpu();
         SurfaceChanged();
         MakeWritable();
+        m_bGpuCurrent = false;
         return m_pbits;
     }
 
@@ -886,7 +1120,9 @@ public:
             // do the blt
             //
 
-            UnclippedBlt(rectTarget, psurfaceSource, rectSource.Min());
+            if (!GpuBlt(rectTarget, psurfaceSource, rectSource, rectTarget)) {
+                UnclippedBlt(rectTarget, psurfaceSource, rectSource.Min());
+            }
         }
 
         SurfaceChanged();
@@ -983,7 +1219,9 @@ public:
         //
 
         if (!rectTarget.IsEmpty() && !rectSource.IsEmpty()) {
-            UnclippedStretchBlt(rectTarget, psurfaceSource, rectSource);
+            if (!GpuBlt(rectTarget, psurfaceSource, rectSource, WinRect(WinPoint(0, 0), m_size))) {
+                UnclippedStretchBlt(rectTarget, psurfaceSource, rectSource);
+            }
         }
 
         SurfaceChanged();
@@ -1053,15 +1291,32 @@ public:
         //
 
         if (!rect.IsEmpty()) {
-            UnclippedFill(rect, pixel);
+            if (!GpuFill(rect, m_ppf->MakeColor(pixel))) {
+                UnclippedFill(rect, pixel);
+            }
         }
 
         SurfaceChanged();
     }
 
-    void FillRect(const WinRect& rect, const Color& color)
+    //
+    // A colour fill on the GPU keeps the full colour; on the CPU it is the
+    // nearest pixel value, as before
+    //
+
+    void FillRect(const WinRect& rectArg, const Color& color)
     {
-        FillRect(rect, m_ppf->MakePixel(color));
+        WinRect rect = rectArg;
+        rect.Offset(m_pointOffset);
+        rect.Intersect(m_rectClip);
+
+        if (!rect.IsEmpty()) {
+            if (!GpuFill(rect, color)) {
+                UnclippedFill(rect, m_ppf->MakePixel(color));
+            }
+        }
+
+        SurfaceChanged();
     }
 
     void FillSurface(Pixel pixel)
@@ -1071,7 +1326,7 @@ public:
 
     void FillSurface(const Color& color)
     {
-        FillSurface(m_ppf->MakePixel(color));
+        FillRect(WinRect(-m_pointOffset, m_size - m_pointOffset), color);
     }
 
     void FillSurfaceWithColorKey()
@@ -1087,6 +1342,8 @@ public:
 
     void Save(ZFile* pfile)
     {
+        SyncCpu();
+
         ZAssert(m_ppf->PixelBits() == 16);
 
         BITMAPFILEHEADER bmfh;

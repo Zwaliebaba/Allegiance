@@ -1,4 +1,13 @@
 #include "pch.h"
+#include "d3d11engine.h"
+
+//
+// GPU counters for the frame-rate overlay: per-frame averages of g_d3d11Stats
+// over the last measuring interval
+//
+
+static D3D11Stats g_statsLast = {};
+static ZString    g_strGpu;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -916,6 +925,20 @@ void EngineWindow::UpdatePerformanceCounters(Context* pcontext, Time timeCurrent
                 m_strPerformance1 = ZString(MakeInt(mspf)) + "/" + ZString(MakeInt(fps));
             }
 
+            {
+                const D3D11Stats& now = g_d3d11Stats;
+                double frames = m_frameCount;
+
+                g_strGpu =
+                      "gpu per frame: uploads " + ZString((float)((now.m_uploads - g_statsLast.m_uploads) / frames), 4, 1)
+                    + " readbacks "             + ZString((float)((now.m_readbacks - g_statsLast.m_readbacks) / frames), 4, 1)
+                    + " textures "              + ZString((float)((now.m_textureUploads - g_statsLast.m_textureUploads) / frames), 4, 1)
+                    + " 2D draws "              + ZString(MakeInt((now.m_draws2D - g_statsLast.m_draws2D) / frames))
+                    + " 3D draws "              + ZString(MakeInt((now.m_draws3D - g_statsLast.m_draws3D) / frames));
+
+                g_statsLast = now;
+            }
+
             m_frameCount    = 0;
             m_timeLastFrame = timeCurrent;
             pcontext->ResetPerformanceCounters();
@@ -943,6 +966,7 @@ void EngineWindow::RenderPerformanceCounters(Surface* psurface)
             if (m_indexFPS == 0) {
                 psurface->DrawString(m_pfontFPS, color, WinPoint(1, 1 + 1 * ysize), m_strPerformance2);
                 psurface->DrawString(m_pfontFPS, color, WinPoint(1, 1 + 2 * ysize), "Frame " + ZString(m_frameTotal));
+                psurface->DrawString(m_pfontFPS, color, WinPoint(1, 1 + 3 * ysize), g_strGpu);
             }
         }
 

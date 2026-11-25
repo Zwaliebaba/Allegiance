@@ -40,6 +40,7 @@ class PrivateSurface;
 class PrivateEngine;
 class Rasterizer;
 class D3D11Device;
+class D3D11Target;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -90,6 +91,38 @@ TRef<D3D11Device> CreateD3D11Device();
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// Transform and lighting done in the rasterizer's vertex shader. Device3D
+// fills this for each model-space draw; the formulas are those of its CPU
+// lighting functions (device3d.cpp).
+//
+//////////////////////////////////////////////////////////////////////////////
+
+enum TLMode {
+    TLModeWhite,            // LightVertexCopy
+    TLModeGlobalColor,      // LightVertexGlobalColor
+    TLModeDirectional,      // LightVertex
+    TLModeBidirectional,    // BidirectionalLightVertex
+    TLModeMaterial,         // MaterialLightVertex
+    TLModeVertexColor       // VertexL: the vertex's own colour
+};
+
+const int c_maxTLClipPlanes = 2;
+
+struct TransformAndLight {
+    float m_full[4][4];     // model -> the space Device3D clips in (rows)
+    float m_post[4][4];     // that space -> Direct3D clip space (rows)
+    float m_light[4];       // model-space light direction
+    float m_color[4];       // bidirectional light colour
+    float m_colorAlt[4];    // and the colour of the other side
+    float m_global[4];      // global colour, or material diffuse
+    float m_ambient;
+    int   m_mode;           // TLMode
+    int   m_countPlanes;    // extra clip planes beyond the frustum
+    float m_planes[c_maxTLClipPlanes][4];
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // Rasterizer
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -133,6 +166,15 @@ public:
     virtual void DrawTriangles(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount) = 0;
     virtual void     DrawLines(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount) = 0;
     virtual void    DrawPoints(const VertexScreen* pvertex, int vcount)                                 = 0;
+
+    //
+    // Model-space geometry, transformed, lit and clipped in the vertex shader
+    //
+
+    virtual void DrawTriangles(const TransformAndLight& tl, const Vertex*  pvertex, int vcount, const MeshIndex* pindex, int icount) = 0;
+    virtual void DrawTriangles(const TransformAndLight& tl, const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount) = 0;
+    virtual void     DrawLines(const TransformAndLight& tl, const Vertex*  pvertex, int vcount, const MeshIndex* pindex, int icount) = 0;
+    virtual void     DrawLines(const TransformAndLight& tl, const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount) = 0;
 };
 
 TRef<Rasterizer> CreateD3D11Rasterizer(PrivateSurface* psurface);
@@ -283,6 +325,24 @@ public:
 
     virtual int  GetChangeID()                      = 0;
     virtual void SetPixelFormat(PixelFormat* ppf)   = 0;
+
+    //
+    // GPU residency. A 3D surface (the window frame, 3D panes) keeps a GPU
+    // copy once something draws into it; flags in the surface say which copy
+    // is current, and each access brings the copy it needs up to date.
+    //
+    // BeginGpuDraw: the GPU copy, current and about to be drawn into (the CPU
+    //     copy becomes stale). NULL if the surface can't use the GPU.
+    // GetGpuSource: for reading the surface as a texture: its GPU copy made
+    //     current, or NULL if it has none (use the texture cache).
+    // MakeGpuResident: give the surface a GPU copy now (the presenter does
+    //     this for the frame), keeping the CPU copy current too.
+    //
+
+    virtual bool                      UsesGpu()          = 0;
+    virtual D3D11Target*              BeginGpuDraw()     = 0;
+    virtual ID3D11ShaderResourceView* GetGpuSource()     = 0;
+    virtual bool                      MakeGpuResident()  = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -2124,6 +2124,168 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////////////////////////
+    //
+    // Transform and lighting in the vertex shader
+    //
+    // Model-space triangles and one-pixel lines go to the rasterizer as they
+    // are, with the matrices and lighting below; the shader does what the
+    // Transform* and Light* functions above do. Deformations (a per-vertex
+    // callback), wide lines (built in screen space) and points (plotted
+    // without texture, blending or z) keep the CPU path.
+    //
+    //////////////////////////////////////////////////////////////////////////////
+
+    bool UseShaderTL()
+    {
+        return m_pdeform == NULL;
+    }
+
+    void BuildTransformAndLight(TransformAndLight& tl, bool bNormal)
+    {
+        const Matrix& matFull = GetFullMatrix();
+
+        //
+        // Full matrix: model to the space the CPU clipper works in, which is
+        // where the extra clip planes are kept
+        //
+
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                tl.m_full[row][col] = matFull[row][col];
+            }
+        }
+
+        //
+        // Then to DirectX 6 screen pixels (y down): the clip rect's NDC
+        // mapped back with the scales and offsets GetFullMatrix computed, or
+        // already screen pixels when clipping is off
+        //
+
+        float screen[4][4] = {
+            { 1, 0, 0, 0 },
+            { 0, 1, 0, 0 },
+            { 0, 0, 1, 0 },
+            { 0, 0, 0, 1 }
+        };
+
+        if (m_bClip) {
+            screen[0][0] = m_scalex;
+            screen[0][3] = m_xoffset;
+            screen[1][1] = m_scaley;
+            screen[1][3] = m_yoffset;
+        }
+
+        //
+        // Then to Direct3D clip space for the whole surface. The half-pixel
+        // offset puts DirectX 6 pixel centres (integers) on Direct3D 11's
+        // (half-integers), as raster.hlsli does for screen vertices.
+        //
+
+        float w = m_sizeSurface.X();
+        float h = m_sizeSurface.Y();
+
+        float clip[4][4] = {
+            { 2 / w,  0,     0, 1 / w - 1 },
+            { 0,     -2 / h, 0, 1 - 1 / h },
+            { 0,      0,     1, 0         },
+            { 0,      0,     0, 1         }
+        };
+
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                float sum = 0;
+
+                for (int k = 0; k < 4; k++) {
+                    sum += clip[row][k] * screen[k][col];
+                }
+
+                tl.m_post[row][col] = sum;
+            }
+        }
+
+        //
+        // Extra clip planes
+        //
+
+        tl.m_countPlanes = m_countPlanes - 6 < c_maxTLClipPlanes ? m_countPlanes - 6 : c_maxTLClipPlanes;
+
+        for (int index = 0; index < c_maxTLClipPlanes; index++) {
+            if (index < tl.m_countPlanes) {
+                const HVector& plane = m_pplane[6 + index].GetHVector();
+                tl.m_planes[index][0] = plane.x;
+                tl.m_planes[index][1] = plane.y;
+                tl.m_planes[index][2] = plane.z;
+                tl.m_planes[index][3] = plane.w;
+            } else {
+                tl.m_planes[index][0] = 0;
+                tl.m_planes[index][1] = 0;
+                tl.m_planes[index][2] = 0;
+                tl.m_planes[index][3] = 1;
+            }
+        }
+
+        //
+        // Lighting, chosen as UpdatePointers chooses the CPU function
+        //
+
+        for (int index = 0; index < 4; index++) {
+            tl.m_light[index]    = 0;
+            tl.m_color[index]    = 1;
+            tl.m_colorAlt[index] = 1;
+            tl.m_global[index]   = 1;
+        }
+
+        tl.m_ambient = m_brightAmbient;
+
+        if (!bNormal) {
+            tl.m_mode = TLModeVertexColor;
+            return;
+        }
+
+        switch (m_shadeMode) {
+            case ShadeModeGlobalColor:
+                tl.m_mode      = TLModeGlobalColor;
+                tl.m_global[0] = m_colorGlobal.R();
+                tl.m_global[1] = m_colorGlobal.G();
+                tl.m_global[2] = m_colorGlobal.B();
+                tl.m_global[3] = m_colorGlobal.A();
+                break;
+
+            case ShadeModeFlat:
+            case ShadeModeGouraud:
+                UpdateLighting();
+
+                tl.m_light[0] = m_vecLight.X();
+                tl.m_light[1] = m_vecLight.Y();
+                tl.m_light[2] = m_vecLight.Z();
+
+                if (m_pmaterial) {
+                    Color diffuse  = m_pmaterial->GetDiffuse();
+                    tl.m_mode      = TLModeMaterial;
+                    tl.m_global[0] = diffuse.GetRed();
+                    tl.m_global[1] = diffuse.GetGreen();
+                    tl.m_global[2] = diffuse.GetBlue();
+                    tl.m_global[3] = diffuse.GetAlpha();
+                } else if (m_bBidirectional) {
+                    tl.m_mode        = TLModeBidirectional;
+                    tl.m_color[0]    = m_color.R();
+                    tl.m_color[1]    = m_color.G();
+                    tl.m_color[2]    = m_color.B();
+                    tl.m_colorAlt[0] = m_colorAlt.R();
+                    tl.m_colorAlt[1] = m_colorAlt.G();
+                    tl.m_colorAlt[2] = m_colorAlt.B();
+                } else {
+                    tl.m_mode = TLModeDirectional;
+                }
+                break;
+
+            default:
+                tl.m_mode = TLModeWhite;
+                break;
+        }
+    }
+
     void DrawLinesRasterizer(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount)
     {
         m_prasterizer->DrawLines(pvertex, vcount, pindex, icount);
@@ -2188,6 +2350,13 @@ public:
             m_countTriangles += icount / 3;
         #endif
 
+        if (UseShaderTL()) {
+            TransformAndLight tl;
+            BuildTransformAndLight(tl, true);
+            m_prasterizer->DrawTriangles(tl, pvertex, vcount, pindex, icount);
+            return;
+        }
+
         UpdatePointers();
         (this->*m_pfnLightVertex)(pvertex, vcount, pindex, icount, &Device3D::ClipTriangles, &Device3D::DrawTriangles);
     }
@@ -2205,6 +2374,13 @@ public:
         #endif
 
         UpdatePointers();
+
+        if (UseShaderTL() && m_pfnDrawLines == &Device3D::DrawLinesRasterizer) {
+            TransformAndLight tl;
+            BuildTransformAndLight(tl, true);
+            m_prasterizer->DrawLines(tl, pvertex, vcount, pindex, icount);
+            return;
+        }
         (this->*m_pfnLightVertex)(pvertex, vcount, pindex, icount, &Device3D::ClipLines, m_pfnDrawLines);
     }
 
@@ -2236,6 +2412,13 @@ public:
             m_countTriangles += icount / 3;
         #endif
 
+        if (UseShaderTL()) {
+            TransformAndLight tl;
+            BuildTransformAndLight(tl, false);
+            m_prasterizer->DrawTriangles(tl, pvertex, vcount, pindex, icount);
+            return;
+        }
+
         UpdatePointers();
         (this->*m_pfnLightVertexL)(pvertex, vcount, pindex, icount, &Device3D::ClipTriangles, &Device3D::DrawTriangles);
     }
@@ -2253,6 +2436,13 @@ public:
         #endif
 
         UpdatePointers();
+
+        if (UseShaderTL() && m_pfnDrawLines == &Device3D::DrawLinesRasterizer) {
+            TransformAndLight tl;
+            BuildTransformAndLight(tl, false);
+            m_prasterizer->DrawLines(tl, pvertex, vcount, pindex, icount);
+            return;
+        }
         (this->*m_pfnLightVertexL)(pvertex, vcount, pindex, icount, &Device3D::ClipLines, m_pfnDrawLines);
     }
 

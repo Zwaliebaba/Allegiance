@@ -40,6 +40,7 @@
       <VariableName>g_%(Filename)</VariableName>
       <ObjectFileOutput></ObjectFileOutput>
       <AdditionalIncludeDirectories>$(ProjectDir)shaders;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsErrors>true</TreatWarningAsErrors>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -53,6 +54,7 @@
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="d3d11device.cpp" />
     <ClCompile Include="d3d11raster.cpp" />
+    <ClCompile Include="d3d11draw2d.cpp" />
     <ClCompile Include="font.cpp" />
     <ClCompile Include="device3d.cpp" />
     <ClCompile Include="context.cpp" />
@@ -104,7 +106,27 @@
     <FxCompile Include="shaders\present_ps.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="shaders\draw2d_vs.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\draw2d_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
     <None Include="shaders\raster.hlsli" />
+    <FxCompile Include="shaders\tl_vs.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\tl_vs_flat.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\tl_vs_l.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\tl_vs_l_flat.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <None Include="shaders\draw2d.hlsli" />
+    <None Include="shaders\tl.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bounds.h" />

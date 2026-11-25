@@ -3,14 +3,14 @@
 // D3D11 replacement for the DirectX 6 fixed-function rasterizer state the
 // engine used: pre-transformed screen vertices (D3DTLVERTEX layout), one
 // texture, DECAL or MODULATE, colour-key cut-outs, Gouraud or flat shading.
-// Transform and lighting stay on the CPU (device3d.cpp).
+// Transform and lighting stay on the CPU (device3d.cpp) for these vertices.
 //
 //////////////////////////////////////////////////////////////////////////////
 
 cbuffer RasterConstants : register(b0)
 {
     float4 g_screen;    // x: 2 / width, y: 2 / height
-    uint4  g_flags;     // x: bit 0 textured, bit 1 decal, bit 2 colour key
+    uint4  g_flags;     // x: bit 0 textured, bit 1 decal, bit 2 colour key, bit 3 key by black
 };
 
 Texture2D    g_texture : register(t0);
@@ -42,6 +42,8 @@ float4 ScreenToClip(float4 p)
 
 float4 Shade(float4 color, float2 uv)
 {
+    float4 result = color;
+
     if (g_flags.x & 1) {
         float4 texel = g_texture.Sample(g_sampler, uv);
 
@@ -51,18 +53,33 @@ float4 Shade(float4 color, float2 uv)
         // D3DRENDERSTATE_COLORKEYENABLE.
         //
 
-        if ((g_flags.x & 4) && texel.a < 0.5) {
+        if ((g_flags.x & 12) == 4 && texel.a < 0.5) {
             discard;
         }
 
-        if (g_flags.x & 2) {
-            // D3DTBLEND_DECAL: texture colour, texture alpha (always opaque)
-            return float4(texel.rgb, 1.0);
+        //
+        // A texture that is another GPU surface (a pane image) has no key in
+        // alpha: its key is black, counting anything that would have been
+        // black in 565, as when the pane was read back into 565 pixels
+        //
+
+        if ((g_flags.x & 12) == 12 && texel.r < 8.0 / 255.0 && texel.g < 4.0 / 255.0 && texel.b < 8.0 / 255.0) {
+            discard;
         }
 
-        // D3DTBLEND_MODULATE without texture alpha: alpha from the vertex
-        return float4(texel.rgb * color.rgb, color.a);
+        //
+        // One exit point: FXC warns (X4000) about early returns from branches
+        // on constant-buffer values
+        //
+
+        if (g_flags.x & 2) {
+            // D3DTBLEND_DECAL: texture colour, texture alpha (always opaque)
+            result = float4(texel.rgb, 1.0);
+        } else {
+            // D3DTBLEND_MODULATE without texture alpha: alpha from the vertex
+            result = float4(texel.rgb * color.rgb, color.a);
+        }
     }
 
-    return color;
+    return result;
 }

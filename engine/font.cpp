@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "d3d11engine.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -31,6 +32,18 @@ private:
     CharData          m_data[256];
     BYTE*             m_pdata;
     int               m_dataSize;
+
+    //
+    // Glyph atlas for drawing into GPU surfaces: 16 x 16 cells, each as wide
+    // as the widest glyph's whole bytes, so the bits past a glyph's width
+    // that the CPU path also drew are kept
+    //
+
+    TRef<ID3D11ShaderResourceView> m_patlas;
+    D3D11Device*      m_patlasDevice;
+    int               m_atlasGeneration;
+    WinPoint          m_sizeAtlas;
+    int               m_cellWidth;
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -232,14 +245,20 @@ private:
 
 public:
     FontImpl(HFONT hfont) :
-        m_pdata(NULL)
+        m_pdata(NULL),
+        m_patlasDevice(NULL),
+        m_atlasGeneration(-1),
+        m_cellWidth(0)
     {
         GetSizes(hfont);
         FillFontData(hfont);
         ZVerify(::DeleteObject(hfont));
     }
 
-    FontImpl(IBinaryReaderSite* psite)
+    FontImpl(IBinaryReaderSite* psite) :
+        m_patlasDevice(NULL),
+        m_atlasGeneration(-1),
+        m_cellWidth(0)
     {
         m_height = psite->GetDWORD();
         m_width  = psite->GetDWORD();
@@ -432,6 +451,161 @@ public:
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////////
+    //
+    // Text on the GPU: the same layout as DrawStringHandled, one quad per
+    // glyph from the atlas, clipped by the scissor instead of per character
+    //
+    //////////////////////////////////////////////////////////////////////////////
+
+    bool EnsureAtlas(D3D11Device* pdevice)
+    {
+        if (
+               m_patlas != NULL
+            && m_patlasDevice == pdevice
+            && m_atlasGeneration == pdevice->GetGeneration()
+        ) {
+            return true;
+        }
+
+        m_patlas = NULL;
+
+        int cellWidth = 8;
+
+        for (int index = 0; index < 256; index++) {
+            cellWidth = max(cellWidth, ((m_data[index].m_size.X() + 7) / 8) * 8);
+        }
+
+        WinPoint size(16 * cellWidth, 16 * m_height);
+
+        if (size.Y() <= 0) {
+            return false;
+        }
+
+        std::vector<BYTE> pixels(size.X() * size.Y(), 0);
+
+        for (int index = 0; index < 256; index++) {
+            const CharData& charData = m_data[index];
+            int   xbytes  = (charData.m_size.X() + 7) / 8;
+            int   ysize   = charData.m_size.Y();
+            int   x0      = (index % 16) * cellWidth;
+            int   y0      = (index / 16) * m_height;
+            BYTE* psource = m_pdata + charData.m_offset;
+
+            for (int y = 0; y < ysize && y < m_height; y++) {
+                for (int xbyte = 0; xbyte < xbytes; xbyte++) {
+                    BYTE bits = psource[y * xbytes + xbyte];
+
+                    for (int xbit = 0; xbit < 8; xbit++) {
+                        if (bits & (1 << xbit)) {
+                            pixels[(y0 + y) * size.X() + x0 + xbyte * 8 + xbit] = 0xff;
+                        }
+                    }
+                }
+            }
+        }
+
+        m_patlas = D3D11CreateAtlas(pdevice, pixels.data(), size);
+
+        if (m_patlas == NULL) {
+            return false;
+        }
+
+        m_patlasDevice    = pdevice;
+        m_atlasGeneration = pdevice->GetGeneration();
+        m_sizeAtlas       = size;
+        m_cellWidth       = cellWidth;
+        return true;
+    }
+
+    //
+    // Colour codes nest: START pushes a colour, END returns to the enclosing
+    // one, and an END at the outermost level ends the string, as the
+    // recursive CPU version did.
+    //
+
+    bool DrawStringGpu(
+              Surface*  psurface,
+        const WinPoint& point,
+        const WinRect&  rectClip,
+        const ZString&  str,
+        const Color&    color
+    ) {
+        PrivateSurface* pprivate; CastTo(pprivate, psurface);
+
+        if (!pprivate->UsesGpu()) {
+            return false;
+        }
+
+        PrivateEngine* pengine; CastTo(pengine, psurface->GetEngine());
+        D3D11Device*   pdevice = pengine->GetD3D11Device();
+
+        if (pdevice == NULL || !EnsureAtlas(pdevice)) {
+            return false;
+        }
+
+        D3D11Target* ptarget = pprivate->BeginGpuDraw();
+
+        if (ptarget == NULL) {
+            return false;
+        }
+
+        std::vector<D3D11Glyph> glyphs;
+        std::vector<DWORD>      colors;
+
+        glyphs.reserve(str.GetLength());
+
+        DWORD colorCurrent = D3D11MakeBGRA(color);
+        int   length       = str.GetLength();
+        int   ichar        = 0;
+        int   x            = point.X();
+
+        while (ichar < length) {
+            BYTE ch = str[ichar];
+
+            if (ch == START_COLOR_CODE) {
+                ichar += 2;
+                colors.push_back(colorCurrent);
+                colorCurrent = D3D11MakeBGRA(ReadColor(str, ichar));
+                continue;
+            }
+
+            if (ch == END_COLOR_CODE) {
+                ichar += 2;
+
+                if (colors.empty()) {
+                    break;
+                }
+
+                colorCurrent = colors.back();
+                colors.pop_back();
+                continue;
+            }
+
+            const CharData& charData = m_data[ch];
+            int             xsize    = charData.m_size.X();
+
+            if (xsize > 0) {
+                int        width = ((xsize + 7) / 8) * 8;
+                int        xcell = (ch % 16) * m_cellWidth;
+                int        ycell = (ch / 16) * m_height;
+                D3D11Glyph glyph;
+
+                glyph.m_rectDest  = WinRect(x, point.Y(), x + width, point.Y() + m_height);
+                glyph.m_rectAtlas = WinRect(xcell, ycell, xcell + width, ycell + m_height);
+                glyph.m_color     = colorCurrent;
+
+                glyphs.push_back(glyph);
+            }
+
+            x += xsize;
+            ichar++;
+        }
+
+        D3D11DrawGlyphs(pdevice, ptarget, m_patlas, m_sizeAtlas, glyphs.data(), (int)glyphs.size(), rectClip);
+        return true;
+    }
+
     void DrawString(
               Surface*  psurface, 
         const WinPoint& point, 
@@ -440,6 +614,10 @@ public:
         const Color&    color
     ) {
         if (str.GetLength() == 0) {
+            return;
+        }
+
+        if (DrawStringGpu(psurface, point, rectClip, str, color)) {
             return;
         }
 

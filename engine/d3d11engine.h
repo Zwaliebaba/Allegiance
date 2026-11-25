@@ -50,4 +50,114 @@ void ConvertBGRAToSurface(
 
 void D3D11BoundRasterizerChanged();
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// GPU copy of a surface the GPU draws into (the window frame and 3D panes).
+// The surface owns it and decides when it is current (surface.cpp); the
+// functions below create, fill and draw into it (d3d11draw2d.cpp).
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class D3D11Target : public IObject {
+public:
+    TRef<ID3D11Texture2D>          m_ptexture;     // BGRA8, render target and shader resource
+    TRef<ID3D11RenderTargetView>   m_prtv;
+    TRef<ID3D11ShaderResourceView> m_psrv;
+    TRef<ID3D11Texture2D>          m_pdepth;       // D24S8, created on demand
+    TRef<ID3D11DepthStencilView>   m_pdsv;
+    TRef<ID3D11Texture2D>          m_pstaging;     // created on the first readback
+    WinPoint                       m_size;
+    int                            m_generation;
+
+    D3D11Target() :
+        m_size(0, 0),
+        m_generation(-1)
+    {
+    }
+
+    bool IsValid(D3D11Device* pdevice, const WinPoint& size);
+};
+
+//
+// (Re)create the colour texture if the device or size changed. Returns false
+// if the target can't be created. Afterwards bRecreated says whether the
+// contents are new (undefined).
+//
+
+bool D3D11EnsureTarget(D3D11Device* pdevice, D3D11Target* ptarget, const WinPoint& size, bool& bRecreated);
+bool D3D11EnsureDepth(D3D11Device* pdevice, D3D11Target* ptarget);
+
+//
+// CPU pixels <-> GPU copy
+//
+
+void D3D11Upload(D3D11Device* pdevice, D3D11Target* ptarget, const BYTE* psource, int pitch, PixelFormat* ppf);
+bool D3D11Readback(D3D11Device* pdevice, D3D11Target* ptarget, BYTE* pdest, int pitch, PixelFormat* ppf);
+
+//
+// 2D drawing into a target. Rects are in pixels, y down, already clipped;
+// rectScissor limits what is touched.
+//
+// Colour keys: D3D11KeyAlpha for texture-cache textures (the key is alpha 0),
+// D3D11KeyBlack for another target used as a source (pixels that were black
+// in 565, the only key the game uses).
+//
+
+enum D3D11KeyMode {
+    D3D11KeyNone  = 0,
+    D3D11KeyAlpha = 1,
+    D3D11KeyBlack = 2
+};
+
+void D3D11Blit(
+    D3D11Device*              pdevice,
+    D3D11Target*              ptarget,
+    const WinRect&            rectDest,
+    ID3D11ShaderResourceView* psrv,
+    const WinPoint&           sizeSource,
+    const WinRect&            rectSource,
+    D3D11KeyMode              keyMode,
+    const WinRect&            rectScissor
+);
+
+void D3D11Fill(D3D11Device* pdevice, D3D11Target* ptarget, const WinRect& rect, const Color& color);
+
+//
+// Text: one quad per glyph cell from a font's atlas (R8, set bits 255)
+//
+
+struct D3D11Glyph {
+    WinRect m_rectDest;     // cell on the target
+    WinRect m_rectAtlas;    // the same-sized cell in the atlas
+    DWORD   m_color;        // BGRA
+};
+
+TRef<ID3D11ShaderResourceView> D3D11CreateAtlas(D3D11Device* pdevice, const BYTE* pdata, const WinPoint& size);
+
+void D3D11DrawGlyphs(
+    D3D11Device*              pdevice,
+    D3D11Target*              ptarget,
+    ID3D11ShaderResourceView* patlas,
+    const WinPoint&           sizeAtlas,
+    const D3D11Glyph*         pglyphs,
+    int                       count,
+    const WinRect&            rectScissor
+);
+
+DWORD D3D11MakeBGRA(const Color& color);
+
+//
+// Per-frame counters for the frame-rate overlay
+//
+
+struct D3D11Stats {
+    int m_uploads;          // CPU pixels copied to a render target
+    int m_readbacks;        // render target copied back to CPU pixels
+    int m_textureUploads;   // texture cache refreshes
+    int m_draws2D;
+    int m_draws3D;
+};
+
+extern D3D11Stats g_d3d11Stats;
+
 #endif
