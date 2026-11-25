@@ -106,7 +106,11 @@ moves into Tier 1 and is ported with the server, keeping the admin and event fea
 - Compile-time shims for the DirectX headers that are no longer in the SDK (`d3drm.h`, `dplay.h`,
   `dplobby.h`), so everything links before behaviour changes. The shims are written for this project, not vendored from
   old SDKs, and they are deleted as Phase 3 replaces each API.
-- Zone and Club code paths removed. `/permissive-` turned on.
+- Zone and Club code paths removed. `/permissive-` turned on (not done yet).
+- The old build system is deleted (190 files): the nmake makefiles, `makefile.inc`/`makeexe.inc`/`makedep.inc`,
+  the VC6 `.dsp`/`.dsw` and VS.NET `.vcproj`/`.sln` files, `VSNet.Readme`, and `build/`, the 1999 build-lab
+  scripts (build numbering, BVT scripts, setup packaging, all hard-wired to `%FEDROOT%`). Git history keeps
+  them for anyone reviving a Tier 2 module.
 
 ### Phase 3: make it run
 
@@ -298,9 +302,14 @@ Then build the art with the tools from that build:
 msbuild Artwork\Art.proj -p:Configuration=Debug
 ```
 
-The art goes to `out\art\`, the directory the client and server read. In CI, a separate `art` job
-does this with the tools from the build job, and attaches the result to the run as the `art-Debug`
-artifact.
+This takes about two minutes the first time; later runs reconvert only what changed. The art goes to
+`out\art\`. The last step creates `out\bin\Win32\Debug\artwork` as a junction to it, which is
+where `Allegiance.exe` and `AllSrv32.exe` look for their art. They only use a different location when
+`HKLM\SOFTWARE\WOW6432Node\Microsoft\Microsoft Games\Allegiance\1.0` has an `ArtPath` value (the
+game is 32-bit, hence `WOW6432Node`). `-p:ArtLinkClient=false` skips the junction.
+
+Without building it yourself, the same output is attached to every CI run as the `art-Debug`
+artifact. Unzip it into an `artwork` folder next to the exes.
 
 ## Conformance fix log
 

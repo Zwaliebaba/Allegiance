@@ -19,6 +19,10 @@
 
   Each step is incremental (Inputs/Outputs). mdlc runs in -batch mode so a step
   starts the engine once, not once per file.
+
+  Afterwards LinkToClient makes <ArtToolDir>artwork a junction to the output,
+  because that is where Allegiance.exe and AllSrv32.exe look for their art when
+  the registry has no ArtPath. -p:ArtLinkClient=false skips it.
 -->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
@@ -31,6 +35,7 @@
     <ArtIntDir Condition="'$(ArtIntDir)' == ''">$(AllegianceRoot)out\artobj\</ArtIntDir>
     <ArtTemplateDir Condition="'$(ArtTemplateDir)' == ''">$(MSBuildThisFileDirectory)tools\</ArtTemplateDir>
     <ArtModelDir>$(ArtIntDir)models\</ArtModelDir>
+    <ArtLinkClient Condition="'$(ArtLinkClient)' == ''">true</ArtLinkClient>
     <Mdlc>$(ArtToolDir)mdlc.exe</Mdlc>
     <Xmunge>$(ArtToolDir)xmunge.exe</Xmunge>
     <Cvh>$(ArtToolDir)cvh.exe</Cvh>
@@ -214,7 +219,22 @@
     <Copy SourceFiles="@(ArtCopy)" DestinationFolder="$(ArtOutDir)" SkipUnchangedFiles="true" />
   </Target>
 
-  <Target Name="Build" DependsOnTargets="Copies;Bitmaps;Animations;Fonts;Models;TextModels" />
+  <Target Name="Build" DependsOnTargets="Copies;Bitmaps;Animations;Fonts;Models;TextModels;LinkToClient" />
+
+  <!--
+    The client and server read their art from "artwork" next to the exe when
+    HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.0 (WOW6432Node on
+    64-bit Windows) has no ArtPath. A directory junction needs no admin rights.
+  -->
+
+  <Target Name="LinkToClient" Condition="'$(ArtLinkClient)' == 'true' and '$(OS)' == 'Windows_NT'">
+    <PropertyGroup>
+      <_ArtLink>$(ArtToolDir)artwork</_ArtLink>
+      <_ArtTarget>$(ArtOutDir.TrimEnd('\'))</_ArtTarget>
+    </PropertyGroup>
+    <Exec Condition="!Exists('$(_ArtLink)')" Command="mklink /J &quot;$(_ArtLink)&quot; &quot;$(_ArtTarget)&quot;" />
+    <Message Condition="Exists('$(_ArtLink)')" Importance="normal" Text="$(_ArtLink) already exists; leaving it as it is." />
+  </Target>
 
   <Target Name="Clean">
     <RemoveDir Directories="$(ArtOutDir);$(ArtIntDir)" />

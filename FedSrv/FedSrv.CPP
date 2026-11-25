@@ -8608,6 +8608,32 @@ HRESULT pascal FedSrv_Init()
   _makepath(path_buffer, drive, dir, NULL, NULL);
   SetCurrentDirectory(path_buffer);
 
+  //
+  // Art path for the core (.igc) and collision hull (.cvh) files: the
+  // registry ArtPath if set, otherwise the "artwork" folder next to the exe,
+  // the same rule the client uses (WinTrek/trekapp.cpp). Nothing in this
+  // source drop set it, so the first core load asserted in UTL::getFile.
+  //
+  {
+    char szArt[_MAX_PATH + 16];
+    lstrcpy(szArt, path_buffer);
+    lstrcat(szArt, "artwork");
+
+    HKEY hKey;
+    if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey))
+    {
+      char  szValue[_MAX_PATH];
+      DWORD cbValue = sizeof(szValue);
+      DWORD dwType;
+      if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "ArtPath", NULL, &dwType, (unsigned char*)szValue, &cbValue)
+          && dwType == REG_SZ && szValue[0] != 0)
+        lstrcpyn(szArt, szValue, sizeof(szArt));
+      ::RegCloseKey(hKey);
+    }
+
+    UTL::SetArtPath(szArt);
+  }
+
   LoadTechBits(); // only for the IfYouBuildIt cheat
 
   bool fSWMRGInit = FSWMRGInitialize(&g.swmrg, "FedSrv");
