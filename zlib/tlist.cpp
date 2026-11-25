@@ -7,7 +7,19 @@
 //////////////////////////////////////////////////////////////////////////////
 
 TListImpl::ListNodeImpl::~ListNodeImpl()
-{}
+{
+    // Free the rest of the chain in a loop. Left to m_pnext's destructor,
+    // each node's release destroyed the next one, recursing once per element,
+    // which overflowed the stack on long lists (mdlc, Debug x64). A successor
+    // that something else still holds (an iterator) is left alone: it won't be
+    // destroyed here, so it can't recurse.
+    while (m_pnext != NULL && m_pnext->GetCount() == 1) {
+        TRef<ListNodeImpl> pnode = m_pnext;
+        m_pnext = pnode->m_pnext;
+        pnode->m_pnext = NULL;
+        // pnode is destroyed here, with nothing after it
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //

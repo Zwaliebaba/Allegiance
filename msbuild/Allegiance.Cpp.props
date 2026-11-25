@@ -5,8 +5,8 @@
   toolset defaults while still letting the project file override them.
 
   Baseline choices (Phase 1/2 of MODERNIZATION.md):
-    - Win32 and x64. The code has no inline assembly; on x64 the pointer-
-      truncation warnings are errors (see the x64 group below).
+    - x64 only (Win32 was dropped once x64 had been played). The
+      pointer-truncation warnings are errors (see below).
     - Static CRT, matching the original /MT /MTd builds.
     - C++17 with permissive mode; /permissive- is switched on in Phase 2.
     - /EHsc instead of the original /GX-: the modern STL and comdef require it.
@@ -50,10 +50,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
 
-  <!-- x64: a pointer cast to a 32-bit integer (C4311, C4302) or a 32-bit
-       integer cast to a pointer (C4312) loses half the pointer. They are
-       harmless on Win32, where they don't fire, and bugs on x64. -->
-  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
+  <!-- A pointer cast to a 32-bit integer (C4311, C4302) or a 32-bit integer
+       cast to a pointer (C4312) loses half the pointer. -->
+  <ItemDefinitionGroup>
     <ClCompile>
       <TreatSpecificWarningsAsErrors>4302;4311;4312;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
     </ClCompile>

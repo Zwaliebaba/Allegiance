@@ -26,8 +26,7 @@
 
   Output goes to out\Artwork. The client looks for an "Artwork" directory next to
   its exe, so the build also makes $(ArtLinkDir) (by default
-  out\bin\Win32\<Configuration>\Artwork) a directory junction to out\Artwork,
-  and the same in out\bin\x64\<Configuration> if there is an x64 build.
+  out\bin\x64\<Configuration>\Artwork) a directory junction to out\Artwork.
   -p:ArtLink=false skips that.
 -->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -36,12 +35,10 @@
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <AllegianceRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..'))</AllegianceRoot>
     <ArtSource Condition="'$(ArtSource)' == ''">$(MSBuildThisFileDirectory)256\</ArtSource>
-    <ArtToolDir Condition="'$(ArtToolDir)' == ''">$(AllegianceRoot)out\bin\Win32\$(Configuration)\</ArtToolDir>
+    <ArtToolDir Condition="'$(ArtToolDir)' == ''">$(AllegianceRoot)out\bin\x64\$(Configuration)\</ArtToolDir>
     <ArtOutDir Condition="'$(ArtOutDir)' == ''">$(AllegianceRoot)out\Artwork\</ArtOutDir>
     <ArtLink Condition="'$(ArtLink)' == ''">true</ArtLink>
     <ArtLinkDir Condition="'$(ArtLinkDir)' == ''">$(ArtToolDir)Artwork</ArtLinkDir>
-    <!-- The x64 build's exe directory, linked as well when it exists -->
-    <ArtLinkDirX64 Condition="'$(ArtLinkDirX64)' == ''">$(AllegianceRoot)out\bin\x64\$(Configuration)\Artwork</ArtLinkDirX64>
     <ArtIntDir Condition="'$(ArtIntDir)' == ''">$(AllegianceRoot)out\obj\Artwork\</ArtIntDir>
     <ArtFontDir Condition="'$(ArtFontDir)' == ''">$(AllegianceRoot)bin\</ArtFontDir>
     <ArtFontDir>$([MSBuild]::EnsureTrailingSlash('$(ArtFontDir)'))</ArtFontDir>
@@ -108,7 +105,7 @@
   </ItemGroup>
 
   <Target Name="CheckTools">
-    <Error Condition="!Exists('%(_ArtTool.Identity)')" Text="%(_ArtTool.Identity) not found. Build the art tools ($(Configuration)|Win32) first, or set ArtToolDir." />
+    <Error Condition="!Exists('%(_ArtTool.Identity)')" Text="%(_ArtTool.Identity) not found. Build the art tools ($(Configuration)|x64) first, or set ArtToolDir." />
     <MakeDir Directories="$(ArtOutDir);$(ArtIntDir);$(ArtModelDir)" />
   </Target>
 
@@ -265,8 +262,6 @@
   <PropertyGroup>
     <_ArtLinkEnabled>false</_ArtLinkEnabled>
     <_ArtLinkEnabled Condition="'$(ArtLink)' == 'true' and '$([MSBuild]::NormalizeDirectory($(ArtLinkDir)))' != '$([MSBuild]::NormalizeDirectory($(ArtOutDir)))'">true</_ArtLinkEnabled>
-    <_ArtLinkX64Enabled>false</_ArtLinkX64Enabled>
-    <_ArtLinkX64Enabled Condition="'$(ArtLink)' == 'true' and Exists('$([System.IO.Path]::GetDirectoryName($(ArtLinkDirX64)))') and '$([MSBuild]::NormalizeDirectory($(ArtLinkDirX64)))' != '$([MSBuild]::NormalizeDirectory($(ArtLinkDir)))'">true</_ArtLinkX64Enabled>
   </PropertyGroup>
 
   <Target Name="LinkArtwork" DependsOnTargets="CheckTools" Condition="$(_ArtLinkEnabled)">
@@ -274,17 +269,11 @@
     <Message Importance="high" Text="Artwork: $(ArtLinkDir) -> $(ArtOutDir)" />
   </Target>
 
-  <Target Name="LinkArtworkX64" DependsOnTargets="CheckTools" Condition="$(_ArtLinkX64Enabled)">
-    <Exec Command="(rmdir &quot;$(ArtLinkDirX64)&quot; 2&gt;nul &amp; mklink /J &quot;$(ArtLinkDirX64)&quot; &quot;$(ArtOutDir.TrimEnd('\'))&quot; &gt;nul) || (echo Art.proj : error : could not link $(ArtLinkDirX64) to $(ArtOutDir). If it is a directory with files in it, move or delete it, or build with -p:ArtLink=false. &amp; exit /b 1)" />
-    <Message Importance="high" Text="Artwork: $(ArtLinkDirX64) -> $(ArtOutDir)" />
-  </Target>
-
-  <Target Name="Build" DependsOnTargets="Copies;Music;Bitmaps;Animations;Fonts;Models;TextModels;LinkArtwork;LinkArtworkX64" />
+  <Target Name="Build" DependsOnTargets="Copies;Music;Bitmaps;Animations;Fonts;Models;TextModels;LinkArtwork" />
 
   <Target Name="Clean">
     <!-- Remove the junction itself first, so nothing follows it into $(ArtOutDir). -->
     <Exec Condition="$(_ArtLinkEnabled) and Exists('$(ArtLinkDir)')" Command="rmdir &quot;$(ArtLinkDir)&quot;" ContinueOnError="true" />
-    <Exec Condition="$(_ArtLinkX64Enabled) and Exists('$(ArtLinkDirX64)')" Command="rmdir &quot;$(ArtLinkDirX64)&quot;" ContinueOnError="true" />
     <RemoveDir Directories="$(ArtOutDir);$(ArtIntDir)" />
   </Target>
 

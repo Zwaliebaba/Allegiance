@@ -15,8 +15,8 @@ $batch = $m.Matches[0].Groups[1].Value
 $work = if ((Split-Path $batch -Leaf) -eq 'bitmaps.batch') { $ArtSource } else { $ArtOut }
 
 $cdb = @(
-    "${env:ProgramFiles(x86)}\Windows Kits\10\Debuggers\x86\cdb.exe",
-    "${env:ProgramFiles}\Windows Kits\10\Debuggers\x86\cdb.exe"
+    "${env:ProgramFiles(x86)}\Windows Kits\10\Debuggers\x64\cdb.exe",
+    "${env:ProgramFiles}\Windows Kits\10\Debuggers\x64\cdb.exe"
 ) | Where-Object { Test-Path $_ } | Select-Object -First 1
 if (-not $cdb) { Write-Host "cdb not found"; exit 0 }
 

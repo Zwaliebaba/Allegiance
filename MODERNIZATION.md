@@ -8,7 +8,7 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Topic | Decision |
 |---|---|
 | Baseline | Strictly clean port of this repository. No code or fixes taken from community forks. |
-| Toolchain | Visual Studio 2026, platform toolset v145, `.slnx` solution. Win32 and x64 are both built until x64 has been played; then Win32 is dropped. |
+| Toolchain | Visual Studio 2026, platform toolset v145, `.slnx` solution, x64 only (Win32 was built alongside until x64 had been played, then dropped). |
 | Renderer | New Direct3D 11 backend behind the engine's existing `Engine` / `Surface` / rasterizer seam. DirectDraw 4, Direct3D 3 and the MMX software rasterizer are removed. |
 | Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project. Stage B: new MDL version with 32-bit / BC7 DDS textures generated from the 24-bit source BMPs. |
 | Level of detail | Reduced LOD meshes are dropped. They were a 1999 performance optimisation (the models are hundreds to a few thousand triangles). Every LOD slot uses the full-detail mesh, which removes `xmunge -reduce`, the MSR progressive-mesh binaries and meshoptimizer. |
@@ -84,7 +84,7 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
 - Deleted the VS.NET 2003 `Allegiance.sln` and the `.vcproj` files of the modules now ported. The
   `.dsp` files and nmake makefiles stay as reference until each module is ported.
 
-### Phase 1: MSBuild skeleton (in progress)
+### Phase 1: MSBuild skeleton (done)
 
 - `Directory.Build.props`: toolset v145, Windows SDK 10.0, MultiByte character set.
 - `msbuild/Allegiance.Cpp.props`: shared compiler settings (static CRT, C++17, `/EHsc`, `/W3`, shared
@@ -104,8 +104,9 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
   `#define FLAVOR` + `Inc/VerRes.rc` with `copy`/`type`. Each executable now has a small
   `*.build.rc` that `#include`s the same pieces.
 - `_WIN32_WINNT`/`WINVER` are set to Windows 10 globally; current ATL refuses the original 0x0400.
-- Still to do: a vcpkg manifest (libjpeg-turbo) once the vendored copy is replaced. qhull stays
-  vendored: `cvh` needs only the qhull executable, and the art pipeline no longer needs meshoptimizer.
+- No package manager for third-party code: the vendored libjpeg went with the dead code cleanup (nothing
+  built used it), and qhull stays vendored: `cvh` needs only the qhull executable, and the art pipeline no
+  longer needs meshoptimizer. MsQuic is the one NuGet package.
 
 ### Phase 2: make it compile
 
@@ -481,22 +482,24 @@ static core `.igc` files were generated from, not code.
 
 #### x64
 
-Every project has `Debug|x64` and `Release|x64` next to the Win32 configurations, and CI builds all four.
-Win32 stays until x64 has been played and works, and is then dropped in its own change. The two builds
-can play together: the network messages, the static core (`.igc`) structures and the binary MDL format hold
-no pointers or pointer-sized fields, so their layout is the same on both.
+The game is 64-bit only. x64 was first added next to Win32 (both built in CI); Win32 was dropped in a
+second change, which also removed the x87-only code (`_controlfp`, the server's `fDoublePrecision`
+setting) and switched the art tools, CI and `Art.proj` to `out\bin\x64\`. The two builds could play
+together: the network messages, the static core (`.igc`) structures and the binary MDL format hold no
+pointers or pointer-sized fields, so their layout is the same on both.
 
 | What | Change |
 |---|---|
 | Inline assembly (MSVC x64 has none) | Replaced with C++ for both platforms: the 1-bit font blit (`engine/font.cpp`), the colour-keyed and plain 16-bit blits (`engine/surface.cpp`), `update_crc` (`_Utility/CRC.cpp`), `__debugbreak()` for `int 3`. Where a C version was already there (`MakeD3DCOLOR`, the CPU transform-and-light path in `engine/device3d.cpp`, `Matrix::Transform`), it is now the only version; `USEASM` and `FLOATASM` are gone. `MakeInt` uses `lrintf`, which rounds to nearest like the x87 `fistp` it replaces (the old non-assembly `MakeInt` did not compile). |
-| x87 precision | `_controlfp(_PC_53)` (client start-up, and the server's `fDoublePrecision`) runs on Win32 only; x64 has no x87 precision control. Float maths is SSE2 on both platforms (the x86 compiler default), so the `HitTest.cpp` trick that forced a float out of an x87 register is removed. |
+| x87 precision | `_controlfp(_PC_53)` (client start-up, and the server's `fDoublePrecision` setting, now ignored) is gone: x64 has no x87 precision control, and float maths is SSE2. The `HitTest.cpp` trick that forced a float out of an x87 register is removed for the same reason. |
 | Pointers kept in 32-bit fields | IGC's `SetPrivateData`/`GetPrivateData` (ship, side, cluster, mission) and the connection's private data, which hold the server's `CFS*` and the client's `PlayerInfo` pointers, are `DWORD_PTR`. The client list panes' item data (`LONG_PTR`), the message builder's blob lengths (`FM_VAR_PARM` passes them pointer-sized), window subclassing (`SetWindowLongPtr(GWLP_WNDPROC)`), `TlsValue`, qhull's `ptr_intT` (`size_t`), and a dozen single casts (handles, `ShellExecute` results, pointer differences measured in `DWORD`s) |
 | Debug allocator | `operator new(size_t, file, line)` (it took `unsigned int`, so no `new` compiled on x64). `ZFree` frees a client block directly instead of reading the block type from a copy of the CRT's block header, whose layout changed with the Universal CRT. The unused `zlib/fixdelete.h`, which replaced the global `operator delete` the same way, is deleted |
-| Warnings | On x64, C4302, C4311 and C4312 (a pointer cut to 32 bits, or a 32-bit value made a pointer) are errors |
-| MsQuic | The x64 `msquic.dll` is copied for x64 builds |
+| Warnings | C4302, C4311 and C4312 (a pointer cut to 32 bits, or a 32-bit value made a pointer) are errors. MSVC also reports them for constants, which a clang x64 pass did not: `c_htidStaticObject` and two `-1` markers now go through `INT_PTR` |
+| MsQuic | The x64 `msquic.dll` is copied next to the exes |
+| Stack depth | A `TList` freed its nodes recursively (each node's reference to the next released it), one level per element. With x64's larger frames, the Debug `mdlc` overflowed its 1 MB stack converting the models. A node now frees the rest of the chain in a loop |
 
-The art tools work on both platforms, but the art is built with the Win32 tools (`ArtToolDir` defaults to
-`out\bin\Win32\<Configuration>\`), as in CI.
+`AllSrv32` keeps its name (exe, project and Windows service name), so an installed service and scripts
+that start it keep working.
 
 ### Phase 4: art pipeline
 
@@ -556,7 +559,7 @@ Each model's template refers to its `.x` files by absolute path in `out\obj\Artw
 
 Two `mdlc` changes support this:
 
-- `-batch <file>` runs one command per line in a single process. A Debug `mdlc` spends about 2.4 s starting the engine, so one process per bitmap would take about an hour. Each converted namespace is unloaded after it is written, which keeps memory flat in the 32-bit process.
+- `-batch <file>` runs one command per line in a single process. A Debug `mdlc` spends about 2.4 s starting the engine, so one process per bitmap would take about an hour. Each converted namespace is unloaded after it is written, which keeps memory flat (it mattered in the 32-bit process).
 - Failures now exit with code 1. `ModelerSite::Error` used to call `_exit(0)`, and output files that could not be written were skipped without an error, so the original build could not notice a failed conversion.
 
 #### xmunge
@@ -603,18 +606,18 @@ DirectDraw path, runs on a headless runner. The first run crashed during engine 
 
 ### Phase 5: optional
 
-Dropping Win32 (once x64 has been played), C++20, replacing `ZString` and the custom containers, XAudio2, a D3D12 backend, a new lobby service.
+C++20, replacing `ZString` and the custom containers, XAudio2, a D3D12 backend, a new lobby service.
 
 ## Building
 
 Open `Allegiance.slnx` in Visual Studio 2026 (Desktop development with C++, plus the C++ ATL and MFC
-components) and build `Debug|x64` or `Debug|x86`. From the command line:
+components) and build `Debug|x64`. From the command line:
 
 ```
 msbuild Allegiance.slnx -p:Configuration=Debug -p:Platform=x64
 ```
 
-The output goes to `out\bin\<Platform>\<Configuration>\` (`Win32` for an x86 build).
+The output goes to `out\bin\x64\<Configuration>\`.
 
 CI builds each library on its own (`-p:BuildProjectReferences=false`), so one failure doesn't hide the
 errors of the others. The error summary is on the workflow run page, and the full logs are attached to
@@ -636,12 +639,11 @@ Then build the art with the tools from that build:
 msbuild Artwork\Art.proj -p:Configuration=Debug
 ```
 
-The art goes to `out\Artwork\`, and `out\bin\Win32\<Configuration>\Artwork` is made a directory
+The art goes to `out\Artwork\`, and `out\bin\x64\<Configuration>\Artwork` is made a directory
 junction to it, because that is where `Allegiance.exe` and `AllSrv32.exe` look for their art
-(`-p:ArtLink=false` skips the junction); if there is an x64 build, `out\bin\x64\<Configuration>\Artwork`
-is linked too. Building `Allegiance.exe` or `AllSrv32.exe` also makes that junction in its own output
-directory if it is missing and `out\Artwork` exists (`Directory.Build.targets`), so an x64 build made
-after the art still finds it. Elsewhere, set `ArtPath` in `settings.json` and `server.json`. In CI, a
+(`-p:ArtLink=false` skips the junction). Building `Allegiance.exe` or `AllSrv32.exe` also makes that
+junction in its own output directory if it is missing and `out\Artwork` exists (`Directory.Build.targets`),
+so a build made after the art still finds it. Elsewhere, set `ArtPath` in `settings.json` and `server.json`. In CI, a
 separate `art` job does this with the tools from the build job, and attaches the result to the run as
 the `art-Debug` artifact.
 

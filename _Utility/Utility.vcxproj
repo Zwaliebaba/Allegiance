@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -89,7 +81,6 @@
     <Error Condition="!Exists('$(MsQuicDir)include\msquic.h')" Text="MsQuic $(MsQuicVersion) is not restored ($(MsQuicDir)). Restore NuGet packages (Visual Studio does this on build; see _Utility\Utility.vcxproj)." />
   </Target>
   <Target Name="AllegianceMsQuicCopy" AfterTargets="Build">
-    <Copy SourceFiles="$(MsQuicDir)bin\x86\msquic.dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" Condition="'$(Platform)' == 'Win32'" />
-    <Copy SourceFiles="$(MsQuicDir)bin\x64\msquic.dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" Condition="'$(Platform)' == 'x64'" />
+    <Copy SourceFiles="$(MsQuicDir)bin\x64\msquic.dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

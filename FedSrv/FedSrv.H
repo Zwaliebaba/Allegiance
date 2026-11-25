@@ -230,8 +230,7 @@ struct Global
     fm(&siteFedSrv),
     fmLobby(&siteFSLobby),
     fProtocol(false),
-    fPaused(false),
-    fDoublePrecision(true)
+    fPaused(false)
   {
     ZeroMemory(rgTechs, sizeof(rgTechs));
     ZeroMemory(&serverCounters, sizeof(serverCounters));
@@ -298,7 +297,6 @@ struct Global
 
   bool                fProtocol;
   bool                fPaused;
-  bool                fDoublePrecision;
 };
 
 
