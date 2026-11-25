@@ -10,6 +10,27 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+//
+// Zero fill for structs with a dwSize member (was in the DirectDraw
+// wrapper header ddstruct.h; DirectInput is its only remaining user)
+//
+
+template<class Type>
+class TZeroFillWithSize : public Type {
+protected:
+    TZeroFillWithSize()
+    {
+        Reinitialize();
+    }
+
+public:
+    void Reinitialize()
+    {
+        memset(this, 0, sizeof(Type));
+        this->dwSize = sizeof(Type);
+    }
+};
+
 class DIDeviceCaps : public TZeroFillWithSize<DIDEVCAPS> {
 public:
 };
