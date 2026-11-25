@@ -13,7 +13,10 @@
     256\bitmap.txt   bitmaps converted to <name>bmp.mdl
     256\copymdl.txt  text MDL files copied as-is
     256\*.wav *.rtf *.avi *.igc *.mml   copied as-is
-    256\fontsource.mdl                  compiled to font.mdl
+    256\fontsource.mdl                  compiled to font.mdl, with the fonts in
+                                        $(ArtFontDir) (default bin\, not in git:
+                                        Eurostile is not freely licensed) loaded
+                                        for mdlc only, so they need not be installed
     256\Models.props    models (converted from makegeo.mak): template MDL +
                         mdlc -optimize, collision hull via xmunge + cvh + qhull
 
@@ -36,6 +39,8 @@
     <ArtLink Condition="'$(ArtLink)' == ''">true</ArtLink>
     <ArtLinkDir Condition="'$(ArtLinkDir)' == ''">$(ArtToolDir)Artwork</ArtLinkDir>
     <ArtIntDir Condition="'$(ArtIntDir)' == ''">$(AllegianceRoot)out\obj\Artwork\</ArtIntDir>
+    <ArtFontDir Condition="'$(ArtFontDir)' == ''">$(AllegianceRoot)bin\</ArtFontDir>
+    <ArtFontDir>$([MSBuild]::EnsureTrailingSlash('$(ArtFontDir)'))</ArtFontDir>
     <ArtTemplateDir Condition="'$(ArtTemplateDir)' == ''">$(MSBuildThisFileDirectory)tools\</ArtTemplateDir>
     <ArtModelDir>$(ArtIntDir)models\</ArtModelDir>
     <Mdlc>$(ArtToolDir)mdlc.exe</Mdlc>
@@ -129,11 +134,20 @@
 
   <!-- Font -->
 
+  <ItemGroup>
+    <ArtFont Include="$(ArtFontDir)*.ttf;$(ArtFontDir)*.otf;$(ArtFontDir)*.fon" />
+  </ItemGroup>
+
   <Target Name="Fonts"
           DependsOnTargets="CheckTools"
-          Inputs="$(ArtSource)fontsource.mdl;$(Mdlc)"
+          Inputs="$(ArtSource)fontsource.mdl;$(Mdlc);@(ArtFont)"
           Outputs="$(ArtOutDir)font.mdl">
-    <Exec Command="&quot;$(Mdlc)&quot; fontsource &quot;$(ArtOutDir)font.mdl&quot;" WorkingDirectory="$(ArtSource)" />
+    <PropertyGroup>
+      <_ArtFontArg Condition="'@(ArtFont)' != ''">-fontdir &quot;$(ArtFontDir.TrimEnd('\'))&quot;</_ArtFontArg>
+    </PropertyGroup>
+    <Warning Condition="'@(ArtFont)' == ''"
+             Text="No fonts in $(ArtFontDir). font.mdl gets whatever Windows substitutes for fonts that are not installed (Eurostile). Set ArtFontDir to a folder with eurosti.ttf and eurostib.ttf." />
+    <Exec Command="&quot;$(Mdlc)&quot; $(_ArtFontArg) fontsource &quot;$(ArtOutDir)font.mdl&quot;" WorkingDirectory="$(ArtSource)" />
   </Target>
 
   <!--

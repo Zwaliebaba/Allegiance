@@ -46,6 +46,38 @@ public:
         _exit(1);
     }
 
+    // Engine warnings (e.g. a substituted font) go to the build log, in the
+    // "origin : warning : text" form MSBuild picks up; other debug output stays
+    // in the debugger.
+    void DebugOutput(const char* psz)
+    {
+        EffectApp::DebugOutput(psz);
+        if (strncmp(psz, "warning: ", 9) == 0)
+            printf("mdlc : warning : %s", psz + 9);
+    }
+
+    // -fontdir <dir>: make the fonts in <dir> available to this process only,
+    // so font.mdl gets the faces fontsource.mdl names without installing them.
+    static void LoadFonts(const ZString& strDir)
+    {
+        int count = 0;
+        const char* patterns[] = { "*.ttf", "*.otf", "*.fon" };
+        for (int i = 0; i < ARRAYSIZE(patterns); i++) {
+            WIN32_FIND_DATA data;
+            HANDLE hfind = FindFirstFile(strDir + "\\" + patterns[i], &data);
+            if (hfind == INVALID_HANDLE_VALUE)
+                continue;
+            do {
+                if (AddFontResourceEx(strDir + "\\" + data.cFileName, FR_PRIVATE, NULL) != 0)
+                    count++;
+                else
+                    printf("mdlc : warning : could not load font %s\\%s\n", (PCC)strDir, data.cFileName);
+            } while (FindNextFile(hfind, &data));
+            FindClose(hfind);
+        }
+        printf("mdlc: loaded %d fonts from %s\n", count, (PCC)strDir);
+    }
+
     static void Write(INameSpace* pns, const ZString& strOutput)
     {
         TRef<ZFile> pfile = new ZWriteFile(strOutput);
@@ -305,7 +337,7 @@ public:
         }
 
         if (FAILED(RunCommand(strCommandLine)))
-            Fail("usage: mdlc [-optimize | -convert | -compressanim x y | -info | -genheader | -batch] input [output]");
+            Fail("usage: mdlc [-fontdir dir] [-optimize | -convert | -compressanim x y | -info | -genheader | -batch] input [output]");
 
         return S_FALSE;
     }
@@ -324,7 +356,13 @@ public:
                 ZString str;
 
                 if (token.IsMinus(str)) {
-                    if (str == "optimize") {
+                    if (str == "fontdir") {
+                        ZString strDir;
+                        if (!token.IsString(strDir))
+                            return E_FAIL;
+                        LoadFonts(strDir);
+                        continue;   // the command itself follows
+                    } else if (str == "optimize") {
                         ZString strInput;
                         ZString strOutput;
                         if (token.IsString(strInput)) {

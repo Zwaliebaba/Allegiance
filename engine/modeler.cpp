@@ -1848,6 +1848,26 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 
+// GDI quietly substitutes another face when the requested one is not installed
+// (the art build then bakes the wrong glyphs into font.mdl), so say so.
+// GetTextFace returns the family ("Verdana" for "Verdana Bold"): compare as a prefix.
+static void WarnIfFontSubstituted(HFONT hfont, const char* pszRequested)
+{
+    HDC hdc = CreateCompatibleDC(NULL);
+    if (hdc == NULL)
+        return;
+
+    HGDIOBJ hfontOld = SelectObject(hdc, hfont);
+    char    szFace[LF_FACESIZE] = "";
+    GetTextFace(hdc, LF_FACESIZE, szFace);
+    SelectObject(hdc, hfontOld);
+    DeleteDC(hdc);
+
+    size_t length = strlen(szFace);
+    if (length == 0 || _strnicmp(pszRequested, szFace, length) != 0)
+        retailf("warning: font '%s' is not installed, Windows substituted '%s'\n", pszRequested, szFace);
+}
+
 class Win32FontFactory : public IFunction {
 private:
     Engine* m_pengine;
@@ -1865,20 +1885,19 @@ public:
         TRef<Boolean>     pboolBold;		CastTo(pboolBold,		(IObject*)stack.Pop());
 		TRef<Number>	  pnumberStretch;   CastTo(pnumberStretch,	(IObject*)stack.Pop());
 
-        return
-            new FontValue(
-                CreateEngineFont(
-                    CreateFont(
-                        (int)pnumberSize->GetValue(),
-                        (int)pnumberStretch->GetValue(),0, 0,
-                        pboolBold->GetValue() ? FW_BOLD : FW_DONTCARE, 
-                        FALSE, FALSE, FALSE, ANSI_CHARSET,
-                        OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-                        DEFAULT_QUALITY, DEFAULT_PITCH | FF_MODERN,
-                        pstringName->GetValue()
-                    )
-                )
+        HFONT hfont =
+            CreateFont(
+                (int)pnumberSize->GetValue(),
+                (int)pnumberStretch->GetValue(),0, 0,
+                pboolBold->GetValue() ? FW_BOLD : FW_DONTCARE,
+                FALSE, FALSE, FALSE, ANSI_CHARSET,
+                OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                DEFAULT_QUALITY, DEFAULT_PITCH | FF_MODERN,
+                pstringName->GetValue()
             );
+        WarnIfFontSubstituted(hfont, pstringName->GetValue());
+
+        return new FontValue(CreateEngineFont(hfont));
     }
 };
 

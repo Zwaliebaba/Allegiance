@@ -340,6 +340,15 @@ server only when the `Server` key below it does (the game is 32-bit, hence `WOW6
 separate `art` job does this with the tools from the build job, and attaches the result to the run as
 the `art-Debug` artifact.
 
+`font.mdl` holds pre-rendered glyphs, so the fonts `fontsource.mdl` names must be available when it
+is built. Verdana and Tahoma come with Windows, but Eurostile does not, and Windows quietly
+substitutes Courier New for it (the menu titles then look garbled). `Art.proj` passes the fonts in
+`$(ArtFontDir)` (default `bin\`, which is gitignored: Eurostile is not freely licensed) to
+`mdlc -fontdir`, which loads them for that process only, so nothing has to be installed. Put
+`eurosti.ttf` and `eurostib.ttf` there, or set `-p:ArtFontDir=<folder>`. When a font is still
+missing, the build prints `mdlc : warning : font '...' is not installed, Windows substituted '...'`.
+The CI art job has no fonts, so its `font.mdl` uses the substitute.
+
 ## Conformance fix log
 
 Fixes are made per CI round, and each change keeps the original runtime behaviour.
