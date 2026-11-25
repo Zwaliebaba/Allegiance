@@ -3007,6 +3007,10 @@ public:
         RemoveKeyboardInputFilter(GetPopupContainer());
         RemoveKeyboardInputFilter(m_pkeyboardInputFilter);
 
+        // free a training mission that is still running, while the client,
+        // the IGC objects it points to and the sound engine are still alive
+        Training::Shutdown();
+
         trekClient.Terminate();
 
         // clean up after the training mission if we need to

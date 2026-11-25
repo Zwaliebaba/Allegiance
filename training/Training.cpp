@@ -118,6 +118,22 @@ namespace Training
     }
 
     //------------------------------------------------------------------------------
+    // Free a mission that is still running when the application closes. The normal
+    // path deletes it in HandleMission on the frame after Terminate, and that frame
+    // never comes when the player quits Allegiance during training.
+    void            Shutdown (void)
+    {
+        g_bIsMission7 = false;
+        if (g_pMission)
+        {
+            TrainingMission*    pMission = g_pMission;
+            g_pMission = 0;
+            pMission->SetShuttingDown ();
+            delete pMission;
+        }
+    }
+
+    //------------------------------------------------------------------------------
     void            SetSkipPostSlideshow (void)
     {
         if (g_pMission)

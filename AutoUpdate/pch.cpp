@@ -8,14 +8,16 @@ CComModule _Module;
 
 void _debugf(const char* format, ...)
 {
-    const size_t size = 256;
+    // _TRUNCATE: a longer message is cut short, but always null-terminated
+    const size_t size = 2048;
     char         bfr[size];
 
     va_list vl;
     va_start(vl, format);
-    _vsnprintf(bfr, size, format, vl);
+    _vsnprintf_s(bfr, size, _TRUNCATE, format, vl);
     va_end(vl);
 
-    debugf(bfr);
+    // the text is already formatted: never pass it on as a format string
+    debugf("%s", bfr);
 }
 

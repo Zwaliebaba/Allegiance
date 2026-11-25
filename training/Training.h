@@ -35,6 +35,7 @@ namespace Training
     bool            StartMission (int iMissionIndex);
     bool            HandleMission (void);
     bool            EndMission (void);
+    void            Shutdown (void);
     void            SetSkipPostSlideshow (void);
     bool            IsTraining (void);
     bool            IsInstalled (void);

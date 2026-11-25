@@ -64,7 +64,8 @@ namespace Training
     m_pDeadCondition (0),
     m_commanderID (NA),
     m_pChatCondition (0),
-    m_bSkipPostSlideShow (false)
+    m_bSkipPostSlideShow (false),
+    m_bShuttingDown (false)
     {
         // get the window pointer
         TrekWindow* pWindow = GetWindow ();
@@ -84,8 +85,10 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  TrainingMission::~TrainingMission (void)
     {
-        // clean up the old condition
-        assert (m_pCondition == 0);
+        // clean up the old condition (at application shutdown the mission may
+        // still be running, so its live condition is freed here as well)
+        assert ((m_pCondition == 0) or m_bShuttingDown);
+        delete m_pCondition;
         delete m_pDeadCondition;
 
         // clean up the wait conditions
@@ -93,6 +96,11 @@ namespace Training
         std::list<Condition*>::iterator end = m_WaitConditionList.end ();
         while (pWaitConditionIterator != end)
             delete (*pWaitConditionIterator++);
+
+        // the application is closing: the window and the client are being torn
+        // down, so don't switch screens, quit the mission or restore settings
+        if (m_bShuttingDown)
+            return;
 
         // get the window pointer
         TrekWindow* pWindow = GetWindow ();
@@ -220,9 +228,13 @@ namespace Training
         if (not Time::IsPaused ())
             Time::Pause ();
 
-        // swap the condition into dead space, and set it to null
-        m_pDeadCondition = m_pCondition;
-        m_pCondition = 0;
+        // swap the condition into dead space, and set it to null. A second call
+        // must not overwrite the dead condition, or the mission tree leaks.
+        if (m_pCondition)
+        {
+            m_pDeadCondition = m_pCondition;
+            m_pCondition = 0;
+        }
     }
 
     //------------------------------------------------------------------------------
@@ -481,6 +493,12 @@ namespace Training
     void        TrainingMission::SetSkipPostSlideshow (void)
     {
         m_bSkipPostSlideShow = true;
+    }
+
+    //------------------------------------------------------------------------------
+    void        TrainingMission::SetShuttingDown (void)
+    {
+        m_bShuttingDown = true;
     }
 
     //------------------------------------------------------------------------------

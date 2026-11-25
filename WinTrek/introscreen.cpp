@@ -7,1003 +7,978 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-class IntroScreen :
-    public Screen,
-    public TrekClientEventSink,
-    public EventTargetContainer<IntroScreen>,
-    public LogonSite,
-    public PasswordDialogSink
+namespace
 {
-private:
-    TRef<Modeler>       m_pmodeler;
-    TRef<Pane>          m_ppane;
+class IntroScreen
+  : public Screen, public TrekClientEventSink, public EventTargetContainer<IntroScreen>, public LogonSite, public PasswordDialogSink
+{
+  TRef<Modeler> m_pmodeler;
+  TRef<Pane> m_ppane;
 
-    TRef<ButtonPane>    m_pbuttonPlayLan;
-    TRef<ButtonPane>    m_pbuttonPlayInt;
-    //TRef<ButtonPane> m_pbuttonTraining;
-    TRef<ButtonPane>    m_pbuttonTrainingBig;
-    TRef<ButtonPane>    m_pbuttonZoneWeb;
-    TRef<ButtonPane>    m_pbuttonOptions;
-    TRef<ButtonPane>    m_pbuttonIntro;
-    TRef<ButtonPane>    m_pbuttonCredits;
-    //TRef<ButtonPane> m_pbuttonQuickstart;
-    TRef<ButtonPane>    m_pbuttonExit;
-    TRef<ButtonPane>    m_pbuttonHelp;
-    TRef<IMessageBox>   m_pMsgBox;
-    GUID                m_guidSession;
-    ZString             m_strCharacterName;
-    ZString             m_strPassword;
-    MissionInfo*        m_pmissionJoining;
+  TRef<ButtonPane> m_pbuttonPlayLan;
+  TRef<ButtonPane> m_pbuttonPlayInt;
+  //TRef<ButtonPane> m_pbuttonTraining;
+  TRef<ButtonPane> m_pbuttonTrainingBig;
+  TRef<ButtonPane> m_pbuttonZoneWeb;
+  TRef<ButtonPane> m_pbuttonOptions;
+  TRef<ButtonPane> m_pbuttonIntro;
+  TRef<ButtonPane> m_pbuttonCredits;
+  //TRef<ButtonPane> m_pbuttonQuickstart;
+  TRef<ButtonPane> m_pbuttonExit;
+  TRef<ButtonPane> m_pbuttonHelp;
+  TRef<IMessageBox> m_pMsgBox;
+  GUID m_guidSession;
+  ZString m_strCharacterName;
+  ZString m_strPassword;
+  MissionInfo* m_pmissionJoining;
 
-    enum
+  enum
+  {
+    hoverNone,
+    hoverPlayLan,
+    hoverPlayInt,
+    hoverTrain,
+    hoverZoneWeb,
+    hoverOptions,
+    hoverIntro,
+    hoverCredits,
+    hoverQuickstart,
+    hoverExit,
+    hoverHelp
+  };
+
+  TRef<ModifiableNumber> m_pnumberCurrentHover;
+
+  friend class CreditsPopup;
+
+  class CreditsPopup : public IPopup, public EventTargetContainer<CreditsPopup>
+  {
+    TRef<Pane> m_ppane;
+    TRef<ButtonPane> m_pbuttonClose;
+
+    IntroScreen* m_pparent;
+
+    TRef<IKeyboardInput> m_pkeyboardInputOldFocus;
+
+  public:
+    CreditsPopup(TRef<INameSpace> pns, IntroScreen* pparent, Number* ptime)
     {
-        hoverNone,
-        hoverPlayLan,
-        hoverPlayInt,
-        hoverTrain,
-        hoverZoneWeb,
-        hoverOptions,
-        hoverIntro,
-        hoverCredits,
-        hoverQuickstart,
-        hoverExit,
-        hoverHelp
-    };
+      m_pparent = pparent;
 
-    TRef<ModifiableNumber>  m_pnumberCurrentHover;
+      TRef<WrapNumber> pcreditsTime;
 
-    friend class CreditsPopup;
-    class CreditsPopup : public IPopup, public EventTargetContainer<CreditsPopup> 
+      CastTo(pcreditsTime, pns->FindMember("creditsTime"));
+      CastTo(m_ppane, pns->FindMember("screen"));
+      CastTo(m_pbuttonClose, pns->FindMember("closeButtonPane"));
+
+      pcreditsTime->SetWrappedValue(Subtract(ptime, new Number(ptime->GetValue())));
+
+      AddEventTarget(&CreditsPopup::OnButtonClose, m_pbuttonClose->GetEventSource());
+    }
+
+    //
+    // IPopup methods
+    //
+
+    void OnClose() override
     {
-    private:
-        TRef<Pane> m_ppane;
-        TRef<ButtonPane> m_pbuttonClose;
-        
-        IntroScreen* m_pparent;
+      if (m_pkeyboardInputOldFocus)
+        GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
 
-        TRef<IKeyboardInput> m_pkeyboardInputOldFocus;
+      m_pkeyboardInputOldFocus = nullptr;
 
-    public:
-        
-        CreditsPopup(TRef<INameSpace> pns, IntroScreen* pparent, Number* ptime)
-        {
-            m_pparent = pparent;
+      IPopup::OnClose();
+    }
 
-            TRef<WrapNumber> pcreditsTime;
-
-            CastTo(pcreditsTime,   pns->FindMember("creditsTime"));
-            CastTo(m_ppane,        pns->FindMember("screen"));
-            CastTo(m_pbuttonClose, pns->FindMember("closeButtonPane"));
-
-            pcreditsTime->SetWrappedValue(Subtract(ptime, new Number(ptime->GetValue())));
-
-            AddEventTarget(&CreditsPopup::OnButtonClose, m_pbuttonClose->GetEventSource());
-        }
-
-        //
-        // IPopup methods
-        //
-
-        virtual void OnClose()
-        {
-            if (m_pkeyboardInputOldFocus)
-                GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-
-            m_pkeyboardInputOldFocus = NULL;
-
-            IPopup::OnClose();
-        }
-
-        virtual void SetContainer(IPopupContainer* pcontainer)
-        {
-            // initialize the check boxes
-            
-            m_pkeyboardInputOldFocus = GetWindow()->GetFocus();
-            
-            IPopup::SetContainer(pcontainer);
-        }
-
-        Pane* GetPane()
-        {
-            return m_ppane;
-        }
-
-        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
-        {
-            // we need to make sure we get OnChar calls to pass on to the edit box
-            fForceTranslate = true;
-            return false;
-        }
-
-        bool OnChar(IInputProvider* pprovider, const KeyState& ks)
-        {
-            return true;
-        }
-
-        bool OnButtonClose()
-        {
-            
-            m_pcontainer->ClosePopup(this);
-            
-            return true;
-        }
-    };
-
-
-    friend class FindServerPopup;
-    class FindServerPopup : public IPopup, public EventTargetContainer<FindServerPopup>, public IItemEvent::Sink
+    void SetContainer(IPopupContainer* pcontainer) override
     {
-    private:
-        TRef<Pane> m_ppane;
-        TRef<ButtonPane>    m_pbuttonFind;
-        TRef<ButtonPane>    m_pbuttonJoin;
-        TRef<ButtonPane>    m_pbuttonCancel;
-        TRef<EditPane>      m_peditPane;    // a server to ask: "host" or "host:port"; empty for the LAN
-        TRef<ListPane>      m_plistPane;
+      // initialize the check boxes
 
-        TRef<IItemEvent::Source>   m_peventServerList;
-        TRef<TEvent<ItemID>::Sink> m_psinkServerList;
+      m_pkeyboardInputOldFocus = GetWindow()->GetFocus();
 
-        IntroScreen* m_pparent;
-        TRef<IKeyboardInput> m_pkeyboardInputOldFocus;
-        bool m_bDoBackgroundPolling;
-        TRef<LANServerInfo> m_pserverSearching;
+      IPopup::SetContainer(pcontainer);
+    }
 
-        TRef<IMessageBox> m_pmsgBox;
+    Pane* GetPane() override
+    {
+      return m_ppane;
+    }
 
-        typedef TListListWrapper<TRef<LANServerInfo> > ServerList;
-        TRef<ServerList> m_plistServers;
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
+    {
+      // we need to make sure we get OnChar calls to pass on to the edit box
+      fForceTranslate = true;
+      return false;
+    }
 
-        class ServerItemPainter : public ItemPainter
-        {
-            int m_nWidth;
-            int m_nGameNameX;
+    bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
+    {
+      return true;
+    }
 
-        public:
+    bool OnButtonClose()
+    {
+      m_pcontainer->ClosePopup(this);
 
-            ServerItemPainter(int nGameNameX, int nWidth)
-                : m_nWidth(nWidth), m_nGameNameX(nGameNameX) {};
+      return true;
+    }
+  };
 
-            int GetXSize()
-            {
-                return m_nWidth;
-            }
+  friend class FindServerPopup;
 
-            int GetYSize()
-            {
-                return 14;
-            }
+  class FindServerPopup : public IPopup, public EventTargetContainer<FindServerPopup>, public IItemEvent::Sink
+  {
+    TRef<Pane> m_ppane;
+    TRef<ButtonPane> m_pbuttonFind;
+    TRef<ButtonPane> m_pbuttonJoin;
+    TRef<ButtonPane> m_pbuttonCancel;
+    TRef<EditPane> m_peditPane; // a server to ask: "host" or "host:port"; empty for the LAN
+    TRef<ListPane> m_plistPane;
 
-            void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
-            {
-                LANServerInfo* serverInfo = (LANServerInfo*)pitemArg;
-                const int nPlayerWidth = 40;
-                
-                if (bSelected) {
-                    psurface->FillRect(
-                        WinRect(0, 0, GetXSize(), GetYSize()),
-                        Color(1, 0, 0)
-                    );
-                }
+    TRef<IItemEvent::Source> m_peventServerList;
+    TRef<Sink> m_psinkServerList;
 
-                TRef<IEngineFont> pfont = TrekResources::SmallFont();
-                Color             color = Color::White();
+    IntroScreen* m_pparent;
+    TRef<IKeyboardInput> m_pkeyboardInputOldFocus;
+    bool m_bDoBackgroundPolling;
+    TRef<LANServerInfo> m_pserverSearching;
 
-                WinRect rectClipOld = psurface->GetClipRect();
-                psurface->SetClipRect(WinRect(WinPoint(0, 0), WinPoint(GetXSize() - nPlayerWidth, GetYSize()))); // clip name to fit in row
-                psurface->DrawString(pfont, color, WinPoint(2, 0), serverInfo->strGameName);
-                psurface->RestoreClipRect(rectClipOld);
+    TRef<IMessageBox> m_pmsgBox;
 
-                if (serverInfo->nMaxPlayers != 0)
-                {
-                    char cbPlayers[20];
-                    wsprintf(cbPlayers, "(%d/%d)", serverInfo->nNumPlayers, serverInfo->nMaxPlayers);
-                    psurface->DrawString(pfont, color, WinPoint(GetXSize() - nPlayerWidth + 2, 0), cbPlayers);
-                }
-            }
-        };
+    using ServerList = TListListWrapper<TRef<LANServerInfo>>;
+    TRef<ServerList> m_plistServers;
 
-        static bool GameNameCompare(ItemID pitem1, ItemID pitem2)
-        {
-            LANServerInfo* serverInfo1 = (LANServerInfo*)pitem1;
-            LANServerInfo* serverInfo2 = (LANServerInfo*)pitem2;
-
-            return _stricmp(serverInfo1->strGameName, serverInfo2->strGameName) > 0;
-        }
+    class ServerItemPainter : public ItemPainter
+    {
+      int m_nWidth;
+      int m_nGameNameX;
 
     public:
-        
-        FindServerPopup(TRef<INameSpace> pns, IntroScreen* pparent)
+      ServerItemPainter(int nGameNameX, int nWidth)
+        : m_nWidth(nWidth),
+          m_nGameNameX(nGameNameX) {};
+
+      int GetXSize() override
+      {
+        return m_nWidth;
+      }
+
+      int GetYSize() override
+      {
+        return 14;
+      }
+
+      void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
+      {
+        auto serverInfo = static_cast<LANServerInfo*>(pitemArg);
+        constexpr int nPlayerWidth = 40;
+
+        if (bSelected)
         {
-            m_bDoBackgroundPolling = false;
-            m_pparent = pparent;
-            Value* pGameNameX;
-            Value* pListXSize;
-
-            CastTo(m_ppane,                 pns->FindMember("ServerDialog"));
-
-            CastTo(m_pbuttonFind,           pns->FindMember("serverFindButtonPane"));
-            CastTo(m_pbuttonJoin,           pns->FindMember("serverJoinButtonPane"));
-            CastTo(m_pbuttonCancel,         pns->FindMember("serverCancelButtonPane"));
-            CastTo(m_peditPane,      (Pane*)pns->FindMember("serverEditPane"));
-            CastTo(m_plistPane,      (Pane*)pns->FindMember("serverListPane"));
-            CastTo(pGameNameX,              pns->FindMember("serverListGameNameX"));
-            CastTo(pListXSize,              pns->FindMember("serverListWidth"));
-
-            AddEventTarget(&FindServerPopup::OnButtonFind, m_pbuttonFind->GetEventSource());
-            AddEventTarget(&FindServerPopup::OnButtonJoin, m_pbuttonJoin->GetEventSource());
-            AddEventTarget(&FindServerPopup::OnButtonCancel, m_pbuttonCancel->GetEventSource());
-            AddEventTarget(&FindServerPopup::OnButtonJoin, m_plistPane->GetDoubleClickEventSource());
-
-            m_peventServerList = m_plistPane->GetSelectionEventSource();
-            m_peventServerList->AddSink(m_psinkServerList = new IItemEvent::Delegate(this));
-            m_plistPane->NeedLayout();
-            m_plistPane->SetItemPainter(new ServerItemPainter(GetNumber(pGameNameX), GetNumber(pListXSize)));
-            m_plistServers = new ServerList();
-            m_plistPane->SetList(new SortedList<ItemIDCompareFunction>(m_plistServers, GameNameCompare));
-
-            m_pbuttonJoin->SetEnabled(false);
-
-            m_pserverSearching = new LANServerInfo(GUID_NULL, "Searching...", 0, 0);
-
-            AddEventTarget(&FindServerPopup::PollForServers, GetWindow(), 1.0f);
+          psurface->FillRect(WinRect(0, 0, GetXSize(), GetYSize()), Color(1, 0, 0));
         }
 
-        ~FindServerPopup()
+        TRef<IEngineFont> pfont = TrekResources::SmallFont();
+        Color color = Color::White();
+
+        WinRect rectClipOld = psurface->GetClipRect();
+        psurface->SetClipRect(WinRect(WinPoint(0, 0), WinPoint(GetXSize() - nPlayerWidth, GetYSize()))); // clip name to fit in row
+        psurface->DrawString(pfont, color, WinPoint(2, 0), serverInfo->strGameName);
+        psurface->RestoreClipRect(rectClipOld);
+
+        if (serverInfo->nMaxPlayers != 0)
         {
-            m_peventServerList->RemoveSink(m_psinkServerList);
+          char cbPlayers[20];
+          wsprintf(cbPlayers, "(%d/%d)", serverInfo->nNumPlayers, serverInfo->nMaxPlayers);
+          psurface->DrawString(pfont, color, WinPoint(GetXSize() - nPlayerWidth + 2, 0), cbPlayers);
         }
-
-        //
-        // IPopup methods
-        //
-
-        Pane* GetPane()
-        {
-            return m_ppane;
-        }
-
-        virtual void OnClose()
-        {
-            if (m_pkeyboardInputOldFocus)
-                GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-
-            m_pkeyboardInputOldFocus = NULL;
-            m_bDoBackgroundPolling = false;
-
-            IPopup::OnClose();
-        }
-
-        virtual void SetContainer(IPopupContainer* pcontainer)
-        {
-            m_pkeyboardInputOldFocus = GetWindow()->GetFocus();
-            GetWindow()->SetFocus(m_peditPane);
-            m_bDoBackgroundPolling = true;
-
-            FindGames(m_peditPane->GetString());
-            IPopup::SetContainer(pcontainer);
-        }
-
-        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
-        {
-            // we need to make sure we get OnChar calls to pass on to the edit box
-            fForceTranslate = true;
-            return false;
-        }
-
-        bool OnChar(IInputProvider* pprovider, const KeyState& ks)
-        {
-            if (ks.vk == 13)
-            {
-                OnButtonFind();
-                return true;
-            }
-            else
-                return ((IKeyboardInput*)m_peditPane)->OnChar(pprovider, ks);
-        }
-        
-        //
-        // Ask the server typed in the box ("host" or "host:port"; the port
-        // defaults to the game port), or the LAN if the box is empty. The
-        // background polling then keeps asking the same place.
-        //
-
-        bool OnButtonFind()
-        {
-            m_plistServers->SetEmpty();
-            FindGames(m_peditPane->GetString());
-
-            return true;
-        }
-
-        bool PollForServers()
-        {
-            if (m_bDoBackgroundPolling)
-                FindGames(NULL);
-
-            return true;
-        }
-
-        void FindGames(const char* szServerName)
-        {
-            TList<TRef<LANServerInfo> > listResults;
-
-            trekClient.FindStandaloneServersByName(szServerName, listResults);
-
-            // add to or update the the server list with the new results
-            // Note: we have to maintain some degree of consistancy to 
-            // make sure scrolling an selection work, so unfortunately we
-            // can't just copy.
-
-            ServerList::Iterator iterOld(*m_plistServers);
-            while (!iterOld.End())
-            {
-                bool bFound = false;
-                ZString strOldName = iterOld.Value()->strGameName;
-
-                for (TList<TRef<LANServerInfo> >::Iterator iterNew(listResults); 
-                    !iterNew.End(); iterNew.Next())
-                {
-                    ZString strNewName = iterNew.Value()->strGameName;
-                    if (memcmp(&(iterNew.Value()->guidSession), 
-                            &(iterOld.Value()->guidSession), sizeof(GUID)) == 0
-                        && iterNew.Value()->nMaxPlayers > 1
-                        && iterNew.Value()->nMaxPlayers < 1000)
-                    {
-                        // found it - update it with the new info
-                        bFound = true;
-                        iterOld.Value()->strGameName = iterNew.Value()->strGameName;
-                        iterNew.Remove();
-                        break;
-                    }
-                }
-
-                // didn't find it in the new list, so nuke it.
-                if (!bFound)
-                    iterOld.Remove();
-                else
-                    iterOld.Next();
-            }
-
-            // for anything else that's new, just add it to the end.
-            for (TList<TRef<LANServerInfo> >::Iterator iterNew(listResults); 
-                !iterNew.End(); iterNew.Next())
-            {
-                // don't show single player games or zone server games
-                if (iterNew.Value()->nMaxPlayers > 1
-                    && iterNew.Value()->nMaxPlayers < 1000)
-                {
-                    ZString strNewName = iterNew.Value()->strGameName;
-                    m_plistServers->PushEnd(iterNew.Value());
-                }
-            }
-
-            if (m_plistServers->IsEmpty())
-            {
-                // put "Searching..." in the list.
-                m_plistServers->PushEnd(m_pserverSearching);
-            }
-        }
-
-        bool OnButtonJoin()
-        {
-            GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-            m_pkeyboardInputOldFocus = NULL;
-            m_bDoBackgroundPolling = false;
-
-            if (m_ppopupOwner) {
-                m_ppopupOwner->ClosePopup(this);
-            } else {
-                m_pcontainer->ClosePopup(this);
-            }
-
-            LANServerInfo* serverInfo = (LANServerInfo*)(m_plistPane->GetSelection());
-            
-            
-            if (serverInfo != NULL && serverInfo != m_pserverSearching)
-                m_pparent->OnPickServer(serverInfo->guidSession);
-
-            return true;
-        }
-
-        bool OnButtonCancel()
-        {
-            GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-            m_pkeyboardInputOldFocus = NULL;
-            m_bDoBackgroundPolling = false;
-
-            if (m_ppopupOwner) {
-                m_ppopupOwner->ClosePopup(this);
-            } else {
-                m_pcontainer->ClosePopup(this);
-            }
-
-            return true;
-        }
-
-        bool OnEvent(IItemEvent::Source *pevent, ItemID pitem)
-        {
-            LANServerInfo* serverInfo = (LANServerInfo*)pitem;
-
-            m_pbuttonJoin->SetEnabled(serverInfo != NULL && serverInfo != m_pserverSearching);
-
-            return true;
-        }
-    };    
-
-    TRef<CreditsPopup> m_pcreditsPopup;
-    TRef<FindServerPopup> m_pfindServerPopup;
-
-    class CloseTrainWarnSink : public IIntegerEventSink {
-    public:
-        IntroScreen* m_pScreen;
-        TRef<ButtonPane> m_pDontAskMeAgain;
-
-        CloseTrainWarnSink(IntroScreen* pScreen, ButtonPane* pDontAskMeAgain) 
-            : m_pScreen (pScreen), m_pDontAskMeAgain (pDontAskMeAgain) {}
-
-        bool OnEvent(IIntegerEventSource* pevent, int value)
-        {
-            if (value == IDOK) {
-                m_pScreen->OnButtonTraining ();
-            }
-            
-            if (m_pDontAskMeAgain->GetChecked()) {
-                // here we mark things as if a training mission has been launched
-                ZSettings::SetDWORD("HasTrained", 1);
-            }
-            return false;
-        }
+      }
     };
 
-    class URLMessageSink : public IIntegerEventSink {
-    public:
-        ZString m_strURL;
+    static bool GameNameCompare(ItemID pitem1, ItemID pitem2)
+    {
+      auto serverInfo1 = static_cast<LANServerInfo*>(pitem1);
+      auto serverInfo2 = static_cast<LANServerInfo*>(pitem2);
 
-        URLMessageSink(ZString strURL) :
-            m_strURL(strURL)
+      return _stricmp(serverInfo1->strGameName, serverInfo2->strGameName) > 0;
+    }
+
+  public:
+    FindServerPopup(TRef<INameSpace> pns, IntroScreen* pparent)
+    {
+      m_bDoBackgroundPolling = false;
+      m_pparent = pparent;
+      Value* pGameNameX;
+      Value* pListXSize;
+
+      CastTo(m_ppane, pns->FindMember("ServerDialog"));
+
+      CastTo(m_pbuttonFind, pns->FindMember("serverFindButtonPane"));
+      CastTo(m_pbuttonJoin, pns->FindMember("serverJoinButtonPane"));
+      CastTo(m_pbuttonCancel, pns->FindMember("serverCancelButtonPane"));
+      CastTo(m_peditPane, static_cast<Pane*>(pns->FindMember("serverEditPane")));
+      CastTo(m_plistPane, static_cast<Pane*>(pns->FindMember("serverListPane")));
+      CastTo(pGameNameX, pns->FindMember("serverListGameNameX"));
+      CastTo(pListXSize, pns->FindMember("serverListWidth"));
+
+      AddEventTarget(&FindServerPopup::OnButtonFind, m_pbuttonFind->GetEventSource());
+      AddEventTarget(&FindServerPopup::OnButtonJoin, m_pbuttonJoin->GetEventSource());
+      AddEventTarget(&FindServerPopup::OnButtonCancel, m_pbuttonCancel->GetEventSource());
+      AddEventTarget(&FindServerPopup::OnButtonJoin, m_plistPane->GetDoubleClickEventSource());
+
+      m_peventServerList = m_plistPane->GetSelectionEventSource();
+      m_peventServerList->AddSink(m_psinkServerList = new IItemEvent::Delegate(this));
+      m_plistPane->NeedLayout();
+      m_plistPane->SetItemPainter(new ServerItemPainter(GetNumber(pGameNameX), GetNumber(pListXSize)));
+      m_plistServers = new ServerList();
+      m_plistPane->SetList(new SortedList<ItemIDCompareFunction>(m_plistServers, GameNameCompare));
+
+      m_pbuttonJoin->SetEnabled(false);
+
+      m_pserverSearching = new LANServerInfo(GUID_NULL, "Searching...", 0, 0);
+
+      AddEventTarget(&FindServerPopup::PollForServers, GetWindow(), 1.0f);
+    }
+
+    ~FindServerPopup() override
+    {
+      m_peventServerList->RemoveSink(m_psinkServerList);
+    }
+
+    //
+    // IPopup methods
+    //
+
+    Pane* GetPane() override
+    {
+      return m_ppane;
+    }
+
+    void OnClose() override
+    {
+      if (m_pkeyboardInputOldFocus)
+        GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
+
+      m_pkeyboardInputOldFocus = nullptr;
+      m_bDoBackgroundPolling = false;
+
+      IPopup::OnClose();
+    }
+
+    void SetContainer(IPopupContainer* pcontainer) override
+    {
+      m_pkeyboardInputOldFocus = GetWindow()->GetFocus();
+      GetWindow()->SetFocus(m_peditPane);
+      m_bDoBackgroundPolling = true;
+
+      FindGames(m_peditPane->GetString());
+      IPopup::SetContainer(pcontainer);
+    }
+
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
+    {
+      // we need to make sure we get OnChar calls to pass on to the edit box
+      fForceTranslate = true;
+      return false;
+    }
+
+    bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
+    {
+      if (ks.vk == 13)
+      {
+        OnButtonFind();
+        return true;
+      }
+      return m_peditPane->OnChar(pprovider, ks);
+    }
+
+    //
+    // Ask the server typed in the box ("host" or "host:port"; the port
+    // defaults to the game port), or the LAN if the box is empty. The
+    // background polling then keeps asking the same place.
+    //
+
+    bool OnButtonFind()
+    {
+      m_plistServers->SetEmpty();
+      FindGames(m_peditPane->GetString());
+
+      return true;
+    }
+
+    bool PollForServers()
+    {
+      if (m_bDoBackgroundPolling)
+        FindGames(nullptr);
+
+      return true;
+    }
+
+    void FindGames(const char* szServerName)
+    {
+      TList<TRef<LANServerInfo>> listResults;
+
+      trekClient.FindStandaloneServersByName(szServerName, listResults);
+
+      // add to or update the the server list with the new results
+      // Note: we have to maintain some degree of consistancy to 
+      // make sure scrolling an selection work, so unfortunately we
+      // can't just copy.
+
+      ServerList::Iterator iterOld(*m_plistServers);
+      while (!iterOld.End())
+      {
+        bool bFound = false;
+        ZString strOldName = iterOld.Value()->strGameName;
+
+        for (TList<TRef<LANServerInfo>>::Iterator iterNew(listResults); !iterNew.End(); iterNew.Next())
         {
+          ZString strNewName = iterNew.Value()->strGameName;
+          if (memcmp(&(iterNew.Value()->guidSession), &(iterOld.Value()->guidSession), sizeof(GUID)) == 0 && iterNew.Value()->nMaxPlayers >
+              1 && iterNew.Value()->nMaxPlayers < 1000)
+          {
+            // found it - update it with the new info
+            bFound = true;
+            iterOld.Value()->strGameName = iterNew.Value()->strGameName;
+            iterNew.Remove();
+            break;
+          }
         }
 
-        bool OnEvent(IIntegerEventSource* pevent, int value)
+        // didn't find it in the new list, so nuke it.
+        if (!bFound)
+          iterOld.Remove();
+        else
+          iterOld.Next();
+      }
+
+      // for anything else that's new, just add it to the end.
+      for (TList<TRef<LANServerInfo>>::Iterator iterNew(listResults); !iterNew.End(); iterNew.Next())
+      {
+        // don't show single player games or zone server games
+        if (iterNew.Value()->nMaxPlayers > 1 && iterNew.Value()->nMaxPlayers < 1000)
         {
-            if (value == IDOK) {
-                GetWindow()->ShowWebPage(m_strURL);
-            }
-            return false;
+          ZString strNewName = iterNew.Value()->strGameName;
+          m_plistServers->PushEnd(iterNew.Value());
         }
-    };
+      }
+
+      if (m_plistServers->IsEmpty())
+      {
+        // put "Searching..." in the list.
+        m_plistServers->PushEnd(m_pserverSearching);
+      }
+    }
+
+    bool OnButtonJoin()
+    {
+      GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
+      m_pkeyboardInputOldFocus = nullptr;
+      m_bDoBackgroundPolling = false;
+
+      if (m_ppopupOwner)
+        m_ppopupOwner->ClosePopup(this);
+      else
+        m_pcontainer->ClosePopup(this);
+
+      auto serverInfo = static_cast<LANServerInfo*>(m_plistPane->GetSelection());
+
+      if (serverInfo != nullptr && serverInfo != m_pserverSearching)
+        m_pparent->OnPickServer(serverInfo->guidSession);
+
+      return true;
+    }
+
+    bool OnButtonCancel()
+    {
+      GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
+      m_pkeyboardInputOldFocus = nullptr;
+      m_bDoBackgroundPolling = false;
+
+      if (m_ppopupOwner)
+        m_ppopupOwner->ClosePopup(this);
+      else
+        m_pcontainer->ClosePopup(this);
+
+      return true;
+    }
+
+    bool OnEvent(IItemEvent::Source* pevent, ItemID pitem) override
+    {
+      auto serverInfo = static_cast<LANServerInfo*>(pitem);
+
+      m_pbuttonJoin->SetEnabled(serverInfo != nullptr && serverInfo != m_pserverSearching);
+
+      return true;
+    }
+  };
+
+  TRef<CreditsPopup> m_pcreditsPopup;
+  TRef<FindServerPopup> m_pfindServerPopup;
+
+  class CloseTrainWarnSink : public IIntegerEventSink
+  {
+  public:
+    IntroScreen* m_pScreen;
+    TRef<ButtonPane> m_pDontAskMeAgain;
+
+    CloseTrainWarnSink(IntroScreen* pScreen, ButtonPane* pDontAskMeAgain)
+      : m_pScreen(pScreen),
+        m_pDontAskMeAgain(pDontAskMeAgain) {}
+
+    bool OnEvent(IIntegerEventSource* pevent, int value) override
+    {
+      if (value == IDOK)
+        m_pScreen->OnButtonTraining();
+
+      if (m_pDontAskMeAgain->GetChecked())
+      {
+        // here we mark things as if a training mission has been launched
+        ZSettings::SetDWORD("HasTrained", 1);
+      }
+      return false;
+    }
+  };
+
+  class URLMessageSink : public IIntegerEventSink
+  {
+  public:
+    ZString m_strURL;
+
+    URLMessageSink(ZString strURL)
+      : m_strURL(strURL) {}
+
+    bool OnEvent(IIntegerEventSource* pevent, int value) override
+    {
+      if (value == IDOK)
+        GetWindow()->ShowWebPage(m_strURL);
+      return false;
+    }
+  };
 
 public:
+  IntroScreen(Modeler* pmodeler)
+    : m_pmodeler(pmodeler)
+  {
+    TRef<INameSpace> pnsIntroScreen = m_pmodeler->CreateNameSpace("introscreendata", m_pmodeler->GetNameSpace("gamepanes"));
+    pnsIntroScreen->AddMember("hoverNone", new Number(hoverNone));
+    pnsIntroScreen->AddMember("hoverPlayLan", new Number(hoverPlayLan));
+    pnsIntroScreen->AddMember("hoverPlayInt", new Number(hoverPlayInt));
+    pnsIntroScreen->AddMember("hoverZoneWeb", new Number(hoverZoneWeb));
+    pnsIntroScreen->AddMember("hoverTrain", new Number(hoverTrain));
+    pnsIntroScreen->AddMember("hoverOptions", new Number(hoverOptions));
+    pnsIntroScreen->AddMember("hoverIntro", new Number(hoverIntro));
+    pnsIntroScreen->AddMember("hoverCredits", new Number(hoverCredits));
+    pnsIntroScreen->AddMember("hoverQuickstart", new Number(hoverQuickstart));
+    pnsIntroScreen->AddMember("hoverExit", new Number(hoverExit));
+    pnsIntroScreen->AddMember("hoverHelp", new Number(hoverHelp));
 
-    IntroScreen(Modeler* pmodeler) :
-        m_pmodeler(pmodeler)
+    pnsIntroScreen->AddMember("CurrentHover", m_pnumberCurrentHover = new ModifiableNumber(hoverNone));
+
+    TRef<INameSpace> pns = pmodeler->GetNameSpace("introscreen");
+    CastTo(m_ppane, pns->FindMember("screen"));
+    CastTo(m_pbuttonPlayLan, pns->FindMember("playLanButtonPane"));
+    CastTo(m_pbuttonPlayInt, pns->FindMember("playIntButtonPane"));
+    //CastTo(m_pbuttonTraining,   pns->FindMember("trainButtonPane"));
+    CastTo(m_pbuttonTrainingBig, pns->FindMember("trainBigButtonPane"));
+    CastTo(m_pbuttonZoneWeb, pns->FindMember("zoneWebButtonPane"));
+    CastTo(m_pbuttonOptions, pns->FindMember("optionsButtonPane"));
+    CastTo(m_pbuttonIntro, pns->FindMember("introButtonPane"));
+    CastTo(m_pbuttonCredits, pns->FindMember("creditsButtonPane"));
+    //CastTo(m_pbuttonQuickstart, pns->FindMember("quickstartButtonPane"));
+    CastTo(m_pbuttonExit, pns->FindMember("exitButtonPane"));
+    CastTo(m_pbuttonHelp, pns->FindMember("helpButtonPane"));
+
+    //AddEventTarget(OnButtonGames,       m_pbuttonPlayLan->GetEventSource());
+    //AddEventTarget(OnButtonTraining,    m_pbuttonTraining->GetEventSource());
+    AddEventTarget(&IntroScreen::OnButtonTraining, m_pbuttonTrainingBig->GetEventSource());
+    AddEventTarget(&IntroScreen::OnButtonExit, m_pbuttonExit->GetEventSource());
+    AddEventTarget(&IntroScreen::OnButtonHelp, m_pbuttonHelp->GetEventSource());
+    AddEventTarget(&IntroScreen::OnButtonInternet, m_pbuttonPlayInt->GetEventSource());
+    AddEventTarget(&IntroScreen::OnButtonLAN, m_pbuttonPlayLan->GetEventSource());
+    AddEventTarget(&IntroScreen::OnButtonZoneWeb, m_pbuttonZoneWeb->GetEventSource());
+    AddEventTarget(&IntroScreen::OnButtonOptions, m_pbuttonOptions->GetEventSource());
+    AddEventTarget(&IntroScreen::OnButtonCredits, m_pbuttonCredits->GetEventSource());
+    AddEventTarget(&IntroScreen::OnButtonIntro, m_pbuttonIntro->GetEventSource());
+
+    AddEventTarget(&IntroScreen::OnHoverPlayLan, m_pbuttonPlayLan->GetMouseEnterEventSource());
+    AddEventTarget(&IntroScreen::OnHoverPlayInt, m_pbuttonPlayInt->GetMouseEnterEventSource());
+    //AddEventTarget(OnHoverTrain,        m_pbuttonTraining->GetMouseEnterEventSource());
+    AddEventTarget(&IntroScreen::OnHoverTrain, m_pbuttonTrainingBig->GetMouseEnterEventSource());
+    AddEventTarget(&IntroScreen::OnHoverZoneWeb, m_pbuttonZoneWeb->GetMouseEnterEventSource());
+    AddEventTarget(&IntroScreen::OnHoverOptions, m_pbuttonOptions->GetMouseEnterEventSource());
+    AddEventTarget(&IntroScreen::OnHoverIntro, m_pbuttonIntro->GetMouseEnterEventSource());
+    AddEventTarget(&IntroScreen::OnHoverCredits, m_pbuttonCredits->GetMouseEnterEventSource());
+    //AddEventTarget(OnHoverQuickstart,   m_pbuttonQuickstart->GetMouseEnterEventSource());
+    AddEventTarget(&IntroScreen::OnHoverExit, m_pbuttonExit->GetMouseEnterEventSource());
+    AddEventTarget(&IntroScreen::OnHoverHelp, m_pbuttonHelp->GetMouseEnterEventSource());
+
+    AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonPlayLan->GetMouseLeaveEventSource());
+    AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonPlayInt->GetMouseLeaveEventSource());
+    //AddEventTarget(OnHoverNone,     m_pbuttonTraining->GetMouseLeaveEventSource());
+    AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonTrainingBig->GetMouseLeaveEventSource());
+    AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonZoneWeb->GetMouseLeaveEventSource());
+    AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonOptions->GetMouseLeaveEventSource());
+    AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonIntro->GetMouseLeaveEventSource());
+    AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonCredits->GetMouseLeaveEventSource());
+    //AddEventTarget(OnHoverNone,     m_pbuttonQuickstart->GetMouseLeaveEventSource());
+    AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonHelp->GetMouseLeaveEventSource());
+    AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonExit->GetMouseLeaveEventSource());
+
+    //m_pbuttonPlayLan->SetEnabled(false);
+    //m_pbuttonPlayInt->SetEnabled(false);
+
+    m_pfindServerPopup = new FindServerPopup(pns, this);
+
+    pmodeler->UnloadNameSpace(pns);
+
+    trekClient.Disconnect();
+    trekClient.DisconnectLobby();
+    if (g_bQuickstart || g_bReloaded)
+      AddEventTarget(&IntroScreen::OnQuickstart, GetWindow(), 0.01f);
+
+    // we only do this once per execution, and only if training is installed
+    static bool bHaveVisited = false;
+    if (Training::IsInstalled() && !bHaveVisited)
     {
+      // check to see if training has been run before
+      DWORD dwHasRunTraining = ZSettings::GetDWORD("HasTrained", 0);
 
-        TRef<INameSpace> pnsIntroScreen = m_pmodeler->CreateNameSpace("introscreendata", m_pmodeler->GetNameSpace("gamepanes"));
-        pnsIntroScreen->AddMember("hoverNone",       new Number(hoverNone        ));
-        pnsIntroScreen->AddMember("hoverPlayLan",    new Number(hoverPlayLan        ));
-        pnsIntroScreen->AddMember("hoverPlayInt",    new Number(hoverPlayInt)    );
-        pnsIntroScreen->AddMember("hoverZoneWeb",    new Number(hoverZoneWeb        ));
-        pnsIntroScreen->AddMember("hoverTrain",      new Number(hoverTrain        ));
-        pnsIntroScreen->AddMember("hoverOptions",    new Number(hoverOptions      ));
-        pnsIntroScreen->AddMember("hoverIntro",      new Number(hoverIntro        ));
-        pnsIntroScreen->AddMember("hoverCredits",    new Number(hoverCredits        ));
-        pnsIntroScreen->AddMember("hoverQuickstart", new Number(hoverQuickstart  ));
-        pnsIntroScreen->AddMember("hoverExit",       new Number(hoverExit        ));
-        pnsIntroScreen->AddMember("hoverHelp",       new Number(hoverHelp        ));
+      // first time through, show a dialog explaining that users
+      // really should do the training first
+      if (!dwHasRunTraining)
+      {
+        TRef<IMessageBox> pMsgBox = CreateMessageBox(
+          "ALLEGIANCE is a team-based massively-multiplayer space combat game, in which your goal is to conquer the universe.\n\nTraining is strongly recommended before going online, and will take approximately 30 minutes. Press the OK button to begin training now.",
+          nullptr, true, true);
+        TRef<Surface> psurface = GetModeler()->LoadSurface("btndontaskmeagainbmp", true);
+        TRef<ButtonPane> pDontAskMeAgain = CreateTrekButton(CreateButtonFacePane(psurface, ButtonNormalCheckBox), true, mouseclickSound);
+        pDontAskMeAgain->SetOffset(WinPoint(183, 140));
+        pMsgBox->GetPane()->InsertAtBottom(pDontAskMeAgain);
+        pMsgBox->GetEventSource()->AddSink(new CloseTrainWarnSink(this, pDontAskMeAgain));
+        GetWindow()->GetPopupContainer()->OpenPopup(pMsgBox, false);
+      }
+    }
 
-        pnsIntroScreen->AddMember("CurrentHover", m_pnumberCurrentHover = new ModifiableNumber(hoverNone));
+    if (g_bAskForCDKey && !bHaveVisited && trekClient.GetCDKey().IsEmpty())
+    {
+      TRef<IPopup> ppopupCDKey = CreateCDKeyPopup();
+      GetWindow()->GetPopupContainer()->OpenPopup(ppopupCDKey, false);
+    }
 
-        TRef<INameSpace> pns = pmodeler->GetNameSpace("introscreen");
-        CastTo(m_ppane, pns->FindMember("screen"));
-        CastTo(m_pbuttonPlayLan,    pns->FindMember("playLanButtonPane"));
-        CastTo(m_pbuttonPlayInt,    pns->FindMember("playIntButtonPane"));
-        //CastTo(m_pbuttonTraining,   pns->FindMember("trainButtonPane"));
-        CastTo(m_pbuttonTrainingBig,pns->FindMember("trainBigButtonPane"));
-        CastTo(m_pbuttonZoneWeb,    pns->FindMember("zoneWebButtonPane" ));
-        CastTo(m_pbuttonOptions,     pns->FindMember("optionsButtonPane"));
-        CastTo(m_pbuttonIntro,      pns->FindMember("introButtonPane"));
-        CastTo(m_pbuttonCredits,    pns->FindMember("creditsButtonPane"));
-        //CastTo(m_pbuttonQuickstart, pns->FindMember("quickstartButtonPane"));
-        CastTo(m_pbuttonExit,       pns->FindMember("exitButtonPane" ));
-        CastTo(m_pbuttonHelp,       pns->FindMember("helpButtonPane" ));
-        
+    // stop us from asking again during this execution
+    bHaveVisited = true;
 
-        //AddEventTarget(OnButtonGames,       m_pbuttonPlayLan->GetEventSource());
-        //AddEventTarget(OnButtonTraining,    m_pbuttonTraining->GetEventSource());
-        AddEventTarget(&IntroScreen::OnButtonTraining,    m_pbuttonTrainingBig->GetEventSource());
-        AddEventTarget(&IntroScreen::OnButtonExit,        m_pbuttonExit->GetEventSource());
-        AddEventTarget(&IntroScreen::OnButtonHelp,        m_pbuttonHelp->GetEventSource());
-        AddEventTarget(&IntroScreen::OnButtonInternet,    m_pbuttonPlayInt->GetEventSource());
-        AddEventTarget(&IntroScreen::OnButtonLAN,         m_pbuttonPlayLan->GetEventSource());
-        AddEventTarget(&IntroScreen::OnButtonZoneWeb,     m_pbuttonZoneWeb->GetEventSource());
-        AddEventTarget(&IntroScreen::OnButtonOptions,     m_pbuttonOptions->GetEventSource());
-        AddEventTarget(&IntroScreen::OnButtonCredits,     m_pbuttonCredits->GetEventSource());
-        AddEventTarget(&IntroScreen::OnButtonIntro,       m_pbuttonIntro->GetEventSource());
-        
+    trekClient.FlushSessionLostMessage();
+  }
 
-        AddEventTarget(&IntroScreen::OnHoverPlayLan,      m_pbuttonPlayLan->GetMouseEnterEventSource());
-        AddEventTarget(&IntroScreen::OnHoverPlayInt,      m_pbuttonPlayInt->GetMouseEnterEventSource());
-        //AddEventTarget(OnHoverTrain,        m_pbuttonTraining->GetMouseEnterEventSource());
-        AddEventTarget(&IntroScreen::OnHoverTrain,        m_pbuttonTrainingBig->GetMouseEnterEventSource());
-        AddEventTarget(&IntroScreen::OnHoverZoneWeb,      m_pbuttonZoneWeb->GetMouseEnterEventSource());
-        AddEventTarget(&IntroScreen::OnHoverOptions,       m_pbuttonOptions->GetMouseEnterEventSource());
-        AddEventTarget(&IntroScreen::OnHoverIntro,        m_pbuttonIntro->GetMouseEnterEventSource());
-        AddEventTarget(&IntroScreen::OnHoverCredits,      m_pbuttonCredits->GetMouseEnterEventSource());
-        //AddEventTarget(OnHoverQuickstart,   m_pbuttonQuickstart->GetMouseEnterEventSource());
-        AddEventTarget(&IntroScreen::OnHoverExit,         m_pbuttonExit->GetMouseEnterEventSource());
-        AddEventTarget(&IntroScreen::OnHoverHelp,         m_pbuttonHelp->GetMouseEnterEventSource());
+  ~IntroScreen() override
+  {
+    m_pmodeler->UnloadNameSpace("introscreendata");
+  }
 
-        AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonPlayLan->GetMouseLeaveEventSource());
-        AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonPlayInt->GetMouseLeaveEventSource());
-        //AddEventTarget(OnHoverNone,     m_pbuttonTraining->GetMouseLeaveEventSource());
-        AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonTrainingBig->GetMouseLeaveEventSource());
-        AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonZoneWeb->GetMouseLeaveEventSource());
-        AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonOptions->GetMouseLeaveEventSource());
-        AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonIntro->GetMouseLeaveEventSource());
-        AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonCredits->GetMouseLeaveEventSource());
-        //AddEventTarget(OnHoverNone,     m_pbuttonQuickstart->GetMouseLeaveEventSource());
-        AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonHelp->GetMouseLeaveEventSource());
-        AddEventTarget(&IntroScreen::OnHoverNone,     m_pbuttonExit->GetMouseLeaveEventSource());
+  bool OnQuickstart()
+  {
+    OnButtonInternet();
+    return false;
+  }
 
-        //m_pbuttonPlayLan->SetEnabled(false);
-        //m_pbuttonPlayInt->SetEnabled(false);
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  // Event handlers
+  //
+  //////////////////////////////////////////////////////////////////////////////
 
-        m_pfindServerPopup = new FindServerPopup(pns, this);
-          
-        pmodeler->UnloadNameSpace(pns);
-        
+  bool OnPickServer(GUID guidSession)
+  {
+    assert(!trekClient.LoggedOn());
+    m_guidSession = guidSession;
+
+    //
+    // pop up the call sign/login dialog
+    //
+
+    TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this, "Enter a call sign to use for this game.",
+                                                trekClient.GetSavedCharacterName());
+    GetWindow()->GetPopupContainer()->OpenPopup(plogonPopup, false);
+
+    return true;
+  }
+
+  bool OnButtonTraining()
+  {
+    if (Training::IsInstalled())
+    {
+      // go train, because we have all the training files installed
+      trekClient.SetIsLobbied(false);
+      GetWindow()->screen(ScreenIDTrainScreen);
+    }
+    else
+    {
+      // otherwise give the player the option to download the training files
+      // if they do, then go to the download, and restart allegiance
+      // otherwise don't do anything
+      m_pMsgBox = CreateMessageBox(
+        "TRAINING IS NOT INSTALLED.\n\nClick 'OK' to open the Allegiance website, then follow the directions there to download and install training.",
+        nullptr, false);
+      TRef<Surface> psurfaceOKButton = GetModeler()->LoadImage("btnokbmp", true)->GetSurface();
+      TRef<Surface> psurfaceAbortButton = GetModeler()->LoadImage("btnabortbmp", true)->GetSurface();
+      TRef<ButtonPane> pOKButton = CreateButton(CreateButtonFacePane(psurfaceOKButton, ButtonNormal, 0, psurfaceOKButton->GetSize().X()),
+                                                false, 0, 1.0);
+      TRef<ButtonPane> pAbortButton = CreateButton(
+        CreateButtonFacePane(psurfaceAbortButton, ButtonNormal, 0, psurfaceAbortButton->GetSize().X()), false, 0, 1.0);
+      pOKButton->SetOffset(WinPoint(100, 170));
+      pAbortButton->SetOffset(WinPoint(300, 170));
+      m_pMsgBox->GetPane()->InsertAtBottom(pOKButton);
+      m_pMsgBox->GetPane()->InsertAtBottom(pAbortButton);
+      AddEventTarget(&IntroScreen::OnButtonBailTraining, pAbortButton->GetEventSource());
+      AddEventTarget(&IntroScreen::OnButtonDownloadTraining, pOKButton->GetEventSource());
+      GetWindow()->GetPopupContainer()->OpenPopup(m_pMsgBox, false);
+    }
+    return true;
+  }
+
+  bool OnButtonBailTraining()
+  {
+    GetWindow()->GetPopupContainer()->ClosePopup(m_pMsgBox);
+    return true;
+  }
+
+  bool OnButtonDownloadTraining()
+  {
+    // close the dialog window
+    GetWindow()->GetPopupContainer()->ClosePopup(m_pMsgBox);
+
+    // start to find the config file
+    char config_file_name[MAX_PATH];
+
+    // get the app build number
+    ZVersionInfo vi;
+    ZString strBuild(vi.GetFileBuildNumber());
+
+    // start with a default name
+    lstrcpy(config_file_name, "Allegiance");
+    lstrcat(config_file_name, static_cast<PCC>(strBuild));
+    lstrcat(config_file_name, ".cfg");
+
+    // then look to see if the settings name one we should use instead
+    std::string strCfgFile = ZSettings::GetString("CfgFile", "");
+    if (!strCfgFile.empty() && strCfgFile.size() < MAX_PATH)
+      lstrcpy(config_file_name, strCfgFile.c_str());
+
+    // then construct the full path name of the config file
+    PathString pathEXE(PathString::GetCurrentDirectory());
+    PathString pathConfig(pathEXE + PathString(PathString(config_file_name).GetFilename()));
+
+    // load the config data
+    CfgInfo cfgInfo;
+    cfgInfo.Load(pathConfig);
+    if (cfgInfo.strTrainingURL)
+    {
+      // if everything is OK, launch the web page
+      GetWindow()->ShowWebPage(cfgInfo.strTrainingURL);
+
+      // ... and close our application
+      GetWindow()->PostMessage(WM_CLOSE);
+    }
+    else
+    {
+      // if not, we alert the user...
+      TRef<IMessageBox> pMsgBox = CreateMessageBox("CAN'T DOWNLOAD TRAINING FILES.\n\nCan't find the download address.", nullptr, true);
+      GetWindow()->GetPopupContainer()->OpenPopup(pMsgBox, false);
+    }
+    return true;
+  }
+
+  void OnLogon(const ZString& strName) override
+  {
+    // remember the character name for next time
+    trekClient.SaveCharacterName(strName);
+    m_strCharacterName = strName;
+    m_strPassword = "";
+
+    // pop up the Connecting... dialog.   
+    GetWindow()->SetWaitCursor();
+    TRef<IMessageBox> pmsgBox = CreateMessageBox("Connecting...", nullptr, false);
+    GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
+
+    // pause to let the "connecting..." box draw itself
+    AddEventTarget(&IntroScreen::OnTryLogon, GetWindow(), 0.1f);
+  }
+
+  bool OnTryLogon()
+  {
+    trekClient.SetIsLobbied(false);
+
+    BaseClient::ConnectInfo ci;
+    ci.guidSession = m_guidSession;
+    strcpy(ci.szName, m_strCharacterName);
+    assert(strlen(m_strPassword) < c_cbGamePassword);
+
+    trekClient.ConnectToServer(ci, NA, Time::Now(), m_strPassword, true);
+
+    return false;
+  }
+
+  void OnLogonGameServer() override
+  {
+    // wait for a join message.
+    GetWindow()->SetWaitCursor();
+    TRef<IMessageBox> pmsgBox = CreateMessageBox("Joining mission....", nullptr, false, false);
+    GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
+  }
+
+  void OnLogonGameServerFailed(bool bRetry, const char* szReason) override
+  {
+    if (bRetry)
+    {
+      // pop up the call sign/login dialog
+      TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this, szReason, trekClient.GetSavedCharacterName());
+      GetWindow()->GetPopupContainer()->OpenPopup(plogonPopup, false);
+    }
+    else
+    {
+      // tell the user why the logon failed
+      TRef<IMessageBox> pmsgBox = CreateMessageBox(szReason);
+      GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
+    }
+  }
+
+  void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
+  {
+    if (pMissionInfo && pPlayerInfo == trekClient.MyPlayerInfo())
+    {
+      // go to the team lobby...
+      GetWindow()->screen(ScreenIDTeamScreen);
+    }
+  }
+
+  void OnDelRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason) override
+  {
+    if (pPlayerInfo == trekClient.MyPlayerInfo())
+    {
+      m_pmissionJoining = pMissionInfo;
+
+      // rejected !!  Bad password?
+      if (!GetWindow()->GetPopupContainer()->IsEmpty())
+        GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
+      GetWindow()->RestoreCursor();
+
+      if (reason == DPR_BadPassword)
+      {
+        TRef<IPopup> ppopupPassword = CreatePasswordPopup(this, m_strPassword);
+        GetWindow()->GetPopupContainer()->OpenPopup(ppopupPassword, false);
+      }
+      else if (reason == DPR_NoMission)
+      {
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("The mission you were trying to join has ended.");
+        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
         trekClient.Disconnect();
-        trekClient.DisconnectLobby();
-        if (g_bQuickstart || g_bReloaded)
-            AddEventTarget(&IntroScreen::OnQuickstart, GetWindow(), 0.01f);
-
-        // we only do this once per execution, and only if training is installed
-        static  bool    bHaveVisited = false;
-        if (Training::IsInstalled () && !bHaveVisited)
-        {
-            // check to see if training has been run before
-            DWORD   dwHasRunTraining = ZSettings::GetDWORD("HasTrained", 0);
-
-            // first time through, show a dialog explaining that users
-            // really should do the training first
-            if (!dwHasRunTraining)
-            {
-                TRef<IMessageBox>   pMsgBox = 
-                    CreateMessageBox(
-                        "ALLEGIANCE is a team-based massively-multiplayer space combat game, in which your goal is to conquer the universe.\n\nTraining is strongly recommended before going online, and will take approximately 30 minutes. Press the OK button to begin training now.",
-                        NULL,
-                        true,
-                        true
-                    );
-                TRef<Surface> psurface = GetModeler()->LoadSurface("btndontaskmeagainbmp", true);
-                TRef<ButtonPane> pDontAskMeAgain
-                    = CreateTrekButton(CreateButtonFacePane(psurface, ButtonNormalCheckBox), true, mouseclickSound);
-                pDontAskMeAgain->SetOffset(WinPoint(183, 140));
-                pMsgBox->GetPane()->InsertAtBottom(pDontAskMeAgain);
-                pMsgBox->GetEventSource()->AddSink(new CloseTrainWarnSink(this, pDontAskMeAgain));
-                GetWindow()->GetPopupContainer()->OpenPopup (pMsgBox, false);
-            }
-        }
-
-        if (g_bAskForCDKey && !bHaveVisited && trekClient.GetCDKey().IsEmpty())
-        {
-            TRef<IPopup> ppopupCDKey = CreateCDKeyPopup();
-            GetWindow()->GetPopupContainer()->OpenPopup(ppopupCDKey, false);
-        }
-
-        // stop us from asking again during this execution
-        bHaveVisited = true;
-
-        trekClient.FlushSessionLostMessage();
-    }
-
-    virtual ~IntroScreen() 
-    {
-        m_pmodeler->UnloadNameSpace("introscreendata");
-    }
-
-
-    bool OnQuickstart()
-    {
-        OnButtonInternet();
-        return false;
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Event handlers
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    bool OnPickServer(GUID guidSession)
-    {
-        assert (!trekClient.LoggedOn());
-        m_guidSession = guidSession;
-
-        //
-        // pop up the call sign/login dialog
-        //
-
-        TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this,
-            "Enter a call sign to use for this game.", trekClient.GetSavedCharacterName());
-        GetWindow()->GetPopupContainer()->OpenPopup(plogonPopup, false);
-
-        return true;
-    }
-
-    bool OnButtonTraining()
-    {
-        if (Training::IsInstalled ())
-        {
-            // go train, because we have all the training files installed
-            trekClient.SetIsLobbied(false);
-            GetWindow()->screen(ScreenIDTrainScreen);
-        }
-        else
-        {
-            // otherwise give the player the option to download the training files
-            // if they do, then go to the download, and restart allegiance
-            // otherwise don't do anything
-            m_pMsgBox = CreateMessageBox ("TRAINING IS NOT INSTALLED.\n\nClick 'OK' to open the Allegiance website, then follow the directions there to download and install training.", NULL, false);
-            TRef<Surface>       psurfaceOKButton = GetModeler ()->LoadImage ("btnokbmp", true)->GetSurface();
-            TRef<Surface>       psurfaceAbortButton = GetModeler ()->LoadImage ("btnabortbmp", true)->GetSurface();
-            TRef<ButtonPane>    pOKButton = CreateButton ( CreateButtonFacePane(psurfaceOKButton, ButtonNormal, 0, psurfaceOKButton->GetSize().X()), false, 0, 1.0);
-            TRef<ButtonPane>    pAbortButton = CreateButton ( CreateButtonFacePane(psurfaceAbortButton, ButtonNormal, 0, psurfaceAbortButton->GetSize().X()), false, 0, 1.0);
-            pOKButton->SetOffset (WinPoint(100, 170));
-            pAbortButton->SetOffset (WinPoint(300, 170));
-            m_pMsgBox->GetPane ()->InsertAtBottom (pOKButton);
-            m_pMsgBox->GetPane ()->InsertAtBottom (pAbortButton);
-            AddEventTarget(&IntroScreen::OnButtonBailTraining, pAbortButton->GetEventSource());
-            AddEventTarget(&IntroScreen::OnButtonDownloadTraining, pOKButton->GetEventSource());
-            GetWindow()->GetPopupContainer()->OpenPopup (m_pMsgBox, false);
-        }
-        return true;
-    }
-
-    bool    OnButtonBailTraining ()
-    {
-        GetWindow ()->GetPopupContainer ()->ClosePopup (m_pMsgBox);
-        return true;
-    }
-
-    bool    OnButtonDownloadTraining ()
-    {
-        // close the dialog window
-        GetWindow ()->GetPopupContainer ()->ClosePopup (m_pMsgBox);
-
-        // start to find the config file
-        char    config_file_name[MAX_PATH];
-
-        // get the app build number
-        ZVersionInfo vi;
-        ZString strBuild(vi.GetFileBuildNumber());
-
-        // start with a default name
-        lstrcpy(config_file_name, "Allegiance");
-        lstrcat(config_file_name, PCC(strBuild));
-        lstrcat(config_file_name, ".cfg");
-
-        // then look to see if the settings name one we should use instead
-        std::string strCfgFile = ZSettings::GetString("CfgFile", "");
-        if (!strCfgFile.empty() && strCfgFile.size() < MAX_PATH)
-            lstrcpy (config_file_name, strCfgFile.c_str());
-
-        // then construct the full path name of the config file
-        PathString  pathEXE(PathString::GetCurrentDirectory());
-        PathString  pathConfig(pathEXE + PathString(PathString(config_file_name).GetFilename()));
-
-        // load the config data
-        CfgInfo     cfgInfo;
-        cfgInfo.Load (pathConfig);
-        if (cfgInfo.strTrainingURL)
-        {
-            // if everything is OK, launch the web page
-            GetWindow ()->ShowWebPage (cfgInfo.strTrainingURL);
-
-            // ... and close our application
-            GetWindow()->PostMessage(WM_CLOSE);
-        }
-        else
-        {
-            // if not, we alert the user...
-            TRef<IMessageBox>   pMsgBox = CreateMessageBox ("CAN'T DOWNLOAD TRAINING FILES.\n\nCan't find the download address.", NULL, true);
-            GetWindow()->GetPopupContainer()->OpenPopup (pMsgBox, false);
-        }
-        return true;
-    }
-
-    void OnLogon(const ZString& strName)
-    {
-        // remember the character name for next time
-        trekClient.SaveCharacterName(strName);
-        m_strCharacterName = strName;
-        m_strPassword = "";
-
-        // pop up the Connecting... dialog.   
-        GetWindow()->SetWaitCursor();
-        TRef<IMessageBox> pmsgBox = CreateMessageBox("Connecting...", NULL, false);
+      }
+      else if (reason == DPR_LobbyLocked)
+      {
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("The lobby for this mission is locked.");
         GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-
-        // pause to let the "connecting..." box draw itself
-        AddEventTarget(&IntroScreen::OnTryLogon, GetWindow(), 0.1f);
-    }
-
-    bool OnTryLogon()
-    {
-        trekClient.SetIsLobbied(false);
-
-        BaseClient::ConnectInfo ci;
-        ci.guidSession = m_guidSession;
-        strcpy(ci.szName, m_strCharacterName);        
-        assert(strlen(m_strPassword) < c_cbGamePassword);
-
-        trekClient.ConnectToServer(ci, NA, Time::Now(), m_strPassword, true);
-
-        return false;
-    }
-
-    void OnLogonGameServer()
-    {
-        // wait for a join message.
-        GetWindow()->SetWaitCursor();
-        TRef<IMessageBox> pmsgBox = 
-            CreateMessageBox("Joining mission....", NULL, false, false);
-        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-    }
-
-    void OnLogonGameServerFailed(bool bRetry, const char* szReason)
-    {
-        if (bRetry)
-        {
-            // pop up the call sign/login dialog
-            TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this,
-                szReason, trekClient.GetSavedCharacterName());
-            GetWindow()->GetPopupContainer()->OpenPopup(plogonPopup, false);
-        }
-        else
-        {
-            // tell the user why the logon failed
-            TRef<IMessageBox> pmsgBox = CreateMessageBox(szReason);
-            GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-        }
-    }
-
-    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
-    {
-        if (pMissionInfo && pPlayerInfo == trekClient.MyPlayerInfo())
-        {
-            // go to the team lobby...
-            GetWindow()->screen(ScreenIDTeamScreen);
-        }
-    }
-
-    void OnDelRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason)
-    {
-        if (pPlayerInfo == trekClient.MyPlayerInfo())
-        {
-            m_pmissionJoining = pMissionInfo;
-
-            // rejected !!  Bad password?
-            if (!GetWindow()->GetPopupContainer()->IsEmpty())
-                GetWindow()->GetPopupContainer()->ClosePopup(NULL);
-            GetWindow()->RestoreCursor();
-
-            if (reason == DPR_BadPassword)
-            {
-                TRef<IPopup> ppopupPassword = CreatePasswordPopup(this, m_strPassword);
-                GetWindow()->GetPopupContainer()->OpenPopup(ppopupPassword, false);
-            }
-            else if (reason == DPR_NoMission)
-            {
-                TRef<IMessageBox> pmsgBox = CreateMessageBox("The mission you were trying to join has ended.");
-                GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-                trekClient.Disconnect();
-            }
-            else if (reason == DPR_LobbyLocked)
-            {
-                TRef<IMessageBox> pmsgBox = CreateMessageBox("The lobby for this mission is locked.");
-                GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-                trekClient.Disconnect();
-            }
-            else if (reason == DPR_OutOfLives)
-            {
-                TRef<IMessageBox> pmsgBox = CreateMessageBox("You have run out of lives in this mission.");
-                GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-                trekClient.Disconnect();
-            }
-            else if (reason == DPR_Banned)
-            {
-                TRef<IMessageBox> pmsgBox = CreateMessageBox("You have been banned from this mission.");
-                GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-                trekClient.Disconnect();
-            }
-            else if (reason == DPR_GameFull)
-            {
-                TRef<IMessageBox> pmsgBox = CreateMessageBox("This server has reached its maximum number of players.");
-                GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-                trekClient.Disconnect();
-            }
-            else if (reason == DPR_PrivateGame)
-            {
-                TRef<IMessageBox> pmsgBox = CreateMessageBox("The game you tried to join is private.  Your login id does not have access to it.");
-                GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-                trekClient.Disconnect();
-            }
-            else if (reason == DPR_DuplicateLogin)
-            {
-                TRef<IMessageBox> pmsgBox = CreateMessageBox("Someone else is already using that name in this game.");
-                GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-                trekClient.Disconnect();
-            }
-            else if (reason == DPR_ServerPaused)
-            {
-                TRef<IMessageBox> pmsgBox = CreateMessageBox("The server for this game is shutting down and is not accepting new users.");
-                GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-                trekClient.Disconnect();
-            }
-            else
-            {
-                TRef<IMessageBox> pmsgBox = CreateMessageBox("You have not been accepted into the game.");
-                GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-                trekClient.Disconnect();
-            }
-        }
-    }
-
-    virtual void OnCancelPassword()
-    {
         trekClient.Disconnect();
-    }
-
-    virtual void OnPassword(ZString strPassword)
-    {
-        // try the new password
-        m_strPassword = strPassword;
-
-        // pop up the Connecting... dialog.   
-        GetWindow()->SetWaitCursor();
-        TRef<IMessageBox> pmsgBox = CreateMessageBox("Connecting...", NULL, false);
+      }
+      else if (reason == DPR_OutOfLives)
+      {
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("You have run out of lives in this mission.");
         GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-
-        // pause to let the "connecting..." box draw itself
-        AddEventTarget(&IntroScreen::OnTryLogon, GetWindow(), 0.1f);
+        trekClient.Disconnect();
+      }
+      else if (reason == DPR_Banned)
+      {
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("You have been banned from this mission.");
+        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
+        trekClient.Disconnect();
+      }
+      else if (reason == DPR_GameFull)
+      {
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("This server has reached its maximum number of players.");
+        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
+        trekClient.Disconnect();
+      }
+      else if (reason == DPR_PrivateGame)
+      {
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("The game you tried to join is private.  Your login id does not have access to it.");
+        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
+        trekClient.Disconnect();
+      }
+      else if (reason == DPR_DuplicateLogin)
+      {
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("Someone else is already using that name in this game.");
+        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
+        trekClient.Disconnect();
+      }
+      else if (reason == DPR_ServerPaused)
+      {
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("The server for this game is shutting down and is not accepting new users.");
+        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
+        trekClient.Disconnect();
+      }
+      else
+      {
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("You have not been accepted into the game.");
+        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
+        trekClient.Disconnect();
+      }
     }
+  }
 
-    void OnAbort()
-    {
-        // user aborted logging on; we don't need to do anything
-    };
+  void OnCancelPassword() override
+  {
+    trekClient.Disconnect();
+  }
 
-    bool OnButtonExit()
-    {
-        GetWindow()->StartClose();
+  void OnPassword(ZString strPassword) override
+  {
+    // try the new password
+    m_strPassword = strPassword;
 
-        return true;
-    }
+    // pop up the Connecting... dialog.   
+    GetWindow()->SetWaitCursor();
+    TRef<IMessageBox> pmsgBox = CreateMessageBox("Connecting...", nullptr, false);
+    GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
 
-    bool OnButtonHelp()
-    {
-        GetWindow()->OnHelp (true);
-        return true;
-    }
+    // pause to let the "connecting..." box draw itself
+    AddEventTarget(&IntroScreen::OnTryLogon, GetWindow(), 0.1f);
+  }
 
-    bool OnButtonInternet()
-    {
-        GetWindow()->screen(ScreenIDLobbyScreen);
-        return true;
-    }
+  void OnAbort() override
+  {
+    // user aborted logging on; we don't need to do anything
+  };
 
-    bool OnButtonLAN()
-    {
-        GetWindow()->GetPopupContainer()->OpenPopup(m_pfindServerPopup, false);
-        return true;
-    }
+  bool OnButtonExit()
+  {
+    GetWindow()->StartClose();
 
-    bool OnButtonZoneWeb()
-    {
-        GetWindow()->ShowWebPage();
-        return true;
-    }
+    return true;
+  }
 
-    bool OnButtonOptions()
-    {
-        GetWindow()->ShowOptionsMenu();
-        return true;
-    }
+  bool OnButtonHelp()
+  {
+    GetWindow()->OnHelp(true);
+    return true;
+  }
 
-    bool OnButtonCredits()
-    {
-        TRef<INameSpace> pnsCredits = GetModeler()->GetNameSpace("creditspane");
-        m_pcreditsPopup = new CreditsPopup(pnsCredits, this, GetWindow()->GetTime());
-        GetWindow()->GetPopupContainer()->OpenPopup(m_pcreditsPopup, false);
-        return true;
-    }
+  bool OnButtonInternet()
+  {
+    GetWindow()->screen(ScreenIDLobbyScreen);
+    return true;
+  }
 
-    bool OnButtonIntro()
-    {
-        GetWindow()->screen(ScreenIDSplashScreen);
-        return true;
-    }
+  bool OnButtonLAN()
+  {
+    GetWindow()->GetPopupContainer()->OpenPopup(m_pfindServerPopup, false);
+    return true;
+  }
 
-    bool OnHoverPlayLan()
-    {
-        m_pnumberCurrentHover->SetValue(hoverPlayLan);
-        return true;
-    }
+  bool OnButtonZoneWeb()
+  {
+    GetWindow()->ShowWebPage();
+    return true;
+  }
 
-    bool OnHoverPlayInt()
-    {
-        m_pnumberCurrentHover->SetValue(hoverPlayInt);
-        return true;
-    }
+  bool OnButtonOptions()
+  {
+    GetWindow()->ShowOptionsMenu();
+    return true;
+  }
 
-    bool OnHoverTrain()
-    {
-        m_pnumberCurrentHover->SetValue(hoverTrain);
-        return true;
-    }
+  bool OnButtonCredits()
+  {
+    TRef<INameSpace> pnsCredits = GetModeler()->GetNameSpace("creditspane");
+    m_pcreditsPopup = new CreditsPopup(pnsCredits, this, GetWindow()->GetTime());
+    GetWindow()->GetPopupContainer()->OpenPopup(m_pcreditsPopup, false);
+    return true;
+  }
 
-    bool OnHoverZoneWeb()
-    {
-        m_pnumberCurrentHover->SetValue(hoverZoneWeb);
-        return true;
-    }
+  bool OnButtonIntro()
+  {
+    GetWindow()->screen(ScreenIDSplashScreen);
+    return true;
+  }
 
-    bool OnHoverOptions()
-    {
-        m_pnumberCurrentHover->SetValue(hoverOptions);
-        return true;
-    }
+  bool OnHoverPlayLan()
+  {
+    m_pnumberCurrentHover->SetValue(hoverPlayLan);
+    return true;
+  }
 
-    bool OnHoverIntro()
-    {
-        m_pnumberCurrentHover->SetValue(hoverIntro);
-        return true;
-    }
+  bool OnHoverPlayInt()
+  {
+    m_pnumberCurrentHover->SetValue(hoverPlayInt);
+    return true;
+  }
 
-    bool OnHoverCredits()
-    {
-        m_pnumberCurrentHover->SetValue(hoverCredits);
-        return true;
-    }
+  bool OnHoverTrain()
+  {
+    m_pnumberCurrentHover->SetValue(hoverTrain);
+    return true;
+  }
 
-    bool OnHoverQuickstart()
-    {
-        m_pnumberCurrentHover->SetValue(hoverQuickstart);
-        return true;
-    }
+  bool OnHoverZoneWeb()
+  {
+    m_pnumberCurrentHover->SetValue(hoverZoneWeb);
+    return true;
+  }
 
-    bool OnHoverHelp()
-    {
-        m_pnumberCurrentHover->SetValue(hoverHelp);
-        return true;
-    }
+  bool OnHoverOptions()
+  {
+    m_pnumberCurrentHover->SetValue(hoverOptions);
+    return true;
+  }
 
-    bool OnHoverExit()
-    {
-        m_pnumberCurrentHover->SetValue(hoverExit);
-        return true;
-    }
-    
-    bool OnHoverNone()
-    {
-        m_pnumberCurrentHover->SetValue(hoverNone);
-        return true;
-    }
+  bool OnHoverIntro()
+  {
+    m_pnumberCurrentHover->SetValue(hoverIntro);
+    return true;
+  }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Screen Methods
-    //
-    //////////////////////////////////////////////////////////////////////////////
+  bool OnHoverCredits()
+  {
+    m_pnumberCurrentHover->SetValue(hoverCredits);
+    return true;
+  }
 
-    Pane* GetPane()
-    {
-        return m_ppane;
-    }
+  bool OnHoverQuickstart()
+  {
+    m_pnumberCurrentHover->SetValue(hoverQuickstart);
+    return true;
+  }
+
+  bool OnHoverHelp()
+  {
+    m_pnumberCurrentHover->SetValue(hoverHelp);
+    return true;
+  }
+
+  bool OnHoverExit()
+  {
+    m_pnumberCurrentHover->SetValue(hoverExit);
+    return true;
+  }
+
+  bool OnHoverNone()
+  {
+    m_pnumberCurrentHover->SetValue(hoverNone);
+    return true;
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  // Screen Methods
+  //
+  //////////////////////////////////////////////////////////////////////////////
+
+  Pane* GetPane() override
+  {
+    return m_ppane;
+  }
 };
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -1013,7 +988,5 @@ public:
 
 TRef<Screen> CreateIntroScreen(Modeler* pmodeler)
 {
-    return new IntroScreen(pmodeler);
+  return new IntroScreen(pmodeler);
 }
-
-

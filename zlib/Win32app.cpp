@@ -92,12 +92,13 @@ void retailf(const char* format, ...)
     if (g_bOutput)
     {
 #ifndef DREAMCAST        
-        const size_t size = 256;
+        // _TRUNCATE: a longer message is cut short, but always null-terminated
+        const size_t size = 2048;
         char         bfr[size];
 
         va_list vl;
         va_start(vl, format);
-        _vsnprintf(bfr, size, format, vl);
+        _vsnprintf_s(bfr, size, _TRUNCATE, format, vl);
         va_end(vl);
 
         ZDebugOutputImpl(bfr);
@@ -183,12 +184,13 @@ extern bool g_bOutput = true;
         if (g_bOutput)
         {
 #ifndef DREAMCAST        
-            const size_t size = 256;
+            // _TRUNCATE: a longer message is cut short, but always null-terminated
+            const size_t size = 2048;
             char         bfr[size];
 
             va_list vl;
             va_start(vl, format);
-            _vsnprintf(bfr, size, format, vl);
+            _vsnprintf_s(bfr, size, _TRUNCATE, format, vl);
             va_end(vl);
 
             ZDebugOutputImpl(bfr);

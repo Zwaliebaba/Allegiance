@@ -643,7 +643,7 @@ void FedMessaging::DispatchPacket(CFMConnection * pcnxnFrom)
   }
 #endif
 
-  static CTempTimer tt("spent looping through message queue", .1f);
+  static CTempTimer tt("looping through message queue", .1f);
   tt.Start();
   g_fConnectionDeleted = false;
   while (pfm && !g_fConnectionDeleted)

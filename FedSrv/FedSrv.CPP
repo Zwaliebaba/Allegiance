@@ -7210,6 +7210,17 @@ void StartDefaultGames()
   if(0 != plistMission->n())
     return;
 
+  // Without a game the LAN browser doesn't list the server (it hides
+  // sessions that don't offer a multiplayer game), so say why
+  if (ZSettings::GetString("Game1", "").empty())
+  {
+    printf("Warning: no games are set up, so clients won't see this server.\n"
+           "         Add \"Game1\": \"<game name>\" (and Game2, ...) to %ls\n"
+           "         and restart the server.\n",
+           ZSettings::Get().GetPath().c_str());
+    return;
+  }
+
   MissionParams mp;
   mp.Reset();
 

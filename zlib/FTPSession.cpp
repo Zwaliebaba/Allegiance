@@ -590,7 +590,7 @@ protected:
         char szMsg[sizeof(m_szLastError) - 50];
         va_list pArg;
         va_start(pArg, szFormat);
-        _vsnprintf(szMsg, sizeof(szMsg), szFormat, pArg);
+        _vsnprintf_s(szMsg, sizeof(szMsg), _TRUNCATE, szFormat, pArg);
         va_end(pArg);
 
         strcpy(m_szLastError, szMsg);
@@ -616,7 +616,7 @@ protected:
         char szMsg[sizeof(m_szErrorInThread) - 50];
         va_list pArg;
         va_start(pArg, szFormat);
-        _vsnprintf(szMsg, sizeof(szMsg), szFormat, pArg);
+        _vsnprintf_s(szMsg, sizeof(szMsg), _TRUNCATE, szFormat, pArg);
         va_end(pArg);
 
         strcpy(m_szErrorInThread, szMsg);
@@ -808,14 +808,22 @@ public:
             //
             while (!(m_hFileConnection = InternetOpenUrl(m_hInternetSession, *m_pszFileList, NULL, 0, INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE, 0)))
             {
+                DWORD dwError = GetLastError();
                 cTries++;
-                debugf("Failed to open URL(%s) for download, try #%d\n", *m_pszFileList, cTries);
-                Sleep(500);
-                if(cTries >= 5) 
+                debugf("Failed to open URL(%s) for download, try #%d; error code: %d\n", *m_pszFileList, cTries, dwError);
+
+                // retrying cannot help when the host name does not resolve or the URL is bad
+                bool bPermanent = dwError == ERROR_INTERNET_NAME_NOT_RESOLVED
+                               || dwError == ERROR_INTERNET_INVALID_URL
+                               || dwError == ERROR_INTERNET_UNRECOGNIZED_SCHEME;
+
+                if (bPermanent || cTries >= 5)
                 {
+                   SetLastError(dwError); // DoErrorInThread reports it
                    DoErrorInThread("Failed to open file for download.");
                    return false;
                 }
+                Sleep(500);
             }
 
             ++m_pszFileList;
