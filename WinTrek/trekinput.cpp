@@ -2613,6 +2613,12 @@ public:
             // Check the virtual buttons
             //
 
+            // The virtual buttons are positions of axis 5, so they belong to the
+            // joystick that axis 5 is mapped to. (The original passed the loop
+            // counter left over from the scan above, which by now equals the
+            // joystick count: an index past the last joystick.)
+            //
+
             if (!IsAxisSelection()) {
                 JoystickInputStream* pjoystick = m_pinputEngine->GetJoystick(m_paxis[5].m_indexJoystick);
 
@@ -2623,27 +2629,27 @@ public:
                         float value = pvalue->GetValue();
 
                         if (value > 0.75f) {
-                            if (AddButtonMapping(indexJoystick, -3)) {
+                            if (AddButtonMapping(m_paxis[5].m_indexJoystick, -3)) {
                                 StopEditing();
                             }
                             return;
                         } else if (value > 0.25f) {
-                            if (AddButtonMapping(indexJoystick, -2)) {
+                            if (AddButtonMapping(m_paxis[5].m_indexJoystick, -2)) {
                                 StopEditing();
                             }
                             return;
                         } else if (value > -0.25f) {
-                            if (AddButtonMapping(indexJoystick, -1)) {
+                            if (AddButtonMapping(m_paxis[5].m_indexJoystick, -1)) {
                                 StopEditing();
                             }
                             return;
                         } else if (value > -0.75f) {
-                            if (AddButtonMapping(indexJoystick, -4)) {
+                            if (AddButtonMapping(m_paxis[5].m_indexJoystick, -4)) {
                                 StopEditing();
                             }
                             return;
                         } else if (value > -1.25f) {
-                            if (AddButtonMapping(indexJoystick, -3)) {
+                            if (AddButtonMapping(m_paxis[5].m_indexJoystick, -3)) {
                                 StopEditing();
                             }
                             return;
