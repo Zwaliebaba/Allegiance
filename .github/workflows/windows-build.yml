@@ -174,7 +174,7 @@ jobs:
       matrix:
         configuration: [ Debug ]
     steps:
-      - name: Checkout (Art.proj, Artwork/256 and Artwork/tools only)
+      - name: Checkout (Art.proj, Artwork/256, Artwork/tools, tools/ci)
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
@@ -183,6 +183,7 @@ jobs:
             /Artwork/Art.proj
             /Artwork/256/
             /Artwork/tools/
+            /tools/ci/
 
       - name: Fetch art tools
         uses: actions/download-artifact@v5
@@ -191,6 +192,7 @@ jobs:
           path: out/bin/Win32/${{ matrix.configuration }}
 
       - name: Build art
+        id: art
         shell: pwsh
         run: |
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
@@ -205,6 +207,14 @@ jobs:
           "## Art (${{ matrix.configuration }})", "", "$(@($files).Count) files, $mb MB: $($byExt -join ', ')" -join "`n" |
             Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           exit $code
+
+      - name: Crash stack of a failed mdlc batch
+        if: failure() && steps.art.outcome == 'failure'
+        timeout-minutes: 25
+        shell: pwsh
+        run: |
+          ./tools/ci/mdlc-crash-stack.ps1 -Mdlc out/bin/Win32/${{ matrix.configuration }}/mdlc.exe `
+            -Log out/logs/art.log -ArtSource Artwork/256 -ArtOut out/art -Out out/logs
 
       - name: Upload art
         uses: actions/upload-artifact@v5

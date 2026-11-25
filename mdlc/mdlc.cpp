@@ -258,6 +258,10 @@ public:
 
     HRESULT Initialize(const ZString& strCommandLine)
     {
+        // Unbuffered, so the last line printed before a crash shows how far a
+        // batch got (stdout is a pipe under MSBuild, hence fully buffered).
+        setvbuf(stdout, NULL, _IONBF, 0);
+
         if (FAILED(EffectApp::Initialize(strCommandLine + " -software")))
             Fail("engine initialization failed");
 
