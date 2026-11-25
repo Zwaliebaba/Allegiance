@@ -397,15 +397,18 @@ the console server hosted the public session and tried the long-dead Zone lobby,
 browser looks only for the LAN session (`FEDSRV_STANDALONE_PRIVATE_GUID`), and the `Game1`, `Game2`, ...
 games from `server.json` were only created after a lobby connection succeeded. Now the server hosts the
 LAN session and creates the `server.json` games at startup; `"PublicLobby": 1` restores the public
-session and lobby. As before, a standalone server shuts down when its last game is gone (it used to
-stay up while an admin session was connected).
+session and lobby. Games from `server.json` are never deleted: after a round they go back to "not
+started" (unless `bAllowRestart` is off) and wait for players. A dedicated server keeps running when its
+last game is deleted, which only happens to a lobby-created game nobody joins within 15 seconds; it used
+to shut down then, and drop its lobby connection, unless an admin session held it up.
 
 Training mission 7 ("live" training against the Bios) used the admin objects to have COM start a local
 AllSrv32, create the game, start it once the player had joined, and kill it afterwards. The client now
 starts `AllSrv32.exe` from its own folder itself, as a hidden child process in a job object (so it dies
 with the client), with `-training <civ> -stopevent <handle>`. The server hosts the LAN session with that
 one game (`Inc/trainingserver.h` names it), starts it when the player has joined, and shuts down when the
-client sets the inherited event, or when the game ends. If the server exits before it can be joined, for
+client sets the inherited event (the client does that when training ends, and the job object covers a
+client that crashes). If the server exits before it can be joined, for
 example because another server holds the port, the client says so. The rest of the flow (finding the
 server on 127.0.0.1, joining as "Cadet") is unchanged.
 
