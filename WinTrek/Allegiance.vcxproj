@@ -23,6 +23,8 @@
     <ProjectGuid>{95D21128-1F14-455F-982D-E20D69EB7EB1}</ProjectGuid>
     <RootNamespace>Allegiance</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <!-- Link $(TargetDir)Artwork to out\Artwork after build (Directory.Build.targets). -->
+    <AllegianceLinkArtwork>true</AllegianceLinkArtwork>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">

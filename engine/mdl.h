@@ -52,9 +52,19 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 
+//
+// An MDL struct object (IMDLObject) keeps its members in raw memory after the
+// IMDLObject header. StructMDLType lays them out the way the C++ compiler lays out
+// a struct with the same members: each member at an offset that is a multiple of
+// its alignment, and the size rounded up to the largest alignment. GetSize and
+// GetAlignment are the size and alignment of the C++ type a member is stored as
+// (GetCPPType), so the headers mdlc writes (WriteTypeHeader) match on Win32 and x64.
+//
+
 class MDLType : public IObject {
 public:
     virtual int     GetSize()                                                        = 0;
+    virtual int     GetAlignment()                                                   = 0;
     virtual void    Destruct(BYTE*& pbyte)                                           = 0;
     virtual void    StackRead(BYTE*& pbyte, ObjectStack& stack)                      = 0;
     virtual void    Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack) = 0;
@@ -110,6 +120,11 @@ public:
         return sizeof(Type);
     }
 
+    int GetAlignment()
+    {
+        return alignof(Type);
+    }
+
     virtual bool IsStruct()
     {
         return false;
@@ -157,6 +172,8 @@ private:
 	int           m_index;
 
 public:
+    // The member data starts right after this header (GetDataPointer), so the header
+    // size must keep it aligned for the pointer-sized members (TRef, ZString).
 	IMDLObject(MDLType* ptype) :
         m_ptype(ptype),
 		m_index(-1)
@@ -236,6 +253,8 @@ public:
     }
     */
 };
+
+static_assert(sizeof(IMDLObject) % alignof(void*) == 0, "IMDLObject member data must be pointer aligned");
 
 //////////////////////////////////////////////////////////////////////////////
 //
