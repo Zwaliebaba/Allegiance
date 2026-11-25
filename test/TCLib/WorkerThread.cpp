@@ -13,7 +13,7 @@
 // #define XWorkItem_TRACE
 
 #if defined(XWorkItem_TRACE)
-  #include <typeinfo.h>
+  #include <typeinfo>
   #include <TlsValue.h>
   #include "AsyncDebugOutput.h"
 

@@ -36,7 +36,7 @@
           Inputs="@(AllegianceMessage)"
           Outputs="@(AllegianceMessage->'%(OutputDirectory)%(Filename).h')">
     <MakeDir Directories="%(AllegianceMessage.OutputDirectory)" />
-    <Exec Command="mc.exe -r &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; -h &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; &quot;%(AllegianceMessage.FullPath)&quot;"
-          EnvironmentVariables="PATH=$(ExecutablePath);$(PATH)" />
+    <!-- PATH cannot go through Exec's EnvironmentVariables, which is ;-separated. -->
+    <Exec Command="set &quot;PATH=$(ExecutablePath);%PATH%&quot; &amp;&amp; mc.exe -r &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; -h &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; &quot;%(AllegianceMessage.FullPath)&quot;" />
   </Target>
 </Project>

@@ -23,7 +23,7 @@
 
 #if defined (SHOW_SPONSOR_INFO) 
 
-#include<typeinfo.h>
+#include <typeinfo>
 
 #endif
 
