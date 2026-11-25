@@ -19,7 +19,6 @@
 #define IDR_TCStrings                   113
 #define IDR_TCMarshalByValue            114
 #define IDR_TCNullStream                115
-#define IDR_TCPropBagOnRegKey           116
 #define IDR_TCUtility                   117
 #define IDR_AGCModel                    118
 #define IDR_AGCModels                   119

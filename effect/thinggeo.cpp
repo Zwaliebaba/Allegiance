@@ -5,7 +5,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "pch.h"
-#include "regkey.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -215,27 +214,6 @@ private:
     float                       m_fTimeUntilRipcord;
     float                       m_fTimeUntilAleph;
 
-private:
-    DWORD LoadPreference(const ZString& szName, DWORD dwDefault)
-    {
-        HKEY hKey;
-        DWORD dwResult = dwDefault;
-
-        if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey))
-        {
-            DWORD dwSize = sizeof(dwResult);
-            DWORD dwType = REG_DWORD;
-
-            ::RegQueryValueEx(hKey, szName, NULL, &dwType, (BYTE*)&dwResult, &dwSize);
-            ::RegCloseKey(hKey);
-
-            if (dwType != REG_DWORD)
-                dwResult = dwDefault;
-        }
-
-        return dwResult;
-    }
-
 public:
     ThingGeoImpl(Modeler* pmodeler, Number* ptime) :
         m_ptime(ptime),
@@ -278,7 +256,7 @@ public:
 
         // here, check the registry for a private key - if set, use a different
         // afterburner effect, more like a rocket - one that won't drown performance
-        m_bUsePrivateAfterburners = LoadPreference ("PrivateAfterburners", 0) ? true : false;
+        m_bUsePrivateAfterburners = ZSettings::GetDWORD("PrivateAfterburners", 0) != 0;
         if (m_bUsePrivateAfterburners)
         {
             m_sizeSmoke = 2.0f;

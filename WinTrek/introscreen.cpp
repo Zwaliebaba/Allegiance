@@ -1,8 +1,5 @@
 #include "pch.h"
-#include "regkey.h"
 #include "training.h"
-
-extern bool CheckNetworkDevices(ZString& strDriverURL);
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -446,13 +443,7 @@ private:
             
             if (m_pDontAskMeAgain->GetChecked()) {
                 // here we mark things as if a training mission has been launched
-                HKEY    hKey;
-                DWORD   dwHasRunTraining = 1;
-                if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_WRITE, &hKey)) 
-                {
-                    RegSetValueEx (hKey, "HasTrained", NULL, REG_DWORD, (const BYTE*) &dwHasRunTraining, sizeof (dwHasRunTraining));
-                    RegCloseKey (hKey);
-                }
+                ZSettings::SetDWORD("HasTrained", 1);
             }
             return false;
         }
@@ -475,27 +466,6 @@ private:
             return false;
         }
     };
-
-    bool CheckNetworkDrivers()
-    {
-        ZString strDriverURL;
-
-        if (!CheckNetworkDevices(strDriverURL))
-        {
-            TRef<IMessageBox> pMsgBox = CreateMessageBox("The drivers of the "
-                "network card you are using are known not to work with "
-                "Microsoft Allegiance.  Please visit " + strDriverURL 
-                + " to download updated drivers.  Press <OK> to go there now.",
-                NULL, true, true);
-
-            pMsgBox->GetEventSource()->AddSink(new URLMessageSink(strDriverURL));
-            GetWindow()->GetPopupContainer()->OpenPopup(pMsgBox, false);
-
-            return false;
-        }        
-        else
-            return true;
-    }
 
 public:
 
@@ -587,14 +557,7 @@ public:
         if (Training::IsInstalled () && !bHaveVisited)
         {
             // check to see if training has been run before
-            HKEY    hKey;
-            DWORD   dwHasRunTraining = 0;
-            DWORD   dwDataSize = sizeof (dwHasRunTraining);
-            if (ERROR_SUCCESS == RegOpenKeyEx (HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey)) 
-            {
-                RegQueryValueEx (hKey, "HasTrained", NULL, NULL, (LPBYTE) &dwHasRunTraining, &dwDataSize);
-                RegCloseKey(hKey);
-            }
+            DWORD   dwHasRunTraining = ZSettings::GetDWORD("HasTrained", 0);
 
             // first time through, show a dialog explaining that users
             // really should do the training first
@@ -715,17 +678,10 @@ public:
         lstrcat(config_file_name, PCC(strBuild));
         lstrcat(config_file_name, ".cfg");
 
-        // then look to see if there is one in the registry we should use instead
-        HKEY hKey;
-        if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey))
-        {
-            DWORD   cbValue = MAX_PATH;
-            char    reg_config_file_name[MAX_PATH] = {0};
-            ::RegQueryValueEx (hKey, "CfgFile", NULL, NULL, (LPBYTE)&reg_config_file_name, &cbValue);
-            // if it didn't succeed, we'll just use the default above
-            if (lstrlen (reg_config_file_name) > 0)
-              lstrcpy (config_file_name, reg_config_file_name);
-        }
+        // then look to see if the settings name one we should use instead
+        std::string strCfgFile = ZSettings::GetString("CfgFile", "");
+        if (!strCfgFile.empty() && strCfgFile.size() < MAX_PATH)
+            lstrcpy (config_file_name, strCfgFile.c_str());
 
         // then construct the full path name of the config file
         PathString  pathEXE(PathString::GetCurrentDirectory());
@@ -928,19 +884,13 @@ public:
 
     bool OnButtonInternet()
     {
-        if (CheckNetworkDrivers())
-        {
-            GetWindow()->screen(ScreenIDLobbyScreen);
-        }
+        GetWindow()->screen(ScreenIDLobbyScreen);
         return true;
     }
 
     bool OnButtonLAN()
     {
-        if (CheckNetworkDrivers())
-        {
-            GetWindow()->GetPopupContainer()->OpenPopup(m_pfindServerPopup, false);
-        }
+        GetWindow()->GetPopupContainer()->OpenPopup(m_pfindServerPopup, false);
         return true;
     }
 

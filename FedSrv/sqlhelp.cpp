@@ -176,11 +176,10 @@ int AddCol(void * pvBuff, SQLSMALLINT ssiCType, SQLPARM parmtype, int cbBuff)
  *    0. Returns a string, the contents of which are stored in a static 
  *       buffer. Multiple calls overwrite the buffer.
  *       If the desired key is not in the command line, then we check to
- *       see if a default value is supplied. If not, the registry is
- *       checked for a default value. If it's not in the registry, we get a
- *       empty result.
+ *       see if a default value is supplied. If not, the server's settings
+ *       file is checked. If it's not there, we get an empty result.
  */
- char*  ParseCommandLine (char * szRegKey, char* szParameterName, char* szDefault = 0)
+ char*  ParseCommandLine (char* szParameterName, char* szDefault = 0)
  {
     static  char    szBuffer[64];
     LPTSTR          szCommandLine = GetCommandLine ();
@@ -202,12 +201,15 @@ int AddCol(void * pvBuff, SQLSMALLINT ssiCType, SQLPARM parmtype, int cbBuff)
     }
     else
     {
-        HKEY hKey;
-        DWORD dw;
-        DWORD cb = sizeof(szBuffer);
-        if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, szRegKey, 0, KEY_READ, &hKey))
-            RegQueryValueEx (hKey, szParameterName, NULL, &dw, (LPBYTE)szBuffer, &cb);
-        RegCloseKey(hKey);
+        //
+        // This runs during static initialisation (BEGIN_SQL_DEF), before
+        // main() has made server.json the process's settings file, so open
+        // it by name.
+        //
+
+        ZSettingsFile settings(ZSettings::PathFor(c_szServerSettingsFile, ZSettings::AllUsers).c_str());
+        std::string   strValue = settings.GetString(NULL, szParameterName, "");
+        strncpy_s(szBuffer, strValue.c_str(), _TRUNCATE);
     }
     return szBuffer;
  }
@@ -222,7 +224,7 @@ int AddCol(void * pvBuff, SQLSMALLINT ssiCType, SQLPARM parmtype, int cbBuff)
  *    0. Returns a value only so we can call it during global initialization,
  *        before any code blocks execute.
  */
-int InitSql(char * szRegKey, ISQLSite * pSQLSite)
+int InitSql(ISQLSite * pSQLSite)
 {
   g_pSQLSite = pSQLSite;
   
@@ -250,9 +252,9 @@ int InitSql(char * szRegKey, ISQLSite * pSQLSite)
   char szUser[64];
   char szPW[64];
   char szDatabase[64];
-  strcpy (szUser, ParseCommandLine (szRegKey, "SQLUser"));
-  strcpy (szPW, ParseCommandLine (szRegKey, "SQLPW"));
-  strcpy (szDatabase, ParseCommandLine (szRegKey, "SQLSrc", "Federation"));
+  strcpy (szUser, ParseCommandLine ("SQLUser"));
+  strcpy (szPW, ParseCommandLine ("SQLPW"));
+  strcpy (szDatabase, ParseCommandLine ("SQLSrc", "Federation"));
   printf ("  Connecting to DSN (%s) as user (%s) with password (%s)...\n", szDatabase, szUser, szPW);
   sqlret = SQLConnect(hSqlDbc, (SQLCHAR*) szDatabase, SQL_NTS, (SQLCHAR*) szUser, SQL_NTS, (SQLCHAR*) szPW, SQL_NTS);
 #endif

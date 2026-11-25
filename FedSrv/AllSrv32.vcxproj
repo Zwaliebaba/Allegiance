@@ -79,6 +79,7 @@
     <ClInclude Include="AdminGames.h" />
     <ClInclude Include="AdminServer.h" />
     <ClInclude Include="AdminSession.h" />
+    <ClInclude Include="serversettings.h" />
     <ClInclude Include="AdminSessionClass.h" />
     <ClInclude Include="AdminSessionEventSink.h" />
     <ClInclude Include="AdminSessionSecure.h" />

@@ -440,97 +440,39 @@ HRESULT CAGCEventLogger::ChangeNTEventLog(BSTR bstrComputer)
 }
 
 
-HKEY CAGCEventLogger::RootKeyFromString(BSTR bstrRegKey, DWORD* cchEaten)
-{
-  // Define a static lookup table
-  struct XRootKeys
-  {
-    LPCOLESTR pszName;
-    DWORD     cchName;
-    HKEY      hkey;
-  };
-  const static XRootKeys s_table[] =
-  {
-    {L"HKCR\\"                 ,  5, HKEY_CLASSES_ROOT    },
-    {L"HKCU\\"                 ,  5, HKEY_CURRENT_USER    },
-    {L"HKLM\\"                 ,  5, HKEY_LOCAL_MACHINE   },
-    {L"HKCC\\"                 ,  5, HKEY_CURRENT_CONFIG  },
-    {L"HKPD\\"                 ,  5, HKEY_PERFORMANCE_DATA},
-    {L"HKDD\\"                 ,  5, HKEY_DYN_DATA        },
+/////////////////////////////////////////////////////////////////////////////
+// The logger's configuration lives in the "EventLog" section of the settings
+// file Initialize names (zsettings.h).
 
-    {L"HKEY_CLASSES_ROOT\\"    , 18, HKEY_CLASSES_ROOT    },
-    {L"HKEY_CURRENT_USER\\"    , 18, HKEY_CURRENT_USER    },
-    {L"HKEY_LOCAL_MACHINE\\"   , 19, HKEY_LOCAL_MACHINE   },
-    {L"HKEY_CURRENT_CONFIG\\"  , 20, HKEY_CURRENT_CONFIG  },
-    {L"HKEY_PERFORMANCE_DATA\\", 22, HKEY_PERFORMANCE_DATA},
-    {L"HKEY_DYN_DATA\\"        , 14, HKEY_DYN_DATA        },
-  };
-  const static long s_cEntries = sizeofArray(s_table);
+static const char c_szSettingsSection[] = "EventLog";
 
-  // Search for an allowed root key name
-  if (BSTRLen(bstrRegKey))
-  {
-    for (long i = 0; i < s_cEntries; ++i)
-    {
-      if (!_wcsnicmp(s_table[i].pszName, bstrRegKey, s_table[i].cchName))
-      {
-        *cchEaten = s_table[i].cchName;
-        return s_table[i].hkey;
-      }
-    }
-  }
-
-  // Could not find the specified string
-  *cchEaten = 0;
-  return NULL;
-}
-
-HRESULT CAGCEventLogger::ReadStringValueFromRegistry(LPCTSTR pszValueName,
-  CComBSTR& bstrOut)
+HRESULT CAGCEventLogger::ReadSetting(LPCSTR pszName, CComBSTR& bstrOut)
 {
   // Initialize the [out] parameter
   bstrOut.Empty();
 
-  // Get the size of data from the specified value
-  DWORD cbData = 0;
-  long lr = RegQueryValueEx(m_key, pszValueName, NULL, NULL, NULL, &cbData);
-  if (ERROR_SUCCESS != lr)
-    return HRESULT_FROM_WIN32(lr);
+  if (!m_psettings || !m_psettings->Has(c_szSettingsSection, pszName))
+    return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
 
-  // Do nothing else if data size is zero
-  if (!cbData)
-    return S_OK;
-
-  // Allocate an automatic block of memory
-  LPTSTR pszValue = (LPTSTR)_alloca(cbData);
-
-  // Attempt to read the specified value
-  lr = m_key.QueryValue(pszValue, pszValueName, &cbData);
-
-  // Save the value string to the [out] parameter
-  bstrOut = pszValue;
-
-  // Indicate success
+  bstrOut = m_psettings->GetString(c_szSettingsSection, pszName, "").c_str();
   return S_OK;
 }
 
-HRESULT CAGCEventLogger::OpenWriteableRegKey(CRegKey& keyWrite)
+HRESULT CAGCEventLogger::CanSaveSettings()
 {
-  // Ensure that the specified key is closed
-  keyWrite.Close();
-
   // Do nothing if we are initializing
   XLock lock(this);
   if (m_bInitializing)
     return S_FALSE;
 
-  // Ensure that the main registry key is open
-  if (!m_key.m_hKey)
-    return E_UNEXPECTED;
+  // Ensure that the settings file is known
+  return m_psettings ? S_OK : E_UNEXPECTED;
+}
 
-  // Open/create the writeable registry key
-  long lr = keyWrite.Create(m_key, TEXT(""));
-  return (ERROR_SUCCESS == lr) ? S_OK : HRESULT_FROM_WIN32(lr);
+void CAGCEventLogger::SaveSetting(LPCSTR pszName, BSTR bstrValue)
+{
+  USES_CONVERSION;
+  m_psettings->SetString(c_szSettingsSection, pszName, bstrValue ? OLE2CA(bstrValue) : "");
 }
 
 void CAGCEventLogger::FireNTEventLogStopped()
@@ -795,20 +737,16 @@ STDMETHODIMP CAGCEventLogger::put_NTEventLog(BSTR bstrComputer)
   if (!IsWinNT())
     return Error(IDS_E_NTEVENTLOG_WIN9X, IID_IAGCEventLogger);
 
-  // Open a writeable registry key, unless we're initializing
-  CRegKey keyWrite;
-  RETURN_FAILED(OpenWriteableRegKey(keyWrite));
+  // Check that settings can be saved, unless we're initializing
+  HRESULT hrSave = CanSaveSettings();
+  RETURN_FAILED(hrSave);
 
   // Fire an 'event log stopped' event if a log is open
   FireNTEventLogStopped();
 
-  // Save the new computer name to the registry, unless we're initializing
-  if (keyWrite.m_hKey)
-  {
-    USES_CONVERSION;
-    long lr = keyWrite.SetValue(OLE2CT(bstrComputer), TEXT("NTEventLog"));
-    assert(ERROR_SUCCESS == lr);
-  }
+  // Save the new computer name to the settings, unless we're initializing
+  if (S_OK == hrSave)
+    SaveSetting("NTEventLog", bstrComputer);
 
   // Create an event to be signaled when new NT event log is open
   TCHandle hevt = CreateEvent(NULL, false, false, NULL);
@@ -858,9 +796,9 @@ STDMETHODIMP CAGCEventLogger::put_DBEventLog(IAGCDBParams* pDBParams)
 {
   USES_CONVERSION;
 
-  // Open a writeable registry key, unless we're initializing
-  CRegKey keyWrite;
-  RETURN_FAILED(OpenWriteableRegKey(keyWrite));
+  // Check that settings can be saved, unless we're initializing
+  HRESULT hrSave = CanSaveSettings();
+  RETURN_FAILED(hrSave);
 
   // Get the specified connection string and table name, if any
   CComBSTR bstrConnectionString;
@@ -907,15 +845,11 @@ STDMETHODIMP CAGCEventLogger::put_DBEventLog(IAGCDBParams* pDBParams)
   // Fire an 'event log stopped' event if a log is open
   FireDBEventLogStopped();
 
-  // Save the new DB params to the registry, unless we're initializing
-  if (keyWrite.m_hKey)
+  // Save the new DB params to the settings, unless we're initializing
+  if (S_OK == hrSave)
   {
-    USES_CONVERSION;
-    long lr = keyWrite.SetValue(OLE2CT(bstrConnectionString),
-      TEXT("ConnectionString"));
-    assert(ERROR_SUCCESS == lr);
-    lr = keyWrite.SetValue(OLE2CT(bstrTableName), TEXT("TableName"));
-    assert(ERROR_SUCCESS == lr);
+    SaveSetting("ConnectionString", bstrConnectionString);
+    SaveSetting("TableName", bstrTableName);
   }
 
   // Create an event to be signaled when new DB is open
@@ -984,10 +918,10 @@ STDMETHODIMP CAGCEventLogger::put_EnabledNTEvents(IAGCEventIDRanges* pEvents)
   if (!IsWinNT())
     return Error(IDS_E_NTEVENTLOG_WIN9X, IID_IAGCEventLogger);
 
-  // Open a writeable registry key, unless we're initializing
+  // Check that settings can be saved, unless we're initializing
   XLock lock(this);
-  CRegKey keyWrite;
-  RETURN_FAILED(OpenWriteableRegKey(keyWrite));
+  HRESULT hrSave = CanSaveSettings();
+  RETURN_FAILED(hrSave);
 
   // Revoke the current set of event ID ranges, if any
   if (NULL != m_spRangesNT)
@@ -1016,14 +950,9 @@ STDMETHODIMP CAGCEventLogger::put_EnabledNTEvents(IAGCEventIDRanges* pEvents)
     ZSucceeded(m_spRangesNT->get_DisplayString(&bstrEventRanges));
   }
 
-  // Save the new set of event ID ranges to the registry, unless initializing
-  if (keyWrite.m_hKey)
-  {
-    USES_CONVERSION;
-    LPCTSTR pszValue = bstrEventRanges ? OLE2CT(bstrEventRanges) : TEXT("");
-    long lr = keyWrite.SetValue(pszValue, TEXT("EnabledNTEvents"));
-    assert(ERROR_SUCCESS == lr);
-  }
+  // Save the new set of event ID ranges to the settings, unless initializing
+  if (S_OK == hrSave)
+    SaveSetting("EnabledNTEvents", bstrEventRanges);
 
   // Indicate success
   return S_OK;
@@ -1039,10 +968,10 @@ STDMETHODIMP CAGCEventLogger::get_EnabledNTEvents(IAGCEventIDRanges** ppEvents)
 
 STDMETHODIMP CAGCEventLogger::put_EnabledDBEvents(IAGCEventIDRanges* pEvents)
 {
-  // Open a writeable registry key, unless we're initializing
+  // Check that settings can be saved, unless we're initializing
   XLock lock(this);
-  CRegKey keyWrite;
-  RETURN_FAILED(OpenWriteableRegKey(keyWrite));
+  HRESULT hrSave = CanSaveSettings();
+  RETURN_FAILED(hrSave);
 
   // Revoke the current set of event ID ranges, if any
   if (NULL != m_spRangesDB)
@@ -1071,14 +1000,9 @@ STDMETHODIMP CAGCEventLogger::put_EnabledDBEvents(IAGCEventIDRanges* pEvents)
     ZSucceeded(m_spRangesDB->get_DisplayString(&bstrEventRanges));
   }
 
-  // Save the new set of event ID ranges to the registry, unless initializing
-  if (keyWrite.m_hKey)
-  {
-    USES_CONVERSION;
-    LPCTSTR pszValue = bstrEventRanges ? OLE2CT(bstrEventRanges) : TEXT("");
-    long lr = keyWrite.SetValue(pszValue, TEXT("EnabledDBEvents"));
-    assert(ERROR_SUCCESS == lr);
-  }
+  // Save the new set of event ID ranges to the settings, unless initializing
+  if (S_OK == hrSave)
+    SaveSetting("EnabledDBEvents", bstrEventRanges);
 
   // Indicate success
   return S_OK;
@@ -1166,37 +1090,30 @@ STDMETHODIMP CAGCEventLogger::get_DefaultEnabledDBEvents(
 /////////////////////////////////////////////////////////////////////////////
 // IAGCEventLoggerPrivate Interface Methods
 
-STDMETHODIMP CAGCEventLogger::Initialize(BSTR bstrSourceApp, BSTR bstrRegKey)
+STDMETHODIMP CAGCEventLogger::Initialize(BSTR bstrSourceApp, BSTR bstrSettingsFile)
 {
   // Validate the specified parameters
   assert(BSTRLen(bstrSourceApp));
-  assert(BSTRLen(bstrRegKey));
-
-  // Interpret the first part of the specified registry key string
-  DWORD cchEaten;
-  HKEY hkeyRoot = RootKeyFromString(bstrRegKey, &cchEaten);
-  if (!hkeyRoot)
+  if (!BSTRLen(bstrSettingsFile))
   {
-    ZError("CAGCEventLogger::Initialize(): Invalid registry key name specified.");
+    ZError("CAGCEventLogger::Initialize(): No settings file specified.");
     return E_INVALIDARG;
   }
 
-  // Attempt to open the specified registry key for read access
-  USES_CONVERSION;
-  LONG lr = m_key.Open(hkeyRoot, OLE2CT(bstrRegKey + cchEaten), KEY_READ);
+  // The configuration is kept in the specified settings file
+  m_psettings.reset(new ZSettingsFile(bstrSettingsFile));
 
-  // Attempt to read the NT Event Logging properties from the registry
+  // Attempt to read the NT Event Logging properties from the settings
   CComBSTR             bstrNTEventLog;
   IAGCEventIDRangesPtr spRangesNT;
   if (IsWinNT())
   {
     // Attempt to read the NTEventLog computer name
-    ReadStringValueFromRegistry(TEXT("NTEventLog"), bstrNTEventLog);
+    ReadSetting("NTEventLog", bstrNTEventLog);
 
     // Attempt to read the EnabledNTEvents value
     CComBSTR bstrEnabledEvents;
-    HRESULT hr = ReadStringValueFromRegistry(TEXT("EnabledNTEvents"),
-      bstrEnabledEvents);
+    HRESULT hr = ReadSetting("EnabledNTEvents", bstrEnabledEvents);
     if (SUCCEEDED(hr) &&
       (!bstrEnabledEvents.Length() ||
       _wcsicmp(bstrEnabledEvents, L"default")))
@@ -1216,9 +1133,8 @@ STDMETHODIMP CAGCEventLogger::Initialize(BSTR bstrSourceApp, BSTR bstrRegKey)
   CComBSTR             bstrConnectionString;
   CComBSTR             bstrTableName;
   IAGCEventIDRangesPtr spRangesDB;
-  ReadStringValueFromRegistry(TEXT("ConnectionString"),
-    bstrConnectionString);
-  ReadStringValueFromRegistry(TEXT("TableName"), bstrTableName);
+  ReadSetting("ConnectionString", bstrConnectionString);
+  ReadSetting("TableName", bstrTableName);
 
   // Create and populate the DBParams object
   IAGCDBParamsPtr spDBParams;
@@ -1228,8 +1144,7 @@ STDMETHODIMP CAGCEventLogger::Initialize(BSTR bstrSourceApp, BSTR bstrRegKey)
 
   // Attempt to read the EnabledDBEvents value
   CComBSTR bstrEnabledEvents;
-  HRESULT hr = ReadStringValueFromRegistry(TEXT("EnabledDBEvents"),
-    bstrEnabledEvents);
+  HRESULT hr = ReadSetting("EnabledDBEvents", bstrEnabledEvents);
   if (SUCCEEDED(hr) &&
     (!bstrEnabledEvents.Length() ||
     _wcsicmp(bstrEnabledEvents, L"default")))
@@ -1256,13 +1171,13 @@ STDMETHODIMP CAGCEventLogger::Initialize(BSTR bstrSourceApp, BSTR bstrRegKey)
   // Save the specified Event Source App name
   m_bstrSourceApp = bstrSourceApp;
 
-  // Open the NT Event log specified in the registry
+  // Open the NT Event log specified in the settings
   if (IsWinNT())
   {
     RETURN_FAILED(put_NTEventLog(bstrNTEventLog));
   }
 
-  // Open the DB Event log specified in the registry
+  // Open the DB Event log specified in the settings
   RETURN_FAILED(put_DBEventLog(spDBParams));
 
   // Indicate success

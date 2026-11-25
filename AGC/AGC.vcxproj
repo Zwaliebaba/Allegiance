@@ -144,7 +144,6 @@
     <ClInclude Include="IAGCTeamImpl.h" />
     <ClInclude Include="TCMarshalByValue.h" />
     <ClInclude Include="TCNullStream.h" />
-    <ClInclude Include="TCPropBagOnRegKey.h" />
     <ClInclude Include="TCStrings.h" />
     <ClInclude Include="TCUtility.h" />
     <ClInclude Include="agcevent.h" />

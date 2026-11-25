@@ -964,13 +964,8 @@ private:
 
         if (!m_bSkipReloader)
         {
-            // Set registry's MoveInProgress to one, meaning move is in progress
-            HKEY hKey;
-            DWORD dwValue = 1;
-            if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_WRITE, &hKey))
-            {
-              ::RegSetValueEx(hKey, "MoveInProgress", NULL, REG_DWORD, (unsigned char*)&dwValue, sizeof(DWORD));
-            }
+            // MoveInProgress = 1: the move is in progress
+            ZSettings::SetDWORD("MoveInProgress", 1);
         }
 
         //

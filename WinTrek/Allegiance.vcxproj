@@ -84,7 +84,6 @@
     <ClCompile Include="Slideshow.cpp" />
     <ClCompile Include="TrainingSlideshow.cpp" />
     <ClCompile Include="PostTrainingSlideshow.cpp" />
-    <ClCompile Include="netinfo.cpp" />
     <ClCompile Include="gametypes.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

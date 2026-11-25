@@ -361,17 +361,9 @@ STDMETHODIMP CAdminServer::put_LobbyServer(BSTR bstrLobbyServer)
       return Error(IDS_E_CONNECT_LOBBY, IID_IAdminServer);
     }
 
-    // Save the new LobbyServer value to the registry
+    // Save the new LobbyServer value to the settings
     #if !defined(ALLSRV_STANDALONE)
-      CRegKey key;
-      LONG lr = key.Open(HKEY_LOCAL_MACHINE, HKLM_FedSrv);
-      if (ERROR_SUCCESS != lr)
-      {
-        g.fmLobby.Shutdown();
-        _AGCModule.TriggerEvent(NULL, AllsrvEventID_ConnectError, "", -1, -1, -1, 0);
-        return HRESULT_FROM_WIN32(lr);
-      }
-      key.SetValue(pszLobbyServer, "LobbyServer");
+      ZSettings::SetString("LobbyServer", pszLobbyServer);
     #endif // !defined(ALLSRV_STANDALONE)
     
   }

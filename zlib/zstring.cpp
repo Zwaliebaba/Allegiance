@@ -281,15 +281,6 @@ ZString operator+(const ZString& str1, const ZString& str2)
     return ZString(new ZString::ZStringData(str1.m_pdata, str2.m_pdata));
 }
 
-ZString ZString::GetProfileString(const ZString& strSection, const ZString& strKey)
-{
-    char buf[256];
-
-    DWORD dw = ::GetProfileString(strSection, strKey, "", buf, 256);
-
-    return ZString(buf, (int)dw);
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // ZString Operations

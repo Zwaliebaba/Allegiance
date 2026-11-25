@@ -13,6 +13,7 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project. Stage B: new MDL version with 32-bit / BC7 DDS textures generated from the 24-bit source BMPs. |
 | Level of detail | Reduced LOD meshes are dropped. They were a 1999 performance optimisation (the models are hundreds to a few thousand triangles). Every LOD slot uses the full-detail mesh, which removes `xmunge -reduce`, the MSR progressive-mesh binaries and meshoptimizer. |
 | Networking | MsQuic (Schannel build) behind the existing `FedMessaging` interface, replacing DirectPlay 4. This replaced the first plan of an own Winsock UDP layer; with QUIC providing reliability and loss recovery, no loopback / packet-loss harness was built, and LAN play is verified by hand. Windows 11 or Server 2022 and later. |
+| Settings | JSON files instead of the registry: `settings.json` per user for the client, `server.json` for all users for the server, or either next to the executable. A small built-in reader and writer (`zlib/zsettings.*`), no third-party JSON library. Registry values are not imported. The only registry use left is Windows' own: COM and service registration, and performance-counter IDs. |
 | Scope | Tier 1 is built. Tier 2 stays in the repo, outside the solution. Tier 3 is deleted once nothing in Tier 1 or 2 references it. |
 | Verification | GitHub Actions on `windows-2025` (VS 2026). `.github/workflows/windows-build.yml`. |
 
@@ -151,6 +152,7 @@ moves into Tier 1 and is ported with the server, keeping the admin and event fea
 | Audio | DirectSound / DS3D | Unchanged at first; XAudio2 later |
 | Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Same `IDiskPlayer` interface, playing the WAVs from `Artwork/redbook` (track order from `tracks.lst`) |
 | Networking | DirectPlay 4 inside `FedMessaging` | MsQuic: a reliable ordered stream and unreliable datagrams per connection, plus a UDP probe for LAN discovery (see "Networking" below) |
+| Settings | `HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.0` (and `...\Server`) | A JSON file per program (see "Settings" below) |
 
 The DirectPlay surface used by `FedMessaging` is about 15 calls: `Open`, `Close`, `EnumSessions`,
 `GetSessionDesc`, `SetSessionDesc`, `CreatePlayer`, `DestroyPlayer`, `GetPlayerData`, `SendEx`,
@@ -294,6 +296,75 @@ peer gone, send failed); `FedMessaging::ReceiveMessages` drains the queue on the
 
 Ports (UDP): game servers 47700 (QUIC) and 47701 (discovery); the lobby's client side 47710/47711 and its
 server side 47720/47721. A server address may name another port as `host:port`.
+
+#### Settings: a JSON file replaces the registry
+
+Every setting the game and the server kept under `HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.0`
+now lives in a JSON file. Writing to HKLM needs administrator rights, which a process with the default
+`asInvoker` manifest doesn't have, so saved preferences were silently lost for normal users. A file is
+also easier to inspect, edit, copy and reset.
+
+| Program | File | Where |
+|---|---|---|
+| Client (`Allegiance.exe`) | `settings.json` | `%LOCALAPPDATA%\Allegiance`, created on the first write |
+| Server (`AllSrv32.exe`) | `server.json` | `%ProgramData%\Allegiance`, so the service account and an administrator see the same file |
+| Either, portable | the same name | next to the executable, if a file of that name is there (an empty `{}` is enough). It then takes precedence |
+
+The file is one JSON object. Values keep their old registry names and sit at the top level, except for two
+sections:
+
+```json
+{
+  "CombatXSize": 1024,
+  "Music": 1,
+  "CharacterName": "Pilot",
+  "SquadMemberships": { "Pilot": [12, 40] },
+  "EventLog": { "EnabledNTEvents": "default" }
+}
+```
+
+Numbers stand in for `REG_DWORD`, so flags stay 0 or 1. `true`/`false` and numeric strings (`"1"`, `"0x10"`)
+also read as numbers, so hand edits are forgiving. Strings are UTF-8 in the file and the ANSI code page in
+the game, as before. The squad memberships per character were a `REG_BINARY` array of IDs and are now a
+JSON array. The AGC event logger, configured through `IAGCEventLoggerPrivate::Initialize`, now gets the
+settings file's path instead of a registry key, and keeps its five values in the `EventLog` section.
+
+`zlib/zsettings.h` is the interface: `ZSettingsFile` for one file, and the `ZSettings` functions for the
+process's own file. It is a small reader and writer (strict RFC 8259 on input, a UTF-8 byte order mark
+allowed), without ZString or the rest of zlib, so AGC uses it too. Every write re-reads the file, applies the
+change, and writes it back to a temporary file that is then renamed over the original, under a named mutex
+per file. The server process and the AGC logger inside it, or two clients, don't lose each other's changes,
+and a crash mid-write leaves the old file. Reads come from the copy last read. A file that doesn't parse
+is ignored (the defaults apply), a debugger trace says where it failed, and it is kept as `<name>.bad` when
+the next write replaces it.
+
+The server makes `server.json` its settings file first thing in `main`. `InitSql` runs earlier, during
+static initialisation (`BEGIN_SQL_DEF` in `queries.h`), so it opens the file by name instead.
+
+Behaviour that changed:
+
+- Without its registry key the server skipped its whole settings block, so `nUpdatesPerSecond`,
+  `fWantInt3`, `fProtocol`, `fDoublePrecision` and `fTimeout` stayed zero (static initialisation) and
+  `LocalAddress` stayed empty. It now always applies the documented defaults: 10 updates per second, the
+  flags on, and the host name as the local address.
+- Existing registry values are not imported. A fresh file starts from the defaults, and the old key
+  can be deleted by hand.
+
+Removed with the registry code, because nothing used them: `zlib/zreg.h`, `Inc/regkey.h` (the service
+name moved to `FedSrv/serversettings.h`), `UTL::GetPathFromReg`, `ZString::GetProfileString` (a `win.ini`
+read, which Windows maps to the registry), `WinTrek/netinfo.cpp` and the intro screen's check that
+used it (a Windows 9x probe for network cards with known-bad drivers, through `HKEY_DYN_DATA`, which NT
+doesn't have, so it always passed), `CheckForAllGuard` (launched `AllGuard.exe`, which isn't in the
+repository, from the registry's art path), the `TCPropBagOnRegKey` COM class (registry-backed property
+bags; in AGC's IDL but not in its object map), and TCLib's registry-switched lock tracing
+(`_ENABLE_TRACE_LOCKS`, never defined).
+
+What stays in the registry is Windows' own: COM class, AppID and type library registration for AGC and
+the server (`.rgs` files, `-RegServer`), the service entry, the event-log source, and the performance
+counter IDs `sharemem` reads from the service's `Performance` key.
+
+The parked Tier 2 tools `cliconfig`, `srvconfig` and `AllSrvUI` exist to edit the old registry values.
+Nothing reads those values any more; reviving one of these tools means porting it to `zsettings.h`.
 
 ### Phase 4: art pipeline
 

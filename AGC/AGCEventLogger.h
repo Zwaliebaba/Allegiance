@@ -15,6 +15,8 @@
 #include <..\TCLib\WorkerThread.h>
 #include <XMLPtrs.h>
 #include "resource.h"
+#include <zsettings.h>
+#include <memory>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -77,10 +79,9 @@ protected:
     CDBPropSet* pPropSet);
   HRESULT CloseNTEventLog();
   HRESULT ChangeNTEventLog(BSTR bstrComputer);
-  static HKEY RootKeyFromString(BSTR bstrRegKey, DWORD* cchEaten);
-  HRESULT ReadStringValueFromRegistry(LPCTSTR pszValueName,
-    CComBSTR& bstrOut);
-  HRESULT OpenWriteableRegKey(CRegKey& keyWrite);
+  HRESULT ReadSetting(LPCSTR pszName, CComBSTR& bstrOut);
+  HRESULT CanSaveSettings();
+  void SaveSetting(LPCSTR pszName, BSTR bstrValue);
   void FireNTEventLogStopped();
   void FireDBEventLogStopped();
   HRESULT CopyChildNodes(IXMLDOMNode* pNode, XNodes& nodes);
@@ -111,7 +112,7 @@ public:
 
 // IAGCEventLoggerPrivate Interface Methods
 public:
-  STDMETHODIMP Initialize(BSTR bstrSourceApp, BSTR bstrRegKey);
+  STDMETHODIMP Initialize(BSTR bstrSourceApp, BSTR bstrSettingsFile);
   STDMETHODIMP Terminate();
   STDMETHODIMP put_LoggingToNTEnabled(VARIANT_BOOL bEnabled);
   STDMETHODIMP get_LoggingToNTEnabled(VARIANT_BOOL* pbEnabled);
@@ -167,7 +168,7 @@ protected:
   DBID                       m_idTable;
   CDBPropSet                 m_propset;
   CComBSTR                   m_bstrSourceApp;
-  CRegKey                    m_key;
+  std::unique_ptr<ZSettingsFile> m_psettings; // the "EventLog" section of this file
   CComBSTR                   m_bstrNTEventLog;
   TCEventSourceHandle        m_shEventLog;
   IAGCEventIDRangesPtr       m_spRangesNT;

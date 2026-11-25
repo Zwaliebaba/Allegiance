@@ -13,7 +13,7 @@
 #include <..\TCLib\CoInit.h>
 #include <..\TCLib\AutoHandle.h>
 #include <agc.h>
-#include <zreg.h>
+
 
 #ifdef _DEBUG
     #include "FedSrvApp.h"
@@ -6753,22 +6753,16 @@ IHTTPSession * BeginConfigDownload()
   char szConfig[MAX_PATH];
   lstrcpy(szConfig, "http://Allegiance.zone.com/Allegiance.cfg");
 
-  CRegKey key;
-  if (ERROR_SUCCESS == key.Open(HKEY_LOCAL_MACHINE, HKLM_FedSrv, KEY_READ))
-  {
-    ZString strConfig;
-    if (SUCCEEDED(LoadRegString(key, "cfgfile", strConfig)))
-    {
-      // if reg value exists copy over default
-      strcpy(szConfig, PCC(strConfig));
-    }
-  }
+  // cfgfile: a config file URL, or a local file, instead of the default
+  std::string strConfig = ZSettings::GetString("cfgfile", "");
+  if (!strConfig.empty() && strConfig.size() < sizeof(szConfig))
+    strcpy(szConfig, strConfig.c_str());
 
 
   if (ZString(szConfig).Find("http://") == -1) 
   {
     CopyFile(szConfig, ".\\temp.cfg", FALSE);    // copy to current folder
-    debugf("Using local config file due to registry setting for ConfigFile because \"http://\" was missing from it. %s\n", szConfig);
+    debugf("Using local config file because the cfgfile setting has no \"http://\": %s\n", szConfig);
     return NULL; // true means already done
   }
   else
@@ -7272,7 +7266,7 @@ DWORD ProcessMsgPump(int dwSleep, DWORD nCount, LPHANDLE pHandles)
  * StartDefaultGames
  *-------------------------------------------------------------------------
  * Purpose:
- *    Starts any games listed in the registry
+ *    Starts the games the settings list as Game1, Game2, ...
  */
 void StartDefaultGames()
 {
@@ -7284,67 +7278,51 @@ void StartDefaultGames()
   MissionParams mp;
   mp.Reset();
 
-  // we access the registry here because these keys don't need to be saved as globals.  
-  HKEY hKey;
-  DWORD dwType;
-  DWORD dwValue;
-  DWORD cbValue;
-  if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, HKLM_FedSrv, 0, KEY_READ, &hKey))
+  // MaxPlayersPerGame and LockOpen are only needed here, so they aren't globals
   {
-    // get the max players per game to use.from the registry
-    cbValue = sizeof(dwValue);
-    if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "MaxPlayersPerGame", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-      mp.nTotalMaxPlayersPerGame = min(c_cMaxPlayersPerGame, (short)dwValue);
-    else
-      mp.nTotalMaxPlayersPerGame = c_cMaxPlayersPerGame;
+    // get the max players per game to use
+    DWORD dwMaxPlayers = ZSettings::GetDWORD("MaxPlayersPerGame", c_cMaxPlayersPerGame);
+    mp.nTotalMaxPlayersPerGame = min(c_cMaxPlayersPerGame, (short)dwMaxPlayers);
 
     // lock the games open, if requested.
-    cbValue = sizeof(dwValue);
-    if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "LockOpen", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-      mp.bLockGameOpen = !!dwValue;
+    mp.bLockGameOpen = ZSettings::GetDWORD("LockOpen", mp.bLockGameOpen ? 1 : 0) != 0;
 
     mp.nMinPlayersPerTeam = 1;
     mp.nMaxPlayersPerTeam = (char)(min(200, (int)mp.nTotalMaxPlayersPerGame / (int)mp.nTeams));
     mp.bObjectModelCreated = true; // a little bit of a fib, but it makes it look normal
 
-    HRESULT hr = S_OK;
-    int iGame = 1;
-    while (SUCCEEDED(hr))
+    for (int iGame = 1; ; ++iGame)
     {
       char cbValueName[24];
-      ZString strGameName;
 
-      // look for a registry key Game#
+      // look for a setting Game#
       wsprintf(cbValueName, "Game%d", iGame);
-      hr = LoadRegString(hKey, cbValueName, strGameName);
+      std::string strGameName = ZSettings::GetString(cbValueName, "");
     
-      if (SUCCEEDED(hr))
+      if (strGameName.empty())
+        break;
+
+      // copy the new name into the mission parameters
+      strncpy(mp.strGameName, strGameName.c_str(), c_cbGameName);
+      mp.strGameName[c_cbGameName - 1] = '\0';
+      assert(!mp.Invalid());
+
+      printf("Starting game \"%s\"\n", mp.strGameName);
+
+      // Create the new mission 
+      FedSrvSite * psiteFedSrv = new FedSrvSite();
+      CFSMission * pfsMissionNew = new CFSMission(mp, NULL, psiteFedSrv, psiteFedSrv, NULL, NULL);
+
+      // tell the lobby about the mission
+      if (g.fmLobby.IsConnected())
       {
-        // copy the new name into the mission parameters
-        strncpy(mp.strGameName, strGameName, c_cbGameName);
-        mp.strGameName[c_cbGameName - 1] = '\0';
-        assert(!mp.Invalid());
+        BEGIN_PFM_CREATE(g.fmLobby, pfmNewMission, S, NEW_MISSION)
+        END_PFM_CREATE
+        pfmNewMission->dwIGCMissionID = pfsMissionNew->GetIGCMission()->GetMissionID();
 
-        printf("Starting game \"%s\"\n", mp.strGameName);
-
-        // Create the new mission 
-        FedSrvSite * psiteFedSrv = new FedSrvSite();
-        CFSMission * pfsMissionNew = new CFSMission(mp, NULL, psiteFedSrv, psiteFedSrv, NULL, NULL);
-
-        // tell the lobby about the mission
-        if (g.fmLobby.IsConnected())
-        {
-          BEGIN_PFM_CREATE(g.fmLobby, pfmNewMission, S, NEW_MISSION)
-          END_PFM_CREATE
-          pfmNewMission->dwIGCMissionID = pfsMissionNew->GetIGCMission()->GetMissionID();
-
-          g.fmLobby.SendMessages(g.fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
-        }
+        g.fmLobby.SendMessages(g.fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
       }
-      ++iGame;
     }
-
-    RegCloseKey(hKey);
   }
 }
 #endif
@@ -7548,7 +7526,7 @@ void LoadSettings()
     // Explicitly initialize the global data structure
     g.Init();
 
-    // defaults for reg keys:
+    // settings and their defaults:
     // fTimeout,                     1              1-okay to timeout clients
     // fWantInt3,                    1              1-want to hit an Int3 on asserts
     // nUpdatesPerSecond,            10             the number of updates-per-second
@@ -7562,101 +7540,56 @@ void LoadSettings()
     g.strArtPath = szModule;
 
 
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //
-    //   If you update this section, please update srvconfig to allow support
-    //   without resorting to regedit.
+    // The rest comes from the settings file (server.json), with these defaults
     //
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    HKEY hKey;
-    DWORD dwType;
-    DWORD dwValue;
-    DWORD cbValue;
-    if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, HKLM_FedSrv, 0, KEY_READ, &hKey))
-    {
-        dwValue=0;
-        cbValue = sizeof(dwValue);
-        if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "nUpdatesPerSecond", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-            g.nUpdatesPerSecond = dwValue;
-        else
-            g.nUpdatesPerSecond = 10;
+
+    g.nUpdatesPerSecond = ZSettings::GetDWORD("nUpdatesPerSecond", 10);
 
 #ifdef _DEBUG
-        dwValue=0;
-        cbValue = sizeof(dwValue);
-        if (ERROR_SUCCESS != ::RegQueryValueEx(hKey, "nDebugMask", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-            dwValue=FED_DEBUG_FILE;
-        g_app.SetDebug(dwValue);
+    g_app.SetDebug(ZSettings::GetDWORD("nDebugMask", FED_DEBUG_FILE));
 #endif
 
-        // Standalone servers do not need a LobbyServer registry value because
-        // they always get it from the CFG file.
-        #if !defined(ALLSRV_STANDALONE)
-          LoadRegString(hKey, "LobbyServer", g.strLobbyServer);
-        #endif // !defined(ALLSRV_STANDALONE)
+    // Standalone servers do not need a LobbyServer setting because
+    // they always get it from the CFG file.
+    #if !defined(ALLSRV_STANDALONE)
+      g.strLobbyServer = ZSettings::GetString("LobbyServer", "").c_str();
+    #endif // !defined(ALLSRV_STANDALONE)
 
-        // Use winsock-provided address for clients, unless overridden (e.g. dual nic)
-        if (FAILED(LoadRegString(hKey, "LocalAddress", g.strLocalAddress)))
-        {
-          WSADATA WSAData;
-          char szHostName[20]; // length of machine name--also long enough for ip address if that's what we get
-          WSAStartup(MAKEWORD(1,1), &WSAData);
-          gethostname(szHostName, sizeof(szHostName));
-          WSACleanup();
-          g.strLocalAddress = szHostName;
-        }
-
-        ZString strArtPath;
-        if (SUCCEEDED(LoadRegString(hKey, "ArtPath", strArtPath)))
-        {
-          if (strArtPath.Right(1) != "\\")
-            strArtPath += "\\";
-          g.strArtPath = strArtPath;
-        }
-
-        dwValue=0;
-        cbValue = sizeof(dwValue);
-        if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "fWantInt3", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-            g.fWantInt3 = !!dwValue;
-        else g.fWantInt3 = true;
-        
-        dwValue=0;
-        cbValue = sizeof(dwValue);
-        if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "fProtocol", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-            g.fProtocol = !!dwValue;
-        else g.fProtocol = true;
-        
-        dwValue=0;
-        cbValue = sizeof(dwValue);
-        if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "fDoublePrecision", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-            g.fDoublePrecision = !!dwValue;
-        else g.fDoublePrecision = true;
-
-        dwValue=0;
-        cbValue = sizeof(dwValue);
-        if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "fTimeout", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-            g.fTimeOut = !!dwValue;
-        else g.fTimeOut = true;
-
-      #if !defined(ALLSRV_STANDALONE)
-        dwValue=0;
-        cbValue = sizeof(dwValue);
-        if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "SQLThreadsNotify", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-            g.csqlNotifyThreads = dwValue;
-        else g.csqlNotifyThreads = 3;
-
-        dwValue=0;
-        cbValue = sizeof(dwValue);
-        if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "SQLThreadsSilent", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-            g.csqlSilentThreads = dwValue;
-        else g.csqlSilentThreads = 2;
-
-        if (FAILED(LoadRegString(hKey, "SQLConfig", g.strSQLConfig)))
-          g.strSQLConfig.Empty(); // default for all developers
-      #endif // !defined(ALLSRV_STANDALONE)
-
-        ::RegCloseKey(hKey);
+    // Use winsock-provided address for clients, unless overridden (e.g. dual nic)
+    std::string strLocalAddress = ZSettings::GetString("LocalAddress", "");
+    if (!strLocalAddress.empty())
+    {
+      g.strLocalAddress = strLocalAddress.c_str();
     }
+    else
+    {
+      WSADATA WSAData;
+      char szHostName[20]; // length of machine name--also long enough for ip address if that's what we get
+      WSAStartup(MAKEWORD(1,1), &WSAData);
+      gethostname(szHostName, sizeof(szHostName));
+      WSACleanup();
+      g.strLocalAddress = szHostName;
+    }
+
+    ZString strArtPath(ZSettings::GetString("ArtPath", "").c_str());
+    if (!strArtPath.IsEmpty())
+    {
+      if (strArtPath.Right(1) != "\\")
+        strArtPath += "\\";
+      g.strArtPath = strArtPath;
+    }
+
+    g.fWantInt3        = ZSettings::GetDWORD("fWantInt3",        1) != 0;
+    g.fProtocol        = ZSettings::GetDWORD("fProtocol",        1) != 0;
+    g.fDoublePrecision = ZSettings::GetDWORD("fDoublePrecision", 1) != 0;
+    g.fTimeOut         = ZSettings::GetDWORD("fTimeout",         1) != 0;
+
+  #if !defined(ALLSRV_STANDALONE)
+    g.csqlNotifyThreads = ZSettings::GetDWORD("SQLThreadsNotify", 3);
+    g.csqlSilentThreads = ZSettings::GetDWORD("SQLThreadsSilent", 2);
+    g.strSQLConfig      = ZSettings::GetString("SQLConfig", "").c_str(); // empty: the default for all developers
+  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 /*-------------------------------------------------------------------------
@@ -8210,7 +8143,10 @@ void UnregisterAllSrv(char *szServerName)
 //
 int __cdecl main(int argc, char *argv[])
 {
-    // Load the global settings from the registry
+    // The server's settings live in server.json, for all users (serversettings.h)
+    ZSettings::Configure(c_szServerSettingsFile, ZSettings::AllUsers);
+
+    // Load the global settings
     LoadSettings();
 
     // set the FPU to double precision, instead of long double

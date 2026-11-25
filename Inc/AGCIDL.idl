@@ -47,7 +47,6 @@ interface IAGCEventIDRange;
 interface IAGCEventIDRanges;
 interface ITCCollection;
 interface ITCStrings;
-interface ITCPropBagOnRegKey;
 interface ITCSessionInfo;
 interface ITCSessionInfos;
 interface ITCCollectionPersistHelper;
@@ -1302,8 +1301,8 @@ interface IAGCEventLoggerHook : IUnknown
 ]
 interface IAGCEventLoggerPrivate : IUnknown
 {
-  [helpstring("Should be called immediately upon creating the object (and from the same thread or apartment).")]
-  HRESULT Initialize([in] BSTR bstrSourceApp, [in] BSTR bstrRegKey);
+  [helpstring("Should be called immediately upon creating the object (and from the same thread or apartment). bstrSettingsFile is the JSON settings file whose EventLog section holds the configuration.")]
+  HRESULT Initialize([in] BSTR bstrSourceApp, [in] BSTR bstrSettingsFile);
 
   [helpstring("Should be called immediately prior to releasing the object.")]
   HRESULT Terminate();
@@ -1619,50 +1618,6 @@ interface ITCStrings : ITCCollection
   HRESULT AddStrings([in] ITCStrings* pStrings);
 
 };  // End: interface ITCStrings : IDispatch
-
-
-/////////////////////////////////////////////////////////////////////////////
-// ITCPropBagOnRegKey Interface
-[
-  object, dual, pointer_default(unique),
-  uuid(8962E242-CD81-11d2-9646-00C04F68DEB0),
-  helpstring("Interface to create a property bag on a registry key.")
-]
-interface ITCPropBagOnRegKey : IDispatch
-{
-  [helpstring("Creates or opens the specified registry key.")]
-  HRESULT CreateKey([in] BSTR bstrRegKey, [in] VARIANT_BOOL bReadOnly);
-
-  [helpstring("Opens the specified registry key.  Fails if the key does not exist.")]
-  HRESULT OpenKey([in] BSTR bstrRegKey, [in] VARIANT_BOOL bReadOnly);
-
-  [helpstring("Creates the object that is stored on the current registry key.")]
-  HRESULT CreateObject([out, retval] IUnknown** ppunkObj);
-
-  [helpstring("Creates the object, always on the local machine, that is stored on the current registry key.")]
-  HRESULT CreateLocalObject([out, retval] IUnknown** ppunkObj);
-
-  [helpstring("Creates the object, on the specified server, that is stored on the current registry key.")]
-  HRESULT CreateRemoteObject([in] BSTR bstrServer,
-    [out, retval] IUnknown** ppunkObj);
-
-  [helpstring("Load the specified object from the values stored in the current registry key.")]
-  HRESULT LoadObject([in] IUnknown* punkObj);
-
-  [helpstring("Saves the specified object to the current registry key.")]
-  HRESULT SaveObject([in] IUnknown* punkObj,
-    [in, defaultvalue(0)] VARIANT_BOOL bClearDirty,
-    [in, defaultvalue(-1)] VARIANT_BOOL bSaveAllProperties,
-    [in, defaultvalue(-1)] VARIANT_BOOL bSaveCreationInfo);
-
-  [propput, helpstring("Gets/sets the server on which the object stored on the current registry key will be created.")]
-  HRESULT Server([in] BSTR bstrServer);
-  [propget] HRESULT Server([out, retval] BSTR* pbstrServer);
-
-  [propget, helpstring("Gets the string representation of the CLSID of the object stored on the current registry key.")]
-  HRESULT ObjectCLSID([out, retval] BSTR* pbstrCLSID);
-
-};  // End: interface ITCPropBagOnRegKey : IDispatch
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2681,7 +2636,6 @@ cpp_quote("      TC_COM_SMARTPTR_TYPEDEF(IAGCRangesPrivate);")
 cpp_quote("      TC_COM_SMARTPTR_TYPEDEF(IAGCEventIDRange);")
 cpp_quote("      TC_COM_SMARTPTR_TYPEDEF(IAGCEventIDRanges);")
 cpp_quote("      TC_COM_SMARTPTR_TYPEDEF(ITCStrings);")
-cpp_quote("      TC_COM_SMARTPTR_TYPEDEF(ITCPropBagOnRegKey);")
 cpp_quote("      TC_COM_SMARTPTR_TYPEDEF(ITCSessionInfo);")
 cpp_quote("      TC_COM_SMARTPTR_TYPEDEF(ITCSessionInfos);")
 cpp_quote("      TC_COM_SMARTPTR_TYPEDEF(ITCCollectionPersistHelper);")

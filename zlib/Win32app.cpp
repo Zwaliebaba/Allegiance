@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "regkey.h"
 
 #include <dbghelp.h>
 #pragma comment(lib, "dbghelp.lib")
@@ -202,19 +201,8 @@ extern bool g_bOutput = true;
     void InitializeDebugf()
     {
 #ifndef DREAMCAST        
-        HKEY hKey;
-        DWORD dwType;
-        char  szValue[20];
-        DWORD cbValue = sizeof(szValue);
-        bool  bLogToFile = false;
-
-        if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey))
-        {
-            ::RegQueryValueEx(hKey, "LogToFile", NULL, &dwType, (unsigned char*)&szValue, &cbValue);
-            ::RegCloseKey(hKey);
-
-            bLogToFile = (strcmp(szValue, "1") == 0);
-        }
+        // LogToFile = 1: write debug output to a log file next to the executable
+        bool  bLogToFile = ZSettings::GetDWORD("LogToFile", 0) == 1;
 
         if (bLogToFile)
         {
