@@ -496,6 +496,7 @@ pointers or pointer-sized fields, so their layout is the same on both.
 | Debug allocator | `operator new(size_t, file, line)` (it took `unsigned int`, so no `new` compiled on x64). `ZFree` frees a client block directly instead of reading the block type from a copy of the CRT's block header, whose layout changed with the Universal CRT. The unused `zlib/fixdelete.h`, which replaced the global `operator delete` the same way, is deleted |
 | Warnings | C4302, C4311 and C4312 (a pointer cut to 32 bits, or a 32-bit value made a pointer) are errors. MSVC also reports them for constants, which a clang x64 pass did not: `c_htidStaticObject` and two `-1` markers now go through `INT_PTR` |
 | MsQuic | The x64 `msquic.dll` is copied next to the exes |
+| Stack depth | A `TList` freed its nodes recursively (each node's reference to the next released it), one level per element. With x64's larger frames, the Debug `mdlc` overflowed its 1 MB stack converting the models. A node now frees the rest of the chain in a loop |
 
 `AllSrv32` keeps its name (exe, project and Windows service name), so an installed service and scripts
 that start it keep working.
