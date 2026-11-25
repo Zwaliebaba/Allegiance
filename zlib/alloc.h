@@ -10,7 +10,7 @@
 #define _DUMP_LEAKS_
 
 #if defined(_DEBUG) && !defined(ZLIB_SKIP_NEW_REDEF)
-    #if defined(_DUMP_LEAKS_) && !defined(DREAMCAST)
+    #if defined(_DUMP_LEAKS_)
 
         #include "crtdbg.h"
 

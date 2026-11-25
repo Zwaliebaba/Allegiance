@@ -5883,13 +5883,7 @@ public:
             IshipIGC*   pshipSource = pshipParent ? pshipParent : trekClient.GetShip();
 
             // store the screen size for later use
-            #if 1
             float           fScreenSize = (rectImage.YMax() - rectImage.YMin()) * 0.48f;    //NYI same constant as in radarimage.cpp
-            #else
-            float           fScreenXSize = rectImage.XMax() - rectImage.XMin(),
-                            fScreenYSize = rectImage.YMax() - rectImage.YMin(),
-                            fScreenSize = sqrtf ((fScreenXSize * fScreenXSize) + (fScreenYSize * fScreenYSize)) * 0.5f;
-            #endif
 
             ImodelIGC*  pmodelTarget = trekClient.GetShip()->GetCommandTarget(c_cmdCurrent);
 

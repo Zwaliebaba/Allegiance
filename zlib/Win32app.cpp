@@ -91,7 +91,6 @@ void retailf(const char* format, ...)
 {
     if (g_bOutput)
     {
-#ifndef DREAMCAST        
         const size_t size = 256;
         char         bfr[size];
 
@@ -101,9 +100,6 @@ void retailf(const char* format, ...)
         va_end(vl);
 
         ZDebugOutputImpl(bfr);
-#else
-        ZDebugOutputImpl(format);
-#endif
     }
 }
 
@@ -182,7 +178,6 @@ extern bool g_bOutput = true;
     {
         if (g_bOutput)
         {
-#ifndef DREAMCAST        
             const size_t size = 256;
             char         bfr[size];
 
@@ -192,15 +187,11 @@ extern bool g_bOutput = true;
             va_end(vl);
 
             ZDebugOutputImpl(bfr);
-#else
-            ZDebugOutputImpl(format);
-#endif
         }
     }
 
     void InitializeDebugf()
     {
-#ifndef DREAMCAST        
         // LogToFile = 1: write debug output to a log file next to the executable
         bool  bLogToFile = ZSettings::GetDWORD("LogToFile", 0) == 1;
 
@@ -236,17 +227,14 @@ extern bool g_bOutput = true;
                     NULL
                 );
         }
-#endif
     }
 
     void TerminateDebugf()
     {
-#ifndef DREAMCAST        
         if (g_logfile) {
             CloseHandle(g_logfile);
             g_logfile = NULL;
         }
-#endif
     }
 #endif
 

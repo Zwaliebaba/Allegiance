@@ -1797,22 +1797,6 @@ public:
                     );
             }
 
-#if 0
-            {
-                const GlobalAttributeSet&   ga = trekClient.GetSide()->GetGlobalAttributeSet();
-                if (pstation->CanBuy(phullType))
-                {
-                    debugf("%s\n", phullType->GetName());
-                    debugf("\tTop speed\t\t%8.2f mps\n", phullType->GetMaxSpeed() * ga.GetAttribute(c_gaMaxSpeed));
-                    debugf("\tAcceleration\t%8.2f mpss\n", phullType->GetThrust() * ga.GetAttribute(c_gaThrust) /
-                                                   phullType->GetMass());
-                    debugf("\tTurn rate\t\t%8.2f degrees/second\n", 180.0f * phullType->GetMaxTurnRate(c_axisYaw) * ga.GetAttribute(c_gaTurnRate) / pi);
-
-                    debugf("\tHit points\t\t%8.2f\n", phullType->GetHitPoints() * ga.GetAttribute(c_gaMaxArmorShip));
-                    debugf("\tScan range\t\t%8.2f m\n", phullType->GetScannerRange() * ga.GetAttribute(c_gaScanRange));
-                }
-            }
-#endif
         } 
 
         GetWindow()->GetPopupContainer()->OpenPopup(m_phullMenu, Rect(260, 450, 340, 530), true, false);

@@ -55,30 +55,12 @@ HRESULT         ChullTypeIGC::Initialize(ImissionIGC* pMission,
         static const Vector z(0.0f, 0.0f, 1.0f);
 
         MultiHullBase*  pmhb = HitTest::Load(m_data->modelName);
-#ifdef DREAMCAST
-        if (pmhb)
-#else
         assert (pmhb);
-#endif    
         {
 
             {
                 float           r = pmhb->GetOriginalRadius();
                 m_scale = (0.5f * m_data->length / r);
-#if 0
-                {
-                    const Vector&   ellipseEquation = pmhb->GetEllipseEquation();
-                    debugf("%s/%d %f %f %f\n", m_data->name, m_data->hullID, ellipseEquation.x * m_scale, ellipseEquation.y * m_scale, ellipseEquation.z * m_scale);
-
-                    double          v = ellipseEquation.x * ellipseEquation.y * ellipseEquation.z;
-                    debugf("%s/%d\t(%s)\n\tOld length = %f\n\tNew Length = %f\n\tFrontal area = %f\n\tVolume = %f\n",
-                           m_data->name, m_data->hullID, m_data->modelName, 
-                           float(m_data->length), float(m_data->length) * r * float(pow(v, -1.0/3.0)),
-                           pmhb->GetEllipseEquation().x * pmhb->GetEllipseEquation().y * m_scale * m_scale,
-                           pmhb->GetEllipseEquation().x * pmhb->GetEllipseEquation().y * pmhb->GetEllipseEquation().z * m_scale * m_scale * m_scale);
-                    debugf("\tDensity %f\n", m_data->mass / (0.2f * (pmhb->GetEllipseEquation().x * pmhb->GetEllipseEquation().y * pmhb->GetEllipseEquation().z * m_scale * m_scale * m_scale)));
-                }
-#endif
             }
 
             {
@@ -122,20 +104,6 @@ HRESULT         ChullTypeIGC::Initialize(ImissionIGC* pMission,
                 }
             }
 
-#if 0
-            if (m_data->maxFixedWeapons > 1)
-            {
-                debugf("\n%s/%d\t%s\t%f\n", GetName(), GetObjectID(), m_data->modelName, m_data->length);
-                for (Mount i = 0; (i < m_data->maxFixedWeapons); i++)
-                {
-                    for (Mount j = i+1; (j < m_data->maxFixedWeapons); j++)
-                    {
-                        debugf("%d <-> %d\t%f %s %s\n", i, j, (m_positionWeapons[i] - m_positionWeapons[j]).Length(),
-                               GetHardpointData(i).frameName, GetHardpointData(j).frameName);
-                    }
-                }
-            }
-#endif
 
             m_nLandSlots = 0;
             m_nLaunchSlots = 0;
@@ -195,15 +163,6 @@ HRESULT         ChullTypeIGC::Initialize(ImissionIGC* pMission,
                 }
             }
         }
-#ifdef DREAMCAST
-        else
-        {
-            m_cockpit = Vector::GetZero();
-            for (int i = m_data->maxWeapons - 1; (i >= 0); i--)
-                m_positionWeapons[i] = Vector::GetZero();
-
-        }
-#endif    
     }
 
     if (m_data->successorHullID != NA)

@@ -92,11 +92,7 @@ Window::Window(
         m_hwnd = ::CreateWindowEx(
             m_styleEX.GetWord(),
             TEXT(GetTopLevelWindowClassname()),
-#ifdef DREAMCAST
-            TEXT("Title"),
-#else
             strTitle,
-#endif
             m_style.GetWord(),
             CW_USEDEFAULT, CW_USEDEFAULT,
             //m_rect.XMin(), m_rect.YMin(), 
@@ -109,13 +105,8 @@ Window::Window(
     } else {
         m_hwnd = ::CreateWindowEx(
             m_styleEX.GetWord(),
-#ifdef DREAMCAST
-            TEXT("Window"),
-            TEXT("Title"),
-#else
             strClass,
             strTitle,
-#endif
             m_style.GetWord(),
             CW_USEDEFAULT, CW_USEDEFAULT,
             //m_rect.XMin(), m_rect.YMin(), 
@@ -167,13 +158,8 @@ BOOL Window::Create(
     
     m_hwnd = ::CreateWindowEx(
             styleEX.GetWord(),
-#ifdef DREAMCAST
-            TEXT("Window"),
-            TEXT("Title"),
-#else
             szClass ? szClass : "Window",
             szTitle,
-#endif
             m_style.GetWord(),
             m_rect.left, m_rect.top,
             m_rect.XSize(), m_rect.YSize(),
@@ -1021,13 +1007,11 @@ HRESULT Window::StaticInitialize()
     //
     // See if TrackMouseEvent exists
     //
-#ifndef DREAMCAST
     s_pfnTrackMouseEvent = 
         (PFNTrackMouseEvent)GetProcAddress(
             GetModuleHandle("user32"),
             "TrackMouseEvent"
         );
-#endif
 
     return S_OK;
 }

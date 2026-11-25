@@ -641,12 +641,7 @@ public:
 
     TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
     {
-        #ifdef DREAMCAST
-            BinarySurfaceInfo bsi;
-            BinarySurfaceInfo* pbsi = &bsi; psite->CopyStructure(pbsi);
-        #else
             BinarySurfaceInfo* pbsi; psite->GetStructure(pbsi);
-        #endif
 
         PixelFormat* ppf =
             m_pengine->GetPixelFormat(
@@ -968,13 +963,8 @@ class TIFunctionBinary : public IFunction {
 public:
     TRefIObject Read(IBinaryReaderSite* psite, ObjectStack& stack)
     {
-        #ifdef DREAMCAST
-            StaticType value;
-            StaticType* pvalue = &value; psite->CopyStructure(pvalue);
-        #else
             StaticType* pvalue = (StaticType*)psite->GetPointer();
             psite->MovePointer(sizeof(StaticType));
-        #endif
 
         return new ValueType(*pvalue);
     }
@@ -1526,115 +1516,6 @@ public:
     }
 
 
-#ifdef DREAMCAST
-    #if 0
-    class MeshDataCopy : public IObject
-    {
-    public:
-        MeshDataCopy(Vertex* pvertex, DWORD countVertices, WORD* pindex, DWORD countIndices)
-        {
-            Vertex* pvertexCopy = (Vertex*)malloc(countVertices * sizeof(Vertex));
-            memcpy(pvertexCopy, pvertex, countVertices * sizeof(Vertex));
-            m_pvertex = new D3DVertex[countVertices];
-
-            for (int i = 0; i < countVertices; i++)
-                {
-                m_pvertex[i].SetPosition(pvertexCopy[i].GetPosition());
-                m_pvertex[i].SetTextureCoordinate(pvertexCopy[i].GetTextureCoordinate());
-                m_pvertex[i].SetNormal(pvertexCopy[i].GetNormal());
-                }
-            free(pvertexCopy);
-            
-            m_pindex =  (WORD*)malloc(countIndices * sizeof(WORD));
-            memcpy(m_pindex, pindex, countIndices * sizeof(WORD));
-        }
-
-        ~MeshDataCopy()
-        {
-            delete m_pvertex;
-            free(m_pindex);
-        }
-        
-        D3DVertex* m_pvertex;
-        WORD* m_pindex;
-    };
-
-    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
-    {
-        DWORD countVertices = psite->GetDWORD();
-        DWORD countIndices  = psite->GetDWORD();
-        Vertex* pvertex     = (Vertex*)psite->GetPointer();
-
-        psite->MovePointer(countVertices * sizeof(Vertex));
-
-        WORD* pindex        = (WORD*)psite->GetPointer();
-
-        psite->MovePointer(countIndices * sizeof(WORD));
-        
-        TRef<MeshDataCopy> pdata = new MeshDataCopy(pvertex, countVertices, pindex, countIndices);
-
-        return
-            Geo::CreateMesh(
-                pdata->m_pvertex,
-                countVertices,
-                pdata->m_pindex,
-                countIndices,
-                pdata
-            );
-    }
-    #endif
-    #if 1
-
-        class MeshDataCopy : public IObject
-        {
-        public:
-            MeshDataCopy(Vertex* pvertex, DWORD countVertices, WORD* pindex, 
-                            DWORD countIndices)
-            {
-                m_pvertex = (Vertex*)malloc(countVertices * sizeof(Vertex));
-                memcpy(m_pvertex, pvertex, countVertices * sizeof(Vertex));
-                m_pindex =  (WORD*)malloc(countIndices * sizeof(WORD));
-                memcpy(m_pindex, pindex, countIndices * sizeof(WORD));
-            }
-
-            ~MeshDataCopy()
-            {
-                free(m_pvertex);
-                free(m_pindex);
-            }
-            
-            Vertex* m_pvertex;
-            WORD* m_pindex;
-        };
-
-        TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
-        {
-            DWORD countVertices = psite->GetDWORD();
-            DWORD countIndices  = psite->GetDWORD();
-            Vertex* pvertex     = (Vertex*)psite->GetPointer();
-
-            psite->MovePointer(countVertices * sizeof(Vertex));
-
-            WORD* pindex        = (WORD*)psite->GetPointer();
-
-            psite->MovePointer(countIndices * sizeof(WORD));
-            
-            TRef<MeshDataCopy> pdata = new MeshDataCopy(pvertex, countVertices, 
-                        pindex, countIndices);
-
-            return
-                Geo::CreateMesh(
-                    pdata->m_pvertex,
-                    countVertices,
-                    pdata->m_pindex,
-                    countIndices,
-                    pdata
-                );
-        }
-
-    #endif
-
-#else
     TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
     {
         DWORD countVertices = psite->GetDWORD();
@@ -1656,7 +1537,6 @@ public:
                 psite->GetMemoryObject()
             );
     }
-#endif
 };
 
 //////////////////////////////////////////////////////////////////////////////

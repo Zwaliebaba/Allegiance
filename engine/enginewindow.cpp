@@ -956,7 +956,6 @@ void EngineWindow::OutputPerformanceCounters()
 
 void EngineWindow::RenderPerformanceCounters(Surface* psurface)
 {
-    #ifndef DREAMCAST
         if (m_bFPS) {
             int ysize = m_pfontFPS->GetHeight();
             Color color(1, 0, 0);
@@ -975,7 +974,6 @@ void EngineWindow::RenderPerformanceCounters(Surface* psurface)
                 psurface->DrawString(m_pfontFPS, Color::White(), WinPoint(1, 1), "Profiling");
             }
         #endif
-    #endif
 }
 
 void EngineWindow::SetHideCursorTimer(bool bHideCursor)
@@ -1001,9 +999,7 @@ bool EngineWindow::RenderFrame()
         if (pcontext) {
             ZStartTrace("---------Begin Frame---------------");
 
-            #ifndef DREAMCAST
                 // psurface->FillSurface(Color(0.8f, 1.0f, 0.5f));
-            #endif
 
             const Rect& rect = m_pwrapRectValueRender->GetValue();
             pcontext->Clip(rect);
@@ -1462,16 +1458,12 @@ void EngineWindow::SetCaption(ICaption* pcaption)
 
 void EngineWindow::OnCaptionMinimize()
 {
-    #ifndef DREAMCAST
         PostMessage(WM_SYSCOMMAND, SC_MINIMIZE);
-    #endif
 }
 
 void EngineWindow::OnCaptionMaximize()
 {
-    #ifndef DREAMCAST
         PostMessage(WM_SYSCOMMAND, SC_MAXIMIZE);
-    #endif
 }
 
 void EngineWindow::OnCaptionFullscreen()
@@ -1484,15 +1476,11 @@ void EngineWindow::OnCaptionRestore()
     if (GetFullscreen()) {
         m_bRestore = true;
     } else {
-        #ifndef DREAMCAST
             PostMessage(WM_SYSCOMMAND, SC_RESTORE);
-        #endif
     }
 }
 
 void EngineWindow::OnCaptionClose()
 {
-    #ifndef DREAMCAST
         StartClose();
-    #endif
 }

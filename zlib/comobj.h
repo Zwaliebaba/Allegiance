@@ -202,35 +202,5 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#if 0
-
-template<class Type>
-class IEvaluateTearOff : public TTearOff<Type> {
-public:
-    STDMETHOD(Eval)(float time) { return Object()->Eval(time); }
-};
-
-class IImageImpl : public ComObject<IImage> {
-public:
-    BEGIN_QI()
-        QI_INTERFACE(IUnknown)
-        QI_INTERFACE(IImage)
-        TEAR_OFF_INTERFACE(IEvaluate, IImageImpl)
-    END_QI()
-
-    // IImage members
-
-    STDMETHOD_(bool, GetRect)(Rect*) PURE;
-    STDMETHOD_(bool, CanRender)(ITransform*, IRegion*) PURE;
-    STDMETHOD(GetTileSurface)(ISurface** ppsurface, Rect* prectNeed) PURE;
-    STDMETHOD(GetSurface)(ISurface**, Rect* prectNeed, Rect* prectSource) PURE;
-    STDMETHOD(Render)(ISurface*, ITransform*, IRegion*) PURE;
-
-    // IEvaluate members
-
-    STDMETHOD(Eval)(float time) PURE;
-};
-
-#endif
 
 #endif
