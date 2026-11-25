@@ -31,6 +31,7 @@
   <Folder Name="/Tools/">
     <Project Path="mdlc/mdlc.vcxproj" />
     <Project Path="cvh/cvh.vcxproj" />
+    <Project Path="xmunge/xmunge.vcxproj" />
     <Project Path="qhull/qhull.vcxproj" />
   </Folder>
   <Folder Name="/Solution Items/">

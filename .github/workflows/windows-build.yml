@@ -45,6 +45,7 @@ jobs:
         WinTrek/Allegiance.vcxproj
         mdlc/mdlc.vcxproj
         cvh/cvh.vcxproj
+        xmunge/xmunge.vcxproj
         qhull/qhull.vcxproj
 
     steps:
