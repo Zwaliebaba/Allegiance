@@ -852,60 +852,25 @@ public:
                         BYTE* pdest               = pdestTop + x * 2;
 
                         //
-                        // transparent blt 1bpp -> 16bpp
+                        // transparent blt 1bpp -> 16bpp: each source byte is
+                        // eight pixels, least significant bit first (it was
+                        // x86 assembly)
                         //
 
-                        _asm {
-                            mov     esi, psource
-                            mov     ax,  pixel
-                            mov     ecx, pdest
+                        for (int yscan = 0; yscan < scans; yscan++)
+                        {
+                            WORD* pdestPixel = (WORD*)(pdest + yscan * pitchDest);
 
-                          yloop:
-                            mov     edi, ecx
-                            mov     ebx, [bytesSource]
+                            for (int ibyte = 0; ibyte < bytesSource; ibyte++, pdestPixel += 8)
+                            {
+                                BYTE bits = *psource++;
 
-                          byteLoop:
-                            mov     dl, [esi]
-                            inc     esi
-                            shr     dl, 1
-                            jnc     skipbit1
-                            mov     [edi + 0], ax
-                          skipbit1:
-                            shr     dl, 1
-                            jnc     skipbit2
-                            mov     [edi + 2], ax
-                          skipbit2:
-                            shr     dl, 1
-                            jnc     skipbit3
-                            mov     [edi + 4], ax
-                          skipbit3:
-                            shr     dl, 1
-                            jnc     skipbit4
-                            mov     [edi + 6], ax
-                          skipbit4:
-                            shr     dl, 1
-                            jnc     skipbit5
-                            mov     [edi + 8], ax
-                          skipbit5:
-                            shr     dl, 1
-                            jnc     skipbit6
-                            mov     [edi + 10], ax
-                          skipbit6:
-                            shr     dl, 1
-                            jnc     skipbit7     
-                            mov     [edi + 12], ax
-                          skipbit7:
-                            shr     dl, 1
-                            jnc     skipbit8
-                            mov     [edi + 14], ax
-                          skipbit8:
-                            add     edi, 16
-                            dec     ebx
-                            jne     byteLoop
-
-                            add     ecx, [pitchDest]
-                            dec     [scans]
-                            jne     yloop
+                                for (int ibit = 0; bits != 0; ibit++, bits >>= 1)
+                                {
+                                    if (bits & 1)
+                                        pdestPixel[ibit] = pixel;
+                                }
+                            }
                         }
 
                         if (++ichar >= length)
@@ -978,194 +943,3 @@ ZString GetFunctionName(const TRef<IEngineFont>& value)
 {
     return "ImportFont";
 }
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// Alternate blting implementations
-//
-//////////////////////////////////////////////////////////////////////////////
-
-            /* version 1
-            _asm {
-                mov     edi, pdest
-                mov     esi, psource
-                mov     ax,  pixel
-
-              yloop:
-                mov     ebx, bytesSource
-                and     ebx, ebx
-                je      extraLoop
-
-              byteLoop:
-                mov     dl, [esi]
-                inc     esi
-                mov     ecx, 8
-
-              bitloop1:
-                shr     dl, 1
-                jnc     bitloop1Skip
-                mov     [edi], ax
-              bitloop1Skip:
-                add     edi, 2
-                dec     ecx
-                jne     bitloop1
-
-                dec     ebx
-                jne     byteLoop
-
-              extraLoop:
-                mov     ecx, extraSource
-                and     ecx, ecx
-                je      end
-
-                mov     dl, [esi]
-                inc     esi
-
-              bitloop2:
-                shr     dl, 1
-                jnc     bitloop2Skip
-                mov     [edi], ax
-              bitloop2Skip:
-                add     edi, 2
-                dec     ecx
-                jne     bitloop2
-
-              end:
-                add     edi, [scanDeltaDest]
-                dec     [ysizeSource]
-                jne     yloop
-            }
-            */
-
-            /* this doesn't work yet.  Try to use a jump table dependant on the number of bits
-            static void* bitJumps[8] = {
-                bits8,
-                bits1,
-                bits2,
-                bits3,
-                bits4,
-                bits5,
-                bits6,
-                bits7
-            };
-
-            _asm {
-                mov     esi, psource
-                mov     ax,  pixel
-                mov     ecx, pdest
-
-              ayloop:
-                mov     edi, ecx
-
-                //
-                // eax  pixel
-                // ebx  temporary
-                // ecx  pdestScanLine
-                // dl   bits
-                // edi  destination
-                // esi  source
-                // ebp
-                //
-
-              byteLoop:
-                mov     dl, [esi]
-                inc     esi
-
-                mov     ebx, [xsize]
-                cmp     ebx, 8
-                jg      bits8
-                and     ebx, 0x7 
-                jmp     [bitJumps + ecx]
-
-              bits8:
-                shl     dl, 1
-                jnc     bits7
-                mov     [edi + 14], ax
-              bits7:
-                shl     dl, 1
-                jnc     bits6
-                mov     [edi + 12], ax
-              bits6:
-                shl     dl, 1
-                jnc     bits5
-                mov     [edi + 10], ax
-              bits5:
-                shl     dl, 1
-                jnc     bits4
-                mov     [edi +  8], ax
-              bits4:
-                shl     dl, 1
-                jnc     bits3
-                mov     [edi +  6], ax
-              bits3:
-                shl     dl, 1
-                jnc     bits2    
-                mov     [edi +  4], ax
-              bits2:
-                shl     dl, 1
-                jnc     bits1
-                mov     [edi +  2], ax
-              bits1:
-                shl     dl, 1
-                jnc     bits1
-                mov     [edi +  0], ax
-
-                add     edi, 16
-                dec     [xsize]
-                jne     byteLoop
-
-                add     ecx, [pitchDest]
-                dec     [ysizeSource]
-                jne     ayloop
-            }
-            */
-
-            /*
-            do {
-                //
-                // Copy the byte sized chunks
-                //
-
-                {
-                    
-                    for (int iBytes = bytesSource; iBytes > 0; iBytes--) {
-                        BYTE byte = *psource;
-                        psource++;
-
-                        for (int index = 8; index > 0; index--) {
-                            if (byte & 1) {
-                                *(WORD*)pdest = pixel;
-                            }
-
-                            byte >>= 1;
-                            pdest += 2;
-                        }
-                    }
-                }
-
-                //
-                // Copy the last few bits
-                //
-
-                if (extraSource != 0) {
-                    BYTE byte = *psource;
-                    psource++;
-                    for (int index = extraSource; index > 0; index--) {
-                        if (byte & 1) {
-                            *(WORD*)pdest = pixel;
-                        }
-
-                        byte >>= 1;
-                        pdest += 2;
-                    }
-                }
-
-                //
-                // Next scan line
-                //
-
-                pdest       += scanDeltaDest;
-                psource     += scanDeltaSource;
-                ysizeSource -= 1;
-            } while (ysizeSource > 0);
-            */

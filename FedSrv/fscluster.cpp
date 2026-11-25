@@ -19,7 +19,7 @@ CFSCluster::CFSCluster(TRef<IclusterIGC> pCluster) :
   m_pIclusterIGC(pCluster),
   m_pClusterGroups(NULL)
 {
-  pCluster->SetPrivateData((DWORD)this);  // link to IGC CLuster
+  pCluster->SetPrivateData((DWORD_PTR) this);  // link to IGC CLuster
 }
 
 
@@ -29,5 +29,5 @@ CFSCluster::CFSCluster(TRef<IclusterIGC> pCluster) :
  */
 CFSCluster::~CFSCluster()
 {
-  m_pIclusterIGC->SetPrivateData((DWORD)NULL);  // unlink from IGC CLuster
+  m_pIclusterIGC->SetPrivateData(0);  // unlink from IGC CLuster
 }

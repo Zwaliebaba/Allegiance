@@ -2673,12 +2673,12 @@ public:
 
     ItemID GetItem(int index)
     {
-        return (ItemID)(index + 1);
+        return (ItemID)(INT_PTR)(index + 1);
     }
 
     int GetIndex(ItemID pitem)
     {
-        return int(pitem) - 1;
+        return (int)(INT_PTR)pitem - 1;
     }
 
     ItemID GetNext(ItemID pitem)

@@ -105,40 +105,15 @@ static const unsigned CRC32_TABLE[256] =
 // bits.
 //
 
-#pragma warning (disable:4035)  // disable no return value warning
 unsigned update_crc (unsigned Crc, const void * pData, unsigned nSize)
 {
-    __asm
-    {
-        pushf
-        cld
+    const BYTE* pb = (const BYTE*)pData;
 
-        mov     ecx,nSize
-        mov     eax,Crc
-        jecxz   crc_end
-        xor     edx,edx             // upper 24bits stay zeroed
-        mov     esi,pData
-        mov     dl,al               // preload
+    for (unsigned i = 0; i < nSize; i++)
+        Crc = CRC32_TABLE[(Crc ^ pb[i]) & 0xff] ^ (Crc >> 8);
 
-crc_loop:
-        lodsb
-        xor     dl,al
-
-        shr     eax,8
-
-        xor     eax,CRC32_TABLE[edx*4]
-
-        dec     ecx
-        mov     dl,al               // (interleaved)  preload for next pass
-        jnz     crc_loop
-
-crc_end:
-        popf
-    }
-
-    // return value already in eax
+    return Crc;
 }
-#pragma warning (default:4035)  // restore no return value warning
 
 
 

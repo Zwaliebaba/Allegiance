@@ -265,7 +265,7 @@ public:
         m_pship = pship;
 
         if (pship)
-            pship->SetPrivateData((DWORD)this);
+            pship->SetPrivateData((DWORD_PTR) this);
     }
 
     void        SetMission(ImissionIGC* pmission)

@@ -174,15 +174,15 @@ class TestListItem : public ListItem
 {
 public:
     short GetItemHeight() {return 1;}
-    long GetItemData() {return 0;}
+    LONG_PTR GetItemData() {return 0;}
     bool Update() {return false;}
     void SetSortOrder(long lSortOrder) {}
     bool SetFilter(long lFilter) {return true;}
     void DrawItem(Surface* pSurface, const WinRect& rect, bool fSelected, int iFirstSlot)
     {
-        int data = (int)this;
+        INT_PTR data = (INT_PTR)this;
         char buf[30];
-        sprintf(buf,"%d", data);
+        sprintf(buf,"%Id", data);
         pSurface->DrawString(TrekResources::SmallFont(), Color::White(), rect.Min(), buf);
     }
 };
@@ -390,7 +390,7 @@ public:
         }
     }
     
-    void RemoveItemByData(long lItemData)
+    void RemoveItemByData(LONG_PTR lItemData)
     {
         RemoveItemByIdx(GetItemIdxByData(lItemData));
     }
@@ -424,7 +424,7 @@ public:
             }
     }
     
-    void UpdateItemByData(long lItemData)
+    void UpdateItemByData(LONG_PTR lItemData)
     {
         UpdateItemByIdx(GetItemIdxByData(lItemData));
     }
@@ -464,7 +464,7 @@ public:
         m_pEventSource->Trigger(m_iSelItem);
     }
 
-    void SetSelItemByData(long lItemData)     
+    void SetSelItemByData(LONG_PTR lItemData)     
     {
         SetSelItemByIdx(GetItemIdxByData(lItemData));
     }
@@ -487,7 +487,7 @@ public:
             return m_vItems[iItem];
     }
 
-    TRef<ListItem>  GetItemByData(long lItemData)
+    TRef<ListItem>  GetItemByData(LONG_PTR lItemData)
     {
         return GetItemByIdx(GetItemIdxByData(lItemData));
     }
@@ -503,7 +503,7 @@ public:
         return -1;
     }
     
-    int GetItemIdxByData(long lItemData)
+    int GetItemIdxByData(LONG_PTR lItemData)
     {
         int cItems = m_vItems.GetCount();
         for (int iItem = 0; iItem < cItems; iItem++)
@@ -607,7 +607,7 @@ public:
         return (iItem >= m_iTopItem) && (iItem < m_iTopItem + m_cVisibleItems);
     }
 
-    bool IsItemVisibleByData(long lItemData)
+    bool IsItemVisibleByData(LONG_PTR lItemData)
     {
         return IsItemVisibleByIdx(GetItemIdxByData(lItemData));
     }

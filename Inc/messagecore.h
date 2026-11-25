@@ -106,8 +106,8 @@ class CFMConnection : public CFMRecipient// Hungarian prefix: cnxn
 {
 friend FedMessaging;
 public:
-  void    SetPrivateData(DWORD dw) {m_dwPrivate = dw;}
-  DWORD   GetPrivateData() {return m_dwPrivate;}
+  void    SetPrivateData(DWORD_PTR dw) {m_dwPrivate = dw;}
+  DWORD_PTR GetPrivateData() {return m_dwPrivate;}
   int IncAbsentCount()
   {
     return ++m_cAbsentCount;
@@ -132,7 +132,7 @@ private:
   void Delete(FedMessaging * pfm); // basically the destructor, but with a parameter
   int     m_cAbsentCount; // for roll call
   DWORD   m_dwTimeLastComplete;
-  DWORD   m_dwPrivate;
+  DWORD_PTR m_dwPrivate;
 };
 
 typedef TList<CFMConnection*> ListConnections;
@@ -468,7 +468,7 @@ private:
 
 #define CB_ZTS 0xffff // indicates zero terminated string ONLY when creating 
     // messages via PFedMsgCreate. CBs always hold true value for all var fields
-#define FM_END_VAR_PARMS (BYTE*) 0xffffffff // Always last argument passed to PFedMsgCreate.
+#define FM_END_VAR_PARMS ((BYTE*)(INT_PTR) -1) // Always last argument passed to PFedMsgCreate.
 
 
 /* *************** MESSAGE CREATION MACROS *************** 
@@ -498,7 +498,8 @@ private:
       (OBJ).PFedMsgCreate(false, (BYTE*)(PBFM), FM_##TYPE##_##SHORTNAME, sizeof(FMD_##TYPE##_##SHORTNAME),
 
 // Use this to make sure they're always given in pairs and typed correctly
-#define FM_VAR_PARM(PBLOB, CBBLOB) (BYTE *)(PBLOB), (CB *)(CBBLOB), 
+// The length goes in a pointer-sized argument (PFedMsgCreate reads it back as UINT_PTR)
+#define FM_VAR_PARM(PBLOB, CBBLOB) (BYTE *)(PBLOB), (UINT_PTR)(CB)(CBBLOB), 
 #define END_PFM_CREATE FM_END_VAR_PARMS );
 
 #define CASTPFM(FM_NEWVAR, TYPE, SHORTNAME, FM_OLDVAR) \

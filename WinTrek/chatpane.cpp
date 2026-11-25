@@ -13,7 +13,7 @@ class ChatListItem : public ListItem
 {
 private:
 
-    long                m_lData;
+    LONG_PTR                m_lData;
     ChatInfo*           m_pchatInfo;
     TVector<ZString>    m_vMsgLines;
     WinPoint            m_ptLineSize;
@@ -21,7 +21,7 @@ private:
 public:
 
     ChatListItem(ChatInfo* pchatInfo, const WinPoint& ptLineSize) :
-        m_lData((long)pchatInfo),
+        m_lData((LONG_PTR)pchatInfo),
         m_pchatInfo(pchatInfo),
         m_ptLineSize(ptLineSize)
     {
@@ -65,7 +65,7 @@ public:
         return m_vMsgLines.GetCount();
     }
 
-    long GetItemData()
+    LONG_PTR GetItemData()
     {
         return m_lData;
     };
@@ -208,7 +208,7 @@ public:
     void OnDeleteChatMessage(ChatInfo* pchatInfo)
     {
         m_bIgnoreScrollingEvents = true;
-        m_pListPane->RemoveItemByData((long)pchatInfo);
+        m_pListPane->RemoveItemByData((LONG_PTR)pchatInfo);
         m_bIgnoreScrollingEvents = false;
     }
 

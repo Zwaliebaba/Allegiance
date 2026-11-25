@@ -1491,217 +1491,56 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    #ifndef USEASM
-        void TransformAndLightNoClip(
-            const Vertex* pvertex, 
-            int vcount, 
-            const MeshIndex* pindex, 
-            int icount, 
-            PFNClip pfnClip, 
-            PFNDraw pfnDraw
-        ) {
-            SizeVertexScreenBuffer(vcount);
+    void TransformAndLightNoClip(
+        const Vertex* pvertex, 
+        int vcount, 
+        const MeshIndex* pindex, 
+        int icount, 
+        PFNClip pfnClip, 
+        PFNDraw pfnDraw
+    ) {
+        SizeVertexScreenBuffer(vcount);
 
-            UpdateLighting();
-            const Matrix& mat = GetFullMatrix();
+        UpdateLighting();
+        const Matrix& mat = GetFullMatrix();
 
-            for (int index = 0; index < vcount; index++) {
-                const float x = pvertex[index].x;
-                const float y = pvertex[index].y;
-                const float z = pvertex[index].z;
+        for (int index = 0; index < vcount; index++) {
+            const float x = pvertex[index].x;
+            const float y = pvertex[index].y;
+            const float z = pvertex[index].z;
 
-                const float rhw = 1.0f / (mat[3][0] * x + mat[3][1] * y + mat[3][2] * z + mat[3][3]);
+            const float rhw = 1.0f / (mat[3][0] * x + mat[3][1] * y + mat[3][2] * z + mat[3][3]);
 
-                m_pvertexScreenBuffer[index].x  = rhw * (mat[0][0] * x + mat[0][1] * y + mat[0][2] * z + mat[0][3]);
-                m_pvertexScreenBuffer[index].y  = rhw * (mat[1][0] * x + mat[1][1] * y + mat[1][2] * z + mat[1][3]);
-                m_pvertexScreenBuffer[index].z  = rhw * (mat[2][0] * x + mat[2][1] * y + mat[2][2] * z + mat[2][3]);
-                m_pvertexScreenBuffer[index].qw = rhw;
-                m_pvertexScreenBuffer[index].u  = pvertex[index].u;
-                m_pvertexScreenBuffer[index].v  = pvertex[index].v;
+            m_pvertexScreenBuffer[index].x  = rhw * (mat[0][0] * x + mat[0][1] * y + mat[0][2] * z + mat[0][3]);
+            m_pvertexScreenBuffer[index].y  = rhw * (mat[1][0] * x + mat[1][1] * y + mat[1][2] * z + mat[1][3]);
+            m_pvertexScreenBuffer[index].z  = rhw * (mat[2][0] * x + mat[2][1] * y + mat[2][2] * z + mat[2][3]);
+            m_pvertexScreenBuffer[index].qw = rhw;
+            m_pvertexScreenBuffer[index].u  = pvertex[index].u;
+            m_pvertexScreenBuffer[index].v  = pvertex[index].v;
 
-                {
-                    float fbright =
-                        255.0f * (
-                              pvertex[index].nx * m_vecLight.X()
-                            + pvertex[index].ny * m_vecLight.Y()
-                            + pvertex[index].nz * m_vecLight.Z()
-                            + m_brightAmbient
-                        );
+            {
+                float fbright =
+                    255.0f * (
+                          pvertex[index].nx * m_vecLight.X()
+                        + pvertex[index].ny * m_vecLight.Y()
+                        + pvertex[index].nz * m_vecLight.Z()
+                        + m_brightAmbient
+                    );
 
-                    int bright = MakeInt(fbrigth);
+                int bright = MakeInt(fbright);
 
-                    if (bright > 255) {
-                        bright = 255;
-                    } else if (bright < 0) {
-                        bright = 0;
-                    }
-
-                    m_pvertexScreenBuffer[index].color = 0xff000000 | bright | (bright << 8) | (bright << 16);
+                if (bright > 255) {
+                    bright = 255;
+                } else if (bright < 0) {
+                    bright = 0;
                 }
+
+                m_pvertexScreenBuffer[index].color = 0xff000000 | bright | (bright << 8) | (bright << 16);
             }
-
-            (this->*pfnDraw)(m_pvertexScreenBuffer, vcount, pindex, icount);
         }
-    #else
-        void TransformAndLightNoClip(
-            const Vertex* pvertex, 
-            int vcount, 
-            const MeshIndex* pindex, 
-            int icount, 
-            PFNClip pfnClip, 
-            PFNDraw pfnDraw
-        ) {
-            UpdateLighting();
-            SizeVertexScreenBuffer(vcount);
 
-            const Matrix mat = GetFullMatrix();
-            const Vector vecLight = m_vecLight;
-            const float brightAmbient = m_brightAmbient;
-            const float mult = 255.0f;
-            const float one  = 1.0f;
-            int   bright;
-
-            _asm {
-                mov     ebx,    255
-                mov     ecx,    this
-                mov     esi,    pvertex
-                mov     edi,    [ecx].m_pvertexScreenBuffer
-                mov     ecx,    vcount
-
-               loopTop:
-                // int bright = (int)(255.0f * (pvertex[index].GetNormal() * m_vecLight + m_brightAmbient));
-                // const float rhw = 1.0f / (mat[3][0] * x + mat[3][1] * y + mat[3][2] * z + mat[3][3]);
-                // m_pvertexScreenBuffer[index].SetX(rhw * (mat[0][0] * x + mat[0][1] * y + mat[0][2] * z + mat[0][3]);
-                // m_pvertexScreenBuffer[index].SetY(rhw * (mat[1][0] * x + mat[1][1] * y + mat[1][2] * z + mat[1][3]);
-                // m_pvertexScreenBuffer[index].SetZ(rhw * (mat[2][0] * x + mat[2][1] * y + mat[2][2] * z + mat[2][3]));
-                // m_pvertexScreenBuffer[index].SetTextureCoordinate(pvertex[index].GetTextureCoordinate());
-
-                fld     [vecLight].x                //
-                fmul    [esi]Vertex.nx              // lx
-                fld     [vecLight].y                //
-                fmul    [esi]Vertex.ny              // ly, lx
-                fld     [vecLight].z                //
-                fmul    [esi]Vertex.nz              // lz, ly, lx
-                fxch    st(2)                       // lx, ly, lz
-                faddp   st(1), st(0)                // lx + ly, lz
-                fld     one                         // 1, lx + ly, lz
-                fld     [mat + 48 +  0]             //
-                fmul    [esi]Vertex.x               // wx, 1, lx + ly, lz
-                fxch    st(3)                       // lz, 1, lx + ly, wx
-                fadd    [brightAmbient]             // lz + dl, 1, lx + ly, wx
-                fld     [mat + 48 +  4]             //
-                fmul    [esi]Vertex.y               // wy, lz + dl, 1, lx + ly, wx
-                fxch    st(1)                       // lz + dl, wy, 1, lx + ly, wx
-                faddp   st(3), st(0)                // wy, 1, l, wx
-                fld     [mat + 48 +  8]             //
-                fmul    [esi]Vertex.z               // wz, wy, 1, l, wx
-                fxch    st(1)                       // wy, wz, 1, l, wx
-                faddp   st(4), st(0)                // wz, 1, l, wx + wy
-                fxch    st(2)                       // l, 1, wz, wx + wy
-                fmul    mult                        // 256 * l, 1, wz, wx + wy
-                fld     [mat +  0 +  0]             //
-                fmul    [esi]Vertex.x               // xx, 255 * l, 1, wz, wx + wy
-                fxch    st(3)                       // wz, 255 * l, 1, xx, wx + wy
-                fadd    DWORD PTR [mat + 48 + 12]   // wz + dw, 255 * l, 1, xx, wx + wy
-                fxch    st(1)                       // 255 * l, wz + dw, 1, xx, wx + wy
-                fistp   bright                      // wz + dw, 1, xx, wx + wy
-                fld     [mat +  0 +  4]             //
-                fmul    [esi]Vertex.y               // xy, wz + dw, 1, xx, wx + wy
-                fxch    st(1)                       // wz + dw, xy, 1, xx, wx + wy
-                faddp   st(4), st(0)                // xy, 1, xx, w
-                fld     [mat +  0 +  8]             //
-                fmul    [esi]Vertex.z               // xz, xy, 1, xx, w
-                fxch    st(1)                       // xy, xz, 1, xx, w
-                faddp   st(3), st(0)                // xz, 1, xx + xy, w
-                fxch    st(3)                       // w, 1, xx + xy, xz
-                fdivp   st(1), st(0)                // rhw, xx + xy, xz
-                fxch    st(2)                       // xz, xx + xy, rhw
-
-                // if (bright > 255) {
-                //     bright = 255;
-                // } else if (bright < 0) {
-                //     bright = 0;
-                // }
-
-                mov     eax,bright
-                cmp     eax,ebx
-                jle     label1
-                mov     eax,ebx
-                jmp     label2
-              label1:
-                test    eax,eax
-                jge     label2
-                xor     eax,eax
-
-                // m_pvertexScreenBuffer[index].color = 0xff000000 | bright | (bright << 8) | (bright << 16);
-
-              label2:
-                mov     edx,eax
-                shl     edx,8
-                or      edx,eax
-                shl     edx,8
-                or      edx,eax
-                or      edx, 0xff000000
-                mov     [edi]VertexScreen.color, edx
-
-                mov     eax, [esi]Vertex.u
-                mov     edx, [esi]Vertex.v
-                mov     [edi]VertexScreen.u, eax
-                mov     [edi]VertexScreen.v, edx
-
-                // continue with floating point stuff
-
-                                                    // xz, xx + xy, rhw
-                fadd    DWORD PTR [mat +  0 + 12]   // xz + dx, xx + xy, rhw
-                fld     [mat + 16 +  0]             //
-                fmul    [esi]Vertex.x               // yx, xz + dx, xx + xy, rhw
-                fld     [mat + 16 +  4]             //
-                fmul    [esi]Vertex.y               // yy, yx, xz + dx, xx + xy, rhw
-                fld     [mat + 16 +  8]             //
-                fmul    [esi]Vertex.z               // yz, yy, yx, xz + dx, xx + xy, rhw
-                fxch    st(1)                       // yy, yz, yx, xz + dx, xx + xy, rhw
-                faddp   st(2), st(0)                // yz, yx + yy, xz + dx, xx + xy, rhw
-                fld     [mat + 32 +  0]             //
-                fmul    [esi]Vertex.x               // zx, yz, yx + yy, xz + dx, xx + xy, rhw
-                fld     [mat + 32 +  4]             //
-                fmul    [esi]Vertex.y               // zy, zx, yz, yx + yy, xz + dx, xx + xy, rhw
-                fld     [mat + 32 +  8]             //
-                fmul    [esi]Vertex.z               // zz, zy, zx, yz, yx + yy, xz + dx, xx + xy, rhw
-                fxch    st(3)                       // yz, zy, zx, zz, yx + yy, xz + dx, xx + xy, rhw
-                fadd    DWORD PTR [mat + 16 + 12]   // yz + dy, zy, zx, zz, yx + yy, xz + dx, xx + xy, rhw
-                fxch    st(1)                       // zy, yz + dy, zx, zz, yx + yy, xz + dx, xx + xy, rhw
-                faddp   st(2), st(0)                // yz + dy, zx + zy, zz, yx + yy, xz + dx, xx + xy, rhw
-                fxch    st(2)                       // zz, zx + zy, yz + dy, yx + yy, xz + dx, xx + xy, rhw
-                fadd    DWORD PTR [mat + 32 + 12]   // zz + dz, zx + zy, yz + dy, yx + yy, xz + dx, xx + xy, rhw
-                fxch    st(4)                       // xz + dx, zx + zy, yz + dy, yx + yy, zz + dz, xx + xy, rhw
-                faddp   st(5), st(0)                // zx + zy, yz + dy, yx + yy, zz + dz, x, rhw
-                fxch    st(1)                       // yz + dy, zx + zy, yx + yy, zz + dz, x, rhw
-                faddp   st(2), st(0)                // zx + zy, y, zz + dz, x, rhw
-                faddp   st(2), st(0)                // y, z, x, rhw
-                fxch    st(2)                       // x, z, y, rhw
-                fmul    st(0), st(3)                // rhw*x, z, y, rhw
-                fxch    st(2)                       // y, z, rhw*x, rhw
-                fmul    st(0), st(3)                // rhw*y, z, rhw*x, rhw
-                fxch    st(1)                       // z, rhw*y, rhw*x, rhw
-                fmul    st(0), st(3)                // rhw*z, rhw*y, rhw*x, rhw
-                fxch    st(3)                       // rhw, rhw*y, rhw*x, rhw*z
-                fstp    [edi]VertexScreen.qw        // rhw*y, rhw*x, rhw*z
-                fxch    st(1)                       // rhw*x, rhw*y, rhw*z
-                fstp    [edi]VertexScreen.x         // rhw*y, rhw*z
-                fstp    [edi]VertexScreen.y         // rhw*z
-                fstp    [edi]VertexScreen.z         //
-
-                // loop
-
-                add     edi, SIZE VertexScreen
-                add     esi, SIZE Vertex
-                dec     ecx
-                jne     loopTop
-            }
-
-            (this->*pfnDraw)(m_pvertexScreenBuffer, vcount, pindex, icount);
-        }
-    #endif
+        (this->*pfnDraw)(m_pvertexScreenBuffer, vcount, pindex, icount);
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     //

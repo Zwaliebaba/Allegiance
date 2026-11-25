@@ -41,6 +41,5 @@
 #include <dsound.h>
 
 #include "zlib.h"
-//#include "fixdelete.h"
 
 #endif

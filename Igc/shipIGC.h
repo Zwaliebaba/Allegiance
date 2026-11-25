@@ -1191,12 +1191,12 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
         virtual ShipUpdateStatus    ProcessShipUpdate(const ClientActiveTurretUpdate&   shipupdate);
 
 
-        virtual void                SetPrivateData(DWORD dwPrivate)
+        virtual void                SetPrivateData(DWORD_PTR dwPrivate)
         {
             m_dwPrivate = dwPrivate;
         }
 
-        virtual DWORD               GetPrivateData(void) const
+        virtual DWORD_PTR           GetPrivateData(void) const
         {
             return m_dwPrivate;
         }
@@ -2256,7 +2256,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
 
         IpartIGC* const*    PartLocation(EquipmentType type, Mount mount) const;
 
-        DWORD               m_dwPrivate; // private data for consumer
+        DWORD_PTR           m_dwPrivate; // private data for consumer
 
         MyHullType          m_myHullType;
 

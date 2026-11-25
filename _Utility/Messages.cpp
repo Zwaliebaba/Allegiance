@@ -237,7 +237,7 @@ StartOver: // if we overrun our buffer, need to start over after flushing it
     *pib = pBlobDst - pbFM;
     *pcb = 0;
     BYTE * pbLastNonSpace; // we trim the trailing whitespace too as a free added bonus
-    cbBlob = va_arg(vl, CB);
+    cbBlob = (CB)va_arg(vl, UINT_PTR);   // see FM_VAR_PARM
     if (CB_ZTS == cbBlob)
     {
       if (pBlobSrc) // we have something for this parm (as opposed to an intentional NULL)
@@ -1105,8 +1105,8 @@ CFMConnection::CFMConnection(FedMessaging * pfm, const char * szName, DWORD id) 
 
 void CFMConnection::Delete(FedMessaging * pfm) // basically the destructor, but with a parameter
 {
-  debugf("Deleting connection: id=%u, name=%s, this=%p, private=%u\n", 
-          GetID(), GetName(), this, m_dwPrivate);
+  debugf("Deleting connection: id=%u, name=%s, this=%p, private=%p\n", 
+          GetID(), GetName(), this, (void*)m_dwPrivate);
   delete this;
   g_fConnectionDeleted = true;
 }

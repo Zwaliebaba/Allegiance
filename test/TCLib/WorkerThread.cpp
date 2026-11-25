@@ -166,7 +166,7 @@ TCWorkerThread::TCWorkerThread() :
   // Create the thread object and save its pointer
   int nPriority = THREAD_PRIORITY_NORMAL;
   TCThread* pth = TCThread::BeginThread(ThreadThunk, this, nPriority, 8192);
-  InterlockedExchange((long*)&m_pth, (long)pth);
+  InterlockedExchangePointer((PVOID*)&m_pth, pth);
 }
 
 /////////////////////////////////////////////////////////////////////////////

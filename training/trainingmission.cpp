@@ -709,7 +709,7 @@ namespace Training
 
         // update the playerinfo data
         pPlayerInfo->SetShip (pShip);
-        pShip->SetPrivateData (reinterpret_cast<DWORD> (pPlayerInfo));
+        pShip->SetPrivateData (reinterpret_cast<DWORD_PTR> (pPlayerInfo));
 
         // join the mission and side
         trekClient.AddPlayerToMission (pPlayerInfo);

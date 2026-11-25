@@ -12,7 +12,7 @@ CFSSide::CFSSide(TRef<IsideIGC> pSide, CFSMission * pfsmission) :
   m_pfsmission(pfsmission)
 {
   m_pgrpSide = g.fm.CreateGroup(ZString(pSide->GetName()));
-  m_pIsideIGC->SetPrivateData((DWORD)this); // link to IGC side
+  m_pIsideIGC->SetPrivateData((DWORD_PTR) this); // link to IGC side
 }
 
 
@@ -23,7 +23,7 @@ CFSSide::CFSSide(TRef<IsideIGC> pSide, CFSMission * pfsmission) :
 CFSSide::~CFSSide()
 {
   g.fm.DeleteGroup(m_pgrpSide);
-  m_pIsideIGC->SetPrivateData((DWORD)NULL);  // unlink from IGC Side
+  m_pIsideIGC->SetPrivateData(0);  // unlink from IGC Side
 }
 
 

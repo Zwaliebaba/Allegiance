@@ -8,7 +8,7 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Topic | Decision |
 |---|---|
 | Baseline | Strictly clean port of this repository. No code or fixes taken from community forks. |
-| Toolchain | Visual Studio 2026, platform toolset v145, `.slnx` solution, Win32 first, x64 later. |
+| Toolchain | Visual Studio 2026, platform toolset v145, `.slnx` solution. Win32 and x64 are both built until x64 has been played; then Win32 is dropped. |
 | Renderer | New Direct3D 11 backend behind the engine's existing `Engine` / `Surface` / rasterizer seam. DirectDraw 4, Direct3D 3 and the MMX software rasterizer are removed. |
 | Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project. Stage B: new MDL version with 32-bit / BC7 DDS textures generated from the 24-bit source BMPs. |
 | Level of detail | Reduced LOD meshes are dropped. They were a 1999 performance optimisation (the models are hundreds to a few thousand triangles). Every LOD slot uses the full-detail mesh, which removes `xmunge -reduce`, the MSR progressive-mesh binaries and meshoptimizer. |
@@ -479,6 +479,25 @@ Before the x64 and `/permissive-` work, so those ports only touch code that is u
 `database/` and `databasepcg/` stay: they are the game-balance data (ships, parts, civilisations) the
 static core `.igc` files were generated from, not code.
 
+#### x64
+
+Every project has `Debug|x64` and `Release|x64` next to the Win32 configurations, and CI builds all four.
+Win32 stays until x64 has been played and works, and is then dropped in its own change. The two builds
+can play together: the network messages, the static core (`.igc`) structures and the binary MDL format hold
+no pointers or pointer-sized fields, so their layout is the same on both.
+
+| What | Change |
+|---|---|
+| Inline assembly (MSVC x64 has none) | Replaced with C++ for both platforms: the 1-bit font blit (`engine/font.cpp`), the colour-keyed and plain 16-bit blits (`engine/surface.cpp`), `update_crc` (`_Utility/CRC.cpp`), `__debugbreak()` for `int 3`. Where a C version was already there (`MakeD3DCOLOR`, the CPU transform-and-light path in `engine/device3d.cpp`, `Matrix::Transform`), it is now the only version; `USEASM` and `FLOATASM` are gone. `MakeInt` uses `lrintf`, which rounds to nearest like the x87 `fistp` it replaces (the old non-assembly `MakeInt` did not compile). |
+| x87 precision | `_controlfp(_PC_53)` (client start-up, and the server's `fDoublePrecision`) runs on Win32 only; x64 has no x87 precision control. Float maths is SSE2 on both platforms (the x86 compiler default), so the `HitTest.cpp` trick that forced a float out of an x87 register is removed. |
+| Pointers kept in 32-bit fields | IGC's `SetPrivateData`/`GetPrivateData` (ship, side, cluster, mission) and the connection's private data, which hold the server's `CFS*` and the client's `PlayerInfo` pointers, are `DWORD_PTR`. The client list panes' item data (`LONG_PTR`), the message builder's blob lengths (`FM_VAR_PARM` passes them pointer-sized), window subclassing (`SetWindowLongPtr(GWLP_WNDPROC)`), `TlsValue`, qhull's `ptr_intT` (`size_t`), and a dozen single casts (handles, `ShellExecute` results, pointer differences measured in `DWORD`s) |
+| Debug allocator | `operator new(size_t, file, line)` (it took `unsigned int`, so no `new` compiled on x64). `ZFree` frees a client block directly instead of reading the block type from a copy of the CRT's block header, whose layout changed with the Universal CRT. The unused `zlib/fixdelete.h`, which replaced the global `operator delete` the same way, is deleted |
+| Warnings | On x64, C4302, C4311 and C4312 (a pointer cut to 32 bits, or a 32-bit value made a pointer) are errors |
+| MsQuic | The x64 `msquic.dll` is copied for x64 builds |
+
+The art tools work on both platforms, but the art is built with the Win32 tools (`ArtToolDir` defaults to
+`out\bin\Win32\<Configuration>\`), as in CI.
+
 ### Phase 4: art pipeline
 
 `Artwork/Art.proj` replaces the nmake/awk/sed/batch chain (`Artwork/256/makefile`, `makegeo.mak`,
@@ -584,16 +603,18 @@ DirectDraw path, runs on a headless runner. The first run crashed during engine 
 
 ### Phase 5: optional
 
-x64, C++20, replacing `ZString` and the custom containers, XAudio2, a D3D12 backend, a new lobby service.
+Dropping Win32 (once x64 has been played), C++20, replacing `ZString` and the custom containers, XAudio2, a D3D12 backend, a new lobby service.
 
 ## Building
 
 Open `Allegiance.slnx` in Visual Studio 2026 (Desktop development with C++, plus the C++ ATL and MFC
-components) and build `Debug|x86`. From the command line:
+components) and build `Debug|x64` or `Debug|x86`. From the command line:
 
 ```
-msbuild Allegiance.slnx -p:Configuration=Debug -p:Platform=x86
+msbuild Allegiance.slnx -p:Configuration=Debug -p:Platform=x64
 ```
+
+The output goes to `out\bin\<Platform>\<Configuration>\` (`Win32` for an x86 build).
 
 CI builds each library on its own (`-p:BuildProjectReferences=false`), so one failure doesn't hide the
 errors of the others. The error summary is on the workflow run page, and the full logs are attached to
@@ -606,7 +627,7 @@ build; from the command line, restore first:
 msbuild _Utility\Utility.vcxproj -t:restore -p:RestorePackagesConfig=true -p:SolutionDir=%CD%\
 ```
 
-The build copies `msquic.dll` next to the exes. Networking needs Windows 11 or Windows Server 2022 or
+The build copies `msquic.dll` (for the build's platform) next to the exes. Networking needs Windows 11 or Windows Server 2022 or
 later (QUIC's TLS 1.3 comes from Windows), and UDP 47700-47701 open for a game server.
 
 Then build the art with the tools from that build:
@@ -617,9 +638,8 @@ msbuild Artwork\Art.proj -p:Configuration=Debug
 
 The art goes to `out\Artwork\`, and `out\bin\Win32\<Configuration>\Artwork` is made a directory
 junction to it, because that is where `Allegiance.exe` and `AllSrv32.exe` look for their art
-(`-p:ArtLink=false` skips the junction). The client uses a different location only when
-`HKLM\SOFTWARE\WOW6432Node\Microsoft\Microsoft Games\Allegiance\1.0` has an `ArtPath` value, and the
-server only when the `Server` key below it does (the game is 32-bit, hence `WOW6432Node`). In CI, a
+(`-p:ArtLink=false` skips the junction); if there is an x64 build, `out\bin\x64\<Configuration>\Artwork`
+is linked too. Elsewhere, set `ArtPath` in `settings.json` and `server.json`. In CI, a
 separate `art` job does this with the tools from the build job, and attaches the result to the run as
 the `art-Debug` artifact.
 

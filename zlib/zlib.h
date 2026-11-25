@@ -10,9 +10,6 @@
 // warning C4355: 'this' : used in base member initializer list
 #pragma warning(disable:4355)
 
-    #define USEASM
-    #define FLOATASM
-
 // VS.Net 2003 port: typename is required for template
 #if _MSC_VER >= 1300
 	#define VSNET_TNFIX typename

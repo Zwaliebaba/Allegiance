@@ -119,8 +119,8 @@ Window::Window(
 
         s_mapWindow.Set(m_hwnd, this);
 
-        m_pfnWndProc = (WNDPROC)::GetWindowLong(m_hwnd, GWL_WNDPROC);
-        ::SetWindowLong(m_hwnd, GWL_WNDPROC, (DWORD)Win32WndProc);
+        m_pfnWndProc = (WNDPROC)::GetWindowLongPtr(m_hwnd, GWLP_WNDPROC);
+        ::SetWindowLongPtr(m_hwnd, GWLP_WNDPROC, (LONG_PTR)Win32WndProc);
     }
 
     m_styleEX.SetWord(::GetWindowLong(m_hwnd, GWL_EXSTYLE));
@@ -164,15 +164,15 @@ BOOL Window::Create(
             m_rect.left, m_rect.top,
             m_rect.XSize(), m_rect.YSize(),
             pwindowParent ? pwindowParent->GetHWND() : NULL,
-            hmenu ? hmenu : (HMENU) nID,
+            hmenu ? hmenu : (HMENU)(UINT_PTR) nID,
             GetModuleHandle(NULL),
             this);
     
     s_mapWindow.Set(m_hwnd, this);
-    m_pfnWndProc = (WNDPROC)::GetWindowLong(m_hwnd, GWL_WNDPROC);
+    m_pfnWndProc = (WNDPROC)::GetWindowLongPtr(m_hwnd, GWLP_WNDPROC);
 
     if ((WNDPROC)m_pfnWndProc != (WNDPROC)Win32WndProc) {
-        ::SetWindowLong(m_hwnd, GWL_WNDPROC, (DWORD)Win32WndProc);
+        ::SetWindowLongPtr(m_hwnd, GWLP_WNDPROC, (LONG_PTR)Win32WndProc);
     } else {
         m_pfnWndProc = DefWindowProc;
     }
@@ -738,7 +738,7 @@ void Window::SetCursor(HCURSOR hcursor)
             // REVIEW: ideally we'd send a WM_NCHITTEST message to figure out 
             // which cursor to set, but if the app below the cursor was frozen
             // that could freeze us too.  
-            ::PostMessage(hwndBelowCursor, WM_SETCURSOR, (unsigned)hwndBelowCursor, 
+            ::PostMessage(hwndBelowCursor, WM_SETCURSOR, (WPARAM)hwndBelowCursor, 
                 MAKELONG(HTCLIENT, WM_MOUSEMOVE));
         }
     }
