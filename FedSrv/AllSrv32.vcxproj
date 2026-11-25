@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{482B8658-01BB-4AF0-BAFC-15476EEFFBB4}</ProjectGuid>
+    <RootNamespace>AllSrv32</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(AllegianceRoot)msbuild\Allegiance.Cpp.props" />
+  </ImportGroup>
+  <PropertyGroup>
+    <TargetName>AllSrv32</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceGenDir)AGC\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)AGC;$(AllegianceRoot)test\Inc;$(AllegianceRoot)lobby;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;_CONSOLE;AGC_HOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <DelayLoadDLLs>netapi32.dll;advapi32.dll</DelayLoadDLLs>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceGenDir)AGC\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)AGC;$(AllegianceRoot)test\Inc;$(AllegianceRoot)lobby;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;_CONSOLE;AGC_HOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="FedSrv.CPP" />
+    <ClCompile Include="sqlhelp.cpp" />
+    <ClCompile Include="SWMRG.CPP">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="BitArray.cpp" />
+    <ClCompile Include="fsship.cpp" />
+    <ClCompile Include="fsmission.cpp" />
+    <ClCompile Include="fsside.cpp" />
+    <ClCompile Include="fscluster.cpp" />
+    <ClCompile Include="AdminGame.cpp" />
+    <ClCompile Include="AdminGames.cpp" />
+    <ClCompile Include="AdminServer.cpp" />
+    <ClCompile Include="AdminUser.cpp" />
+    <ClCompile Include="AdminUsers.cpp" />
+    <ClCompile Include="AdminSession.cpp" />
+    <ClCompile Include="AdminSessionClass.cpp" />
+    <ClCompile Include="AdminSessionEventSink.cpp" />
+    <ClCompile Include="AdminEventLoggerHook.cpp" />
+    <ClCompile Include="AdminShip.cpp" />
+    <ClCompile Include="allsrvmodule.cpp" />
+    <ClCompile Include="fslobby.cpp" />
+    <ClCompile Include="srvqguids.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AdminEventLoggerHook.h" />
+    <ClInclude Include="AdminGame.h" />
+    <ClInclude Include="AdminGames.h" />
+    <ClInclude Include="AdminServer.h" />
+    <ClInclude Include="AdminSession.h" />
+    <ClInclude Include="AdminSessionClass.h" />
+    <ClInclude Include="AdminSessionEventSink.h" />
+    <ClInclude Include="AdminSessionSecure.h" />
+    <ClInclude Include="AdminSessionSecureHost.h" />
+    <ClInclude Include="AdminShip.h" />
+    <ClInclude Include="AdminUser.h" />
+    <ClInclude Include="AdminUsers.h" />
+    <ClInclude Include="AdminUtil.h" />
+    <ClInclude Include="BitArray.h" />
+    <ClInclude Include="FedSrv.H" />
+    <ClInclude Include="FedSrvApp.h" />
+    <ClInclude Include="SWMRG.H" />
+    <ClInclude Include="_fedsrv.h" />
+    <ClInclude Include="allsrvmodule.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="counters.h" />
+    <ClInclude Include="dbgutil.h" />
+    <ClInclude Include="dirmon.h" />
+    <ClInclude Include="fedsrvsql.h" />
+    <ClInclude Include="fscluster.h" />
+    <ClInclude Include="fsmission.h" />
+    <ClInclude Include="fsship.h" />
+    <ClInclude Include="fsside.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="queries.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="srvdbg.h" />
+    <ClInclude Include="srvqueries.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <AllegianceMessage Include="fedmsg.msg">
+      <OutputDirectory>$(AllegianceGenDir)AllSrv32\</OutputDirectory>
+    </AllegianceMessage>
+    <Midl Include="AllSrvModuleIDL.idl">
+      <OutputDirectory>$(AllegianceGenDir)AllSrv32\</OutputDirectory>
+      <HeaderFileName>AllSrvModuleIDL.h</HeaderFileName>
+      <TypeLibraryName>AllSrvModuleIDL.tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>AllSrvModuleIDL_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>AllSrvModuleIDL_p.c</ProxyFileName>
+      <DllDataFileName>AllSrvModuleIDL_d.c</DllDataFileName>
+      <AdditionalIncludeDirectories>$(AllegianceGenDir)AGC\;$(AllegianceRoot)test\Inc;$(AllegianceRoot)Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
+    <ResourceCompile Include="AllSrv.build.rc">
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceGenDir)AGC\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\_Utility\Utility.vcxproj">
+      <Project>{B7B60918-2EC7-4B11-98E6-15EE459965E1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\zlib\ZLib.vcxproj">
+      <Project>{34F19E78-C3AD-4EEC-8F42-C823D58200C8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Igc\Igc.vcxproj">
+      <Project>{436BD701-CD33-4132-AC9D-E4A34252E55F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\sharemem\ShareMem.vcxproj">
+      <Project>{AA05EEE2-AD40-4075-8BC5-5080273DB0E5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\test\TCLib\TCLib.vcxproj">
+      <Project>{CB0673C1-D288-4824-BA88-17230F780DED}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AGC\AGCGuid.vcxproj">
+      <Project>{98F5F2A7-FBF2-4C2A-AEA7-D4B1F4DB0070}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\guids\Guids.vcxproj">
+      <Project>{CB4A5507-7890-4D3E-ACAB-CD2B1E126D40}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AGC\AGC.vcxproj">
+      <Project>{8E3F6558-2352-4F7F-8621-7BC414AC16B1}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

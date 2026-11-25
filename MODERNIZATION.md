@@ -19,9 +19,15 @@ solution that compiles, runs on current Windows, and builds its art from source.
 
 **Tier 1 (built):** `zlib` (Microsoft's base library, not the compression library), `guids`, `_Utility`,
 `engine`, `effect`, `soundengine`, `Igc`, `clintlib`, `training`, `WinTrek` (client); `mdlc`, `xmunge`,
-`cvh`, `qhull` (art tools); `FedSrv` as a standalone LAN server without SQL.
+`cvh`, `qhull` (art tools); `FedSrv`, built as the original standalone LAN server flavour `AllSrv32`
+(`ALLSRV_STANDALONE`); `AGC` and the helper libraries it needs from `test/` (`TCLib`); `sharemem`.
 
-**Tier 2 (parked):** `lobby`, `AGC`, `AllSrvUI`, `srvconfig`, `cliconfig`.
+`xmunge` is not built yet. It is written entirely against Direct3D Retained Mode (frames, mesh
+builders, progressive meshes), which Windows no longer has. Making it compile would mean writing a
+D3DRM stand-in only to discard it, so it is rewritten in Phase 4 on the engine's own `.x` parser plus
+meshoptimizer.
+
+**Tier 2 (parked):** `lobby`, `AllSrvUI`, `srvconfig`, `cliconfig`.
 
 **Tier 3 (delete):**
 
@@ -30,16 +36,14 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | `MSRGuard`, `SymGuard`, `patch`, `fsmon`, `dreamcast` | Deleted. |
 | `Zone` | Kept for now. `_Utility`, `clintlib`, `WinTrek` and `training` include `Zone.h` / `zauth.h`. Removed in Phase 2 together with the Zone auth code paths. |
 | `Club` | Kept for now. `clintlib/pch.h` and `WinTrek/pch.h` include `Club/ClubMessages.h`. Removed with the Zone code paths. |
-| `sentinal`, `fedperf` | Kept for now. `FedSrv` compiles `sentinal/config.cpp` and `fedperf/cntrmap.cpp` / `collect.cpp`. |
+| `sentinal`, `fedperf` | Deleted. Only the VS.NET 2003 `Server.vcproj` compiled them into the server; the original nmake build never did. |
 | `AutoUpdate` | Kept for now. Referenced by `lobby/pch.h` (Tier 2). |
-| `test` | Kept for now. `AGC` depends on `test/TCAtl`, `TCObj` and `TCLib`. |
+| `test` | Kept: `AGC` and `FedSrv` build on `test/TCLib`, `test/TCAtl` and `test/Inc`, so these are effectively Tier 1 support code rather than tests. |
 
-### Open issue: FedSrv depends on AGC
+### FedSrv and AGC
 
-13 of the 23 `.cpp` files in `FedSrv` use AGC (the COM automation / admin event layer), and the
-server compiles the `sentinal` and `fedperf` sources listed above. A standalone LAN server therefore
-needs one of two things: AGC moves into Tier 1, or the admin/COM layer is stripped out of FedSrv. This
-gets decided when FedSrv is ported.
+13 of the 23 `.cpp` files in `FedSrv` use AGC (the COM automation / admin event layer). Decision: AGC
+moves into Tier 1 and is ported with the server, keeping the admin and event features intact.
 
 ## Findings that correct the first analysis
 
@@ -49,6 +53,14 @@ gets decided when FedSrv is ported.
 - `ddraw.h` and `d3d.h` (Direct3D 7-era immediate mode) are still in the Windows SDK; the first CI
   run resolved them. Compatibility shims are only needed for headers that really are gone:
   `d3drm.h`, `dplay.h` and `dplobby.h`.
+- `test/Inc/ScrRun.idl` and `test/TCAtl/VersionInfoImpl.idl` are in the repo. The 2004
+  `VSNet.Readme` listed them as missing, and the first analysis repeated that without checking.
+- The original server build compiled neither `sentinal` nor `fedperf`; only the VS.NET 2003
+  `.vcproj` did. Its `ALLSRV_STANDALONE` flavour (`AllSrv32`) is the LAN server.
+- AGC's event definitions are generated from `AGC/AGCEvents.xml` by stylesheets in Microsoft's
+  pre-standard `WD-xsl` dialect with embedded JScript. Only MSXML 3 runs those, so the build keeps
+  the original `cscript XMLXForm.js` step (`AllegianceXslt` in `Directory.Build.targets`).
+- `cvh` does not link qhull; it runs a `qhull` executable, so qhull is built as a console tool.
 - `zlib/zlib.h` includes `ddraw.h` and `d3d.h` even though nothing in `zlib` uses DirectX. Every
   module inherits DirectX through it. These includes move into `engine` during the D3D11 port, once
   the downstream modules that rely on the transitive include have been found.
@@ -72,8 +84,19 @@ gets decided when FedSrv is ported.
   lists are taken from the original makefiles; files the original build excluded (`dcbase.cpp`,
   `dialog.cpp`, `dcdevice3d.cpp`, `efsound.cpp`, `panes.cpp`, `engine/scan`, `engine/exec`) stay
   excluded.
-- Still to do: projects for the remaining Tier 1 modules, an `mc.exe` build rule for `.msg` files, MIDL
-  for the `.idl` files, and a vcpkg manifest (libjpeg-turbo, qhull, meshoptimizer).
+- Projects for all remaining Tier 1 modules (except `xmunge`, see above), generated from the
+  original makefiles' source lists, include paths and defines.
+- `Directory.Build.targets`: `AllegianceXslt` (AGC's XML to IDL/MC/RC2/headers) and
+  `AllegianceMessage` (`mc.exe` for `.msg`/`.mc`). MIDL uses MSBuild's built-in `Midl` items.
+- Generated files shared between projects go to `out/gen/<Platform>/<Configuration>/<module>/`.
+  `AGCGuid` (the original `AGCGuid.lib`) owns AGC's code generation, so it builds before every
+  project that includes the AGC headers.
+- Resource scripts: the makefiles concatenated module `.rc` + generated message `.rc` +
+  `#define FLAVOR` + `Inc/VerRes.rc` with `copy`/`type`. Each executable now has a small
+  `*.build.rc` that `#include`s the same pieces.
+- `_WIN32_WINNT`/`WINVER` are set to Windows 10 globally; current ATL refuses the original 0x0400.
+- Still to do: a vcpkg manifest (libjpeg-turbo, qhull, meshoptimizer) once the vendored copies are
+  replaced.
 
 ### Phase 2: make it compile
 
@@ -154,3 +177,6 @@ Fixes are made per CI round, and each change keeps the original runtime behaviou
 | Zone auth SDK (`zoneauth.h`, `zoneauthdecrypt.h`) not in the source release | `_Utility/zauth.cpp` reimplemented behind the same interface as "Zone unavailable": every authentication fails. The factories return objects rather than NULL because the callers never check for NULL. | `_Utility/zauth.cpp` |
 | Debug `#define new new(__FILE__, __LINE__)` (`zlib/alloc.h`) breaks ATL's `new(std::nothrow)` | `push_macro`/`pop_macro` around the ATL include | `Inc/allegdb.h` |
 | Original bug: when a hat direction is bound in the key-mapping UI, the stored joystick index was the leftover loop counter (always one past the last joystick). That broke the saved mapping, its "Joy N Hat ..." label and duplicate detection. | Use the joystick that axis 5 (the hat, which drives `m_ppboolHatButton`) is mapped to | `WinTrek/trekinput.cpp` |
+| ICQ chat relay (`icqmapi.dll`, proprietary ICQ API, header not in the release, service gone) | Handler for `FM_S_ICQ_CHAT_ACK` made a no-op, which is what the original did when the DLL was missing. The hard-coded ICQ licence key is removed with it. | `WinTrek/WinTrek.cpp` |
+| ATL 3 implementation files (`atlimpl.cpp`, `statreg.cpp`) included into precompiled headers | Removed; current ATL is header-only plus `atls.lib` | `FedSrv/pch.cpp`, `AGC/pch.cpp` |
+| `<ZoneAuthDecrypt.h>` included but unused | Include removed | `FedSrv/pch.h` |

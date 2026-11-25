@@ -13,14 +13,11 @@
 #include "CommandAcknowledgedCondition.h"
 
 #include <Delayimp.h>   // For error handling & advanced features
-#include "..\\icqapi\\ICQAPIInterface.h"
 
 class QuickChatNode : public IMDLObject {};
 
 #include "quickchat.h"
 
-// Tell the linker that my DLL should be delay loaded
-#pragma comment(linker, "/DelayLoad:icqmapi.dll")
 
 const float AnyViewMinRenderScreenSize = 1.0f;
 
@@ -9047,22 +9044,10 @@ public:
 
             case FM_S_ICQ_CHAT_ACK:
             {
-                CASTPFM(pfmICQChat, S, ICQ_CHAT_ACK, pfm);
-                __try
-                {
-                  static bool fICQInit = false;
-                  if (!fICQInit)
-                  {
-                    ICQAPICall_SetLicenseKey("Microsoft", "hankukkk", "EDB699A39FE5BAE8");
-                    fICQInit = true;
-                  }
-                  ICQAPICall_SendMessage(pfmICQChat->icqid, FM_VAR_REF(pfmICQChat, Message));
-                  //ICQAPICall_SendExternal(pfmICQChat->icqid, "", FM_VAR_REF(pfmICQChat, Message), true);
-                }
-                __except(DelayLoadDllExceptionFilter(GetExceptionInformation()))
-                {
-                  // nothing to do here
-                }
+                // Relayed a chat message to the player's ICQ client through the
+                // ICQ API (icqmapi.dll). That API and service are gone; the
+                // original silently did nothing when the DLL was missing, which
+                // is what this does now.
             }
             break;
 

@@ -51,7 +51,7 @@
 //extern CServiceModule _Module;
 //#include <atlcom.h>
 
-#include <ZoneAuthDecrypt.h>
+// <ZoneAuthDecrypt.h> (Zone SDK, not in the source release) was included here; nothing in FedSrv uses it.
 
 // This also includes <atlbase.h> and <atlcom.h>
 #include "AllSrvModule.h"

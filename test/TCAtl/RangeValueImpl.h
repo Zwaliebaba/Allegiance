@@ -268,7 +268,8 @@ protected:
 
     // Loop thru preferred frequencies
     long nBestMod = nFreqs[0], nBestFreq = nFreqs[0];
-    for (int i = 1; i < nFreqCount; ++i)
+    int i;
+    for (i = 1; i < nFreqCount; ++i)
     {
       long nMod = nSteps % nFreqs[i];
       if (0 == nMod)

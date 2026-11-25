@@ -761,7 +761,8 @@ HRESULT TCComPropertyClassRoot::ISpecifyPropertyPages_GetPages(
   assert(pMap != NULL);
   int nCnt = 0;
   // Get count of unique pages
-  for(int i = 0; pMap[i].pclsidPropPage != NULL; i++)
+  int i;
+  for(i = 0; pMap[i].pclsidPropPage != NULL; i++)
   {
     if (!InlineIsEqualGUID(*pMap[i].pclsidPropPage, CLSID_NULL))
       nCnt++;

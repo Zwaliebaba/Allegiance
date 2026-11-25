@@ -477,7 +477,8 @@ bool TCPropertyPageBase::ShowInsidePageOfGroup(UINT idGroup, DWORD dw)
   UINT uFlags = SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER;
 
   // Find the currently visible page in the group and hide it
-  for (CPageIterator it = pmap->begin(); it != pmap->end(); ++it)
+  CPageIterator it;
+  for (it = pmap->begin(); it != pmap->end(); ++it)
   {
     XInsidePage* pPage = it->second;
     if (IsWindow(*pPage) && pPage->IsWindowVisible())
@@ -1095,7 +1096,8 @@ HRESULT TCPropertyPageBase::SetObjects(ULONG& cObjectsDest,
       // Loop thru the specified objects, filtering out the unknown ones
       ReleaseSupportedInterfaces();
       CUnkVector& vec = *(pVec = new CUnkVector);
-      for (ULONG i = 0; i < cObjects; i++)
+      ULONG i;
+      for (i = 0; i < cObjects; i++)
         if (ppUnk[i] && IsObjectKnown(ppUnk[i]))
           vec.push_back(ppUnk[i]);
 

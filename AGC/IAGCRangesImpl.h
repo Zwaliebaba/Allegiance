@@ -134,14 +134,16 @@ public:
     RT value1, value2;
     if (nIndex < (m_ranges.size() / 2))
     {
-      for (XRangeIt it = m_ranges.begin(); nIndex; ++it)
+      XRangeIt it;
+      for (it = m_ranges.begin(); nIndex; ++it)
         --nIndex;
       value1 = it->lower();
       value2 = it->upper();
     }
     else
     {
-      for (XRangeRevIt it = m_ranges.rbegin(); nIndex; ++it)
+      XRangeRevIt it;
+      for (it = m_ranges.rbegin(); nIndex; ++it)
         --nIndex;
       value1 = it->lower();
       value2 = it->upper();

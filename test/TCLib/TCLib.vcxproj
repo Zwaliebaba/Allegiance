@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{CB0673C1-D288-4824-BA88-17230F780DED}</ProjectGuid>
+    <RootNamespace>TCLib</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(AllegianceRoot)msbuild\Allegiance.Cpp.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)test\TCLib;$(AllegianceRoot)test\Inc;$(AllegianceRoot)zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)test\TCLib;$(AllegianceRoot)test\Inc;$(AllegianceRoot)zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="TCLib.cpp" />
+    <ClCompile Include="DynaLib.cpp" />
+    <ClCompile Include="ExcepInfo.cpp" />
+    <ClCompile Include="InvokeArgs.cpp" />
+    <ClCompile Include="PropertyPageSite.cpp" />
+    <ClCompile Include="RelPath.cpp" />
+    <ClCompile Include="StrManip.cpp" />
+    <ClCompile Include="TCThread.cpp" />
+    <ClCompile Include="UtilImpl.cpp" />
+    <ClCompile Include="UtilityThread.cpp" />
+    <ClCompile Include="WorkerThread.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ActiveObject.h" />
+    <ClInclude Include="AdviseHolder.h" />
+    <ClInclude Include="AsyncDebugOutput.h" />
+    <ClInclude Include="AutoCriticalSection.h" />
+    <ClInclude Include="AutoHandle.h" />
+    <ClInclude Include="AutoMutex.h" />
+    <ClInclude Include="BinString.h" />
+    <ClInclude Include="CoInit.h" />
+    <ClInclude Include="CommonControls.h" />
+    <ClInclude Include="CompositeValue.h" />
+    <ClInclude Include="DynaLib.h" />
+    <ClInclude Include="ExcepInfo.h" />
+    <ClInclude Include="InvokeArgs.h" />
+    <ClInclude Include="Lockable.h" />
+    <ClInclude Include="LookupTable.h" />
+    <ClInclude Include="NetApi.h" />
+    <ClInclude Include="ObjectLock.h" />
+    <ClInclude Include="PropertyPageSite.h" />
+    <ClInclude Include="Range.h" />
+    <ClInclude Include="RangeSet.h" />
+    <ClInclude Include="RefCountedData.h" />
+    <ClInclude Include="RelPath.h" />
+    <ClInclude Include="StrManip.h" />
+    <ClInclude Include="TCCAUUID.h" />
+    <ClInclude Include="TCThread.h" />
+    <ClInclude Include="TraceScope.h" />
+    <ClInclude Include="UtilImpl.h" />
+    <ClInclude Include="UtilityThread.h" />
+    <ClInclude Include="WinApp.h" />
+    <ClInclude Include="WindowThreadBase.h" />
+    <ClInclude Include="WindowThreadImpl.h" />
+    <ClInclude Include="WorkerThread.h" />
+    <ClInclude Include="WotLib.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="tstring.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

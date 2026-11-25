@@ -185,7 +185,8 @@ STDMETHODIMP CTCStrings::get_DelimitedItems(BSTR bstrDelimiter,
   // Loop thru the collection and calculate the total number of characters
   UINT cchTotal = 1;
   UINT nCount = m_vecStrings.size();
-  for (UINT i = 0; i < nCount; ++i)
+  UINT i;
+  for (i = 0; i < nCount; ++i)
   {
     if (i)
       cchTotal += cchDelim;

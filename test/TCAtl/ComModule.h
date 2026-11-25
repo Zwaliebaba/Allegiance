@@ -284,7 +284,8 @@ HRESULT TCComModule<T>::ParseCommandLine(int argc, TCHAR* argv[])
     int     nEaten;
     const XCmdLineOption* pEntries = NULL;
     UINT cEntries = pT->GetCmdLineOptionMap(&pEntries);
-    for (UINT i = 0; i < cEntries; ++i)
+    UINT i;
+    for (i = 0; i < cEntries; ++i)
     {
       if (0 == lstrcmpi(pszOption, pEntries[i].m_pszOption))
       {
@@ -847,7 +848,8 @@ HRESULT TCComModule<T>::GetAccessSecurity(PSECURITY_DESCRIPTOR* psd,
 
   // Create a SID for each Authority/SubAuthorities in the table
   TCSid psids[sizeofArray(auths)];
-  for (UINT i = 0; i < sizeofArray(auths); ++i)
+  UINT i;
+  for (i = 0; i < sizeofArray(auths); ++i)
   {
     // Create a SID for the next Authority/SubAuthorities in the table
     SID_IDENTIFIER_AUTHORITY auth = auths[i].m_auth;
