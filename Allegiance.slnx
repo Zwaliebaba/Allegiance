@@ -2,6 +2,7 @@
   <Configurations>
     <!-- Solution platform x86 maps to the Win32 platform of each .vcxproj. -->
     <Platform Name="x86" />
+    <Platform Name="x64" />
   </Configurations>
   <Folder Name="/Libraries/">
     <Project Path="zlib/ZLib.vcxproj" Id="34f19e78-c3ad-4eec-8f42-c823d58200c8" />

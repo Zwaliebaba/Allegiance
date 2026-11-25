@@ -40,7 +40,8 @@
   assumes that a 'long' holds a pointer.  This is true for DEC's Alpha.
 */
 
-typedef unsigned long ptr_intT;  /* for casting a void* to an integer-type */
+#include <stddef.h>
+typedef size_t ptr_intT;  /* for casting a void* to an integer-type (pointer-sized; was unsigned long, 32 bits on Windows) */
 
 /*---------------------------------------
 -qhmemT - global memory structure for mem.c

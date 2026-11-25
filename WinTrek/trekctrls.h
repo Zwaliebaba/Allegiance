@@ -53,7 +53,7 @@ class ListPaneOld;
 class ListItem : public IObjectSingle
 {
 public:
-    virtual long GetItemData() = 0;
+    virtual LONG_PTR GetItemData() = 0;
     virtual short GetItemHeight() = 0;
     virtual void DrawItem(Surface* pSurface, const WinRect& rect, bool fSelected, int iFirstSlot) = 0;
     virtual bool Update() = 0; // returns true if it needs repainting
@@ -75,21 +75,21 @@ public:
     virtual int             AppendItem(ListItem* pListItem) = 0;
     virtual void            RemoveItem(ListItem* pListItem) = 0;
     virtual void            RemoveItemByIdx(int iItem) = 0;
-    virtual void            RemoveItemByData(long lItemData) = 0;
+    virtual void            RemoveItemByData(LONG_PTR lItemData) = 0;
     virtual void            RemoveAll() = 0;
     virtual void            UpdateItem(ListItem* pListItem) = 0;
     virtual void            UpdateItemByIdx(int iItem) = 0;
-    virtual void            UpdateItemByData(long lItemData) = 0;
+    virtual void            UpdateItemByData(LONG_PTR lItemData) = 0;
     virtual void            UpdateAll() = 0;
     virtual void            SetSelItem(ListItem* pListItem) = 0;
     virtual void            SetSelItemByIdx(int iItem) = 0;
-    virtual void            SetSelItemByData(long lItemData) = 0;
+    virtual void            SetSelItemByData(LONG_PTR lItemData) = 0;
     virtual TRef<ListItem>  GetSelItem() = 0;
     virtual int             GetSelItemIdx() = 0;
     virtual TRef<ListItem>  GetItemByIdx(long iItem) = 0;
-    virtual TRef<ListItem>  GetItemByData(long lItemData) = 0;
+    virtual TRef<ListItem>  GetItemByData(LONG_PTR lItemData) = 0;
     virtual int             GetItemIdx(ListItem* pListItem) = 0;
-    virtual int             GetItemIdxByData(long lItemData) = 0;
+    virtual int             GetItemIdxByData(LONG_PTR lItemData) = 0;
     virtual void            SetSortOrder(long lSortOrder) = 0;
     virtual void            SetFilter(long lFilter) = 0;
     virtual void            FillTestItems(int nItems) = 0;
@@ -104,7 +104,7 @@ public:
     virtual int             GetCountItems() = 0;
     virtual bool            IsItemVisible(ListItem* pListItem) = 0;
     virtual bool            IsItemVisibleByIdx(long iItem) = 0;
-    virtual bool            IsItemVisibleByData(long lItemData) = 0;
+    virtual bool            IsItemVisibleByData(LONG_PTR lItemData) = 0;
 };
 
 

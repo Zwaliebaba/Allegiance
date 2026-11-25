@@ -274,44 +274,14 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef FLOATASM
-    inline D3DCOLOR MakeD3DCOLOR(const Color& color)
-    {
-        DWORD r, g, b, a;
-
-        __asm {
-            mov     ecx, color
-            fld     [ecx]Color.m_r
-            fmul    g_255       // r
-            fld     [ecx]Color.m_g
-            fmul    g_255       // g r
-            fld     [ecx]Color.m_b
-            fmul    g_255       // b g r
-            fld     [ecx]Color.m_a
-            fmul    g_255       // a b g r
-            fxch    st(3)       // r b g a
-            fistp   r           // b g a
-            fistp   b
-            fistp   g
-            fistp   a
-        }
-
-        return 
-               (a << 24)
-            | (r << 16)
-            | (g <<  8)
-            | (b      );
-    }
-#else
-    inline D3DCOLOR MakeD3DCOLOR(const Color& color)
-    {
-        return 
-              (MakeInt(255.0f * color.GetAlpha()) << 24)
-            | (MakeInt(255.0f * color.GetRed()  ) << 16)
-            | (MakeInt(255.0f * color.GetGreen()) <<  8)
-            | (MakeInt(255.0f * color.GetBlue() )      );
-    }
-#endif
+inline D3DCOLOR MakeD3DCOLOR(const Color& color)
+{
+    return 
+          (MakeInt(255.0f * color.GetAlpha()) << 24)
+        | (MakeInt(255.0f * color.GetRed()  ) << 16)
+        | (MakeInt(255.0f * color.GetGreen()) <<  8)
+        | (MakeInt(255.0f * color.GetBlue() )      );
+}
 
 inline Color MakeColor(const D3DCOLORVALUE& color)
 {

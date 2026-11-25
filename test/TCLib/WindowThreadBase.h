@@ -512,7 +512,7 @@ inline void TCWindowThreadBase::SubclassWindow(HWND hwnd)
 
   // Set the new WindowProc and save the old one as a window property
   ::SetProp(hwnd, MAKEINTATOM(GetWndProcAtom()),
-    (HANDLE)::SetWindowLong(hwnd, GWL_WNDPROC, (LONG)SubclassWindowProc));
+    (HANDLE)::SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)SubclassWindowProc));
 }
 
 inline void TCWindowThreadBase::UnsubclassWindow(HWND hwnd)
@@ -524,7 +524,7 @@ inline void TCWindowThreadBase::UnsubclassWindow(HWND hwnd)
   // Get the previous WindowProc and restore it
   WNDPROC pfnPrev = (WNDPROC)::GetProp(hwnd, MAKEINTATOM(GetWndProcAtom()));
   assert(pfnPrev);
-  WNDPROC pfn = (WNDPROC)::SetWindowLong(hwnd, GWL_WNDPROC, (LONG)pfnPrev);
+  WNDPROC pfn = (WNDPROC)::SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)pfnPrev);
   assert(SubclassWindowProc == pfn);
 
   // Remove the window property

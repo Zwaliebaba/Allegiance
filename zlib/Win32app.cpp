@@ -71,7 +71,7 @@ void ZAssertImpl(bool bSucceeded, const char* psz, const char* pszFile, int line
         DWORD dwError = GetLastError();
 
         if (!g_papp) {
-            __asm int 3; // (debug break)
+            __debugbreak();
         } else if (g_papp->OnAssert(psz, pszFile, line, pszModule)) {
             g_papp->OnAssertBreak();
         }

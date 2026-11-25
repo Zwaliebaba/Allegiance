@@ -356,12 +356,12 @@ class       CsideIGC : public IsideIGC
             return m_data.color;
         }
 
-        virtual void                        SetPrivateData(DWORD dwPrivate)
+        virtual void                        SetPrivateData(DWORD_PTR dwPrivate)
         {
             m_dwPrivate = dwPrivate;
         }
 
-        virtual DWORD                       GetPrivateData(void) const
+        virtual DWORD_PTR                   GetPrivateData(void) const
         {
             return m_dwPrivate;
         }
@@ -612,7 +612,7 @@ class       CsideIGC : public IsideIGC
         }
 
         ImissionIGC*        m_pMission;
-        DWORD               m_dwPrivate; // private data for consumer
+        DWORD_PTR           m_dwPrivate; // private data for consumer
         DataSideIGC         m_data;
 
         IcivilizationIGC*   m_pCivilization;

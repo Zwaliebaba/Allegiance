@@ -949,112 +949,28 @@ public:
         if (psurfaceSource->HasColorKey()) {
             ZAssert(m_ppf->PixelBytes() == 2);
 
-            int xdqwords = scanSize / 16;
-            int xwords   = (scanSize - 16 * xdqwords) / 2;
+            // Copy the 16-bit pixels that are not the color key (0)
+            int xpixels = scanSize / 2;
 
-            __asm {
-              yloop:
-                mov     esi, [psource]
-                mov     edi, [pdest]
+            for (int y = 0; y < ysize; y++) {
+                const WORD* psrc = (const WORD*)psource;
+                WORD*       pdst = (WORD*)pdest;
 
-                mov     ecx, xdqwords
-                or      ecx, ecx
-                je      xwordsTop
-              xdqwordloop:
-                mov     dx, [esi + 0]
-                or      dx, dx
-                je      skip1
-                mov     [edi + 0], dx
-              skip1:
-                mov     dx, [esi + 2]
-                or      dx, dx
-                je      skip2
-                mov     [edi + 2], dx
-              skip2:
-                mov     dx, [esi + 4]
-                or      dx, dx
-                je      skip3
-                mov     [edi + 4], dx
-              skip3:
-                mov     dx, [esi + 6]
-                or      dx, dx
-                je      skip4
-                mov     [edi + 6], dx
-              skip4:
-                mov     dx, [esi + 8]
-                or      dx, dx
-                je      skip5
-                mov     [edi + 8], dx
-              skip5:
-                mov     dx, [esi + 10]
-                or      dx, dx
-                je      skip6
-                mov     [edi + 10], dx
-              skip6:
-                mov     dx, [esi + 12]
-                or      dx, dx
-                je      skip7
-                mov     [edi + 12], dx
-              skip7:
-                mov     dx, [esi + 14]
-                or      dx, dx
-                je      skip8
-                mov     [edi + 14], dx
-              skip8:
-                add     esi, 16
-                add     edi, 16
-                dec     ecx
-                jne     xdqwordloop
-          
-              xwordsTop:  
-                mov     ecx, xwords
-                or      ecx, ecx
-                je      nowords
-              xwordloop:
-                mov     dx, [esi]
-                or      dx, dx
-                je      skipword
-                mov     [edi], dx
-              skipword:
-                add     esi, 2
-                add     edi, 2
-                dec     ecx
-                jne     xwordloop
+                for (int x = 0; x < xpixels; x++) {
+                    if (psrc[x] != 0) {
+                        pdst[x] = psrc[x];
+                    }
+                }
 
-              nowords:
-                mov     eax, pitchSource
-                mov     ebx, pitchDest
-                add     [psource], eax
-                add     [pdest], ebx
-                dec     ysize
-                jne     yloop
+                psource += pitchSource;
+                pdest   += pitchDest;
             }
         } else {
-            int xdwords = scanSize / 4;
-            int xwords  = (scanSize - 4 * xdwords) / 2;
-
-             __asm {
-                mov     edx, psource
-                mov     ebx, pdest
-
-              nokeyyloop:
-                mov     esi, edx
-                mov     edi, ebx
-                mov     ecx, xdwords
-                rep     movsd    
-
-                test    [xwords], 1
-                je      nokeynowords
-
-                mov     ax, [esi]
-                mov     [edi], ax
-
-              nokeynowords:
-                add     edx, pitchSource
-                add     ebx, pitchDest
-                dec     ysize
-                jne     nokeyyloop
-             }
+            for (int y = 0; y < ysize; y++) {
+                memcpy(pdest, psource, scanSize);
+                psource += pitchSource;
+                pdest   += pitchDest;
+            }
         }
     }
 

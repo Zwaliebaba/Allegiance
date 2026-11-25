@@ -34,12 +34,13 @@ public:
 public:
   T GetValue() const
   {
-    return reinterpret_cast<T>(TlsGetValue(const_cast<TlsValue*> (this)->GetSlot()));
+    // Through UINT_PTR, so T may be a pointer or an integer
+    return (T)(UINT_PTR)(TlsGetValue(const_cast<TlsValue*> (this)->GetSlot()));
   }
 
   T SetValue(const T& value)
   {
-    TlsSetValue(GetSlot(), reinterpret_cast<PVOID>(value));
+    TlsSetValue(GetSlot(), (PVOID)(UINT_PTR)(value));
     return value;
   }
 

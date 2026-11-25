@@ -1492,7 +1492,7 @@ bool LaunchReloaderAndExit(bool bReLaunchAllegianceAsMinimized)
     //
     //  Launch Reloader.exe
     //
-    int nRet = (int)ShellExecute(0, 
+    int nRet = (int)(INT_PTR)ShellExecute(0, 
          "Open", 
          "Reloader.exe",
          szCommandLine,  // re-feed the original command-line back into Allegiance.exe
@@ -1502,7 +1502,7 @@ bool LaunchReloaderAndExit(bool bReLaunchAllegianceAsMinimized)
     if(nRet <= 32)
     {
         // check again for dev/manual builds
-        int nRet2 = (int)ShellExecute(0, 
+        int nRet2 = (int)(INT_PTR)ShellExecute(0, 
              "Open", 
              "..\\Reloader\\Reloader.exe",
              szCommandLine,  // re-feed the original command-line back into Allegiance.exe

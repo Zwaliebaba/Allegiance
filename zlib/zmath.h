@@ -8,6 +8,7 @@
 #define _zmath_H_
 
 #include "float.h"
+#include <math.h>
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -289,43 +290,23 @@ extern float g_Inv255;
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef FLOATASM
-    #define MakeIntMacro(value, result) _asm fld value _asm fistp result
+// Round to the nearest integer (ties to even), as the x87 fistp the code
+// used to use did. lrintf uses the current rounding mode, which is
+// round-to-nearest unless something changes it.
 
-    __forceinline int MakeInt(float value)
-    {
-        int result;
-        MakeIntMacro(value, result);
-        return result;
-    }
+__forceinline int MakeInt(float value)
+{
+    return (int)lrintf(value);
+}
 
-    __forceinline int MakeInt(double value)
-    {
-        int result;
-        MakeIntMacro(value, result);
-        return result;
-    }
+__forceinline int MakeInt(double value)
+{
+    return (int)lrint(value);
+}
 
-#else
-    __forceinline int MakeIntMacro(const float& value, const int& result)
-    {
-        result = int(value);
-    }
-
-    __forceinline int MakeInt(float value)
-    {
-        return int(Value);
-    }
-
-    __forceinline int MakeInt(double value)
-    {
-        return int(value);
-    }
-#endif
-
-    __forceinline int FloorInt(float value)
-    {
-        return MakeInt(value - 0.5f);
-    }
+__forceinline int FloorInt(float value)
+{
+    return MakeInt(value - 0.5f);
+}
 
 #endif

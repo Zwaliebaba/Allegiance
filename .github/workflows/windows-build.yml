@@ -24,6 +24,8 @@ jobs:
         # Release builds with optimisation and without _DEBUG, so it catches code
         # that only compiles in one of the two (#ifdef _DEBUG blocks, asserts).
         configuration: [ Debug, Release ]
+        # Win32 and x64 are both built until Win32 is dropped (MODERNIZATION.md, "x64").
+        platform: [ Win32, x64 ]
     env:
       # Built one at a time, in dependency order, with BuildProjectReferences=false,
       # so a failure in one project does not hide the compile errors of the
@@ -83,7 +85,7 @@ jobs:
           }
           if (-not (Test-Path packages/Microsoft.Native.Quic.MsQuic.Schannel.*/build/native/include/msquic.h)) { throw "MsQuic was not restored" }
 
-      - name: Build libraries (${{ matrix.configuration }}|Win32)
+      - name: Build (${{ matrix.configuration }}|${{ matrix.platform }})
         id: build
         shell: pwsh
         continue-on-error: true
@@ -93,7 +95,7 @@ jobs:
           foreach ($p in $env:PROJECTS -split '\s+' | Where-Object { $_ }) {
             $name = [IO.Path]::GetFileNameWithoutExtension($p)
             Write-Host "::group::$name"
-            & $env:MSBUILD $p -nologo -m -p:Configuration=${{ matrix.configuration }} -p:Platform=Win32 `
+            & $env:MSBUILD $p -nologo -m -p:Configuration=${{ matrix.configuration }} -p:Platform=${{ matrix.platform }} `
               -p:BuildProjectReferences=false `
               -fl "-flp:logfile=out/logs/$name.log;verbosity=normal" `
               -fl1 "-flp1:logfile=out/logs/$name.errors.log;errorsonly" `
@@ -121,14 +123,14 @@ jobs:
         continue-on-error: true
         timeout-minutes: 10
         shell: pwsh
-        run: ./tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/Win32/${{ matrix.configuration }}/mdlc.exe -Art out/smoke-src -Out out/art-smoke
+        run: ./tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/${{ matrix.platform }}/${{ matrix.configuration }}/mdlc.exe -Art out/smoke-src -Out out/art-smoke
 
       - name: Error summary
         if: always()
         shell: pwsh
         run: |
           $rx = '(?<file>[^\s:][^:]*?)\((?<line>\d+)[^)]*\)\s*:\s*(fatal )?error (?<code>[A-Z]+\d+)\s*:\s*(?<msg>.*?)(\s+\[[^\]]+\])?$'
-          $out = @("## Build errors (${{ matrix.configuration }}|Win32)", "", "| Project | Errors | Top codes |", "|---|---:|---|")
+          $out = @("## Build errors (${{ matrix.configuration }}|${{ matrix.platform }})", "", "| Project | Errors | Top codes |", "|---|---:|---|")
           $detail = @()
           foreach ($log in Get-ChildItem out/logs/*.errors.log -ErrorAction SilentlyContinue) {
             $name = $log.BaseName -replace '\.errors$',''
@@ -148,14 +150,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: build-logs-${{ matrix.configuration }}
+          name: build-logs-${{ matrix.configuration }}-${{ matrix.platform }}
           path: |
             out/logs/
             out/art-smoke/
           if-no-files-found: warn
 
+      # The art job converts with the Win32 tools (see below)
       - name: Upload art tools
-        if: steps.build.outcome == 'success'
+        if: steps.build.outcome == 'success' && matrix.platform == 'Win32'
         uses: actions/upload-artifact@v5
         with:
           name: art-tools-${{ matrix.configuration }}

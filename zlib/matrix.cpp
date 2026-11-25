@@ -777,57 +777,16 @@ HVector Matrix::Transform(const HVector& vec) const
 
 Vector Matrix::Transform(const Vector& vec) const
 {
-    //#ifndef FLOATASM
-        float x = vec.X();
-        float y = vec.Y();
-        float z = vec.Z();
+    float x = vec.X();
+    float y = vec.Y();
+    float z = vec.Z();
 
-        return
-            Vector(
-                m_m[0][0] * x + m_m[0][1] * y + m_m[0][2] * z + m_m[0][3],
-                m_m[1][0] * x + m_m[1][1] * y + m_m[1][2] * z + m_m[1][3],
-                m_m[2][0] * x + m_m[2][1] * y + m_m[2][2] * z + m_m[2][3]
-            );
-    /*
-    #else
-        float* pm = m_m;
-        Vector result;
-
-        __asm {
-            mov     esi, vec
-            lea     edi, result
-            mov     eax, pm
-
-            fld     [esi].x         \\ x
-            fld     [esi].y         \\ y x
-            fld     [esi].z         \\ z y x
-                                
-            fld     [eax]           \\ m00 z y x
-            fmul    st(3)           \\ m00*x z y x
-            fld     [eax + 4]       \\ m01   m00*x z y x
-            fmul    st(3)           \\ m01*y m00*x z y x
-            fld     [eax + 8]       \\ m02   m01*y m00*x z y x
-            fmul    st(3)           \\ m02*z mo1*y m00*x z y x
-            fld     [eax + 12]      \\ m03   m02*z mo1*y m00*x z y x
-            faddp   st(3), st(0)    \\ m02*z mo1*y m00*x+m03 z y x
-            faddp   st(1), st(0)    \\ m02*z+mo1*y m00*x+m03 z y x
-
-
-            fld     [eax + 16 + 0]  \\ m10 m02*z+mo1*y m00*x+m03 z y x
-            fmul    st(5)           \\ m10*x m02*z+mo1*y m00*x+m03 z y x
-            fxch    st(1)           \\ m02*z+mo1*y m10*x m00*x+m03 z y x
-            faddp   st(2), st(0)    \\ m10*x m02*z+mo1*y+m00*x+m03 z y x
-            fld     [eax + 16 + 4]  \\ m11 m10*x m02*z+mo1*y+m00*x+m03 z y x
-            fmul    st(4)           \\ m11*y m10*x m02*z+mo1*y+m00*x+m03 z y x
-            fld     [eax + 16]      \\ m12 m11*4 m10*x m02*z+mo1*y+m00*x+m03 z y x
-            fmul    st(4)           \\ m12*z m11*4 m10*x m02*z+mo1*y+m00*x+m03 z y x
-            fxch    st(3)           \\ m02*z+mo1*y+m00*x+m03 m11*4 m10*x m12*z z y x
-            fstp    [edi].x         \\ m11*4 m10*x m12*z z y x
-            fadd
-
-        }
-    #endif
-    */
+    return
+        Vector(
+            m_m[0][0] * x + m_m[0][1] * y + m_m[0][2] * z + m_m[0][3],
+            m_m[1][0] * x + m_m[1][1] * y + m_m[1][2] * z + m_m[1][3],
+            m_m[2][0] * x + m_m[2][1] * y + m_m[2][2] * z + m_m[2][3]
+        );
 }
 
 Vector Matrix::TransformDirection(const Vector& vec) const

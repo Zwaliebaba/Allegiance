@@ -372,7 +372,7 @@ ValueList::ValueList(Site* psite) :
     m_list(),
     m_iter(m_list)
 {
-    ZAssert(psite == NULL || (((DWORD)psite) > 0x10));
+    ZAssert(psite == NULL || (((UINT_PTR)psite) > 0x10));
 }
 
 ValueList::~ValueList()

@@ -2802,8 +2802,8 @@ class ImissionIGC : public IstaticIGC
         virtual void                    GenerateTreasure(Time           now,
                                                          IclusterIGC*   pcluster,
                                                          short          tsi) = 0;
-        virtual void                    SetPrivateData(DWORD dwPrivate) = 0;
-        virtual DWORD                   GetPrivateData(void) const = 0;
+        virtual void                    SetPrivateData(DWORD_PTR dwPrivate) = 0;
+        virtual DWORD_PTR               GetPrivateData(void) const = 0;
 
         virtual Time                    GetLastUpdate(void) const = 0;
 
@@ -3175,8 +3175,8 @@ class IshipIGC : public IscannerIGC
                                                       const ServerActiveTurretUpdate&   shipupdate) = 0;
         virtual ShipUpdateStatus    ProcessShipUpdate(const ClientActiveTurretUpdate&   shipupdate) = 0;
 
-        virtual void                SetPrivateData(DWORD dwPrivate) = 0;
-        virtual DWORD               GetPrivateData(void) const = 0;
+        virtual void                SetPrivateData(DWORD_PTR dwPrivate) = 0;
+        virtual DWORD_PTR           GetPrivateData(void) const = 0;
 
         virtual void                ReInitialize(DataShipIGC * dataShip, Time now) = 0;
 
@@ -3939,8 +3939,8 @@ class IclusterIGC : public IbaseIGC
 
         virtual const char*      GetPosterName(void) const = 0;
 
-        virtual void             SetPrivateData(DWORD dwPrivate) = 0;
-        virtual DWORD            GetPrivateData(void) const = 0;
+        virtual void             SetPrivateData(DWORD_PTR dwPrivate) = 0;
+        virtual DWORD_PTR        GetPrivateData(void) const = 0;
 
         virtual void             FlushCollisionQueue(void) = 0;
         virtual void             MakeModelStatic(ImodelIGC* pmodel) = 0;
@@ -4055,8 +4055,8 @@ class IsideIGC : public IbaseIGC
 
         virtual const Color&                GetColor(void) const = 0;
 
-        virtual void                        SetPrivateData(DWORD dwPrivate) = 0;
-        virtual DWORD                       GetPrivateData(void) const = 0;
+        virtual void                        SetPrivateData(DWORD_PTR dwPrivate) = 0;
+        virtual DWORD_PTR                   GetPrivateData(void) const = 0;
 
         virtual short                       GetKills(void) const = 0;
         virtual void                        AddKill(void) = 0;

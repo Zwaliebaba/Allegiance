@@ -122,7 +122,7 @@ CFSMission::CFSMission(
   // set Mission Name here too so that AGC Admin tool reports the params while mission stage is STAGE_NOTSTARTED
   m_pMission->SetMissionParams(&m_misdef.misparms);
   m_pMission->Initialize(g.timeNow, psiteIGC);
-  m_pMission->SetPrivateData((DWORD) this); // so we can get back to a CFSMission from an ImissionIGC
+  m_pMission->SetPrivateData((DWORD_PTR) this); // so we can get back to a CFSMission from an ImissionIGC
   m_pgrpMission = g.fm.CreateGroup(m_misdef.misparms.strGameName);
 
   if (szDesc)

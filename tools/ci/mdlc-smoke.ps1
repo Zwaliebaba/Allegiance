@@ -53,9 +53,13 @@ function Invoke-Mdlc([string] $Label, [string[]] $MdlcArgs, [string] $Expect) {
     }
 }
 
+# The debugger has to match mdlc's architecture: read the PE machine field
+$pe = [IO.File]::ReadAllBytes($Mdlc)
+$machine = [BitConverter]::ToUInt16($pe, [BitConverter]::ToInt32($pe, 0x3C) + 4)
+$dbgArch = if ($machine -eq 0x8664) { 'x64' } else { 'x86' }
 $script:cdb = @(
-    "${env:ProgramFiles(x86)}\Windows Kits\10\Debuggers\x86\cdb.exe",
-    "${env:ProgramFiles}\Windows Kits\10\Debuggers\x86\cdb.exe"
+    "${env:ProgramFiles(x86)}\Windows Kits\10\Debuggers\$dbgArch\cdb.exe",
+    "${env:ProgramFiles}\Windows Kits\10\Debuggers\$dbgArch\cdb.exe"
 ) | Where-Object { Test-Path $_ } | Select-Object -First 1
 Write-Host "cdb: $(if ($script:cdb) { $script:cdb } else { 'not found' })"
 

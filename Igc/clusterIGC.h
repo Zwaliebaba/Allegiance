@@ -358,12 +358,12 @@ class       CclusterIGC : public IclusterIGC
             return m_data.posterName;
         }
 
-        virtual void                    SetPrivateData(DWORD dwPrivate)
+        virtual void                    SetPrivateData(DWORD_PTR dwPrivate)
         {
             m_dwPrivate = dwPrivate;
         }
 
-        virtual DWORD                   GetPrivateData(void) const
+        virtual DWORD_PTR               GetPrivateData(void) const
         {
             return m_dwPrivate;
         }
@@ -452,7 +452,7 @@ class       CclusterIGC : public IclusterIGC
 
     private:
         ImissionIGC*        m_pMission;
-        DWORD               m_dwPrivate; // private data for consumer
+        DWORD_PTR           m_dwPrivate; // private data for consumer
         DataClusterIGC      m_data;
         ModelListIGC        m_models;
         ModelListIGC        m_modelsPickable;

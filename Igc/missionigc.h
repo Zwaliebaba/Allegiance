@@ -788,12 +788,12 @@ class   CmissionIGC : public ImissionIGC
         void                    GenerateTreasure(Time           now,
                                                  IclusterIGC*   pcluster,
                                                  short          tsi);
-        virtual void            SetPrivateData(DWORD dwPrivate)
+        virtual void            SetPrivateData(DWORD_PTR dwPrivate)
         {
             m_dwPrivate = dwPrivate;
         }
 
-        virtual DWORD           GetPrivateData(void) const
+        virtual DWORD_PTR       GetPrivateData(void) const
         {
             return m_dwPrivate;
         }
@@ -876,7 +876,7 @@ class   CmissionIGC : public ImissionIGC
 
     private:
         MissionParams            m_missionParams;
-        DWORD                    m_dwPrivate;
+        DWORD_PTR                m_dwPrivate;
         MissionID                m_missionID;
         CstaticIGC*              m_pStatic;        
 

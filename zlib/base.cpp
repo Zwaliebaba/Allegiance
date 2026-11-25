@@ -37,7 +37,9 @@ ZFile::ZFile(const PathString& strPath, DWORD how) :
     m_p(NULL)
 {
     OFSTRUCT rob;
-    m_handle = (HANDLE)OpenFile(strPath, &rob, how);
+    // An HFILE is a file handle in 32 bits; HFILE_ERROR (-1) sign-extends
+    // to INVALID_HANDLE_VALUE.
+    m_handle = (HANDLE)(INT_PTR)OpenFile(strPath, &rob, how);
 }
 
 ZFile::~ZFile()

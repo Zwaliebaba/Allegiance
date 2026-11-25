@@ -18,7 +18,7 @@
  */
 USHORT AGCPlayerID(CFSPlayer * pPlayer)
 {
-    int nTemp = (int) pPlayer ^ (int) (pPlayer->GetConnection()->GetID());
+    int nTemp = (int)(INT_PTR) pPlayer ^ (int) (pPlayer->GetConnection()->GetID());
 
     return (USHORT) nTemp; // least significant 16 bits
 }
@@ -57,7 +57,7 @@ CFSShip::CFSShip(TRef<IshipIGC> pShip, bool fIsPlayer)
   m_fIsPlayer     = fIsPlayer;
   m_money = 0;
   m_rgpfsShip[m_shipidNext] = this;
-  m_pShip->SetPrivateData((DWORD) this);
+  m_pShip->SetPrivateData((DWORD_PTR) this);
   m_bHasUpdate = false;
 
   m_warpState = warpReady;
@@ -869,7 +869,7 @@ CFSPlayer::CFSPlayer(CFMConnection * pcnxn, int characterID, const char * szCDKe
   m_chatBudget(c_chatBudgetMax),
   m_strCDKey(szCDKey)
 {
-  m_pcnxn->SetPrivateData((DWORD) this); // set up two-way link between connection and this
+  m_pcnxn->SetPrivateData((DWORD_PTR) this); // set up two-way link between connection and this
   m_dwStartTime = m_timeUpdate = g.timeNow;
 
   ShipID    shipID = pShip->GetObjectID();

@@ -526,10 +526,10 @@ class   BoundingHull : public HitTest
                 const ConvexVertex**    ppcvAdjacent = pcv->m_adjacencies;
                 do
                 {
+                    // (This used to force dot out of an x87 register, so the
+                    // compare saw a float rather than an 80-bit value. The
+                    // compiler uses SSE2 for float math on both platforms.)
                     float dot = direction * (*ppcvAdjacent)->m_position;
-                    #ifdef _M_IX86 // should only be a problem on x86 CPUs
-                    __asm lea eax, [dot];
-                    #endif
                     if (dot > dotMax)
                     {
                         dotMax = dot;

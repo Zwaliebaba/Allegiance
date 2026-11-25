@@ -107,11 +107,11 @@ class IntItemIDWrapper
 public:
     IntItemIDWrapper() {}
     IntItemIDWrapper(T t) : m_t(t) {}
-    IntItemIDWrapper(ItemID pitem) { m_t = ((int)pitem == ZeroValue) ? 0 : (T)pitem; }
+    IntItemIDWrapper(ItemID pitem) { m_t = ((INT_PTR)pitem == ZeroValue) ? 0 : (T)(INT_PTR)pitem; }
 
     IntItemIDWrapper& operator = (T t) { m_t = t; return *this; }
     operator T () { return m_t; }
-    operator ItemID () { return (ItemID)((m_t == 0) ? (T)ZeroValue : m_t); };
+    operator ItemID () { return (ItemID)(INT_PTR)((m_t == 0) ? (T)ZeroValue : m_t); };
 
     bool operator == (IntItemIDWrapper<T> t) const { return m_t == t; }
     bool operator <= (IntItemIDWrapper<T> t) const { return m_t <= t; }

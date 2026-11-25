@@ -15,7 +15,7 @@
 class PartListItem : public ListItem
 {
 private:
-    long                m_lData;
+    LONG_PTR                m_lData;
     TRef<IbucketIGC>    m_pBucket;
     TRef<IbuyableIGC>   m_pBuyable;
     Money               m_moneyCost;
@@ -32,7 +32,7 @@ public:
     
     PartListItem(IbucketIGC* pBucket)
     {
-        m_lData = (long)pBucket;
+        m_lData = (LONG_PTR)pBucket;
         m_pBucket = pBucket;
         m_pBuyable = pBucket;
         m_moneyCost = m_pBuyable->GetPrice();
@@ -323,7 +323,7 @@ public:
         return 1;
     }
     
-    long GetItemData()
+    LONG_PTR GetItemData()
     {
         return m_lData;
     };
@@ -614,9 +614,9 @@ public:
       void OnBucketChange(BucketChange bc, IbucketIGC* b)
       {
           if (bc == c_bcTerminated)
-              m_pListPane->RemoveItemByData((long)b);
+              m_pListPane->RemoveItemByData((LONG_PTR)b);
           else
-              m_pListPane->UpdateItemByData((long)b);
+              m_pListPane->UpdateItemByData((LONG_PTR)b);
           
           UpdateSpendButtons();
       }
@@ -681,7 +681,7 @@ public:
                           IbucketIGC*   pbucketPredecessor = pBucket->GetPredecessor();
                           if ((pbucketPredecessor == NULL) || pbucketPredecessor->GetCompleteF())
                           {
-                              int nExistingIndex = m_pListPane->GetItemIdxByData((long)pBucket);
+                              int nExistingIndex = m_pListPane->GetItemIdxByData((LONG_PTR)pBucket);
                           
                               if (nExistingIndex == NA)
                                   m_pListPane->InsertItem(nInsertionIndex++, new PartListItem(pBucket));
@@ -691,7 +691,7 @@ public:
                       }
                       else
                       {
-                          m_pListPane->RemoveItemByData((long)pBucket);
+                          m_pListPane->RemoveItemByData((LONG_PTR)pBucket);
                       }
                   }
               }

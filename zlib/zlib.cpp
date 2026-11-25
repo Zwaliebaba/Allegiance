@@ -11,7 +11,7 @@
     #undef delete
 
     void* ZAlloc(
-       unsigned int s,
+       size_t s,
        char* pszFile,
        int line
     ) {
@@ -19,22 +19,12 @@
         return pv;
     }
 
-    typedef struct _CrtMemBlockHeader{
-        struct _CrtMemBlockHeader * pBlockHeaderNext;                        
-        struct _CrtMemBlockHeader * pBlockHeaderPrev;                        
-        char *                      szFileName;                              
-        int                         nLine;                                   
-        size_t                      nDataSize;                               
-        int                         nBlockUse;                               
-        long                        lRequest;                                
-        unsigned char               gap[4];                 
-    } _CrtMemBlockHeader;                                               
-                                                                             
-    void ZFree(void* pv) 
+    // ZAlloc allocates client blocks. (This used to read the block type from
+    // a copy of the CRT's private block header, whose layout has changed.)
+    void ZFree(void* pv)
     {
         if (pv != NULL) {
-            _CrtMemBlockHeader* pHead = (((_CrtMemBlockHeader *)pv)-1);     
-            _free_dbg(pv, pHead->nBlockUse);                                
+            _free_dbg(pv, _CLIENT_BLOCK);
         }
     }
 

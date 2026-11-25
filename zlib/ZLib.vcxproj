@@ -9,6 +9,14 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
@@ -71,7 +79,6 @@
     <ClInclude Include="comobj.h" />
     <ClInclude Include="dialog.h" />
     <ClInclude Include="event.h" />
-    <ClInclude Include="fixdelete.h" />
     <ClInclude Include="genericlist.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="main.h" />

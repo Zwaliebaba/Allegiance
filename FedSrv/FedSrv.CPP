@@ -2458,7 +2458,7 @@ void SendShipUpdates(CFSMission * pfsMission)
                             }
                         }
                     }
-                    pfmHeavy->cbrgActiveTurretUpdates = short((DWORD)pActive - (DWORD)(pfmHeavy + 1));
+                    pfmHeavy->cbrgActiveTurretUpdates = short((BYTE*)pActive - (BYTE*)(pfmHeavy + 1));
                     pfmHeavy->ibrgHeavyShipUpdates = pfmHeavy->ibrgActiveTurretUpdates + pfmHeavy->cbrgActiveTurretUpdates;
 
                     //Find the target of the player so that, if it is a ship, we can send it as a heavy if possible
@@ -2559,8 +2559,8 @@ void SendShipUpdates(CFSMission * pfsMission)
                         }
                     }
 
-                    pfmLight->cbrgLightShipUpdates = short((DWORD)pLight - (DWORD)pInactive);
-                    pfmHeavy->cbrgHeavyShipUpdates = short((DWORD)pHeavy - (DWORD)pActive);
+                    pfmLight->cbrgLightShipUpdates = short((BYTE*)pLight - (BYTE*)pInactive);
+                    pfmHeavy->cbrgHeavyShipUpdates = short((BYTE*)pHeavy - (BYTE*)pActive);
 
                     pfmLight->cbmsg = sizeof(FMD_S_LIGHT_SHIPS_UPDATE) + pfmLight->cbrgInactiveTurretUpdates + pfmLight->cbrgLightShipUpdates;
                     pfmHeavy->cbmsg = sizeof(FMD_S_HEAVY_SHIPS_UPDATE) + pfmHeavy->cbrgActiveTurretUpdates + pfmHeavy->cbrgHeavyShipUpdates;
@@ -5615,7 +5615,7 @@ bool OnAutoUpdateEXEDownloadDone(const char * szFilelistCRC, int nFilelistCRC, i
     printf("Launching AutoUpdate.exe ... ");
     // Start the AutoUpdate utility
     int nErr;
-    if((nErr = (int)ShellExecute(0, 
+    if((nErr = (int)(INT_PTR)ShellExecute(0, 
                          "Open", 
                          szPath,
                          szCommandLine, 
@@ -6532,9 +6532,12 @@ int __cdecl main(int argc, char *argv[])
     LoadSettings();
 
     // set the FPU to double precision, instead of long double
-    // (this makes FP compares a little safer)
+    // (this makes FP compares a little safer). x87 only: x64 has no
+    // precision control (and uses SSE2, which has no long double).
+#if defined(_M_IX86)
     if (g.fDoublePrecision)
       _controlfp(_PC_53, _MCW_PC);
+#endif
 
     // seed the random number generator with the current time
     // (GetTickCount may be semi-predictable on server startup, so we add the 
