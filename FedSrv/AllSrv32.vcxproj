@@ -152,6 +152,7 @@
     </ProjectReference>
     <ProjectReference Include="..\AGC\AGC.vcxproj">
       <Project>{8E3F6558-2352-4F7F-8621-7BC414AC16B1}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

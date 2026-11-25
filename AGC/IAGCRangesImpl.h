@@ -54,9 +54,9 @@ public:
   {
     // Create a range COM object to be reused multiple times
     ZSucceeded(T::CreateRange(RT(), RT(), &m_spRange));
-    m_spPrivate = m_spRange;
+    m_spPrivate = m_spRange.p;
     assert(NULL != m_spPrivate);
-    m_spPersist = m_spRange;
+    m_spPersist = m_spRange.p;
     if (NULL == m_spPersist)
     {
       ZSucceeded(m_spRange->QueryInterface(IID_IPersistStreamInit,
