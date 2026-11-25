@@ -156,7 +156,7 @@ Design:
 | Fullscreen | `SetDisplayMode` at 16 bpp in exclusive mode | A borderless topmost window on the monitor. The fullscreen size picks the render resolution from the original mode list, limited to the monitor |
 | Gamma | DirectDraw gamma ramp | The same curve in the presentation pixel shader |
 | Device loss | `TestCooperativeLevel`, full rebuild | `DXGI_ERROR_DEVICE_REMOVED`/`RESET` re-creates the device. Nothing is lost, because surfaces live in system memory |
-| Tools | `mdlc` initialised DirectDraw with `-software` | The engine creates the D3D11 device only on first use, so `mdlc` needs no GPU. BMP import uses `GetDIBits`, which gives the same pixel values for 24-bit sources |
+| Tools | `mdlc` initialised DirectDraw with `-software` | The engine creates the D3D11 device only on first use, so `mdlc` needs no GPU. BMP import uses `GetDIBits`. The 1,405 24-bit sources get identical pixels. The 37 16-bit (555) sources are read at their own depth, so the 565 conversion is unchanged. The 7 8-bit sources now come out in their palette colours; the old conversion ignored palettes (zero colour masks), so they almost certainly came out black |
 | Movies | DirectShow `IAMMultiMediaStream` into a DirectDraw surface | Stubbed: the video image reports the movie as finished. Media Foundation playback is a follow-up |
 
 Deleted:
