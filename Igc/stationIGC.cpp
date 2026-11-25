@@ -204,7 +204,7 @@ void                CstationIGC::SetBaseStationType(IstationTypeIGC*    pst)
 {
     assert (pst);
 
-    IclusterIGC*    pclusterOld;
+    IclusterIGC*    pclusterOld = NULL;
     Vector          positionOld;
     Orientation     orientationOld;
     Rotation        rotationOld;

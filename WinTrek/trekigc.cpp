@@ -4021,7 +4021,7 @@ void      WinTrekClient::ReceiveChat(IshipIGC*   pshipSender,
         Training::RecordChat (ctRecipient);
     }
 
-    bool    bForMe;
+    bool    bForMe{};
 
     ZString     strSender;
     ZString     strRecipient;

@@ -62,7 +62,7 @@ void    CollisionQueue::flush(int       n,
     assert (n <= m_nCollisions);
 
     //Cheat and temporarily mark pHitTest1 & 2 as dead
-    bool    oldDead1;
+    bool    oldDead1{};
     if (pHitTest1)
     {
         oldDead1 = pHitTest1->GetDeadF();
@@ -70,7 +70,7 @@ void    CollisionQueue::flush(int       n,
         pHitTest1->SetDeadF(true);
     }
 
-    bool    oldDead2;
+    bool    oldDead2{};
     if (pHitTest2)
     {
         oldDead2 = pHitTest2->GetDeadF();

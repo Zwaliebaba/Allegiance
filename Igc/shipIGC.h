@@ -1219,9 +1219,9 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
                                                 : 1;
 
                     //Try to mount the part in each possible location
-                    IpartIGC*   ppart;
+                    IpartIGC*   ppart = NULL;
                     Mount       mount;
-                    short       a;
+                    short       a{};
 
                     for (mount = 0; (mount < maxMounts); mount++)
                     {

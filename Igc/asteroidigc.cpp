@@ -177,7 +177,7 @@ int IasteroidIGC::NumberSpecialAsteroids(const MissionParams*  pmp)
 
 int IasteroidIGC::GetSpecialAsterioid(const MissionParams*  pmp, int index)
 {
-    int n;
+    int n{};
     switch ((pmp->bAllowSupremacyPath ? 4 : 0) +
             (pmp->bAllowTacticalPath  ? 2 : 0) +
             (pmp->bAllowExpansionPath ? 1 : 0))
@@ -217,7 +217,7 @@ int IasteroidIGC::GetSpecialAsterioid(const MissionParams*  pmp, int index)
 
 int IasteroidIGC::GetRandomType(AsteroidAbilityBitMask aabm)
 {
-    int index;
+    int index{};
 
     switch (aabm)
     {

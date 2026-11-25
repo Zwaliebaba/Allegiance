@@ -88,7 +88,7 @@ extern Win32App* g_papp;
       const char* pszModule)
     {
       // Save the current _CRT_ASSERT report mode, if we are interactive
-      int nReportModePrev;
+      int nReportModePrev{};
       bool bInteractive = IsInteractiveDesktop();
       if (bInteractive)
       {

@@ -5293,8 +5293,8 @@ public:
                     Orientation         orientationBfr;
                     Vector              positionBfr;
 
-                    const Orientation*  pOrientation;
-                    const Vector*       pPosition;
+                    const Orientation*  pOrientation = NULL;
+                    const Vector*       pPosition = NULL;
                     float               offset = m_distanceExternalCamera;
 
                     switch (m_cm)
@@ -5948,7 +5948,7 @@ public:
                 m_pconsoleImage->GetConsoleData()->SetTarget(pmodelTarget);
             }
 
-            IsideIGC*   psideMe;
+            IsideIGC*   psideMe = NULL;
             bool        bAnyEnemyShips;
             if (pmodelTarget)
                 bAnyEnemyShips = true;
@@ -5958,11 +5958,11 @@ public:
                 psideMe = trekClient.GetSide();
             }
 
-            float   zMin;
-            float   zMax;
+            float   zMin{};
+            float   zMax{};
 
-            const Vector*   pcameraPosition;
-            const Vector*   pcameraBackward;
+            const Vector*   pcameraPosition = NULL;
+            const Vector*   pcameraBackward = NULL;
             if (CommandCamera(m_cm))
             {
                 pcameraPosition = &(m_cameraControl.GetPosition());
@@ -6018,7 +6018,7 @@ public:
                         //
                         {
                             float           fScreenRadius;
-                            float           distanceToEdge;
+                            float           distanceToEdge{};
 
                             Point           pointScreenPosition;
                             unsigned char   ucRadarState;

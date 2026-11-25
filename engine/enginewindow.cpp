@@ -370,11 +370,13 @@ void EngineWindow::UpdateWindowStyle()
         SetHasMaximize(false);
         SetHasSysMenu(false);
         Window::SetSizeable(false);
-        SetTopMost(true);
+        SetTopMost(false);
 
         //
         // Borderless window covering the monitor, instead of an exclusive
         // mode switch. Window::CalcStyle leaves a thin border; drop it too.
+        // Not topmost, so Alt+Tab, the taskbar and a debugger can come in front
+        // of it like any other window.
         //
 
         HWND  hwnd  = GetHWND();
@@ -388,7 +390,7 @@ void EngineWindow::UpdateWindowStyle()
         m_bMovingWindow = true;
         ::SetWindowPos(
             hwnd,
-            HWND_TOPMOST,
+            HWND_NOTOPMOST,
             rect.XMin(),
             rect.YMin(),
             rect.XSize(),

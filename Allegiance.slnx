@@ -1,38 +1,33 @@
 <Solution>
   <Configurations>
-    <BuildType Name="Debug" />
-    <BuildType Name="Release" />
     <!-- Solution platform x86 maps to the Win32 platform of each .vcxproj. -->
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Libraries/">
-    <Project Path="zlib/ZLib.vcxproj" />
-    <Project Path="guids/Guids.vcxproj" />
-    <Project Path="_Utility/Utility.vcxproj" />
-    <Project Path="engine/Engine.vcxproj" />
-    <Project Path="effect/Effect.vcxproj" />
-    <Project Path="soundengine/SoundEngine.vcxproj" />
-    <Project Path="Igc/Igc.vcxproj" />
-    <Project Path="clintlib/ClintLib.vcxproj" />
-    <Project Path="training/Training.vcxproj" />
-    <Project Path="test/TCLib/TCLib.vcxproj" />
-    <Project Path="sharemem/ShareMem.vcxproj" />
+    <Project Path="zlib/ZLib.vcxproj" Id="34f19e78-c3ad-4eec-8f42-c823d58200c8" />
+    <Project Path="guids/Guids.vcxproj" Id="cb4a5507-7890-4d3e-acab-cd2b1e126d40" />
+    <Project Path="_Utility/Utility.vcxproj" Id="b7b60918-2ec7-4b11-98e6-15ee459965e1" />
+    <Project Path="engine/Engine.vcxproj" Id="598956d4-4c9c-46f6-a768-151834bcd97f" />
+    <Project Path="effect/Effect.vcxproj" Id="ef7f71bc-e8e5-4ef8-819d-6ab78f3eeb97" />
+    <Project Path="soundengine/SoundEngine.vcxproj" Id="6b95d240-3c2a-4f62-b1f8-fddca6d0c984" />
+    <Project Path="Igc/Igc.vcxproj" Id="436bd701-cd33-4132-ac9d-e4a34252e55f" />
+    <Project Path="clintlib/ClintLib.vcxproj" Id="5b164402-491e-404e-ab26-c6b1590ebabe" />
+    <Project Path="training/Training.vcxproj" Id="1dc45108-9797-4f75-9891-60197544974b" />
+    <Project Path="test/TCLib/TCLib.vcxproj" Id="cb0673c1-d288-4824-ba88-17230f780ded" />
+    <Project Path="sharemem/ShareMem.vcxproj" Id="aa05eee2-ad40-4075-8bc5-5080273db0e5" />
   </Folder>
   <Folder Name="/AGC/">
-    <Project Path="AGC/AGCGuid.vcxproj" />
-    <Project Path="AGC/AGC.vcxproj" />
-  </Folder>
-  <Folder Name="/Client/">
-    <Project Path="WinTrek/Allegiance.vcxproj" DefaultStartup="true" />
+    <Project Path="AGC/AGCGuid.vcxproj" Id="98f5f2a7-fbf2-4c2a-aea7-d4b1f4db0070" />
+    <Project Path="AGC/AGC.vcxproj" Id="8e3f6558-2352-4f7f-8621-7bc414ac16b1" />
   </Folder>
   <Folder Name="/Server/">
-    <Project Path="FedSrv/AllSrv32.vcxproj" />
+    <Project Path="FedSrv/AllSrv32.vcxproj" Id="482b8658-01bb-4af0-bafc-15476eeffbb4" />
   </Folder>
   <Folder Name="/Tools/">
-    <Project Path="mdlc/mdlc.vcxproj" />
-    <Project Path="cvh/cvh.vcxproj" />
-    <Project Path="xmunge/xmunge.vcxproj" />
-    <Project Path="qhull/qhull.vcxproj" />
+    <Project Path="mdlc/mdlc.vcxproj" Id="9ad007c5-0636-4425-b3b2-f87402b1eab5" />
+    <Project Path="cvh/cvh.vcxproj" Id="3a560e39-9c83-4111-80c1-f45c03dada91" />
+    <Project Path="xmunge/xmunge.vcxproj" Id="53945a79-12a3-5f2f-9aad-8b56c4d111f9" />
+    <Project Path="qhull/qhull.vcxproj" Id="e2a5b571-a7e6-42d8-bac9-a222c711e632" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
@@ -40,4 +35,5 @@
     <File Path="msbuild/Allegiance.Cpp.props" />
     <File Path="MODERNIZATION.md" />
   </Folder>
+  <Project Path="WinTrek/Allegiance.vcxproj" Id="95d21128-1f14-455f-982d-e20d69eb7eb1" />
 </Solution>

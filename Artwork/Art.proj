@@ -20,9 +20,10 @@
   Each step is incremental (Inputs/Outputs). mdlc runs in -batch mode so a step
   starts the engine once, not once per file.
 
-  Afterwards LinkToClient makes <ArtToolDir>artwork a junction to the output,
-  because that is where Allegiance.exe and AllSrv32.exe look for their art when
-  the registry has no ArtPath. -p:ArtLinkClient=false skips it.
+  Output goes to out\Artwork. The client looks for an "Artwork" directory next to
+  its exe, so the build also makes $(ArtLinkDir) (by default
+  out\bin\Win32\<Configuration>\Artwork) a directory junction to out\Artwork.
+  -p:ArtLink=false skips that.
 -->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
@@ -31,11 +32,12 @@
     <AllegianceRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..'))</AllegianceRoot>
     <ArtSource Condition="'$(ArtSource)' == ''">$(MSBuildThisFileDirectory)256\</ArtSource>
     <ArtToolDir Condition="'$(ArtToolDir)' == ''">$(AllegianceRoot)out\bin\Win32\$(Configuration)\</ArtToolDir>
-    <ArtOutDir Condition="'$(ArtOutDir)' == ''">$(AllegianceRoot)out\art\</ArtOutDir>
-    <ArtIntDir Condition="'$(ArtIntDir)' == ''">$(AllegianceRoot)out\artobj\</ArtIntDir>
+    <ArtOutDir Condition="'$(ArtOutDir)' == ''">$(AllegianceRoot)out\Artwork\</ArtOutDir>
+    <ArtLink Condition="'$(ArtLink)' == ''">true</ArtLink>
+    <ArtLinkDir Condition="'$(ArtLinkDir)' == ''">$(ArtToolDir)Artwork</ArtLinkDir>
+    <ArtIntDir Condition="'$(ArtIntDir)' == ''">$(AllegianceRoot)out\obj\Artwork\</ArtIntDir>
     <ArtTemplateDir Condition="'$(ArtTemplateDir)' == ''">$(MSBuildThisFileDirectory)tools\</ArtTemplateDir>
     <ArtModelDir>$(ArtIntDir)models\</ArtModelDir>
-    <ArtLinkClient Condition="'$(ArtLinkClient)' == ''">true</ArtLinkClient>
     <Mdlc>$(ArtToolDir)mdlc.exe</Mdlc>
     <Xmunge>$(ArtToolDir)xmunge.exe</Xmunge>
     <Cvh>$(ArtToolDir)cvh.exe</Cvh>
@@ -219,24 +221,28 @@
     <Copy SourceFiles="@(ArtCopy)" DestinationFolder="$(ArtOutDir)" SkipUnchangedFiles="true" />
   </Target>
 
-  <Target Name="Build" DependsOnTargets="Copies;Bitmaps;Animations;Fonts;Models;TextModels;LinkToClient" />
-
   <!--
-    The client and server read their art from "artwork" next to the exe when
-    HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.0 (WOW6432Node on
-    64-bit Windows) has no ArtPath. A directory junction needs no admin rights.
+    Point the exe directory's Artwork at $(ArtOutDir) with a directory junction
+    (no admin rights needed). rmdir without /s removes only a junction or an empty
+    directory, such as the one the client creates when it finds no art; a real
+    directory with files in it is left alone and reported.
   -->
 
-  <Target Name="LinkToClient" Condition="'$(ArtLinkClient)' == 'true' and '$(OS)' == 'Windows_NT'">
-    <PropertyGroup>
-      <_ArtLink>$(ArtToolDir)artwork</_ArtLink>
-      <_ArtTarget>$(ArtOutDir.TrimEnd('\'))</_ArtTarget>
-    </PropertyGroup>
-    <Exec Condition="!Exists('$(_ArtLink)')" Command="mklink /J &quot;$(_ArtLink)&quot; &quot;$(_ArtTarget)&quot;" />
-    <Message Condition="Exists('$(_ArtLink)')" Importance="normal" Text="$(_ArtLink) already exists; leaving it as it is." />
+  <PropertyGroup>
+    <_ArtLinkEnabled>false</_ArtLinkEnabled>
+    <_ArtLinkEnabled Condition="'$(ArtLink)' == 'true' and '$([MSBuild]::NormalizeDirectory($(ArtLinkDir)))' != '$([MSBuild]::NormalizeDirectory($(ArtOutDir)))'">true</_ArtLinkEnabled>
+  </PropertyGroup>
+
+  <Target Name="LinkArtwork" DependsOnTargets="CheckTools" Condition="$(_ArtLinkEnabled)">
+    <Exec Command="(rmdir &quot;$(ArtLinkDir)&quot; 2&gt;nul &amp; mklink /J &quot;$(ArtLinkDir)&quot; &quot;$(ArtOutDir.TrimEnd('\'))&quot; &gt;nul) || (echo Art.proj : error : could not link $(ArtLinkDir) to $(ArtOutDir). If it is a directory with files in it, move or delete it, or build with -p:ArtLink=false. &amp; exit /b 1)" />
+    <Message Importance="high" Text="Artwork: $(ArtLinkDir) -> $(ArtOutDir)" />
   </Target>
 
+  <Target Name="Build" DependsOnTargets="Copies;Bitmaps;Animations;Fonts;Models;TextModels;LinkArtwork" />
+
   <Target Name="Clean">
+    <!-- Remove the junction itself first, so nothing follows it into $(ArtOutDir). -->
+    <Exec Condition="$(_ArtLinkEnabled) and Exists('$(ArtLinkDir)')" Command="rmdir &quot;$(ArtLinkDir)&quot;" ContinueOnError="true" />
     <RemoveDir Directories="$(ArtOutDir);$(ArtIntDir)" />
   </Target>
 

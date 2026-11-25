@@ -258,7 +258,7 @@ How it was checked:
 - The real `mdlc` conversion runs only in CI.
 - `fig02pit` is left out because its source is missing.
 
-Each model's template refers to its `.x` files by absolute path in `out\artobj\models\`. That lets `mdlc` run in `out\art\` without the intermediates. It has to run there because textures are looked up on the art path, and a missing texture is a fatal error (`ModelerImpl::GetFile` asserts).
+Each model's template refers to its `.x` files by absolute path in `out\obj\Artwork\models\`. That lets `mdlc` run in `out\Artwork\` without the intermediates. It has to run there because textures are looked up on the art path, and a missing texture is a fatal error (`ModelerImpl::GetFile` asserts).
 
 `ops1` and `ops2` are in `makegeo.mak`, and their textures `ops1.bmp` and `ops2.bmp` are in the drop. But the textures were never listed in `bitmap.txt`, so the original build could not have produced these two models. Both lines are now added to `bitmap.txt`.
 
@@ -332,16 +332,13 @@ Then build the art with the tools from that build:
 msbuild Artwork\Art.proj -p:Configuration=Debug
 ```
 
-This takes about two minutes the first time; later runs reconvert only what changed. The art goes to
-`out\art\`. The last step creates `out\bin\Win32\Debug\artwork` as a junction to it, which is
-where `Allegiance.exe` and `AllSrv32.exe` look for their art (the server asks for `Artwork\`; Windows
-paths are case-insensitive). The client uses a different location only when
+The art goes to `out\Artwork\`, and `out\bin\Win32\<Configuration>\Artwork` is made a directory
+junction to it, because that is where `Allegiance.exe` and `AllSrv32.exe` look for their art
+(`-p:ArtLink=false` skips the junction). The client uses a different location only when
 `HKLM\SOFTWARE\WOW6432Node\Microsoft\Microsoft Games\Allegiance\1.0` has an `ArtPath` value, and the
-server only when the `Server` key below it does (the game is 32-bit, hence `WOW6432Node`).
-`-p:ArtLinkClient=false` skips the junction.
-
-Without building it yourself, the same output is attached to every CI run as the `art-Debug`
-artifact. Unzip it into an `artwork` folder next to the exes.
+server only when the `Server` key below it does (the game is 32-bit, hence `WOW6432Node`). In CI, a
+separate `art` job does this with the tools from the build job, and attaches the result to the run as
+the `art-Debug` artifact.
 
 ## Conformance fix log
 

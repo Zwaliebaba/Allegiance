@@ -158,6 +158,18 @@
     <ProjectReference Include="..\guids\Guids.vcxproj">
       <Project>{CB4A5507-7890-4D3E-ACAB-CD2B1E126D40}</Project>
     </ProjectReference>
+    <!-- Build-order only: trainingscreen.cpp includes agc.h and AllSrvModuleIDL.h,
+         which are MIDL output of these projects in $(AllegianceGenDir). -->
+    <ProjectReference Include="..\AGC\AGC.vcxproj">
+      <Project>{8E3F6558-2352-4F7F-8621-7BC414AC16B1}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\FedSrv\AllSrv32.vcxproj">
+      <Project>{482B8658-01BB-4AF0-BAFC-15476EEFFBB4}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

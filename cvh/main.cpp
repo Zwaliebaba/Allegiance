@@ -63,7 +63,7 @@ int	main(int argc, char** argv)
                 c_flatten,
                 c_extract,
                 c_bound
-            }   mode;
+            }   mode{};
 
             if (strcmp(argv[1], "-flatten") == 0)
                 mode = c_flatten;

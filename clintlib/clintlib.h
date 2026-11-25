@@ -1410,7 +1410,7 @@ public:
             {
                 CachedPart& cpl = l->data();
 
-                IpartTypeIGC*   ppt;
+                IpartTypeIGC*   ppt = NULL;
                 if (pstation->CanBuy(cpl.ppt))
                 {
                     ppt = (IpartTypeIGC*)(pstation->GetSuccessor(cpl.ppt));

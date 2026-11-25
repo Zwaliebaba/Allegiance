@@ -205,7 +205,7 @@ namespace Training
         {
             float   fRadius = 200.0f + (static_cast<float> (i) * 25.0f);
             Vector  newPosition = direction * fRadius;
-            HullID  hullID;
+            HullID  hullID{};
             switch (randomInt (0, 2))
             {
                 case 0:

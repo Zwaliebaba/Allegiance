@@ -201,7 +201,7 @@ jobs:
           & $msbuild Artwork/Art.proj -nologo -p:Configuration=${{ matrix.configuration }} `
             -fl "-flp:logfile=out/logs/art.log;verbosity=normal" -clp:Summary
           $code = $LASTEXITCODE
-          $files = Get-ChildItem out/art -File -ErrorAction SilentlyContinue
+          $files = Get-ChildItem out/Artwork -File -ErrorAction SilentlyContinue
           $mb = [math]::Round((($files | Measure-Object Length -Sum).Sum) / 1MB, 1)
           $byExt = $files | Group-Object Extension | Sort-Object Count -Descending | ForEach-Object { "$($_.Name) $($_.Count)" }
           "## Art (${{ matrix.configuration }})", "", "$(@($files).Count) files, $mb MB: $($byExt -join ', ')" -join "`n" |
@@ -214,13 +214,13 @@ jobs:
         shell: pwsh
         run: |
           ./tools/ci/mdlc-crash-stack.ps1 -Mdlc out/bin/Win32/${{ matrix.configuration }}/mdlc.exe `
-            -Log out/logs/art.log -ArtSource Artwork/256 -ArtOut out/art -Out out/logs
+            -Log out/logs/art.log -ArtSource Artwork/256 -ArtOut out/Artwork -Out out/logs
 
       - name: Upload art
         uses: actions/upload-artifact@v5
         with:
           name: art-${{ matrix.configuration }}
-          path: out/art/
+          path: out/Artwork/
           retention-days: 7
           if-no-files-found: error
 
@@ -231,5 +231,5 @@ jobs:
           name: art-logs-${{ matrix.configuration }}
           path: |
             out/logs/
-            out/artobj/
+            out/obj/Artwork/
           if-no-files-found: warn

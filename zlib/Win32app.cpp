@@ -1,6 +1,54 @@
 #include "pch.h"
 #include "regkey.h"
 
+#include <dbghelp.h>
+#pragma comment(lib, "dbghelp.lib")
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Call stack of a failed assertion, written to the debug output and log file
+// (symbols from the PDBs next to the modules or at their build paths)
+//
+//////////////////////////////////////////////////////////////////////////////
+
+static void LogAssertCallStack()
+{
+    void*  frames[48];
+    USHORT count = CaptureStackBackTrace(2, ARRAYSIZE(frames), frames, NULL); // skip this and OnAssert
+
+    HANDLE      hProcess     = GetCurrentProcess();
+    static bool s_bSymbols   = false;
+    if (!s_bSymbols) {
+        SymSetOptions(SYMOPT_UNDNAME | SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS);
+        s_bSymbols = SymInitialize(hProcess, NULL, TRUE) != FALSE;
+    }
+
+    ZDebugOutput("call stack:\n");
+    for (USHORT i = 0; i < count; i++) {
+        DWORD64 address = (DWORD64)(DWORD_PTR)frames[i];
+        char    sz[MAX_SYM_NAME + 300];
+
+        char         symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME];
+        SYMBOL_INFO* psymbol = (SYMBOL_INFO*)symbolBuffer;
+        psymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+        psymbol->MaxNameLen   = MAX_SYM_NAME;
+        DWORD64 displacement  = 0;
+
+        IMAGEHLP_LINE64 line = { sizeof(IMAGEHLP_LINE64) };
+        DWORD           lineDisplacement = 0;
+
+        if (s_bSymbols && SymFromAddr(hProcess, address, &displacement, psymbol)) {
+            if (SymGetLineFromAddr64(hProcess, address, &lineDisplacement, &line))
+                sprintf_s(sz, "  %s (%s:%lu)\n", psymbol->Name, line.FileName, line.LineNumber);
+            else
+                sprintf_s(sz, "  %s+0x%llx\n", psymbol->Name, displacement);
+        } else {
+            sprintf_s(sz, "  0x%08llx\n", address);
+        }
+        ZDebugOutput(sz);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Some assertion functions
@@ -283,6 +331,7 @@ bool Win32App::OnAssert(const char* psz, const char* pszFile, int line, const ch
         + ZString(line)
         + ")\n"
     );
+    LogAssertCallStack();
 
     //return _CrtDbgReport(_CRT_ASSERT, pszFile, line, pszModule, psz) == 1;
     return true;

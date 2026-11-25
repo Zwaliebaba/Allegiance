@@ -331,7 +331,7 @@ HRESULT CAGCEvent::ReadStringFromStream(IStream* pStm, BSTR* pbstr, BYTE bIndica
   }
 
   // Read the number of ANSI character to follow
-  ULONG cchAnsi;
+  ULONG cchAnsi{};
   switch (bIndicator)
   {
     case LengthZero:

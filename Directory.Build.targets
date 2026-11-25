@@ -35,8 +35,17 @@
           Condition="'@(AllegianceMessage)' != ''"
           Inputs="@(AllegianceMessage)"
           Outputs="@(AllegianceMessage->'%(OutputDirectory)%(Filename).h')">
+    <!-- Call mc.exe by full path from the Windows SDK bin directories. Prepending
+         $(ExecutablePath) to PATH instead (it already contains the whole environment
+         PATH) can push the command past cmd's 8191-character line limit. -->
+    <ItemGroup>
+      <_AllegianceSdkBinDir Include="$(WindowsSDK_ExecutablePath)" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_AllegianceMcExe Condition="'$(_AllegianceMcExe)' == '' and Exists('%(_AllegianceSdkBinDir.FullPath)\mc.exe')">%(_AllegianceSdkBinDir.FullPath)\mc.exe</_AllegianceMcExe>
+    </PropertyGroup>
+    <Error Condition="'$(_AllegianceMcExe)' == ''" Text="mc.exe not found in the Windows SDK executable path: $(WindowsSDK_ExecutablePath)" />
     <MakeDir Directories="%(AllegianceMessage.OutputDirectory)" />
-    <!-- PATH cannot go through Exec's EnvironmentVariables, which is ;-separated. -->
-    <Exec Command="set &quot;PATH=$(ExecutablePath);%PATH%&quot; &amp;&amp; mc.exe -r &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; -h &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; &quot;%(AllegianceMessage.FullPath)&quot;" />
+    <Exec Command="&quot;$(_AllegianceMcExe)&quot; -r &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; -h &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; &quot;%(AllegianceMessage.FullPath)&quot;" />
   </Target>
 </Project>

@@ -2087,7 +2087,7 @@ void CFSMission::DoTick(Time timeNow)
                 //End the game ... side with the most kills wins (ties -> fewest deaths, ties -> most money)
                 IsideIGC*   psideWin = NULL;
 
-                const char* pszClue;
+                const char* pszClue = NULL;
 
                 if (pmp->IsConquestGame())
                 {

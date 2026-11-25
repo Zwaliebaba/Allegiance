@@ -410,7 +410,7 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
                 mLink = (mLink && (mLink != models->last())) ? mLink->next() : models->first();
         }
         assert (mLink);
-        float   capacity;
+        float   capacity{};
         if ((abmAbilities & c_aabmMineHe3) != 0)
             capacity = pside->GetMission()->GetFloatConstant(c_fcidCapacityHe3);
 
@@ -429,8 +429,8 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
             {
                 if (ttBest)
                 {
-                    int     n;
-                    float   d;
+                    int     n{};
+                    float   d{};
                     if (ttMask & (c_ttFront | c_ttNearest))
                     {
                         //intentionally backwards so low cosforwards == in front
@@ -844,7 +844,7 @@ bool    SearchClusters(ImodelIGC*    pmodel,
 {
     assert (pmodel);
 
-    bool    rc;
+    bool    rc{};
     IclusterIGC*    pcluster = pmodel->GetCluster();
 
     if (pcluster)
@@ -989,11 +989,11 @@ GotoPositionMask Waypoint::DoApproach(IshipIGC*        pship,
     Vector  dpRest = positionRest - itsPosition;
     float   myRadius = (pship->GetRadius() + m_pmodelTarget->GetRadius() + 10.0f);   //my radius plus a fudge factor
 
-    const Vector* pdirectionBest;
-    const Vector* pcenterBest;
+    const Vector* pdirectionBest = NULL;
+    const Vector* pcenterBest = NULL;
     Vector  goalBest;
     float   error2Best = FLT_MAX;
-    float   offset2Best;
+    float   offset2Best{};
     int     bayBest;
     for (int i = 0; (i < nLand); i++)
     {

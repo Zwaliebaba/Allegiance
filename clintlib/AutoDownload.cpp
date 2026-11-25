@@ -1348,7 +1348,7 @@ private:
             // let's do a CRC check
             //
             char szBuffer[100+MAX_PATH];
-            int nLocalCRC;
+            int nLocalCRC{};
 
             if (!bNewFile && (!bIsFileLengthWrong || m_bForceCRCCheck))
             {

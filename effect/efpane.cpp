@@ -938,7 +938,7 @@ public:
 
     TRef<IObject> Apply(ObjectStack& stack)
     {
-        TRef<Pane>  ppane; CastTo(ppane, (Value*)(IObject*)stack.Pop());
+        TRef<Pane>  ppane; CastTo(ppane, (Pane*)(IObject*)stack.Pop());
 
         AddChildren(ppane, stack);
 
@@ -1003,7 +1003,7 @@ public:
 
     TRef<IObject> Apply(ObjectStack& stack)
     {
-        TRef<Pane> ppane; CastTo(ppane, (Value*)(IObject*)stack.Pop());
+        TRef<Pane> ppane; CastTo(ppane, (Pane*)(IObject*)stack.Pop());
 
         return CreateBlackPane(ppane);
     }

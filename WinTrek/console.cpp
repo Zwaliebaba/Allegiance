@@ -326,7 +326,7 @@ struct ChatSubject
             {
                 //Mark all legal recipients of this chat with an appropriate bit
                 IsideIGC*           psideFriendly = trekClient.GetShip()->GetSide();
-                WingID              wid;
+                WingID              wid{};
                 const ShipListIGC*  pships = psideFriendly->GetShips();
                 switch (ct)
                 {
@@ -1298,7 +1298,7 @@ public:
                 static const char*  pszAdmin = "Admin";
                 static const char*  pszNone = "None";
 
-                const char* pszRecipient;
+                const char* pszRecipient = NULL;
                 switch (m_pchsCurrent->m_ctRecipient)
                 {
                     case CHAT_NOSELECTION:
@@ -2365,7 +2365,7 @@ public:
         if (*pszText == '\0')
             return;
 
-        ImodelIGC*  pmodelBest;
+        ImodelIGC*  pmodelBest = NULL;
         int         scoreBest = c_badMatch;  //Any nice big number
 
         //Find an acceptable thing to target
@@ -2586,8 +2586,8 @@ public:
                 int         scoreBest = c_badMatch;
 
                 ChatTarget    ct = CHAT_NOSELECTION;
-                ObjectID      oidRecipient;
-                IbaseIGC*     pbaseRecipient;
+                ObjectID      oidRecipient{};
+                IbaseIGC*     pbaseRecipient = NULL;
 
                 //Try to match against a wing
                 {
