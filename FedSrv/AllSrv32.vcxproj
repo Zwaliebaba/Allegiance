@@ -34,7 +34,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)test\Inc;$(AllegianceRoot)lobby;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)test\Inc;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -43,7 +43,7 @@
       <DelayLoadDLLs>netapi32.dll;advapi32.dll</DelayLoadDLLs>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)test\Inc;$(AllegianceRoot)lobby;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)test\Inc;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
