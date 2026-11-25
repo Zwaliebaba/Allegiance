@@ -155,7 +155,7 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
 | Rendering | DirectDraw 4 + Direct3D 3 (DirectX 6), software rasterizer | D3D11 backend. Stage 1 (below): a D3D11 rasterizer with the engine's CPU transform and lighting. Stage 2: transform and lighting in shaders |
 | Input | DirectInput 2/7 | DirectInput 8 |
 | Audio | DirectSound / DS3D | Unchanged at first; XAudio2 later |
-| Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Same `IDiskPlayer` interface, playing the WAVs from `Artwork/redbook` (track order from `tracks.lst`) |
+| Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Done: the same `IDiskPlayer` interface plays the WAVs from `Artwork/redbook` (copied to `out\Artwork\redbook` by `Art.proj`; CD track n is line n - 1 of `tracks.lst`) through the Media Foundation Media Engine, audio only. The music gain sets the player's volume instead of the system mixer's CD line |
 | Networking | DirectPlay 4 inside `FedMessaging` | MsQuic: a reliable ordered stream and unreliable datagrams per connection, plus a UDP probe for LAN discovery (see "Networking" below) |
 | Settings | `HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.0` (and `...\Server`) | A JSON file per program (see "Settings" below) |
 
@@ -198,7 +198,7 @@ Design:
 | Gamma | DirectDraw gamma ramp | The same curve in the presentation pixel shader |
 | Device loss | `TestCooperativeLevel`, full rebuild | `DXGI_ERROR_DEVICE_REMOVED`/`RESET` re-creates the device. Nothing is lost, because surfaces live in system memory |
 | Tools | `mdlc` initialised DirectDraw with `-software` | The engine creates the D3D11 device only on first use, so `mdlc` needs no GPU. BMP import uses `GetDIBits`. The 1,405 24-bit sources get identical pixels. The 37 16-bit (555) sources are read at their own depth, so the 565 conversion is unchanged. The 7 8-bit sources now come out in their palette colours; the old conversion ignored palettes (zero colour masks), so they almost certainly came out black |
-| Movies | DirectShow `IAMMultiMediaStream` into a DirectDraw surface | Stubbed: the video image reports the movie as finished. Media Foundation playback is a follow-up |
+| Movies | DirectShow `IAMMultiMediaStream` into a DirectDraw surface | Media Foundation (later; see "Movies" below): a source reader decodes RGB32 frames into a system-memory surface, and an audio-only Media Engine plays the sound and serves as the clock |
 
 Deleted:
 
@@ -211,7 +211,7 @@ Known gaps to check when testing:
 
 - The 2D/3D synchronisation costs a full-frame upload and readback around each 3D layer. At 800x600 this should be a few milliseconds, but it is unmeasured. Stage 2 removes it (below).
 - Pixel-exactness against the DirectX 6 output is unverified (half-pixel rule, colour-key edges with linear filtering).
-- Movies are skipped.
+- Movies are skipped (played again since; see "Movies").
 
 #### Rendering, stage 2: GPU-resident frame, transform and lighting in shaders
 
@@ -301,6 +301,10 @@ peer gone, send failed); `FedMessaging::ReceiveMessages` drains the queue on the
 
 Ports (UDP): game servers 47700 (QUIC) and 47701 (discovery); the lobby's client side 47710/47711 and its
 server side 47720/47721. A server address may name another port as `host:port`.
+
+The LAN dialog's server box (in the original, commented out) is back: type a host, `host:port` or an
+address and press Find or Enter, and the dialog asks that server instead of broadcasting, which reaches
+servers beyond the LAN; empty asks the LAN again. The list is shorter to make room for it.
 
 #### Settings: a JSON file replaces the registry
 
@@ -397,15 +401,18 @@ the console server hosted the public session and tried the long-dead Zone lobby,
 browser looks only for the LAN session (`FEDSRV_STANDALONE_PRIVATE_GUID`), and the `Game1`, `Game2`, ...
 games from `server.json` were only created after a lobby connection succeeded. Now the server hosts the
 LAN session and creates the `server.json` games at startup; `"PublicLobby": 1` restores the public
-session and lobby. As before, a standalone server shuts down when its last game is gone (it used to
-stay up while an admin session was connected).
+session and lobby. Games from `server.json` are never deleted: after a round they go back to "not
+started" (unless `bAllowRestart` is off) and wait for players. A dedicated server keeps running when its
+last game is deleted, which only happens to a lobby-created game nobody joins within 15 seconds; it used
+to shut down then, and drop its lobby connection, unless an admin session held it up.
 
 Training mission 7 ("live" training against the Bios) used the admin objects to have COM start a local
 AllSrv32, create the game, start it once the player had joined, and kill it afterwards. The client now
 starts `AllSrv32.exe` from its own folder itself, as a hidden child process in a job object (so it dies
 with the client), with `-training <civ> -stopevent <handle>`. The server hosts the LAN session with that
 one game (`Inc/trainingserver.h` names it), starts it when the player has joined, and shuts down when the
-client sets the inherited event, or when the game ends. If the server exits before it can be joined, for
+client sets the inherited event (the client does that when training ends, and the job object covers a
+client that crashes). If the server exits before it can be joined, for
 example because another server holds the port, the client says so. The rest of the flow (finding the
 server on 127.0.0.1, joining as "Cadet") is unchanged.
 
@@ -442,6 +449,17 @@ server's COM start-up (`CoInitialize`, the ATL module) are gone. In their place:
 ATL is still included for a few helpers (`CComBSTR`, `test/TCLib`, `test/TCAtl`), but there is no ATL
 module, COM server, COM class or COM registration of the repository's own left in the built code (the
 client still uses DirectX's COM interfaces, which need none of that).
+
+#### Movies
+
+The movies (`msr_games`, `logo1`, `logo2`; 320x240 at 15 fps, 6 to 13 seconds, 8-bit or 16-bit PCM sound)
+were Indeo 4 and Indeo 5 AVIs, which Windows 10 and 11 can no longer decode (the Indeo codecs were removed
+from Windows). They were converted once, with ffmpeg 6.1 (`libx264 -profile:v main -crf 18`, AAC 128 kb/s),
+to MP4 files that Media Foundation plays, about a third of the size; the AVIs were deleted.
+`engine/videoimage.cpp` decodes the video with a source reader into an engine surface and draws it scaled
+to fit the screen, keeping the aspect ratio; the sound plays through an audio-only Media Engine whose
+position the frames follow. A key press still skips a movie. `intro.avi` was on the game CD and is not in
+the repository, so the intro is skipped unless an `intro.mp4` is put in the artwork folder.
 
 ### Phase 4: art pipeline
 
@@ -520,7 +538,7 @@ The original build only gathers art from `Artwork/256`, through these inputs:
 
 - `bitmap.txt`, `copymdl.txt` and `fontsource.mdl`.
 - The sources named in `makegeo.mak` (`<geo>.x`, `_static.x`, `_bound.x`, text MDLs).
-- Wildcard copies of `*.wav`, `*.rtf`, `*.avi`, `*.igc` and `*.mml`.
+- Wildcard copies of `*.wav`, `*.rtf`, `*.avi` (now `*.mp4`, see "Movies"), `*.igc` and `*.mml`.
 
 The client reads only that output directory. Everything else was deleted, and git history keeps it:
 

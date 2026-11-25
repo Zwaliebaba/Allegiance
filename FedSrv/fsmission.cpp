@@ -311,17 +311,13 @@ CFSMission::~CFSMission()
   g.fm.DeleteGroup(m_pgrpSidesReal);
 
   #if defined(ALLSRV_STANDALONE)
-    // Possibly shutdown the standalone server if no more games
-    if (0 == s_list.n())
-    {
-      // Disconnect from the lobby server
-      DisconnectFromLobby();
-      g.strLobbyServer.SetEmpty();
-
-      // Shutdown the server. (It used to stay up while an admin tool held a
-      // DCOM session; there are none now.)
+    // A training server (trainingserver.h) stops once its game is gone. A
+    // dedicated server keeps running, and keeps its lobby connection, so
+    // new games can be created: it used to shut down here unless an admin
+    // tool held a DCOM session, which made a public server exit as soon as
+    // a lobby-created game nobody joined was cleaned up.
+    if (0 == s_list.n() && NA != g.civTraining)
       PostThreadMessage(g.idReceiveThread, WM_QUIT, 0, 0);
-    }
   #endif // defined(ALLSRV_STANDALONE)
 
   // kill any pending ballots

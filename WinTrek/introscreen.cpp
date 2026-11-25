@@ -135,17 +135,17 @@ private:
     {
     private:
         TRef<Pane> m_ppane;
-        //TRef<ButtonPane>    m_pbuttonFind;
+        TRef<ButtonPane>    m_pbuttonFind;
         TRef<ButtonPane>    m_pbuttonJoin;
         TRef<ButtonPane>    m_pbuttonCancel;
-        //TRef<EditPane>      m_peditPane;
+        TRef<EditPane>      m_peditPane;    // a server to ask: "host" or "host:port"; empty for the LAN
         TRef<ListPane>      m_plistPane;
 
         TRef<IItemEvent::Source>   m_peventServerList;
         TRef<TEvent<ItemID>::Sink> m_psinkServerList;
 
         IntroScreen* m_pparent;
-        //TRef<IKeyboardInput> m_pkeyboardInputOldFocus;
+        TRef<IKeyboardInput> m_pkeyboardInputOldFocus;
         bool m_bDoBackgroundPolling;
         TRef<LANServerInfo> m_pserverSearching;
 
@@ -222,15 +222,15 @@ private:
 
             CastTo(m_ppane,                 pns->FindMember("ServerDialog"));
 
-            //CastTo(m_pbuttonFind,           pns->FindMember("serverFindButtonPane"));
+            CastTo(m_pbuttonFind,           pns->FindMember("serverFindButtonPane"));
             CastTo(m_pbuttonJoin,           pns->FindMember("serverJoinButtonPane"));
             CastTo(m_pbuttonCancel,         pns->FindMember("serverCancelButtonPane"));
-            //CastTo(m_peditPane,      (Pane*)pns->FindMember("serverEditPane"));
+            CastTo(m_peditPane,      (Pane*)pns->FindMember("serverEditPane"));
             CastTo(m_plistPane,      (Pane*)pns->FindMember("serverListPane"));
             CastTo(pGameNameX,              pns->FindMember("serverListGameNameX"));
             CastTo(pListXSize,              pns->FindMember("serverListWidth"));
 
-            //AddEventTarget(OnButtonFind, m_pbuttonFind->GetEventSource());
+            AddEventTarget(&FindServerPopup::OnButtonFind, m_pbuttonFind->GetEventSource());
             AddEventTarget(&FindServerPopup::OnButtonJoin, m_pbuttonJoin->GetEventSource());
             AddEventTarget(&FindServerPopup::OnButtonCancel, m_pbuttonCancel->GetEventSource());
             AddEventTarget(&FindServerPopup::OnButtonJoin, m_plistPane->GetDoubleClickEventSource());
@@ -265,10 +265,10 @@ private:
 
         virtual void OnClose()
         {
-            //if (m_pkeyboardInputOldFocus)
-            //    GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
+            if (m_pkeyboardInputOldFocus)
+                GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
 
-            //m_pkeyboardInputOldFocus = NULL;
+            m_pkeyboardInputOldFocus = NULL;
             m_bDoBackgroundPolling = false;
 
             IPopup::OnClose();
@@ -276,11 +276,11 @@ private:
 
         virtual void SetContainer(IPopupContainer* pcontainer)
         {
-            //m_pkeyboardInputOldFocus = GetWindow()->GetFocus();
-            //GetWindow()->SetFocus(m_peditPane);
+            m_pkeyboardInputOldFocus = GetWindow()->GetFocus();
+            GetWindow()->SetFocus(m_peditPane);
             m_bDoBackgroundPolling = true;
 
-            FindGames("");
+            FindGames(m_peditPane->GetString());
             IPopup::SetContainer(pcontainer);
         }
 
@@ -290,7 +290,7 @@ private:
             fForceTranslate = true;
             return false;
         }
-        /*
+
         bool OnChar(IInputProvider* pprovider, const KeyState& ks)
         {
             if (ks.vk == 13)
@@ -302,13 +302,20 @@ private:
                 return ((IKeyboardInput*)m_peditPane)->OnChar(pprovider, ks);
         }
         
+        //
+        // Ask the server typed in the box ("host" or "host:port"; the port
+        // defaults to the game port), or the LAN if the box is empty. The
+        // background polling then keeps asking the same place.
+        //
+
         bool OnButtonFind()
         {
+            m_plistServers->SetEmpty();
             FindGames(m_peditPane->GetString());
 
             return true;
         }
-        */
+
         bool PollForServers()
         {
             if (m_bDoBackgroundPolling)
@@ -380,8 +387,8 @@ private:
 
         bool OnButtonJoin()
         {
-            //GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-            //m_pkeyboardInputOldFocus = NULL;
+            GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
+            m_pkeyboardInputOldFocus = NULL;
             m_bDoBackgroundPolling = false;
 
             if (m_ppopupOwner) {
@@ -401,8 +408,8 @@ private:
 
         bool OnButtonCancel()
         {
-            //GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-            //m_pkeyboardInputOldFocus = NULL;
+            GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
+            m_pkeyboardInputOldFocus = NULL;
             m_bDoBackgroundPolling = false;
 
             if (m_ppopupOwner) {

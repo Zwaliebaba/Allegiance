@@ -21,7 +21,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        configuration: [ Debug ]
+        # Release builds with optimisation and without _DEBUG, so it catches code
+        # that only compiles in one of the two (#ifdef _DEBUG blocks, asserts).
+        configuration: [ Debug, Release ]
     env:
       # Built one at a time, in dependency order, with BuildProjectReferences=false,
       # so a failure in one project does not hide the compile errors of the
@@ -119,7 +121,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 10
         shell: pwsh
-        run: ./tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/Win32/Debug/mdlc.exe -Art out/smoke-src -Out out/art-smoke
+        run: ./tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/Win32/${{ matrix.configuration }}/mdlc.exe -Art out/smoke-src -Out out/art-smoke
 
       - name: Error summary
         if: always()
@@ -171,7 +173,9 @@ jobs:
         run: exit 1
 
   # Phase 4: convert the art with the tools the build job produced. Runs on its
-  # own runner so the build job's checkout can keep skipping Artwork/.
+  # own runner so the build job's checkout can keep skipping Artwork/. The art
+  # is converted once, with the Debug tools; the Release tools only get the
+  # mdlc smoke test above.
   art:
     needs: build
     runs-on: windows-2025

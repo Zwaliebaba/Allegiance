@@ -2433,10 +2433,11 @@ public:
         m_pClientEventSource->AddSink(m_pClientEventSink);
 
         //
-        // Initialize redbook audio
+        // Initialize the music: the soundtrack WAVs in the artwork's redbook
+        // folder (they were Audio-CD tracks)
         //
 
-        hr = CreateDiskPlayer(m_pDiskPlayer, LoadPreference("AudioCD", "Allegiance"));
+        hr = CreateDiskPlayer(m_pDiskPlayer, GetModeler()->GetArtPath() + "\\redbook");
 
         if (FAILED(hr))
             CreateDummyDiskPlayer(m_pDiskPlayer);
