@@ -5,7 +5,7 @@
 
     AllegianceXslt     XML -> text through an old-style (WD-xsl) stylesheet, run
                        with Windows Script Host + MSXML via AGC\XMLXForm.js.
-                       Item metadata: Xml (input document), Output (file).
+                       Item metadata: Xml (input document), OutputFile (file).
     AllegianceMessage  Message-compiler sources (.msg / .mc) -> .h + .rc + .bin,
                        written to %(OutputDirectory) (default $(IntDir)).
 
@@ -22,11 +22,11 @@
           BeforeTargets="Midl;ClCompile;ResourceCompile"
           Condition="'@(AllegianceXslt)' != ''"
           Inputs="@(AllegianceXslt);%(AllegianceXslt.Xml)"
-          Outputs="%(AllegianceXslt.Output)">
-    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('%(AllegianceXslt.Output)'))" />
-    <Exec Command="cscript //NoLogo &quot;$(AllegianceRoot)AGC\XMLXForm.js&quot; &quot;%(AllegianceXslt.Xml)&quot; &quot;%(AllegianceXslt.FullPath)&quot; &quot;%(AllegianceXslt.Output)&quot;"
+          Outputs="%(AllegianceXslt.OutputFile)">
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('%(AllegianceXslt.OutputFile)'))" />
+    <Exec Command="cscript //NoLogo &quot;$(AllegianceRoot)AGC\XMLXForm.js&quot; &quot;%(AllegianceXslt.Xml)&quot; &quot;%(AllegianceXslt.FullPath)&quot; &quot;%(AllegianceXslt.OutputFile)&quot;"
           WorkingDirectory="$(MSBuildProjectDirectory)" />
-    <Error Condition="!Exists('%(AllegianceXslt.Output)')" Text="XSLT did not produce %(AllegianceXslt.Output)" />
+    <Error Condition="!Exists('%(AllegianceXslt.OutputFile)')" Text="XSLT did not produce %(AllegianceXslt.OutputFile)" />
   </Target>
 
   <Target Name="AllegianceMessage"

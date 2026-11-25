@@ -110,23 +110,23 @@
   <ItemGroup>
     <AllegianceXslt Include="AGCEventsCPP.xsl">
       <Xml>$(ProjectDir)AGCEvents.xml</Xml>
-      <Output>$(AllegianceGenDir)AGC\AGCEventsCPP.h</Output>
+      <OutputFile>$(AllegianceGenDir)AGC\AGCEventsCPP.h</OutputFile>
     </AllegianceXslt>
     <AllegianceXslt Include="AGCEventsIDL.xsl">
       <Xml>$(ProjectDir)AGCEvents.xml</Xml>
-      <Output>$(AllegianceGenDir)AGC\AGCEventsIDL.idl</Output>
+      <OutputFile>$(AllegianceGenDir)AGC\AGCEventsIDL.idl</OutputFile>
     </AllegianceXslt>
     <AllegianceXslt Include="AGCEventsMC.xsl">
       <Xml>$(ProjectDir)AGCEvents.xml</Xml>
-      <Output>$(AllegianceGenDir)AGC\AGCEventsMC.mc</Output>
+      <OutputFile>$(AllegianceGenDir)AGC\AGCEventsMC.mc</OutputFile>
     </AllegianceXslt>
     <AllegianceXslt Include="AGCEventsRC2.xsl">
       <Xml>$(ProjectDir)AGCEvents.xml</Xml>
-      <Output>$(AllegianceGenDir)AGC\AGCEventsRC2.rc2</Output>
+      <OutputFile>$(AllegianceGenDir)AGC\AGCEventsRC2.rc2</OutputFile>
     </AllegianceXslt>
     <AllegianceXslt Include="AGCEventsRCH.xsl">
       <Xml>$(ProjectDir)AGCEvents.xml</Xml>
-      <Output>$(AllegianceGenDir)AGC\AGCEventsRCH.h</Output>
+      <OutputFile>$(AllegianceGenDir)AGC\AGCEventsRCH.h</OutputFile>
     </AllegianceXslt>
     <AllegianceMessage Include="$(AllegianceGenDir)AGC\AGCEventsMC.mc">
       <OutputDirectory>$(AllegianceGenDir)AGC\</OutputDirectory>
