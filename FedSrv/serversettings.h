@@ -25,8 +25,4 @@ const char c_szServerSettingsFile[] = "server.json";
 // The service name (not a setting, but it used to share regkey.h)
 //
 
-#if !defined(ALLSRV_STANDALONE)
-  const char c_szSvcName[] = "AllSrv";
-#else
   const char c_szSvcName[] = "AllSrv32";
-#endif

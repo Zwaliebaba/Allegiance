@@ -24,7 +24,8 @@ solution that compiles, runs on current Windows, and builds its art from source.
 **Tier 1 (built):** `zlib` (Microsoft's base library, not the compression library), `guids`, `_Utility`,
 `engine`, `effect`, `soundengine`, `Igc`, `clintlib`, `training`, `WinTrek` (client); `mdlc`, `xmunge`,
 `cvh`, `qhull` (art tools); `FedSrv`, built as the original standalone LAN server flavour `AllSrv32`
-(`ALLSRV_STANDALONE`) with the helper library it needs from `test/` (`TCLib`). (`sharemem`, the
+(`ALLSRV_STANDALONE`; the database-backed Zone server code it compiled out has since been deleted) with
+the helper library it needs from `test/` (`TCLib`). (`sharemem`, the
 performance-counter library, and `AGC` are deleted; see "Server administration" and "AGC removed".)
 
 `xmunge` is not built yet. It is written entirely against Direct3D Retained Mode (frames, mesh
@@ -402,9 +403,10 @@ browser looks only for the LAN session (`FEDSRV_STANDALONE_PRIVATE_GUID`), and t
 games from `server.json` were only created after a lobby connection succeeded. Now the server hosts the
 LAN session and creates the `server.json` games at startup; `"PublicLobby": 1` restores the public
 session and lobby. Games from `server.json` are never deleted: after a round they go back to "not
-started" (unless `bAllowRestart` is off) and wait for players. A dedicated server keeps running when its
-last game is deleted, which only happens to a lobby-created game nobody joins within 15 seconds; it used
-to shut down then, and drop its lobby connection, unless an admin session held it up.
+started" (unless `bAllowRestart` is off) and wait for players, so a dedicated server keeps running. The
+code that shut a standalone server down when its last game was deleted now only stops a training server;
+in practice it never fired, because the only games ever deleted were lobby-created ones that nobody joined,
+and only the database server (never built, and removed in the dead code cleanup) took those.
 
 Training mission 7 ("live" training against the Bios) used the admin objects to have COM start a local
 AllSrv32, create the game, start it once the player had joined, and kill it afterwards. The client now

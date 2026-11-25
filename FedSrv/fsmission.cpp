@@ -111,13 +111,9 @@ CFSMission::CFSMission(
 
   // keep track of whether this is a lobbied and/or club game
   m_misdef.misparms.bLobbiedGame = g.fmLobby.IsConnected();
-#if !defined(ALLSRV_STANDALONE)
-  strcpy(m_misdef.misparms.szIGCStaticFile, IGC_ENCRYPT_CORE_FILENAME);
-#else // !defined(ALLSRV_STANDALONE)
   strcpy(m_misdef.misparms.szIGCStaticFile, IGC_STATIC_CORE_FILENAME);
   // hardcode this cap in one more place to make it harder to work around.
   m_misdef.misparms.nTotalMaxPlayersPerGame = min(c_cMaxPlayersPerGame, misparms.nTotalMaxPlayersPerGame);
-#endif // !defined(ALLSRV_STANDALONE)
 
   // if this game is an auto-start game, set the start time appropriately
   if (m_misdef.misparms.bAutoRestart)
@@ -144,12 +140,7 @@ CFSMission::CFSMission(
   m_misdef.fAutoAcceptLeaders = true;
   m_misdef.fInProgress = false;
   m_misdef.stage = STAGE_NOTSTARTED;
-#if !defined(ALLSRV_STANDALONE)
-  extern void DoDecrypt(int size, char* pdata);
-  m_misdef.misparms.verIGCcore = LoadIGCStaticCore(m_misdef.misparms.szIGCStaticFile, m_pMission, false,  DoDecrypt);
-#else // !defined(ALLSRV_STANDALONE)
   m_misdef.misparms.verIGCcore = LoadIGCStaticCore(m_misdef.misparms.szIGCStaticFile, m_pMission, false,  NULL);
-#endif // !defined(ALLSRV_STANDALONE)
   m_misdef.dwCookie = NULL;
 
   const CivilizationListIGC*  pcivs = m_pMission->GetCivilizations();
@@ -310,7 +301,6 @@ CFSMission::~CFSMission()
   m_psiteMission->Destroy(this);
   g.fm.DeleteGroup(m_pgrpSidesReal);
 
-  #if defined(ALLSRV_STANDALONE)
     // A training server (trainingserver.h) stops once its game is gone. A
     // dedicated server keeps running, and keeps its lobby connection, so
     // new games can be created: it used to shut down here unless an admin
@@ -318,7 +308,6 @@ CFSMission::~CFSMission()
     // a lobby-created game nobody joined was cleaned up.
     if (0 == s_list.n() && NA != g.civTraining)
       PostThreadMessage(g.idReceiveThread, WM_QUIT, 0, 0);
-  #endif // defined(ALLSRV_STANDALONE)
 
   // kill any pending ballots
   while (!m_ballots.IsEmpty())
@@ -2470,61 +2459,6 @@ void CFSMission::MakeOverrideTechBits()
  */
 void CFSMission::RecordGameResults()
 {
-  #if !defined(ALLSRV_STANDALONE)
-
-    // Create the database update query
-    CQGameResults*  pquery = new CQGameResults(NULL); // don't need call-back notification
-    CQGameResultsData* pqd = pquery->GetData();
-
-    // Populate the query parameters
-    strncpy(pqd->szGameID     , GetIGCMission()->GetContextName()      , sizeofArray(pqd->szGameID));
-    strncpy(pqd->szName       , m_misdef.misparms.strGameName          , sizeofArray(pqd->szName));
-    strncpy(pqd->szWinningTeam, m_psideWon ? m_psideWon->GetName() : "", sizeofArray(pqd->szWinningTeam));
-    // make SURE they're NULL-terminated
-    pqd->szGameID[sizeofArray(pqd->szGameID) - 1] = '\0';
-    pqd->szName[sizeofArray(pqd->szName) - 1] = '\0';
-    pqd->szWinningTeam[sizeofArray(pqd->szWinningTeam) - 1] = '\0';
-
-    pqd->nWinningTeamID       = m_psideWon ? m_psideWon->GetObjectID() : NA;
-    pqd->bIsGoalConquest      = m_misdef.misparms.IsConquestGame();
-    pqd->bIsGoalCountdown     = m_misdef.misparms.IsCountdownGame();
-    pqd->bIsGoalTeamKills     = m_misdef.misparms.IsDeathMatchGame();
-    pqd->bIsGoalProsperity    = m_misdef.misparms.IsProsperityGame();
-    pqd->bIsGoalArtifacts     = m_misdef.misparms.IsArtifactsGame();
-    pqd->bIsGoalFlags         = m_misdef.misparms.IsFlagsGame();
-    pqd->nGoalConquest        = m_misdef.misparms.iGoalConquestPercentage;
-    pqd->nGoalCountdown       = m_misdef.misparms.dtGameLength;
-    pqd->nGoalTeamKills       = m_misdef.misparms.nGoalTeamKills;
-    pqd->fGoalProsperity      = m_misdef.misparms.fGoalTeamMoney;
-    pqd->nGoalArtifacts       = m_misdef.misparms.nGoalArtifactsCount;
-    pqd->nGoalFlags           = m_misdef.misparms.nGoalFlagsCount;
-    pqd->nDuration            = GetGameDuration();
-
-    // Post the query for async completion
-    g.sql.PostQuery(pquery);
-
-    // Iterate through each team of the game
-    const SideListIGC* pSides = GetIGCMission()->GetSides();
-    for (SideLinkIGC* itSide = pSides->first(); itSide; itSide = itSide->next())
-    {
-      IsideIGC* pside = itSide->data();
-      assert(pside);
-
-      // Record the team results
-      RecordTeamResults(pside);
-    }
-
-    // Iterate through each player that left the game before it ended
-    for (OldPlayerLink* itOld = m_oldPlayers.first(); itOld; itOld = itOld->next())
-    {
-      OldPlayerInfo& opi = itOld->data();
-
-      // Record the player results (if they played on a real side)
-      if (opi.sideID != SIDE_TEAMLOBBY)
-        RecordPlayerResults(opi.name, &opi.pso, opi.sideID);
-    }
-
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 
@@ -2536,60 +2470,6 @@ void CFSMission::RecordGameResults()
  */
 void CFSMission::RecordTeamResults(IsideIGC* pside)
 {
-  #if !defined(ALLSRV_STANDALONE)
-
-    // Create the database update query
-    CQTeamResults*  pquery = new CQTeamResults(NULL);
-    CQTeamResultsData* pqd = pquery->GetData();
-
-    // Populate the query parameters
-    strncpy(pqd->szGameID           , GetIGCMission()->GetContextName(), sizeofArray(pqd->szGameID));
-    strncpy(pqd->szName             , pside->GetName()                 , sizeofArray(pqd->szName));
-    // make SURE they're NULL-terminated
-    pqd->szGameID[sizeofArray(pqd->szGameID) - 1] = '\0';
-    pqd->szName[sizeofArray(pqd->szName) - 1] = '\0';
-
-    pside->GetTechs().ToString(pqd->szTechs, sizeofArray(pqd->szTechs));
-    pqd->nCivID                     = pside->GetCivilization()->GetObjectID();
-    pqd->nTeamID                    = pside->GetObjectID();
-    pqd->cPlayerKills               = pside->GetKills();
-    pqd->cBaseKills                 = pside->GetBaseKills();
-    pqd->cBaseCaptures              = pside->GetBaseCaptures();
-    pqd->cDeaths                    = pside->GetDeaths();
-    pqd->cEjections                 = pside->GetEjections();
-    pqd->cFlags                     = pside->GetFlags();
-    pqd->cArtifacts                 = pside->GetArtifacts();
-    pqd->nConquestPercent           = pside->GetConquestPercent();
-    pqd->nProsperityPercentBought   = pside->GetProsperityPercentBought();
-    pqd->nProsperityPercentComplete = pside->GetProsperityPercentComplete();
-    if (pside->GetActiveF())
-      pqd->nTimeEndured             = GetGameDuration();
-    else
-      pqd->nTimeEndured             = pside->GetTimeEndured();
-
-    // Post the query for async completion
-    g.sql.PostQuery(pquery);
-
-    // Iterate through each player of the team
-    const ShipListIGC* pShips = pside->GetShips();
-    for (ShipLinkIGC* itShip = pShips->first(); itShip; itShip = itShip->next())
-    {
-      IshipIGC* pship = itShip->data();
-      assert(pship);
-
-      // Filter-out non-player ships
-      if (ISPLAYER(pship))
-      {
-        // Get the player score object
-        CFSPlayer*    pfsPlayer = ((CFSShip*)(pship->GetPrivateData()))->GetPlayer();
-        PlayerScoreObject* ppso = pfsPlayer->GetPlayerScoreObject();
-
-        // Record the player results
-        RecordPlayerResults(pship->GetName(), ppso, pside->GetObjectID());
-      }
-    }
-
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 
@@ -2601,71 +2481,6 @@ void CFSMission::RecordTeamResults(IsideIGC* pside)
  */
 void CFSMission::RecordPlayerResults(const char* pszName, PlayerScoreObject* ppso, SideID sid)
 {
-  #if !defined(ALLSRV_STANDALONE)
-
-    // Create the database update query
-    CQPlayerResults*  pquery = new CQPlayerResults(NULL);
-    CQPlayerResultsData* pqd = pquery->GetData();
-
-    // Populate the query parameters
-    strncpy(pqd->szGameID   , GetIGCMission()->GetContextName(), sizeofArray(pqd->szGameID));
-    strncpy(pqd->szName     , pszName                          , sizeofArray(pqd->szName)  );
-    // make SURE they're NULL-terminated
-    pqd->szGameID[sizeofArray(pqd->szGameID) - 1] = '\0';
-    pqd->szName[sizeofArray(pqd->szName) - 1] = '\0';
-
-    pqd->nTeamID            = sid;
-    pqd->cPlayerKills       = ppso->GetPlayerKills();
-    pqd->cBuilderKills      = ppso->GetBuilderKills();
-    pqd->cLayerKills        = ppso->GetLayerKills();
-    pqd->cMinerKills        = ppso->GetMinerKills();
-    pqd->cBaseKills         = ppso->GetBaseKills();
-    pqd->cBaseCaptures      = ppso->GetBaseCaptures();
-    pqd->cPilotBaseKills    = ppso->GetPilotBaseKills();
-    pqd->cPilotBaseCaptures = ppso->GetPilotBaseCaptures();
-    pqd->cDeaths            = ppso->GetDeaths();
-    pqd->cEjections         = ppso->GetEjections();
-    pqd->cRescues           = ppso->GetRescues();
-    pqd->cFlags             = ppso->GetFlags();
-    pqd->cArtifacts         = ppso->GetArtifacts();
-    pqd->cTechsRecovered    = ppso->GetTechsRecovered();
-    pqd->cAlephsSpotted     = ppso->GetWarpsSpotted();
-    pqd->cAsteroidsSpotted  = ppso->GetAsteroidsSpotted();
-    pqd->fCombatRating      = ppso->GetCombatRating();
-    pqd->fScore             = ppso->GetScore();
-    pqd->nTimePlayed        = ppso->GetTimePlayed();
-
-    // spew the player results that we're writing...
-    debugf("Writing player results: %s %s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %g %g %d\n", 
-      pqd->szGameID,
-      pqd->szName,
-      pqd->nTeamID,
-      pqd->cPlayerKills,
-      pqd->cBuilderKills,
-      pqd->cLayerKills,
-      pqd->cMinerKills,
-      pqd->cBaseKills,
-      pqd->cBaseCaptures,
-      pqd->cPilotBaseKills,
-      pqd->cPilotBaseCaptures,
-      pqd->cDeaths,
-      pqd->cEjections,
-      pqd->cRescues,
-      pqd->cFlags,
-      pqd->cArtifacts,
-      pqd->cTechsRecovered,
-      pqd->cAlephsSpotted,
-      pqd->cAsteroidsSpotted,
-      (double)pqd->fCombatRating,
-      (double)pqd->fScore,
-      pqd->nTimePlayed
-      );
-
-
-    // Post the query for async completion
-    g.sql.PostQuery(pquery);
-
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 
@@ -3024,11 +2839,9 @@ void CFSMission::ProcessGameOver()
 
   // Restart the game if the server is not paused.
   bool bRestartable = !g.fPaused && m_misdef.misparms.bAllowRestart;
-  #if defined(ALLSRV_STANDALONE)
     // HACK: for training missions, end the game and don't let it restart.  
     if (m_misdef.misparms.nTotalMaxPlayersPerGame == 1)
         bRestartable = false;
-  #endif
 
   SetStage(bRestartable ? STAGE_NOTSTARTED : STAGE_OVER); // set to STAGE_OVER if game should not restart.
 
@@ -3269,14 +3082,12 @@ IsideIGC* CFSMission::CheckForVictoryByInactiveSides(bool& bAllSidesInactive)
     }
   }
 
-  #if defined(ALLSRV_STANDALONE)
     // HACK: for training missions, don't end the game before it starts just 
     // because a side is inactive.  
     if (m_misdef.misparms.nTotalMaxPlayersPerGame == 1 && GetStage() == STAGE_STARTING)
     {
       pSideWin = NULL;
     }
-  #endif
 
   // HACK: for testing purposes, don't end the game before it's started if 
   // everyone still playing can cheat.
