@@ -269,7 +269,7 @@ void CAGCEventLogger::LogEvent(IAGCEvent* pEvent, bool bSynchronous)
         WORD wSeverity = pEventDef->m_wSeverity;
 
         // Create the full event id (regarding the MC-generated id's)
-        UINT nBits;
+        UINT nBits{};
         switch (wSeverity)
         {
           case EVENTLOG_INFORMATION_TYPE: nBits = 0x01 << 30; break;

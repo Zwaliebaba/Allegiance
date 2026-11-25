@@ -137,8 +137,8 @@ void    HitTest::Collide(HitTest*           pHitTest,
         //Solve for Distance(t)^2 == radius^2 : a*t^2 - b * t + c = 0 => t = (b +- sqrt(b^2 - 4ac)) / 2a
         //
         bool    fCollision = false;
-        float   tCollision;
-        float   tMax;
+        float   tCollision{};
+        float   tMax{};
 
         double  halfB = (dP * dV);  //b/2
         if (halfB > 0.0)   //objects need to be closing at least a little to generate a collision
@@ -1481,7 +1481,7 @@ static int  Johnson3(const Vector   p[3],
 
     {
         //Try the vertices
-        int v;
+        int v{};
         for (int i = 0; (i < 3); i++)
         {
             if (dp[i][i] < dMin2)
@@ -1751,7 +1751,7 @@ static int  Johnson4(const Vector   p[4],
 
     {
         //Try the vertices
-        int v;
+        int v{};
         for (int i = 0; (i < 4); i++)
         {
             if (dp[i][i] < dMin2)

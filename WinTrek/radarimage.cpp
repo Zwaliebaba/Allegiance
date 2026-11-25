@@ -566,7 +566,7 @@ public:
                     int   maskBrackets = 0x00;
 
                     const char*     pszName = pmodel->GetName();
-                    Command         cmd;
+                    Command         cmd = c_cmdQueued;  // only meaningful when cidOrder != c_cidNone, but always passed on
                     CommandID       cidOrder = c_cidNone;
                     {
                         for (Command i = 0; (i < c_cmdMax); i++)
@@ -1136,7 +1136,7 @@ public:
                 }
 
                 Surface*    psurfaceIcon = NULL;
-                float       xshift;
+                float       xshift{};
 
                 if (data.m_cid != c_cidNone)
                 {

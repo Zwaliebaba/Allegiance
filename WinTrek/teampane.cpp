@@ -1755,7 +1755,7 @@ TRef<IObject> CreateExpandedTeamPane(Modeler* pmodeler, IObject* pNormalTeamPane
     
     if (pNormalTeamPane)
     {
-        TeamPane* pteam; CastTo(pteam, (Pane*)pNormalTeamPane);
+        TeamPane* pteam; CastTo(pteam, (IItemEvent::Sink*)pNormalTeamPane); // CreateTeamPane returns it as a Sink
         
         pteam->SetTwin(pExpandedTeamPane);
         pExpandedTeamPane->SetTwin(pteam);

@@ -1764,7 +1764,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
                 short   nFriendly = 0;
                 short   nEnemy = 0;
 
-                IshipIGC*   pshipMin;
+                IshipIGC*   pshipMin = NULL;
 
                 {
                     float       fOreMin = FLT_MAX;

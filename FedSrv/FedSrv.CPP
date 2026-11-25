@@ -2269,10 +2269,10 @@ bool CheatCreateDrones(CFSShip * pfsShip, ZString & strCheat)
   {
     short iBucket = 0;
     IhullTypeIGC * phull = NULL;
-    PilotType ptPilotType;
+    PilotType ptPilotType{};
     IdroneTypeIGC * pdronetype = NULL;
-    IsideIGC* psideDrone;
-    int iNumDrones;
+    IsideIGC* psideDrone = NULL;
+    int iNumDrones{};
     
     if (!lstrcmpi(strDroneType, "carrier"))
         ptPilotType = c_ptCarrier;
@@ -3658,7 +3658,7 @@ void SendShipUpdates(CFSMission * pfsMission)
 
                     //Find the target of the player so that, if it is a ship, we can send it as a heavy if possible
                     IshipIGC*   pshipTarget = NULL;
-                    CFSShip*    pfsTarget;
+                    CFSShip*    pfsTarget = NULL;
                     {
                         pfmHeavy->bpTargetHull.SetChar(255);
 
@@ -10805,7 +10805,7 @@ void FedSrvSiteBase::ClusterUpdateEvent(IclusterIGC* c)
 void FedSrvSiteBase::CommandChangedEvent(Command i, IshipIGC * pship, ImodelIGC* ptarget, CommandID cid)
 {
     // forward the command change to everyone on the side.
-    IclusterIGC*    pcluster;
+    IclusterIGC*    pcluster = NULL;
 
     if ((i == c_cmdAccepted) ||
         ((i == c_cmdCurrent) &&

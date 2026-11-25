@@ -373,7 +373,7 @@ public:
         while (!str.IsEmpty()) {
             ZString  strLine = BreakLine(str, m_width - indent);
             WinPoint size    = m_pfont->GetTextExtent(strLine);
-            int      x;
+            int      x{};
 
             if (m_justification == JustifyLeft()) {
                 x = 0;                      

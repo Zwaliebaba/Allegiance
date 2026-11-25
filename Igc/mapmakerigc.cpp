@@ -746,11 +746,11 @@ VOID CmapMakerIGC::LinkClusters(CMapData* pMapData,
         }
     }
 
-    const char* pszTexture1;
-    const char* pszTexture2;
+    const char* pszTexture1 = NULL;
+    const char* pszTexture2 = NULL;
 
-    const char* pszIcon1;
-    const char* pszIcon2;
+    const char* pszIcon1 = NULL;
+    const char* pszIcon2 = NULL;
     switch (alephType)
     {
         case c_FriendlyAleph:
@@ -1248,8 +1248,8 @@ VOID CmapMakerHiLoIGC::GenerateNeutralClusterScreenPosition(
         float flTheta1 = (float) (2.0 * pi * sTeam / pMapData->GetTeams());
         float flTheta2 = (float) (2.0 * pi * (sTeam + 1) / pMapData->GetTeams());
 
-        float   flTheta;
-        float   flRadius;
+        float   flTheta{};
+        float   flRadius{};
         switch (sID)
         {
             case 0:
@@ -1385,8 +1385,8 @@ VOID CmapMakerHiHigherIGC::GenerateNeutralClusterScreenPosition(
         float flTheta1 = (float) (2.0 * pi * sTeam / pMapData->GetTeams());
         float flTheta2 = (float) (2.0 * pi * (sTeam + 1) / pMapData->GetTeams());
 
-        float   flTheta;
-        float   flRadius;
+        float   flTheta{};
+        float   flRadius{};
         switch (sID)
         {
             case 0:
@@ -1538,7 +1538,7 @@ VOID CmapMakerStarIGC::GenerateNeutralClusterScreenPosition(
     SectorID sTeam = sID / pMapData->GetClustersPerTeam();
     sID = sID % pMapData->GetClustersPerTeam() - pMapData->GetTeamClustersPerTeam();
 
-    float   flRadius;
+    float   flRadius{};
     float   flDelta = (2.0f * pi / float(pMapData->GetTeams()));
     float   flTheta = flDelta * float(sTeam);
     switch (sID)
@@ -1798,7 +1798,7 @@ VOID CmapMakerPinWheelIGC::GenerateNeutralClusterScreenPosition(
 
 VOID CmapMakerPinWheelIGC::LinkClusters(CMapData * pMapData)
 {
-    SectorID sID, cTotalClusters, sWrapID, sFirstNA;
+    SectorID sID, cTotalClusters, sWrapID, sFirstNA{};
 
     cTotalClusters = pMapData->GetTotalClusters();
     if (0 != pMapData->GetNeutralClustersPerTeam())
@@ -2268,8 +2268,8 @@ VOID CmapMakerGridIGC::GenerateNeutralClusterScreenPosition(
     float flTheta1 = (float) (2.0 * pi * sTeam / pMapData->GetTeams());
     float flTheta2 = (float) (2.0 * pi * (sTeam + 1) / pMapData->GetTeams());
 
-    float   flTheta;
-    float   flRadius;
+    float   flTheta{};
+    float   flRadius{};
     switch (sID)
     {
         case 0:

@@ -221,8 +221,8 @@ void        CweaponIGC::FireWeapon(Time now)
                     speed *= m_ship->GetSide()->GetGlobalAttributeSet().GetAttribute(c_gaSpeedAmmo);
                 bool    absoluteF = m_projectileType->GetAbsoluteF();
 
-                const Vector*   ppositionTarget;
-                const Vector*   pvelocityTarget;
+                const Vector*   ppositionTarget = NULL;
+                const Vector*   pvelocityTarget = NULL;
                 ImodelIGC*  ptarget = NULL;
                 if (m_projectileType->GetBlastPower() != 0.0f)
                 {

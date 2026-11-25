@@ -24,7 +24,7 @@ int TCReplaceTextImpl(LPCTSTR pszSource, LPCTSTR pszFind, LPCTSTR pszReplace,
   int cchSource = pszSource ? _tcslen(pszSource) : 0;
 
   // If ignoring case, copy the source string and make it lowercase
-  LPCTSTR pszSource2;
+  LPCTSTR pszSource2{};
   if (cchSource)
   {
     if (bIgnoreCase)
@@ -42,7 +42,7 @@ int TCReplaceTextImpl(LPCTSTR pszSource, LPCTSTR pszFind, LPCTSTR pszReplace,
   int cchFind = pszFind ? _tcslen(pszFind) : 0;
 
   // If ignoring case, copy the search phrase and make it lowercase
-  LPCTSTR pszFind2;
+  LPCTSTR pszFind2{};
   if (cchFind)
   {
     if (bIgnoreCase)

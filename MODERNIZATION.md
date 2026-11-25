@@ -224,7 +224,7 @@ How it was checked:
 - The real `mdlc` conversion runs only in CI.
 - `fig02pit` is left out because its source is missing.
 
-Each model's template refers to its `.x` files by absolute path in `out\artobj\models\`. That lets `mdlc` run in `out\art\` without the intermediates. It has to run there because textures are looked up on the art path, and a missing texture is a fatal error (`ModelerImpl::GetFile` asserts).
+Each model's template refers to its `.x` files by absolute path in `out\obj\Artwork\models\`. That lets `mdlc` run in `out\Artwork\` without the intermediates. It has to run there because textures are looked up on the art path, and a missing texture is a fatal error (`ModelerImpl::GetFile` asserts).
 
 `ops1` and `ops2` are in `makegeo.mak`, and their textures `ops1.bmp` and `ops2.bmp` are in the drop. But the textures were never listed in `bitmap.txt`, so the original build could not have produced these two models. Both lines are now added to `bitmap.txt`.
 
@@ -298,7 +298,7 @@ Then build the art with the tools from that build:
 msbuild Artwork\Art.proj -p:Configuration=Debug
 ```
 
-The art goes to `out\art\`, the directory the client and server read. In CI, a separate `art` job
+The art goes to `out\Artwork\`, and `out\bin\Win32\<Configuration>\Artwork` is made a directory junction to it, because the client looks for `Artwork` next to its exe (`-p:ArtLink=false` skips the junction). In CI, a separate `art` job
 does this with the tools from the build job, and attaches the result to the run as the `art-Debug`
 artifact.
 

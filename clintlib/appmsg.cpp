@@ -1010,7 +1010,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 assert (pship->GetThingSite());
                 pship->GetThingSite()->SetTrailColor(GetShip()->GetSide()->GetColor());
 
-                IclusterIGC*    pclusterOld;
+                IclusterIGC*    pclusterOld = NULL;
                 Orientation     orientationOld;
                 if (pship != m_ship)
                 {

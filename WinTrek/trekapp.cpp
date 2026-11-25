@@ -36,55 +36,6 @@ bool    g_bAskForCDKey =
 //////////////////////////////////////////////////////////////////////////////
 #define GAME_REG_KEY        "Software\\Microsoft\\Microsoft Games\\Allegiance\\1.0"
 
-typedef DWORD (*EBUPROC) (LPCTSTR lpRegKeyLocation, LPCTSTR lpEULAFileName, LPCSTR lpWarrantyFileName, BOOL fCheckForFirstRun);
-
-//
-// EULA related files should be in the artwork folder so that they may be autoupdated
-//
-HRESULT FirstRunEula(PathString strArtPath)
-{
-    TCHAR   szEULA[MAX_PATH];
-    if (UTL::getFile("eula", ".rtf", szEULA, false, false) != S_OK)
-        return false;
-
-    // don't use += operator cause it's buggy with PathString
-    strArtPath = strArtPath + "EBUEula.dll";
-
-    HINSTANCE hMod = LoadLibrary(PCC(strArtPath));
-    if (NULL == hMod)       // can't attach to DLL
-    {
-        // this time, search path
-        hMod = LoadLibrary("EBUEula.dll");
-        if (NULL == hMod)       // can't attach to DLL
-          return E_FAIL;
-    }
-
-    EBUPROC pfnEBUEula = (EBUPROC) GetProcAddress(hMod, "EBUEula");
-    if (NULL == pfnEBUEula)     // can't find entry point
-    {
-        FreeLibrary(hMod);
-        return E_FAIL;
-    }
-
-    /*
-    TCHAR   szWarranty[MAX_PATH];
-    LoadString(GetModuleHandle(), STR_EULAFILENAME, szEULA, sizeof(szEULA));
-    LoadString(GetModuleHandle(), STR_WARRANTYNAME, szWarranty, sizeof(szWarranty));
-
-    //
-    //This call enables both EULA and warranty accepting/viewing/printing.  If your
-    //game doesn't ship with a WARRANTY file, specifiy NULL instead of szWarranty…
-    //The code below, for instance, works with both OEM and retail builds…
-    //
-    TCHAR *pszWarrantyParam = 0xFFFFFFFF != GetFileAttributes(szWarranty) ? szWarranty : NULL;
-    */
-    bool fAllowGameToRun = pfnEBUEula(GAME_REG_KEY, szEULA, NULL, TRUE) != 0;
-
-    FreeLibrary(hMod);
-
-    return (fAllowGameToRun ? S_OK : S_FALSE);
-}
-
 //
 // Check to make sure that they are running DX 7 Dsound or better
 //
@@ -476,26 +427,6 @@ public:
 
         GetModeler()->SetArtPath(pathStr);
         UTL::SetArtPath(pathStr);
-
-        {
-          HRESULT hr = FirstRunEula(pathStr);
-
-          if (hr == E_FAIL)
-          {
-              ::MessageBox(NULL, "Error while trying to load ebueula.dll. Please reboot and retry.  If it still fails, reinstall Allegiance", "Initialization Error", MB_OK);
-              return S_FALSE;
-          }
-          else
-          if (hr == S_FALSE) 
-          {
-              ::MessageBox(NULL, "You must accept the End User License Agreement before playing the Allegiance", "Allegiance", MB_OK);
-              return S_FALSE;
-          }
-          else
-          {
-            assert(hr == S_OK);
-          }
-        }
 
         //
         // load the fonts

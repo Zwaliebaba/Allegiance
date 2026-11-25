@@ -284,7 +284,7 @@ STDMETHODIMP CTCStrings::put_Collection1(VARIANT* pvarSafeArray)
   }
 
   // Get array bounds.      
-  LONG cElements, lLBound, lUBound;
+  LONG cElements, lLBound, lUBound{};
   HRESULT hr = SafeArrayGetLBound(psa, 1, &lLBound);
   if (SUCCEEDED(hr))
     hr = SafeArrayGetUBound(psa, 1, &lUBound);
