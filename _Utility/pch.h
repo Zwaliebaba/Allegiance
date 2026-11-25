@@ -27,9 +27,7 @@
 #include <windowsx.h>
 #include <mmsystem.h>
 
-#ifndef DREAMCAST
 #include <urlmon.h>
-#endif
 
 //
 // Wintrek headers

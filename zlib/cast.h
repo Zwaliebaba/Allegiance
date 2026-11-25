@@ -7,7 +7,7 @@
 #ifndef _cast_H_
 #define _cast_H_
 
-#if !defined(_DEBUG) || defined(DREAMCAST)
+#if !defined(_DEBUG)
     template <class DestType, class SourceType>
     void CastTo(DestType*& pdest, SourceType* psource)
     {
@@ -79,31 +79,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#if 0
-template <class DestType, class SourceType>
-void RuntimeCastTo(DestType*& pdest, SourceType* psource)
-{
-    pdest = dynamic_cast<DestType*>(psource);
-}
-
-template <class DestType, class SourceType>
-void RuntimeCastTo(TRef<DestType>& pdest, SourceType* psource)
-{
-    pdest = dynamic_cast<DestType*>(psource);
-}
-
-template <class DestType, class SourceType>
-void RuntimeCastTo(DestType*& pdest, TRef<SourceType>& psource)
-{
-    pdest = dynamic_cast<DestType*>((SourceType*)psource);
-}
-
-template <class DestType, class SourceType>
-void RuntimeCastTo(TRef<DestType>& pdest, TRef<SourceType>& psource)
-{
-    pdest = dynamic_cast<DestType*>((SourceType*)psource);
-}
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //

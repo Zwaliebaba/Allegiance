@@ -34,8 +34,8 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)test\Inc;$(AllegianceRoot)lobby;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)test\Inc;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FEDSRV;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -43,13 +43,12 @@
       <DelayLoadDLLs>netapi32.dll;advapi32.dll</DelayLoadDLLs>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)test\Inc;$(AllegianceRoot)lobby;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)Inc;$(AllegianceRoot)test\Inc;$(AllegianceRoot)FedSrv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FEDSRV;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FedSrv.CPP" />
-    <ClCompile Include="sqlhelp.cpp" />
     <ClCompile Include="SWMRG.CPP" />
     <ClCompile Include="BitArray.cpp" />
     <ClCompile Include="fsship.cpp" />
@@ -80,13 +79,11 @@
     <ClInclude Include="counters.h" />
     <ClInclude Include="dbgutil.h" />
     <ClInclude Include="dirmon.h" />
-    <ClInclude Include="fedsrvsql.h" />
     <ClInclude Include="fscluster.h" />
     <ClInclude Include="fsmission.h" />
     <ClInclude Include="fsship.h" />
     <ClInclude Include="fsside.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="queries.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="srvdbg.h" />
     <ClInclude Include="srvqueries.h" />
@@ -97,7 +94,7 @@
     </AllegianceMessage>
     <ResourceCompile Include="AllSrv.build.rc">
       <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FEDSRV;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>

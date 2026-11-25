@@ -17,73 +17,16 @@
     #include "FedSrvApp.h"
 #endif
 
-#if !defined(ALLSRV_STANDALONE)
-void DoDecrypt(int size, char* pdata)
-{
-    DWORD encrypt = 0;
-    //Do a rolling XOR to demunge the data
-    for (int i = 0; (i < size); i += 4)
-    {
-        DWORD*  p = (DWORD*)(pdata + size);
-
-        encrypt = *p = *p ^ encrypt;
-    }
-}
-static void DoEncrypt(int size, char* pdata)
-{
-    DWORD   encrypt = 0;
-
-    //Do a rolling XOR to munge the data
-    for (int i = 0; (i < size); i += 4)
-    {
-        DWORD*  p = (DWORD*)(pdata + size);
-
-        DWORD   old = *p;
-
-        *p = *p ^ encrypt;
-
-        encrypt = old;
-    }
-}
-#endif // !defined(ALLSRV_STANDALONE)
 
 ALLOC_MSG_LIST;
 Global g;
-#include "queries.h"
 
-#if defined(ALLSRV_STANDALONE)
   int GetNextCharacterID()
   {
     static int s_nID;
     return ++s_nID;
   }
-#endif // defined(ALLSRV_STANDALONE)
 
-#if !defined(ALLSRV_STANDALONE)
-  #ifdef MOTHBALLED
-  // Temporary hex stuff to get binary data from database
-  void htoc(BYTE *c, BYTE b[])
-  {
-    *c = b[0] >= '0' && b[0] <= '9' ? b[0] - '0' : 10 + b[0] - 'A';
-    *c <<= 4;
-    *c |= b[1] >= '0' && b[1] <= '9' ? b[1] - '0' : 10 + b[1] - 'A';
-  }
-
-  void SzToBlob(BYTE * in, BYTE* pbBlob)
-  {
-    BYTE * pin = in;
-    BYTE* pout = pbBlob;
-    long i;
-    
-    int cbBlob = lstrlenA((char*)in) / 2;
-    for (i = 0; i < cbBlob; i++, pin += 2, pout++)
-    {
-      htoc((BYTE *)pout, (BYTE *)pin);
-    }
-  }
-
-  #endif // MOTHBALLED
-#endif // !defined(ALLSRV_STANDALONE)
 
 
 int TechBitFromToken(const char * szToken)
@@ -112,88 +55,8 @@ void TechsListToBits(BYTE * szTechs, TechTreeBitMask & ttbm)
 
 void LoadTechBits()
 {
-  #if !defined(ALLSRV_STANDALONE)
-    SQL_GO(TechBitsAll);
-    while (SQL_SUCCEEDED(SQL_GETROW(TechBitsAll)))
-    {
-      // database ensures all bit ids are unique
-      assert(TechBitsAll_BitID < cTechs);
-      SqlStrCpy(g.rgTechs[TechBitsAll_BitID], TechBitsAll_Name, sizeof(TechBitsAll_Name));
-    }
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
-#if !defined(ALLSRV_STANDALONE)
-
-void LoadRankInfo()
-{
-  SQL_GO(GetRankCount);
-  SQL_GETROW(GetRankCount);
-  g.cRankInfo = GetRankCount_Count;
-
-  if (g.cRankInfo > 0)
-  {
-    g.vRankInfo = new RankInfo[g.cRankInfo];
-
-    SQL_GO(GetRanks);
-    for (int i = 0; i < g.cRankInfo; i++)
-    {
-      ZVerify(SQL_SUCCEEDED(SQL_GETROW(GetRanks)));
-      g.vRankInfo[i].civ = GetRanks_CivID;
-      g.vRankInfo[i].rank = GetRanks_Rank;
-      g.vRankInfo[i].requiredRanking = GetRanks_Requirement;
-      strcpy(g.vRankInfo[i].RankName, (char*)GetRanks_Name);
-    }
-  }
-}
-
-void UnloadRankInfo()
-{
-  delete [] g.vRankInfo;
-  g.cRankInfo = 0;
-}
-
-void LoadStaticMapInfo()
-{
-  SQL_GO(GetStaticMapCount);
-  SQL_GETROW(GetStaticMapCount);
-  g.cStaticMapInfo = GetStaticMapCount_Count;
-
-  if (g.cStaticMapInfo > 0)
-  {
-    g.vStaticMapInfo = new StaticMapInfo[g.cStaticMapInfo];
-
-    SQL_GO(GetStaticMaps);
-    for (int i = 0; i < g.cStaticMapInfo; i++)
-    {
-      ZVerify(SQL_SUCCEEDED(SQL_GETROW(GetStaticMaps)));
-      SQLSTRCPY(g.vStaticMapInfo[i].cbIGCFile, GetStaticMaps_FileName);
-      SQLSTRCPY(g.vStaticMapInfo[i].cbFriendlyName, GetStaticMaps_MapName);
-      g.vStaticMapInfo[i].nNumTeams = GetStaticMaps_NumTeams;
-      assert(GetStaticMaps_NumTeams > 1 && GetStaticMaps_NumTeams <= c_cSidesMax);
-    }
-  }
-}
-
-bool VerifyUserMap(const char* szMapFile, int nTeams)
-{
-  for (int i = 0; i < g.cStaticMapInfo; i++)
-  {
-    if (nTeams == g.vStaticMapInfo[i].nNumTeams 
-        && 0 == strcmp(szMapFile, g.vStaticMapInfo[i].cbIGCFile))
-      return true;
-  }
-
-  return false;
-}
-
-void UnloadStaticMapInfo()
-{
-  delete [] g.vStaticMapInfo;
-  g.cStaticMapInfo = 0;
-}
-
-#endif // !defined(ALLSRV_STANDALONE)
 
 /*-------------------------------------------------------------------------
  * AddNamedValue
@@ -255,14 +118,6 @@ void SetSessionDetails()
  */
 void UnloadDbCache()
 {
-  #if !defined(ALLSRV_STANDALONE)
-    if (g.trekCore)
-    {
-      g.trekCore->Terminate();
-      delete g.trekCore;
-      g.trekCore = NULL;
-    }
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 
@@ -305,9 +160,6 @@ HRESULT pascal FedSrv_Terminate(void)
   g.fm.Shutdown();
   DisconnectFromLobby();
 
-  #if !defined(ALLSRV_STANDALONE)
-    ShutDownSQL();
-  #endif // !defined(ALLSRV_STANDALONE)
   timeEndPeriod(1);
 
   g_events.TriggerEvent(NULL, AllsrvEventID_Terminate, "", -1, -1, -1, 0);
@@ -331,45 +183,6 @@ HRESULT pascal FedSrv_Terminate(void)
  */
 void FetchGlobalAttributeSet(GlobalAttributeID gaid, GlobalAttributeSet& gas)
 {
-  #if !defined(ALLSRV_STANDALONE)
-    gas.Initialize();
-    if (gaid)
-    {
-      GlobalAttrs_ID = gaid;
-      SQL_GO(GetGlobalAttrs);
-      SQLRETURN sqlret = SQL_GETROW(GetGlobalAttrs);
-      assert(SQL_SUCCEEDED(sqlret));
-      #define DBTOGAS(attr) (1.0f + (float) (attr) / 100.0f)
-
-      #define DBGSA(x)     gas.SetAttribute(c_ga##x,                  DBTOGAS(GlobalAttrs_##x));
-
-      DBGSA(MaxSpeed);
-      DBGSA(Thrust);
-      DBGSA(TurnRate);
-      DBGSA(TurnTorque);
-      DBGSA(MaxArmorStation);
-      DBGSA(ArmorRegenerationStation);
-      DBGSA(MaxShieldStation);
-      DBGSA(ShieldRegenerationStation);
-      DBGSA(MaxArmorShip);
-      DBGSA(MaxShieldShip);
-      DBGSA(ShieldRegenerationShip);
-      DBGSA(ScanRange);
-      DBGSA(Signature);
-      DBGSA(MaxEnergy);
-      DBGSA(SpeedAmmo);
-      DBGSA(LifespanEnergy);
-      DBGSA(TurnRateMissile);
-      DBGSA(MiningRate);
-      DBGSA(MiningYield);
-      DBGSA(RipcordTime);
-      DBGSA(DamageGuns);
-      DBGSA(DamageMissiles);
-      DBGSA(DevelopmentCost);
-      DBGSA(DevelopmentTime);
-      DBGSA(MiningCapacity);
-    }
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 
@@ -425,7 +238,6 @@ void JoinMission(CFSPlayer * pfsPlayer, DWORD dwCookie, const char * szPW)
 
   ImissionIGC * pMission = pfsMission->GetIGCMission();
   
-  #if defined(ALLSRV_STANDALONE)
   if (g.fm.GetHostApplicationGuid() == FEDSRV_STANDALONE_PRIVATE_GUID)
   {
       //Disallow if the name is already in use
@@ -452,7 +264,6 @@ void JoinMission(CFSPlayer * pfsPlayer, DWORD dwCookie, const char * szPW)
       }
   }
   else
-  #endif // defined(ALLSRV_STANDALONE)
   {
     // Zone-authenticated builds dropped an earlier logon with the same name here
   }
@@ -740,25 +551,6 @@ void GotLogonDetails(CQLogonStats * pquery)
     pfsPlayer = new CFSPlayer(pcnxn, pqd->characterID, pqd->szCDKey, pship, !! pqd->fCanCheat);
     assert(pfsPlayer);
 
-    #if !defined(ALLSRV_STANDALONE)
-      PlayerScoreObject * plrsc = pfsPlayer->GetPlayerScoreObject();
-
-      int cRows;
-      CQLogonStatsData * pRows = pquery->GetOutputRows(&cRows); // all the rows are here
-      while (cRows--)
-      {
-        PersistPlayerScoreObject * ppso = new PersistPlayerScoreObject(
-            pRows->score,
-            RATING_EXT2INT(pRows->rating),
-            pRows->rank,
-            pRows->civID);
-
-        pfsPlayer->GetPersistPlayerScoreObjectList()->last(ppso);
-        pRows++;
-      }
-      // no persist object is active now; will be when they go to a side
-
-    #endif // !defined(ALLSRV_STANDALONE)
   }
   else
   {
@@ -775,36 +567,6 @@ void GotLogonDetails(CQLogonStats * pquery)
   pfmLogonAck->cookie          = fValid ? pfsPlayer->GetCookie() : 0;
   pfmLogonAck->timeServer      = g.timeNow;
 
-#if !defined(ALLSRV_STANDALONE)
-  if (fValid)
-  {
-    // send the rank info for this server
-    BEGIN_PFM_CREATE(g.fm, pfmRankInfo, S, RANK_INFO)
-      FM_VAR_PARM(g.vRankInfo, sizeof(RankInfo) * g.cRankInfo)
-    END_PFM_CREATE
-    pfmRankInfo->cRanks = g.cRankInfo;
-
-    // send the static map info for the maps on this server
-    BEGIN_PFM_CREATE(g.fm, pfmStaticMapInfo, S, STATIC_MAP_INFO)
-      FM_VAR_PARM(g.vStaticMapInfo, sizeof(StaticMapInfo) * g.cStaticMapInfo)
-    END_PFM_CREATE
-
-    // Get their squad memberships, but whether we need it b4 joining depends on whether it's a squad game
-    CQCharSquads * pqueryCharSquads = new CQCharSquads(GotCharSquads);
-    CQCharSquadsData * pqdSquads = pqueryCharSquads->GetData();
-    pqdSquads->characterID = pqd->characterID;
-    pqdSquads->dwConnectionID = pqd->dwConnectionID;
-    CFSMission * pfsMission = CFSMission::GetMission(pqd->dwCookie);
-    if (pfsMission) // it MAY have gone away in the meantime
-    {
-      pqdSquads->fJoin = pfsMission->IsSquadGame();
-      fJoinNow = !pqdSquads->fJoin; // we EITHER join now, or later, not both
-      pqdSquads->dwCookie = pqd->dwCookie;
-      lstrcpy(pqdSquads->szPassword, pqd->szPassword);
-      g.sql.PostQuery(pqueryCharSquads);
-    }
-  }
-#endif
 
   g.fm.SendMessages(pcnxn, FM_GUARANTEED, FM_FLUSH);
   g.fm.CheckOdometer(flDTime, cMsgsOdometer, cBytesOdometer);
@@ -889,59 +651,6 @@ void SetCharStats(int                   characterID,
         }
     }
 
-  #if !defined(ALLSRV_STANDALONE)
-
-    CQCharStats * pquery = new CQCharStats(NULL); // don't need call-back notification
-    CQCharStatsData * pdq = pquery->GetData();
-    
-    pdq->CharacterID  = characterID;
-    pdq->CivID        = civID;
-    // All of these are for THIS GAME ONLY (except Rating, which is always overall)
-    pdq->Rating             = RATING_INT2EXT(pso.GetCombatRating());
-    pdq->WarpsSpotted       = pso.GetWarpsSpotted();
-    pdq->AsteroidsSpotted   = pso.GetAsteroidsSpotted();
-    pdq->TechsRecovered     = pso.GetTechsRecovered();
-    pdq->MinerKills         = pso.GetMinerKills();
-    pdq->BuilderKills       = pso.GetBuilderKills();
-    pdq->LayerKills         = pso.GetLayerKills();
-    pdq->PlayerKills        = pso.GetPlayerKills();
-    pdq->BaseKills          = pso.GetBaseKills();
-    pdq->BaseCaptures       = pso.GetBaseCaptures();
-    pdq->Deaths             = pso.GetDeaths();
-    pdq->PilotBaseKills     = pso.GetPilotBaseKills();
-    pdq->PilotBaseCaptures  = pso.GetPilotBaseCaptures();
-    pdq->Minutes            = pso.GetTimePlayed() / 60.0f;
-    pdq->bWin               = pso.GetWinner();
-    pdq->bLose              = pso.GetLoser();
-    pdq->bWinCmd            = pso.GetCommandWinner();
-    pdq->bLoseCmd           = pso.GetCommandLoser();
-    pdq->Score              = pso.GetScore();
-    pdq->bScoresCount       = pfsMission->GetScoresCount();
-    pdq->RankOld            = newRank;
-
-    debugf("SetCharStats: bScoresCount=%d, CharacterID=%d, CivID=%d, Rating=%d,\n",
-        pdq->bScoresCount,pdq->CharacterID, pdq->CivID, pdq->Rating);
-    debugf("    WarpsSpotted=%.2f, AsteroidsSpotted=%.2f, TechsRecovered=%.2f,\n",
-        pdq->WarpsSpotted, pdq->AsteroidsSpotted, pdq->TechsRecovered);
-    debugf("    MinerKills=%.2f, BuilderKills=%.2f, LayerKills=%.2f, PlayerKills=%.2f,\n",
-        pdq->MinerKills, pdq->BuilderKills, pdq->LayerKills, pdq->PlayerKills);
-    debugf("    BaseKills=%.2f, BaseCaptures=%.2f, Deaths=%d, PilotBaseKills=%d, BaseCaptures=%d,\n",
-        pdq->BaseKills, pdq->BaseCaptures, pdq->Deaths, pdq->PilotBaseKills, pdq->PilotBaseCaptures);
-    debugf("    Minutes=%d, bWin=%d, bLose=%d, bWinCmd=%d, bLoseCmd=%d, RankOld=%d, Score=%.2f.\n",
-        pdq->Minutes, pdq->bWin, pdq->bLose, pdq->bWinCmd, pdq->bLoseCmd, pdq->RankOld, pdq->Score);
-
-    /* stress test
-    int i1 = 0;
-    for (i1 = 0; i1 < 10000; i1++)
-    {
-      CQCharStats * pq = (CQCharStats *) pquery->Copy(NULL);
-      g.sql.PostQuery(pq);
-    }
-    */
-    
-    g.sql.PostQuery(pquery);
-
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 /*-------------------------------------------------------------------------
@@ -955,106 +664,6 @@ void SetCharStats(int                   characterID,
  */
 void RecordSquadGame(const SideListIGC*  psides, IsideIGC* psideWon)
 {
-  #if !defined(ALLSRV_STANDALONE)
-    CQReportSquadGame * pquery = new CQReportSquadGame(NULL);
-    CQReportSquadGameData * pqd = pquery->GetData();
-    
-    pqd->squadIDWon = psideWon->GetSquadID();
-
-    // fill in the losers 
-    // Blech - have to unroll the loop because we need to fill in different 
-    // variable names, and not just different indices
-    SideLinkIGC* linkSide = psides->first();
-
-    // loser 1
-    {
-        while (linkSide 
-          && (linkSide->data() == psideWon || linkSide->data()->GetSquadID() == NA))
-        {
-          linkSide = linkSide->next();
-        }
-
-        if (linkSide)
-        {
-          pqd->squadIDLost1 = linkSide->data()->GetSquadID();
-          linkSide = linkSide->next();
-        }
-        else
-          pqd->squadIDLost1 = NA;
-    }
-
-    // loser 2
-    {
-        while (linkSide 
-          && (linkSide->data() == psideWon || linkSide->data()->GetSquadID() == NA))
-        {
-          linkSide = linkSide->next();
-        }
-
-        if (linkSide)
-        {
-          pqd->squadIDLost2 = linkSide->data()->GetSquadID();
-          linkSide = linkSide->next();
-        }
-        else
-          pqd->squadIDLost2 = NA;
-    }
-
-    // loser 3
-    {
-        while (linkSide 
-          && (linkSide->data() == psideWon || linkSide->data()->GetSquadID() == NA))
-        {
-          linkSide = linkSide->next();
-        }
-
-        if (linkSide)
-        {
-          pqd->squadIDLost3 = linkSide->data()->GetSquadID();
-          linkSide = linkSide->next();
-        }
-        else
-          pqd->squadIDLost3 = NA;
-    }
-
-    // loser 4
-    {
-        while (linkSide 
-          && (linkSide->data() == psideWon || linkSide->data()->GetSquadID() == NA))
-        {
-          linkSide = linkSide->next();
-        }
-
-        if (linkSide)
-        {
-          pqd->squadIDLost4 = linkSide->data()->GetSquadID();
-          linkSide = linkSide->next();
-        }
-        else
-          pqd->squadIDLost4 = NA;
-    }
-
-    // loser 5
-    {
-        while (linkSide 
-          && (linkSide->data() == psideWon || linkSide->data()->GetSquadID() == NA))
-        {
-          linkSide = linkSide->next();
-        }
-
-        if (linkSide)
-        {
-          pqd->squadIDLost5 = linkSide->data()->GetSquadID();
-          linkSide = linkSide->next();
-        }
-        else
-          pqd->squadIDLost5 = NA;
-    }
-
-    assert(linkSide == NULL || linkSide->data() == psideWon && linkSide->next() == NULL);
-
-    g.sql.PostQuery(pquery);
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 
@@ -1064,15 +673,6 @@ void RecordSquadGame(const SideListIGC*  psides, IsideIGC* psideWon)
  */
 void GetInvitations(int nInvitationID, MissionID missionID)
 {
-#if !defined(ALLSRV_STANDALONE)
-    CQGetInvitationList * pquery = new CQGetInvitationList(GotInvitationList);
-    CQGetInvitationListData * pdq = pquery->GetData();
-  
-    pdq->listid = nInvitationID;
-    pdq->missionID = missionID;
-
-    g.sql.PostQuery(pquery);
-#endif
 }
 
 
@@ -1092,665 +692,6 @@ void GetInvitations(int nInvitationID, MissionID missionID)
  */
 void LoadDbCache()
 {
-  #if !defined(ALLSRV_STANDALONE)
-    SQLRETURN sqlret = 0;
-    int i = 0;
-    int nCount;
-
-    g.trekCore = CreateMission(); // this isn't a *real* mission, just a gateway to static stuff
-    g.trekCore->Initialize(Time::Now(), &g.siteFedSrv);
-    g.trekCore->SetStaticCore(NULL);
-
-    // There's a number of database sizes that are greater than the message sizes, 
-    // and I don't want to put casts all over the place, so...
-    #pragma warning(disable : 4244)
-
-    LoadTechBits();
-  
-    // Load all ship types
-    SQL_GO(ShipsCount);
-    SQL_GETROW(ShipsCount); 
-  
-    // to preserve DB ordering of ship types, get the ids in database order
-    ShipID* vnShipIdList = (ShipID*)_alloca(g_cShipTypes * sizeof(ShipID));
-    nCount = 0;
-    SQL_GO(ShipTypeIDs);
-    while (SQL_SUCCEEDED(sqlret = SQL_GETROW(ShipTypeIDs)))
-    {
-        vnShipIdList[nCount] = ShipTypeIDs_ShipTypeID;
-        ++nCount;
-        assert(nCount <= g_cShipTypes);
-    }
-  
-    // Load all projectiles
-    SQL_GO(Projectiles);
-    while (SQL_SUCCEEDED(SQL_GETROW(Projectiles)))
-    {
-      DataProjectileTypeIGC dpt;
-      dpt.projectileTypeID = Projectiles_ProjectileID;
-      dpt.power       = Projectiles_HitPointsInflict;
-      dpt.blastPower  = Projectiles_BlastPower;
-      dpt.blastRadius = Projectiles_BlastRadius;
-      dpt.speed       = Projectiles_SpeedMax;
-      dpt.absoluteF   = false != Projectiles_IsAbsoluteSpeed;
-      dpt.modelName[0] = '\0';
-      SQLSTRCPY(dpt.textureName, Projectiles_FileTexture);
-      SQLSTRCPY(dpt.modelName,   Projectiles_FileModel);
-      dpt.lifespan     = Projectiles_TimeDuration / 1000.0f;
-      dpt.radius       = Projectiles_Size_cm / 100.0f; // centimeters to meters
-      dpt.rotation     = Projectiles_RateRotation * pi / 180.0f;
-      dpt.color.r      = Projectiles_Red   / 100.0f;
-      dpt.color.g      = Projectiles_Green / 100.0f;
-      dpt.color.b      = Projectiles_Blue  / 100.0f;
-      dpt.color.a      = Projectiles_Alpha / 100.0f;
-      dpt.damageType   = Projectiles_DamageType;
-          ;
-      dpt.bDirectional = !!Projectiles_IsDirectional;
-      dpt.width = Projectiles_WidthOverHeight;
-      dpt.ambientSound = Projectiles_AmbientSound;
-
-      IprojectileTypeIGC * pprojtype = (IprojectileTypeIGC *) 
-          g.trekCore->CreateObject(g.timeNow, OT_projectileType, &dpt, sizeof(dpt));
-      pprojtype->Release();
-    }
-  
-    // Load weapons
-    SQL_GO(Weapons);
-    while (SQL_SUCCEEDED(SQL_GETROW(Weapons)))
-    {
-      DataWeaponTypeIGC  dwt;
-      CopyMemory(dwt.modelName,   Weapons_FileModel,   sizeof(Weapons_FileModel));
-      SET_PARTS(dwt, Weapons)
-      dwt.dtimeReady        = (float) Weapons_dTimeReady / 1000.0f;
-      dwt.dtimeBurst        = Weapons_dTimeBurstShots / 1000.0f;
-      dwt.energyPerShot     = Weapons_EnergyPerShot;
-      dwt.dispersion        = Weapons_Dispersion;
-      dwt.projectileTypeID  = Weapons_ProjectileID1;
-      dwt.cAmmoPerShot      = Weapons_cBulletsPerShot;
-      dwt.activateSound     = Weapons_ActivateSound;
-      dwt.singleShotSound   = Weapons_SingleShotSound;
-      dwt.burstSound        = Weapons_BurstShotSound;
-
-      IweaponIGC * pweapon  = (IweaponIGC *) g.trekCore->CreateObject(
-          g.timeNow, OT_partType, &dwt, sizeof(dwt));
-      pweapon->Release();
-    }
-
-    // Load Missiles
-    SQL_GO(Missiles);
-    while (SQL_SUCCEEDED(SQL_GETROW(Missiles)))
-    {
-      DataMissileTypeIGC missile;
-      SET_EXPEND(missile, Missiles)
-
-      missile.maxLock = Missiles_MaxLock;
-      missile.chaffResistance = Missiles_Resistance;
-
-      missile.acceleration        = Missiles_Acceleration;
-      missile.turnRate            = RadiansFromDegrees(Missiles_TurnRate);
-      missile.initialSpeed        = Missiles_InitialSpeed;
-      //missile.armTime             = Missiles_ArmTime;
-      missile.lockTime            = Missiles_LockTime;
-      missile.readyTime           = Missiles_ReadyTime;
-      missile.dispersion          = Missiles_Dispersion;
-      missile.lockAngle           = RadiansFromDegrees(Missiles_LockAngle);
-      missile.power               = Missiles_Power;
-      missile.damageType          = Missiles_DamageType;
-
-      missile.blastPower          = Missiles_BlastPower;
-      missile.blastRadius         = Missiles_BlastRadius;
-      missile.bDirectional        = !!Missiles_IsDirectional;
-      missile.width               = Missiles_WidthOverHeight;    
-      missile.launchSound         = Missiles_LaunchSound;
-      missile.ambientSound        = Missiles_FlightSound;
-
-      ImissileIGC * pmissile = (ImissileIGC *) g.trekCore->CreateObject(g.timeNow, OT_missileType,
-                                                &missile, sizeof(missile));
-      pmissile->Release();
-    }
-
-    // Load Chaff
-    SQL_GO(Chaff);
-    while (SQL_SUCCEEDED(SQL_GETROW(Chaff)))
-    {
-      DataChaffTypeIGC chaff;
-      SET_EXPEND(chaff, Chaff)
-
-      chaff.chaffStrength = Chaff_Strength;
-
-      IObject*   u = g.trekCore->CreateObject(g.timeNow, OT_chaffType,
-                                              &chaff, sizeof(chaff));
-
-      u->Release();
-    }
-
-    // Load shields
-    SQL_GO(Shields);
-    while (SQL_SUCCEEDED(SQL_GETROW(Shields)))
-    {
-      DataShieldTypeIGC  dst;
-      SET_PARTS(dst, Shields)
-      dst.rateRegen     = Shields_RegenRate;
-      dst.maxStrength   = Shields_MaxHitPoints;
-
-      dst.defenseType   = Shields_DefenseType;
-
-      dst.activateSound = Shields_ActivateSound;
-      dst.deactivateSound = Shields_DeactivateSound;
-
-      IpartTypeIGC * pparttype = (IpartTypeIGC *) g.trekCore->CreateObject(
-          g.timeNow, OT_partType, &dst, sizeof(dst));
-      pparttype->Release();
-    }
-
-    SQL_GO(Cloaks);
-    while (SQL_SUCCEEDED(SQL_GETROW(Cloaks)))
-    {
-      DataCloakTypeIGC  dct;
-      SET_PARTS(dct, Cloaks)
-      dct.energyConsumption   = Cloaks_EnergyConsumption;
-      dct.maxCloaking         = Cloaks_MaxCloaking;
-      dct.onRate              = Cloaks_OnRate;
-      dct.offRate             = Cloaks_OffRate;    
-      dct.engageSound         = Cloaks_EngageSound;
-      dct.disengageSound      = Cloaks_DisengageSound;
-
-      IpartTypeIGC * pparttype = (IpartTypeIGC *) g.trekCore->CreateObject(
-          g.timeNow, OT_partType, &dct, sizeof(dct));
-      pparttype->Release();
-    }
-
-    // Load afterburners
-    SQL_GO(Afterburners);
-    while (SQL_SUCCEEDED(SQL_GETROW(Afterburners)))
-    {
-      DataAfterburnerTypeIGC dab;
-      SET_PARTS(dab, Afterburners)
-      dab.fuelConsumption   = Afterburners_RateBurn;
-      dab.maxThrust         = Afterburners_ThrustMax;
-      dab.onRate            = Afterburners_RateOn;
-      dab.offRate           = Afterburners_RateOff;
-      dab.interiorSound     = Afterburners_InteriorSound;
-      dab.exteriorSound     = Afterburners_ExteriorSound;
-
-      IpartTypeIGC * pparttype = (IpartTypeIGC *) g.trekCore->CreateObject(
-          g.timeNow, OT_partType, &dab, sizeof(dab));
-      pparttype->Release();
-    }
-
-    // Load packs
-    SQL_GO(Ammo);
-    while (SQL_SUCCEEDED(SQL_GETROW(Ammo)))
-    {
-      DataPackTypeIGC dpt;
-      SET_PARTS(dpt, Ammo)
-      dpt.amount      = Ammo_Qty;
-      dpt.packType    = Ammo_AmmoType;
-
-      IpartTypeIGC * pparttype = (IpartTypeIGC *) g.trekCore->CreateObject(
-          g.timeNow, OT_partType, &dpt, sizeof(dpt));
-      pparttype->Release();
-    }
-
-    SQL_GO(Mines);
-    while (SQL_SUCCEEDED(SQL_GETROW(Mines)))
-    {
-      DataMineTypeIGC dmt;
-      SET_EXPEND(dmt, Mines)
-
-      dmt.endurance = float(Mines_MunitionCount) * Mines_Power;
-      dmt.power = Mines_Power;
-      dmt.radius = Mines_PlacementRadius;
-      dmt.damageType = Mines_DamageType;
-
-      IObject*   u = g.trekCore->CreateObject(g.timeNow, OT_mineType,
-                                          &dmt, sizeof(dmt));
-      u->Release();
-    }
-
-    SQL_GO(Probes);
-    while (SQL_SUCCEEDED(SQL_GETROW(Probes)))
-    {
-      DataProbeTypeIGC dpt;
-      SET_EXPEND(dpt, Probes)
-
-      dpt.scannerRange = Probes_ScanRange;
-
-      dpt.projectileTypeID = Probes_ProjectileTypeID;
-      dpt.accuracy = float(Probes_accuracy) / 100.0f;
-      dpt.dtimeBurst = float(Probes_dtimeBurst) / 1000.0f;
-      dpt.dispersion = Probes_dispersion;
-      dpt.ammo = Probes_ammo;
-      dpt.ambientSound = Probes_AmbientSound;
-
-      dpt.dtRipcord = (Probes_dtRipcord != 255)? float(Probes_dtRipcord) : -1.0f;
-
-      IObject*   u = g.trekCore->CreateObject(g.timeNow, OT_probeType,
-                                          &dpt, sizeof(dpt));
-      u->Release();
-    }
-
-    // Load Magazines
-    SQL_GO(Magazines);
-    while (SQL_SUCCEEDED(SQL_GETROW(Magazines)))
-    {
-      DataLauncherTypeIGC magazine;
-      //Other fields are not used (data is gotten from the missile type)
-      magazine.partID           = Magazine_PartID;
-      magazine.expendabletypeID = Magazine_ExpendableID;
-      magazine.amount           = Magazine_Amount;
-      magazine.launchCount      = Magazine_LaunchCount;
-      magazine.successorPartID  = Magazine_SuccessorID;
-      SQLSTRCPY(magazine.inventoryLineMDL, Magazine_InventoryLineMDL);    
-
-      IpartTypeIGC * pparttype = (IpartTypeIGC *) g.trekCore->CreateObject(
-          g.timeNow, OT_partType, &magazine, sizeof(magazine));
-      pparttype->Release();
-    }
-
-      for (i = 0; i < nCount; i++)
-    {
-      // Gotta get each ship as separate SQL_GO, because can't have nested SQL_GO's, and we get attachpoints for ship below  
-      ShipTypes_ShipTypeID = vnShipIdList[i];
-      SQL_GO(ShipTypes);
-      if (SQL_SUCCEEDED(sqlret = SQL_GETROW(ShipTypes)))
-      { 
-        // Not all ship types exist, but we check 'em all anyway
-        // First find out how many attachment points this ship has
-        AttachPointsCount_ShipTypeID = ShipTypes_ShipTypeID;
-        SQL_GO(AttachPointsCount);
-        SQL_GETROW(AttachPointsCount);
-
-        CB cbHull = sizeof(DataHullTypeIGC) + g_cAttachPoints * sizeof(HardpointData);
-        DataHullTypeIGC * pdht = (DataHullTypeIGC *) GlobalAllocPtr(GMEM_MOVEABLE | GMEM_ZEROINIT, cbHull);
-
-        SQLSTRCPY(pdht->modelName,   ShipTypes_ShipModelName);
-        SQLSTRCPY(pdht->iconName,    ShipTypes_ShipIconName);
-        SQLSTRCPY(pdht->name,        ShipTypes_Name);
-        SQLSTRCPY(pdht->description, ShipTypes_Description);
-
-        //SQLSTRCPY(pdht->pilotHUDName, ShipTypes_PilotHUD);
-        //SQLSTRCPY(pdht->observerHUDName, ShipTypes_ObserverHUD);
-
-  #define defaultPart(x) pdht->preferredPartsTypes[x-1] = ShipTypes_PreferredPart##x > 0 ? ShipTypes_PreferredPart##x : NA;
-
-        defaultPart(1)
-        defaultPart(2)
-        defaultPart(3)
-        defaultPart(4)
-        defaultPart(5)
-        defaultPart(6)
-        defaultPart(7)
-        defaultPart(8)
-        defaultPart(9)
-        defaultPart(10)
-        defaultPart(11)
-        defaultPart(12)
-        defaultPart(13)
-        defaultPart(14)
-
-  #undef defaultPart
-
-        pdht->hardpointOffset                = sizeof(DataHullTypeIGC);
-        pdht->price                          = ShipTypes_Price;
-        pdht->mass                           = ShipTypes_flWeight;
-        pdht->hullID                         = ShipTypes_ShipTypeID;
-        pdht->length                         = ShipTypes_flLength;
-        pdht->speed                          = ShipTypes_SpeedMax;
-        pdht->maxTurnRates[c_axisYaw]        = ShipTypes_flRateYaw    * pi / 180.0f;
-        pdht->maxTurnRates[c_axisPitch]      = ShipTypes_flRatePitch  * pi / 180.0f;
-        pdht->maxTurnRates[c_axisRoll]       = ShipTypes_flRateRoll   * pi / 180.0f;
-        float           fYaw   = ShipTypes_flRateYaw   * ShipTypes_flRateYaw   / (2.0f * ShipTypes_flDriftYaw);
-        float           fPitch = ShipTypes_flRatePitch * ShipTypes_flRatePitch / (2.0f * ShipTypes_flDriftPitch);
-        float           fRoll  = ShipTypes_flRateRoll  * ShipTypes_flRateRoll  / (2.0f * ShipTypes_flDriftPitch);
-        pdht->turnTorques[c_axisYaw]         = pdht->mass * fYaw   * pi / 180.0f;
-        pdht->turnTorques[c_axisPitch]       = pdht->mass * fPitch * pi / 180.0f;
-        pdht->turnTorques[c_axisRoll]        = pdht->mass * fRoll  * pi / 180.0f;
-        pdht->thrust                         = pdht->mass * ShipTypes_flAcceleration;
-        pdht->sideMultiplier                 = ShipTypes_flAccelSideMult;
-        pdht->backMultiplier                 = ShipTypes_flAccelBackMult;
-        pdht->signature                      = (float)ShipTypes_BaseSignature / 100.0f;
-        pdht->scannerRange                   = ShipTypes_RangeScanner;
-        pdht->hitPoints                      = ShipTypes_HitPoints;
-        pdht->defenseType                    = ShipTypes_DefenseType;
-        pdht->maxEnergy                      = ShipTypes_EnergyMax;
-        pdht->habmCapabilities               = ShipTypes_Capabilities;
-        pdht->rechargeRate                   = ShipTypes_RateRechargeEnergy;
-
-        /*
-        assert (ShipTypes_flRateYaw == ShipTypes_flRatePitch);
-        assert (ShipTypes_flRateYaw == ShipTypes_flRateRoll);
-
-        assert (ShipTypes_flDriftYaw == ShipTypes_flDriftPitch);
-        assert (ShipTypes_flDriftYaw == ShipTypes_flDriftPitch);
-
-        debugf("%s\n", pdht->name);
-        debugf("\t%16.3f%16.3f\n", ShipTypes_flRateYaw,   fYaw);
-        debugf("\t%16.3f%16.3f\n", ShipTypes_flRatePitch, fPitch);
-        debugf("\t%16.3f%16.3f\n", ShipTypes_flRateRoll,  fRoll);
-        */
-
-        pdht->ecm                            = ShipTypes_ecm;
-        pdht->ripcordSpeed                   = ShipTypes_ripcordSpeed * g.trekCore->GetFloatConstant(c_fcidRipcordTime);
-        pdht->ripcordCost                    = ShipTypes_ripcordCost;
-
-        pdht->maxFuel = float(ShipTypes_MaxFuel);
-        pdht->maxAmmo = ShipTypes_MaxAmmo;  
-
-        // set all ships to the largest capacity necessary to hold anything, until we get the numbers from the database.
-        pdht->pmEquipment[ET_ChaffLauncher] = ShipTypes_ChaffPartMask;
-        pdht->pmEquipment[ET_Shield] = ShipTypes_ShieldPartMask;
-        pdht->pmEquipment[ET_Afterburner] = ShipTypes_AfterburnerPartMask;
-        pdht->pmEquipment[ET_Cloak] = ShipTypes_CloakPartMask;
-        pdht->pmEquipment[ET_Magazine] = ShipTypes_MagazinePartMask;
-        pdht->pmEquipment[ET_Dispenser] = ShipTypes_DispenserPartMask;
-
-        pdht->capacityMagazine = ShipTypes_MagazineCapacity;
-        pdht->capacityDispenser = ShipTypes_DispenserCapacity;
-        pdht->capacityChaffLauncher = ShipTypes_ChaffCapacity;
-
-        pdht->successorHullID = ShipTypes_SuccessorID;
-
-        pdht->interiorSound = ShipTypes_InteriorSound;
-        pdht->exteriorSound = ShipTypes_ExteriorSound;
-        pdht->mainThrusterInteriorSound = ShipTypes_ThrustInteriorSound;
-        pdht->mainThrusterExteriorSound = ShipTypes_ThrustExteriorSound;
-        pdht->manuveringThrusterInteriorSound = ShipTypes_TurnInteriorSound;
-        pdht->manuveringThrusterExteriorSound = ShipTypes_TurnExteriorSound;
-
-        TechsListToBits(ShipTypes_TechBitsReqd, pdht->ttbmRequired);
-        TechsListToBits(ShipTypes_TechBitsEffect, pdht->ttbmEffects);
-        assert (pdht->ttbmEffects <= pdht->ttbmRequired);
-
-        AttachPoints_ShipTypeID = ShipTypes_ShipTypeID;
-        pdht->maxWeapons = 0;
-        pdht->maxFixedWeapons = 0;
-
-        pdht->timeToBuild = ShipTypes_TimeToBuild;
-        pdht->groupID = ShipTypes_GroupID;
-
-        SQL_GO(AttachPoints);
-        {
-          HardpointData * phpd = (HardpointData*)((char*)pdht + pdht->hardpointOffset);
-          while (SQL_SUCCEEDED(sqlret = SQL_GETROW(AttachPoints)))
-          {
-            SQLSTRCPY(phpd->frameName, AttachPoints_FrameName);
-            //SQLSTRCPY(phpd->hudName, AttachPoints_GunnerHUD);
-            SQLSTRCPY(phpd->locationAbreviation, AttachPoints_LocationAbreviation);
-            phpd->bFixed = (AttachPoints_PartTypeID == ET_Weapon);
-
-
-            //Never more than 4 unmanned weapons (and they have to be listed
-            //first)
-            assert ((!phpd->bFixed) ||
-                    (( (char*)phpd - ((char*)pdht + pdht->hardpointOffset) ) <
-                     c_maxUnmannedWeapons * sizeof(HardpointData)));
-
-            /*
-            phpd->minDot = (AttachPoints_FieldOfFire < 270)
-                           ? float(cos(0.5f * RadiansFromDegrees(float(AttachPoints_FieldOfFire))))
-                           : -1.0f;
-                           */
-
-            phpd->interiorSound = AttachPoints_InteriorSound;
-            phpd->turnSound = AttachPoints_TurnSound;
-            phpd->partMask = AttachPoints_PartMask;
-
-            pdht->maxWeapons++;
-            if (phpd->bFixed)
-              pdht->maxFixedWeapons++;
-
-            phpd++;
-          }
-          //assert (iAttach == g.cAttachPoints);
-        }
-
-        /*
-        {
-            HullAbilityBitMask  habm = pdht->habmCapabilities;
-
-            habm &= ~c_habmRemoteLeadIndicator;
-
-            if (habm != pdht->habmCapabilities)
-            {
-                debugf("%-20s %8d %8d -> %8d\n", pdht->name, pdht->hullID, pdht->habmCapabilities, habm);
-            }
-        }
-        */
-
-        IhullTypeIGC * phulltype = (IhullTypeIGC *) g.trekCore->CreateObject(g.timeNow, OT_hullType,
-                                                   pdht, cbHull);
-        phulltype->Release();
-      }
-    }
-
-    // Load Developments
-
-    // to preserve DB ordering of developments, get the ids in database order
-    SQL_GO(DevelopmentsCount);
-    SQL_GETROW(DevelopmentsCount);
-    DevelopmentID* vnDevelopmentIdList = (DevelopmentID*)_alloca(g_cDevelopments * sizeof(DevelopmentID));
-    nCount = 0;
-    SQL_GO(DevelopmentsIDs);
-    while (SQL_SUCCEEDED(sqlret = SQL_GETROW(DevelopmentsIDs)))
-    {
-        vnDevelopmentIdList[nCount] = DevelopmentIDs_DevelopmentID;
-        ++nCount;
-        assert(nCount <= g_cDevelopments);
-    }
-
-    for (i = 0; i < nCount; i++)
-    {
-      // Gotta get each dev as separate SQL_GO, because can't have nested SQL_GO's, and we get other stuff below  
-      Developments_ID = vnDevelopmentIdList[i];
-      SQL_GO(Developments);
-      if (SQL_SUCCEEDED(sqlret = SQL_GETROW(Developments)))
-      {
-        DataDevelopmentIGC dd;
-        dd.price = Developments_Price;
-        SQLSTRCPY(dd.modelName, Developments_Bitmap);
-        SQLSTRCPY(dd.name, Developments_Name);
-        SQLSTRCPY(dd.iconName, Developments_IconName);
-        SQLSTRCPY(dd.description, Developments_Description);
-        TechsListToBits(Developments_TechBitsReqd, dd.ttbmRequired);
-        TechsListToBits(Developments_TechBitsEffect, dd.ttbmEffects);
-        dd.timeToBuild = Developments_SecondsToBuild;
-        dd.completionSound = Developments_CompletedSound;
-        dd.groupID = Developments_GroupID;
-        assert (dd.timeToBuild > 0);
-        dd.developmentID = Developments_ID;
-        if (NA == Developments_GlobalAttribute)
-          Developments_GlobalAttribute = 0; // IGC wants zero for no global attribute
-        FetchGlobalAttributeSet(Developments_GlobalAttribute, dd.gas);
-        IdevelopmentIGC * pdev = (IdevelopmentIGC *) g.trekCore->CreateObject(
-            g.timeNow, OT_development, &dd, sizeof(dd));
-        pdev->Release();
-      }
-    }
-  /*
-    // Load effects
-    SQL_GO(EffectsCount);
-    SQL_GETROW(EffectsCount); 
-    g.pargEffect = (FMD_S_EFFECT *) 
-        GlobalAllocPtr(GMEM_MOVEABLE | GMEM_ZEROINIT, g_cEffects * sizeof(g.pargEffect[0]));
-    sqlret = SQL_GO(Effects);
-    for(i = 0; SQL_SUCCEEDED(sqlret = SQL_GETROW(Effects)); i++)
-    {
-      FMD_S_EFFECT * pfmEffect = &g.pargEffect[i];
-      BEGIN_PFM_CREATE_PREALLOC(g.fm, pfmEffect, S, EFFECT)
-      END_PFM_CREATE
-      SQLSTRCPY(pfmEffect->szFileSound,   Effect_FileSound);
-      //SQLSTRCPY(pfmEffect->szDescription, Effect_Description); //NYI not used
-      pfmEffect->soundID = Effect_ID;
-      pfmEffect->fLooping = !!Effect_IsLooping;
-    }
-  */
-    // Load Drones
-    SQL_GO(Drones);
-    while (SQL_SUCCEEDED(SQL_GETROW(Drones)))
-    {
-      DataDroneTypeIGC    ddt;
-
-      ddt.price = Drones_Price;
-      lstrcpy(ddt.modelName, g.trekCore->GetHullType(Drones_ShipTypeID)->GetModelName());
-      ddt.iconName[0] = '\0';       //Icon never seen for drone types
-      SQLSTRCPY(ddt.name, Drones_Name);
-      SQLSTRCPY(ddt.description, Drones_Description);
-
-      TechsListToBits(Drones_TechBitsReqd, ddt.ttbmRequired);
-      TechsListToBits(Drones_TechBitsEffect, ddt.ttbmEffects);
-      ddt.timeToBuild   = Drones_SecToBuild;
-      //assert (ddt.timeToBuild > 0);
-      ddt.pilotType     = (PilotType)Drones_DroneType;
-      ddt.hullTypeID    = Drones_ShipTypeID;
-      ddt.droneTypeID   = Drones_ID;
-
-      ddt.shootSkill = 0.5f;    //NYI get from DB
-      ddt.moveSkill = 0.5f;
-      ddt.bravery = 0.5f;
-      ddt.groupID = Drones_GroupID;
-      ddt.etidLaid = Drones_ExpendableID;
-
-      IdroneTypeIGC * pdronetype = (IdroneTypeIGC *) g.trekCore->CreateObject(
-                                      g.timeNow, OT_droneType, &ddt, sizeof(ddt));
-      pdronetype->Release();
-    }
-
-    // Load station types
-    SQL_GO(StationTypes);
-    while(SQL_SUCCEEDED(SQL_GETROW(StationTypes)))
-    {
-      DataStationTypeIGC  st;
-
-      memset(&st, 0, sizeof(st)); //for boundschecker
-
-      SQLSTRCPY(st.name, Stations_Name);
-      SQLSTRCPY(st.description, Stations_Description);
-      SQLSTRCPY(st.modelName, Stations_Model);
-      SQLSTRCPY(st.iconName, Stations_IconName);
-      st.textureName[0] = '\0';
-      SQLSTRCPY(st.builderName, Stations_BuilderName);
-
-      TechsListToBits(Stations_TBReqd, st.ttbmRequired);
-      TechsListToBits(Stations_TBEffect, st.ttbmEffects);
-      TechsListToBits(Stations_TBLocal, st.ttbmLocal);
-
-      st.price              = Stations_Price;
-      st.signature          = float(Stations_Signature) / 100.0f;
-      st.maxArmorHitPoints  = Stations_HPArmor;
-      st.defenseTypeArmor   = Stations_DTArmor;
-      st.maxShieldHitPoints = Stations_HPShield;
-      st.defenseTypeShield  = Stations_DTShield;
-      st.armorRegeneration  = Stations_RateRegenArmor;
-      st.shieldRegeneration = Stations_RateRegenShield;
-      st.timeToBuild        = Stations_SecondsToBuild;
-      assert (st.timeToBuild > 0);
-      st.radius             = Stations_Radius;
-      st.income             = Stations_Income;
-      st.stationTypeID      = Stations_ID;
-      st.sabmCapabilities   = Stations_Capabilities;
-      st.scannerRange       = Stations_ScanRange;
-
-      st.aabmBuild          = Stations_AsteroidDiscountMask;
-
-      st.successorStationTypeID = Stations_UpgradeStationTypeID;
-      st.classID            = Stations_ClassID;
-      st.groupID            = Stations_GroupID;
-
-      st.constructionDroneTypeID = Stations_ConstructionDroneTypeID;
-    
-      st.constructorNeedRockSound = Stations_BuildLocationSound;
-      st.constructorUnderAttackSound = Stations_ConstructorAttackedSound;
-      st.constructorDestroyedSound = Stations_ConstructorDestroyedSound;
-      st.completionSound = Stations_CompletedSound;
-
-      st.exteriorSound = Stations_ExteriorSound;
-      st.interiorSound = Stations_InteriorSound;
-      st.interiorAlertSound = Stations_InteriorAlertSound;
-
-      st.underAttackSound = Stations_UnderAttackSound;
-      st.criticalSound = Stations_CriticalSound;
-      st.destroyedSound = Stations_DestroyedSound;
-      st.capturedSound = Stations_CapturedSound;
-      st.enemyDestroyedSound = Stations_EnemyDestroyedSound;
-      st.enemyCapturedSound = Stations_EnemyCapturedSound;
-
-      /*
-      {
-        StationAbilityBitMask   sabm = st.sabmCapabilities;
-        sabm &= ~c_sabmRemoteLeadIndicator;
-
-        if (sabm != st.sabmCapabilities)
-            debugf("%-20s %8d %8d -> %8d\n", st.name, st.stationTypeID, st.sabmCapabilities, sabm);
-      }
-      */
-
-      IObject* punk = g.trekCore->CreateObject(g.timeNow, OT_stationType,
-              &st, sizeof(st));
-      punk->Release();
-    }
-
-    // Load Civs
-    SQL_GO(CivsCount);
-    SQL_GETROW(CivsCount);
-    for (i = 0; i < g_cCivs; i++)
-    {
-      // Gotta get each dev as separate SQL_GO, because can't have nested SQL_GO's, and we get other stuff below  
-      Civs_ID = i;
-      SQL_GO(Civs);
-      if (SQL_SUCCEEDED(sqlret = SQL_GETROW(Civs)))
-      {
-        DataCivilizationIGC c;
-
-        SQLSTRCPY(c.name, Civs_Name);
-        SQLSTRCPY(c.iconName, Civs_IconName);
-        SQLSTRCPY(c.hudName, Civs_HUDName);
-        c.lifepod        = Civs_DefaultShipType;
-
-        c.initialStationTypeID = Civs_InitialStationTypeID;
-
-        c.civilizationID = Civs_ID;
-        c.bonusMoney = Civs_BonusMoney;
-        c.incomeMoney = Civs_IncomeMoney;
-
-        TechsListToBits(Civs_TechBits, c.ttbmBaseTechs);
-        TechsListToBits(Civs_TechBitsNoDev, c.ttbmNoDevTechs);
-        FetchGlobalAttributeSet(Civs_GlobalAttr, c.gasBaseAttributes);
-
-
-        IcivilizationIGC * pciv = (IcivilizationIGC *) g.trekCore->CreateObject(
-            g.timeNow, OT_civilization, &c, sizeof(c));
-        pciv->Release();
-      }
-    }
-
-    //Load TreasureChances
-    SQL_GO(TreasureSets);
-    while (SQL_SUCCEEDED(SQL_GETROW(TreasureSets)))
-    {
-        DataTreasureSetIGC    dts;
-
-        SQLSTRCPY(dts.name, TreasureSets_Name);
-        dts.treasureSetID = TreasureSets_ID;
-        dts.bZoneOnly = (TreasureSets_IsZoneOnly != 0);
-        dts.nTreasureData = 0;
-
-        IbaseIGC* pb =  g.trekCore->CreateObject(g.timeNow, OT_treasureSet,
-                                                 &dts, sizeof(DataTreasureSetIGC));
-        pb->Release();
-    }
-    assert (g.trekCore->GetTreasureSets()->n() > 0);  // we should have at least 1
-
-    SQL_GO(TreasureChance);
-    while (SQL_SUCCEEDED(SQL_GETROW(TreasureChance)))
-    {
-      ItreasureSetIGC*  pts = g.trekCore->GetTreasureSet(TreasureChance_SetID);
-      assert (pts);
-
-      pts->AddTreasureData(TreasureChance_TreasureCode, TreasureChance_ObjectID, TreasureChance_Chance);
-    }
-    #pragma warning(default : 4244)
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 CFMGroup * GetGroupSectorDocked(IclusterIGC * pCluster)
@@ -4339,35 +3280,6 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
       // If the message starts with "ICQ,playername:" then it's an icq message
       // If the format doesn't match exactly, then we treat it as a regular chat
-      #if !defined(ALLSRV_STANDALONE)
-        if (pszMsg && (0 == _strnicmp("icq,", pszMsg, 4)))
-        {
-            char * szName = pszMsg + 4;
-            char * szColon = szName;
-            while (*szColon && (':' != *szColon)) // 
-              szColon++;
-
-
-            if (*szColon)
-            {
-              *szColon = '\0';
-              lstrcpyn((char *)GetICQID_CharName, szName, sizeof(GetICQID_CharName));
-
-              SQL_GO(GetICQID);
-              SQLRETURN sqlret = SQL_GETROW(GetICQID);
-              if (*(++szColon) && SQL_SUCCESS == sqlret && GetICQID_ID != -1)
-              {
-                BEGIN_PFM_CREATE(g.fm, pfmICQChat, S, ICQ_CHAT_ACK)
-                    FM_VAR_PARM(szColon, CB_ZTS)
-                END_PFM_CREATE
-                pfmICQChat->icqid = GetICQID_ID;
-                g.fm.SendMessages(pfsPlayer->GetConnection(), FM_GUARANTEED, FM_FLUSH);
-
-                bForward = false;
-              }
-            }
-        }
-      #endif // !defined(ALLSRV_STANDALONE)
 
       if (bForward)
           ForwardChatMessage(pfsMission, pfsPlayer, pfm,
@@ -4906,11 +3818,6 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         lstrcpy(pqd->szCDKey, FM_VAR_REF(pfmLogon, CDKey));
         pqd->fValid = fValid;
         pqd->dwConnectionID = cnxnFrom.GetID();
-#if !defined(ALLSRV_STANDALONE)
-        if (fValid)
-          g.sql.PostQuery(pquery);
-        else // pquery->OnDataReady() below is the else of this
-#endif
           pquery->DataReady();
         
       } // if correct messaging version
@@ -4926,14 +3833,10 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
             "the file 'filelist.txt' from the install directory and restarting the application.");
         else /* if (pfmLogon->fedsrvVer > MSGVER) */
         {
-#if defined(ALLSRV_STANDALONE)
           wsprintf(szVerError, "The server you are trying to play on is out-of-date.  Find another server "
             "or contact the server's owner and tell them to auto-update by connecting to the zone match-making "
             "service.  If that doesn't work, have the server's owner try deleting "
             "the file 'filelist.txt' from the install directory and restarting the server.");
-#else
-          wsprintf(szVerError, "The server you are trying to play on is out-of-date.  The Zone needs to update their game server(s).  Please try again later.");
-#endif
         }
         assert(lstrlen(szVerError) < sizeof(szVerError));
         g_events.TriggerEvent(NULL, AllsrvEventID_BadClientVersion, "", -1, -1, -1, 2,
@@ -6146,14 +5049,12 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       // if the mission has not started yet, change the settings
       if (pfsMission->GetStage() == STAGE_NOTSTARTED)
       {
-        #if defined(ALLSRV_STANDALONE)
           // for a stand alone server, don't let the client try to change the password
           // (we can't assert this due to a race condition)
           strcpy(pfmMissionParams->missionparams.strGamePassword, 
               pfsMission->GetMissionDef()->misparms.strGamePassword);
           strcpy(pfmMissionParams->missionparams.strGameName, 
               pfsMission->GetMissionDef()->misparms.strGameName);
-        #endif // defined(ALLSRV_STANDALONE)
 
         // change the settings
         pfsMission->SetMissionParams(pfmMissionParams->missionparams);
@@ -6307,38 +5208,6 @@ HANDLE CreateUniqueMutex()
  */
 void CheckForNoShows()
 {
-#if !defined(ALLSRV_STANDALONE)
-
-  const ListFSMission * plistMission = CFSMission::GetMissions();
-  for (LinkFSMission * plinkMission = plistMission->first(); plinkMission; plinkMission = plinkMission->next())
-  {
-    CFSMission * pfsMission = plinkMission->data();
-    
-    if (!pfsMission->GetMissionDef()->misparms.bObjectModelCreated &&  // Let admin games break the rules
-        pfsMission->GetCountOfPlayers(NULL, true) == 0)
-    {
-      // nuke it if it's been around more than 15 seconds
-      SYSTEMTIME stNow;
-      FILETIME ftNow;
-      FILETIME ftStart;
-      ::GetSystemTime(&stNow);
-      SystemTimeToFileTime(&stNow, &ftNow);
-      SystemTimeToFileTime(pfsMission->GetStartTime(), &ftStart);
-      ULONGLONG ullStart; 
-      ULONGLONG ullNow;
-      CopyMemory(&ullStart, &ftStart, sizeof(ullStart));
-      CopyMemory(&ullNow,   &ftNow,   sizeof(ullNow));
-
-      if ((ULONG) (ullNow - ullStart) > 300000000) // 15 seconds, measaured in 100 nanoseconds
-      {
-        debugf("No one showed up for mission %x, killing it.\n", pfsMission->GetCookie());
-        delete pfsMission;
-        break; // deleting 1 mission per check is plenty
-      }
-      
-    }
-  }
-#endif
 }
 
 
@@ -6440,15 +5309,11 @@ void ProcessNetworkMessages()
   
   bool bSupposedToConnectToLobby;
 
-#if defined(ALLSRV_STANDALONE)
     // If standalone, we download the cfg file right before connecting to the lobby
     // if started by command-line, then always try to connect to lobby
     // if not started by command-line (started by UI) then connect to lobby only for public games
 
   bSupposedToConnectToLobby = !(FEDSRV_GUID != g.fm.GetHostApplicationGuid());  // public games
-#else
-    bSupposedToConnectToLobby = !g.strLobbyServer.IsEmpty();
-#endif
 
   if (bSupposedToConnectToLobby) // are we supposed to be connected to a lobby?
   {
@@ -6636,7 +5501,6 @@ void UpdateMissions(Time timeStart, Time timePrevious)
     g.pServerCounters->timeIGCWork= timerIGC.LastInterval();
 }
 
-#if defined(ALLSRV_STANDALONE)
 
 void GetExePath(char * szEXEPath)
 {
@@ -6994,7 +5858,6 @@ bool RetrieveCFGFile() // returns true iff cfg was successfully retrieved
   }
 }
 
-#endif // STANDALONE
 
 
 /*-------------------------------------------------------------------------
@@ -7042,10 +5905,8 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
   assert(!g.fmLobby.IsConnected());
 
   // find out what lobby to use and/or autoupdate info
-#if defined(ALLSRV_STANDALONE)
   if (!RetrieveCFGFile())
     return HRESULT_FROM_WIN32(ERROR_CRC);
-#endif
 
   if(pszLobby_OverrideCFG)
     g.strLobbyServer = pszLobby_OverrideCFG;
@@ -7054,11 +5915,7 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
   g_events.TriggerEvent(NULL, AllsrvEventID_Connecting, "", -1, -1, -1, 1,
     "LobbyServer", VT_LPSTR, PCC(g.strLobbyServer));
   HRESULT hr = g.fmLobby.JoinSession(
-#if defined(ALLSRV_STANDALONE)
         FEDFREELOBBYSERVERS_GUID, 
-#else
-        FEDLOBBYSERVERS_GUID, 
-#endif
         PCC(g.strLobbyServer), PCC(g.strLocalAddress));
   if (FAILED(hr))
   {
@@ -7102,11 +5959,9 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
   //
   if (SUCCEEDED(hr))
   {
-  #if defined(ALLSRV_STANDALONE)
     // start the games server.json lists (a no-op if they already exist)
     if (NA == g.civTraining)
       StartDefaultGames();
-  #endif
   }
 
   return hr;
@@ -7196,7 +6051,6 @@ DWORD ProcessMsgPump(int dwSleep, DWORD nCount, LPHANDLE pHandles)
 }
 
 
-#if defined(ALLSRV_STANDALONE)
 /*-------------------------------------------------------------------------
  * StartDefaultGames
  *-------------------------------------------------------------------------
@@ -7260,7 +6114,6 @@ void StartDefaultGames()
     }
   }
 }
-#endif
 
 
 /*-------------------------------------------------------------------------
@@ -7285,16 +6138,10 @@ HRESULT HostSession(bool fPublic)
   const GUID& guidSession = fPublic ? FEDSRV_GUID : FEDSRV_STANDALONE_PRIVATE_GUID;
 
   printf(fPublic ? "Preparing public session for clients ... " : "Preparing LAN session for clients ... ");
-  #if !defined(ALLSRV_STANDALONE)
-  g_events.TriggerEvent(NULL, AllsrvEventID_HostSession, "", -1, -1, -1, 0);
-  #endif
 
   HRESULT hr = g.fm.HostSession(guidSession, false, 0 /*g.hPlayerEvent*/, g.fProtocol);
   if (FAILED(hr))
   {
-    #if !defined(ALLSRV_STANDALONE)
-    g_events.TriggerEvent(NULL, AllsrvEventID_CantHostSession, "", -1, -1, -1, 0);
-    #endif
     printf("failed.\n");
     return hr;
   }
@@ -7304,11 +6151,7 @@ HRESULT HostSession(bool fPublic)
   {
     bool bSupposedToConnectToLobby;
 
-    #if defined(ALLSRV_STANDALONE)
     bSupposedToConnectToLobby = true;
-    #else
-    bSupposedToConnectToLobby = !g.strLobbyServer.IsEmpty();
-    #endif
 
     if (bSupposedToConnectToLobby)
     {
@@ -7316,16 +6159,10 @@ HRESULT HostSession(bool fPublic)
       // connection is retried periodically.
       if (FAILED(ConnectToLobby(NULL)))
       {
-        #if !defined(ALLSRV_STANDALONE)
-          g_events.TriggerEvent(NULL, AllsrvEventID_ConnectError, "", -1, -1, -1, 0);
-        #endif // !defined(ALLSRV_STANDALONE)
       }
     }
     else
     {
-      #if !defined(ALLSRV_STANDALONE)
-      g_events.TriggerEvent(NULL, AllsrvEventID_NoLobby, "", -1, -1, -1, 0);
-      #endif
     }
   }
 
@@ -7342,7 +6179,6 @@ HRESULT HostSession(bool fPublic)
  * player has joined, and stops when the client sets the stop event. This
  * replaced the client driving the server through the DCOM admin objects.
  */
-#if defined(ALLSRV_STANDALONE)
 
 static void CreateTrainingGame()
 {
@@ -7387,7 +6223,6 @@ static void StartTrainingGameWhenJoined()
   }
 }
 
-#endif // defined(ALLSRV_STANDALONE)
 
 static VOID CALLBACK OnTrainingStop(PVOID, BOOLEAN)
 {
@@ -7419,14 +6254,6 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
 
 
   // Setup the database stuff and connect
-#if !defined(ALLSRV_STANDALONE)
-    hr = g.sql.Init(g.strSQLConfig.m_str, g.idReceiveThread, g.csqlSilentThreads, g.csqlNotifyThreads);
-
-    if (FAILED(hr))
-    {
-      return hr;
-    }
-#endif
 
   UTL::SetArtPath(g.strArtPath);
 
@@ -7436,36 +6263,25 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
   // until the server loads the appropriate igc static file based on mission params
   // and only has one game per exe
   int   iStaticCoreVersion;
-#if !defined(ALLSRV_STANDALONE)
-  iStaticCoreVersion = LoadIGCStaticCore (IGC_ENCRYPT_CORE_FILENAME, g.trekCore, false, DoDecrypt);
-#else // !defined(ALLSRV_STANDALONE)
   iStaticCoreVersion = LoadIGCStaticCore (IGC_STATIC_CORE_FILENAME, g.trekCore, false);
-#endif // !defined(ALLSRV_STANDALONE)
   assert (iStaticCoreVersion != NA);
 
   //
   // This is the first place where we can might connect to a lobby
   //
-#if defined(ALLSRV_STANDALONE)
   // Standalone servers host the LAN session that clients find, unless
   // server.json asks for the public session and lobby (PublicLobby = 1).
   // A training server is always a LAN one.
   bool fPublic = g.fPublicLobby && NA == g.civTraining;
   if (fPublic)
     g.strLobbyServer="?"; // this will be overrided by cfg file download; needs to be non-blank so ConnectToLobby() is called
-#else
-  //non-standalone servers always should connect to a lobby
-  bool fPublic = true;
-#endif // !defined(ALLSRV_STANDALONE)
 
   if (SUCCEEDED(HostSession(fPublic)))
   {
-  #if defined(ALLSRV_STANDALONE)
     if (NA != g.civTraining)
       CreateTrainingGame();
     else
       StartDefaultGames();
-  #endif
   }
   else if (NA != g.civTraining)
   {
@@ -7476,10 +6292,6 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
   rgeventHandles[0] = g.hKillReceiveEvent;
   // rgeventHandles[1] = g.hPlayerEvent;
 
-  #if !defined(ALLSRV_STANDALONE)
-    LoadRankInfo();
-    LoadStaticMapInfo();
-  #endif
 
   CTimer timerReceiveIterations("between iterations in ReceiveThread loop", .25f);
   
@@ -7507,10 +6319,8 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
 
     UpdateMissions(timeStartIteration, timeEndIteration);
 
-  #if defined(ALLSRV_STANDALONE)
     if (NA != g.civTraining)
       StartTrainingGameWhenJoined();
-  #endif
 
     //Sleep an amount of time appropriate to total time will be dwUpdateInterval
     DWORD   dwIteration = (Time::Now().clock() - timeStartIteration.clock());
@@ -7543,10 +6353,6 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
   shMutexRunning = NULL;
 
 
-  #if !defined(ALLSRV_STANDALONE)
-    UnloadRankInfo();
-    UnloadStaticMapInfo();
-  #endif
 
   // destroy IGC stuff
   UnloadDbCache();
@@ -7592,9 +6398,6 @@ void LoadSettings()
 
     // Standalone servers do not need a LobbyServer setting because
     // they always get it from the CFG file.
-    #if !defined(ALLSRV_STANDALONE)
-      g.strLobbyServer = ZSettings::GetString("LobbyServer", "").c_str();
-    #endif // !defined(ALLSRV_STANDALONE)
 
     // Use winsock-provided address for clients, unless overridden (e.g. dual nic)
     std::string strLocalAddress = ZSettings::GetString("LocalAddress", "");
@@ -7629,11 +6432,6 @@ void LoadSettings()
     // instead of the LAN session clients find with their LAN browser
     g.fPublicLobby     = ZSettings::GetDWORD("PublicLobby",      0) != 0;
 
-  #if !defined(ALLSRV_STANDALONE)
-    g.csqlNotifyThreads = ZSettings::GetDWORD("SQLThreadsNotify", 3);
-    g.csqlSilentThreads = ZSettings::GetDWORD("SQLThreadsSilent", 2);
-    g.strSQLConfig      = ZSettings::GetString("SQLConfig", "").c_str(); // empty: the default for all developers
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 /*-------------------------------------------------------------------------
@@ -7663,469 +6461,9 @@ void LoadSettings()
  */
 void    BuildIGCFiles (char* szArtworkPath, bool bEncrypt = false, bool bMaps = true)
 {
-  #if !defined(ALLSRV_STANDALONE)
-    // standardize the format of the path string
-    int     iPathLastChar = strlen (szArtworkPath) - 1;
-    if (szArtworkPath[iPathLastChar] == '\\')
-        szArtworkPath[iPathLastChar] = 0;
-
-    UTL::SetArtPath(szArtworkPath);
-
-    // load the static data and write it out
-    LoadDbCache();
-    printf (bEncrypt ? "  Writing encrypt core..." : "  Writing static core...");
-
-    // we always generate it as static_core, but then they can rename it if they want to create different cores
-    if (DumpIGCStaticCore (bEncrypt ? IGC_ENCRYPT_CORE_FILENAME : IGC_STATIC_CORE_FILENAME, g.trekCore, c_maskStaticTypes, bEncrypt ? DoEncrypt : NULL))
-        printf (" OK\n");
-    else
-    {
-        printf (" FAILED\n");
-        exit (1);
-    }
-
-    // There's a number of database sizes that are greater than the message sizes, 
-    // and I don't want to put casts all over the place, so...
-    #pragma warning(push)
-    #pragma warning(disable : 4244)
-
-    if (bMaps)
-    {
-        // now loop over all of the map data...
-        SQL_GO(MapsCount);
-        SQL_GETROW(MapsCount);
-  
-        MapDescription* pMaps = new MapDescription[g_cMapsCount];
-        MapFileSite*    pSite = new MapFileSite;
-
-        SQL_GO(MapIDs);
-        int i;
-        for (i = 0; i < g_cMapsCount; i++)
-        {
-            if (SQL_SUCCEEDED(SQL_GETROW(MapIDs)))
-            {
-                pMaps[i].mapID = MapIDs_MapID;
-                SQLSTRCPY (pMaps[i].szFileName, MapIDs_FileName);
-            }
-        }
-
-        for (i = 0; i < g_cMapsCount; i++)
-        {
-            if (StringStartsWith (pMaps[i].szFileName, "template") || StringStartsWith (pMaps[i].szFileName, "t_"))
-                continue;
-            printf ("  Creating Map %s...\n", pMaps[i].szFileName);
-            ImissionIGC*    pMission = CreateMission();
-            pMission->Initialize(Time::Now(), pSite);
-            int   iStaticCoreVersion = LoadIGCStaticCore (bEncrypt ? IGC_ENCRYPT_CORE_FILENAME : IGC_STATIC_CORE_FILENAME, pMission, false,  bEncrypt ? DoDecrypt : NULL);
-            assert (iStaticCoreVersion != NA);
-
-            SectorInfo_MapID = StationInstance_MapID = Asteroids_MapID = AlephInst_MapID = MineInstance_MapID = ProbeInstance_MapID = TreasureInstance_MapID = pMaps[i].mapID;
-
-            //-----------------------------------------------------------------
-            // clusters
-            //-----------------------------------------------------------------
-            printf ("    --------------------------------------------------\n");
-            SQL_GO(SectorInfo);
-            while(SQL_SUCCEEDED(SQL_GETROW(SectorInfo)))
-            {
-                DataClusterIGC obj;
-
-                obj.starSeed = SectorInfo_starSeed;
-                obj.lightDirection = (Vector (SectorInfo_LightX, SectorInfo_LightY, SectorInfo_LightZ)).Normalize ();
-                obj.lightColor = SectorInfo_LightColor;
-                obj.screenX = SectorInfo_ScreenX;
-                obj.screenY = SectorInfo_ScreenY;
-                obj.clusterID = SectorInfo_SectorID;
-                obj.nDebris = SectorInfo_DebrisCount;
-                obj.nStars = SectorInfo_StarsCount;
-                SQLSTRCPY (obj.name, SectorInfo_Name);
-                SQLSTRCPY (obj.posterName, SectorInfo_PosterName);
-                SQLSTRCPY (obj.planetName, SectorInfo_PlanetName);
-                obj.planetSinLatitude.SetChar (SectorInfo_planetSinLatitude);
-                obj.planetLongitude.SetChar (SectorInfo_planetLongitude);
-                obj.planetRadius = SectorInfo_planetRadius;
-                obj.activeF = true;
-                obj.bHomeSector = SectorInfo_IsHomeSector ? true : false;
-
-                if (StringStartsWith (obj.name, "template") || StringStartsWith (obj.name, "t_"))
-                    continue;
-
-                printf ("    Creating Sector %s...\n", obj.name);
-
-                IObject* punk = pMission->CreateObject(g.timeNow, OT_cluster, &obj, sizeof(obj));
-                punk->Release();
-            }
-      
-            //-----------------------------------------------------------------
-            // alephs
-            //-----------------------------------------------------------------
-            // count the number of alephs so we can preallocate them
-            printf ("    --------------------------------------------------\n");
-            SQL_GO(AlephsCount);
-            SQL_GETROW(AlephsCount);
-
-            std::map<int, DataWarpIGC*>   alephMap;
-
-            // walk through all the alephs in the database, storing each one into the map
-            SQL_GO(Alephs);
-            while(SQL_SUCCEEDED(SQL_GETROW(Alephs)))
-            {
-                DataWarpIGC*    pObj = new DataWarpIGC;
-
-                pObj->warpDef.warpID = AlephInst_ID;
-                pObj->warpDef.destinationID = AlephInst_TargetAlephID;
-                pObj->warpDef.radius = AlephInst_Radius;
-                SQLSTRCPY (pObj->warpDef.textureName, AlephInst_Texture);
-                SQLSTRCPY (pObj->warpDef.iconName, AlephInst_PRIcon);
-
-                pObj->position = Vector (AlephInst_xLocation, AlephInst_yLocation, AlephInst_zLocation);
-                Vector  forward (AlephInst_xForward, AlephInst_yForward, AlephInst_zForward);
-                forward.SetNormalize ();
-                pObj->forward = forward;
-                pObj->rotation = Rotation (forward, AlephInst_rRotation);
-                pObj->signature = AlephInst_Signature;
-                pObj->clusterID = AlephInst_SectorID;
-
-                alephMap[AlephInst_ID] = pObj;
-            }
-
-            // iterate over the alephs in the map, setting the names and creating the objects
-            std::map<int, DataWarpIGC*>::iterator alephMapIterator = alephMap.begin ();
-            while (alephMapIterator != alephMap.end ())
-            {
-                // get a pointer to the paired aleph
-                DataWarpIGC*    pPairedAleph = alephMap[alephMapIterator->second->warpDef.destinationID];
-                // get the sector the paried aleph is in
-                IclusterIGC*    pCluster = pMission->GetCluster (pPairedAleph->clusterID);
-                strcpy (alephMapIterator->second->name, pCluster->GetName ());
-                IObject* punk = pMission->CreateObject(g.timeNow, OT_warp, alephMapIterator->second, sizeof(DataWarpIGC));
-                punk->Release();
-          
-                printf ("    Creating Aleph from %s to %s...\n", pMission->GetCluster (alephMapIterator->second->clusterID)->GetName (), pCluster->GetName ());
-                alephMapIterator++;
-            }
-
-            // iterate over the alephs in the map deleting the pointers to DataWarpIGC structures
-            alephMapIterator = alephMap.begin ();
-            while (alephMapIterator != alephMap.end ())
-            {
-                delete alephMapIterator->second;
-                alephMapIterator++;
-            }
-
-            //-----------------------------------------------------------------
-            // asteroids
-            //-----------------------------------------------------------------
-            printf ("    --------------------------------------------------\n");
-            SQL_GO(Asteroids);
-            while(SQL_SUCCEEDED(SQL_GETROW(Asteroids)))
-            {
-                DataAsteroidIGC obj;
-
-                // XXX TODO -> propogate this to the database
-                obj.signature = Asteroids_Signature;
-                obj.position = Vector (Asteroids_x, Asteroids_y, Asteroids_z);
-                Vector  up,
-                        forward,
-                        axis;
-                if ((Asteroids_xUp == NA) && (Asteroids_yUp == NA) && (Asteroids_zUp == NA))
-                    up = Vector::RandomDirection ();
-                else
-                    up = (Vector (Asteroids_xUp, Asteroids_yUp, Asteroids_zUp)).Normalize ();
-
-                if ((Asteroids_xUp == NA) && (Asteroids_yUp == NA) && (Asteroids_zUp == NA))
-                    forward = Vector::RandomDirection ();
-                else
-                    forward = (Vector (Asteroids_xForward, Asteroids_yForward, Asteroids_zForward)).Normalize ();
-
-                if ((Asteroids_xRotation == NA) && (Asteroids_yRotation == NA) && (Asteroids_zRotation == NA))
-                {
-                    axis = Vector::RandomDirection ();
-                    if (Asteroids_rRotation == NA)
-                        Asteroids_rRotation = random (0.0f, 1.0f) * pi;
-                }
-                else
-                    axis = (Vector (Asteroids_xRotation, Asteroids_yRotation, Asteroids_zRotation)).Normalize ();
-
-                obj.up = up;
-                obj.forward = forward;
-                obj.rotation = Rotation (axis, Asteroids_rRotation);
-
-                obj.asteroidDef.ore = obj.asteroidDef.oreMax = Asteroids_Ore;
-                obj.asteroidDef.aabmCapabilities = Asteroids_Abilities;
-                obj.asteroidDef.asteroidID = Asteroids_AsteroidID;
-                obj.asteroidDef.hitpoints = Asteroids_HitPoints;
-                obj.asteroidDef.radius = Asteroids_Radius;
-                SQLSTRCPY (obj.asteroidDef.modelName, Asteroids_Model);
-                SQLSTRCPY (obj.asteroidDef.textureName, Asteroids_Texture);
-                SQLSTRCPY (obj.asteroidDef.iconName, Asteroids_PRIcon);
-
-                obj.clusterID = Asteroids_ClusterID;
-                SQLSTRCPY (obj.name, Asteroids_Name);
-                if (obj.name[0] == '#')
-                    obj.name[0] = '\0';
-
-                obj.fraction = 1.0f;
-
-                if (StringStartsWith (obj.name, "template") || StringStartsWith (obj.name, "t_"))
-                    continue;
-
-                printf ("    Creating Asteroid %s...\n", obj.name);
-
-                IObject* punk = pMission->CreateObject(g.timeNow, OT_asteroid, &obj, sizeof(obj));
-                punk->Release();
-            }
-
-            //-----------------------------------------------------------------
-            // stations
-            //-----------------------------------------------------------------
-            // generate the sides
-            for (int j = 0; j < c_cSidesMax; j++)
-            {
-                DataSideIGC         obj;
-
-                // XXX TODO -> propogate this to the database
-                obj.nFlags = 0;
-                obj.nArtifacts = 0;
-
-                obj.sideID = j;
-                obj.gasAttributes.Initialize();
-                obj.civilizationID = pMission->GetCivilizations()->first()->data()->GetObjectID();
-                obj.ttbmDevelopmentTechs.SetAll ();
-                obj.conquest = 0;
-                obj.territory = 0;
-                obj.nKills = obj.nDeaths = obj.nEjections = obj.nFlags = obj.nArtifacts 
-                    = obj.nBaseKills = obj.nBaseCaptures = 0;
-                obj.squadID = NA;
-
-                IObject*    punk = pMission->CreateObject(g.timeNow, OT_side, &obj, sizeof(obj));
-                punk->Release();
-            }
-
-            // generate the actual stations
-            printf ("    --------------------------------------------------\n");
-            SQL_GO(StationInstance);
-            while(SQL_SUCCEEDED(SQL_GETROW(StationInstance)))
-            {
-                DataStationIGC obj;
-
-                // XXX TODO -> propogate this to the database
-                obj.position = Vector (StationInstance_xLocation, StationInstance_yLocation, StationInstance_zLocation);
-                obj.up = (Vector (StationInstance_xUp, StationInstance_yUp, StationInstance_zUp)).Normalize ();
-                obj.forward = (Vector (StationInstance_xForward, StationInstance_yForward, StationInstance_zForward)).Normalize ();
-                obj.rotation = Rotation ((Vector (StationInstance_xRotation, StationInstance_yRotation, StationInstance_zRotation)).Normalize (), StationInstance_rRotation);
-                obj.clusterID = StationInstance_SectorID;
-                obj.sideID = StationInstance_SideID;
-                obj.stationID = StationInstance_StationID;
-                obj.stationTypeID = StationInstance_StationTypeID;
-                obj.bpHull = 1.0f;
-                obj.bpShield = 1.0f;
-                SQLSTRCPY (obj.name, StationInstance_Name);
-
-                if (StringStartsWith (obj.name, "template") || StringStartsWith (obj.name, "t_"))
-                    continue;
-
-                printf ("    Creating Station %s...\n", obj.name);
-
-                IObject* punk = pMission->CreateObject(g.timeNow, OT_station, &obj, sizeof(obj));
-                punk->Release();
-            }
-
-            //-----------------------------------------------------------------
-            // probes
-            //-----------------------------------------------------------------
-            printf ("    --------------------------------------------------\n");
-            SQL_GO(ProbeInstance);
-            while(SQL_SUCCEEDED(SQL_GETROW(ProbeInstance)))
-            {
-                DataProbeExport obj;
-
-                obj.p0 = Vector (ProbeInstance_xLocation, ProbeInstance_yLocation, ProbeInstance_zLocation);
-                obj.time0 = 0;
-                obj.exportF = true;
-                obj.probeID = ProbeInstance_ProbeID;
-                obj.probetypeID = ProbeInstance_ProbeTypeID;
-                obj.clusterID = ProbeInstance_SectorID;
-                obj.sideID = ProbeInstance_SideID;
-                obj.shipID = NA;
-                obj.otTarget = NA;
-                obj.oidTarget = NA;
-                obj.createNow = true;
-
-                printf ("    Creating probe %d...\n", ProbeInstance_ProbeID);
-
-                IprobeIGC* punk = static_cast<IprobeIGC*> (pMission->CreateObject (g.timeNow, OT_probe, &obj, sizeof(obj)));
-                punk->SetCreateNow ();
-                punk->Release();
-            }
-
-            //-----------------------------------------------------------------
-            // mines
-            //-----------------------------------------------------------------
-            printf ("    --------------------------------------------------\n");
-    /*
-    struct  DataMineBase
-    {
-        Vector              p0;
-        Time                time0;
-        MineID              mineID;
-        bool                exportF;
-    };
-
-    struct  DataMineIGC : public DataMineBase
-    {
-        ImineTypeIGC*       pminetype;
-        IshipIGC*           pshipLauncher;
-        IsideIGC*           psideLauncher;
-        IclusterIGC*        pcluster;
-    };
-    struct DataMineExport : public DataMineBase
-    {
-        SectorID            clusterID;
-        ExpendableTypeID    minetypeID;
-        ShipID              launcherID;
-        SideID              sideID;
-        BytePercentage      fraction;
-        bool                createNow;
-    };
-
-        DEF_STMT(MineInstance, "SELECT " 
-            "MineID, "
-            "MineTypeID, "
-            "SideID, SectorID, "
-            "LocationX, LocationY, LocationZ "
-            "FROM MineInstances "
-            "WHERE MapID = ?"
-            )
-        SQL_INT2_PARM(MineInstance_MineID,                          SQL_OUT_PARM)
-        SQL_INT2_PARM(MineInstance_MineTypeID,                      SQL_OUT_PARM)
-        SQL_INT1_PARM(MineInstance_SideID,                          SQL_OUT_PARM)
-        SQL_INT2_PARM(MineInstance_SectorID,                        SQL_OUT_PARM)
-        SQL_FLT4_PARM(MineInstance_xLocation,                       SQL_OUT_PARM)
-        SQL_FLT4_PARM(MineInstance_yLocation,                       SQL_OUT_PARM)
-        SQL_FLT4_PARM(MineInstance_zLocation,                       SQL_OUT_PARM)
-        SQL_INT2_PARM(MineInstance_MapID,                           SQL_IN_PARM)
-
-    */
-            SQL_GO(MineInstance);
-            while(SQL_SUCCEEDED(SQL_GETROW(MineInstance)))
-            {
-                DataMineExport obj;
-
-                obj.p0 = Vector (MineInstance_xLocation, MineInstance_yLocation, MineInstance_zLocation);
-                obj.time0 = 0;
-                obj.exportF = true;
-                obj.mineID = MineInstance_MineID;
-                obj.minetypeID = MineInstance_MineTypeID;
-                obj.launcherID = NA;
-                obj.clusterID = MineInstance_SectorID;
-                obj.sideID = MineInstance_SideID;
-                obj.fraction = 1.0f;
-                obj.createNow = true;
-
-                printf ("    Creating mine %d...\n", MineInstance_MineID);
-
-                ImineIGC* punk = static_cast<ImineIGC*> (pMission->CreateObject (g.timeNow, OT_mine, &obj, sizeof(obj)));
-                punk->SetCreateNow ();
-                punk->Release();
-            }
-
-            //-----------------------------------------------------------------
-            // treasures
-            //-----------------------------------------------------------------
-            printf ("    --------------------------------------------------\n");
-    /*
-    struct  DataTreasureIGC
-    {
-        Vector              p0;
-        Vector              v0;
-        float               lifespan;
-        Time                time0;
-        ObjectID            objectID;
-        TreasureID          treasureID;
-        SectorID            clusterID;
-        short               amount;
-        TreasureCode        treasureCode;
-        bool                createNow;
-    };
-
-        DEF_STMT(TreasureInstance, "SELECT " 
-            "Lifespan, "
-            "TreasureID, "
-            "LocationX, LocationY, LocationZ, "
-            "SectorID, "
-            "Amount, TreasureCode "
-            "FROM TreasureInstances "
-            "WHERE MapID = ?"
-            )
-        SQL_FLT4_PARM(TreasureInstance_Lifespan,                    SQL_OUT_PARM)
-        SQL_INT2_PARM(TreasureInstance_TreasureID,                  SQL_OUT_PARM)
-        SQL_FLT4_PARM(TreasureInstance_xLocation,                   SQL_OUT_PARM)
-        SQL_FLT4_PARM(TreasureInstance_yLocation,                   SQL_OUT_PARM)
-        SQL_FLT4_PARM(TreasureInstance_zLocation,                   SQL_OUT_PARM)
-        SQL_INT2_PARM(TreasureInstance_SectorID,                    SQL_OUT_PARM)
-        SQL_INT2_PARM(TreasureInstance_Amount,                      SQL_OUT_PARM)
-        SQL_INT2_PARM(TreasureInstance_TreasureCode,                SQL_OUT_PARM)
-        SQL_INT2_PARM(TreasureInstance_MapID,                       SQL_IN_PARM)
-    */
-            SQL_GO(TreasureInstance);
-            while(SQL_SUCCEEDED(SQL_GETROW(TreasureInstance)))
-            {
-                DataTreasureIGC obj;
-
-                obj.lifespan = TreasureInstance_Lifespan;
-                obj.objectID = -(pMission->GenerateNewTreasureID() + 2);    //NYI hack: need explicit, unique object ID
-                obj.treasureID = TreasureInstance_TreasureID;
-                obj.p0 = Vector (TreasureInstance_xLocation, TreasureInstance_yLocation, TreasureInstance_zLocation);
-                obj.v0 = Vector (0.0f, 0.0f, 0.0f);
-                obj.time0 = 0;
-                obj.clusterID = TreasureInstance_SectorID;
-                obj.amount = TreasureInstance_Amount;
-                obj.treasureCode = TreasureInstance_TreasureCode;
-                obj.createNow = true;
-
-                printf ("    Creating treasure %d...\n", TreasureInstance_TreasureID);
-
-                ItreasureIGC* punk = static_cast<ItreasureIGC*> (pMission->CreateObject (g.timeNow, OT_treasure, &obj, sizeof(obj)));
-                punk->SetCreateNow ();
-                punk->Release();
-            }
-
-            //-----------------------------------------------------------------
-            printf ("  Writing %s.igc ...", pMaps[i].szFileName);
-            if (DumpIGCFile (pMaps[i].szFileName, pMission, c_maskMapTypes))
-                printf (" OK\n\n");
-            else
-            {
-                printf (" FAILED\n\n");
-                exit (1);
-            }
-
-            pMission->Terminate ();
-            delete pMission;
-        }
-    }
-
-    #pragma warning(pop)
-  #endif // !defined(ALLSRV_STANDALONE)
 }
 
 
-#if !defined(ALLSRV_STANDALONE)
-/*-------------------------------------------------------------------------
- * BuildIGCFilesFromArgs()
- *-------------------------------------------------------------------------
- * Purpose:
- *    The -BuildIGCFiles family of switches (database builds only)
- */
-static void BuildIGCFilesFromArgs(int argc, char *argv[], bool fEncrypt, bool fMaps)
-{
-  if (argc > 2)
-    BuildIGCFiles (argv[2], fEncrypt, fMaps);
-  else
-    printf ("Please provide a path for IGC files to get written to...\n");
-}
-#endif // !defined(ALLSRV_STANDALONE)
 
 
 /*-------------------------------------------------------------------------
@@ -8143,12 +6481,6 @@ static void ShowUsage()
   printf("AllSrv32                           runs the server in this console\n");
   printf("AllSrv32 -install [user pw]        installs the server as a Windows service\n");
   printf("AllSrv32 -remove                   removes the Windows service\n");
-#if !defined(ALLSRV_STANDALONE)
-  printf("AllSrv32 -BuildIGCFiles <artpath>    builds igc files from database\n");
-  printf("AllSrv32 -EncryptIGCFiles <artpath>  builds & encrypts igc files from database\n");
-  printf("AllSrv32 -BuildIGCFilesNM <artpath>  as above, but no maps\n");
-  printf("AllSrv32 -EncryptIGCFilesNM <artpath> as above, but no maps\n");
-#endif // !defined(ALLSRV_STANDALONE)
   printf("\nSettings are read from %s.\n", c_szServerSettingsFile);
   printf("To start the service once installed: net start %s\n", c_szSvcName);
   //      ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
@@ -8222,13 +6554,6 @@ int __cdecl main(int argc, char *argv[])
     if (szSwitch && (!lstrcmpi("remove", szSwitch) || !lstrcmpi("uninstall", szSwitch)))
       return g_service.RemoveService() ? 0 : 1;
 
-  #if !defined(ALLSRV_STANDALONE)
-    // These run before AGC, as they always did not need it either
-    if (szSwitch && !lstrcmpi("BuildIGCFiles", szSwitch))    { BuildIGCFilesFromArgs(argc, argv, false, true);  return 0; }
-    if (szSwitch && !lstrcmpi("EncryptIGCFiles", szSwitch))  { BuildIGCFilesFromArgs(argc, argv, true,  true);  return 0; }
-    if (szSwitch && !lstrcmpi("BuildIGCFilesNM", szSwitch))  { BuildIGCFilesFromArgs(argc, argv, false, false); return 0; }
-    if (szSwitch && !lstrcmpi("EncryptIGCFilesNM", szSwitch)){ BuildIGCFilesFromArgs(argc, argv, true,  false); return 0; }
-  #endif // !defined(ALLSRV_STANDALONE)
 
     bool fRun = false;
     if (argc == 1)

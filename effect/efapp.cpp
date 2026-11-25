@@ -299,14 +299,9 @@ public:
         DWORD count = psite->GetDWORD();
 
         for(DWORD index = 0; index < count; index++) {
-            #ifdef DREAMCAST
-                LightData data; psite->CopyStructure(&data);
-                plights->AddLight(data);
-            #else
                 LightData* pdata = (LightData*)psite->GetPointer();
                 psite->MovePointer(sizeof(LightData));
                 plights->AddLight(*pdata);
-            #endif
         }
 
         return plights;
@@ -359,16 +354,9 @@ public:
         for(DWORD index = 0; index < count; index++) {
             ZString str = psite->GetString();
 
-            #ifdef DREAMCAST
-                Vector vecPosition, vecForward, vecUp;     
-                Vector* pvecPosition = &vecPosition; psite->CopyStructure(pvecPosition);
-                Vector* pvecForward = &vecForward;   psite->CopyStructure(pvecForward);
-                Vector* pvecUp = &vecUp;             psite->CopyStructure(pvecUp);
-            #else
                 Vector* pvecPosition; psite->GetStructure(pvecPosition);
                 Vector* pvecForward;  psite->GetStructure(pvecForward);
                 Vector* pvecUp;       psite->GetStructure(pvecUp);
-            #endif
 
             plistValue->GetList().PushEnd(
                 FrameData(
@@ -678,7 +666,6 @@ HRESULT EffectApp::Initialize(const ZString& strCommandLine)
         // Fonts
         //
 
-        #ifndef DREAMCAST
             //InitializeTrekResources(GetModeler());
             /*
             m_pns->AddMember("smallFont",     new FontValue(TrekResources::SmallFont()    ));
@@ -688,7 +675,6 @@ HRESULT EffectApp::Initialize(const ZString& strCommandLine)
             m_pns->AddMember("hugeFont",      new FontValue(TrekResources::HugeFont()     ));
             m_pns->AddMember("hugeBoldFont",  new FontValue(TrekResources::HugeBoldFont() ));
             */
-        #endif
 
         return S_OK;
     }

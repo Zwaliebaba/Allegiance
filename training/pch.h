@@ -61,7 +61,6 @@
 #include "clintlib.h"
 
 #include "soundengine.h"
-#include "mission.h"
 
 #include "screen.h"
 #include "wintrek.h"

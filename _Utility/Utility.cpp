@@ -17,7 +17,6 @@ const Rotation      c_rotationZero(0.0f, 0.0f, 1.0f, 0.0f);
 char    UTL::s_artworkPath[MAX_PATH] = "";
 char    UTL::s_szUrlRoot[MAX_PATH] = "";
 
-#ifndef DREAMCAST
 void UTL::SetUrlRoot(const char * szUrlRoot)
 {
     assert (szUrlRoot);
@@ -191,7 +190,6 @@ int UTL::SearchAndReplace(char * szDest, const char * szSource, const char * szN
 
 
 
-#endif //dreamcast
 
 
 // converts char * of hex to int.  Assumes uppercase for 'A' to 'F'.
@@ -467,7 +465,6 @@ bool  Link_utl::txen(Link_utl*  l)
     return true;
 }
 
-#ifndef DREAMCAST
 Lock_utl::Lock_utl(void)
 :
     m_lockedS(CreateSemaphore(NULL, 1, 1, NULL)),
@@ -523,7 +520,6 @@ void               Lock_utl::unlock(void) const
         ReleaseSemaphore(t->m_lockedS, 1, NULL);
     }
 }
-#endif //dreamcast
 
 Rotation::Rotation(void)
 :

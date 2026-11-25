@@ -10,10 +10,8 @@
 // warning C4355: 'this' : used in base member initializer list
 #pragma warning(disable:4355)
 
-#ifndef DREAMCAST
     #define USEASM
     #define FLOATASM
-#endif
 
 // VS.Net 2003 port: typename is required for template
 #if _MSC_VER >= 1300
@@ -39,9 +37,6 @@
 #include <cstdlib>
 #include <utility>   // std::swap, see zmath.h
 
-#ifdef DREAMCAST
-#include "dreamcast.h"
-#endif
 
 //
 // Required Win32 headers

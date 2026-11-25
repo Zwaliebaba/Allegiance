@@ -19,21 +19,6 @@ HRESULT FedSrvLobbySite::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxn
 
   switch(pfm->fmid)
   {
-    #if !defined(ALLSRV_STANDALONE)
-      case FM_L_CREATE_MISSION_REQ:
-      {
-        CASTPFM(pfmCreateMissionReq, L, CREATE_MISSION_REQ, pfm);
-        MissionParams mp;
-        mp.Reset();
-        lstrcpy(mp.strGameName, ZString(FM_VAR_REF(pfmCreateMissionReq, NameCreator)) + "'s game");
-        mp.bScoresCount = true;
-        assert(!mp.Invalid());
-        FedSrvSite * psiteFedSrv = new FedSrvSite();
-        CFSMission * pfsMissionNew = new CFSMission(mp, "", psiteFedSrv, psiteFedSrv, NULL, NULL);
-        pfsMissionNew->SetCookie(pfmCreateMissionReq->dwCookie);
-      }
-      break;
-    #endif
 
     case FM_L_NEW_MISSION_ACK:
     {

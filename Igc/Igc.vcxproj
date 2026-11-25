@@ -31,10 +31,10 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Igc;$(AllegianceRoot)_Utility;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)Inc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)WinTrek;$(AllegianceRoot)offline;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Igc;$(AllegianceRoot)_Utility;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)Inc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)WinTrek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Igc;$(AllegianceRoot)_Utility;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)Inc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)WinTrek;$(AllegianceRoot)offline;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Igc;$(AllegianceRoot)_Utility;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)Inc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)WinTrek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
