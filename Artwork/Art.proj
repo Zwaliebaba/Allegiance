@@ -240,10 +240,11 @@
     The soundtrack: redbook\*.wav and tracks.lst, played by the client's music
     player (they were the Audio CD's tracks). Hard links where the volume
     allows, since the WAVs are about 260 MB. A checkout without them (CI's art
-    job) copies nothing.
+    job) copies nothing: both are wildcards, because an item with a plain path
+    is kept, and copied, even when the file does not exist.
   -->
   <ItemGroup>
-    <ArtMusic Include="$(MSBuildThisFileDirectory)redbook\*.wav;$(MSBuildThisFileDirectory)redbook\tracks.lst" />
+    <ArtMusic Include="$(MSBuildThisFileDirectory)redbook\*.wav;$(MSBuildThisFileDirectory)redbook\*.lst" />
   </ItemGroup>
 
   <Target Name="Music">
