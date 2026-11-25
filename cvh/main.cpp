@@ -16,6 +16,35 @@ bool    x2pl(const char*     fileIn, const char* fileOut);
 bool    qh2cvh(const char*   file, FILE*    fOut, int  mode);
 bool    dat2cvh(const char*  file, FILE*    fOut);
 
+//
+// Run qhull on <stem>.pl, writing <stem>.qh. The original hard-coded
+// %fedroot%\src\bin\qhull. Now: the ALLEGIANCE_QHULL environment variable if
+// set, otherwise qhull.exe next to cvh.exe (the build puts both in the same
+// output directory).
+//
+
+static void RunQhull(const char* stem)
+{
+    char qhull[MAX_PATH];
+    DWORD cch = GetEnvironmentVariableA("ALLEGIANCE_QHULL", qhull, sizeof(qhull));
+
+    if (cch == 0 || cch >= sizeof(qhull))
+    {
+        cch = GetModuleFileNameA(NULL, qhull, sizeof(qhull));
+        char* slash = (cch > 0 && cch < sizeof(qhull)) ? strrchr(qhull, '\\') : NULL;
+        if (slash)
+            strcpy(slash + 1, "qhull.exe");
+        else
+            strcpy(qhull, "qhull.exe");
+    }
+
+    // The outer quotes keep cmd.exe from stripping the quotes around a path
+    // that contains spaces.
+    char cmd[2 * MAX_PATH + 2 * c_cbBfr];
+    sprintf(cmd, "\"\"%s\" -o -Tv <\"%s.pl\" >\"%s.qh\"\"", qhull, stem, stem);
+    system(cmd);
+}
+
 int	main(int argc, char** argv)
 {
     bool    success = false;
@@ -54,13 +83,7 @@ int	main(int argc, char** argv)
             success = x2pl(bfrIn, bfrOut);
             if (success)
             {
-                char    bfrSystem[c_cbBfr];
-                strcpy(bfrSystem, "%fedroot%\\src\\bin\\qhull -o -Tv <");
-                strcat(bfrSystem, argv[2]);
-                strcat(bfrSystem, ".pl >");
-                strcat(bfrSystem, argv[2]);
-                strcat(bfrSystem, ".qh");
-                system(bfrSystem);
+                RunQhull(argv[2]);
 
                 success = qh2cvh(argv[2], fOut, (mode == c_bound)
                                  ? (c_ellipse | c_startMesh)
@@ -94,13 +117,7 @@ int	main(int argc, char** argv)
                     char    bfrHull[c_cbBfr];
                     sprintf(bfrHull, "%s_%d", argv[2], i);
 
-                    char    bfrSystem[c_cbBfr];
-                    strcpy(bfrSystem, "%fedroot%\\src\\bin\\qhull -o -Tv <");
-                    strcat(bfrSystem, bfrHull);
-                    strcat(bfrSystem, ".pl >");
-                    strcat(bfrSystem, bfrHull);
-                    strcat(bfrSystem, ".qh");
-                    system(bfrSystem);
+                    RunQhull(bfrHull);
 
                     success = qh2cvh(bfrHull, fOut, (i == hullID - 1)
                                                     ? (c_writeHull | c_writeMesh | c_endMesh)
@@ -466,11 +483,18 @@ bool    qh2cvh(const char*   file, FILE*    fOut, int mode)
             char    bfr[c_cbBfr];
             assert (strlen(file) < c_cbBfr - 10);
 
-            strcpy(bfr, "..\\artbuild\\");
-            strcat(bfr, file);
+            // The hull as a mesh, for inspecting in a viewer. The original wrote
+            // it to a hard-coded "..\\artbuild\\" and crashed when that did not
+            // exist; it now goes next to the other intermediates.
+            strcpy(bfr, file);
             strcat(bfr, "_m.x");
 
             fOutMesh = fopen(bfr, "w");
+            if (fOutMesh == NULL)
+            {
+                printf("cvh: cannot write %s\n", bfr);
+                return false;
+            }
 
             fprintf(fOutMesh, "xof 0302txt 0064\nHeader { 1; 0; 1; }\n");
         }

@@ -214,8 +214,11 @@ private:
         // Make that all of the value GDI returned to us are good
         //
 
+        // Current GDI reports zero width for some characters (control and
+        // format characters such as the soft hyphen); FillFontData copes with
+        // an empty glyph, so only negative widths are an error.
         for (index = 0; index < 256; index++) {
-            ZAssert(m_data[index].m_size.X() >  0           );
+            ZAssert(m_data[index].m_size.X() >= 0           );
             ZAssert(m_data[index].m_size.X() <  m_height * 4);
             ZAssert(m_data[index].m_size.Y() == m_height    );
         }

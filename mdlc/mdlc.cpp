@@ -25,7 +25,9 @@ public:
     void Error(const ZString& str)
     {
         printf(str);
-        _exit(0);
+        printf("\n");
+        fflush(stdout);
+        _exit(1);   // was 0, which hid failures from the build
     }
 };
 
@@ -37,6 +39,21 @@ public:
 
 class MDLCApp : public EffectApp {
 public:
+    static void Fail(const ZString& str)
+    {
+        printf("mdlc: " + str + "\n");
+        fflush(stdout);
+        _exit(1);
+    }
+
+    static void Write(INameSpace* pns, const ZString& strOutput)
+    {
+        TRef<ZFile> pfile = new ZWriteFile(strOutput);
+        if (!pfile->IsValid())
+            Fail("cannot write " + strOutput);
+        pns->WriteToBinaryFile(pfile);
+    }
+
     void DoCompile(const PathString& strInput, const PathString& strOutput)
     {
         //
@@ -57,13 +74,7 @@ public:
             // Save the file in mdl format
             //
 
-            {
-                TRef<ZFile> pfile = new ZWriteFile(strOutput);
-
-                if (pfile->IsValid()) {
-                    pns->WriteToBinaryFile(pfile);
-                }
-            }
+            Write(pns, strOutput);
 
             //
             // Load the compiled mdl file to make sure there are no errors.
@@ -72,6 +83,8 @@ public:
             GetModeler()->UnloadNameSpace(strOutput);
             TRef<INameSpace> pnsReloaded = GetModeler()->GetNameSpace(strOutput);
             ZAssert(pnsReloaded != NULL);
+            GetModeler()->UnloadNameSpace(strOutput);
+            GetModeler()->UnloadNameSpace(strInput);
         }
     }
 
@@ -128,13 +141,7 @@ public:
                 // Save the file in mdl format
                 //
 
-                {
-                    TRef<ZFile> pfile = new ZWriteFile(strOutput + ".mdl");
-
-                    if (pfile->IsValid()) {
-                        pnsThing->WriteToBinaryFile(pfile);
-                    }
-                }
+                Write(pnsThing, strOutput + ".mdl");
 
                 //
                 // Load the optimized mdl file to make sure there are no errors.
@@ -143,6 +150,10 @@ public:
                 GetModeler()->UnloadNameSpace(strOutput);
                 TRef<INameSpace> pnsReloaded = GetModeler()->GetNameSpace(strOutput);
                 ZAssert(pnsReloaded != NULL);
+                GetModeler()->UnloadNameSpace(strOutput);
+                GetModeler()->UnloadNameSpace(strInput);
+            } else {
+                Fail("cannot optimize " + strInput);
             }
         }
     }
@@ -163,6 +174,8 @@ public:
         //
 
         HBITMAP hbitmap = GetModeler()->LoadBitmap(strInput);
+        if (hbitmap == NULL)
+            Fail("cannot load " + strInput);
         TRef<Surface> psurface = GetEngine()->CreateSurface(hbitmap);
         ZVerify(::DeleteObject(hbitmap));
 
@@ -189,10 +202,8 @@ public:
         // Write out the namespace
         //
 
-        TRef<ZFile> pfile = new ZWriteFile(strOutput);
-        if (pfile->IsValid()) {
-            pns->WriteToBinaryFile(pfile);
-        }
+        Write(pns, strOutput);
+        GetModeler()->UnloadNameSpace(strOutputName);
     }
 
     void DoCompressAnim(
@@ -241,17 +252,67 @@ public:
         // Write out the namespace
         //
 
-        TRef<ZFile> pfile = new ZWriteFile(strOutput);
-        if (pfile->IsValid()) {
-            pns->WriteToBinaryFile(pfile);
-        }
+        Write(pns, strOutput);
+        GetModeler()->UnloadNameSpace(strOutputName);
     }
 
     HRESULT Initialize(const ZString& strCommandLine)
     {
-        if (SUCCEEDED(EffectApp::Initialize(strCommandLine + " -software"))) {
-            GetModeler()->SetSite(new ModelerSiteImpl());
+        // Unbuffered, so the last line printed before a crash shows how far a
+        // batch got (stdout is a pipe under MSBuild, hence fully buffered).
+        setvbuf(stdout, NULL, _IONBF, 0);
 
+        if (FAILED(EffectApp::Initialize(strCommandLine + " -software")))
+            Fail("engine initialization failed");
+
+        GetModeler()->SetSite(new ModelerSiteImpl());
+
+        //
+        // -batch <file>: run each line of the file as a command line, so a
+        // whole art build pays for engine start-up once.
+        //
+
+        {
+            PCC pcc = strCommandLine;
+            CommandLineToken token(pcc, strCommandLine.GetLength());
+            ZString str;
+            ZString strFile;
+
+            if (token.IsMinus(str) && str == "batch") {
+                if (!token.IsString(strFile))
+                    Fail("usage: mdlc -batch <file>");
+
+                FILE* f = fopen(strFile, "r");
+                if (f == NULL)
+                    Fail("cannot open " + strFile);
+
+                char line[4096];
+                int count = 0;
+                while (fgets(line, sizeof(line), f)) {
+                    int length = (int)strlen(line);
+                    while (length > 0 && (line[length - 1] == '\n' || line[length - 1] == '\r' || line[length - 1] == ' '))
+                        line[--length] = 0;
+                    if (length == 0 || line[0] == '#')
+                        continue;
+                    if (FAILED(RunCommand(ZString(line))))
+                        Fail(ZString("bad command in ") + strFile + ": " + line);
+                    count++;
+                }
+                fclose(f);
+                printf("mdlc: %d commands\n", count);
+                return S_FALSE;
+            }
+        }
+
+        if (FAILED(RunCommand(strCommandLine)))
+            Fail("usage: mdlc [-optimize | -convert | -compressanim x y | -info | -genheader | -batch] input [output]");
+
+        return S_FALSE;
+    }
+
+    HRESULT RunCommand(const ZString& strCommandLine)
+    {
+        {
             //
             // Parse the command line
             //

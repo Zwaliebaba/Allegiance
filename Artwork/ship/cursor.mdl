@@ -1,7 +1,0 @@
-use "model";
-
-cursor =
-    TranslateImage(
-        ImportImage("cursorbmp", true),
-        Point(-7, -7)
-    );

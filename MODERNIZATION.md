@@ -11,6 +11,7 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Toolchain | Visual Studio 2026, platform toolset v145, `.slnx` solution, Win32 first, x64 later. |
 | Renderer | New Direct3D 11 backend behind the engine's existing `Engine` / `Surface` / rasterizer seam. DirectDraw 4, Direct3D 3 and the MMX software rasterizer are removed. |
 | Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project. Stage B: new MDL version with 32-bit / BC7 DDS textures generated from the 24-bit source BMPs. |
+| Level of detail | Reduced LOD meshes are dropped. They were a 1999 performance optimisation (the models are hundreds to a few thousand triangles). Every LOD slot uses the full-detail mesh, which removes `xmunge -reduce`, the MSR progressive-mesh binaries and meshoptimizer. |
 | Networking | Own Winsock UDP transport behind the existing `FedMessaging` interface, replacing DirectPlay 4. Built in Phase 3 with a loopback / packet-loss test harness that runs in CI. |
 | Scope | Tier 1 is built. Tier 2 stays in the repo, outside the solution. Tier 3 is deleted once nothing in Tier 1 or 2 references it. |
 | Verification | GitHub Actions on `windows-2025` (VS 2026). `.github/workflows/windows-build.yml`. |
@@ -95,8 +96,8 @@ moves into Tier 1 and is ported with the server, keeping the admin and event fea
   `#define FLAVOR` + `Inc/VerRes.rc` with `copy`/`type`. Each executable now has a small
   `*.build.rc` that `#include`s the same pieces.
 - `_WIN32_WINNT`/`WINVER` are set to Windows 10 globally; current ATL refuses the original 0x0400.
-- Still to do: a vcpkg manifest (libjpeg-turbo, qhull, meshoptimizer) once the vendored copies are
-  replaced.
+- Still to do: a vcpkg manifest (libjpeg-turbo) once the vendored copy is replaced. qhull stays
+  vendored: `cvh` needs only the qhull executable, and the art pipeline no longer needs meshoptimizer.
 
 ### Phase 2: make it compile
 
@@ -114,6 +115,7 @@ moves into Tier 1 and is ported with the server, keeping the admin and event fea
 | Rendering | DirectDraw 4 + Direct3D 3, MMX software rasterizer | D3D11 backend; a few shaders emulate the fixed-function pipeline (lights, materials, fog, colour-key alpha) |
 | Input | DirectInput 2/7 | DirectInput 8 |
 | Audio | DirectSound / DS3D | Unchanged at first; XAudio2 later |
+| Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Same `IDiskPlayer` interface, playing the WAVs from `Artwork/redbook` (track order from `tracks.lst`) |
 | Networking | DirectPlay 4 inside `FedMessaging` | Own Winsock UDP layer: reliable-ordered and unreliable channels, fragmentation, timeouts, broadcast LAN discovery replacing `EnumSessions` |
 
 The DirectPlay surface used by `FedMessaging` is about 15 calls: `Open`, `Close`, `EnumSessions`,
@@ -123,22 +125,106 @@ inside `FedMessaging`.
 
 ### Phase 4: art pipeline
 
-`Art.proj` replaces the nmake/awk/sed/batch chain (`Artwork/256/makefile`, `makegeo.mak`,
-`Artwork/tools/*.bat`, `*.awk`). It reads the existing manifests (`bitmap.txt`, `copymdl.txt`, the
-geometry list in `makegeo.mak`) and builds incrementally through Inputs and Outputs.
+`Artwork/Art.proj` replaces the nmake/awk/sed/batch chain (`Artwork/256/makefile`, `makegeo.mak`,
+`Artwork/tools/*.bat`, `*.awk`, `sed.exe`), which has been deleted. It reads `bitmap.txt` and
+`copymdl.txt` unchanged, and `Artwork/256/Models.props`, a mechanical conversion of `makegeo.mak`'s
+model list. It builds incrementally through Inputs and Outputs.
 
 | Step | Original | Replacement |
 |---|---|---|
 | Images | `mdlc -convert` (24-bit BMP to 16-bit MDL) | Same, rebuilt |
 | Animations | `mdlc -compressanim` | Same |
-| Flatten / extract / bounds | `xmunge` on Direct3D Retained Mode | `xmunge` on the engine's own `.x` parser (`engine/xfile.cpp`) |
-| Levels of detail | MSR progressive-mesh binaries + `xmunge -reduce` | meshoptimizer at the original ratios (0.5 and 0.01) |
-| Collision hulls | `cvh` + qhull | Same; qhull from vcpkg |
-| Model compile | `sed` templates + `mdlc -optimize` | Template substitution in MSBuild, then `mdlc` |
+| Flatten / extract / bounds | `xmunge` on Direct3D Retained Mode | `xmunge` rewritten as portable C++17 on its own text `.x` reader (done) |
+| Levels of detail | MSR progressive-mesh binaries + `xmunge -reduce` | Dropped: every LOD slot uses the full-detail mesh |
+| Collision hulls | `cvh` + qhull | Same; qhull vendored and built in the solution |
+| Model compile | `sed` templates + `mdlc -optimize` | Template substitution in MSBuild, then one `mdlc -batch` |
 
 `mdlc` links the whole engine, so art conversion is gated on the engine building and running. The repo
 has no reference output, so Stage A is verified by loading and rendering in game, unless original
 retail `.mdl` files are available to compare against.
+
+#### Hard-coded paths in the art tools
+
+The original art build assumed a fixed `%FEDROOT%` layout (`%FEDROOT%\src\artwork\...`,
+`%FEDROOT%\objs\debug\<tool>\<tool>.exe`, `%FEDROOT%\src\tools\build\awk.exe`, `%FEDROOT%\src\bin\qhull`).
+
+| Where | Treatment |
+|---|---|
+| `cvh/main.cpp`: `system("%fedroot%\\src\\bin\\qhull ...")` (2 sites) | Fixed in code. Uses `qhull.exe` next to `cvh.exe` (same build output directory) or `ALLEGIANCE_QHULL`, and quotes paths so spaces work |
+| `cvh/main.cpp`: debug hull mesh written to `..\artbuild\<name>_m.x` | Fixed in code. Written to the working directory. The original crashed (`fprintf` to NULL) when that directory did not exist |
+| `Artwork/tools/*.bat`, `*.awk`, `Artwork/*/makefile`, `makegeo.mak` (about 70 path lines; `awk.exe` was never in the release; `sed.exe` is bundled) | Replaced by `Art.proj`, whose paths are relative to `$(AllegianceRoot)` and the build output. Deleted. |
+| `Artwork/tools/pmesh*/convpm.bat` + MSR progressive-mesh binaries | Deleted with the reduced LODs |
+| Art data (`.x`, `.mdl`) | Checked: no absolute texture or include paths |
+
+#### Art.proj status
+
+Done:
+
+- Bitmaps: the 1,447 entries in `bitmap.txt`.
+- The six animations.
+- The font.
+- The copied files: `copymdl.txt` plus the `wav`, `rtf`, `avi`, `igc` and `mml` wildcards.
+- The 223 template models. Each gets its collision hull through `xmunge`, `cvh` and qhull, then is compiled with `mdlc -optimize`. 45 of them have separate `_bound.x` hull pieces.
+- The 16 hand-written text-MDL models.
+
+Every step is incremental. A run with nothing changed does nothing, and touching one bitmap reconverts only that bitmap.
+
+How it was checked:
+
+- Locally, `xmunge`, `cvh` and qhull are built natively and run for real; `mdlc` is replaced by a stand-in that only creates the output files.
+- The real `mdlc` conversion runs only in CI.
+- `fig02pit` is left out because its source is missing.
+
+Each model's template refers to its `.x` files by absolute path in `out\artobj\models\`. That lets `mdlc` run in `out\art\` without the intermediates. It has to run there because textures are looked up on the art path, and a missing texture is a fatal error (`ModelerImpl::GetFile` asserts).
+
+`ops1` and `ops2` are in `makegeo.mak`, and their textures `ops1.bmp` and `ops2.bmp` are in the drop. But the textures were never listed in `bitmap.txt`, so the original build could not have produced these two models. Both lines are now added to `bitmap.txt`.
+
+Two `mdlc` changes support this:
+
+- `-batch <file>` runs one command per line in a single process. A Debug `mdlc` spends about 2.4 s starting the engine, so one process per bitmap would take about an hour. Each converted namespace is unloaded after it is written, which keeps memory flat in the 32-bit process.
+- Failures now exit with code 1. `ModelerSite::Error` used to call `_exit(0)`, and output files that could not be written were skipped without an error, so the original build could not notice a failed conversion.
+
+#### xmunge
+
+The rewrite keeps `-flatten`, `-extract` and `-bound` and matches Direct3D Retained Mode's behaviour:
+
+- It loads only the first top-level frame.
+- An animated frame's matrix is replaced by scale · rotation · translation from its keys. Missing key types are identity, rotations use slerp, and times clamp to the key range.
+- `-bound` pieces are written in model space.
+
+These rules were worked out against the art, and a separate reference implementation produces the same vertices on all 579 models in `Artwork/256`. The reader accepts the eight hand-edited files with unbalanced braces (`beam.x`, `bullet.x`, `circle.x`, …) the way D3DRM did.
+
+#### Art directory cleanup
+
+The original build only gathers art from `Artwork/256`, through these inputs:
+
+- `bitmap.txt`, `copymdl.txt` and `fontsource.mdl`.
+- The sources named in `makegeo.mak` (`<geo>.x`, `_static.x`, `_bound.x`, text MDLs).
+- Wildcard copies of `*.wav`, `*.rtf`, `*.avi`, `*.igc` and `*.mml`.
+
+The client reads only that output directory. Everything else was deleted, and git history keeps it:
+
+- `Artwork/old256`, `cadet` (art for the separate Cadet product, never integrated), `ship`, `sounds`, `soundpac1`, `training`, `team2.igc` and `team4.igc`.
+- About 800 files in `Artwork/256`:
+  - prebuilt `.mdl` and intermediate `.x` files that `makegeo.mak` regenerates;
+  - bitmaps and models that no manifest names;
+  - `artwork_new/`, `icons/` and stray scripts and notes.
+- The progressive-mesh tools and unused templates and scripts in `Artwork/tools`.
+
+A before-and-after check confirms that all 3,186 inputs the manifests need are still present. That check covers every model's optional `_static.x`, `-low.x` and `_bound.x` sources. The first version of the cleanup missed them: `makegeo.mak` names each model as `$(@B)`, so a regex read the literal `$(@B)` instead of the name, and 234 sources were deleted. They have been restored.
+
+Kept on purpose:
+
+- `Artwork/redbook`: the soundtrack. The game plays music as audio-CD tracks through MCI (`soundengine/redbooksound.cpp`), so the port has no music without a CD. A Phase 3 follow-up replaces the CD player with file playback from these WAVs.
+- The 41 files below. They are referenced by name from code or a shipped MDL, but the original build never put them in the art output, so they were missing at runtime even in 2004. They are latent bugs to check when the client first runs: either the referencing code is dead, or the file should be added to a manifest. Also, `makegeo.mak` builds `fig02pit.mdl` from `fig02pit.x`, but no `fig02pit.x` source exists.
+
+  `BtnMissionDetails.bmp`, `BtnMount.bmp`, `BtnReject.bmp`, `BtnReqPos.bmp`, `BtnSell.bmp`, `BtnTeamRoom.bmp`, `btnCharInfo2Zone.bmp`, `btncombo.bmp`, `btnmain.bmp`, `btnmaingames.bmp`, `btnpicksector.bmp`, `cmdformation.bmp`, `concmdbardisplay.bmp`, `conenergyweaponsdisplay.bmp`, `confabsel.bmp`, `conmissilesdisplay.bmp`, `conordersdisplay.bmp`, `conradarasteroids.bmp`, `conradarships.bmp`, `conradarstations.bmp`, `conradartarget.bmp`, `conradartreasures.bmp`, `conselectiondisplay.bmp`, `conshrunkcmdbardisplay.bmp`, `console.mdl`, `constationdisplay.bmp`, `conteambarsel.bmp`, `conweaponsdisplay.bmp`, `credits.bmp`, `hudgauge.bmp`, `loadout1.mdl`, `loadout11.mdl`, `loadout3.mdl`, `loadout4.mdl`, `loadout5.mdl`, `loadout9.mdl`, `loadoutbomber.mdl`, `loadouttacticalfighter.mdl`, `messageoftheday.mdl`, `techtree.mdl`, `temp.mdl`
+
+#### Smoke test
+
+CI runs `tools/ci/mdlc-smoke.ps1` after the build. It converts one bitmap and one animation, and
+compiles `fontsource.mdl`. This establishes whether `mdlc`, which starts the engine with its software
+DirectDraw path, runs on a headless runner. The first run crashed during engine start-up: `FontImpl::GetSizes` asserted on a zero-width glyph, which current GDI reports for some characters. The assert is relaxed to reject only negative widths; the Debug client used the same path.
 
 ### Phase 5: optional
 
@@ -156,6 +242,16 @@ msbuild Allegiance.slnx -p:Configuration=Debug -p:Platform=x86
 CI builds each library on its own (`-p:BuildProjectReferences=false`), so one failure doesn't hide the
 errors of the others. The error summary is on the workflow run page, and the full logs are attached to
 the run.
+
+Then build the art with the tools from that build:
+
+```
+msbuild Artwork\Art.proj -p:Configuration=Debug
+```
+
+The art goes to `out\art\`, the directory the client and server read. In CI, a separate `art` job
+does this with the tools from the build job, and attaches the result to the run as the `art-Debug`
+artifact.
 
 ## Conformance fix log
 
