@@ -302,6 +302,10 @@ peer gone, send failed); `FedMessaging::ReceiveMessages` drains the queue on the
 Ports (UDP): game servers 47700 (QUIC) and 47701 (discovery); the lobby's client side 47710/47711 and its
 server side 47720/47721. A server address may name another port as `host:port`.
 
+The LAN dialog's server box (in the original, commented out) is back: type a host, `host:port` or an
+address and press Find or Enter, and the dialog asks that server instead of broadcasting, which reaches
+servers beyond the LAN; empty asks the LAN again. The list is shorter to make room for it.
+
 #### Settings: a JSON file replaces the registry
 
 Every setting the game and the server kept under `HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.0`

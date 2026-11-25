@@ -95,25 +95,27 @@ screen =
 //
 //////////////////////////////////////////////////////////////////////////
 
-// serverEditPane = EditPane(Point(322, 18), largeFont);
-// serverFindButtonPane = ButtonPane(ImportImage("btnfindbmp", true), ButtonNormal, false);
+// The edit box takes a server to ask, "host" or "host:port" (empty: the LAN);
+// Find or Enter asks it. The list is shorter to make room below it.
+serverEditPane = EditPane(Point(304, 18), largeFont);
+serverFindButtonPane = ButtonPane(ImportImage("btnfindbmp", true), ButtonNormal, false);
 serverJoinButtonPane = ButtonPane(ImportImage("btnjoin3bmp", true), ButtonNormal, false);
 serverCancelButtonPane = ButtonPane(ImportImage("btnabortbmp", true), ButtonNormal, false);
-serverScrollBar = ScrollBarPane(Point(14, 164)); 
+serverScrollBar = ScrollBarPane(Point(14, 140)); 
 serverListWidth = 310;
 serverListGameNameX = 100;
-serverListPane = ListWithScrollBarPane(Point(serverListWidth, 162), serverScrollBar);
+serverListPane = ListWithScrollBarPane(Point(serverListWidth, 138), serverScrollBar);
 
 ServerDialog =
     (
         ImagePane(
             ImportImage("findserverdialogbmp", false),
             [
-//                (serverEditPane,                  Point( 31, 62)),
-//                (serverFindButtonPane,            Point(375, 60)),
-
                 (serverScrollBar,                 Point(338,63)),
                 (serverListPane,                  Point( 28,65)),
+
+                (serverEditPane,                  Point( 31,212)),
+                (serverFindButtonPane,            Point(375,207)),
 
                 (serverJoinButtonPane,            Point(375,60)),
                 (serverCancelButtonPane,          Point(375,110))
