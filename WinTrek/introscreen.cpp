@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "training.h"
 
-extern bool CheckNetworkDevices(ZString& strDriverURL);
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Intro Screen
@@ -469,27 +467,6 @@ private:
         }
     };
 
-    bool CheckNetworkDrivers()
-    {
-        ZString strDriverURL;
-
-        if (!CheckNetworkDevices(strDriverURL))
-        {
-            TRef<IMessageBox> pMsgBox = CreateMessageBox("The drivers of the "
-                "network card you are using are known not to work with "
-                "Microsoft Allegiance.  Please visit " + strDriverURL 
-                + " to download updated drivers.  Press <OK> to go there now.",
-                NULL, true, true);
-
-            pMsgBox->GetEventSource()->AddSink(new URLMessageSink(strDriverURL));
-            GetWindow()->GetPopupContainer()->OpenPopup(pMsgBox, false);
-
-            return false;
-        }        
-        else
-            return true;
-    }
-
 public:
 
     IntroScreen(Modeler* pmodeler) :
@@ -907,19 +884,13 @@ public:
 
     bool OnButtonInternet()
     {
-        if (CheckNetworkDrivers())
-        {
-            GetWindow()->screen(ScreenIDLobbyScreen);
-        }
+        GetWindow()->screen(ScreenIDLobbyScreen);
         return true;
     }
 
     bool OnButtonLAN()
     {
-        if (CheckNetworkDrivers())
-        {
-            GetWindow()->GetPopupContainer()->OpenPopup(m_pfindServerPopup, false);
-        }
+        GetWindow()->GetPopupContainer()->OpenPopup(m_pfindServerPopup, false);
         return true;
     }
 

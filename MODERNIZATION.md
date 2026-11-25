@@ -352,8 +352,9 @@ Behaviour that changed:
 
 Removed with the registry code, because nothing used them: `zlib/zreg.h`, `Inc/regkey.h` (the service
 name moved to `FedSrv/serversettings.h`), `UTL::GetPathFromReg`, `ZString::GetProfileString` (a `win.ini`
-read, which Windows maps to the registry), `WinTrek/netinfo.cpp` (a Windows 9x network-adapter probe
-through `HKEY_DYN_DATA`, never called), `CheckForAllGuard` (launched `AllGuard.exe`, which isn't in the
+read, which Windows maps to the registry), `WinTrek/netinfo.cpp` and the intro screen's check that
+used it (a Windows 9x probe for network cards with known-bad drivers, through `HKEY_DYN_DATA`, which NT
+doesn't have, so it always passed), `CheckForAllGuard` (launched `AllGuard.exe`, which isn't in the
 repository, from the registry's art path), the `TCPropBagOnRegKey` COM class (registry-backed property
 bags; in AGC's IDL but not in its object map), and TCLib's registry-switched lock tracing
 (`_ENABLE_TRACE_LOCKS`, never defined).
