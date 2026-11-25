@@ -11,9 +11,31 @@
     <Project Path="_Utility/Utility.vcxproj" />
     <Project Path="engine/Engine.vcxproj" />
     <Project Path="effect/Effect.vcxproj" />
+    <Project Path="soundengine/SoundEngine.vcxproj" />
+    <Project Path="Igc/Igc.vcxproj" />
+    <Project Path="clintlib/ClintLib.vcxproj" />
+    <Project Path="training/Training.vcxproj" />
+    <Project Path="test/TCLib/TCLib.vcxproj" />
+    <Project Path="sharemem/ShareMem.vcxproj" />
+  </Folder>
+  <Folder Name="/AGC/">
+    <Project Path="AGC/AGCGuid.vcxproj" />
+    <Project Path="AGC/AGC.vcxproj" />
+  </Folder>
+  <Folder Name="/Client/">
+    <Project Path="WinTrek/Allegiance.vcxproj" DefaultStartup="true" />
+  </Folder>
+  <Folder Name="/Server/">
+    <Project Path="FedSrv/AllSrv32.vcxproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="mdlc/mdlc.vcxproj" />
+    <Project Path="cvh/cvh.vcxproj" />
+    <Project Path="qhull/qhull.vcxproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
     <File Path="msbuild/Allegiance.Cpp.props" />
     <File Path="MODERNIZATION.md" />
   </Folder>

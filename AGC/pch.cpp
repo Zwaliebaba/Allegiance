@@ -5,13 +5,13 @@
 
 #include "pch.h"
 
-#include <atlimpl.cpp>
+// atlimpl.cpp / statreg.cpp: ATL 3 implementation files; current ATL is
+// header-only plus atls.lib, and statreg.h carries the static registrar.
 #include <TCAtl.cpp>
 #include <..\TCAtl\PropertyClass.cpp>
 #include <..\TCAtl\TCNullStreamImpl.cpp>
 
 #ifdef _ATL_STATIC_REGISTRY
   #include <statreg.h>
-  #include <statreg.cpp>
 #endif
 

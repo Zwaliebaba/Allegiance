@@ -132,7 +132,7 @@ HRESULT TCPropertyPageSite::Page_Attach(IPropertyPage* pPage)
     std::vector<IUnknown*> vecUnk;
     vecUnk.resize(m_vecObjects.size());
     std::copy(m_vecObjects.begin(), m_vecObjects.end(), vecUnk.begin());
-    hr = pPage->SetObjects(vecUnk.size(), vecUnk.begin());
+    hr = pPage->SetObjects(vecUnk.size(), vecUnk.data());
     if (FAILED(hr))
       return hr;
   }

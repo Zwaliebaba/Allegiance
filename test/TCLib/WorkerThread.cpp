@@ -13,7 +13,7 @@
 // #define XWorkItem_TRACE
 
 #if defined(XWorkItem_TRACE)
-  #include <typeinfo.h>
+  #include <typeinfo>
   #include <TlsValue.h>
   #include "AsyncDebugOutput.h"
 
@@ -123,7 +123,7 @@ public:
     #endif // defined(XWorkItem_TRACE)
 
     if (m_pfnRelease)
-      (*m_pfnRelease)(m_idMsg, m_vec.size(), m_vec.begin());
+      (*m_pfnRelease)(m_idMsg, m_vec.size(), m_vec.data());
   }
 
 // Group=Data Members
@@ -555,7 +555,7 @@ void TCWorkerThread::DispatchWorkItem(TCWorkerThread::XWorkItem* pItem)
     GetDebugOutput()->WriteLen(60,
       "XWorkItem\t%08X\tTCWorkerThread::DispatchWorkItem\n", pItem);
   #endif // defined(XWorkItem_TRACE)
-  OnMessage(pItem->m_idMsg, pItem->m_vec.size(), pItem->m_vec.begin());
+  OnMessage(pItem->m_idMsg, pItem->m_vec.size(), pItem->m_vec.data());
   DestroyWorkItem(pItem);
 }
 

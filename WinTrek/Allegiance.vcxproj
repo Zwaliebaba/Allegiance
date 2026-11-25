@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{95D21128-1F14-455F-982D-E20D69EB7EB1}</ProjectGuid>
+    <RootNamespace>Allegiance</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(AllegianceRoot)msbuild\Allegiance.Cpp.props" />
+  </ImportGroup>
+  <PropertyGroup>
+    <TargetName>Allegiance</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)AGC;$(AllegianceRoot)FedSrv;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)test\Inc;$(AllegianceRoot)WinTrek;$(AllegianceRoot)Zone;$(AllegianceGenDir)AGC\;$(AllegianceGenDir)AllSrv32\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WINTREK;igc_static;IGC_SHIP;_USRDLL;DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)AGC;$(AllegianceRoot)FedSrv;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)test\Inc;$(AllegianceRoot)WinTrek;$(AllegianceRoot)Zone;$(AllegianceGenDir)AGC\;$(AllegianceGenDir)AllSrv32\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WINTREK;igc_static;IGC_SHIP;_USRDLL;DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="soundinit.cpp" />
+    <ClCompile Include="treksound.cpp" />
+    <ClCompile Include="WinTrek.cpp" />
+    <ClCompile Include="CharInfoScreen.cpp" />
+    <ClCompile Include="gamesite.cpp" />
+    <ClCompile Include="trekigc.cpp" />
+    <ClCompile Include="teamscreen.cpp" />
+    <ClCompile Include="teampane.cpp" />
+    <ClCompile Include="teleportpane.cpp" />
+    <ClCompile Include="load.cpp" />
+    <ClCompile Include="gamescreen.cpp" />
+    <ClCompile Include="introscreen.cpp" />
+    <ClCompile Include="newgamescreen.cpp" />
+    <ClCompile Include="gameoverscreen.cpp" />
+    <ClCompile Include="gamestartingscreen.cpp" />
+    <ClCompile Include="ZoneClubScreen.cpp" />
+    <ClCompile Include="SquadsScreen.cpp" />
+    <ClCompile Include="trekctrls.cpp" />
+    <ClCompile Include="loadout.cpp" />
+    <ClCompile Include="hangarscreen.cpp" />
+    <ClCompile Include="leaderboardscreen.cpp" />
+    <ClCompile Include="trekapp.cpp" />
+    <ClCompile Include="consoledata.cpp" />
+    <ClCompile Include="console.cpp" />
+    <ClCompile Include="selpane.cpp" />
+    <ClCompile Include="indicator.cpp" />
+    <ClCompile Include="inventoryimage.cpp" />
+    <ClCompile Include="trekmdl.cpp" />
+    <ClCompile Include="radarimage.cpp" />
+    <ClCompile Include="trekinput.cpp" />
+    <ClCompile Include="cmdview.cpp" />
+    <ClCompile Include="sectormap.cpp" />
+    <ClCompile Include="chatpane.cpp" />
+    <ClCompile Include="logon.cpp" />
+    <ClCompile Include="passworddialog.cpp" />
+    <ClCompile Include="cdkeydialog.cpp" />
+    <ClCompile Include="videoscreen.cpp" />
+    <ClCompile Include="trainingscreen.cpp" />
+    <ClCompile Include="Slideshow.cpp" />
+    <ClCompile Include="TrainingSlideshow.cpp" />
+    <ClCompile Include="PostTrainingSlideshow.cpp" />
+    <ClCompile Include="ZoneSquad.cpp" />
+    <ClCompile Include="zoneeventsscreen.cpp" />
+    <ClCompile Include="netinfo.cpp" />
+    <ClCompile Include="gametypes.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Slideshow.h" />
+    <ClInclude Include="TrekDlgs.h" />
+    <ClInclude Include="Treki.h" />
+    <ClInclude Include="WinTrek.h" />
+    <ClInclude Include="ZoneSquad.h" />
+    <ClInclude Include="artwork.h" />
+    <ClInclude Include="cmdview.h" />
+    <ClInclude Include="console.h" />
+    <ClInclude Include="consoledata.h" />
+    <ClInclude Include="gamesite.h" />
+    <ClInclude Include="gametypes.h" />
+    <ClInclude Include="hudimage.h" />
+    <ClInclude Include="indicator.h" />
+    <ClInclude Include="load.h" />
+    <ClInclude Include="loadout.h" />
+    <ClInclude Include="logon.h" />
+    <ClInclude Include="offline.h" />
+    <ClInclude Include="passworddialog.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="radarimage.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="screen.h" />
+    <ClInclude Include="sectorvw.h" />
+    <ClInclude Include="speech.h" />
+    <ClInclude Include="trekctrls.h" />
+    <ClInclude Include="trekinput.h" />
+    <ClInclude Include="trekmdl.h" />
+    <ClInclude Include="treksound.h" />
+    <ClInclude Include="trekspeech.h" />
+    <ClInclude Include="wintrekp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Allegiance.build.rc">
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Lang\Usa\allegiance;$(AllegianceRoot)Lang\NonIntl\allegiance;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WINTREK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\zlib\ZLib.vcxproj">
+      <Project>{34F19E78-C3AD-4EEC-8F42-C823D58200C8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\soundengine\SoundEngine.vcxproj">
+      <Project>{6B95D240-3C2A-4F62-B1F8-FDDCA6D0C984}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_Utility\Utility.vcxproj">
+      <Project>{B7B60918-2EC7-4B11-98E6-15EE459965E1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\engine\Engine.vcxproj">
+      <Project>{598956D4-4C9C-46F6-A768-151834BCD97F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\effect\Effect.vcxproj">
+      <Project>{EF7F71BC-E8E5-4EF8-819D-6AB78F3EEB97}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Igc\Igc.vcxproj">
+      <Project>{436BD701-CD33-4132-AC9D-E4A34252E55F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\clintlib\ClintLib.vcxproj">
+      <Project>{5B164402-491E-404E-AB26-C6B1590EBABE}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AGC\AGCGuid.vcxproj">
+      <Project>{98F5F2A7-FBF2-4C2A-AEA7-D4B1F4DB0070}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\training\Training.vcxproj">
+      <Project>{1DC45108-9797-4F75-9891-60197544974B}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\guids\Guids.vcxproj">
+      <Project>{CB4A5507-7890-4D3E-ACAB-CD2B1E126D40}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

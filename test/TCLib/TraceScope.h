@@ -45,7 +45,8 @@ public:
 
     // Create the formatting string
     char szFmt[_MAX_PATH] = "";
-    for (int i = 0; i < nIndent; ++i)
+    int i;
+    for (i = 0; i < nIndent; ++i)
       strcat(szFmt, "  ");
     if (m_pszClass)
     {

@@ -331,9 +331,9 @@ void TCComDualEventsCP<T, IV, piid, CPD>::RemoveFailedSink(HRESULT hr,
       IConnectionPointImpl<T, &IID_disp> >                                  \
   {                                                                         \
   protected:                                                                \
-    typedef TCComDualEventsCP<T, IV, &IID_vtbl,                             \
+    typedef typename TCComDualEventsCP<T, IV, &IID_vtbl,                             \
       IConnectionPointImpl<T, &IID_disp> >::TIV TIV;                        \
-    typedef TCComDualEventsCP<T, IV, &IID_vtbl,                             \
+    typedef typename TCComDualEventsCP<T, IV, &IID_vtbl,                             \
       IConnectionPointImpl<T, &IID_disp> >::PIV PIV;
 
 /////////////////////////////////////////////////////////////////////////////

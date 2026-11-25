@@ -213,7 +213,7 @@ STDMETHODIMP CAGCOrientation::get_IsEqual(IAGCOrientation* pOrientation,
 
   // Determine absolute equality
   XLock lock(this);
-  const cbData = sizeof(*m_orientation[0]) * DIMENSIONS;
+  const int cbData = sizeof(*m_orientation[0]) * DIMENSIONS;
   bool bEqual = !memcmp(m_orientation[0], orientation[0], cbData);
 
   // Initialize the [out] parameter
@@ -251,7 +251,7 @@ STDMETHODIMP CAGCOrientation::InitFromOrientation(const void* pvOrientation)
 
   // Determine absolute equality
   XLock lock(this);
-  const cbData = sizeof(*m_orientation[0]) * DIMENSIONS;
+  const int cbData = sizeof(*m_orientation[0]) * DIMENSIONS;
   bool bEqual = !memcmp(m_orientation[0], (*pOrientation)[0], cbData);
   if (!bEqual)
   {

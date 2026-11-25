@@ -1696,7 +1696,7 @@ public:
         
         CastTo(m_pbuttonCollapse,     pns->FindMember(strPrefix + "CollapseButtonPane"));
         
-        AddEventTarget(OnButtonSize, m_pbuttonCollapse->GetEventSource());
+        AddEventTarget(&TeamPane::OnButtonSize, m_pbuttonCollapse->GetEventSource());
         
         
         m_plistPanePlayers->SetItemPainter(new ExpandedPlayerPainter(m_viColumns));

@@ -55,7 +55,7 @@ STDMETHODIMP CTCStrings::get__NewEnum(IUnknown** ppunkEnum)
     vecTemp[i] = m_vecStrings[i];
 
   // Initialize enumerator object with the temporary CComVariant vector
-  HRESULT hr = pEnum->Init(vecTemp.begin(), vecTemp.end(), NULL, AtlFlagCopy);
+  HRESULT hr = pEnum->Init(vecTemp.data(), vecTemp.data() + vecTemp.size(), NULL, AtlFlagCopy);
   if (SUCCEEDED(hr))
     hr = pEnum->QueryInterface(IID_IEnumVARIANT, (void**)ppunkEnum);
   if (FAILED(hr))
@@ -185,7 +185,8 @@ STDMETHODIMP CTCStrings::get_DelimitedItems(BSTR bstrDelimiter,
   // Loop thru the collection and calculate the total number of characters
   UINT cchTotal = 1;
   UINT nCount = m_vecStrings.size();
-  for (UINT i = 0; i < nCount; ++i)
+  UINT i;
+  for (i = 0; i < nCount; ++i)
   {
     if (i)
       cchTotal += cchDelim;

@@ -42,7 +42,7 @@ public:
     COM_INTERFACE_ENTRY(ISupportErrorInfo)
     COM_INTERFACE_ENTRY(IPersist)
     COM_INTERFACE_ENTRY(IPersistStreamInit)
-    COM_INTERFACE_ENTRY2(IPersistStream, IPersistStreamInit)
+    COM_INTERFACE_ENTRY_IID(IID_IPersistStream, IPersistStreamInit)
     COM_INTERFACE_ENTRY_AUTOAGGREGATE(IID_IMarshal, m_punkMBV.p, CLSID_TCMarshalByValue)
     COM_INTERFACE_ENTRY(IObjectSafety)
   END_COM_MAP()

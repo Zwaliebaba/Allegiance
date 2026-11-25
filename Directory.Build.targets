@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Imported automatically by every .vcxproj below this directory, after the C++
+  targets. Adds the two code-generation steps the original nmake build had:
+
+    AllegianceXslt     XML -> text through an old-style (WD-xsl) stylesheet, run
+                       with Windows Script Host + MSXML via AGC\XMLXForm.js.
+                       Item metadata: Xml (input document), OutputFile (file).
+    AllegianceMessage  Message-compiler sources (.msg / .mc) -> .h + .rc + .bin,
+                       written to %(OutputDirectory) (default $(IntDir)).
+
+  Both run before MIDL, the C/C++ compiler and the resource compiler.
+-->
+<Project>
+  <ItemDefinitionGroup>
+    <AllegianceMessage>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+    </AllegianceMessage>
+  </ItemDefinitionGroup>
+
+  <Target Name="AllegianceXslt"
+          BeforeTargets="Midl;ClCompile;ResourceCompile"
+          Condition="'@(AllegianceXslt)' != ''"
+          Inputs="@(AllegianceXslt);%(AllegianceXslt.Xml)"
+          Outputs="%(AllegianceXslt.OutputFile)">
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('%(AllegianceXslt.OutputFile)'))" />
+    <Exec Command="cscript //NoLogo &quot;$(AllegianceRoot)AGC\XMLXForm.js&quot; &quot;%(AllegianceXslt.Xml)&quot; &quot;%(AllegianceXslt.FullPath)&quot; &quot;%(AllegianceXslt.OutputFile)&quot;"
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Error Condition="!Exists('%(AllegianceXslt.OutputFile)')" Text="XSLT did not produce %(AllegianceXslt.OutputFile)" />
+  </Target>
+
+  <Target Name="AllegianceMessage"
+          DependsOnTargets="AllegianceXslt"
+          BeforeTargets="Midl;ClCompile;ResourceCompile"
+          Condition="'@(AllegianceMessage)' != ''"
+          Inputs="@(AllegianceMessage)"
+          Outputs="@(AllegianceMessage->'%(OutputDirectory)%(Filename).h')">
+    <MakeDir Directories="%(AllegianceMessage.OutputDirectory)" />
+    <!-- PATH cannot go through Exec's EnvironmentVariables, which is ;-separated. -->
+    <Exec Command="set &quot;PATH=$(ExecutablePath);%PATH%&quot; &amp;&amp; mc.exe -r &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; -h &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; &quot;%(AllegianceMessage.FullPath)&quot;" />
+  </Target>
+</Project>

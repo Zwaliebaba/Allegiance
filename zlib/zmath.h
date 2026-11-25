@@ -80,13 +80,11 @@ inline ValueType bound(ValueType value, ValueType min, ValueType max)
     return value < min ? min : (value > max ? max : value);
 }
 
-template<class Type>
-inline void swap(Type& x, Type& y)
-{
-    Type temp(x);
-    x = y;
-    y = temp;
-}
+// zlib used to define its own global swap(Type&, Type&). Current standard
+// library algorithms call swap unqualified, so a second global template made
+// every std::sort over a global-namespace type ambiguous. std::swap does the
+// same thing.
+using std::swap;
 
 //////////////////////////////////////////////////////////////////////////////
 //

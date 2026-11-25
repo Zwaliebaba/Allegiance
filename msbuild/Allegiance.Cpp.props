@@ -14,6 +14,8 @@
   <PropertyGroup>
     <OutDir>$(AllegianceRoot)out\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(AllegianceRoot)out\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <!-- Generated sources shared between projects (MIDL, mc and XSLT output). -->
+    <AllegianceGenDir>$(AllegianceRoot)out\gen\$(Platform)\$(Configuration)\</AllegianceGenDir>
   </PropertyGroup>
 
   <ItemDefinitionGroup>
@@ -26,14 +28,25 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;DIRECTINPUT_VERSION=0x0800;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;WINVER=0x0A00;_WIN32_WINNT=0x0A00;DIRECTINPUT_VERSION=0x0800;_HAS_AUTO_PTR_ETC=1;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- Same order as the original makefile.inc: project-local dirs (added by
            each project) first, then the shared ones. -->
       <AdditionalIncludeDirectories>$(AllegianceRoot)Inc;$(AllegianceRoot)zlib;$(AllegianceRoot)guids;$(AllegianceRoot)Zone;$(AllegianceRoot)compat\dplay;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <!-- The system libraries the original makeexe.inc linked, minus the ones
+           that no longer exist (d3drm, dplayx, icqmapi) and with their modern
+           names (dinput8, strmiids, comsuppw). -->
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;ddraw.lib;dsound.lib;dxguid.lib;dinput8.lib;winmm.lib;strmiids.lib;comctl32.lib;version.lib;ws2_32.lib;delayimp.lib;wininet.lib;urlmon.lib;lz32.lib;netapi32.lib;comsuppw.lib;oledb.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Midl>
+      <TargetEnvironment>Win32</TargetEnvironment>
+    </Midl>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
@@ -42,6 +55,9 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>_DEBUG;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">

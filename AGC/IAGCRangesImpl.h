@@ -22,7 +22,7 @@
 	  COM_INTERFACE_ENTRY(ISupportErrorInfo)                                  \
     COM_INTERFACE_ENTRY(IPersistStreamInit)                                 \
     COM_INTERFACE_ENTRY(IPersistPropertyBag)                                \
-    COM_INTERFACE_ENTRY2(IPersistStream, IPersistStreamInit)                \
+    COM_INTERFACE_ENTRY_IID(IID_IPersistStream, IPersistStreamInit)                \
     COM_INTERFACE_ENTRY2(IPersist, IPersistStreamInit)                      \
     COM_INTERFACE_ENTRY_AUTOAGGREGATE(IID_IMarshal, m_punkMBV.p,            \
       CLSID_TCMarshalByValue)
@@ -44,8 +44,8 @@ public:
   typedef TCObjectLock<T>                            XLock;
   typedef range<RT>                                  XRange;
   typedef rangeset<XRange>                           XRangeSet;
-  typedef XRangeSet::iterator                        XRangeIt;
-  typedef XRangeSet::reverse_iterator                XRangeRevIt;
+  typedef typename XRangeSet::iterator               XRangeIt;
+  typedef typename XRangeSet::reverse_iterator       XRangeRevIt;
   typedef IDispatchImpl<ITF, &__uuidof(ITF), plibid> IAGCRangesImplBase;
 
 // Construction
@@ -54,9 +54,9 @@ public:
   {
     // Create a range COM object to be reused multiple times
     ZSucceeded(T::CreateRange(RT(), RT(), &m_spRange));
-    m_spPrivate = m_spRange;
+    m_spPrivate = m_spRange.p;
     assert(NULL != m_spPrivate);
-    m_spPersist = m_spRange;
+    m_spPersist = m_spRange.p;
     if (NULL == m_spPersist)
     {
       ZSucceeded(m_spRange->QueryInterface(IID_IPersistStreamInit,
@@ -107,7 +107,7 @@ public:
     }
 
     // Initialize enumerator object with the temporary CComVariant vector
-    RETURN_FAILED(pEnum->Init(vecTemp.begin(), vecTemp.end(), NULL, AtlFlagCopy));
+    RETURN_FAILED(pEnum->Init(vecTemp.data(), vecTemp.data() + vecTemp.size(), NULL, AtlFlagCopy));
 
     // Copy the new object to the [out] parameter
     RETURN_FAILED(spEnum->QueryInterface(IID_IEnumVARIANT, (void**)ppunkEnum));
@@ -134,14 +134,16 @@ public:
     RT value1, value2;
     if (nIndex < (m_ranges.size() / 2))
     {
-      for (XRangeIt it = m_ranges.begin(); nIndex; ++it)
+      XRangeIt it;
+      for (it = m_ranges.begin(); nIndex; ++it)
         --nIndex;
       value1 = it->lower();
       value2 = it->upper();
     }
     else
     {
-      for (XRangeRevIt it = m_ranges.rbegin(); nIndex; ++it)
+      XRangeRevIt it;
+      for (it = m_ranges.rbegin(); nIndex; ++it)
         --nIndex;
       value1 = it->lower();
       value2 = it->upper();

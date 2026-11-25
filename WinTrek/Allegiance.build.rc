@@ -1,0 +1,13 @@
+//
+// Resource script built by MSBuild. The original nmake build produced the
+// same thing by concatenating files with copy/type; see the module makefile.
+//
+
+#include "allegiance.rc"
+
+#ifdef _DEBUG
+#define FLAVOR "debug"
+#else
+#define FLAVOR "retail"
+#endif
+#include "VerRes.rc"

@@ -288,7 +288,7 @@ void CAGCEventLogger::LogEvent(IAGCEvent* pEvent, bool bSynchronous)
         // Report the event to the NT Event log
         ReportEventW(m_shEventLog, wSeverity, 0, dwEventID, NULL,
           vecParamStrings.size(), 0,
-          (LPCWSTR*)(vecParamStrings.begin()), NULL);
+          (LPCWSTR*)(vecParamStrings.data()), NULL);
 
         // Free the replacement parameters BSTR's
         for (CAGCEventDef::XParamStrings::iterator it = vecParamStrings.begin();

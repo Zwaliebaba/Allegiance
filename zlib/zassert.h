@@ -15,9 +15,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef assert
-#error Don't use assert.h, zlib provides assert functionality.
-#endif
+// (The original refused to build if another assert was already defined.
+// Current CRT and ATL headers include <assert.h> themselves, so instead the
+// zlib definition is (re)established at the end of this file on every
+// inclusion, outside the include guard.)
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -71,7 +72,6 @@ extern bool g_bOutput;
 
 #define ZUnimplemented()  ZError("Unimplemented member called")
 
-#define assert(exp)   ZAssert(exp)
 #define ShouldBe(exp) ZWarning(exp)
 #define VerifyHR(exp) ZSucceeded(exp)
 
@@ -102,3 +102,6 @@ extern bool g_bOutput;
 
 #endif
 
+// Outside the include guard on purpose, see the note at the top.
+#undef assert
+#define assert(exp)   ZAssert(exp)

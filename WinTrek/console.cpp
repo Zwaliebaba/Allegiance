@@ -3139,7 +3139,7 @@ public:
         // back button
 
         CastTo(m_pbuttonBack, pnsDisplays->FindMember("backButtonPane"));
-        m_pconsoleData->AddEventTarget(m_pconsoleData->OnBackButton, m_pbuttonBack->GetEventSource());
+        m_pconsoleData->AddEventTarget(&ConsoleDataImpl::OnBackButton, m_pbuttonBack->GetEventSource());
         
         //
         // Add all of the loaded displays

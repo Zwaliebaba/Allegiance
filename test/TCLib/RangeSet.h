@@ -259,7 +259,8 @@ public:
   {
     // Count the number of iterators that intersect with r
     std::pair<const_iterator, const_iterator> itPair(equal_range(r));
-    for (int _count = 0; itPair.first != itPair.second; ++itPair.first)
+    int _count;
+    for (_count = 0; itPair.first != itPair.second; ++itPair.first)
       ++_count;
     return _count;
   }

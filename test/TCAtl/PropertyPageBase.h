@@ -9,7 +9,7 @@
 #include <map>
 #include <set>
 #include <comdef.h>
-#include <typeinfo.h>
+#include <typeinfo>
 #include "..\TCLib\AdviseHolder.h"
 #include "InsidePropPage.h"
 #include "PageEntry.h"

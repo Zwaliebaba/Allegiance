@@ -408,7 +408,8 @@ STDMETHODIMP CAGCVector::CrossProduct(IAGCVector* pVector,
   Vector vector;
   RETURN_FAILED(GetRawVector(pVector, &vector));
   XLock lock(this);
-  return CreateResultVector(&::CrossProduct(m_vector, vector), ppResult);
+  Vector vectorResult = ::CrossProduct(m_vector, vector);
+  return CreateResultVector(&vectorResult, ppResult);
 }
 
 STDMETHODIMP CAGCVector::Interpolate(IAGCVector* pVector, float fValue,
@@ -417,7 +418,8 @@ STDMETHODIMP CAGCVector::Interpolate(IAGCVector* pVector, float fValue,
   Vector vector;
   RETURN_FAILED(GetRawVector(pVector, &vector));
   XLock lock(this);
-  return CreateResultVector(&::Interpolate(m_vector, vector, fValue), ppResult);
+  Vector vectorResult = ::Interpolate(m_vector, vector, fValue);
+  return CreateResultVector(&vectorResult, ppResult);
 }
 
 STDMETHODIMP CAGCVector::AddInPlace(IAGCVector* pVector)
@@ -460,7 +462,8 @@ STDMETHODIMP CAGCVector::CrossProductInPlace(IAGCVector* pVector)
   Vector vector;
   RETURN_FAILED(GetRawVector(pVector, &vector));
   XLock lock(this);
-  return InitFromVector(&::CrossProduct(m_vector, vector));
+  Vector vectorResult = ::CrossProduct(m_vector, vector);
+  return InitFromVector(&vectorResult);
 }
 
 STDMETHODIMP CAGCVector::InterpolateInPlace(IAGCVector* pVector, float fValue)
@@ -468,7 +471,8 @@ STDMETHODIMP CAGCVector::InterpolateInPlace(IAGCVector* pVector, float fValue)
   Vector vector;
   RETURN_FAILED(GetRawVector(pVector, &vector));
   XLock lock(this);
-  return InitFromVector(&::Interpolate(m_vector, vector, fValue));
+  Vector vectorResult = ::Interpolate(m_vector, vector, fValue);
+  return InitFromVector(&vectorResult);
 }
 
 

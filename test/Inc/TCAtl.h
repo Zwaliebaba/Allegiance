@@ -19,6 +19,11 @@
 // Disable this warning since ATL may generate some very long symbolic names
 #pragma warning(disable: 4786)
 
+// zlib/alloc.h defines "new" as a macro in debug builds; ATL uses
+// new(std::nothrow), which the macro breaks. Suspend it for these headers.
+#pragma push_macro("new")
+#undef new
+
 #if !defined(_INC_COMDEF)
   #include <comdef.h>
 #endif // !defined(_INC_COMDEF)
@@ -26,6 +31,8 @@
 #ifndef __ATLCTL_H__
   #include <atlctl.h>
 #endif // !__ATLCTL_H__
+
+#pragma pop_macro("new")
 
 #ifdef _AFX
   #ifndef __AFXOLE_H__

@@ -37,6 +37,7 @@
 // 2003); without <cmath>, abs(float) is ambiguous between the integer overloads.
 #include <cmath>
 #include <cstdlib>
+#include <utility>   // std::swap, see zmath.h
 
 #ifdef DREAMCAST
 #include "dreamcast.h"

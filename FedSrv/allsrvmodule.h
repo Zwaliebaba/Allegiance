@@ -22,7 +22,12 @@
 #endif
 #define _ATL_APARTMENT_THREADED
 
+// zlib/alloc.h defines "new" as a macro in debug builds; ATL uses
+// new(std::nothrow), which the macro breaks. Suspend it for the ATL headers.
+#pragma push_macro("new")
+#undef new
 #include <atlbase.h>
+#pragma pop_macro("new")
 #include <AGC.h>
 #include <..\TCLib\AutoHandle.h>
 
@@ -89,7 +94,10 @@ protected:
 };
 
 extern CServiceModule _Module;
+#pragma push_macro("new")
+#undef new
 #include <atlcom.h>
+#pragma pop_macro("new")
 
 
 

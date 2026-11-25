@@ -584,7 +584,7 @@ public:
                     + "\n\n" + ZString(FM_VAR_REF(pMedalInfo, szSpecificInfo)));
 
                 pMedal->SetImageFileName(ZString(FM_VAR_REF(pMedalInfo, szBitmap)) + ZString("bmp"));
-                static c = 0;
+                static int c = 0;
                 pMedal->SetRanking(c++);
 
                 // find out which index this civid maps to

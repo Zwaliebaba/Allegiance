@@ -23,15 +23,29 @@ jobs:
       matrix:
         configuration: [ Debug ]
     env:
-      # Built one at a time with BuildProjectReferences=false, so a failure in
-      # one library does not hide the errors of the libraries above it.
-      # These are static libraries; nothing links yet, so order does not matter.
+      # Built one at a time, in dependency order, with BuildProjectReferences=false,
+      # so a failure in one project does not hide the compile errors of the
+      # projects that depend on it. (Their link step will still fail.)
+      # AGCGuid must precede the projects that include the AGC headers it generates.
       PROJECTS: >-
         zlib/ZLib.vcxproj
         guids/Guids.vcxproj
         _Utility/Utility.vcxproj
         engine/Engine.vcxproj
         effect/Effect.vcxproj
+        soundengine/SoundEngine.vcxproj
+        AGC/AGCGuid.vcxproj
+        Igc/Igc.vcxproj
+        clintlib/ClintLib.vcxproj
+        training/Training.vcxproj
+        test/TCLib/TCLib.vcxproj
+        sharemem/ShareMem.vcxproj
+        AGC/AGC.vcxproj
+        FedSrv/AllSrv32.vcxproj
+        WinTrek/Allegiance.vcxproj
+        mdlc/mdlc.vcxproj
+        cvh/cvh.vcxproj
+        qhull/qhull.vcxproj
 
     steps:
       - name: Checkout (code only, Artwork excluded)
