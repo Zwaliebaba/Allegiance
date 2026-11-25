@@ -9,21 +9,11 @@
 
 class PixelFormat : public IObject {
 private:
-    DDPIXELFORMAT m_ddpf;
-    bool          m_bSoftwareTexture;
-
-    void SetSoftwareTexture()
-    {
-        m_bSoftwareTexture = true;
-    }
-
-    PixelFormat(const DDPIXELFORMAT& ddpf) :
-        m_ddpf(ddpf),
-        m_bSoftwareTexture(false)
-    {
-    }
-
-    friend class EngineImpl;
+    DWORD m_bits;
+    DWORD m_redMask;
+    DWORD m_greenMask;
+    DWORD m_blueMask;
+    DWORD m_alphaMask;
 
 public:
     PixelFormat(
@@ -34,18 +24,12 @@ public:
         DWORD alphaMask
     );
 
-    const DDPIXELFORMAT& GetDDPF() { return m_ddpf; }
-
-    void SetPixelBits(DWORD value) { m_ddpf.dwRGBBitCount = value; }
-
-    bool IsSoftwareTexture() { return m_bSoftwareTexture; }
-
-    DWORD PixelBits()  const { return m_ddpf.dwRGBBitCount;     }
-    DWORD PixelBytes() const { return m_ddpf.dwRGBBitCount / 8; }
-    DWORD RedMask()    const { return m_ddpf.dwRBitMask;        }
-    DWORD GreenMask()  const { return m_ddpf.dwGBitMask;        }
-    DWORD BlueMask()   const { return m_ddpf.dwBBitMask;        }
-    DWORD AlphaMask()  const { return m_ddpf.dwRGBAlphaBitMask; }
+    DWORD PixelBits()  const { return m_bits;      }
+    DWORD PixelBytes() const { return m_bits / 8;  }
+    DWORD RedMask()    const { return m_redMask;   }
+    DWORD GreenMask()  const { return m_greenMask; }
+    DWORD BlueMask()   const { return m_blueMask;  }
+    DWORD AlphaMask()  const { return m_alphaMask; }
 
     DWORD RedSize()    const;
     DWORD GreenSize()  const;
@@ -64,9 +48,10 @@ public:
     Pixel GetPixel(const BYTE* pb)                      const;
     void  SetColor(BYTE* pb, const Color& color)        const;
     Color GetColor(const BYTE* pb)                      const;
-    bool  ValidGDIFormat()                              const;
 
-    bool Equivalent(const DDPIXELFORMAT& ddpf);
+    bool  Is565()                                       const;
+
+    bool Equivalent(int bits, DWORD redMask, DWORD greenMask, DWORD blueMask, DWORD alphaMask) const;
 };
 
 #endif

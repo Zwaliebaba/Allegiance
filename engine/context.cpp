@@ -307,20 +307,12 @@ public:
         if (psurface->GetSurfaceType().Test(SurfaceType3D())) {
             TRef<Engine> pengine = psurface->GetEngine();
 
-            TRef<Rasterizer> prasterizer;
-            bool bAlwaysUseD3D = false;
+            //
+            // Every 3D surface renders through D3D11 now, the offscreen pane
+            // surfaces included (they used to get the software rasterizer).
+            //
 
-            if (
-                    bAlwaysUseD3D 
-                || (
-                       pengine->GetUsing3DAcceleration() 
-                    && psurface->GetSurfaceType().Test(SurfaceTypeVideo())
-                   )
-            ) {
-                prasterizer = CreateD3DRasterizer(m_psurface);
-            } else {
-                prasterizer = CreateSoftwareRasterizer(m_psurface);
-            }
+            TRef<Rasterizer> prasterizer = CreateD3D11Rasterizer(m_psurface);
 
             if (prasterizer == NULL) {
                 return;

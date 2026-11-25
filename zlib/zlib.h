@@ -51,14 +51,14 @@
 #include "wininet.h"
 
 //
-// DirectX Stuff
+// DirectX types. Only the legacy Direct3D vertex and colour types
+// (D3DCOLOR, D3DVECTOR, D3DVERTEX, ...) are still used, as plain structs;
+// rendering goes through Direct3D 11 in the engine.
 //
 
-#define DIRECTDRAW_VERSION 0x0700
 #define DIRECT3D_VERSION   0x0700
 
-#include "ddraw.h"
-#include "d3d.h"
+#include <d3dtypes.h>
 
 //
 // Library Headers

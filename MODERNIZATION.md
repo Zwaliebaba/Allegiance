@@ -112,7 +112,7 @@ moves into Tier 1 and is ported with the server, keeping the admin and event fea
 
 | Subsystem | Today | Target |
 |---|---|---|
-| Rendering | DirectDraw 4 + Direct3D 3, MMX software rasterizer | D3D11 backend; a few shaders emulate the fixed-function pipeline (lights, materials, fog, colour-key alpha) |
+| Rendering | DirectDraw 4 + Direct3D 3 (DirectX 6), software rasterizer | D3D11 backend. Stage 1 (below): a D3D11 rasterizer with the engine's CPU transform and lighting. Stage 2: transform and lighting in shaders |
 | Input | DirectInput 2/7 | DirectInput 8 |
 | Audio | DirectSound / DS3D | Unchanged at first; XAudio2 later |
 | Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Same `IDiskPlayer` interface, playing the WAVs from `Artwork/redbook` (track order from `tracks.lst`) |
@@ -122,6 +122,55 @@ The DirectPlay surface used by `FedMessaging` is about 15 calls: `Open`, `Close`
 `GetSessionDesc`, `SetSessionDesc`, `CreatePlayer`, `DestroyPlayer`, `GetPlayerData`, `SendEx`,
 `Receive`, `CancelMessage`, `CreateAddress` and `InitializeConnection`. Groups are already implemented
 inside `FedMessaging`.
+
+#### Rendering, stage 1: D3D11 rasterizer
+
+Decisions:
+
+- **Scope.** Stage 1 keeps the engine's CPU transform, lighting and clipping (`device3d.cpp`), and replaces only what sits under it.
+- **Removed.** DirectDraw 4, Direct3D 3 and the software rasterizer. The D3D11 WARP adapter covers machines without a GPU.
+- **Fullscreen.** A borderless window covering the monitor. The game renders at its chosen resolution, scaled to fit and letterboxed.
+- **Verification.** Manual testing; CI only builds.
+
+What the map of the old code showed:
+
+- **2D is already all CPU.** Text is drawn by `font.cpp` writing 16-bit pixels. Point blits and fills are CPU loops. No code outside the engine touches DirectDraw or writes pixels through a pointer.
+- **DirectDraw held only three things:**
+  - the window render target, or the fullscreen back buffer;
+  - texture copies;
+  - a GDI source for `mdlc`'s BMP import.
+- **The 3D path is small.** It is DirectX 6 `IDirect3DDevice3` with pre-transformed `D3DTLVERTEX` vertices and one texture stage, using DECAL or MODULATE. Cut-outs use the colour key, and there are three blend modes. There is no fog, specular, alpha test, multi-texture or mip-mapping. Textures were capped at 256x256.
+- **The software rasterizer was not just a fallback.** Every 3D surface without the `Video` bit used it, including the off-screen panes: loadout and inventory ship previews, popups and some UI.
+- **Windowed mode needed a 16-bit desktop.** On a 32-bit desktop the game always switched to exclusive fullscreen.
+- **There is no restore logic to preserve.** The engine rebuilt everything after a device change, and its device-dependant registry was never used.
+
+Design:
+
+| Piece | Old | New |
+|---|---|---|
+| Surfaces | System memory, or DirectDraw "video" surfaces; locks and conversions between them | Always system memory (565). Read-only MDL mappings are copied on first write |
+| 3D | `D3DRasterizer` (HAL) or `SoftwareRasterizer`, per surface | `d3d11raster.cpp` for every 3D surface. At `BeginScene` the CPU pixels are uploaded if they changed; at `EndScene` the result is read back if anything was drawn. The Context already ends the scene before each 2D operation |
+| State | DirectX 6 render states | HLSL in `engine/shaders`, compiled by `FxCompile` in CI. Covers DECAL/MODULATE, flat/Gouraud, colour-key discard, the three blend modes, z test/write, cull, scissor, and a Z clear limited to the clip rect. Vertices are shifted half a pixel to keep DirectX 6 pixel centres |
+| Textures | DirectDraw texture surfaces, re-`Load`ed when changed | `D3D11Device` cache: BGRA8 with the colour key in alpha, refreshed when the surface's change counter moves, full size |
+| Presentation | `Flip` (fullscreen) or `Blt` to the primary surface through a clipper (windowed) | A flip-model swap chain per window. The frame surface is drawn scaled and letterboxed into the client area (1:1 windowed), with vsync |
+| Fullscreen | `SetDisplayMode` at 16 bpp in exclusive mode | A borderless topmost window on the monitor. The fullscreen size picks the render resolution from the original mode list, limited to the monitor |
+| Gamma | DirectDraw gamma ramp | The same curve in the presentation pixel shader |
+| Device loss | `TestCooperativeLevel`, full rebuild | `DXGI_ERROR_DEVICE_REMOVED`/`RESET` re-creates the device. Nothing is lost, because surfaces live in system memory |
+| Tools | `mdlc` initialised DirectDraw with `-software` | The engine creates the D3D11 device only on first use, so `mdlc` needs no GPU. BMP import uses `GetDIBits`, which gives the same pixel values for 24-bit sources |
+| Movies | DirectShow `IAMMultiMediaStream` into a DirectDraw surface | Stubbed: the video image reports the movie as finished. Media Foundation playback is a follow-up |
+
+Deleted:
+
+- `ddsurface.cpp`, `dddevice.cpp`, `d3ddevice.cpp`, `raster.cpp`, `softraster.cpp` and `palette.cpp`.
+- The unbuilt `fliphelp.*`, `ddstruct.*`, `dcdevice3d.cpp`, `engine/scan` and `engine/exec`.
+
+`ddraw.lib` is no longer linked. `zlib.h` includes only `d3dtypes.h`, for the vertex and colour structs that are still used everywhere.
+
+Known gaps to check when testing:
+
+- The 2D/3D synchronisation costs a full-frame upload and readback around each 3D layer. At 800x600 this should be a few milliseconds, but it is unmeasured. Stage 2 can move 2D onto the GPU if it matters.
+- Pixel-exactness against the DirectX 6 output is unverified (half-pixel rule, colour-key edges with linear filtering).
+- Movies are skipped.
 
 ### Phase 4: art pipeline
 

@@ -31,7 +31,6 @@ public:
     int                       m_pitch;
     TRef<PixelFormat>         m_ppf;
     BYTE*                     m_pbits;
-    TRef<PrivatePalette>      m_ppalette;
     TRef<IObject>             m_pobjectMemory;
 
     bool                      m_bColorKey;
@@ -44,11 +43,6 @@ public:
     TRef<PrivateEngine>       m_pengine;
     TRef<SurfaceSite>         m_psite;
 
-    //
-    // Video Surface
-    //
-
-    TRef<VideoSurface>        m_pvideoSurface;
     SurfaceType               m_stype;
 
     //
@@ -100,21 +94,31 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
+    //
+    // Every surface keeps its pixels in system memory. 2D drawing is done on
+    // the CPU, as it always was; the D3D11 rasterizer and presenter copy the
+    // pixels to and from the GPU at scene boundaries.
+    //
+
     void AllocateSurface()
     {
-        if (m_stype.Test(SurfaceTypeVideo())) {
-            m_pvideoSurface =
-                m_pengine->CreateVideoSurface(
-                    m_stype,
-                    m_ppf,
-                    m_ppalette,
-                    m_size,
-                    m_pitch,
-                    m_pbits
-                );
-        } else {
-            m_pitch = (m_size.X() * m_ppf->PixelBytes() + 3) & (~0x3);
-            m_pbits = new BYTE[m_pitch * m_size.Y()];
+        m_pitch = (m_size.X() * m_ppf->PixelBytes() + 3) & (~0x3);
+        m_pbits = new BYTE[m_pitch * m_size.Y()];
+        memset(m_pbits, 0, m_pitch * m_size.Y());
+    }
+
+    //
+    // Surfaces loaded from binary MDL files point straight into a read-only
+    // file mapping. Give them their own copy before the first write.
+    //
+
+    void MakeWritable()
+    {
+        if (m_pobjectMemory != NULL) {
+            BYTE* pbits = new BYTE[m_pitch * m_size.Y()];
+            memcpy(pbits, m_pbits, m_pitch * m_size.Y());
+            m_pbits         = pbits;
+            m_pobjectMemory = NULL;
         }
     }
 
@@ -127,14 +131,12 @@ public:
     PrivateSurfaceImpl(
         PrivateEngine*  pengine,
         PixelFormat*    ppf,
-        PrivatePalette* ppalette,
         const WinPoint& size,
         SurfaceType     stype,
         SurfaceSite*    psite
     ) :
         m_pengine(pengine),
         m_ppf(ppf),
-        m_ppalette(ppalette),
         m_size(size),
         m_bDeviceFormat(true),
         m_stype(stype),
@@ -150,30 +152,6 @@ public:
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // Wrap a previously created VideoSurface
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    PrivateSurfaceImpl(
-        PrivateEngine* pengine,
-        VideoSurface*  pvideoSurface,
-        SurfaceSite*   psite
-    ) :
-        m_pengine(pengine),
-        m_bDeviceFormat(false),
-        m_stype(pvideoSurface->GetSurfaceType()),
-        m_pvideoSurface(pvideoSurface),
-        m_ppf(pvideoSurface->GetPixelFormat()),
-        m_pbits(NULL),
-        m_size(pvideoSurface->GetSize()),
-        m_pitch(pvideoSurface->GetPitch()),
-        m_psite(psite)
-    {
-        Initialize();
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
     // Create a surface from a binary representation
     //
     //////////////////////////////////////////////////////////////////////////////
@@ -181,7 +159,6 @@ public:
     PrivateSurfaceImpl(
               PrivateEngine*  pengine,
               PixelFormat*    ppf,
-              PrivatePalette* ppalette,
         const WinPoint&       size,
               int             pitch,
               BYTE*           pdata,
@@ -194,7 +171,6 @@ public:
         m_pobjectMemory(pobjectMemory),
         m_pitch(pitch),
         m_ppf(ppf),
-        m_ppalette(ppalette),
         m_pbits(pdata)
     {
         Initialize();
@@ -254,7 +230,7 @@ public:
     {
         m_pengine->RemovePrivateSurface(this);
         if (m_pobjectMemory == NULL && m_pbits != NULL) {
-            delete m_pbits;
+            delete[] m_pbits;
         }
     }
 
@@ -275,21 +251,14 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void ClearDevice()
-    {
-        m_pvideoSurface = NULL;
-    }
-
     void SetPixelFormat(PixelFormat* ppf)
     {
         ZAssert(m_pobjectMemory == NULL);
-        ZAssert(m_ppalette      == NULL);
 
         m_pcontext      = NULL;
-        m_pvideoSurface = NULL;
 
         if (m_pbits) {
-            delete m_pbits;
+            delete[] m_pbits;
             m_pbits = NULL;
         }
 
@@ -313,43 +282,16 @@ public:
         if (m_id < 0) m_id = 0;
     }
 
+    int GetChangeID()
+    {
+        return m_id;
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //
     // Attributes
     //
     //////////////////////////////////////////////////////////////////////////////
-
-    VideoSurface* GetVideoSurfaceNoAlloc()
-    {
-        return m_pvideoSurface;
-    }
-
-    VideoSurface* GetVideoSurface()
-    {
-        if (m_pvideoSurface == NULL) {
-            ZAssert(m_pbits != NULL);
-
-            m_pvideoSurface =
-                m_pengine->CreateVideoSurface(
-                    m_stype,
-                    m_ppf,
-                    m_ppalette,
-                    m_size,
-                    m_pitch,
-                    m_pbits
-                );
-
-            //
-            // If this surface has a color set the color key on all of the DD Surfaces
-            //
-
-            if (HasColorKey()) {
-                SetColorKey(GetColorKey());
-            }
-        }
-
-        return m_pvideoSurface;
-    }
 
     PixelFormat* GetPixelFormat()
     {
@@ -358,7 +300,7 @@ public:
 
     Palette* GetPalette()
     {
-        return m_ppalette;
+        return NULL;
     }
 
     void SetName(const ZString& str)
@@ -411,9 +353,11 @@ public:
         m_bColorKey = true;
         m_colorKey = color;
 
-        if (m_pvideoSurface) {
-            m_pvideoSurface->SetColorKey(color);
-        }
+        //
+        // The texture cache bakes the key into the alpha channel
+        //
+
+        SurfaceChanged();
 
         if (m_psurfaceConverted) {
             m_psurfaceConverted->SetColorKey(color);
@@ -485,7 +429,6 @@ public:
                     new PrivateSurfaceImpl(
                         m_pengine,
                         ppf,
-                        NULL,
                         m_size,
                         m_stype,
                         NULL
@@ -529,20 +472,12 @@ public:
 
     int GetPitch()
     {
-        if (m_pvideoSurface) {
-            return m_pvideoSurface->GetPitch();
-        } else {
-            return m_pitch;
-        }
+        return m_pitch;
     }
 
     const BYTE* GetPointer()
     {
-        if (m_pvideoSurface && (!m_pvideoSurface->IsMemoryShared())) {
-            return m_pvideoSurface->GetPointer();
-        } else {
-            return m_pbits;
-        }
+        return m_pbits;
     }
 
     const BYTE* GetPointer(const WinPoint& point)
@@ -556,12 +491,8 @@ public:
     BYTE* GetWritablePointer()
     {
         SurfaceChanged();
-
-        if (m_pvideoSurface && (!m_pvideoSurface->IsMemoryShared())) {
-            return m_pvideoSurface->GetPointer();
-        } else {
-            return m_pbits;
-        }
+        MakeWritable();
+        return m_pbits;
     }
 
     BYTE* GetWritablePointer(const WinPoint& point)
@@ -574,9 +505,6 @@ public:
 
     void ReleasePointer()
     {
-        if (m_pbits == NULL) {
-            m_pvideoSurface->ReleasePointer();
-        }
     }
 
     Pixel GetPixel(const WinPoint& point)
@@ -586,11 +514,7 @@ public:
 
     Color GetColor(const WinPoint& point)
     {
-        if (m_ppalette) {
-            return m_ppalette->GetColor(GetPixel(point).Value());
-        } else {
-            return m_ppf->MakeColor(GetPixel(point));
-        }
+        return m_ppf->MakeColor(GetPixel(point));
     }
 
     void SetPixel(const WinPoint& point, Pixel pixel)
@@ -600,7 +524,6 @@ public:
 
     void SetColor(const WinPoint& point, const Color& color)
     {
-        ZAssert(m_ppalette == NULL);
         SetPixel(point, m_ppf->MakePixel(color));
     }
 
@@ -920,25 +843,10 @@ public:
         PrivateSurface* psurfaceSource = psurfaceSourceOriginal->GetConvertedSurface(m_ppf);
         ZAssert(psurfaceSource->GetPixelFormat() == m_ppf);
 
-        /* Uncomment this code to use DDraw for blts
-        if (m_pbits == NULL) {
-            m_pvideoSurface->UnclippedBlt(
-                rect, 
-                psurfaceSource->GetVideoSurface(), 
-                pointSource
-            );
-        } else*/
         {
             BYTE* pdest = GetWritablePointer(rect.Min());
 
-            __try {
-                UnclippedBltHandled(psurfaceSource, rect, pointSource, pdest);
-            } __except (true) {
-                //
-                // DDraw took away our access to some video memory.  Ignore the exception
-                // and continue.
-                //
-            }
+            UnclippedBltHandled(psurfaceSource, rect, pointSource, pdest);
 
             psurfaceSource->ReleasePointer();
             ReleasePointer();
@@ -1008,7 +916,53 @@ public:
     //
     // StretchBlts
     //
+    // DirectDraw did these in hardware. The only caller is the video image,
+    // which doubles the movie frame, so a nearest-neighbour CPU loop is enough.
+    // Clipped to the surface (DirectDraw rejected rects outside it); honours
+    // the source color key, which DDBLT_KEYSRC meant.
+    //
     //////////////////////////////////////////////////////////////////////////////
+
+    void UnclippedStretchBlt(const WinRect& rectTarget, PrivateSurfaceImpl* psurfaceSourceOriginal, const WinRect& rectSource)
+    {
+        PrivateSurface* psurfaceSource = psurfaceSourceOriginal->GetConvertedSurface(m_ppf);
+
+        WinRect rectClipped = rectTarget;
+        rectClipped.Intersect(WinRect(WinPoint(0, 0), m_size));
+
+        if (rectClipped.IsEmpty()) {
+            return;
+        }
+
+        int         bytes       = m_ppf->PixelBytes();
+        bool        bColorKey   = psurfaceSourceOriginal->HasColorKey();
+        Pixel       pixelKey    = bColorKey ? m_ppf->MakePixel(psurfaceSourceOriginal->GetColorKey()) : Pixel::Create(0);
+        const BYTE* psource     = psurfaceSource->GetPointer();
+        int         pitchSource = psurfaceSource->GetPitch();
+        BYTE*       pdestRow    = GetWritablePointer(rectClipped.Min());
+        int         pitchDest   = GetPitch();
+
+        for (int y = rectClipped.YMin(); y < rectClipped.YMax(); y++) {
+            int ySource = rectSource.YMin() + (y - rectTarget.YMin()) * rectSource.YSize() / rectTarget.YSize();
+            BYTE* pdest = pdestRow;
+
+            for (int x = rectClipped.XMin(); x < rectClipped.XMax(); x++) {
+                int xSource = rectSource.XMin() + (x - rectTarget.XMin()) * rectSource.XSize() / rectTarget.XSize();
+                Pixel pixel = m_ppf->GetPixel(psource + ySource * pitchSource + xSource * bytes);
+
+                if (!bColorKey || pixel.Value() != pixelKey.Value()) {
+                    m_ppf->SetPixel(pdest, pixel);
+                }
+
+                pdest += bytes;
+            }
+
+            pdestRow += pitchDest;
+        }
+
+        psurfaceSource->ReleasePointer();
+        ReleasePointer();
+    }
 
     void BitBlt(const WinRect& rectTargetArg, Surface* psurfaceSourceArg, const WinRect& rectSource)
     {
@@ -1028,17 +982,8 @@ public:
         // Only blt if the target isn't empty
         //
 
-        if (!rectTarget.IsEmpty()) {
-            //
-            // do the blt
-            //
-
-            GetVideoSurface()->UnclippedBlt(
-                rectTarget,
-                psurfaceSource->GetVideoSurface(),
-                rectSource,
-                HasColorKey()
-            );
+        if (!rectTarget.IsEmpty() && !rectSource.IsEmpty()) {
+            UnclippedStretchBlt(rectTarget, psurfaceSource, rectSource);
         }
 
         SurfaceChanged();
@@ -1069,9 +1014,7 @@ public:
         ZAssert(rect.YMin() >= 0         );
         ZAssert(rect.YMax() <= m_size.Y());
 
-        if (m_pbits == NULL) {
-            m_pvideoSurface->UnclippedFill(rect, pixel);
-        } else {
+        {
             ZAssert(m_ppf->PixelBytes() == 2);
 
             BYTE* pdest    = GetWritablePointer(rect.Min());
@@ -1134,17 +1077,6 @@ public:
     void FillSurfaceWithColorKey()
     {
         FillSurface(m_colorKey);
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Load a surface from a bitmap
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    void BitBltFromDC(HDC hdc) 
-    {
-        GetVideoSurface()->BitBltFromDC(hdc);
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -1215,12 +1147,11 @@ public:
 TRef<PrivateSurface> CreatePrivateSurface(
     PrivateEngine*  pengine,
     PixelFormat*    ppf,
-    PrivatePalette* ppalette,
     const WinPoint& size,
     SurfaceType     stype,
     SurfaceSite*    psite
 ) {
-    return new PrivateSurfaceImpl(pengine, ppf, ppalette, size, stype, psite);
+    return new PrivateSurfaceImpl(pengine, ppf, size, stype, psite);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1232,28 +1163,10 @@ TRef<PrivateSurface> CreatePrivateSurface(
 TRef<PrivateSurface> CreatePrivateSurface(
           PrivateEngine*  pengine,
           PixelFormat*    ppf,
-          PrivatePalette* ppalette,
     const WinPoint&       size,
           int             pitch,
           BYTE*           pdata,
           IObject*        pobjectMemory
 ) {
-    return new PrivateSurfaceImpl(pengine, ppf, ppalette, size, pitch, pdata, pobjectMemory);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// Create a Private surface from an existing VideoSurface.  This is used to
-//
-// - wrap the primary surface
-// - wrap offscreen video memory surfaces
-//
-//////////////////////////////////////////////////////////////////////////////
-
-TRef<PrivateSurface> CreatePrivateSurface(
-    PrivateEngine* pengine,
-    VideoSurface*  pvideoSurface,
-    SurfaceSite*   psite
-) {
-    return new PrivateSurfaceImpl(pengine, pvideoSurface, psite);
+    return new PrivateSurfaceImpl(pengine, ppf, size, pitch, pdata, pobjectMemory);
 }
