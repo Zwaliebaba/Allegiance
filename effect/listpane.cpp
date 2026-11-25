@@ -357,7 +357,7 @@ public:
 
     void ForceRefresh()
     {
-        NeedPaint();
+        this->NeedPaint();
     }
 
     //
@@ -382,10 +382,10 @@ public:
 
     void UpdateLayout()
     {
-        InternalSetSize(
+        this->InternalSetSize(
             WinPoint(
                 max(m_ppainter->GetXSize(), m_sizeMin.X()),
-                max(       GetExpand().Y(), m_sizeMin.Y())
+                max(       this->GetExpand().Y(), m_sizeMin.Y())
             )
         );
 
@@ -588,7 +588,7 @@ public:
 
             SetSelection(m_plist->GetItem((nSignificantMouseDim + GetScrollPos()) / nSize));
 
-            NeedPaint();
+            this->NeedPaint();
 
             SelectionChanged();
             if (pprovider->IsDoubleClick()) {

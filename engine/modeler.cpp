@@ -1292,7 +1292,7 @@ public:
     {
     }
 
-    Number* GetNumber() { return Number::Cast(GetChild(1)); }
+    Number* GetNumber() { return Number::Cast(this->GetChild(1)); }
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -1324,7 +1324,7 @@ public:
 
         if (m_number != number) {
             m_number = number;
-            DataList::Iterator iter(m_list);
+            typename DataList::Iterator iter(m_list);
 
             while (true) {
                 if (iter.End()) {

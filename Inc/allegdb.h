@@ -188,7 +188,8 @@ public:
       GUID guid;
       ZeroMemory(&guid, sizeof(guid));
       
-      m_psqlsite->OnOLEDBErrorRecord(L"errorInfo.GetErrorRecords failed, which is bad (and unexpected).", guid, 0, L"", L"");
+      // (Literals, not real BSTRs, as before; permissive mode converted them implicitly)
+      m_psqlsite->OnOLEDBErrorRecord((BSTR)L"errorInfo.GetErrorRecords failed, which is bad (and unexpected).", guid, 0, (BSTR)L"", (BSTR)L"");
       Sleep(1000); // give the debug output thread a chance to write the error to the file
       *(DWORD*)0 = 0; // we can't assert from any thread, so let's just hard break
     }
@@ -252,7 +253,7 @@ public:
   virtual HRESULT     OnPrepare(const CSession & session) = 0;
   virtual CSQLQuery * Copy(CSQLQuery * pqueryDest) = 0; // pqueryDest is either existing obj to copy into, or NULL for creation of new object
   virtual REFGUID     GetGuid() = 0;
-  virtual TCHAR *     GetStrQuery() = 0;
+  virtual const TCHAR * GetStrQuery() = 0;
   virtual void        DataReady()  = 0; // this happens in the main thread
   virtual bool        GetNotify() = 0;
   virtual IUnknown *  GetIUnknown() = 0;
@@ -489,7 +490,7 @@ public:
     return m_pargQueryData;
   }
 
-  virtual TCHAR * GetStrQuery()
+  virtual const TCHAR * GetStrQuery()
   {
     return m_cmd.GetStrQuery();
   }
@@ -546,7 +547,7 @@ public: // just so the macro can easily set this
 #define BEGIN_QUERY(N, R, Q) \
 struct N##Data \
 { \
-  TCHAR * GetStrQuery() \
+  const TCHAR * GetStrQuery() \
   { \
     return TEXT(Q); \
   } 

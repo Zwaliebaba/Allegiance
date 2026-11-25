@@ -171,12 +171,9 @@ public:
     {
         MeshIndex* pindex = (MeshIndex*)&(m_vindex[0]);
 
-        m_pnode->Render(
-            pindex, 
-            HVector(
-                pcontext->TransformEyeToLocal(Vector(0, 0, 0))
-            )
-        );
+        HVector vecEye(pcontext->TransformEyeToLocal(Vector(0, 0, 0)));
+
+        m_pnode->Render(pindex, vecEye);
         pcontext->SetBlendMode(BlendModeSourceAlpha);
         pcontext->SetCullMode(CullModeNone);
         pcontext->DrawTriangles(m_vvertex, m_vindex);

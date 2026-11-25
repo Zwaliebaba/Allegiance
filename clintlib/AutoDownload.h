@@ -303,9 +303,9 @@ public:
       return true;
     }
 
-    static char * GetEXEFileName(int nIndex)
+    static const char * GetEXEFileName(int nIndex)
     {
-        static char * pszEXEFiles[] = 
+        static const char * pszEXEFiles[] = 
         {
             "CliConfig.exe",
             "fsmon.exe",
