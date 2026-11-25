@@ -692,7 +692,7 @@ const HitTestShape  c_htsConvexHullMin = 0;
 const HitTestShape  c_htsConvexHullMax = 127;
 
 typedef void*   HitTestID;
-HitTestID const c_htidStaticObject = (HitTestID)(0xffffffff);
+HitTestID const c_htidStaticObject = (HitTestID)(INT_PTR)-1;    // all bits set (0xffffffff on Win32)
 
 class   MultiHullBase
 {

@@ -104,7 +104,7 @@ public:
                 psz++;
             }
             m_pszFileListData = new char*[i+2];
-            m_pszFileListData[0] = (char*)-1; // means not started yet;
+            m_pszFileListData[0] = (char*)(INT_PTR)-1; // means not started yet;
             // StartNextFile() increments first thing; so (char*)-1 is not downloaded, (I chose -1 because it's different than NULL)
 
             // iterate again and allocate memory for each entry

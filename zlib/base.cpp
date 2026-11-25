@@ -52,7 +52,7 @@ ZFile::~ZFile()
 
 bool ZFile::IsValid()
 {
-     return m_handle != (HANDLE)HFILE_ERROR;
+     return m_handle != INVALID_HANDLE_VALUE;   // HFILE_ERROR, sign-extended (see the constructor)
 }
 
 DWORD ZFile::Read(void* p, DWORD length)
