@@ -74,6 +74,17 @@ jobs:
           $atl = Test-Path "$vsPath\VC\Tools\MSVC\*\atlmfc\include\atlbase.h"
           "ATL/MFC installed: $atl"
 
+      - name: Restore NuGet packages (MsQuic)
+        shell: pwsh
+        run: |
+          # packages.config restore into packages\, the folder Visual Studio uses for the solution
+          if (Get-Command nuget -ErrorAction SilentlyContinue) {
+            nuget restore _Utility\packages.config -PackagesDirectory packages -NonInteractive
+          } else {
+            & $env:MSBUILD _Utility/Utility.vcxproj -nologo -t:restore -p:RestorePackagesConfig=true "-p:SolutionDir=$pwd\" -p:Platform=Win32
+          }
+          if (-not (Test-Path packages/Microsoft.Native.Quic.MsQuic.Schannel.*/build/native/include/msquic.h)) { throw "MsQuic was not restored" }
+
       - name: Build libraries (${{ matrix.configuration }}|Win32)
         id: build
         shell: pwsh

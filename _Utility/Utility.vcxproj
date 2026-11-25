@@ -31,7 +31,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)WinTrek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)WinTrek;$(MsQuicDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -43,6 +43,10 @@
     <ClCompile Include="CollisionEntry.cpp" />
     <ClCompile Include="CollisionQueue.cpp" />
     <ClCompile Include="Messages.cpp" />
+    <ClCompile Include="fedtransport.cpp">
+      <!-- msquic.h needs Winsock 2 ahead of windows.h, which the PCH can't give it -->
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Endpoint.cpp" />
     <ClCompile Include="allegdb.cpp" />
     <ClCompile Include="pch.cpp">
@@ -51,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CRC.h" />
+    <ClInclude Include="fedtransport.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Utility.hxx" />
     <ClInclude Include="listwrappers.h" />
@@ -61,5 +66,21 @@
       <Project>{34F19E78-C3AD-4EEC-8F42-C823D58200C8}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <!--
+    MsQuic comes from NuGet (packages.config). Visual Studio restores it on build; from the command line:
+      msbuild _Utility\Utility.vcxproj -t:restore -p:RestorePackagesConfig=true -p:SolutionDir=<repo>\
+    The package's own .targets would link msquic.lib; FedTransport loads msquic.dll at run time
+    instead, so only the headers are used here, and the DLL is copied next to the exes (all projects
+    share $(OutDir)).
+  -->
+  <Target Name="AllegianceMsQuicCheck" BeforeTargets="ClCompile">
+    <Error Condition="!Exists('$(MsQuicDir)include\msquic.h')" Text="MsQuic $(MsQuicVersion) is not restored ($(MsQuicDir)). Restore NuGet packages (Visual Studio does this on build; see _Utility\Utility.vcxproj)." />
+  </Target>
+  <Target Name="AllegianceMsQuicCopy" AfterTargets="Build">
+    <Copy SourceFiles="$(MsQuicDir)bin\x86\msquic.dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" Condition="'$(Platform)' == 'Win32'" />
+  </Target>
 </Project>

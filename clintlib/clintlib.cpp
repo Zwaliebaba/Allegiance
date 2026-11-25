@@ -1806,7 +1806,7 @@ void BaseClient::OnMessageNAK(FedMessaging * pthis, DWORD dwTime, CFMRecipient *
 
 HRESULT BaseClient::OnSessionLost(FedMessaging * pthis)
 {
-    return OnSessionLost("DPlay session terminated", pthis);
+    return OnSessionLost("the connection to the server was lost", pthis);
 }
 
 

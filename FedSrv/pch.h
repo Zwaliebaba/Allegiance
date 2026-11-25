@@ -30,7 +30,7 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <sqlext.h>
-#include <dplobby.h>
+
 
 // ZLib Includes
 #if !defined(ALLSRV_STANDALONE)

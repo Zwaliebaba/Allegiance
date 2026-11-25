@@ -220,7 +220,7 @@ struct Global
     ssh(0),
     hInst(0),
     trekCore(NULL),
-    dpidEveryone(0),
+
     idReceiveThread(0),
     hReceiveThread(0),
     hKillReceiveEvent(0),
@@ -266,8 +266,7 @@ struct Global
   SWMRG               swmrg;
   FedSrvSite          siteFedSrv;
   FedSrvLobbySite     siteFSLobby;
-  DPID                dpidEveryone;     // People in the mission lobby and every mission
-  DPID                dpidLobby;        // people in mission lobby
+
   ImissionIGC *       trekCore;         // gateway to everything that is IGC
 
   // *** Network layer stuff ***
@@ -325,20 +324,14 @@ class CFSShip;
 class CFSPlayer;
 class CFSDrone;
 
-struct DataEnumPlayers
-{
-  int indent;
-  CFSShip * pfsShip;
-};
+
 
 HRESULT pascal FedSrv_Init(); // needed by AllSrvModule.cpp
 HRESULT pascal FedSrv_Terminate(void);
 void DisconnectFromLobby();
 void ChangeStationOwners(IstationIGC * pstation, CFSMission * pfsMission, IsideIGC* iSideNew);
 void ExportObj(IbaseIGC * pIGC, ObjectType ot, FMD_S_EXPORT ** ppfmExport);
-void CheatDPGroups(CFSShip * pfsShip);
-BOOL FAR PASCAL EnumPlayersCallback(DPID dpId, DWORD dwPlayerType, 
-        LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext);
+
 void SendPlayerInfo(CFSPlayer * pfsPlayer, CFSShip * pfsShip, CFSMission* pfsMission, bool bSend = true);
 bool LeaveShip(CFSShip* pfsShip, IshipIGC* pshipParent);
 CFMGroup * GetGroupSectorDocked(IclusterIGC * pCluster);
