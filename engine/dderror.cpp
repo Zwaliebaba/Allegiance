@@ -14,8 +14,8 @@
 class HRESULTInfo {
 public:
     HRESULT hresult;
-    char* pszError;
-    char* pszText;
+    const char* pszError;
+    const char* pszText;
 };
 
 HRESULTInfo gpinfo[] =

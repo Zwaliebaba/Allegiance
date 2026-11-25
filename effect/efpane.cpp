@@ -388,12 +388,16 @@ public:
         temp.SetX((int)ppoint->GetValue().X());
         temp.SetY((int)ppoint->GetValue().Y());
 
+        // CreateTrekScrollPane fills these in; they are not used here
+        TRef<IIntegerEventSource> pevent;
+        TRef<ScrollPane>          pscrollPane;
+
         return
             CreateTrekScrollPane(
                 temp,
                 m_pmodeler,
-                TRef<IIntegerEventSource>(),
-                TRef<ScrollPane>(),
+                pevent,
+                pscrollPane,
                 m_bHorizontal,
                 pbuttonUp,
                 pbuttonDown,
