@@ -539,10 +539,10 @@ private:
      FM_##TYPE##_##SHORTNAME == ((FEDMESSAGE *)(PFM))->fmid && \
      !IsBadReadPtr(PFM, ((FEDMESSAGE *)(PFM))->cbmsg))
 
-extern char * g_rgszMsgNames[];
+extern const char * g_rgszMsgNames[];
 
 #define MAXMESSAGES 400
-#define ALLOC_MSG_LIST char * g_rgszMsgNames[MAXMESSAGES + 1]
+#define ALLOC_MSG_LIST const char * g_rgszMsgNames[MAXMESSAGES + 1]
 
 /*-------------------------------------------------------------------------
  * AddMsg
@@ -556,7 +556,7 @@ extern char * g_rgszMsgNames[];
 class AddMsg
 {
 public:
-  AddMsg(FEDMSGID fmid, char * szMsgName)
+  AddMsg(FEDMSGID fmid, const char * szMsgName)
   {
     assert (fmid <= MAXMESSAGES);
     g_rgszMsgNames[fmid] = szMsgName;

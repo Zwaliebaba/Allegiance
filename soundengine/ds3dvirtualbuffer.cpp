@@ -494,7 +494,7 @@ ZString DSVirtualSoundBuffer::DebugDump(const ZString& strIndent)
         + ", gain " + ZString(m_fGain) 
         + ", pitch " + ZString(m_fPitch) + "\n"
         + SoundDebugDump(m_pdata, strIndent + "  ")
-        + ((m_pds3dbuffer) ? SoundDebugDump(m_pds3dbuffer, strIndent + "  ") : "");
+        + ((m_pds3dbuffer) ? SoundDebugDump(m_pds3dbuffer, strIndent + "  ") : ZString());
 }
 #endif
 

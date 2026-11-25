@@ -364,8 +364,8 @@ public:
     {
     }
 
-    void SetWrappedValue(TStaticValue<StaticType>* pvalue) { SetChild(0, pvalue); }
-    TStaticValue<StaticType>* GetWrappedValue() { return TStaticValue<StaticType>::Cast(GetChild(0)); }
+    void SetWrappedValue(TStaticValue<StaticType>* pvalue) { this->SetChild(0, pvalue); }
+    TStaticValue<StaticType>* GetWrappedValue() { return TStaticValue<StaticType>::Cast(this->GetChild(0)); }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -565,7 +565,7 @@ public:
     {
         ZString str = "[\n";
 
-        List::Iterator iter(m_list);
+        typename List::Iterator iter(m_list);
 
         while (!iter.End()) {
             str += Value::Indent(indent + 1) + ValueGetString(indent, iter.Value());

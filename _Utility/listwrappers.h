@@ -134,6 +134,10 @@ template <
 >
 class TListListWrapper : public List, public TList<T, EqualsType, CompareType, ListEventSource> {
 public:
+    // The base's members, for two-phase lookup (/permissive-)
+    typedef TList<T, EqualsType, CompareType, ListEventSource> ListType;
+    typedef typename ListType::Iterator Iterator;
+    using ListType::GetSink;
 
     TListListWrapper()
     {
@@ -207,6 +211,11 @@ public:
 template <class T, class U>
 class TMapListWrapper : public List, public TMap<T, U, ListEventSource> {
 public:
+    // The base's members, for two-phase lookup (/permissive-)
+    typedef TMap<T, U, ListEventSource> MapType;
+    typedef typename MapType::Iterator Iterator;
+    using MapType::Count;
+    using MapType::GetSink;
 
     virtual int           GetCount()
     {
@@ -575,7 +584,7 @@ public:
     {
         CheckSorting();
 
-        SortedListType::Iterator iter(m_listSorted);
+        typename SortedListType::Iterator iter(m_listSorted);
 
         for (int currentIndex = 0; !iter.End() && currentIndex < index; currentIndex++)
         {
@@ -594,7 +603,7 @@ public:
 
         int nIndex = 0;
 
-        for (SortedListType::Iterator iter(m_listSorted); !iter.End(); iter.Next())
+        for (typename SortedListType::Iterator iter(m_listSorted); !iter.End(); iter.Next())
         {
             if ((ItemID)iter.Value() == pitem)
                 return nIndex;
@@ -608,7 +617,7 @@ public:
     {
         CheckSorting();
 
-        for (SortedListType::Iterator iter(m_listSorted); !iter.End(); iter.Next())
+        for (typename SortedListType::Iterator iter(m_listSorted); !iter.End(); iter.Next())
         {
             if ((ItemID)iter.Value() == pitem)
             {
