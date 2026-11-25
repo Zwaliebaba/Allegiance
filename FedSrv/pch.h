@@ -45,7 +45,8 @@
 #include <utility.h>
 #include <igc.h>
 
-#include "..\AGC\GameParamData.h"
+#include "gameparamdata.h"
+#include "serverevents.h"
 
 //#include <atlbase.h>
 //extern CServiceModule _Module;
@@ -61,7 +62,6 @@
 #include <..\TCLib\AutoCriticalSection.h>
 
 #include <TCAtl.h>
-#include <..\TCAtl\ObjectMap.h>
 #include <..\TCAtl\UserAcct.h>
 #include <..\TCLib\TCThread.h>
 

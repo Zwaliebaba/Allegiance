@@ -1,61 +1,21 @@
-#ifndef __AGCSite_h__
-#define __AGCSite_h__
-
-/////////////////////////////////////////////////////////////////////////////
-
-#include <igc.h>
-
-
-
+#ifndef __EventSite_h__
+#define __EventSite_h__
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// CEventSite: raises the server events for a few IGC site callbacks, then
+// passes them on. This was AGC's CAGCSite, which also removed the AGC COM
+// objects that shadowed IGC objects; AGC and those objects are gone.
+//
+/////////////////////////////////////////////////////////////////////////////
 
+#include <igc.h>
+#include <stdio.h>
 
 template <class T>
-class CAGCSite : public T
+class CEventSite : public T
 {
 public:
-
-  /*-------------------------------------------------------------------------
-   * DestroySideEvent()
-   *-------------------------------------------------------------------------
-   */
-  void DestroySideEvent(IsideIGC* pIsideIGC) 
-  {
-    // Destroy any existing AGC object associated with the IGC object
-    GetAGCGlobal()->RemoveAGCObject(pIsideIGC, true);
-
-    // Allow the server/client site class to terminate the team
-    T::DestroySideEvent(pIsideIGC);
-  }
-
-  /*-------------------------------------------------------------------------
-   * TerminateModelEvent()
-   *-------------------------------------------------------------------------
-   */
-  void TerminateModelEvent(ImodelIGC* model)
-  {
-    // Destroy any existing AGC object associated with the IGC object
-    GetAGCGlobal()->RemoveAGCObject(model, true);
-
-    // Allow the server/client site class to terminate the model
-    T::TerminateModelEvent(model);
-  }                                      
-
-  /*-------------------------------------------------------------------------
-   * TerminateMissionEvent()
-   *-------------------------------------------------------------------------
-   */
-  void TerminateMissionEvent(ImissionIGC* pMission) 
-  {
-    // Destroy any existing AGC object associated with the IGC object
-    GetAGCGlobal()->RemoveAGCObject(pMission, true);
-
-    // Allow the server/client site class to terminate the mission
-    T::TerminateMissionEvent(pMission);
-  }
-
   /*-------------------------------------------------------------------------
    * ChangeCluster()
    *-------------------------------------------------------------------------
@@ -73,7 +33,7 @@ public:
 
     LPCSTR pszContext = pship ? pship->GetMission()->GetContextName() : NULL;
 
-    _AGCModule.TriggerContextEvent(NULL, EventID_ShipChangesSectors, pszContext,
+    g_events.TriggerContextEvent(NULL, EventID_ShipChangesSectors, pszContext,
       pszShip, shipID, newClusterID, oldClusterID, 4,
       "New Sector"     , VT_I4   , newClusterID,
       "Old Sector"     , VT_I4   , oldClusterID,
@@ -96,25 +56,25 @@ public:
     AGCUniqueID launcherID  = launcher ? launcher->GetUniqueID() : -1;
     LPCSTR      pszLauncher = launcher ? GetModelName(launcher)  : "";
 
-    HAGCLISTENERS hListeners = GetAGCGlobal()->EventListeners(
+    HAGCLISTENERS hListeners = g_events.EventListeners(
       EventID_ShipKilled, shipID, -1, -1);
     if (hListeners)
     {
-      // Create AGCVector objects
-      IAGCVectorPtr spVector1, spVector2;
-      _SVERIFYE(GetAGCGlobal()->MakeAGCVector(&p1, &spVector1));
-      _SVERIFYE(GetAGCGlobal()->MakeAGCVector(&p2, &spVector2));
+      // The positions as text (they were AGCVector objects)
+      char szVector1[64], szVector2[64];
+      sprintf_s(szVector1, "%g %g %g", p1.x, p1.y, p1.z);
+      sprintf_s(szVector2, "%g %g %g", p2.x, p2.y, p2.z);
 
       LPCSTR pszContext = ship ? ship->GetMission()->GetContextName() : NULL;
 
       // Trigger the event
-      _AGCModule.TriggerContextEvent(hListeners, EventID_ShipKilled, pszContext,
+      g_events.TriggerContextEvent(hListeners, EventID_ShipKilled, pszContext,
         pszShip, shipID, -1, -1, 5,
-        "Launcher"     , VT_I4      , launcherID,
-        "LauncherName" , VT_LPSTR   , pszLauncher,
-        "Amount"       , VT_R4      , amount,
-        "Vector1"      , VT_DISPATCH, (IAGCVector*)spVector1,
-        "Vector2"      , VT_DISPATCH, (IAGCVector*)spVector2);
+        "Launcher"     , VT_I4   , launcherID,
+        "LauncherName" , VT_LPSTR, pszLauncher,
+        "Amount"       , VT_R4   , amount,
+        "Vector1"      , VT_LPSTR, szVector1,
+        "Vector2"      , VT_LPSTR, szVector2);
     }
 
     // Allow the server/client site class to invoke event
@@ -132,26 +92,22 @@ public:
     AGCUniqueID modelID     = pmodel   ? pmodel->GetUniqueID() : -1;
     LPCSTR      pszModel    = pmodel   ? GetModelName(pmodel)  : "";
 
-    HAGCLISTENERS hListeners = GetAGCGlobal()->EventListeners(
+    HAGCLISTENERS hListeners = g_events.EventListeners(
       EventID_ShipUsesRipcord, shipID, -1, -1);
     if (hListeners)
     {
       LPCSTR pszContext = pship ? pship->GetMission()->GetContextName() : NULL;
 
       // Trigger the event
-      _AGCModule.TriggerContextEvent(hListeners, EventID_ShipUsesRipcord,
+      g_events.TriggerContextEvent(hListeners, EventID_ShipUsesRipcord,
         pszContext, pszShip, shipID, -1, -1, 2,
-        "Model"     , VT_I4      , modelID,
-        "ModelName" , VT_LPSTR   , pszModel);
+        "Model"     , VT_I4   , modelID,
+        "ModelName" , VT_LPSTR, pszModel);
     }
 
     // Allow the server/client site class to invoke event
     return T::UseRipcord(pship, pmodel);
   }
-
 };
 
-
-/////////////////////////////////////////////////////////////////////////////
-
-#endif // !__IAGCSiteImpl_h__
+#endif // !__EventSite_h__

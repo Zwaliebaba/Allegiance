@@ -157,7 +157,7 @@ BOOL DirectoryMonitor::SetupMonitor(LPCSTR szDir, int nPollInterval)
         pNextSlot += cbFileName;
         if(pNextSlot > pEnd)
         {
-            _AGCModule.TriggerEvent(NULL, AllsrvEventID_ArtChangedInInit, "", -1, -1, -1, 0);
+            g_events.TriggerEvent(NULL, AllsrvEventID_ArtChangedInInit, "", -1, -1, -1, 0);
             return false;
         }
         CopyMemory(m_pargFiles[i].szFileName, finddata.cFileName, cbFileName);

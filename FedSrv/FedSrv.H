@@ -11,7 +11,7 @@
 #ifndef _FEDSRV_H_
 #define _FEDSRV_H_
 
-#include "..\AGC\AGCSite.h"
+#include "eventsite.h"
 
 #undef new // because we override it
 
@@ -187,7 +187,7 @@ protected:
 };
 
 
-typedef CAGCSite<FedSrvSiteBase> FedSrvSite;
+typedef CEventSite<FedSrvSiteBase> FedSrvSite;
 
 class FedSrvLobbySite : public IFedMessagingSite
 {

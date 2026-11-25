@@ -876,7 +876,7 @@ CFSPlayer::CFSPlayer(CFMConnection * pcnxn, int characterID, const char * szCDKe
 
   LPCSTR pszContext = pShip->GetMission()->GetContextName();
 
-  _AGCModule.TriggerContextEvent(NULL, EventID_LoginServer, pszContext,
+  g_events.TriggerContextEvent(NULL, EventID_LoginServer, pszContext,
     pShip->GetName(), GetConnection()->GetID(), -1, -1, 1,
     "User", VT_I4, GetConnection()->GetID());
 }
@@ -889,7 +889,7 @@ CFSPlayer::~CFSPlayer()
 
   LPCSTR pszContext = GetIGCShip() ? GetIGCShip()->GetMission()->GetContextName() : NULL;
 
-  _AGCModule.TriggerContextEvent(NULL, EventID_LogoutServer, pszContext,
+  g_events.TriggerContextEvent(NULL, EventID_LogoutServer, pszContext,
     GetName(), GetConnection()->GetID(), -1, -1, 1,
     "User", VT_I4, GetConnection()->GetID());
 
@@ -999,7 +999,7 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
 
         LPCSTR pszContext = pfsmOld->GetIGCMission() ? pfsmOld->GetIGCMission()->GetContextName() : NULL;
 
-      _AGCModule.TriggerContextEvent(NULL, EventID_LogoutGame, pszContext,
+      g_events.TriggerContextEvent(NULL, EventID_LogoutGame, pszContext,
         GetName(), idShip, -1, -1, 2,
         "GameID",   VT_I4,    id,
         "GameName", VT_LPSTR, szName);
@@ -1013,7 +1013,7 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
 
         LPCSTR pszContext = pfsMission->GetIGCMission() ? pfsMission->GetIGCMission()->GetContextName() : NULL;
 
-      _AGCModule.TriggerContextEvent(NULL, EventID_LoginGame, pszContext,
+      g_events.TriggerContextEvent(NULL, EventID_LoginGame, pszContext,
         GetName(), idShip, -1, -1, 2,
         "GameID",   VT_I4,    id,
         "GameName", VT_LPSTR, szName);
@@ -1031,7 +1031,7 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
     {
       LPCSTR pszContext = GetIGCShip()->GetMission() ? GetIGCShip()->GetMission()->GetContextName() : NULL;
 
-      _AGCModule.TriggerContextEvent(NULL, EventID_LeaveTeam, pszContext,
+      g_events.TriggerContextEvent(NULL, EventID_LeaveTeam, pszContext,
         GetName(), idShip, psideOld->GetUniqueID(), -1, 2,
         "Team"    , VT_I4   , psideOld->GetUniqueID(),
         "TeamName", VT_LPSTR, psideOld->GetName());
@@ -1039,7 +1039,7 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
 
     if (pside) // if joining a side
     {
-      _AGCModule.TriggerEvent(NULL, EventID_JoinTeam, GetName(), idShip,
+      g_events.TriggerEvent(NULL, EventID_JoinTeam, GetName(), idShip,
         pside->GetUniqueID(), -1, 2,
         "Team"    , VT_I4   , pside->GetUniqueID(),
         "TeamName", VT_LPSTR, pside->GetName());

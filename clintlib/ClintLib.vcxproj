@@ -31,10 +31,10 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Igc;$(AllegianceRoot)_Utility;$(AllegianceRoot)zlib;$(AllegianceRoot)WinTrek;$(AllegianceRoot)jpeg;$(AllegianceRoot)clintlib;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)engine;$(AllegianceRoot)soundengine;$(AllegianceGenDir)AGC;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Igc;$(AllegianceRoot)_Utility;$(AllegianceRoot)zlib;$(AllegianceRoot)WinTrek;$(AllegianceRoot)jpeg;$(AllegianceRoot)clintlib;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)engine;$(AllegianceRoot)soundengine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Igc;$(AllegianceRoot)_Utility;$(AllegianceRoot)zlib;$(AllegianceRoot)WinTrek;$(AllegianceRoot)jpeg;$(AllegianceRoot)clintlib;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)engine;$(AllegianceRoot)soundengine;$(AllegianceGenDir)AGC;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Igc;$(AllegianceRoot)_Utility;$(AllegianceRoot)zlib;$(AllegianceRoot)WinTrek;$(AllegianceRoot)jpeg;$(AllegianceRoot)clintlib;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)engine;$(AllegianceRoot)soundengine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
