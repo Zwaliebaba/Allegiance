@@ -256,27 +256,6 @@ public:
 
 static_assert(sizeof(IMDLObject) % alignof(void*) == 0, "IMDLObject member data must be pointer aligned");
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// Object Pair
-//
-//////////////////////////////////////////////////////////////////////////////
-
-class IObjectPair : public IObject {
-    TRef<IObject> m_pfirst;
-    TRef<IObject> m_psecond;
-
-public:
-    IObjectPair(IObject* pfirst, IObject* psecond) :
-        m_pfirst(pfirst),
-        m_psecond(psecond)
-    {
-    }
-
-    IObject* GetFirst()  { return m_pfirst; }
-    IObject* GetSecond() { return m_psecond; }
-    IObject* GetNth(int index);
-    IObject* GetLastNth(int index);
-};
+// IObjectPair is defined in value.h, where TLookup uses it.
 
 #endif

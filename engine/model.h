@@ -205,7 +205,7 @@ public:
     // Constructor
     //
 
-    static TRef<Modeler> Modeler::Create(Engine* pengine);
+    static TRef<Modeler> Create(Engine* pengine);
 
     //
     // Termination

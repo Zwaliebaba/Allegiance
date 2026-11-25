@@ -75,10 +75,7 @@
 #include "logon.h"
 #include "help.h"
 
-#define and     &&
-#define or      ||
-#define bit_and &
-#define bit_or  |
-#define not     !
+// The code uses the standard alternative tokens (and, or, not, bitand,
+// bitor), which used to be macros here; under /permissive- they are keywords.
 
 #endif

@@ -114,7 +114,7 @@ public:
   // TCWorkerThread::PostMessage, TCWorkerThread::PostMessageV,
   // TCWorkerThread::PostMessageEx, TCWorkerThread_ArgumentReleaseProc,
   // TC_WorkItemRelProc
-  XWorkItem::~XWorkItem()
+  ~XWorkItem()
   {
     #if defined(XWorkItem_TRACE)
       GetDebugOutput()->WriteLen(70,

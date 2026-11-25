@@ -83,7 +83,7 @@ public:
   // TCUtilityThread::PostMessage, TCUtilityThread::PostMessageV,
   // TCUtilityThread::PostMessageEx, TCUtilityThread_ArgumentReleaseProc,
   // TC_UtilArgRelProc
-  XWorkItem::~XWorkItem()
+  ~XWorkItem()
   {
     if (m_pfnRelease)
       (*m_pfnRelease)(m_idMsg, m_vec.size(), m_vec.data());

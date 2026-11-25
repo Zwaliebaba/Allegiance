@@ -20,7 +20,7 @@ public:
   bool Set(int x, int y, bool b);
   void ClearRow(int x);
   void ClearColumn(int y);
-  void CBitArray::Dump(int min, int max);
+  void Dump(int min, int max);
 
 private:
   unsigned int * m_pargBits;

@@ -211,6 +211,35 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// The free GetString / Write / GetFunctionName overloads for a value type,
+// called from the templates below. A qualified call (::GetString) finds only
+// the overloads declared before the template (two-phase lookup); these call
+// them unqualified, so argument-dependent lookup also finds the overloads
+// declared later (Matrix, fonts, frame data) when a template is instantiated.
+// Types with no associated namespace (float, bool) need their overloads
+// declared here, before the forwarders.
+//
+//////////////////////////////////////////////////////////////////////////////
+
+ZString GetString(int indent, float value);
+void Write(IMDLBinaryFile* pmdlFile, float value);
+ZString GetFunctionName(float value);
+
+ZString GetString(int indent, bool value);
+void Write(IMDLBinaryFile* pmdlFile, bool value);
+ZString GetFunctionName(bool value);
+
+template<class Type>
+inline ZString ValueGetString(int indent, const Type& value) { return GetString(indent, value); }
+
+template<class Type>
+inline void ValueWrite(IMDLBinaryFile* pmdlFile, const Type& value) { Write(pmdlFile, value); }
+
+template<class Type>
+inline ZString ValueGetFunctionName(const Type& value) { return GetFunctionName(value); }
+
 template<class StaticType>
 class TStaticValue : public Value {
 private:
@@ -254,17 +283,17 @@ public:
 
     ZString GetString(int indent)
     {
-        return ::GetString(indent, m_value);
+        return ValueGetString(indent, m_value);
     }
 
     void Write(IMDLBinaryFile* pmdlFile)
     {
-        ::Write(pmdlFile, m_value);
+        ValueWrite(pmdlFile, m_value);
     }
 
     ZString GetFunctionName()
     {
-        return ::GetFunctionName(m_value);
+        return ValueGetFunctionName(m_value);
     }
 };
 
@@ -300,12 +329,12 @@ public:
 
     ZString GetString(int indent)
     {
-        return FunctionName::GetName() + "(" + ::GetString(indent, GetValue()) +")";
+        return FunctionName::GetName() + "(" + ValueGetString(indent, this->GetValue()) +")";
     }
 
     void Write(IMDLBinaryFile* pmdlFile)
     {
-        ::Write(pmdlFile, GetValue());
+        ValueWrite(pmdlFile, this->GetValue());
         pmdlFile->WriteReference(FunctionName::GetName());
         pmdlFile->WriteApply();
     }
@@ -539,7 +568,7 @@ public:
         List::Iterator iter(m_list);
 
         while (!iter.End()) {
-            str += Value::Indent(indent + 1) + ::GetString(indent, iter.Value());
+            str += Value::Indent(indent + 1) + ValueGetString(indent, iter.Value());
             iter.Next();
             if (!iter.End()) {
                 str += ",\n";
@@ -590,6 +619,29 @@ inline Vector GetVector(IObject* pobject)
 //////////////////////////////////////////////////////////////////////////////
 
 typedef TPointerListObject<IObject> IObjectList;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Object Pair
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class IObjectPair : public IObject {
+    TRef<IObject> m_pfirst;
+    TRef<IObject> m_psecond;
+
+public:
+    IObjectPair(IObject* pfirst, IObject* psecond) :
+        m_pfirst(pfirst),
+        m_psecond(psecond)
+    {
+    }
+
+    IObject* GetFirst()  { return m_pfirst; }
+    IObject* GetSecond() { return m_psecond; }
+    IObject* GetNth(int index);
+    IObject* GetLastNth(int index);
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
