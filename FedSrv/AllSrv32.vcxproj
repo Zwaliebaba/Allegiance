@@ -50,9 +50,7 @@
   <ItemGroup>
     <ClCompile Include="FedSrv.CPP" />
     <ClCompile Include="sqlhelp.cpp" />
-    <ClCompile Include="SWMRG.CPP">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="SWMRG.CPP" />
     <ClCompile Include="BitArray.cpp" />
     <ClCompile Include="fsship.cpp" />
     <ClCompile Include="fsmission.cpp" />
