@@ -320,9 +320,9 @@ CFSMission::~CFSMission()
       DisconnectFromLobby();
       g.strLobbyServer.SetEmpty();
 
-      // Shutdown the server if no sessions exist
-      if (0 == CAdminSession::GetSessionCount())
-        PostThreadMessage(g.idReceiveThread, WM_QUIT, 0, 0);
+      // Shutdown the server. (It used to stay up while an admin tool held a
+      // DCOM session; there are none now.)
+      PostThreadMessage(g.idReceiveThread, WM_QUIT, 0, 0);
     }
   #endif // defined(ALLSRV_STANDALONE)
 

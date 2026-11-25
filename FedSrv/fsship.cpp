@@ -10,6 +10,19 @@
 
 #include "pch.h"
 
+/*-------------------------------------------------------------------------
+ * AGCPlayerID()
+ *-------------------------------------------------------------------------
+ * Purpose:
+ *   A 16 bit ID for a player in AGC events (was CAdminUser::DetermineID)
+ */
+USHORT AGCPlayerID(CFSPlayer * pPlayer)
+{
+    int nTemp = (int) pPlayer ^ (int) (pPlayer->GetConnection()->GetID());
+
+    return (USHORT) nTemp; // least significant 16 bits
+}
+
 // Statics
 CFSShip * CFSShip::m_rgpfsShip[c_cShipsMax] = {0};
 short     CFSShip::m_shipidNext = 0;
@@ -982,7 +995,7 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
     {
         const char * szName = pfsmOld->GetIGCMission() && pfsmOld->GetIGCMission()->GetMissionParams() ? pfsmOld->GetIGCMission()->GetMissionParams()->strGameName : "?" ;
         int id = pfsmOld->GetIGCMission() ? pfsmOld->GetIGCMission()->GetMissionID() : -1;
-        long idShip = (AGC_AdminUser << 16) | CAdminUser::DetermineID(this->GetPlayer());
+        long idShip = (AGC_AdminUser << 16) | AGCPlayerID(this->GetPlayer());
 
         LPCSTR pszContext = pfsmOld->GetIGCMission() ? pfsmOld->GetIGCMission()->GetContextName() : NULL;
 
@@ -996,7 +1009,7 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
     {
         const char * szName = pfsMission->GetIGCMission() && pfsMission->GetIGCMission()->GetMissionParams() ? pfsMission->GetIGCMission()->GetMissionParams()->strGameName : "?" ;
         int id = pfsMission->GetIGCMission() ? pfsMission->GetIGCMission()->GetMissionID() : -1;
-        long idShip = (AGC_AdminUser << 16) | CAdminUser::DetermineID(this->GetPlayer());
+        long idShip = (AGC_AdminUser << 16) | AGCPlayerID(this->GetPlayer());
 
         LPCSTR pszContext = pfsMission->GetIGCMission() ? pfsMission->GetIGCMission()->GetContextName() : NULL;
 
@@ -1012,7 +1025,7 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
   //
   if (psideOld  != pside) 
   {
-    long idShip = (AGC_AdminUser << 16) | CAdminUser::DetermineID(this->GetPlayer());
+    long idShip = (AGC_AdminUser << 16) | AGCPlayerID(this->GetPlayer());
 
     if (psideOld ) // if leaving a side
     {

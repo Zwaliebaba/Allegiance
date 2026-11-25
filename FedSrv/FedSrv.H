@@ -39,8 +39,6 @@ const int  c_cShipsPerSectorMax = 110;
 const int  c_cMissionsMax       = 10; // arbitrary number of how many missions there can be
 const int  c_cMemberListRelloc  = 8; // size of member reallocs, *** keep it a power of two ***
 
-class CAdminServer; // forward
-
 /*********************
       Globals 
  ********************/
@@ -227,7 +225,11 @@ struct Global
     hPlayerEvent(0),
     fSecure(false),
     fTimeOut(false),
-    pServerCounters(NULL),
+    pServerCounters(&serverCounters),
+    civTraining(NA),
+    hTrainingStop(NULL),
+    fService(false),
+    fPublicLobby(false),
     pargPoster(NULL),
     cbPosters(0),
     cMsgsToOthers(0),
@@ -235,7 +237,6 @@ struct Global
     timeNow(Time::Now()),
     fm(&siteFedSrv),
     fmLobby(&siteFSLobby),
-    dwServerGITCookie(0),
     fProtocol(false),
     fPaused(false),
     fDoublePrecision(true)
@@ -247,6 +248,7 @@ struct Global
 #endif    
   {
     ZeroMemory(rgTechs, sizeof(rgTechs));
+    ZeroMemory(&serverCounters, sizeof(serverCounters));
   }
 
   // Explicit initialization
@@ -285,9 +287,15 @@ struct Global
   // *** Game state stuff ***
   Time                timeNow;             // cached value (for very short duration) of timeGetTime()
 
-  // *** Perfmon counter stuff ***
-  CPerfShare          perfshare;
-  SERVER_COUNTERS *   pServerCounters;
+  // *** Server statistics (were Windows performance counters; now only in memory) ***
+  SERVER_COUNTERS     serverCounters;
+  SERVER_COUNTERS *   pServerCounters;  // always &serverCounters
+
+  // *** How the server runs ***
+  short               civTraining;      // -training <civ>: the client's training mission 7 (NA otherwise)
+  HANDLE              hTrainingStop;    // -stopevent <handle>: set by that client to stop the server
+  bool                fService;         // -service: started by the service control manager
+  bool                fPublicLobby;     // server.json PublicLobby: host the public session and use the lobby
 
   // Keep list of everything not in IGC, so no database access on each client connect
   FMD_S_POSTER *      pargPoster;
@@ -296,7 +304,6 @@ struct Global
   int                 cMsgsToOthers;  // temp stuff for tracking amount of data sent during logon to players
   int                 cBytesToOthers; // other than the player logging on
 
-  DWORD               dwServerGITCookie;
   ZString             strLobbyServer;
   ZString             strLocalAddress;
   char                rgTechs[cTechs][CbTechBitName+1];
@@ -309,7 +316,6 @@ struct Global
   bool                fProtocol;
   bool                fPaused;
   bool                fDoublePrecision;
-  //  CAdminSponsor<CAdminGames>  sponsorGames;
 #if !defined(ALLSRV_STANDALONE)
   CSQLCore            sql;
   DWORD               csqlSilentThreads;

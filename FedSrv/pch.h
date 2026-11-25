@@ -54,7 +54,7 @@
 // <ZoneAuthDecrypt.h> (Zone SDK, not in the source release) was included here; nothing in FedSrv uses it.
 
 // This also includes <atlbase.h> and <atlcom.h>
-#include "AllSrvModule.h"
+#include "allsrvmodule.h"
 
 #include <TCLib.h>
 #include <..\TCLib\AutoHandle.h>
@@ -75,13 +75,10 @@
 #include "point.h"
 //#include "srvdbg.h"
 
-#include "sharemem.h"
 //#include "config.h"
 #include "counters.h"
 #include "srvqueries.h" // and allegdb.h
 
-#include "AllSrvModuleIDL.h" 
-#include "AdminUtil.h" 
 #include "fsside.h"
 #include "fscluster.h"
 #include "fsmission.h"
@@ -90,20 +87,11 @@
 extern Global g;
 #include "fsship.h"
 
-#include "AdminGame.h"
-#include "AdminGames.h"
-#include "AdminSession.h"
-
-
-#include "AdminUser.h"
-#include "AdminUsers.h"
-#include "AdminServer.h"
-#include "AdminShip.h"
-
 #include "dbgutil.h"
 
 
 #include "serversettings.h"
+#include <trainingserver.h>
 
 
 /////////////////////////////////////////////////////////////////////////////

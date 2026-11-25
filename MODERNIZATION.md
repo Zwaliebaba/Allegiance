@@ -13,7 +13,8 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project. Stage B: new MDL version with 32-bit / BC7 DDS textures generated from the 24-bit source BMPs. |
 | Level of detail | Reduced LOD meshes are dropped. They were a 1999 performance optimisation (the models are hundreds to a few thousand triangles). Every LOD slot uses the full-detail mesh, which removes `xmunge -reduce`, the MSR progressive-mesh binaries and meshoptimizer. |
 | Networking | MsQuic (Schannel build) behind the existing `FedMessaging` interface, replacing DirectPlay 4. This replaced the first plan of an own Winsock UDP layer; with QUIC providing reliability and loss recovery, no loopback / packet-loss harness was built, and LAN play is verified by hand. Windows 11 or Server 2022 and later. |
-| Settings | JSON files instead of the registry: `settings.json` per user for the client, `server.json` for all users for the server, or either next to the executable. A small built-in reader and writer (`zlib/zsettings.*`), no third-party JSON library. Registry values are not imported. The only registry use left is Windows' own: COM and service registration, and performance-counter IDs. |
+| Settings | JSON files instead of the registry: `settings.json` per user for the client, `server.json` for all users for the server, or either next to the executable. A small built-in reader and writer (`zlib/zsettings.*`), no third-party JSON library. Registry values are not imported. The only registry use left is Windows' own: AGC's COM registration and the service entry. |
+| Server administration | The DCOM admin objects (`IAdminServer` and the rest) are removed with no replacement for now; a server is configured through `server.json`. A later admin protocol will run on the MsQuic listener. Training mission 7, the one in-repo user of the admin objects, starts its server as a child process. Windows performance counters are dropped. |
 | Scope | Tier 1 is built. Tier 2 stays in the repo, outside the solution. Tier 3 is deleted once nothing in Tier 1 or 2 references it. |
 | Verification | GitHub Actions on `windows-2025` (VS 2026). `.github/workflows/windows-build.yml`. |
 
@@ -22,7 +23,8 @@ solution that compiles, runs on current Windows, and builds its art from source.
 **Tier 1 (built):** `zlib` (Microsoft's base library, not the compression library), `guids`, `_Utility`,
 `engine`, `effect`, `soundengine`, `Igc`, `clintlib`, `training`, `WinTrek` (client); `mdlc`, `xmunge`,
 `cvh`, `qhull` (art tools); `FedSrv`, built as the original standalone LAN server flavour `AllSrv32`
-(`ALLSRV_STANDALONE`); `AGC` and the helper libraries it needs from `test/` (`TCLib`); `sharemem`.
+(`ALLSRV_STANDALONE`); `AGC` and the helper libraries it needs from `test/` (`TCLib`). (`sharemem`, the
+performance-counter library, is deleted; see "Server administration".)
 
 `xmunge` is not built yet. It is written entirely against Direct3D Retained Mode (frames, mesh
 builders, progressive meshes), which Windows no longer has. Making it compile would mean writing a
@@ -44,7 +46,8 @@ meshoptimizer.
 ### FedSrv and AGC
 
 13 of the 23 `.cpp` files in `FedSrv` use AGC (the COM automation / admin event layer). Decision: AGC
-moves into Tier 1 and is ported with the server, keeping the admin and event features intact.
+moves into Tier 1 and is ported with the server, keeping the admin and event features intact. (Later
+the DCOM admin objects were removed; see "Server administration". AGC's events and logger remain.)
 
 ## Findings that correct the first analysis
 
@@ -359,12 +362,61 @@ repository, from the registry's art path), the `TCPropBagOnRegKey` COM class (re
 bags; in AGC's IDL but not in its object map), and TCLib's registry-switched lock tracing
 (`_ENABLE_TRACE_LOCKS`, never defined).
 
-What stays in the registry is Windows' own: COM class, AppID and type library registration for AGC and
-the server (`.rgs` files, `-RegServer`), the service entry, the event-log source, and the performance
-counter IDs `sharemem` reads from the service's `Performance` key.
+What stays in the registry is Windows' own: COM class and type library registration for AGC (which
+registers itself on first use), and the service entry if the server is installed as a service. The
+server's own COM registration, its event-log source and the performance counters went with the DCOM
+admin layer (see "Server administration" below).
 
 The parked Tier 2 tools `cliconfig`, `srvconfig` and `AllSrvUI` exist to edit the old registry values.
 Nothing reads those values any more; reviving one of these tools means porting it to `zsettings.h`.
+
+#### Server administration: the DCOM admin layer is gone
+
+AllSrv was also a DCOM server. It registered `IAdminSession`, `IAdminServer`, `IAdminGames`,
+`IAdminGame`, `IAdminUser(s)` and `IAdminShip` as a local server, with `CoInitializeSecurity` set to a
+NULL DACL (everyone may connect) at packet-level authentication, and pushed AGC events to connected
+sessions. `AllSrvUI` (Tier 2, not built) was the admin tool on top of it. Nothing outside this repository
+uses the interfaces, and the only user inside it was the client's training mission 7. The layer is
+removed: the `Admin*` objects, `AllSrvModuleIDL.idl` and its type library, the `.rgs` registration
+scripts, `-RegServer`/`-UnregServer`/`-reregister`/`-Embedding`, the MTA keep-alive thread that held the
+class objects, and the NULL-DACL `CoInitializeSecurity`. A later admin protocol will run on the MsQuic
+listener; until then a server is configured through `server.json`.
+
+How the server runs now:
+
+| Command | Does |
+|---|---|
+| `AllSrv32` | Runs in the console. `Q` quits, `P`/`C` pause and continue, as before |
+| `AllSrv32 -install [user password]` | Installs the Windows service `AllSrv32` (automatic start) with `-service` on its command line; administrator rights needed |
+| `AllSrv32 -remove` | Removes the service (it must be stopped) |
+| `AllSrv32 -service` | What the service control manager runs; not for interactive use |
+| `AllSrv32 -training <civ> -stopevent <handle>` | The client's training server (below) |
+
+Hosting changed with it, because games used to come from the admin objects. Without an admin tool
+the console server hosted the public session and tried the long-dead Zone lobby, the client's LAN
+browser looks only for the LAN session (`FEDSRV_STANDALONE_PRIVATE_GUID`), and the `Game1`, `Game2`, ...
+games from `server.json` were only created after a lobby connection succeeded. Now the server hosts the
+LAN session and creates the `server.json` games at startup; `"PublicLobby": 1` restores the public
+session and lobby. As before, a standalone server shuts down when its last game is gone (it used to
+stay up while an admin session was connected).
+
+Training mission 7 ("live" training against the Bios) used the admin objects to have COM start a local
+AllSrv32, create the game, start it once the player had joined, and kill it afterwards. The client now
+starts `AllSrv32.exe` from its own folder itself, as a hidden child process in a job object (so it dies
+with the client), with `-training <civ> -stopevent <handle>`. The server hosts the LAN session with that
+one game (`Inc/trainingserver.h` names it), starts it when the player has joined, and shuts down when the
+client sets the inherited event, or when the game ends. If the server exits before it can be joined, for
+example because another server holds the port, the client says so. The rest of the flow (finding the
+server on 127.0.0.1, joining as "Cadet") is unchanged.
+
+The Windows performance counters (`sharemem`, `Inc/sharemem.h`, the `AllSrv` counter object) are deleted.
+The server still keeps the same statistics in memory (`g.serverCounters`, `FedSrv/counters.h`), for the
+admin protocol to report later.
+
+Left for the next step, de-COMing AGC: AGC is still an in-process COM server that registers itself on
+first use, which writes to HKCR and so needs administrator rights once. The event logger still writes
+to the Windows event log, now without a registered event source, so Event Viewer shows the raw text
+without its message resources. AGC's own `AdminSessionHelper` class is unused and goes then.
 
 ### Phase 4: art pipeline
 

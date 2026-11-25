@@ -39,7 +39,6 @@ jobs:
         clintlib/ClintLib.vcxproj
         training/Training.vcxproj
         test/TCLib/TCLib.vcxproj
-        sharemem/ShareMem.vcxproj
         AGC/AGC.vcxproj
         FedSrv/AllSrv32.vcxproj
         WinTrek/Allegiance.vcxproj

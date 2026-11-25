@@ -117,7 +117,6 @@ END
 
 3 TEXTINCLUDE DISCARDABLE 
 BEGIN
-    "1 TYPELIB ""AllSrvModuleIDL.tlb""\r\n"
     "#include ""Fedsrv.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "\0"
 END
@@ -134,45 +133,6 @@ END
 // remains consistent on all systems.
 ICO_FEDSRV              ICON    DISCARDABLE     "fedsrv.ico"
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// REGISTRY
-//
-
-#if defined(APSTUDIO_INVOKED) || !defined(ALLSRV_STANDALONE)
-IDR_AllSrv              REGISTRY MOVEABLE PURE  "AllSrv.rgs"
-#endif
-IDR_ADMINSESSION        REGISTRY DISCARDABLE    "AdminSession.rgs"
-IDR_ADMINGAME           REGISTRY DISCARDABLE    "AdminGame.rgs"
-IDR_ADMINGAMES          REGISTRY DISCARDABLE    "AdminGames.rgs"
-IDR_ADMINSERVER         REGISTRY DISCARDABLE    "AdminServer.rgs"
-IDR_USER                REGISTRY DISCARDABLE    "AdminUser.rgs"
-IDR_USERS               REGISTRY DISCARDABLE    "AdminUsers.rgs"
-IDR_ADMINSHIP           REGISTRY DISCARDABLE    "AdminShip.rgs"
-IDR_DPMONO              REGISTRY DISCARDABLE    "DPMono.rgs"
-#if defined(APSTUDIO_INVOKED) || defined(ALLSRV_STANDALONE)
-#if defined(APSTUDIO_INVOKED)
-IDR_AllSrv$(ALLSRV_STANDALONE) REGISTRY MOVEABLE PURE  "AllSrv32.rgs"
-#else
-IDR_AllSrv              REGISTRY MOVEABLE PURE  "AllSrv32.rgs"
-#endif
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// String Table
-//
-
-STRINGTABLE DISCARDABLE 
-BEGIN
-    IDS_E_LOBBYSERVER_GAMES_EXIST 
-                            "LobbyServer property cannot be changed while games exist."
-    IDS_E_ONE_GAME_PER_SERVER 
-                            "Game server only supports creating a single game. Another game already exists."
-    IDS_E_GAME_SERVER_PAUSED 
-                            "Cannot create a game while Game server is paused."
-    IDS_E_CONNECT_LOBBY     "Failed to connect to the specified lobby server."
-END
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
@@ -184,7 +144,6 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-1 TYPELIB "AllSrvModuleIDL.tlb"
 #include "Fedsrv.rc2"  // non-Microsoft Visual C++ edited resources
 
 /////////////////////////////////////////////////////////////////////////////

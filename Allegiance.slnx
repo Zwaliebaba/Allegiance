@@ -14,7 +14,6 @@
     <Project Path="clintlib/ClintLib.vcxproj" Id="5b164402-491e-404e-ab26-c6b1590ebabe" />
     <Project Path="training/Training.vcxproj" Id="1dc45108-9797-4f75-9891-60197544974b" />
     <Project Path="test/TCLib/TCLib.vcxproj" Id="cb0673c1-d288-4824-ba88-17230f780ded" />
-    <Project Path="sharemem/ShareMem.vcxproj" Id="aa05eee2-ad40-4075-8bc5-5080273db0e5" />
   </Folder>
   <Folder Name="/AGC/">
     <Project Path="AGC/AGCGuid.vcxproj" Id="98f5f2a7-fbf2-4c2a-aea7-d4b1f4db0070" />
