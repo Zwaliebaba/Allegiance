@@ -1514,7 +1514,7 @@ public:
 
             m_pstringPaneDeathMatch->SetString(pmp->IsDeathMatchGame()
                                                ? "1st team to kill " + ZString(pmp->GetDeathMatchKillLimit()) + " ships wins"
-                                               : "");
+                                               : ZString());
         }
         UpdateGameStateContainer();
     }
@@ -2200,7 +2200,7 @@ public:
                     extern  TRef<ModifiableNumber>  g_pnumberMissionNumber;
                     int     iMission = static_cast<int> (g_pnumberMissionNumber->GetValue ());
                     ZAssert ((iMission >= 1) && (iMission <= 6));
-                    char*   strNamespace[] = 
+                    const char*   strNamespace[] = 
                     {
                         "",
                         "",
@@ -2220,7 +2220,7 @@ public:
                     extern  TRef<ModifiableNumber>  g_pnumberMissionNumber;
                     int     iMission = static_cast<int> (g_pnumberMissionNumber->GetValue ());
                     ZAssert ((iMission >= 1) && (iMission <= 6));
-                    char*   strNamespace[] = 
+                    const char*   strNamespace[] = 
                     {
                         "",
                         "tm_1_introduction",
@@ -5551,7 +5551,7 @@ public:
             + " Server: " + ZString(szRemoteAddress)
             + " fov: " + ((m_pcamera != NULL) ? ZString(DegreesFromRadians(m_pcamera->GetFOV())) : ZString())
             + strPosition
-            + " lag: " + ZString((long) trekClient.m_serverLag)
+            + " lag: " + ZString((int) trekClient.m_serverLag)
             + " ping: " + ZString(Time::Now() - trekClient.m_timeLastPing)
             + " sync: " + ZString(int(100.0f * trekClient.m_sync))
             + " snds: " + ZString(nNumPlayingSoundBuffers);
@@ -9079,7 +9079,7 @@ public:
     // VT functions.
     //
 
-    VOID VTSetText(LPSTR szFormat, ...)
+    VOID VTSetText(LPCSTR szFormat, ...)
     {
         TCHAR szText[1024];
         va_list vaList;

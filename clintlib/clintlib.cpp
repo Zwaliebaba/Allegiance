@@ -1780,7 +1780,7 @@ HRESULT BaseClient::ReceiveMessages(void)
     return(hr);
 }
 
-HRESULT BaseClient::OnSessionLost(char * szReason, FedMessaging * pthis)
+HRESULT BaseClient::OnSessionLost(const char * szReason, FedMessaging * pthis)
 {
     debugf("OnSessionLost. %s. lastUpdate=%d now=%d Time::Now()=%d\n", 
            szReason, m_lastUpdate.clock(), m_now.clock(), Time::Now().clock());

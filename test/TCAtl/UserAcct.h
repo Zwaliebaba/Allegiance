@@ -40,8 +40,8 @@ public:
   LPCWSTR GetDomainNameW() const;
 
   // Privilege Accessors
-  HRESULT HasRight   (LPTSTR pszPrivilege) const;
-  HRESULT SetRight   (LPTSTR pszPrivilege);
+  HRESULT HasRight   (LPCTSTR pszPrivilege) const;
+  HRESULT SetRight   (LPCTSTR pszPrivilege);
   HRESULT RemoveRight(LPTSTR pszPrivilege);
 
 // Data Members

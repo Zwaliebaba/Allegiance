@@ -1098,7 +1098,7 @@ private:
         Color             color = MakeColorFromCOLORREF(RGB(180,180,180));
 
         pSurface->DrawString(pfont, color, WinPoint(nBorderWidth, 15 + nLineHeight),   ZString("Cost:           $") + ZString(pBuyable->GetPrice()));
-        pSurface->DrawString(pfont, color, WinPoint(nBorderWidth, 15 + 2*nLineHeight), ZString("Time:          ") + ZString((long)pBuyable->GetTimeToBuild()) + ZString(" Sec."));
+        pSurface->DrawString(pfont, color, WinPoint(nBorderWidth, 15 + 2*nLineHeight), ZString("Time:          ") + ZString((int)pBuyable->GetTimeToBuild()) + ZString(" Sec."));
 
         ZString strDescription(pBuyable->GetDescription() + ZString(" "));
         

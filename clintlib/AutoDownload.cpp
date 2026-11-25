@@ -273,7 +273,7 @@ public:
            strcat(szURL, m_szFilelistSubDir);
         }
         strcat(szURL, "FileList.txt");
-        char * szInitialList[] = { szURL, "FileList.txt", NULL };
+        const char * szInitialList[] = { szURL, "FileList.txt", NULL };
 
         m_pHTTPSession->InitiateDownload(szInitialList, ".\\AutoUpdate\\");
     }
@@ -376,7 +376,7 @@ public:
     //
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    void DoError(char * szFormat, ...) 
+    void DoError(const char * szFormat, ...) 
     {
         char szMsg[sizeof(m_szErrorMessage)];
         va_list pArg;
@@ -387,7 +387,7 @@ public:
         DoError(0, szMsg);
     }
 
-    void DoError(int nInternalErrorCode, char * szFormat, ...)
+    void DoError(int nInternalErrorCode, const char * szFormat, ...)
     {
         if(!m_bErrorHasOccurred)  // first error is most important
         {
@@ -985,7 +985,7 @@ private:
 
             if (!LaunchReloaderAndExit(m_bReadmeUpdated))
             {
-                char * sz = "Couldn't complete update process; couldn't launch Reloader.exe.";
+                const char * sz = "Couldn't complete update process; couldn't launch Reloader.exe.";
                 DoError(sz);
                 ::MessageBox(NULL, sz, "Fatal Error", MB_ICONERROR);
                 ::ExitProcess(0);
@@ -1484,7 +1484,7 @@ bool LaunchReloaderAndExit(bool bReLaunchAllegianceAsMinimized)
 
     char szCommandLine[MAX_PATH];
 
-    char * szReadme = bReLaunchAllegianceAsMinimized ? "-Minimized" : "-Normal"; 
+    const char * szReadme = bReLaunchAllegianceAsMinimized ? "-Minimized" : "-Normal"; 
 
     // This command-line needs to be in sync with the command-line reader in Reloader.exe
     sprintf(szCommandLine, "%ld %s %s", ::GetCurrentProcessId(), szReadme, strchr(::GetCommandLine(), ' '));

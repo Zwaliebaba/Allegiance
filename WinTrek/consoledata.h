@@ -25,7 +25,7 @@ public:
     {
         ZAssert(pobject != NULL);
         ZAssert(pfn != NULL);
-        AddEventTarget(&TMemberSnapshotValue::OnEvent, peventSource);
+        this->AddEventTarget(&TMemberSnapshotValue::OnEvent, peventSource);
     }
 
     bool OnEvent()

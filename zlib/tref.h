@@ -158,6 +158,15 @@ public:
         return *this;
     }
 
+    // Assign from a TRef to a derived type (see the converting constructor):
+    // without this, both operator= overloads matched and the call was ambiguous.
+    template <class OtherType,
+              class = typename std::enable_if<std::is_convertible<OtherType*, Type*>::value>::type>
+    TRef& operator=(const TRef<OtherType>& tref)
+    {
+        return *this = (OtherType*)tref;
+    }
+
     TRef& operator=(const Type* ptNew)
     {
         Type* ptOld = m_pt;

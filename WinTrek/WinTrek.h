@@ -209,7 +209,7 @@ class  WinTrekClient :
 #endif
         virtual void      OnLogonAck(bool fValidated, bool bRetry, LPCSTR szFailureReason);
         virtual void      OnLogonLobbyAck(bool fValidated, bool bRetry, LPCSTR szFailureReason);
-        virtual HRESULT   OnSessionLost(char * szReason, FedMessaging * pthis);
+        virtual HRESULT   OnSessionLost(const char * szReason, FedMessaging * pthis);
         void              FlushSessionLostMessage();
         virtual void      Disconnect();
         virtual void      OnQuitMission(QuitSideReason reason, const char* szMessageParam);

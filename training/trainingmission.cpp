@@ -506,7 +506,7 @@ namespace Training
     {
         ImissionIGC*        pCore = trekClient.ResetStaticData ();
         Time                now = pCore->GetLastUpdate();
-        char*               szStaticCoreFilename = IGC_STATIC_CORE_FILENAME;
+        const char*         szStaticCoreFilename = IGC_STATIC_CORE_FILENAME;
         int                 iStaticCoreVersion = LoadIGCStaticCore (szStaticCoreFilename, pCore, false);
 
 

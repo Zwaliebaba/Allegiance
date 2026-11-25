@@ -1694,7 +1694,7 @@ void HandleCOMChatEvents(const char *szMessage, const char *szDest, ShipID shipi
   //
   // Define the table of Chat Type strings
   //
-  static char* s_szChatTypes[CHAT_MAX] =
+  static const char* s_szChatTypes[CHAT_MAX] =
   {
     "EVERYONE",              // CHAT_EVERYONE            in igc.h
     "LEADERS",               // CHAT_LEADERS             in igc.h
@@ -3518,7 +3518,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
       CASTPFM(pfmAutoDonate, C, AUTODONATE, pfm);
 
-      TrapHackBoot(pfmAutoDonate >= 0);
+      TrapHackBoot(pfmAutoDonate != NULL);   // was ">= 0" on a pointer
       TrapHackBoot(pfsPlayer->GetMoney() >= pfmAutoDonate->amount);
 
       IsideIGC* pside = pfsPlayer->GetSide();
@@ -3778,7 +3778,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         g.pServerCounters->cLoginAttempts++;
 
       CASTPFM(pfmLogon, C, LOGONREQ, pfm);
-      char * szReason = "Sorry Charlie. Something \"weird\" happened."; // default failure message
+      const char * szReason = "Sorry Charlie. Something \"weird\" happened."; // default failure message
       bool fRetry = false;
 
       // sanity check the message
@@ -5595,7 +5595,7 @@ bool OnAutoUpdateEXEDownloadDone(const char * szFilelistCRC, int nFilelistCRC, i
     {
         // report CRC mismatch error for AutoUpdate.EXE
         // todo fire event
-        char * szMsg = "ERROR: AutoUpdate was aborted.  CRC for AutoUpdate.exe downloaded did not match CRC found in cfg file.  You will not be able to host a public game.\n";
+        const char * szMsg = "ERROR: AutoUpdate was aborted.  CRC for AutoUpdate.exe downloaded did not match CRC found in cfg file.  You will not be able to host a public game.\n";
         printf(szMsg);
         MessageBox(NULL, szMsg, "Allegiance Server", MB_SERVICE_NOTIFICATION);
         debugf("AutoUpdate.exe CRC mismatch\n");
@@ -5605,7 +5605,7 @@ bool OnAutoUpdateEXEDownloadDone(const char * szFilelistCRC, int nFilelistCRC, i
     //
     // Decide what will be launched after the update (AllSrv32 or UI), and how it will be launched (as service or EXE)
     //
-    char * szLaunchPostUpdate;
+    const char * szLaunchPostUpdate;
     
     szLaunchPostUpdate = g.fService ? "S:AllSrv32" : "AllSrv32.exe";  // S: is short for "Start as Service"
 
@@ -5850,7 +5850,7 @@ bool RetrieveCFGFile() // returns true iff cfg was successfully retrieved
     // report error
     // TODO: fire event
     debugf("\nInvalid CFG File.\n");
-    char * szErrorMsg = "\nError Connecting to Zone.  You will not be able to host a public game. (CFG File is invalid.)\n";
+    const char * szErrorMsg = "\nError Connecting to Zone.  You will not be able to host a public game. (CFG File is invalid.)\n";
     printf(szErrorMsg);
     if (!g.fService)
       MessageBox(NULL, szErrorMsg, "Allegiance Server", MB_SERVICE_NOTIFICATION);
@@ -5874,7 +5874,7 @@ void AnnouncePause()
 
   AGCEventID idEvent = g.fPaused ? AllsrvEventID_Pause : AllsrvEventID_Continue;
   g_events.TriggerEvent(NULL, idEvent, "", -1, -1, -1, 0);
-  char * szMode = g.fPaused ? "paused." : "continued.";
+  const char * szMode = g.fPaused ? "paused." : "continued.";
   printf("Server %s.\n", szMode);
   g.fmLobby.SendMessages(g.fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
 }
