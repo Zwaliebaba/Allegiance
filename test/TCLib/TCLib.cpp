@@ -35,7 +35,7 @@
 HRESULT RegisterComponentCategory(REFGUID catid, LPCOLESTR pszDesc)
 {
   ICatRegisterPtr pcr;
-  HRESULT hr = pcr.CreateInstance(__uuidof(StdComponentCategoriesMgr));
+  HRESULT hr = pcr.CreateInstance(CLSID_StdComponentCategoriesMgr);
   if (FAILED(hr))
   {
     // Since not all systems have the category manager installed, we'll allow
@@ -69,7 +69,7 @@ HRESULT RegisterComponentCategory(LPCOLESTR pszCLSID, LPCOLESTR pszDesc)
 HRESULT UnregisterComponentCategory(REFGUID catid)
 {
   ICatRegisterPtr pcr;
-  HRESULT hr = pcr.CreateInstance(__uuidof(StdComponentCategoriesMgr));
+  HRESULT hr = pcr.CreateInstance(CLSID_StdComponentCategoriesMgr);
   if (FAILED(hr))
   {
     // Since not all systems have the category manager installed, we'll allow

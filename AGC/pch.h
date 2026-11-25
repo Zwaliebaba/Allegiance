@@ -52,6 +52,9 @@ extern CComModule _Module;
 #include <..\TCAtl\PropertyClass.h>
 #include <..\TCAtl\TCNullStreamImpl.h>
 
+// The CRT/ATL headers above can pull in <assert.h>; zlib provides its own
+// assert and refuses to coexist with the CRT one.
+#undef assert
 #include <zlib.h>
 #include <utility.h>
 #include <Igc.h>

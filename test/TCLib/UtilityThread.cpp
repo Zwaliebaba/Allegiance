@@ -86,7 +86,7 @@ public:
   XWorkItem::~XWorkItem()
   {
     if (m_pfnRelease)
-      (*m_pfnRelease)(m_idMsg, m_vec.size(), m_vec.begin());
+      (*m_pfnRelease)(m_idMsg, m_vec.size(), m_vec.data());
   }
 
 // Group=Data Members
@@ -516,7 +516,7 @@ void TCUtilityThread::DispatchWorkItem(TCUtilityThread::XWorkItem* pArgs)
 {
   __try
   {
-    OnMessage(pArgs->m_idMsg, pArgs->m_vec.size(), pArgs->m_vec.begin());
+    OnMessage(pArgs->m_idMsg, pArgs->m_vec.size(), pArgs->m_vec.data());
   }
   __except(1)
   {
