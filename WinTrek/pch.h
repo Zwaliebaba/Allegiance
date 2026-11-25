@@ -79,6 +79,5 @@
 #include "artwork.h"
 #include "logon.h"
 #include "passworddialog.h"
-#include "regkey.h"
 #include "treksound.h"
 #include "GameTypes.h"

@@ -1,5 +1,4 @@
 #include "pch.h"
-#include <zreg.h>
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -145,23 +144,14 @@ public:
 
         lstrcpy(m_szConfig, "http://Allegiance.zone.com/Allegiance.cfg");
 
-        HKEY hKey;
-
-        if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey))
-        {
-            DWORD cbValue = MAX_PATH;
-            char szConfig[MAX_PATH];
-            szConfig[0] = '\0';
-            ::RegQueryValueEx(hKey, "CfgFile", NULL, NULL, (LPBYTE)&szConfig, &cbValue);
-            ::RegCloseKey(hKey);
-            // if it didn't succeed, we'll just use the default above
-            if (lstrlen(szConfig) > 0)
-              lstrcpy(m_szConfig, szConfig);
-        }
+        // CfgFile: a config file URL, or a local file, instead of the default
+        std::string strCfgFile = ZSettings::GetString("CfgFile", "");
+        if (!strCfgFile.empty() && strCfgFile.size() < sizeof(m_szConfig))
+            lstrcpy(m_szConfig, strCfgFile.c_str());
 
         if (ZString(m_szConfig).Find("http://") == -1)
         {
-            debugf("Using local config file due to registry setting for ConfigFile because \"http://\" was missing from it. %s\n", m_szConfig);
+            debugf("Using local config file because the CfgFile setting has no \"http://\": %s\n", m_szConfig);
 
             if (!IsFileValid(m_szConfig))
             {

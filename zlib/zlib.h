@@ -113,6 +113,7 @@
 #include "base.h"
 #include "window.h"
 #include "win32app.h"
+#include "zsettings.h"
 #include "VersionInfo.h"
 
 //

@@ -8,7 +8,6 @@
  * Copyright 1986-2000 Microsoft Corporation, All Rights Reserved
  *-----------------------------------------------------------------------*/
 
-#include "regkey.h"
 
 class IAutoUpdateSink;
 /*      AutoDownload incepts the logon ack, delaying it until the download
@@ -193,13 +192,13 @@ public:
      *      pbFilesWereSkipped: is used at only if bSkipSharingViolation is true -AND- pbFilesWereSkipped != NULL.
      *                          *pbFilesWereSkipped is set to true if files were indeed skipped due to a
      *                          sharing violation.
-     *      bNoRegistryWrite: do not update registry
+     *      bNoSettingsWrite: do not update MoveInProgress in the settings file
      *      pSink : AutoUpdate sink where move errors are reported
      * Returns:
      *      true only on success
      */
     static bool MoveFiles(const char * szTempPath, const char * szArtPath_, bool bSkipSharingViolation, 
-                          bool * pbFilesWereSkipped, bool bNoRegistryWrite, char * szErrorMsg, IAutoUpdateSink * pSink)
+                          bool * pbFilesWereSkipped, bool bNoSettingsWrite, char * szErrorMsg, IAutoUpdateSink * pSink)
     {
 
       WIN32_FIND_DATA finddata;
@@ -295,15 +294,10 @@ public:
       if (bSkipSharingViolation && pbFilesWereSkipped)
       *pbFilesWereSkipped = bFilesWereSkipped;
 
-      if (!bFilesWereSkipped && !bNoRegistryWrite)
+      if (!bFilesWereSkipped && !bNoSettingsWrite)
       {
-          // Set registry's MoveInProgress to zero, meaning move is complete
-          HKEY hKey;
-          DWORD dwValue = 0;
-          if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_WRITE, &hKey))
-          {
-            ::RegSetValueEx(hKey, "MoveInProgress", NULL, REG_DWORD, (unsigned char*)&dwValue, sizeof(DWORD));
-          }
+          // MoveInProgress = 0: the move is complete
+          ZSettings::SetDWORD("MoveInProgress", 0);
       }
 
       return true;

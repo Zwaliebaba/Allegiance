@@ -275,9 +275,9 @@ HRESULT CServiceModule::InitAGC()
 
   // Initialize the event logger object
   CComBSTR bstrEventSource(__MODULE__);
-  CComBSTR bstrRegKey("HKLM\\" HKLM_FedSrv);
+  CComBSTR bstrSettingsFile(ZSettings::Get().GetPath().c_str()); // server.json
   IAGCEventLoggerPrivatePtr spPrivate(m_spEventLogger);
-  ZSucceeded(hr = spPrivate->Initialize(bstrEventSource, bstrRegKey));
+  ZSucceeded(hr = spPrivate->Initialize(bstrEventSource, bstrSettingsFile));
   RETURN_FAILED(hr);
 
   // Hook the event logger for DB event logging

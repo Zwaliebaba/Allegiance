@@ -70,7 +70,6 @@ public:
     ZString(float value, int total, int precision);
     ZString(bool);
 
-    static ZString GetProfileString(const ZString& strSection, const ZString& strKey);
 
     const char& operator[](int index) const { return m_pdata->GetPointer()[index]; }
     int GetLength() const { return m_pdata->GetLength(); }

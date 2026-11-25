@@ -103,7 +103,7 @@ extern Global g;
 #include "dbgutil.h"
 
 
-#include "regkey.h"
+#include "serversettings.h"
 
 
 /////////////////////////////////////////////////////////////////////////////

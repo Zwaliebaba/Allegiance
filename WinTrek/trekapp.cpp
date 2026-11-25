@@ -9,7 +9,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "main.h"
-#include "regkey.h"
 
 extern bool g_bEnableSound = true;
 extern bool g_bCheckFiles;
@@ -27,7 +26,6 @@ bool    g_bAskForCDKey = false;
 // Trek Application Implementation
 //
 //////////////////////////////////////////////////////////////////////////////
-#define GAME_REG_KEY        "Software\\Microsoft\\Microsoft Games\\Allegiance\\1.0"
 
 //
 // Check to make sure that they are running DX 7 Dsound or better
@@ -112,92 +110,6 @@ bool CheckFreeMemory()
 }
 
 
-bool CheckForAllGuard()
-{
-  // Bypass any other tests if -nod is specified on the command line
-  ZString strCmdLine(::GetCommandLine());
-  while (!strCmdLine.IsEmpty())
-    if (strCmdLine.GetToken() == "-nod")
-      return true;
-
-  // Load KERNEL32
-  HINSTANCE hinstKernel32 = ::GetModuleHandle("kernel32.dll");
-  assert(hinstKernel32);
-
-  // Get the address of IsDebuggerPresent, if available
-  typedef BOOL (WINAPI* PFNIsDebuggerPresent)(VOID);
-  PFNIsDebuggerPresent pfnIsDebuggerPresent = (PFNIsDebuggerPresent)
-    ::GetProcAddress(hinstKernel32, "IsDebuggerPresent");
-  if (pfnIsDebuggerPresent)
-  {
-    // Indicate that we are being debugged, if we are
-    if ((*pfnIsDebuggerPresent)())
-      return true;
-  }
-  else
-  {
-    // Win95 doesn't support IsDebuggerPresent, so we must check some other ways
-
-    // Format an event name using the current process ID
-    char szEvent[24];
-    sprintf(szEvent, "MSRGuard_%08X", GetCurrentProcessId());
-
-    // Determine if the named event already exists
-    HANDLE hEvent = ::OpenEvent(EVENT_ALL_ACCESS, false, szEvent);
-    if (hEvent)
-    {
-      // Close the event handle and indicate that we are being debugged
-      ::CloseHandle(hEvent);
-      return true;
-    }
-  }
-
-  // Get the command-line options (again)
-  strCmdLine = ::GetCommandLine();
-  strCmdLine.GetToken();
-
-  // Get the fully-qualified path to the current process
-  char szModulePath[_MAX_PATH];
-  GetModuleFileName(NULL, szModulePath, sizeof(szModulePath));
-  char szDrive[_MAX_DRIVE], szDir[_MAX_DIR];
-  _splitpath(szModulePath, szDrive, szDir, NULL, NULL);
-  _makepath(szModulePath, szDrive, szDir, NULL, NULL);
-
-  // Get the ArtPath, since that's where AllGuard.exe should be
-  HKEY hKey = NULL;
-  if (ERROR_SUCCESS != ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey))
-    return true; // If it can't be read, just keep running
-  char szArtPath[_MAX_PATH];
-  DWORD cbArtPath = sizeof(szArtPath);
-  if (ERROR_SUCCESS != ::RegQueryValueEx(hKey, "ArtPath", NULL, NULL, (BYTE*)&szArtPath, &cbArtPath))
-  {
-    lstrcpy(szArtPath, szModulePath);
-    lstrcat(szArtPath, "artwork\\");
-    cbArtPath = lstrlen(szArtPath);
-  }
-  else if ('\\' != szArtPath[cbArtPath - 1])
-  {
-    lstrcat(szArtPath, "\\");
-    ++cbArtPath;
-  }
-  ::RegCloseKey(hKey);
-
-  // Append the AllGuard.exe filename and parameters
-  char szAllGuard[_MAX_PATH * 4];
-  sprintf(szAllGuard, "\"%sAllGuard.exe\" %s", szArtPath, (LPCSTR)strCmdLine);
-
-  // Create the AllGuard.exe process
-  STARTUPINFO si = {sizeof(si)};
-  PROCESS_INFORMATION pi;
-  if (!::CreateProcess(NULL, szAllGuard, NULL, NULL, false, 0, NULL, szModulePath, &si, &pi))
-    return true; // If it can't be created, just keep running
-
-  // Indicate false to exit this instance of the process
-  return false;
-}
-
-
-
 class TrekAppImpl : public EffectApp {
 public:
     TrekAppImpl()
@@ -229,17 +141,9 @@ public:
           *p = 0; // erase filename
           ::SetCurrentDirectory(path);
 
-          HKEY hKey;
-          DWORD dwType;
-          char  szValue[MAX_PATH];
-          DWORD cbValue = MAX_PATH;
-
-          // NOTE: please keep reloader.cpp's GetArtPath() in sync with this!!!
-          if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey))
+          // MoveInProgress: an auto-update was still moving files when it stopped
           {
-              // Get MoveInProgress from registry
-              if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "MoveInProgress", NULL, &dwType, (unsigned char*)&szValue, &cbValue) &&
-                  *((DWORD*)szValue) == 1)
+              if (ZSettings::GetDWORD("MoveInProgress", 0) == 1)
               {
                   if (::MessageBox(NULL, "The AutoUpdate process failed to finish.  Try again to finish?  (YES is recommended)", "Error", MB_ICONERROR | MB_YESNO) == IDYES)
                   {
@@ -256,15 +160,8 @@ public:
                       return S_FALSE;
                   }
               }
-              ::RegCloseKey(hKey);
           }
         }
-
-        //
-        // Check to see if we are being debugged
-        //
-        if (!CheckForAllGuard())
-          return S_FALSE;
 
 
         //
@@ -316,106 +213,64 @@ public:
         // get the artpath
         //
 
-        PathString pathStr; // = ZString::GetProfileString("Federation", "ArtPath");
-
-        HKEY hKey;
-        DWORD dwType;
-        char  szValue[MAX_PATH];
-        DWORD dwValue;
-        DWORD cbValue = MAX_PATH;
-
-        // NOTE: please keep reloader.cpp's GetArtPath() in sync with this!!!
-        if (ERROR_SUCCESS == ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey))
-        {
-            // Get the art path from the registry
-            if (ERROR_SUCCESS != ::RegQueryValueEx(hKey, "ArtPath", NULL, &dwType, (unsigned char*)&szValue, &cbValue))
-            {
-                // Set ArtPath to be relative to the application path
-                GetModuleFileNameA(NULL, szValue, MAX_PATH);
-                char*   p = strrchr(szValue, '\\');
-                if (!p)
-                    p = szValue;
-                else
-                    p++;
-
-                strcpy(p, "artwork");
-
-                //Create a subdirectory for the artwork (nothing will happen if it already there)
-                CreateDirectoryA(szValue, NULL);
-            }
-            pathStr = szValue;
- 
-            cbValue = MAX_PATH; // reset this
-
-            // Start the frame rate data log, if necessary
-            if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "LogFrameData", NULL, &dwType, (unsigned char*)&dwValue, &cbValue))
-            {
-                cbValue = MAX_PATH;
-                if (dwValue==1)
-                {
-                    if (ERROR_SUCCESS == ::RegQueryValueEx(hKey, "LogFrameDataPath", NULL, &dwType, (unsigned char*)&szValue, &cbValue))
-                    {
-                        if (strlen(szValue)>0)
-                        {
-                            ZString strFile = szValue;
-                            g_pzfFrameDump = new ZWriteFile(strFile);
-                            // check for a valid file handle
-                            if (g_pzfFrameDump->IsValid()) 
-                            {
-                                // dump out the header row of data
-                                g_pzfFrameDump->Write(
-                                        "Mspf,"
-                                        "Fps,"
-                                        "Warps,"
-                                        "Ships,"
-                                        "Projectiles,"
-                                        "Asteroids,"
-                                        "Stations,"
-                                        "Treasures,"
-                                        "Missiles,"
-                                        "SectorWarps,"
-                                        "SectorShips,"
-                                        "SectorProjectiles,"
-                                        "SectorAsteroids,"
-                                        "SectorStations,"
-                                        "SectorTreasures,"
-                                        "SectorMissiles,"
-                                        "Triangles,"
-                                        "DrawStringCalls,"
-                                        "Chars"
-                                        "\n"
-                                    );
-                            }
-                            else
-                            {
-                              // pop up error message box
-                              MessageBox(NULL, "Framerate log file location is invalid.\n"
-                                               "Use CliConfig to set the framerate log file location to "
-                                               "a valid location.",
-                                               "Framerate Logging Error", MB_ICONEXCLAMATION | MB_OK);
-                            }
-                        }
-                    }
-                }
-            }
-
-            ::RegCloseKey(hKey);
-        }
+        // ArtPath: where the artwork is; by default "artwork" next to the executable
+        PathString pathStr(ZSettings::GetString("ArtPath", "").c_str());
 
         if (pathStr.IsEmpty()) {
-            // marksn: to make everyone consistent, this should go back to getmodulefilename path
-            //         like for convex hull and sounds
-            // pathStr = PathString::GetCurrentDirectory() + "artwork";
-
-            char    logFileName[MAX_PATH + 16];
-            GetModuleFileName(NULL, logFileName, MAX_PATH);
-            char*   p = strrchr(logFileName, '\\');
+            char    szArtPath[MAX_PATH + 16];
+            GetModuleFileNameA(NULL, szArtPath, MAX_PATH);
+            char*   p = strrchr(szArtPath, '\\');
             if (!p)
-                p = logFileName;
+                p = szArtPath;
             else
                 p++;
             strcpy(p, "artwork");
-            pathStr = logFileName;
+            pathStr = szArtPath;
+        }
+
+        // LogFrameData = 1: log per-frame statistics to the file LogFrameDataPath
+        if (ZSettings::GetDWORD("LogFrameData", 0) == 1)
+        {
+            ZString strFile(ZSettings::GetString("LogFrameDataPath", "").c_str());
+            if (!strFile.IsEmpty())
+            {
+                g_pzfFrameDump = new ZWriteFile(strFile);
+                // check for a valid file handle
+                if (g_pzfFrameDump->IsValid()) 
+                {
+                    // dump out the header row of data
+                    g_pzfFrameDump->Write(
+                            "Mspf,"
+                            "Fps,"
+                            "Warps,"
+                            "Ships,"
+                            "Projectiles,"
+                            "Asteroids,"
+                            "Stations,"
+                            "Treasures,"
+                            "Missiles,"
+                            "SectorWarps,"
+                            "SectorShips,"
+                            "SectorProjectiles,"
+                            "SectorAsteroids,"
+                            "SectorStations,"
+                            "SectorTreasures,"
+                            "SectorMissiles,"
+                            "Triangles,"
+                            "DrawStringCalls,"
+                            "Chars"
+                            "\n"
+                        );
+                }
+                else
+                {
+                  // pop up error message box
+                  MessageBox(NULL, "Framerate log file location is invalid.\n"
+                                   "Set LogFrameDataPath in the settings file to "
+                                   "a valid location.",
+                                   "Framerate Logging Error", MB_ICONEXCLAMATION | MB_OK);
+                }
+            }
         }
 
         GetModeler()->SetArtPath(pathStr);

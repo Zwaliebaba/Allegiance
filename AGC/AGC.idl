@@ -63,7 +63,6 @@ library AGCLib
     interface IAGCEventIDRanges;
     interface ITCCollection;
     interface ITCStrings;
-    interface ITCPropBagOnRegKey;
     interface ITCSessionInfo;
     interface ITCSessionInfos;
     interface ITCCollectionPersistHelper;
@@ -269,19 +268,6 @@ library AGCLib
     interface IUnknown;
 
   }; // End: coclass TCNullStream
-
-
-  ///////////////////////////////////////////////////////////////////////////
-  // TCPropBagOnRegKey
-  [
-    uuid(8962E246-CD81-11d2-9646-00C04F68DEB0),
-    helpstring("TCPropBagOnRegKey Class")
-  ]
-  coclass TCPropBagOnRegKey
-  {
-    [default] interface ITCPropBagOnRegKey;
-
-  }; // End: coclass TCPropBagOnRegKey
 
 
   ///////////////////////////////////////////////////////////////////////////

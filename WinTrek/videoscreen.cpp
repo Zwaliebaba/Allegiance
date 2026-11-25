@@ -78,24 +78,13 @@ public:
         // Load the location of the cd drive
         //
 
-        HKEY hKey;
+        m_strCD = ZString(ZSettings::GetString("CDPath", "").c_str());
 
-        if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL)) {
-            char buf[128];
-            DWORD dwSize = sizeof(buf);
-            DWORD dwType = REG_SZ;
+        if (!m_strCD.IsEmpty()) {
+            m_strCD.ReplaceAll("\\", '/');
 
-            ::RegQueryValueEx(hKey, "CDPath", NULL, &dwType, (BYTE*)buf, &dwSize);
-            ::RegCloseKey(hKey);
-
-            if (dwType == REG_SZ) {
-                m_strCD = ZString(buf);
-                m_strCD.ReplaceAll("\\", '/');
-
-                if (m_strCD[m_strCD.GetLength() - 1] != '/') {
-                    m_strCD += '/';
-                }
+            if (m_strCD[m_strCD.GetLength() - 1] != '/') {
+                m_strCD += '/';
             }
         }
 

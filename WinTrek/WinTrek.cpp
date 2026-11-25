@@ -2945,75 +2945,28 @@ public:
         SetCursorImage(pimageCursor);
     }
 
+    //
+    // Preferences live in the settings file (zsettings.h)
+    //
+
     void SavePreference(const ZString& szName, DWORD dwValue)
     {
-        HKEY hKey;
-
-        if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL))
-        {
-            ::RegSetValueEx(hKey, szName, NULL, REG_DWORD, (const BYTE*)&dwValue, sizeof(dwValue));
-            ::RegCloseKey(hKey);
-        }
+        ZSettings::SetDWORD(szName, dwValue);
     }
 
     DWORD LoadPreference(const ZString& szName, DWORD dwDefault)
     {
-        HKEY hKey;
-        DWORD dwResult = dwDefault;
-
-        if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL))
-        {
-            DWORD dwSize = sizeof(dwResult);
-            DWORD dwType = REG_DWORD;
-
-            ::RegQueryValueEx(hKey, szName, NULL, &dwType, (BYTE*)&dwResult, &dwSize);
-            ::RegCloseKey(hKey);
-
-            if (dwType != REG_DWORD)
-                dwResult = dwDefault;
-        }
-
-        return dwResult;
+        return ZSettings::GetDWORD(szName, dwDefault);
     }
 
     void SavePreference(const ZString& szName, const ZString& strValue)
     {
-        HKEY hKey;
-
-        if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL))
-        {
-            ::RegSetValueEx(hKey, szName, NULL, REG_SZ, 
-                (const unsigned char*)(const char*)strValue, strValue.GetLength() + 1);
-            ::RegCloseKey(hKey);
-        }
+        ZSettings::SetString(szName, strValue);
     }
 
     ZString LoadPreference(const ZString& szName, const ZString& strDefault)
     {
-        HKEY hKey;
-        ZString strResult = strDefault;
-
-        if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL))
-        {
-            const int nMaxStrLen = 2048;
-            DWORD dwSize = nMaxStrLen;
-            DWORD dwType = REG_SZ;
-            unsigned char cbValue[nMaxStrLen + 1];
-
-            ::RegQueryValueEx(hKey, szName, NULL, &dwType, cbValue, &dwSize);
-            ::RegCloseKey(hKey);
-
-            cbValue[nMaxStrLen] = '\0';
-
-            if (dwType == REG_SZ)
-                strResult = (const char*)cbValue;
-        }
-
-        return strResult;
+        return ZString(ZSettings::GetString(szName, strDefault).c_str());
     }
 
     void Terminate()
@@ -7289,25 +7242,17 @@ public:
     public:
         TRef<ZFile> Include(const ZString& str)
         {
-            HKEY hKey;
-            
-            if (ERROR_SUCCESS != ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL)
-            ) {
+            //
+            // Help pages can include a file named by a setting
+            //
+
+            ZString strFile(ZSettings::GetString(str, "").c_str());
+
+            if (strFile.IsEmpty()) {
                 return NULL;
             }
 
-            char buf[128];
-            DWORD dwSize = sizeof(buf);
-            DWORD dwType = REG_SZ;
-
-            ::RegQueryValueEx(hKey, str, NULL, &dwType, (BYTE*)buf, &dwSize);
-            ::RegCloseKey(hKey);
-
-            if (dwType != REG_SZ) {
-                return NULL;
-            }
-             
-            TRef<ZFile> pfile = GetWindow()->GetModeler()->LoadFile(ZString(buf), "mml", false);
+            TRef<ZFile> pfile = GetWindow()->GetModeler()->LoadFile(strFile, "mml", false);
 
             if (pfile) {
                 return pfile;
@@ -7319,23 +7264,7 @@ public:
 
     ZString GetProductID()
     {
-        HKEY hKey;
-
-        if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT,
-                0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL)) {
-            char buf[128];
-            DWORD dwSize = sizeof(buf);
-            DWORD dwType = REG_SZ;
-
-            ::RegQueryValueEx(hKey, "PID", NULL, &dwType, (BYTE*)buf, &dwSize);
-            ::RegCloseKey(hKey);
-
-            if (dwType == REG_SZ) {
-                return ZString(buf);
-            }
-        }
-
-        return ZString("<unknown pid>");
+        return ZString(ZSettings::GetString("PID", "<unknown pid>").c_str());
     }
 
     ZString GetVersionString()

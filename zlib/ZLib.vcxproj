@@ -53,6 +53,7 @@
     <ClCompile Include="vector.cpp" />
     <ClCompile Include="VersionInfo.cpp" />
     <ClCompile Include="FTPSession.cpp" />
+    <ClCompile Include="zsettings.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -86,6 +87,7 @@
     <ClInclude Include="tlist.h" />
     <ClInclude Include="tmap.h" />
     <ClInclude Include="token.h" />
+    <ClInclude Include="zsettings.h" />
     <ClInclude Include="tref.h" />
     <ClInclude Include="tstack.h" />
     <ClInclude Include="tvector.h" />
@@ -97,7 +99,6 @@
     <ClInclude Include="zassert.h" />
     <ClInclude Include="zlib.h" />
     <ClInclude Include="zmath.h" />
-    <ClInclude Include="zreg.h" />
     <ClInclude Include="zstring.h" />
     <ClInclude Include="ztime.h" />
   </ItemGroup>

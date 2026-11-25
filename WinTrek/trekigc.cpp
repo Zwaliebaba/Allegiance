@@ -14,8 +14,6 @@
 #include "pch.h"
 #include <stddef.h>
 #include "training.h"
-#include "regkey.h"
-#include <zreg.h>
 #include "badwords.h"
 
 class ClusterSiteImpl : public ClusterSite
@@ -2277,25 +2275,13 @@ WinTrekClient::WinTrekClient(void)
     m_bFilterQuickComms(false),
     m_bFilterLobbyChats(false)
 {
-    // restore the CD Key from the registry
+    // restore the CD Key from the settings
 
-    HKEY hKey;
+    std::string strCDKey = ZSettings::GetString("CDKey", "");
 
-    if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, 
-        ALLEGIANCE_REGISTRY_KEY_ROOT,
-        0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL))
+    if (!strCDKey.empty() && strCDKey.size() < c_cbCDKey)
     {
-        DWORD dwSize = c_cbCDKey;
-        DWORD dwType;
-        char szCDKey[c_cbCDKey];
-
-        if (::RegQueryValueEx(hKey, "CDKey", NULL, &dwType, 
-                (unsigned char*)szCDKey, &dwSize) == ERROR_SUCCESS
-            && dwType == REG_SZ && dwSize != 0)
-        {
-            BaseClient::SetCDKey(szCDKey);
-        }
-        ::RegCloseKey(hKey);
+        BaseClient::SetCDKey(strCDKey.c_str());
     }
 }
 
@@ -2866,34 +2852,17 @@ void WinTrekClient::EjectPlayer(ImodelIGC*  pcredit)
 
 ZString WinTrekClient::GetSavedCharacterName()
 {
-    HKEY hKey;
-    DWORD dwType;
-    DWORD cbName = c_cbName;
-    char szName[c_cbName];
-    szName[0] = '\0';
-    
-    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_READ, &hKey)) 
-    {
-        RegQueryValueEx(hKey, "CharacterName", NULL, &dwType, (unsigned char*)&szName, &cbName);
-        RegCloseKey(hKey);
-    }
+    std::string strName = ZSettings::GetString("CharacterName", "");
 
-    return szName;
+    if (strName.size() >= c_cbName)
+        strName.resize(c_cbName - 1);
+
+    return strName.c_str();
 }
 
 void WinTrekClient::SaveCharacterName(ZString strName)
 {
-    HKEY hKey;
-    DWORD cbName = c_cbName;
-    char szName[c_cbName];
-    szName[0] = '\0';
-    
-    if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, ALLEGIANCE_REGISTRY_KEY_ROOT, 0, KEY_WRITE, &hKey)) 
-    {
-        RegSetValueEx(hKey, "CharacterName", NULL, REG_SZ, 
-            (const BYTE*)(const char*)strName, strName.GetLength() + 1);
-        RegCloseKey(hKey);
-    }
+    ZSettings::SetString("CharacterName", strName);
 }
 
 
@@ -4351,17 +4320,8 @@ void            WinTrekClient::Preload(const char*  pszModelName,
 
 void WinTrekClient::SetCDKey(const ZString& strCDKey)
 {
-    HKEY hKey;
-
     // save the new key for future use.
-    if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, 
-        ALLEGIANCE_REGISTRY_KEY_ROOT,
-        0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL))
-    {
-        ::RegSetValueEx(hKey, "CDKey", NULL, REG_SZ, 
-            (const unsigned char*)(PCC)strCDKey, strCDKey.GetLength());
-        ::RegCloseKey(hKey);
-    }
+    ZSettings::SetString("CDKey", strCDKey);
     
     BaseClient::SetCDKey(strCDKey);
 }
@@ -4814,60 +4774,34 @@ Color WinTrekClient::GetEndgameSideColor(SideID sideId)
     return m_vsideEndgameInfo[sideId].color;
 };
 
+//
+// Squad memberships are kept per character, in the settings file's
+// "SquadMemberships" section: { "<character>": [squad IDs] }
+//
+
 void  WinTrekClient::SaveSquadMemberships(const char* szCharacterName)
 {
-    DWORD dwMembershipSize = m_squadmemberships.GetCount() * sizeof(SquadID);
-    SquadID* vsquadIDs = (SquadID*)_alloca(dwMembershipSize);
-
     // only store the IDs (since we don't need anything else yet)
-    int iSquad = 0;
+    std::vector<DWORD> vsquadIDs;
     for (TList<SquadMembership>::Iterator iterSquad(m_squadmemberships);
         !iterSquad.End(); iterSquad.Next())
     {
-        vsquadIDs[iSquad] = iterSquad.Value().GetID();
-        ++iSquad;
+        vsquadIDs.push_back((DWORD)iterSquad.Value().GetID());
     }
 
-    HKEY hKey;
-
-    if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, 
-        ALLEGIANCE_REGISTRY_KEY_ROOT "\\SquadMemberships",
-        0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL))
-    {
-        ::RegSetValueEx(hKey, szCharacterName, NULL, REG_BINARY, 
-            (const unsigned char*)vsquadIDs, dwMembershipSize);
-        ::RegCloseKey(hKey);
-    }
+    ZSettings::Get().SetDWORDs("SquadMemberships", szCharacterName, vsquadIDs);
 }
 
 void  WinTrekClient::RestoreSquadMemberships(const char* szCharacterName)
 {
     m_squadmemberships.SetEmpty();
 
-    HKEY hKey;
+    std::vector<DWORD> vsquadIDs;
+    ZSettings::Get().GetDWORDs("SquadMemberships", szCharacterName, vsquadIDs);
 
-    if (ERROR_SUCCESS == ::RegCreateKeyEx(HKEY_LOCAL_MACHINE, 
-        ALLEGIANCE_REGISTRY_KEY_ROOT "\\SquadMemberships",
-        0, "", REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hKey, NULL))
+    for (size_t iSquad = 0; iSquad < vsquadIDs.size(); iSquad++)
     {
-        DWORD dwSize = 0;
-        DWORD dwType;
-
-        if (::RegQueryValueEx(hKey, szCharacterName, NULL, &dwType, NULL, &dwSize) == ERROR_SUCCESS
-            && dwType == REG_BINARY && dwSize != 0)
-        {
-            SquadID* vsquadIDs = (SquadID*)_alloca(dwSize);
-            int numSquads = dwSize / sizeof(SquadID);
-
-            ::RegQueryValueEx(hKey, szCharacterName, NULL, NULL, 
-                (unsigned char*)vsquadIDs, &dwSize);
-
-            for (int iSquad = 0; iSquad < numSquads; iSquad++)
-            {
-                m_squadmemberships.PushEnd(SquadMembership(vsquadIDs[iSquad], "<bug>", false, false));
-            }
-        }
-        ::RegCloseKey(hKey);
+        m_squadmemberships.PushEnd(SquadMembership((SquadID)vsquadIDs[iSquad], "<bug>", false, false));
     }
 }
 

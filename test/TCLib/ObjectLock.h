@@ -15,54 +15,12 @@
 
 #ifdef _DEBUG
 
-  #ifdef _ENABLE_TRACE_LOCKS
-    #pragma warning(disable: 4786)
-    #include <map>
-
-    inline bool TCObjectLock_EnableTraceLocks(const char* pszClassName)
-    {
-      // This is not currenlty being used, due to the _ENABLE_TRACE_LOCKS
-      // directive not being defined, but it really appears to be quite
-      // thread *UNSAFE*, since this map object does not have any explicit
-      // thread synchronization.
-      typedef std::map<const char*, bool> CClassNameMap;
-      static CClassNameMap mapClassNames;
-
-      // First lookup the class name in the map
-      CClassNameMap::iterator it = mapClassNames.find(pszClassName);
-      if (mapClassNames.end() != it)
-        return (*it).second;
-
-      // Open the debugging subkey
-      bool bEnable = false;
-      const LPCTSTR pszKeyName =
-        TEXT("Software\\Microsoft\\Microsoft Games\\Debug\\EnableTraceLocks");
-      TCRegKeyHandle hkey;
-      LONG lResult =
-        RegOpenKeyEx(HKEY_LOCAL_MACHINE, pszKeyName, 0, KEY_READ, &hkey);
-      if (ERROR_SUCCESS == lResult)
-      {
-        // Attempt to read the value with the specified class name
-        DWORD dwTraceLocks = 0;
-        DWORD dwType = REG_DWORD;
-        DWORD dwDataSize = sizeof(dwTraceLocks);
-        USES_CONVERSION;
-        lResult = RegQueryValueEx(hkey, A2CT(pszClassName), NULL, &dwType,
-          LPBYTE(&dwTraceLocks), &dwDataSize);
-        if (ERROR_SUCCESS == lResult && REG_DWORD == dwType)
-          bEnable = dwTraceLocks != 0;
-      }
-
-      // Add the class name and the enabled flag to the map
-      mapClassNames.insert(CClassNameMap::value_type(pszClassName, bEnable));
-      return bEnable;               
-    }
-  #else // _ENABLE_TRACE_LOCKS
-    inline bool TCObjectLock_EnableTraceLocks(const char* pszClassName)
-    {
-      return false;
-    }
-  #endif // _ENABLE_TRACE_LOCKS
+  // Per-class lock tracing (_ENABLE_TRACE_LOCKS) was switched on through the
+  // registry; it was never used and is gone. Tracing stays off.
+  inline bool TCObjectLock_EnableTraceLocks(const char* pszClassName)
+  {
+    return false;
+  }
 
 #endif // _DEBUG
 
