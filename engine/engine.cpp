@@ -4,305 +4,106 @@
 //
 // Engine Implementation
 //
+// The DirectDraw 4 engine enumerated display adapters and 16-bit modes,
+// switched the display into exclusive fullscreen, and owned the primary
+// surface and back buffer. Now every surface lives in system memory, the
+// D3D11 device (created on first use) renders and presents, and "fullscreen"
+// is a borderless window that covers the monitor, showing the game's chosen
+// resolution scaled to fit (see EngineWindow).
+//
 //////////////////////////////////////////////////////////////////////////////
 
 class EngineImpl : public PrivateEngine {
 private:
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // types
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
     typedef TList<PrivateSurface*>  SurfaceList;
-    typedef TList<DeviceDependant*> DeviceDependantList;
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // members
-    //
-    //////////////////////////////////////////////////////////////////////////////
 
     //
     // State
     //
 
     bool                      m_bValid;
-    bool                      m_bValidDevice;
     bool                      m_bFullscreen;
     bool                      m_bAllowSecondary;
     bool                      m_bAllow3DAcceleration;
     bool                      m_b3DAccelerationImportant;
 
-    //
-    // Direct Draw Devices
-    //
-
-    TRef<DDDevice>            m_pdddevice;
-    TRef<DDDevice>            m_pdddeviceFullscreen;
-    TRef<DDDevice>            m_pdddevicePrimary;
-    TRef<DDDevice>            m_pdddeviceSecondary;
-
-    //
-    //
-    //
-
     TRef<PixelFormat>         m_ppf;
-    TRef<IDirectDrawSurfaceX> m_pdds;
-    HWND                      m_hwndClip;
-    WinPoint                  m_pointPrimary;
     HWND                      m_hwndFocus;
     WinPoint                  m_pointFullscreen;
-    WinPoint                  m_pointFullscreenCurrent;
-    TRef<PrivateSurface>      m_psurfaceBack;
-    TRef<IDirectDrawClipper>  m_pddClipper;
     float                     m_gamma;
+
+    TRef<D3D11Device>         m_pdevice;
+    bool                      m_bDeviceFailed;
 
     //
     // Surface Cache
     //
 
-    DeviceDependantList       m_listDeviceDependant;
     SurfaceList               m_listSurfaces;
     SurfaceList               m_listDeviceFormatSurfaces;
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Direct Draw Device Enumeration
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    static BOOL PASCAL StaticDDDeviceCallback(
-        GUID FAR* lpGuid,
-        LPTSTR    lpDriverDesc,
-        LPTSTR    lpDriverName,
-        LPVOID    lpvoid
-    ) {
-        EngineImpl* pthis = (EngineImpl*)lpvoid;
-
-        return pthis->DDDeviceCallback(lpGuid, lpDriverDesc, lpDriverName);
-    }
-
-    BOOL DDDeviceCallback(
-        GUID FAR* lpGuid,
-        LPTSTR    lpDriverDesc,
-        LPTSTR    lpDriverName
-    ) {
-        if (lpGuid != NULL) {
-            //
-            // Create the DD device.
-            //
-
-            TRef<IDirectDraw> pdd;
-            HRESULT hr = DirectDrawCreate(lpGuid, &pdd, NULL);
-
-            if (SUCCEEDED(hr)) {
-                TRef<IDirectDrawX> pddx;
-                DDCall(pdd->QueryInterface(IID_IDirectDrawX, (void**)&pddx));
-
-                //
-                // Create a device data object
-                //
-
-                TRef<DDDevice> pdddevice = CreateDDDevice(this, m_bAllow3DAcceleration, pddx);
-
-                if (pdddevice->IsValid()) {
-                    pdddevice->SetPrimaryDevice(m_pdddevicePrimary);
-
-                    //
-                    // If the device has 3D acceleration we'll use it as our secondary device
-                    //
-
-                    if (
-                           pdddevice->Has3DAcceleration()
-                        && (pdddevice->GetZBufferPixelFormat() != NULL)
-                    ) {
-                        m_pdddeviceSecondary = pdddevice;
-                    }
-                }
-            }
-        }
-
-        return DDENUMRET_OK;
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Constructor
-    //
-    //////////////////////////////////////////////////////////////////////////////
+    TVector<TRef<PixelFormat> > m_ppfs;
 
 public:
     EngineImpl(bool bAllow3DAcceleration, bool bAllowSecondary) :
-        m_pointFullscreen(640, 480),
-        m_pointFullscreenCurrent(0, 0),
-        m_bFullscreen(false),
-        m_bAllow3DAcceleration(bAllow3DAcceleration),
-        m_bAllowSecondary(bAllowSecondary),
-        m_b3DAccelerationImportant(false),
         m_bValid(false),
-        m_bValidDevice(false),
+        m_bFullscreen(false),
+        m_bAllowSecondary(bAllowSecondary),
+        m_bAllow3DAcceleration(bAllow3DAcceleration),
+        m_b3DAccelerationImportant(false),
         m_hwndFocus(NULL),
-        m_hwndClip(NULL),
-        m_gamma(1.0f)
+        m_pointFullscreen(640, 480),
+        m_gamma(1.0f),
+        m_bDeviceFailed(false)
     {
         //
-        // Get the primary device
+        // The art is 16-bit 565 throughout, so that is the device format.
         //
 
-        m_pdddevicePrimary = CreateDDDevice(this, m_bAllow3DAcceleration, NULL);
-
-        if (!m_pdddevicePrimary->IsValid()) {
-            // !!! replace with a ZErrorHandler call
-
-            ::MessageBox(
-                NULL,
-                "Unable to create primary DirectDraw Device.\n"
-                "Please update your DirectX installation",
-                "Initialization Error",
-                MB_ICONEXCLAMATION | MB_OK
-            );
-            return;
-        }
-
-        //
-        // Search for other devices with 3D support for fullscreen
-        //
-
-        DDCall(DirectDrawEnumerate(StaticDDDeviceCallback, this));
-
-        //
-        // Start on the primary device
-        //
-
-        m_pdddevice = m_pdddevicePrimary;
-
-        //
-        // Create a default pixel format
-        //
-
-        m_ppf = new PixelFormat(16, 0xf800, 0x07e0, 0x001f, 0x0000);
+        m_ppf = GetPixelFormat(16, 0xf800, 0x07e0, 0x001f, 0x0000);
     }
 
 private:
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Destructor
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
     ~EngineImpl()
     {
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Terminate Dependants
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    void ClearDependants()
+public:
+    bool IsValid()
     {
-        {
-            DeviceDependantList::Iterator iter(m_listDeviceDependant);
-
-            while (!iter.End()) {
-                iter.Value()->ClearDevice();
-                iter.Next();
-            }
-        }
-
-        {
-            SurfaceList::Iterator iter(m_listSurfaces);
-
-            while (!iter.End()) {
-                iter.Value()->ClearDevice();
-                iter.Next();
-            }
-        }
+        return true;
     }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Device Termination
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    void TerminateDevice()
-    {
-        ClearDependants();
-
-        m_hwndClip     = NULL;
-        m_psurfaceBack = NULL;
-        m_pddClipper   = NULL;
-        m_pdds         = NULL;
-
-        m_pdddevice->FreeEverything();
-        m_pdddevice = NULL;
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Termination
-    //
-    //////////////////////////////////////////////////////////////////////////////
 
     void Terminate()
     {
-        ClearDependants();
-
-        m_hwndClip       = NULL;
-        m_psurfaceBack   = NULL;
-        m_pddClipper     = NULL;
-        m_pdds           = NULL;
-        m_pdddevice      = NULL;
-
-        m_pdddevicePrimary->Terminate();
-
-        if (m_pdddeviceSecondary != NULL) {
-            m_pdddeviceSecondary->Terminate();
+        if (m_pdevice != NULL && m_hwndFocus != NULL) {
+            m_pdevice->ReleaseSwapChain(m_hwndFocus);
         }
+
+        m_pdevice = NULL;
     }
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // 
+    // D3D11 device
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    DDDevice* GetCurrentDevice()
+    D3D11Device* GetD3D11Device()
     {
-        return m_pdddevice;
-    }
+        if (m_pdevice == NULL && !m_bDeviceFailed) {
+            m_pdevice = CreateD3D11Device();
 
-    DDDevice* GetPrimaryDevice()
-    {
-        return m_pdddevicePrimary;
-    }
+            if (m_pdevice == NULL) {
+                m_bDeviceFailed = true;
+            }
+        }
 
-    DDSDescription GetPrimaryDDSD()
-    {
-        DDSDescription ddsd;
-
-        DDCall(m_pdds->GetSurfaceDesc(&ddsd));
-
-        return ddsd;
+        return m_pdevice;
     }
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // Validation
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    bool IsValid()
-    {
-        return m_pdddevicePrimary->IsValid();
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    //
+    // Focus window
     //
     //////////////////////////////////////////////////////////////////////////////
 
@@ -321,68 +122,14 @@ private:
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // Device Initialization
+    // Gamma: applied by the presenter's pixel shader instead of a DirectDraw
+    // gamma ramp, with the same curve (value^(1/gamma), black stays black).
     //
     //////////////////////////////////////////////////////////////////////////////
-
-    void UpdateSurfacesPixelFormat()
-    {
-        //
-        // Tell all the Device format surfaces their new pixel format
-        //
-
-        {
-            SurfaceList::Iterator iterSurface(m_listDeviceFormatSurfaces);
-
-            while (!iterSurface.End()) {
-                iterSurface.Value()->SetPixelFormat(m_ppf);
-                iterSurface.Next();
-            }
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // SetGammaRamp
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    void SetGammaRamp()
-    {
-        if (m_pdds) {
-            TRef<IDirectDrawGammaControlX> pddGammaControl;
-
-            DDCall(m_pdds->QueryInterface(IID_IDirectDrawGammaControlX, (void**)&(pddGammaControl)));
-
-            DDGAMMARAMP gammaRamp;
-
-            for (int index = 0; index < 256; index ++) {
-                float value  = (float)index / 255;
-                float level  = pow(value, 1.0f / m_gamma);
-                //float level  = (m_gamma - 1) + (1 - (m_gamma - 1)) * value;
-                int   ilevel = MakeInt(level * 65535.0f);
-
-                gammaRamp.red  [index] = ilevel;
-                gammaRamp.green[index] = ilevel;
-                gammaRamp.blue [index] = ilevel;
-            };
-
-            //
-            // zero is always black
-            //
-
-            gammaRamp.red  [0] = 0;
-            gammaRamp.green[0] = 0;
-            gammaRamp.blue [0] = 0;
-
-            pddGammaControl->SetGammaRamp(0, &gammaRamp);
-        }
-    }
 
     void SetGammaLevel(float value)
     {
         m_gamma = bound(value, 1.0f, 2.0f);
-        SetGammaRamp();
     }
 
     float GetGammaLevel()
@@ -392,523 +139,12 @@ private:
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // Create Primary Surface
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    bool CreatePrimarySurface()
-    {
-        //
-        // Create the surface
-        //
-
-        DDSDescription ddsd;
-
-        ddsd.dwFlags        = DDSD_CAPS;
-        ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-
-        m_pdds = NULL;
-        DDCall(m_pdddevice->GetDD()->CreateSurface(&ddsd, &m_pdds, NULL));
-
-        if (m_pdds == NULL) {
-            return false;
-        }
-
-        //
-        // Update the gamma ramp
-        //
-
-        SetGammaRamp();
-
-        //
-        // Get the pixel format
-        //
-
-        DDCall(m_pdds->GetSurfaceDesc(&ddsd));
-        m_ppf = GetPixelFormat(ddsd.GetPixelFormat());
-
-        //
-        // Create a clipper for the surface
-        //
-
-        DDCall(m_pdddevice->GetDD()->CreateClipper(0, &m_pddClipper, NULL));
-        DDCall(m_pdds->SetClipper(m_pddClipper));
-
-        return true;
-    };
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Switch to windowed
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    bool InitializeWindowed()
-    {
-        if (g_bWindowLog) {
-            ZDebugOutput("InitializeWindowed\n");
-        }
-
-        //
-        // If we were fullscreen go back to windowed mode
-        //
-
-        if (m_pdddeviceFullscreen != NULL) {
-            if (g_bWindowLog) {
-                ZDebugOutput("SetCooperativeLevel(Normal)\n");
-            }
-            DDCall(m_pdddeviceFullscreen->GetDD()->SetCooperativeLevel(NULL, DDSCL_NORMAL));
-            m_pdddeviceFullscreen = NULL;
-        }
-
-        //
-        // Free up all the device specific objects
-        //
-
-        TerminateDevice();
-
-        //
-        // switch to the windowed device
-        //
-
-        m_pdddevice              = m_pdddevicePrimary;
-        m_pointFullscreenCurrent = WinPoint(0, 0);
-
-        //
-        // Get the primary surface
-        //
-
-        if (!CreatePrimarySurface()) {
-            return false;
-        }
-
-        //
-        // If the primary surface isn't 16bpp go to fullscreen automatically
-        //
-
-        if (m_ppf->PixelBits() != 16) {
-            m_bFullscreen = true;
-            return false;
-        }
-
-        //
-        // Update any device format surfaces
-        //
-
-        UpdateSurfacesPixelFormat();
-
-        if (g_bWindowLog) {
-            ZDebugOutput("InitializeWindowed exiting\n");
-        }
-
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Create Fullscreen Surface
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    bool CreateFullscreenSurface(DDDevice* pdddevice, bool& bError)
-    {
-        bError = false;
-        HRESULT hr;
-
-        //
-        // Create a double buffered surface
-        //
-
-        DDSDescription ddsd;
-
-        ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
-
-        ddsd.ddsCaps.dwCaps =
-              DDSCAPS_PRIMARYSURFACE
-            | DDSCAPS_FLIP
-            | DDSCAPS_COMPLEX
-            | DDSCAPS_3DDEVICE;
-
-        ddsd.dwBackBufferCount = 1;
-
-        hr = pdddevice->GetDD()->CreateSurface(&ddsd, &m_pdds, NULL);
-
-        if (hr == DDERR_OUTOFVIDEOMEMORY) {
-            ZAssert(m_pdds == NULL);
-            if (g_bWindowLog) {
-                ZDebugOutput("Not enough memory for primary surface\n");
-            }
-            return false;
-        }
-        if (hr == DDERR_NOEXCLUSIVEMODE) {
-            ZAssert(m_pdds == NULL);
-            if (g_bWindowLog) {
-                ZDebugOutput("Exclusive mode was lost\n");
-            }
-            bError = true;
-            return false;
-        }
-        if (hr == DDERR_UNSUPPORTEDMODE) {
-            ZAssert(m_pdds == NULL);
-            if (g_bWindowLog) {
-                ZDebugOutput("Unsupported mode\n");
-            }
-            bError = true;
-            return false;
-        }
-        DDCall(hr);
-
-        if (m_pdds == NULL) {
-            return false;
-        }
-
-        //
-        // Create a clipper for the surface
-        //
-
-        #ifndef DREAMCAST
-            DDCall(pdddevice->GetDD()->CreateClipper(0, &m_pddClipper, NULL));
-            DDCall(m_pdds->SetClipper(m_pddClipper));
-        #endif        
-
-        //
-        // Update the gamma ramp
-        //
-
-        SetGammaRamp();
-
-        //
-        // Get the pixel format
-        //
-
-        DDCall(m_pdds->GetSurfaceDesc(&ddsd));
-
-        m_ppf = GetPixelFormat(ddsd.GetPixelFormat());
-
-        //
-        // Create the ZBuffer
-        //
-
-        TRef<IDirectDrawSurfaceX> pddsZBuffer;
-
-        if (pdddevice->GetAllow3DAcceleration()) {
-            #ifdef DREAMCAST
-                ddsd.dwFlags                           = DDSD_HEIGHT | DDSD_WIDTH | DDSD_CAPS | DDSD_ZBUFFERBITDEPTH;
-                ddsd.dwWidth                           = ddsd.dwWidth;
-                ddsd.dwHeight                          = ddsd.dwHeight;
-                ddsd.ddsCaps.dwCaps                    = DDSCAPS_ZBUFFER;
-                ddsd.dwZBufferBitDepth                 = 16UL;
-                ddsd.ddpfPixelFormat.dwFlags           = DDPF_ZBUFFER;
-                ddsd.ddpfPixelFormat.dwZBufferBitDepth = 16UL;
-            #else
-                ddsd.dwFlags         = DDSD_HEIGHT | DDSD_WIDTH | DDSD_CAPS | DDSD_PIXELFORMAT;
-                ddsd.dwWidth         = ddsd.dwWidth;
-                ddsd.dwHeight        = ddsd.dwHeight;
-                ddsd.ddsCaps.dwCaps  = DDSCAPS_ZBUFFER;
-                ddsd.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY;
-                ddsd.ddpfPixelFormat = pdddevice->GetZBufferPixelFormat()->GetDDPF();
-            #endif
-
-            hr = pdddevice->GetDD()->CreateSurface(&ddsd, &pddsZBuffer, NULL);
-
-            if (hr == DDERR_OUTOFVIDEOMEMORY) {
-                if (g_bWindowLog) {
-                    ZDebugOutput("Not enough memory for ZBuffer\n");
-                }
-                m_pdds = NULL;
-                return false;
-            }
-        
-            if (hr == DDERR_NOZBUFFERHW) {
-                if (g_bWindowLog) {
-                    ZDebugOutput("Device doesn't support ZBuffers\n");
-                }
-
-                m_pdds = NULL;
-                return false;
-            }
-
-            DDCall(hr);
-        }
-
-        //
-        // Get the back buffer
-        //
-
-        DDSCaps caps;
-        caps.dwCaps = DDSCAPS_BACKBUFFER;
-
-        TRef<IDirectDrawSurfaceX> pddsBack;
-        DDCall(m_pdds->GetAttachedSurface(&caps, &pddsBack));
-
-        if (pddsBack == NULL) {
-            m_pdds = NULL;
-            return false;
-        }
-
-        //
-        // Attach the ZBuffer to the back buffer
-        //
-
-        if (pddsZBuffer) {
-            if (FAILED(pddsBack->AddAttachedSurface(pddsZBuffer))) {
-                m_pdds = NULL;
-                return false;
-            }
-        }
-
-        //
-        // Create a surface wrapper
-        //
-
-        SurfaceType stype = SurfaceType2D() | SurfaceType3D() | SurfaceTypeZBuffer() | SurfaceTypeVideo();
-
-        m_psurfaceBack =
-            CreatePrivateSurface(
-                this,
-                CreateDDSurface(
-                    pdddevice, 
-                    pddsBack,
-                    pddsZBuffer,
-                    m_ppf,
-                    NULL,
-                    stype
-                ),
-                NULL
-            );
-        
-        //
-        // Fill the surface with black
-        //
-
-        m_psurfaceBack->FillSurface(Color::Black());
-        Flip();
-        m_psurfaceBack->FillSurface(Color::Black());
-
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Switch to a device at a certain resolution
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    bool SwitchToFullscreenDevice(DDDevice* pdddevice, const WinPoint& size, bool& bError)
-    {
-        bError = false;
-
-        if (g_bWindowLog) {
-            ZDebugOutput(
-                  "SwitchToFullscreenDevice( " 
-                + pdddevice->GetName() 
-                + ", resolution: " 
-                + GetString(size) 
-                + ")\n"
-            );
-        }
-
-        //
-        // If switching to a different device go to normal mode
-        //
-
-        if (m_pdddeviceFullscreen != NULL && m_pdddeviceFullscreen != pdddevice) {
-            if (g_bWindowLog) {
-                ZDebugOutput("SetCooperativeLevel(" + pdddevice->GetName() + ", Normal)\n");
-            }
-            DDCall(m_pdddeviceFullscreen->GetDD()->SetCooperativeLevel(NULL, DDSCL_NORMAL));
-            m_pdddeviceFullscreen = NULL;
-        }
-
-        //
-        // Free up all the device specific objects
-        //
-
-        TerminateDevice();
-        m_pdddevice = pdddevice;
-
-        //
-        // If this is a new fullscreen device go to exclusive mode
-        //
-
-        if (m_pdddeviceFullscreen != pdddevice) {
-            if (g_bWindowLog) {
-                ZDebugOutput("SetCooperativeLevel(" + pdddevice->GetName() + ", Exclusive)\n");
-            }
-
-            HRESULT hr =
-                pdddevice->GetDD()->SetCooperativeLevel(
-                    m_hwndFocus,
-                      DDSCL_EXCLUSIVE
-                    | DDSCL_FULLSCREEN
-                );
-
-            if (hr == DDERR_EXCLUSIVEMODEALREADYSET) {
-                if (g_bWindowLog) {
-                    ZDebugOutput("Can't set exclusive mode\n");
-                }
-                bError = true;
-                return false;
-            }
-
-            DDCall(hr);
-
-            m_pdddeviceFullscreen = pdddevice;
-        }
-
-        //
-        // Switch resolutions
-        //
-
-        HRESULT hr =
-            m_pdddevice->GetDD()->SetDisplayMode(
-                size.X(),
-                size.Y(),
-                16,
-                0,
-                0
-            );
-
-        if (
-               hr == DDERR_NOEXCLUSIVEMODE
-            || hr == DDERR_UNSUPPORTED
-        ) {
-            if (g_bWindowLog) {
-                ZDebugOutput("Error setting display mode\n");
-            }
-            bError = true;
-            return false;
-        }
-
-        if (hr == DDERR_INVALIDMODE) {
-            pdddevice->EliminateModes(size);
-            if (g_bWindowLog) {
-                ZDebugOutput("Invalid resolution\n");
-            }
-            return false;
-        }
-
-        DDCall(hr);
-
-        //
-        // Create the primary surface and back buffer
-        //
-
-        if (!CreateFullscreenSurface(pdddevice, bError)) {
-            return false;
-        }
-
-        //
-        // Everything worked.  Update any device format surfaces.
-        //
-
-        UpdateSurfacesPixelFormat();
-
-        if (g_bWindowLog) {
-            ZDebugOutput("SwitchToFullscreenDevice exiting\n");
-        }
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Switch to full screen
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    bool InitializeFullscreen(bool& bChanges)
-    {
-        if (g_bWindowLog) {
-            ZDebugOutput("InitalizeFullscreen()\n");
-        }
-
-        //
-        // Try the secondary device first
-        //
-
-        DDDevice* pdddevice;
-
-        if (
-               m_bAllowSecondary 
-            && m_bAllow3DAcceleration
-            && m_b3DAccelerationImportant
-            && m_pdddeviceSecondary != NULL
-            && m_pdddeviceSecondary->GetAllow3DAcceleration()
-        ) {
-            pdddevice = m_pdddeviceSecondary;
-        } else {
-            pdddevice = m_pdddevicePrimary;
-        }
-
-        //
-        // Don't do anything if we don't need to change the device
-        // or resolution
-        //
-
-        if (  
-               m_bValidDevice
-            && m_pdddevice              == pdddevice 
-            && m_pointFullscreenCurrent == m_pointFullscreen
-        ) {
-            ZDebugOutput("Device and resolution match\n");
-            return true;
-        }
-
-        //
-        // Try different resolutions until we find one that actually works
-        //
-
-        bChanges = true;
-
-        while (true) {
-            //
-            // Try the current resolution
-            //
-
-            bool bError;
-            if (SwitchToFullscreenDevice(pdddevice, m_pointFullscreen, bError)) {
-                m_pointFullscreenCurrent = m_pointFullscreen;
-                return true;
-            }
-
-            //
-            // If there was an error just return
-            //
-
-            if (bError) {
-                return false;
-            }
-
-            //
-            // Didn't work goto to the next lower resolution
-            //
-
-            WinPoint pointNew = pdddevice->PreviousMode(m_pointFullscreen);
-
-            if (pointNew == m_pointFullscreen) {
-                if (g_bWindowLog) {
-                    ZDebugOutput("No more valid resolutions\n");
-                }
-                return false;
-            }
-
-            m_pointFullscreen = pointNew;
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    //
+    // Exception handler hook: nothing to undo without exclusive mode
     //
     //////////////////////////////////////////////////////////////////////////////
 
     void DebugSetWindowed()
     {
-        #ifndef DREAMCAST
-            if (m_pdddevice != NULL) {
-                m_pdddevice->GetDD()->SetCooperativeLevel(NULL, DDSCL_NORMAL);
-            }
-        #endif
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -919,37 +155,40 @@ private:
 
     void SetAllowSecondary(bool bAllowSecondary)
     {
+        //
+        // Secondary (3dfx-style add-on) adapters no longer exist as a
+        // separate path; kept so preferences and menus still work.
+        //
+
         if (m_bAllowSecondary != bAllowSecondary) {
             m_bAllowSecondary = bAllowSecondary;
-            m_bValid       = false;
-            m_bValidDevice = false;
+            m_bValid          = false;
         }
     }
 
     void SetAllow3DAcceleration(bool bAllow3DAcceleration)
     {
+        //
+        // Rendering always goes through D3D11 (hardware, or WARP when there
+        // is no usable GPU). The flag is kept for the preferences and menus.
+        //
+
         if (m_bAllow3DAcceleration != bAllow3DAcceleration) {
             m_bAllow3DAcceleration = bAllow3DAcceleration;
-            m_pdddevicePrimary->SetAllow3DAcceleration(m_bAllow3DAcceleration);
-            m_bValid       = false;
-            m_bValidDevice = false;
+            m_bValid               = false;
         }
     }
 
     void Set3DAccelerationImportant(bool b3DAccelerationImportant)
     {
-        if (m_b3DAccelerationImportant != b3DAccelerationImportant) {
-            m_b3DAccelerationImportant = b3DAccelerationImportant;
-            m_bValid = false;
-        }
+        m_b3DAccelerationImportant = b3DAccelerationImportant;
     }
 
     void SetFullscreen(bool bFullscreen)
     {
         if (m_bFullscreen != bFullscreen) {
             m_bFullscreen = bFullscreen;
-            m_bValid       = false;
-            m_bValidDevice = false;
+            m_bValid      = false;
         }
     }
 
@@ -963,20 +202,74 @@ private:
             m_pointFullscreen = point;
             m_bValid          = false;
         }
+    }
 
-        if (g_bWindowLog) {
-            ZDebugOutput("Engine::SetFullscreenSize() Exiting\n");
+    //////////////////////////////////////////////////////////////////////////////
+    //
+    // Fullscreen sizes: the original 16-bit mode list, limited to what fits
+    // on the monitor the game window is on.
+    //
+    //////////////////////////////////////////////////////////////////////////////
+
+    void GetModes(TVector<WinPoint>& modes)
+    {
+        static const WinPoint s_modes[] = {
+            WinPoint( 640,  480),
+            WinPoint( 800,  600),
+            WinPoint(1024,  768),
+            WinPoint(1280, 1024),
+            WinPoint(1600, 1200)
+        };
+
+        WinPoint sizeMonitor(1600, 1200);
+
+        if (m_hwndFocus != NULL) {
+            MONITORINFO mi;
+            mi.cbSize = sizeof(mi);
+            if (::GetMonitorInfo(::MonitorFromWindow(m_hwndFocus, MONITOR_DEFAULTTONEAREST), &mi)) {
+                sizeMonitor =
+                    WinPoint(
+                        mi.rcMonitor.right  - mi.rcMonitor.left,
+                        mi.rcMonitor.bottom - mi.rcMonitor.top
+                    );
+            }
+        }
+
+        for (int index = 0; index < ArrayCount(s_modes); index++) {
+            if (
+                   index == 0
+                || (   s_modes[index].X() <= sizeMonitor.X()
+                    && s_modes[index].Y() <= sizeMonitor.Y())
+            ) {
+                modes.PushEnd(s_modes[index]);
+            }
         }
     }
 
     void ChangeFullscreenSize(bool bLarger)
     {
-        WinPoint point;
+        TVector<WinPoint> modes;
+        GetModes(modes);
+
+        int count = modes.GetCount();
+        WinPoint point = m_pointFullscreen;
 
         if (bLarger) {
-            point = m_pdddevice->NextMode(m_pointFullscreen);
+            point = modes[count - 1];
+            for (int index = 0; index < count; index++) {
+                if (modes[index].X() > m_pointFullscreen.X() || modes[index].Y() > m_pointFullscreen.Y()) {
+                    point = modes[index];
+                    break;
+                }
+            }
         } else {
-            point = m_pdddevice->PreviousMode(m_pointFullscreen);
+            point = modes[0];
+            for (int index = count - 1; index >= 0; index--) {
+                if (modes[index].X() < m_pointFullscreen.X() || modes[index].Y() < m_pointFullscreen.Y()) {
+                    point = modes[index];
+                    break;
+                }
+            }
         }
 
         SetFullscreenSize(point);
@@ -988,201 +281,78 @@ private:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool GetAllowSecondary()
-    {
-        return m_bAllowSecondary;
-    }
-
-    bool GetAllow3DAcceleration()
-    {
-        return m_bAllow3DAcceleration;
-    }
-
-    bool Get3DAccelerationImportant()
-    {
-        return m_b3DAccelerationImportant;
-    }
+    bool GetAllowSecondary()          { return m_bAllowSecondary;          }
+    bool GetAllow3DAcceleration()     { return m_bAllow3DAcceleration;     }
+    bool Get3DAccelerationImportant() { return m_b3DAccelerationImportant; }
+    bool IsFullscreen()               { return m_bFullscreen;              }
+    bool PrimaryHas3DAcceleration()   { return true;                       }
+    bool GetUsing3DAcceleration()     { return true;                       }
 
     const WinPoint& GetFullscreenSize()
     {
         return m_pointFullscreen;
     }
 
-    bool IsFullscreen()
-    {
-        return m_bFullscreen;
-    }
-
-    bool PrimaryHas3DAcceleration()
-    {
-        return 
-               m_pdddevicePrimary->Has3DAcceleration()
-            && (m_pdddevicePrimary->GetZBufferPixelFormat() != NULL);
-    }
-
     ZString GetDeviceName()
     {
-        return m_pdddevice->GetName();
-    }
+        D3D11Device* pdevice = GetD3D11Device();
 
-    bool GetUsing3DAcceleration()
-    {
-        return m_pdddevice->GetAllow3DAcceleration();
-    }
-
-    PrivateSurface* GetBackBuffer()
-    {
-        return m_psurfaceBack;
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    //  
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    bool DeviceOK(bool& bChanges)
-    {
-        if (!m_bValid) {
-            if (m_bFullscreen) {
-                m_bValid = InitializeFullscreen(bChanges);
-            } else {
-                bChanges = true;
-                m_bValid = InitializeWindowed();
-            }
-
-            m_bValidDevice = m_bValid;
+        if (pdevice) {
+            return pdevice->GetName();
         }
 
-        return m_bValid;
+        return "no Direct3D 11 device";
     }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //
+    // Device state: a window or size change is reported once as "changes",
+    // so EngineWindow restyles itself and re-creates its render surface.
+    //
+    //////////////////////////////////////////////////////////////////////////////
 
     bool IsDeviceReady(bool& bChanges)
     {
         bChanges = false;
 
-        if (m_pdddevice) {
-            HRESULT hr = m_pdddevice->TestCooperativeLevel();
-
-            switch (hr) {
-                case DD_OK:
-                    return DeviceOK(bChanges);
-
-                case DDERR_NOEXCLUSIVEMODE:
-                    //
-                    // fullscreen but not active
-                    //
-
-                    m_bValidDevice = false;
-                    m_bValid       = false;
-                    break;
-
-                case DDERR_EXCLUSIVEMODEALREADYSET:
-                    //
-                    // windowed somebody else is fullscreen
-                    //
-
-                    m_bValidDevice = false;
-                    m_bValid       = false;
-                    break;
-
-                case DDERR_WRONGMODE:
-                    //
-                    // windowed the pixel depth has changed
-                    //
-
-                    m_pdddevicePrimary->Reset(NULL);
-                    m_bValidDevice = false;
-                    m_bValid       = false;
-
-                    return DeviceOK(bChanges);
-
-                default:
-                    ZError("Unexpected result\n");
-            }
+        if (!m_bValid) {
+            m_bValid = true;
+            bChanges = true;
         }
 
-        return false;
+        return true;
     }
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // Screen updates
+    // Presentation
     //
     //////////////////////////////////////////////////////////////////////////////
 
     void Flip()
     {
-        ZAssert(m_pdddeviceFullscreen);
-
-        DDSurface* pddsurface; CastTo(pddsurface, m_psurfaceBack->GetVideoSurface());
-        pddsurface->GetDDSX();
-
-        HRESULT hr = m_pdds->Flip(NULL, DDFLIP_WAIT);
-        if (
-               hr == DDERR_NOEXCLUSIVEMODE
-            || hr == DDERR_SURFACELOST
-
-        ) {
-            // These errors are ok if we are no longer active.
-        } else {
-            DDCall(hr);
-        }
+        //
+        // There is no flipping chain any more; EngineWindow presents through
+        // BltToWindow in both windowed and fullscreen mode.
+        //
     }
 
     void BltToWindow(Window* pwindow, const WinPoint& point, Surface* psurface, const WinRect& rectSource)
     {
-        if (m_pdddeviceFullscreen == NULL) {
-            if (m_hwndClip != pwindow->GetHWND()) {
-                m_hwndClip = pwindow->GetHWND();
-                DDCall(m_pddClipper->SetHWnd(0, m_hwndClip));
+        D3D11Device* pdevice = GetD3D11Device();
 
-            }
-            m_pointPrimary = pwindow->ClientToScreen(WinPoint(0, 0));
-
-            WinRect
-                rectTarget(
-                    m_pointPrimary + point,
-                    m_pointPrimary + point + rectSource.Size()
-                );
-
+        if (pdevice) {
             PrivateSurface* pprivateSurface; CastTo(pprivateSurface, psurface);
-            DDSurface*      pddsurface;      CastTo(pddsurface, pprivateSurface->GetVideoSurface()); 
-            HRESULT hr =
-                m_pdds->Blt(
-                    (RECT*)&rectTarget,
-                    pddsurface->GetDDSX(),
-                    (RECT*)&rectSource,
-                    DDBLT_WAIT,
-                    NULL
-                );
+            pdevice->Present(pwindow->GetHWND(), pprivateSurface, rectSource, m_gamma);
         }
     }
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // Pixel Format cache
+    // Pixel Format cache: surfaces compare formats by pointer, so equal
+    // formats must be the same object.
     //
     //////////////////////////////////////////////////////////////////////////////
-
-    TVector<TRef<PixelFormat> > m_ppfs;
-
-    TRef<PixelFormat> GetPixelFormat(const DDPixelFormat& ddpf)
-    {
-        int count = m_ppfs.GetCount();
-
-        for(int index = 0; index < count; index++) {
-            if (m_ppfs[index]->Equivalent(ddpf)) {
-                return m_ppfs[index];
-            }
-        }
-
-        TRef<PixelFormat> ppf = new PixelFormat(ddpf);
-
-        m_ppfs.PushEnd(ppf);
-
-        return ppf;
-    }
 
     TRef<PixelFormat> GetPixelFormat(
         int   bits,
@@ -1191,18 +361,19 @@ private:
         DWORD blueMask,
         DWORD alphaMask
     ) {
-        DDPixelFormat ddpf;
+        int count = m_ppfs.GetCount();
 
-        ddpf.dwSize            = sizeof(DDPIXELFORMAT);
-        ddpf.dwFlags           = DDPF_RGB;
-        ddpf.dwFourCC          = 0;
-        ddpf.dwRGBBitCount     = bits;
-        ddpf.dwRBitMask        = redMask;
-        ddpf.dwGBitMask        = greenMask;
-        ddpf.dwBBitMask        = blueMask;
-        ddpf.dwRGBAlphaBitMask = alphaMask;
+        for(int index = 0; index < count; index++) {
+            if (m_ppfs[index]->Equivalent(bits, redMask, greenMask, blueMask, alphaMask)) {
+                return m_ppfs[index];
+            }
+        }
 
-        return GetPixelFormat(ddpf);
+        TRef<PixelFormat> ppf = new PixelFormat(bits, redMask, greenMask, blueMask, alphaMask);
+
+        m_ppfs.PushEnd(ppf);
+
+        return ppf;
     }
 
     PixelFormat* GetPrimaryPixelFormat()
@@ -1216,10 +387,14 @@ private:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetTotalTextureMemory()     { return m_pdddevice->GetTotalTextureMemory();     }
-    int GetAvailableTextureMemory() { return m_pdddevice->GetAvailableTextureMemory(); }
-    int GetTotalVideoMemory()       { return m_pdddevice->GetTotalVideoMemory();       }
-    int GetAvailableVideoMemory()   { return m_pdddevice->GetAvailableVideoMemory();   }
+    int GetTotalTextureMemory()     { return GetTotalVideoMemory(); }
+    int GetAvailableTextureMemory() { return GetTotalVideoMemory(); }
+    int GetAvailableVideoMemory()   { return GetTotalVideoMemory(); }
+
+    int GetTotalVideoMemory()
+    {
+        return m_pdevice != NULL ? m_pdevice->GetTotalVideoMemory() : 0;
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -1227,83 +402,15 @@ private:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void AddDeviceDependant(DeviceDependant* pdeviceDependant)
-    {
-        m_listDeviceDependant.PushFront(pdeviceDependant);
-    }
-
-    void RemoveDeviceDependant(DeviceDependant* pdeviceDependant)
-    {
-        m_listDeviceDependant.Remove(pdeviceDependant);
-    }
-
     void RemovePrivateSurface(PrivateSurface* psurface)
     {
-        //
-        // Remove from the surface lists
-        //
-
         m_listDeviceFormatSurfaces.Remove(psurface);
         m_listSurfaces.Remove(psurface);
 
-        //
-        // free up any device textures
-        //
-
-        DDSurface* pddsurface; CastTo(pddsurface, psurface->GetVideoSurfaceNoAlloc());
-
-        if (pddsurface) {
-            m_pdddevicePrimary->RemoveSurface(pddsurface);
-            if (m_pdddeviceSecondary != NULL) {
-                m_pdddeviceSecondary->RemoveSurface(pddsurface);
-            }
+        if (m_pdevice != NULL) {
+            m_pdevice->RemoveSurface(psurface);
         }
     }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // VideoSurface Constructors
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    TRef<VideoSurface> CreateVideoSurface(
-          SurfaceType     stype,
-          PixelFormat*    ppf,
-          PrivatePalette* ppalette,
-    const WinPoint&       size,
-          int             pitch,
-          BYTE*           pbits
-    ) {
-        if (stype.Test(SurfaceTypeVideo())) {
-            return 
-                CreateDDSurface(
-                    m_pdddevice,
-                    stype,
-                    m_ppf,
-                    NULL,
-                    size
-                );
-        } else {
-            PrivatePalette* pprivatePalette; CastTo(pprivatePalette, ppalette);
-
-            return
-                CreateDDSurface(
-                    m_pdddevicePrimary,
-                    stype,
-                    ppf,
-                    ppalette,
-                    size,
-                    pitch,
-                    pbits
-                );
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Surface Constructors
-    //
-    //////////////////////////////////////////////////////////////////////////////
 
     TRef<PrivateSurface> AddSurface(PrivateSurface* psurface, bool bDevice)
     {
@@ -1318,9 +425,20 @@ private:
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // Create a surface with the specified pixel format
+    // Surface Constructors
     //
     //////////////////////////////////////////////////////////////////////////////
+
+    static SurfaceType WithoutVideo(SurfaceType stype)
+    {
+        //
+        // "Video" meant DirectDraw video memory; every surface is in system
+        // memory now.
+        //
+
+        stype.Clear(SurfaceTypeVideo());
+        return stype;
+    }
 
     TRef<Surface> CreateSurface(
         const WinPoint& size,
@@ -1329,70 +447,26 @@ private:
         SurfaceType     stype,
         SurfaceSite*    psite
     ) {
-        PrivatePalette* pprivatePalette; CastTo(pprivatePalette, ppalette);
+        ZAssert(ppalette == NULL);
 
         return
             AddSurface(
-                CreatePrivateSurface(
-                    this,
-                    ppf,
-                    pprivatePalette,
-                    size,
-                    stype,
-                    psite
-                ),
+                CreatePrivateSurface(this, ppf, size, WithoutVideo(stype), psite),
                 false
             );
     }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Create a device format surface
-    //
-    //////////////////////////////////////////////////////////////////////////////
 
     TRef<Surface> CreateSurface(
         const WinPoint& size, 
         SurfaceType stype, 
         SurfaceSite* psite
     ) {
-        if (stype.Test(SurfaceTypeVideo())) {
-            TRef<DDSurface> pddsurface = 
-                CreateDDSurface(
-                    m_pdddevice,
-                    stype,
-                    m_ppf,
-                    NULL,
-                    size
-                );
-
-            if (pddsurface != NULL) {
-                TRef<PrivateSurface> psurface = CreatePrivateSurface(this, pddsurface, psite);
-                return AddSurface(psurface, true);
-            }
-
-            return NULL;
-        } else {
-            return 
-                AddSurface(
-                    CreatePrivateSurface(
-                        this,
-                        m_ppf, 
-                        NULL,
-                        size, 
-                        stype, 
-                        psite
-                    ), 
-                    true
-                );
-        }
+        return 
+            AddSurface(
+                CreatePrivateSurface(this, m_ppf, size, WithoutVideo(stype), psite),
+                true
+            );
     }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // 
-    //
-    //////////////////////////////////////////////////////////////////////////////
 
     TRef<PrivateSurface> CreateCompatibleSurface(
         PrivateSurface* psurface, 
@@ -1400,95 +474,70 @@ private:
         SurfaceType     stype, 
         SurfaceSite*    psite
     ) {
-        PrivatePalette* pprivatePalette; CastTo(pprivatePalette, psurface->GetPalette());
-
         return
             AddSurface(
-                CreatePrivateSurface(
-                    this,
-                    psurface->GetPixelFormat(),
-                    pprivatePalette,
-                    size,
-                    stype,
-                    psite
-                ),
+                CreatePrivateSurface(this, psurface->GetPixelFormat(), size, WithoutVideo(stype), psite),
                 false
             );
     }
 
-    //////////////////////////////////////////////////////////////////////////////
     //
-    // 
+    // Load a GDI bitmap (mdlc's BMP import), reading the pixels with
+    // GetDIBits instead of a DirectDraw surface DC.
     //
-    //////////////////////////////////////////////////////////////////////////////
+    //  - 16-bit sources (BI_RGB, so 555) are read as they are, so the 565
+    //    conversion is the same bit expansion the DirectDraw path did.
+    //  - Everything else is read as 32-bit BGR. For 24-bit sources the pixel
+    //    values are exactly the DirectDraw path's. 8-bit sources are expanded
+    //    through their palette; the old conversion ignored palettes (zero
+    //    colour masks), so those few images now get their real colours.
+    //
 
     TRef<Surface> CreateSurface(HBITMAP hbitmap)
     {
-        //
-        // Get the bitmap size
-        //
-
         BITMAP bm;
         ZVerify(::GetObject(hbitmap, sizeof(bm), &bm));
 
-        //
-        // Create a DC for the bitmap
-        //
-
-        HDC hdcBitmap = ::CreateCompatibleDC(NULL);
-        ZAssert(hdcBitmap != NULL);
-        HBITMAP hbitmapOld = (HBITMAP)::SelectObject(hdcBitmap, hbitmap);
-        ZAssert(hbitmapOld != NULL);
-
-        //
-        // Create a surface whose pixel format matches the bitmap
-        //
-
-        DDPixelFormat ddpf;
-        TRef<IDirectDrawPaletteX> pddpal;
-
-        ZVerify(FillDDPF(ddpf, m_pdddevicePrimary->GetDD(), hdcBitmap, hbitmap, &pddpal));
-
-        TRef<PrivatePalette> ppalette;
-        if (pddpal) {
-            ppalette = CreatePaletteImpl(pddpal);
-        }
-
-        //
-        // Create the source surface
-        //
+        WinPoint size(bm.bmWidth, abs(bm.bmHeight));
+        bool     b16 = bm.bmBitsPixel == 16;
 
         TRef<PrivateSurface> psurface =
             CreatePrivateSurface(
                 this,
-                GetPixelFormat(ddpf),
-                ppalette,
-                WinPoint(bm.bmWidth, bm.bmHeight),
+                  b16
+                ? GetPixelFormat(16, 0x7c00, 0x03e0, 0x001f, 0)
+                : GetPixelFormat(32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0),
+                size,
                 SurfaceType2D(),
                 NULL
             );
 
+        BITMAPINFO bmi;
+        memset(&bmi, 0, sizeof(bmi));
+        bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+        bmi.bmiHeader.biWidth       = size.X();
+        bmi.bmiHeader.biHeight      = -size.Y();   // top-down
+        bmi.bmiHeader.biPlanes      = 1;
+        bmi.bmiHeader.biBitCount    = b16 ? 16 : 32;
+        bmi.bmiHeader.biCompression = BI_RGB;
+
+        HDC   hdc   = ::CreateCompatibleDC(NULL);
+        BYTE* pbits = psurface->GetWritablePointer();
+
         //
-        // Copy the bitmap to the surface
+        // DIB rows and surface rows are both padded to 4 bytes
         //
 
-        psurface->BitBltFromDC(hdcBitmap);
+        ZAssert(psurface->GetPitch() == ((size.X() * (b16 ? 2 : 4) + 3) & ~3));
 
-        //
-        // Release the DC we created
-        //
+        int lines = ::GetDIBits(hdc, hbitmap, 0, size.Y(), pbits, &bmi, DIB_RGB_COLORS);
+        ZAssert(lines == size.Y());
 
-        ZVerify(::SelectObject(hdcBitmap, hbitmapOld));
-        ZVerify(::DeleteDC(hdcBitmap));
+        psurface->ReleasePointer();
+        ZVerify(::DeleteDC(hdc));
 
         return AddSurface(psurface, false);
     }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // 
-    //
-    //////////////////////////////////////////////////////////////////////////////
 
     TRef<Surface> CreateSurface(
     const WinPoint&    size,
@@ -1498,19 +547,11 @@ private:
           BYTE*        pdata,
           IObject*     pobjectMemory
     ) {
-        PrivatePalette* pprivatePalette; CastTo(pprivatePalette, ppalette);
+        ZAssert(ppalette == NULL);
 
         return
             AddSurface(
-                CreatePrivateSurface(
-                    this, 
-                    ppf, 
-                    pprivatePalette,
-                    size, 
-                    pitch, 
-                    pdata, 
-                    pobjectMemory
-                ),
+                CreatePrivateSurface(this, ppf, size, pitch, pdata, pobjectMemory),
                 false
             );
     }

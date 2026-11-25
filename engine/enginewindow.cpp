@@ -321,45 +321,46 @@ void EngineWindow::ParseCommandLine(const ZString& strCommandLine, bool& bStartF
 
 void EngineWindow::UpdateSurfacePointer()
 {
+    //
+    // The frame is always rendered into a system-memory surface at the
+    // game's resolution and presented through D3D11. Fullscreen that is the
+    // fullscreen size (scaled to the monitor when presented); windowed it is
+    // the client area (presented 1:1).
+    //
+
     m_psurface = NULL;
 
-    if (
-           (!m_pengine->IsFullscreen())
-        || (!m_pengine->GetUsing3DAcceleration())
-    ) {
-        WinPoint size = GetClientRect().Size();
+    WinPoint size =
+          m_pengine->IsFullscreen()
+        ? m_pengine->GetFullscreenSize()
+        : GetClientRect().Size();
 
-        if (size.X() == 0) {
-            size.SetX(1);
-        }
-
-        if (size.Y() == 0) {
-            size.SetY(1);
-        }
-
-        if (
-               m_pengine->PrimaryHas3DAcceleration()
-            && m_pengine->GetAllow3DAcceleration()
-        ) {
-            m_psurface =
-                m_pengine->CreateSurface(
-                    size,
-                    SurfaceType2D() | SurfaceType3D() | SurfaceTypeZBuffer() | SurfaceTypeVideo(),
-                    NULL
-                );
-
-            if (m_psurface != NULL && m_psurface->IsValid()) {
-                return;
-            }
-        }
-
-        m_psurface =
-            m_pengine->CreateSurface(
-                size,
-                SurfaceType2D() | SurfaceType3D() | SurfaceTypeZBuffer(),
-                NULL
-            );
+    if (size.X() == 0) {
+        size.SetX(1);
     }
+
+    if (size.Y() == 0) {
+        size.SetY(1);
+    }
+
+    m_psurface =
+        m_pengine->CreateSurface(
+            size,
+            SurfaceType2D() | SurfaceType3D() | SurfaceTypeZBuffer(),
+            NULL
+        );
+}
+
+static WinRect GetMonitorRect(HWND hwnd)
+{
+    MONITORINFO mi;
+    mi.cbSize = sizeof(mi);
+
+    if (::GetMonitorInfo(::MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), &mi)) {
+        return WinRect(mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right, mi.rcMonitor.bottom);
+    }
+
+    return WinRect(0, 0, ::GetSystemMetrics(SM_CXSCREEN), ::GetSystemMetrics(SM_CYSCREEN));
 }
 
 void EngineWindow::UpdateWindowStyle()
@@ -372,19 +373,29 @@ void EngineWindow::UpdateWindowStyle()
         SetTopMost(true);
 
         //
-        // Size the window to cover the entire desktop
-        // Win32 doesn't recognize the style change unless we resize the window
+        // Borderless window covering the monitor, instead of an exclusive
+        // mode switch. Window::CalcStyle leaves a thin border; drop it too.
         //
 
-        WinRect rect = GetRect();
-        SetClientRect(
-            WinRect(
-                rect.Min(),
-                rect.Max() + WinPoint(1, 1)
-            )
-        );
+        HWND  hwnd  = GetHWND();
+        DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
+        style &= ~(WS_CAPTION | WS_BORDER | WS_THICKFRAME | WS_DLGFRAME);
+        style |= WS_POPUP;
+        ::SetWindowLong(hwnd, GWL_STYLE, style);
 
-        SetClientRect(rect);
+        WinRect rect = GetMonitorRect(hwnd);
+
+        m_bMovingWindow = true;
+        ::SetWindowPos(
+            hwnd,
+            HWND_TOPMOST,
+            rect.XMin(),
+            rect.YMin(),
+            rect.XSize(),
+            rect.YSize(),
+            SWP_FRAMECHANGED | SWP_NOACTIVATE
+        );
+        m_bMovingWindow = false;
     } else {
         SetHasMinimize(true);
         SetHasMaximize(true);
@@ -579,8 +590,16 @@ void EngineWindow::SetFullscreen(bool bFullscreen)
 bool EngineWindow::OnWindowPosChanging(WINDOWPOS* pwp)
 {
     if (GetFullscreen()) {
-        pwp->x = 0;
-        pwp->y = 0;
+        //
+        // Keep the fullscreen window covering its monitor
+        //
+
+        WinRect rect = GetMonitorRect(GetHWND());
+
+        pwp->x  = rect.XMin();
+        pwp->y  = rect.YMin();
+        pwp->cx = rect.XSize();
+        pwp->cy = rect.YSize();
     } else {
         if (!m_bMovingWindow) {
             return Window::OnWindowPosChanging(pwp);
@@ -772,16 +791,7 @@ ZString EngineWindow::GetRenderingString()
 
 ZString EngineWindow::GetRendererString()
 {
-    return 
-          (
-               GetEngine()->GetUsing3DAcceleration() 
-            && (
-                   m_psurface == NULL 
-                || m_psurface->GetSurfaceType().Test(SurfaceTypeVideo())
-               )
-          )
-        ? "Using hardware rendering"
-        : "Using software rendering";
+    return "Using Direct3D 11 rendering";
 }
 
 ZString EngineWindow::GetDeviceString()
@@ -957,15 +967,7 @@ void EngineWindow::UpdateFrame()
 
 bool EngineWindow::RenderFrame()
 {
-    PrivateEngine* pengine; CastTo(pengine, m_pengine);
-    TRef<Surface> psurface;
-
-    if (m_psurface) {
-        psurface = m_psurface;
-    } else {
-        ZAssert(m_pengine->IsFullscreen());
-        psurface = pengine->GetBackBuffer();
-    }
+    TRef<Surface> psurface = m_psurface;
 
     if (psurface) {
         TRef<Context> pcontext = psurface->GetContext();
@@ -1067,23 +1069,20 @@ void EngineWindow::DoIdle()
                 // copy it to the front buffer
                 //
 
-                if (m_pengine->IsFullscreen()) {
-                    if (m_psurface) {
-                        PrivateEngine* pengine; CastTo(pengine, m_pengine);
-                        pengine->GetBackBuffer()->BitBlt(WinPoint(0, 0), m_psurface);
-                    }
-                    m_pengine->Flip();
-                } else {
-                    m_pengine->BltToWindow(
-                        this,
+                //
+                // Windowed and fullscreen both present through D3D11; the
+                // presenter scales to the client area (1:1 windowed).
+                //
+
+                m_pengine->BltToWindow(
+                    this,
+                    WinPoint(0, 0),
+                    m_psurface,
+                    WinRect(
                         WinPoint(0, 0),
-                        m_psurface,
-                        WinRect(
-                            WinPoint(0, 0),
-                            m_psurface->GetSize()
-                        )
-                    );
-                }
+                        m_psurface->GetSize()
+                    )
+                );
                 return;
             }
         }

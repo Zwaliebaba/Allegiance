@@ -31,8 +31,16 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <FxCompile>
+      <ShaderModel>4.0</ShaderModel>
+      <EntryPointName>main</EntryPointName>
+      <HeaderFileOutput>$(IntDir)%(Filename).h</HeaderFileOutput>
+      <VariableName>g_%(Filename)</VariableName>
+      <ObjectFileOutput></ObjectFileOutput>
+      <AdditionalIncludeDirectories>$(ProjectDir)shaders;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dderror.cpp" />
@@ -43,17 +51,13 @@
     <ClCompile Include="image.cpp" />
     <ClCompile Include="bounds.cpp" />
     <ClCompile Include="surface.cpp" />
-    <ClCompile Include="ddsurface.cpp" />
+    <ClCompile Include="d3d11device.cpp" />
+    <ClCompile Include="d3d11raster.cpp" />
     <ClCompile Include="font.cpp" />
-    <ClCompile Include="raster.cpp" />
-    <ClCompile Include="softraster.cpp" />
     <ClCompile Include="device3d.cpp" />
     <ClCompile Include="context.cpp" />
-    <ClCompile Include="d3ddevice.cpp" />
-    <ClCompile Include="dddevice.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="material.cpp" />
-    <ClCompile Include="palette.cpp" />
     <ClCompile Include="transform.cpp" />
     <ClCompile Include="transform2.cpp" />
     <ClCompile Include="keyframe.cpp" />
@@ -82,19 +86,39 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="shaders\raster_vs.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\raster_vs_flat.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\raster_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\raster_ps_flat.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\present_vs.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\present_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <None Include="shaders\raster.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="bounds.h" />
     <ClInclude Include="bspgeo.h" />
     <ClInclude Include="button.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="caption.h" />
     <ClInclude Include="context.h" />
+    <ClInclude Include="d3d11engine.h" />
     <ClInclude Include="controls.h" />
-    <ClInclude Include="ddstruct.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="engineapp.h" />
     <ClInclude Include="enginep.h" />
     <ClInclude Include="enginewindow.h" />
-    <ClInclude Include="fliphelp.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="framedata.h" />
     <ClInclude Include="frameimage.h" />
