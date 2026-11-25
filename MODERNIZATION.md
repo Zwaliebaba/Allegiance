@@ -96,8 +96,8 @@ moves into Tier 1 and is ported with the server, keeping the admin and event fea
   `#define FLAVOR` + `Inc/VerRes.rc` with `copy`/`type`. Each executable now has a small
   `*.build.rc` that `#include`s the same pieces.
 - `_WIN32_WINNT`/`WINVER` are set to Windows 10 globally; current ATL refuses the original 0x0400.
-- Still to do: a vcpkg manifest (libjpeg-turbo, qhull, meshoptimizer) once the vendored copies are
-  replaced.
+- Still to do: a vcpkg manifest (libjpeg-turbo) once the vendored copy is replaced. qhull stays
+  vendored: `cvh` needs only the qhull executable, and the art pipeline no longer needs meshoptimizer.
 
 ### Phase 2: make it compile
 
@@ -125,9 +125,10 @@ inside `FedMessaging`.
 
 ### Phase 4: art pipeline
 
-`Art.proj` replaces the nmake/awk/sed/batch chain (`Artwork/256/makefile`, `makegeo.mak`,
-`Artwork/tools/*.bat`, `*.awk`). It reads the existing manifests (`bitmap.txt`, `copymdl.txt`, the
-geometry list in `makegeo.mak`) and builds incrementally through Inputs and Outputs.
+`Artwork/Art.proj` replaces the nmake/awk/sed/batch chain (`Artwork/256/makefile`, `makegeo.mak`,
+`Artwork/tools/*.bat`, `*.awk`, `sed.exe`), which has been deleted. It reads `bitmap.txt` and
+`copymdl.txt` unchanged, and `Artwork/256/Models.props`, a mechanical conversion of `makegeo.mak`'s
+model list. It builds incrementally through Inputs and Outputs.
 
 | Step | Original | Replacement |
 |---|---|---|
@@ -135,8 +136,8 @@ geometry list in `makegeo.mak`) and builds incrementally through Inputs and Outp
 | Animations | `mdlc -compressanim` | Same |
 | Flatten / extract / bounds | `xmunge` on Direct3D Retained Mode | `xmunge` rewritten as portable C++17 on its own text `.x` reader (done) |
 | Levels of detail | MSR progressive-mesh binaries + `xmunge -reduce` | Dropped: every LOD slot uses the full-detail mesh |
-| Collision hulls | `cvh` + qhull | Same; qhull from vcpkg |
-| Model compile | `sed` templates + `mdlc -optimize` | Template substitution in MSBuild, then `mdlc` |
+| Collision hulls | `cvh` + qhull | Same; qhull vendored and built in the solution |
+| Model compile | `sed` templates + `mdlc -optimize` | Template substitution in MSBuild, then one `mdlc -batch` |
 
 `mdlc` links the whole engine, so art conversion is gated on the engine building and running. The repo
 has no reference output, so Stage A is verified by loading and rendering in game, unless original
@@ -150,7 +151,8 @@ The original art build assumed a fixed `%FEDROOT%` layout (`%FEDROOT%\src\artwor
 | Where | Treatment |
 |---|---|
 | `cvh/main.cpp`: `system("%fedroot%\\src\\bin\\qhull ...")` (2 sites) | Fixed in code. Uses `qhull.exe` next to `cvh.exe` (same build output directory) or `ALLEGIANCE_QHULL`, and quotes paths so spaces work |
-| `Artwork/tools/*.bat`, `*.awk`, `Artwork/*/makefile`, `makegeo.mak` (about 70 path lines; `awk.exe` was never in the release; `sed.exe` is bundled) | Replaced by `Art.proj`, whose paths are relative to `$(AllegianceRoot)` and the build output. Deleted once `Art.proj` covers them. |
+| `cvh/main.cpp`: debug hull mesh written to `..\artbuild\<name>_m.x` | Fixed in code. Written to the working directory. The original crashed (`fprintf` to NULL) when that directory did not exist |
+| `Artwork/tools/*.bat`, `*.awk`, `Artwork/*/makefile`, `makegeo.mak` (about 70 path lines; `awk.exe` was never in the release; `sed.exe` is bundled) | Replaced by `Art.proj`, whose paths are relative to `$(AllegianceRoot)` and the build output. Deleted. |
 | `Artwork/tools/pmesh*/convpm.bat` + MSR progressive-mesh binaries | Deleted with the reduced LODs |
 | Art data (`.x`, `.mdl`) | Checked: no absolute texture or include paths |
 
@@ -162,8 +164,18 @@ Done:
 - The six animations.
 - The font.
 - The copied files: `copymdl.txt` plus the `wav`, `rtf`, `avi`, `igc` and `mml` wildcards.
+- The 223 template models. Each gets its collision hull through `xmunge`, `cvh` and qhull, then is compiled with `mdlc -optimize`. 45 of them have separate `_bound.x` hull pieces.
+- The 16 hand-written text-MDL models.
 
-The models from `makegeo.mak` are next. Every step is incremental: a run with nothing changed does nothing, and touching one bitmap reconverts only that bitmap. These are checked locally with a stand-in `mdlc` that only creates the output files, so the real conversion runs only in CI.
+Every step is incremental. A run with nothing changed does nothing, and touching one bitmap reconverts only that bitmap.
+
+How it was checked:
+
+- Locally, `xmunge`, `cvh` and qhull are built natively and run for real; `mdlc` is replaced by a stand-in that only creates the output files.
+- The real `mdlc` conversion runs only in CI.
+- `fig02pit` is left out because its source is missing.
+
+Each model's template refers to its `.x` files by absolute path in `out\artobj\models\`. That lets `mdlc` run in `out\art\` without the intermediates. It has to run there because textures are looked up on the art path, and a texture that isn't found is silently dropped, not reported as an error.
 
 Two `mdlc` changes support this:
 
@@ -197,7 +209,7 @@ The client reads only that output directory. Everything else was deleted, and gi
   - `artwork_new/`, `icons/` and stray scripts and notes.
 - The progressive-mesh tools and unused templates and scripts in `Artwork/tools`.
 
-The remaining `Artwork/tools` batch files, awk scripts and `sed.exe` go when `Art.proj` replaces them. A before-and-after check confirms that all 3,186 inputs the manifests need are still present. That check covers every model's optional `_static.x`, `-low.x` and `_bound.x` sources. The first version of the cleanup missed them: `makegeo.mak` names each model as `$(@B)`, so a regex read the literal `$(@B)` instead of the name, and 234 sources were deleted. They have been restored.
+A before-and-after check confirms that all 3,186 inputs the manifests need are still present. That check covers every model's optional `_static.x`, `-low.x` and `_bound.x` sources. The first version of the cleanup missed them: `makegeo.mak` names each model as `$(@B)`, so a regex read the literal `$(@B)` instead of the name, and 234 sources were deleted. They have been restored.
 
 Kept on purpose:
 

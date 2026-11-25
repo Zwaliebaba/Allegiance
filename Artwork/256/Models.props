@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Models built by Art.proj (converted from the original makegeo.mak).
+
+  ArtModel: <name>.x (+ optional <name>_static.x, <name>-low.x, <name>_bound.x)
+    Template  ..\tools\<Template>.mdl, with "name" and "initialFrame" substituted
+    Frame     animation time at which the model is posed for the collision hull
+    Output    <name>.mdl (mdlc -optimize) and <name>.cvh (xmunge + cvh + qhull)
+
+  ArtTextModel: a hand-written text MDL (from copymdl.txt) and the .x files it imports.
+    Mode      optimize: mdlc -optimize <Text> <name>; compile: mdlc <Text> <name>.mdl
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ArtModel Include="acs02"            Template="templatess"   Frame="1" />
+    <ArtModel Include="acs05"            Template="templatess"   Frame="1" />
+    <ArtModel Include="acs08"            Template="templatess"   Frame="1" />
+    <ArtModel Include="acs19"            Template="template"     Frame="1" />
+    <ArtModel Include="bgrnd03"          Template="templatelow"  Frame="1" />
+    <ArtModel Include="bgrnd05"          Template="templatelow"  Frame="1" />
+    <ArtModel Include="bgrnd50"          Template="templatelow"  Frame="1" />
+    <ArtModel Include="bgrnd51"          Template="templatelow"  Frame="1" />
+    <ArtModel Include="bgrnd52"          Template="templatelow"  Frame="1" />
+    <ArtModel Include="bgrnd53"          Template="templatelow"  Frame="1" />
+    <ArtModel Include="bgrnd54"          Template="templatelow"  Frame="1" />
+    <ArtModel Include="bgrnd55"          Template="templatelow"  Frame="1" />
+    <ArtModel Include="bgrnd56"          Template="templatelow"  Frame="1" />
+    <ArtModel Include="bgrnd57"          Template="templatelow"  Frame="1" />
+    <ArtModel Include="bom01a"           Template="template"     Frame="44" />
+    <ArtModel Include="bom01b"           Template="template"     Frame="32" />
+    <ArtModel Include="bom03"            Template="template"     Frame="20" />
+    <ArtModel Include="bom04"            Template="template"     Frame="60" />
+    <ArtModel Include="bom05"            Template="template"     Frame="95" />
+    <ArtModel Include="bom05b"           Template="template"     Frame="95" />
+    <ArtModel Include="bom07"            Template="template"     Frame="60" />
+    <ArtModel Include="bom07b"           Template="template"     Frame="60" />
+    <ArtModel Include="bom20"            Template="template"     Frame="1" />
+    <ArtModel Include="bom30"            Template="template"     Frame="1" />
+    <ArtModel Include="cap01"            Template="template"     Frame="60" />
+    <ArtModel Include="cap02a"           Template="template"     Frame="1" />
+    <ArtModel Include="cap03"            Template="template"     Frame="1" />
+    <ArtModel Include="cap04"            Template="template"     Frame="1" />
+    <ArtModel Include="cap05"            Template="templatess"   Frame="1" />
+    <ArtModel Include="cap06a"           Template="template"     Frame="1" />
+    <ArtModel Include="cap500"           Template="templatess"   Frame="1" />
+    <ArtModel Include="cap501"           Template="templatess"   Frame="1" />
+    <ArtModel Include="cap502"           Template="templatess"   Frame="1" />
+    <ArtModel Include="cap503"           Template="templatess"   Frame="1" />
+    <ArtModel Include="cap504"           Template="templatess"   Frame="1" />
+    <ArtModel Include="cap07"            Template="template"     Frame="1" />
+    <ArtModel Include="cap08"            Template="template"     Frame="1" />
+    <ArtModel Include="cap09"            Template="template"     Frame="1" />
+    <ArtModel Include="cap20"            Template="template"     Frame="1" />
+    <ArtModel Include="cap100"           Template="template"     Frame="1" />
+    <ArtModel Include="cap101"           Template="template"     Frame="1" />
+    <ArtModel Include="cap102"           Template="template"     Frame="1" />
+    <ArtModel Include="cap103"           Template="template"     Frame="1" />
+    <ArtModel Include="cap300"           Template="template"     Frame="1" />
+    <ArtModel Include="cap301"           Template="template"     Frame="1" />
+    <ArtModel Include="cap302"           Template="template"     Frame="1" />
+    <ArtModel Include="cap303"           Template="template"     Frame="1" />
+    <ArtModel Include="cap21"            Template="template"     Frame="1" />
+    <ArtModel Include="fig01"            Template="template"     Frame="40" />
+    <ArtModel Include="fig02"            Template="templatelow"  Frame="76" />
+    <ArtModel Include="fig03"            Template="templatelow"  Frame="30" />
+    <ArtModel Include="fig04"            Template="templatelow"  Frame="57" />
+    <!-- fig02pit (templatenone, frame 57): makegeo.mak lists it, but fig02pit.x is not in the source drop. -->
+    <ArtModel Include="fig05"            Template="templatelow"  Frame="61" />
+    <ArtModel Include="fig07"            Template="template"     Frame="58" />
+    <ArtModel Include="fig08"            Template="template"     Frame="59" />
+    <ArtModel Include="fig09"            Template="template"     Frame="59" />
+    <ArtModel Include="fig11"            Template="template"     Frame="59" />
+    <ArtModel Include="fig12"            Template="templatelow"  Frame="47" />
+    <ArtModel Include="fig13"            Template="template"     Frame="60" />
+    <ArtModel Include="fig16"            Template="template"     Frame="60" />
+    <ArtModel Include="fig15"            Template="template"     Frame="60" />
+    <ArtModel Include="fig17"            Template="template"     Frame="60" />
+    <ArtModel Include="fig20"            Template="template"     Frame="1" />
+    <ArtModel Include="fig21"            Template="template"     Frame="1" />
+    <ArtModel Include="fig22"            Template="template"     Frame="1" />
+    <ArtModel Include="fig23"            Template="template"     Frame="1" />
+    <ArtModel Include="fig24"            Template="template"     Frame="1" />
+    <ArtModel Include="fig25"            Template="template"     Frame="1" />
+    <ArtModel Include="fig30"            Template="template"     Frame="1" />
+    <ArtModel Include="fig31"            Template="template"     Frame="1" />
+    <ArtModel Include="fig32"            Template="template"     Frame="1" />
+    <ArtModel Include="fig33"            Template="template"     Frame="1" />
+    <ArtModel Include="fig34"            Template="template"     Frame="1" />
+    <ArtModel Include="mis12"            Template="template"     Frame="15" />
+    <ArtModel Include="ss01"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss06"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss18"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss19a"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss21a"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss22"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss23"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss24a"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss27"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss28"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss90"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss92"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss93"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss94"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss95"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss96"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss97"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss98"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss99"             Template="templatess"   Frame="1" />
+    <ArtModel Include="ss100"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss101"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss102"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss103"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss104"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss105"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss106"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss107"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss300"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss301"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss302"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss303"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss304"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss305"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss306"            Template="templatess"   Frame="1" />
+    <ArtModel Include="ss307"            Template="templatess"   Frame="1" />
+    <ArtModel Include="utl01b"           Template="template"     Frame="1" />
+    <ArtModel Include="utl02"            Template="template"     Frame="1" />
+    <ArtModel Include="utl04"            Template="template"     Frame="1" />
+    <ArtModel Include="utl06"            Template="template"     Frame="1" />
+    <ArtModel Include="utl07"            Template="template"     Frame="1" />
+    <ArtModel Include="utl17a"           Template="template"     Frame="1" />
+    <ArtModel Include="utl19"            Template="templatelow"  Frame="1" />
+    <ArtModel Include="utl20"            Template="templatess"   Frame="1" />
+    <ArtModel Include="utl27a"           Template="template"     Frame="49" />
+    <ArtModel Include="utl27b"           Template="template"     Frame="49" />
+    <ArtModel Include="utl28a"           Template="template"     Frame="1" />
+    <ArtModel Include="utl94"            Template="template"     Frame="1" />
+    <ArtModel Include="utl95"            Template="template"     Frame="1" />
+    <ArtModel Include="utl103"           Template="template"     Frame="1" />
+    <ArtModel Include="utl104"           Template="template"     Frame="1" />
+    <ArtModel Include="utl105"           Template="template"     Frame="1" />
+    <ArtModel Include="utl200"           Template="template"     Frame="1" />
+    <ArtModel Include="utl201"           Template="template"     Frame="1" />
+    <ArtModel Include="utl202"           Template="template"     Frame="1" />
+    <ArtModel Include="utl203"           Template="template"     Frame="1" />
+    <ArtModel Include="utl204"           Template="template"     Frame="1" />
+    <ArtModel Include="utl205"           Template="template"     Frame="1" />
+    <ArtModel Include="fig02ops1"        Template="template"     Frame="1" />
+    <ArtModel Include="fig05ops1"        Template="template"     Frame="1" />
+    <ArtModel Include="fig07ops1"        Template="template"     Frame="1" />
+    <ArtModel Include="fig11ops1"        Template="template"     Frame="1" />
+    <ArtModel Include="utl92a"           Template="template"     Frame="1" />
+    <ArtModel Include="artifact"         Template="templatenone" Frame="1" />
+    <ArtModel Include="aleph_sphere"     Template="templatenone" Frame="1" />
+    <ArtModel Include="belters_flagplat" Template="templatenone" Frame="1" />
+    <ArtModel Include="biosplat"         Template="templatenone" Frame="1" />
+    <ArtModel Include="flag"             Template="templatenone" Frame="1" />
+    <ArtModel Include="giga_flagplat"    Template="templatenone" Frame="1" />
+    <ArtModel Include="ic_flagplat"      Template="templatenone" Frame="1" />
+    <ArtModel Include="rix_flagplat"     Template="templatenone" Frame="1" />
+    <ArtModel Include="acs14"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl22"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl93b"           Template="templatenone" Frame="1" />
+    <ArtModel Include="utl91"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl90"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl74"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl666"           Template="templatenone" Frame="1" />
+    <ArtModel Include="acs01"            Template="templatenone" Frame="75" />
+    <ArtModel Include="acs04"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs29"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs30"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs34"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs36"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs38"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs39"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs40"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs41"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs42"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs46"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs48"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs56"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs57"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs63"            Template="templatenone" Frame="1" />
+    <ArtModel Include="acs64"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis01"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis02"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis03"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis05"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis06"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis07"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis08"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis09"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis10"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis11"            Template="templatenone" Frame="1" />
+    <ArtModel Include="mis13"            Template="templatenone" Frame="15" />
+    <ArtModel Include="mis14"            Template="templatenone" Frame="15" />
+    <ArtModel Include="muzzle"           Template="templatenone" Frame="15" />
+    <ArtModel Include="ops1"             Template="templatenone" Frame="1" />
+    <ArtModel Include="ops2"             Template="templatenone" Frame="1" />
+    <ArtModel Include="ss02"             Template="templatenone" Frame="1" />
+    <ArtModel Include="ss04"             Template="templatenone" Frame="1" />
+    <ArtModel Include="ss05"             Template="templatenone" Frame="1" />
+    <ArtModel Include="ss08"             Template="templatenone" Frame="1" />
+    <ArtModel Include="ss20"             Template="templatenone" Frame="1" />
+    <ArtModel Include="utl01"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl10"            Template="templatenone" Frame="1" />
+    <ArtModel Include="debris"           Template="templatenone" Frame="1" />
+    <ArtModel Include="utl11"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl14a"           Template="templatenone" Frame="1" />
+    <ArtModel Include="utl18a"           Template="template"     Frame="1" />
+    <ArtModel Include="utl23"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl23f"           Template="templatenone" Frame="1" />
+    <ArtModel Include="utl24"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl25"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl99"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl100"           Template="templatenone" Frame="1" />
+    <ArtModel Include="utl101"           Template="templatenone" Frame="1" />
+    <ArtModel Include="utl102"           Template="templatenone" Frame="1" />
+    <ArtModel Include="wep01"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep02"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep03"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep04"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep05"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep06"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep07"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep08"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep09"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep10"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep11"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep12"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep13"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep16"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep17"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep18"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep19"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep90"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep91"            Template="templatenone" Frame="1" />
+    <ArtModel Include="wep92"            Template="templatenone" Frame="1" />
+    <ArtModel Include="utl05"            Template="templatenone" Frame="1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ArtTextModel Include="pointer" Text="pointertext" XFiles="pointer.x" Mode="optimize" />
+    <ArtTextModel Include="cube" Text="cubetext" XFiles="cube.x" Mode="optimize" />
+    <ArtTextModel Include="build" Text="buildtext" XFiles="sphere.x" Mode="optimize" />
+    <ArtTextModel Include="circle" Text="circletext" XFiles="circle.x" Mode="optimize" />
+    <ArtTextModel Include="globe" Text="globetext" XFiles="globe.x" Mode="optimize" />
+    <ArtTextModel Include="globe1" Text="globe1text" XFiles="globe1.x" Mode="optimize" />
+    <ArtTextModel Include="globe2" Text="globe2text" XFiles="globe2.x" Mode="optimize" />
+    <ArtTextModel Include="globe3" Text="globe3text" XFiles="globe3.x" Mode="optimize" />
+    <ArtTextModel Include="globe4" Text="globe4text" XFiles="globe4.x" Mode="optimize" />
+    <ArtTextModel Include="globe5" Text="globe5text" XFiles="globe5.x" Mode="optimize" />
+    <ArtTextModel Include="globe6" Text="globe6text" XFiles="globe6.x" Mode="optimize" />
+    <ArtTextModel Include="globe7" Text="globe7text" XFiles="globe7.x" Mode="optimize" />
+    <ArtTextModel Include="globe8" Text="globe8text" XFiles="globe8.x" Mode="optimize" />
+    <ArtTextModel Include="globe9" Text="globe9text" XFiles="globe9.x" Mode="optimize" />
+    <ArtTextModel Include="globe10" Text="globe10text" XFiles="globe10.x" Mode="optimize" />
+    <ArtTextModel Include="lens" Text="lenstext" XFiles="lens30.x;lens60.x;lens90.x" Mode="compile" />
+  </ItemGroup>
+</Project>

@@ -483,11 +483,18 @@ bool    qh2cvh(const char*   file, FILE*    fOut, int mode)
             char    bfr[c_cbBfr];
             assert (strlen(file) < c_cbBfr - 10);
 
-            strcpy(bfr, "..\\artbuild\\");
-            strcat(bfr, file);
+            // The hull as a mesh, for inspecting in a viewer. The original wrote
+            // it to a hard-coded "..\\artbuild\\" and crashed when that did not
+            // exist; it now goes next to the other intermediates.
+            strcpy(bfr, file);
             strcat(bfr, "_m.x");
 
             fOutMesh = fopen(bfr, "w");
+            if (fOutMesh == NULL)
+            {
+                printf("cvh: cannot write %s\n", bfr);
+                return false;
+            }
 
             fprintf(fOutMesh, "xof 0302txt 0064\nHeader { 1; 0; 1; }\n");
         }

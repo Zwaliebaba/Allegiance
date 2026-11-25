@@ -174,7 +174,7 @@ jobs:
       matrix:
         configuration: [ Debug ]
     steps:
-      - name: Checkout (Artwork/256 and Art.proj only)
+      - name: Checkout (Art.proj, Artwork/256 and Artwork/tools only)
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
@@ -182,6 +182,7 @@ jobs:
           sparse-checkout: |
             /Artwork/Art.proj
             /Artwork/256/
+            /Artwork/tools/
 
       - name: Fetch art tools
         uses: actions/download-artifact@v5
