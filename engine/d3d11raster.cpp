@@ -5,6 +5,10 @@
 #include "raster_vs_flat.h"
 #include "raster_ps.h"
 #include "raster_ps_flat.h"
+#include "tl_vs.h"
+#include "tl_vs_flat.h"
+#include "tl_vs_l.h"
+#include "tl_vs_l_flat.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -15,11 +19,10 @@
 // vertices from device3d.cpp's CPU transform, lighting and clipping, and
 // reproduces the render states that path set.
 //
-// The surface's system-memory pixels stay the master copy, because all 2D
-// drawing (blits, fills, text) is done on the CPU. BeginScene uploads them to
-// the GPU render target if they changed; EndScene reads the rendered result
-// back if anything was drawn. The Context already ends the scene before every
-// 2D operation, so those are the only synchronisation points needed.
+// It draws into the surface's GPU copy (PrivateSurface::BeginGpuDraw), which
+// the surface keeps between scenes; 2D drawing into the same surface is done
+// on the GPU too, so nothing is copied back to system memory unless
+// something reads the pixels.
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,9 +38,16 @@ struct Pipeline {
 
     TRef<ID3D11VertexShader>       m_pvs;
     TRef<ID3D11VertexShader>       m_pvsFlat;
+    TRef<ID3D11VertexShader>       m_pvsTL;             // Vertex: lit in the shader
+    TRef<ID3D11VertexShader>       m_pvsTLFlat;
+    TRef<ID3D11VertexShader>       m_pvsTLL;            // VertexL: own colours
+    TRef<ID3D11VertexShader>       m_pvsTLLFlat;
     TRef<ID3D11PixelShader>        m_pps;
     TRef<ID3D11PixelShader>        m_ppsFlat;
     TRef<ID3D11InputLayout>        m_playout;
+    TRef<ID3D11InputLayout>        m_playoutTL;
+    TRef<ID3D11InputLayout>        m_playoutTLL;
+    TRef<ID3D11Buffer>             m_pcbTL;
     TRef<ID3D11Buffer>             m_pcb;
     TRef<ID3D11Buffer>             m_pvb;
     TRef<ID3D11Buffer>             m_pib;
@@ -49,16 +59,14 @@ struct Pipeline {
     TRef<ID3D11DepthStencilState>  m_pdepth[2][2];      // [test][write]
     TRef<ID3D11DepthStencilState>  m_pdepthAlways;
     TRef<ID3D11RasterizerState>    m_praster[3];        // none, cw, ccw
+    TRef<ID3D11RasterizerState>    m_prasterTL[3];      // the same, clipping to near and far
     TRef<ID3D11SamplerState>       m_psampler[2];       // point, linear
-
-    bool                           m_b565Target;
 
     Pipeline() :
         m_pdevice(NULL),
         m_generation(-1),
         m_vbCapacity(0),
-        m_ibCapacity(0),
-        m_b565Target(false)
+        m_ibCapacity(0)
     {
     }
 };
@@ -85,6 +93,10 @@ bool CreatePipeline(D3D11Device* pdevice)
 
     if (FAILED(pd3d->CreateVertexShader(g_raster_vs,      sizeof(g_raster_vs),      NULL, &p.m_pvs    ))) return false;
     if (FAILED(pd3d->CreateVertexShader(g_raster_vs_flat, sizeof(g_raster_vs_flat), NULL, &p.m_pvsFlat))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_tl_vs,          sizeof(g_tl_vs),          NULL, &p.m_pvsTL     ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_tl_vs_flat,     sizeof(g_tl_vs_flat),     NULL, &p.m_pvsTLFlat ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_tl_vs_l,        sizeof(g_tl_vs_l),        NULL, &p.m_pvsTLL    ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_tl_vs_l_flat,   sizeof(g_tl_vs_l_flat),   NULL, &p.m_pvsTLLFlat))) return false;
     if (FAILED(pd3d->CreatePixelShader (g_raster_ps,      sizeof(g_raster_ps),      NULL, &p.m_pps    ))) return false;
     if (FAILED(pd3d->CreatePixelShader (g_raster_ps_flat, sizeof(g_raster_ps_flat), NULL, &p.m_ppsFlat))) return false;
 
@@ -100,12 +112,34 @@ bool CreatePipeline(D3D11Device* pdevice)
 
     if (FAILED(pd3d->CreateInputLayout(layout, ArrayCount(layout), g_raster_vs, sizeof(g_raster_vs), &p.m_playout))) return false;
 
+    //
+    // Vertex: x y z, u v, nx ny nz. VertexL: x y z, u v, r g b a (floats).
+    //
+
+    static const D3D11_INPUT_ELEMENT_DESC layoutTL[] = {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    static const D3D11_INPUT_ELEMENT_DESC layoutTLL[] = {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    if (FAILED(pd3d->CreateInputLayout(layoutTL,  ArrayCount(layoutTL),  g_tl_vs,   sizeof(g_tl_vs),   &p.m_playoutTL ))) return false;
+    if (FAILED(pd3d->CreateInputLayout(layoutTLL, ArrayCount(layoutTLL), g_tl_vs_l, sizeof(g_tl_vs_l), &p.m_playoutTLL))) return false;
+
     D3D11_BUFFER_DESC bd = {};
     bd.ByteWidth      = 8 * sizeof(DWORD);
     bd.Usage          = D3D11_USAGE_DYNAMIC;
     bd.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
     bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     if (FAILED(pd3d->CreateBuffer(&bd, NULL, &p.m_pcb))) return false;
+
+    bd.ByteWidth = 16 * 4 * sizeof(float);
+    if (FAILED(pd3d->CreateBuffer(&bd, NULL, &p.m_pcbTL))) return false;
 
     //
     // Blend: BlendModeSource (off), BlendModeAdd (one, one),
@@ -177,6 +211,15 @@ bool CreatePipeline(D3D11Device* pdevice)
         desc.ScissorEnable         = TRUE;
 
         if (FAILED(pd3d->CreateRasterizerState(&desc, &p.m_praster[index]))) return false;
+
+        //
+        // Model-space geometry is clipped to the near and far planes, as
+        // device3d.cpp's clipper did
+        //
+
+        desc.DepthClipEnable = TRUE;
+
+        if (FAILED(pd3d->CreateRasterizerState(&desc, &p.m_prasterTL[index]))) return false;
     }
 
     //
@@ -194,21 +237,6 @@ bool CreatePipeline(D3D11Device* pdevice)
 
         if (FAILED(pd3d->CreateSamplerState(&desc, &p.m_psampler[linear]))) return false;
     }
-
-    //
-    // A 565 render target makes the CPU <-> GPU copies plain memcpys. It is
-    // optional before Direct3D 11.1, so check, and fall back to BGRA8.
-    //
-
-    UINT support = 0;
-    UINT needed  =
-          D3D11_FORMAT_SUPPORT_TEXTURE2D
-        | D3D11_FORMAT_SUPPORT_RENDER_TARGET
-        | D3D11_FORMAT_SUPPORT_BLENDABLE;
-
-    p.m_b565Target =
-           SUCCEEDED(pd3d->CheckFormatSupport(DXGI_FORMAT_B5G6R5_UNORM, &support))
-        && (support & needed) == needed;
 
     p.m_pdevice    = pdevice;
     p.m_generation = pdevice->GetGeneration();
@@ -268,18 +296,10 @@ private:
     // Render target
     //
 
-    TRef<ID3D11Texture2D>          m_ptarget;
-    TRef<ID3D11RenderTargetView>   m_prtv;
-    TRef<ID3D11Texture2D>          m_pdepth;
-    TRef<ID3D11DepthStencilView>   m_pdsv;
-    TRef<ID3D11Texture2D>          m_pstaging;
+    TRef<D3D11Target>              m_ptarget;       // the surface's GPU copy, as last bound
+    ID3D11RenderTargetView*        m_prtvBound;
     WinPoint                       m_sizeTarget;
-    bool                           m_b565;
-    int                            m_generation;
-    int                            m_idSynced;
     bool                           m_bInScene;
-    bool                           m_bDrawn;
-    std::vector<DWORD>             m_vconvert;
 
     //
     // State
@@ -301,11 +321,9 @@ private:
 public:
     D3D11RasterizerImpl(PrivateSurface* psurface) :
         m_psurface(psurface),
-        m_b565(false),
-        m_generation(-1),
-        m_idSynced(-1),
+        m_prtvBound(NULL),
+        m_sizeTarget(0, 0),
         m_bInScene(false),
-        m_bDrawn(false),
         m_shadeMode(ShadeModeGouraud),
         m_blendMode(BlendModeSource),
         m_cullMode(CullModeNone),
@@ -339,11 +357,8 @@ public:
             g_pboundRasterizer = NULL;
         }
 
-        m_prtv     = NULL;
-        m_ptarget  = NULL;
-        m_pdsv     = NULL;
-        m_pdepth   = NULL;
-        m_pstaging = NULL;
+        m_ptarget   = NULL;
+        m_prtvBound = NULL;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -363,148 +378,12 @@ public:
         return pdevice;
     }
 
-    bool EnsureTarget(D3D11Device* pdevice)
-    {
-        WinPoint size = m_psurface->GetSize();
-
-        if (
-               m_ptarget != NULL
-            && m_generation == pdevice->GetGeneration()
-            && m_sizeTarget == size
-        ) {
-            return true;
-        }
-
-        Terminate();
-        m_idSynced = -1;
-
-        ID3D11Device* pd3d = pdevice->GetDevice();
-
-        m_b565 = g_pipeline.m_b565Target && m_psurface->GetPixelFormat()->Is565();
-        DXGI_FORMAT format = m_b565 ? DXGI_FORMAT_B5G6R5_UNORM : DXGI_FORMAT_B8G8R8A8_UNORM;
-
-        D3D11_TEXTURE2D_DESC td = {};
-        td.Width            = size.X();
-        td.Height           = size.Y();
-        td.MipLevels        = 1;
-        td.ArraySize        = 1;
-        td.Format           = format;
-        td.SampleDesc.Count = 1;
-        td.Usage            = D3D11_USAGE_DEFAULT;
-        td.BindFlags        = D3D11_BIND_RENDER_TARGET;
-
-        HRESULT hr = pd3d->CreateTexture2D(&td, NULL, &m_ptarget);
-        if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(m_ptarget, NULL, &m_prtv);
-
-        if (SUCCEEDED(hr)) {
-            td.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;
-            td.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-            hr = pd3d->CreateTexture2D(&td, NULL, &m_pdepth);
-        }
-
-        if (SUCCEEDED(hr)) hr = pd3d->CreateDepthStencilView(m_pdepth, NULL, &m_pdsv);
-
-        if (SUCCEEDED(hr)) {
-            td.Format         = format;
-            td.BindFlags      = 0;
-            td.Usage          = D3D11_USAGE_STAGING;
-            td.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-            hr = pd3d->CreateTexture2D(&td, NULL, &m_pstaging);
-        }
-
-        if (FAILED(hr)) {
-            Terminate();
-            pdevice->CheckDeviceLost(hr);
-            return false;
-        }
-
-        //
-        // Start with a cleared z-buffer, as a freshly attached DirectDraw
-        // z-buffer surface was (contents undefined, cleared before use)
-        //
-
-        pdevice->GetContext()->ClearDepthStencilView(m_pdsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-        m_sizeTarget = size;
-        m_generation = pdevice->GetGeneration();
-        m_bStateChanged = true;
-        return true;
-    }
-
-    void Upload(D3D11Device* pdevice)
-    {
-        WinPoint size = m_psurface->GetSize();
-        ID3D11DeviceContext* pcontext = pdevice->GetContext();
-
-        if (m_b565) {
-            pcontext->UpdateSubresource(m_ptarget, 0, NULL, m_psurface->GetPointer(), m_psurface->GetPitch(), 0);
-        } else {
-            m_vconvert.resize(size.X() * size.Y());
-            ConvertSurfaceToBGRA(
-                m_psurface->GetPointer(),
-                m_psurface->GetPitch(),
-                m_psurface->GetPixelFormat(),
-                size,
-                false,
-                m_vconvert.data(),
-                size.X() * 4
-            );
-            pcontext->UpdateSubresource(m_ptarget, 0, NULL, m_vconvert.data(), size.X() * 4, 0);
-        }
-
-        m_psurface->ReleasePointer();
-        m_idSynced = m_psurface->GetChangeID();
-    }
-
-    void Readback(D3D11Device* pdevice)
-    {
-        WinPoint size = m_psurface->GetSize();
-        ID3D11DeviceContext* pcontext = pdevice->GetContext();
-
-        pcontext->CopyResource(m_pstaging, m_ptarget);
-
-        D3D11_MAPPED_SUBRESOURCE mapped;
-        HRESULT hr = pcontext->Map(m_pstaging, 0, D3D11_MAP_READ, 0, &mapped);
-
-        if (FAILED(hr)) {
-            pdevice->CheckDeviceLost(hr);
-            return;
-        }
-
-        BYTE* pdest = m_psurface->GetWritablePointer();
-        int   pitch = m_psurface->GetPitch();
-
-        if (m_b565) {
-            int bytes = size.X() * 2;
-            for (int y = 0; y < size.Y(); y++) {
-                memcpy(pdest + y * pitch, (BYTE*)mapped.pData + y * mapped.RowPitch, bytes);
-            }
-        } else {
-            ConvertBGRAToSurface(
-                (const DWORD*)mapped.pData,
-                mapped.RowPitch,
-                m_psurface->GetPixelFormat(),
-                size,
-                pdest,
-                pitch
-            );
-        }
-
-        pcontext->Unmap(m_pstaging, 0);
-        m_psurface->ReleasePointer();
-
-        //
-        // The CPU copy now matches the GPU one
-        //
-
-        m_idSynced = m_psurface->GetChangeID();
-    }
-
     //////////////////////////////////////////////////////////////////////////////
     //
     // Binding: rasterizers share the immediate context, and pane surfaces can
     // render while another surface's scene is open, so a draw rebinds
-    // everything if another rasterizer (or the presenter) used the context.
+    // everything if another rasterizer, the 2D drawing or the presenter used
+    // the context, or if the surface's GPU copy was re-created.
     //
     //////////////////////////////////////////////////////////////////////////////
 
@@ -512,28 +391,29 @@ public:
     {
         pdevice = GetDevice();
 
-        if (pdevice == NULL || !EnsureTarget(pdevice)) {
+        if (pdevice == NULL) {
             return false;
         }
 
-        if (!m_bInScene) {
-            //
-            // Drawing outside BeginScene/EndScene: treat as a one-draw scene
-            //
+        D3D11Target* ptarget = m_psurface->BeginGpuDraw();
 
-            BeginScene();
+        if (ptarget == NULL || !D3D11EnsureDepth(pdevice, ptarget)) {
+            return false;
         }
 
         ID3D11DeviceContext* pcontext = pdevice->GetContext();
         Pipeline&            p        = g_pipeline;
 
-        if (g_pboundRasterizer != this) {
+        if (g_pboundRasterizer != this || m_prtvBound != ptarget->m_prtv) {
             g_pboundRasterizer = this;
+            m_ptarget          = ptarget;
+            m_prtvBound        = ptarget->m_prtv;
+            m_sizeTarget       = ptarget->m_size;
             m_bStateChanged    = true;
             m_flagsBound       = 0xffffffff;
 
-            ID3D11RenderTargetView* prtv = m_prtv;
-            pcontext->OMSetRenderTargets(1, &prtv, m_pdsv);
+            ID3D11RenderTargetView* prtv = ptarget->m_prtv;
+            pcontext->OMSetRenderTargets(1, &prtv, ptarget->m_pdsv);
 
             D3D11_VIEWPORT vp;
             vp.TopLeftX = 0;
@@ -571,9 +451,23 @@ public:
 
         ID3D11ShaderResourceView* psrv = NULL;
 
+        bool bKeyBlack = false;
+
         if (!bPoints && m_psurfaceTexture != NULL) {
             PrivateSurface* ptexture; CastTo(ptexture, (Surface*)m_psurfaceTexture);
-            psrv = pdevice->GetTexture(ptexture);
+
+            //
+            // A texture that is itself a GPU surface (a pane image) is read
+            // directly; its colour key is black, not alpha
+            //
+
+            psrv = ptexture->GetGpuSource();
+
+            if (psrv != NULL) {
+                bKeyBlack = true;
+            } else {
+                psrv = pdevice->GetTexture(ptexture);
+            }
         }
 
         bool  bFlat   = !bPoints && m_shadeMode == ShadeModeFlat;
@@ -581,7 +475,8 @@ public:
         DWORD flags   =
               (psrv != NULL ? 1 : 0)
             | (bDecal       ? 2 : 0)
-            | (m_bColorKey  ? 4 : 0);
+            | (m_bColorKey  ? 4 : 0)
+            | (bKeyBlack    ? 8 : 0);
 
         if (flags != m_flagsBound) {
             D3D11_MAPPED_SUBRESOURCE mapped;
@@ -680,41 +575,20 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
+    //
+    // Scenes need no synchronisation any more: the GPU copy is current while
+    // the GPU draws, and the surface reads it back only if the CPU asks for
+    // the pixels.
+    //
+
     void BeginScene()
     {
-        if (m_bInScene) {
-            return;
-        }
-
-        D3D11Device* pdevice = GetDevice();
-
-        if (pdevice == NULL || !EnsureTarget(pdevice)) {
-            return;
-        }
-
-        if (m_idSynced != m_psurface->GetChangeID()) {
-            Upload(pdevice);
-        }
-
         m_bInScene = true;
-        m_bDrawn   = false;
     }
 
     void EndScene()
     {
-        if (!m_bInScene) {
-            return;
-        }
-
         m_bInScene = false;
-
-        if (m_bDrawn) {
-            D3D11Device* pdevice = GetDevice();
-
-            if (pdevice != NULL && m_ptarget != NULL) {
-                Readback(pdevice);
-            }
-        }
     }
 
     void ClearZBuffer()
@@ -732,7 +606,7 @@ public:
                m_rectClip.XMin() <= 0 && m_rectClip.YMin() <= 0
             && m_rectClip.XMax() >= size.X() && m_rectClip.YMax() >= size.Y()
         ) {
-            pcontext->ClearDepthStencilView(m_pdsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
+            pcontext->ClearDepthStencilView(m_ptarget->m_pdsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
             return;
         }
 
@@ -762,7 +636,7 @@ public:
         pcontext->OMSetBlendState(g_pipeline.m_pblendNoColor, NULL, 0xffffffff);
         pcontext->OMSetDepthStencilState(g_pipeline.m_pdepthAlways, 0);
 
-        Draw(pdevice, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, quad, 4, indices, 6);
+        Draw(pdevice, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, quad, sizeof(VertexScreen), 4, indices, 6);
 
         //
         // Not a visible change: no readback needed for this alone
@@ -780,7 +654,8 @@ public:
     void Draw(
         D3D11Device*             pdevice,
         D3D11_PRIMITIVE_TOPOLOGY topology,
-        const VertexScreen*      pvertex,
+        const void*              pvertex,
+        int                      stride,
         int                      vcount,
         const MeshIndex*         pindex,
         int                      icount
@@ -788,10 +663,9 @@ public:
         Pipeline&            p        = g_pipeline;
         ID3D11DeviceContext* pcontext = pdevice->GetContext();
 
-        int vbytes = vcount * sizeof(VertexScreen);
+        int vbytes = vcount * stride;
         int ibytes = icount * sizeof(MeshIndex);
 
-        ID3D11Buffer* pvbOld = p.m_pvb;
         ID3D11Buffer* pibOld = p.m_pib;
 
         if (
@@ -801,11 +675,17 @@ public:
             return;
         }
 
-        if (p.m_pvb != pvbOld || p.m_pib != pibOld) {
-            UINT stride = sizeof(VertexScreen);
-            UINT offset = 0;
-            ID3D11Buffer* pvb = p.m_pvb;
-            pcontext->IASetVertexBuffers(0, 1, &pvb, &stride, &offset);
+        //
+        // Screen and model-space vertices share the buffer with different
+        // strides, so bind it every time
+        //
+
+        UINT          ustride = stride;
+        UINT          offset  = 0;
+        ID3D11Buffer* pvb     = p.m_pvb;
+        pcontext->IASetVertexBuffers(0, 1, &pvb, &ustride, &offset);
+
+        if (p.m_pib != pibOld) {
             pcontext->IASetIndexBuffer(p.m_pib, DXGI_FORMAT_R16_UINT, 0);
         }
 
@@ -851,8 +731,8 @@ public:
         }
 
         ApplyState(pdevice, bPoints);
-        Draw(pdevice, topology, pvertex, vcount, pindex, pindex != NULL ? icount : 0);
-        m_bDrawn = true;
+        Draw(pdevice, topology, pvertex, sizeof(VertexScreen), vcount, pindex, pindex != NULL ? icount : 0);
+        g_d3d11Stats.m_draws3D++;
     }
 
     void DrawTriangles(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount)
@@ -868,6 +748,123 @@ public:
     void DrawPoints(const VertexScreen* pvertex, int vcount)
     {
         DrawPrimitive(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST, pvertex, vcount, NULL, 0, true);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //
+    // Model-space geometry: the same pixel state, with the transform and
+    // lighting vertex shaders and a constant buffer from Device3D
+    //
+    //////////////////////////////////////////////////////////////////////////////
+
+    struct TLConstants {
+        float m_full[4][4];
+        float m_post[4][4];
+        float m_light[4];
+        float m_color[4];
+        float m_colorAlt[4];
+        float m_global[4];
+        float m_params[4];
+        UINT  m_mode[4];
+        float m_planes[c_maxTLClipPlanes][4];
+    };
+
+    void DrawModel(
+        D3D11_PRIMITIVE_TOPOLOGY  topology,
+        const TransformAndLight&  tl,
+        const void*               pvertex,
+        int                       stride,
+        bool                      bNormal,
+        int                       vcount,
+        const MeshIndex*          pindex,
+        int                       icount
+    ) {
+        if (vcount <= 0 || pindex == NULL || icount <= 0) {
+            return;
+        }
+
+        D3D11Device* pdevice;
+
+        if (!Bind(pdevice)) {
+            return;
+        }
+
+        ApplyState(pdevice, false);
+
+        ID3D11DeviceContext* pcontext = pdevice->GetContext();
+        Pipeline&            p        = g_pipeline;
+
+        D3D11_MAPPED_SUBRESOURCE mapped;
+
+        if (FAILED(pcontext->Map(p.m_pcbTL, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) {
+            return;
+        }
+
+        TLConstants* pc = (TLConstants*)mapped.pData;
+
+        memcpy(pc->m_full,     tl.m_full,     sizeof(pc->m_full));
+        memcpy(pc->m_post,     tl.m_post,     sizeof(pc->m_post));
+        memcpy(pc->m_light,    tl.m_light,    sizeof(pc->m_light));
+        memcpy(pc->m_color,    tl.m_color,    sizeof(pc->m_color));
+        memcpy(pc->m_colorAlt, tl.m_colorAlt, sizeof(pc->m_colorAlt));
+        memcpy(pc->m_global,   tl.m_global,   sizeof(pc->m_global));
+        memcpy(pc->m_planes,   tl.m_planes,   sizeof(pc->m_planes));
+
+        pc->m_params[0] = tl.m_ambient;
+        pc->m_params[1] = 0;
+        pc->m_params[2] = 0;
+        pc->m_params[3] = 0;
+        pc->m_mode[0]   = tl.m_mode;
+        pc->m_mode[1]   = MinOf(tl.m_countPlanes, c_maxTLClipPlanes);
+        pc->m_mode[2]   = 0;
+        pc->m_mode[3]   = 0;
+
+        pcontext->Unmap(p.m_pcbTL, 0);
+
+        bool bFlat = m_shadeMode == ShadeModeFlat;
+        int  cull  = m_cullMode == CullModeCW ? 1 : (m_cullMode == CullModeCCW ? 2 : 0);
+
+        ID3D11Buffer* pcb = p.m_pcbTL;
+        pcontext->VSSetConstantBuffers(1, 1, &pcb);
+        pcontext->VSSetShader(
+            bNormal
+                ? (bFlat ? p.m_pvsTLFlat  : p.m_pvsTL )
+                : (bFlat ? p.m_pvsTLLFlat : p.m_pvsTLL),
+            NULL,
+            0
+        );
+        pcontext->IASetInputLayout(bNormal ? p.m_playoutTL : p.m_playoutTLL);
+        pcontext->RSSetState(p.m_prasterTL[cull]);
+
+        Draw(pdevice, topology, pvertex, stride, vcount, pindex, icount);
+        g_d3d11Stats.m_draws3D++;
+
+        //
+        // Screen-vertex draws only bind their layout when the rasterizer is
+        // rebound
+        //
+
+        pcontext->IASetInputLayout(p.m_playout);
+    }
+
+    void DrawTriangles(const TransformAndLight& tl, const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    {
+        DrawModel(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, tl, pvertex, sizeof(Vertex), true, vcount, pindex, icount);
+    }
+
+    void DrawTriangles(const TransformAndLight& tl, const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    {
+        DrawModel(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, tl, pvertex, sizeof(VertexL), false, vcount, pindex, icount);
+    }
+
+    void DrawLines(const TransformAndLight& tl, const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    {
+        DrawModel(D3D11_PRIMITIVE_TOPOLOGY_LINELIST, tl, pvertex, sizeof(Vertex), true, vcount, pindex, icount);
+    }
+
+    void DrawLines(const TransformAndLight& tl, const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    {
+        DrawModel(D3D11_PRIMITIVE_TOPOLOGY_LINELIST, tl, pvertex, sizeof(VertexL), false, vcount, pindex, icount);
     }
 };
 

@@ -391,6 +391,8 @@ public:
         // Convert to BGRA
         //
 
+        g_d3d11Stats.m_textureUploads++;
+
         m_vconvert.resize(size.X() * size.Y());
 
         ConvertSurfaceToBGRA(
@@ -554,7 +556,20 @@ public:
             return;
         }
 
-        ID3D11ShaderResourceView* psrv = GetTexture(psurface);
+        //
+        // The frame is a GPU surface: draw its GPU copy. The first present
+        // gives it one, so from then on its 2D drawing is done on the GPU too.
+        //
+
+        ID3D11ShaderResourceView* psrv = NULL;
+
+        if (psurface->MakeGpuResident()) {
+            psrv = psurface->GetGpuSource();
+        }
+
+        if (psrv == NULL) {
+            psrv = GetTexture(psurface);
+        }
 
         if (psrv == NULL) {
             return;

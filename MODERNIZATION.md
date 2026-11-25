@@ -202,9 +202,59 @@ Deleted:
 
 Known gaps to check when testing:
 
-- The 2D/3D synchronisation costs a full-frame upload and readback around each 3D layer. At 800x600 this should be a few milliseconds, but it is unmeasured. Stage 2 can move 2D onto the GPU if it matters.
+- The 2D/3D synchronisation costs a full-frame upload and readback around each 3D layer. At 800x600 this should be a few milliseconds, but it is unmeasured. Stage 2 removes it (below).
 - Pixel-exactness against the DirectX 6 output is unverified (half-pixel rule, colour-key edges with linear filtering).
 - Movies are skipped.
+
+#### Rendering, stage 2: GPU-resident frame, transform and lighting in shaders
+
+Decisions:
+
+- **Scope.** The frame and the off-screen 3D panes stay on the GPU. 2D drawing into them (blits, fills,
+  text) becomes GPU draws, and transform, lighting and clipping move into the vertex shader. Stage 2 is
+  about structure and headroom; the game already runs smoothly.
+- **Colour depth.** Render targets are 32-bit (BGRA8). Art is still converted from its 565 sources, so it
+  looks the same, but shading and blending no longer band.
+- **Resolution.** The 4:3 modes stay, scaled and letterboxed. Native or widescreen rendering is a UI layout
+  project of its own.
+- **Verification.** Manual testing; CI only builds. The frame-rate overlay (Alt+F) gains a line with the
+  per-frame uploads, readbacks, texture refreshes and draw calls, next to the existing milliseconds per
+  frame, so the effect is measurable.
+
+What stage 1 left in place:
+
+- Every 3D layer uploaded the whole 565 frame at `BeginScene` and read it back at `EndScene`.
+- The Context draws `FillRect` through the 3D path but blits images (`DrawImage`) on the CPU, ending the
+  scene first. A screen that mixes the two paid an upload and a readback for every switch.
+- `Present` uploaded the finished frame once more.
+
+Design:
+
+| Piece | Stage 1 | Stage 2 |
+|---|---|---|
+| Surface storage | System memory only; the rasterizer kept a GPU copy for the length of a scene | A surface that the GPU has rendered into keeps a GPU copy (BGRA8 render target and shader resource, plus a z-buffer on demand) next to its 565 pixels. Two flags say which copy is current |
+| Synchronisation | Upload at `BeginScene`, readback at `EndScene` | Lazy, per access. Reading the pixels (`GetPointer`, `GetPixel`, `Save`, `Write`, a CPU blit from it) reads back if only the GPU copy is current. Writing them (`GetWritablePointer`, `SetPixel`) makes the CPU copy current. A GPU draw uploads first if only the CPU copy is current |
+| 2D into a GPU-resident surface | CPU loops | Blits are textured quads with point sampling (exact pixels); the colour key discards. Fills are solid quads; `FillSurface` is a clear. Text draws quads from a per-font glyph atlas built from the 1-bit glyphs. Stretch blits are scaled quads. Clipping is the scissor rect |
+| 2D into a CPU surface | CPU loops | Unchanged. Surfaces that never take a 3D draw (art, 2D-only panes) never get a GPU copy, so `mdlc` still needs no GPU |
+| Blit and texture sources | Texture cache, refreshed from the 565 pixels by change counter | The same cache for CPU surfaces. A GPU-resident source is used directly through its shader resource view, with no copy |
+| Presentation | Upload the frame, then draw it scaled | Draw the frame's own GPU copy scaled |
+| 3D vertices | CPU transform, lighting and clipping; screen-space vertices uploaded per draw | `Vertex` and `VertexL` geometry goes to the vertex shader in model space with the full matrix and lighting in a constant buffer. The rasterizer clips against the clip-rect viewport.Extra clip planes (beyond the six frustum planes, at most two) become `SV_ClipDistance`. Vertices are streamed through the dynamic vertex buffer each draw: meshes are small, and a per-mesh GPU cache would need ownership the geometry API doesn't give |
+| Lighting | `LightVertex`, `BidirectionalLightVertex`, `MaterialLightVertex`, global colour, copy | The same formulas per vertex in HLSL, chosen by a mode constant: directional with ambient, two-sided with an alternate colour, material diffuse, global colour, white |
+| Kept on the CPU | | Deformation (`TransformDeformClip`, the only per-vertex callback), lines wider than one pixel (`DrawLinesWithPolygons`, built in screen space) and points (the rasterizer plots them without texture, blending or z). All produce screen-space vertices for the stage 1 path |
+
+Device loss drops the GPU copies. A surface whose only current copy was on the GPU keeps its last CPU
+pixels; for the frame that is the previous frame, which is redrawn anyway.
+
+Differences to look for when testing:
+
+- Colours no longer quantise to 565 in 3D, blends or colour fills (by design).
+- A pane drawn with a colour key treats as transparent anything that would have been black in 565, which
+  is what the readback into 565 used to do.
+- Text cells on the GPU cover each glyph's whole bytes, as the unclipped CPU path did. The CPU path for a
+  glyph cut by the left or right clip edge only drew its first eight columns (an `ibit & 0x7 == 0`
+  precedence slip); the GPU draws the whole glyph up to the clip edge.
+- Stretch blits sample at pixel centres, which can pick a neighbouring source pixel compared with the
+  integer CPU loop. Only the (stubbed) movie image uses them.
 
 ### Phase 4: art pipeline
 
