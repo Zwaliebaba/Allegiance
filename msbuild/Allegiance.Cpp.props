@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Shared C++ settings for all Allegiance projects. Imported in each project's
+  PropertySheets group, i.e. after Microsoft.Cpp.props, so these override the
+  toolset defaults while still letting the project file override them.
+
+  Baseline choices (Phase 1/2 of MODERNIZATION.md):
+    - Win32 only until the inline asm and pointer truncation are removed.
+    - Static CRT, matching the original /MT /MTd builds.
+    - C++17 with permissive mode; /permissive- is switched on in Phase 2.
+    - /EHsc instead of the original /GX-: the modern STL and comdef require it.
+-->
+<Project>
+  <PropertyGroup>
+    <OutDir>$(AllegianceRoot)out\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(AllegianceRoot)out\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;DIRECTINPUT_VERSION=0x0800;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- Same order as the original makefile.inc: project-local dirs (added by
+           each project) first, then the shared ones. -->
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Inc;$(AllegianceRoot)zlib;$(AllegianceRoot)guids;$(AllegianceRoot)Zone;$(AllegianceRoot)compat\dplay;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_DEBUG;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>NDEBUG;OPTIMIZED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>

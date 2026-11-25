@@ -298,33 +298,20 @@ public:
         //
         // This destructor crashes sometimes.  If it does, just continue.
         //
+        // The SEH frame lives in a static member with no C++ objects of its own:
+        // MSVC rejects __try in a function that needs object unwinding (C2712),
+        // which a destructor of a class with TRef members does. Every member is
+        // released inside the guarded call, so the implicit member destructors
+        // that run afterwards have nothing left to do.
+        //
 
+        ReleaseGuarded(this);
+    }
+
+    static void ReleaseGuarded(ThingGeoImpl* pthis)
+    {
         __try {
-            /*
-            static count = 0;
-            count++;
-            if (count == 1) {
-                *(BYTE*)NULL = 0;
-            }
-            */
-
-            delete[] m_damageFrames;
-
-            m_pmodeler = NULL;
-            m_pframes = NULL;
-            m_pgeoTrail = NULL;
-            m_pgeoMesh = NULL;
-            m_phullHitGeo = NULL;
-            m_pgeoLights = NULL;
-            m_pgeoBounds = NULL;
-            m_psurfaceTexture = NULL;
-            m_pvectorPositionTrail = NULL;
-            m_pvectorRightTrail = NULL;
-            m_pbooleanMoving = NULL;
-            m_pgroupFlares = NULL;
-            m_pParticleGeo = NULL;
-            m_pbitsGeo = NULL;
-            m_pimageGlow = NULL;
+            pthis->ReleaseMembers();
         } __except (true) {
             //
             // We got an exception.  Just continue.
@@ -332,6 +319,35 @@ public:
 
             s_crashCount++;
         }
+    }
+
+    void ReleaseMembers()
+    {
+        /*
+        static count = 0;
+        count++;
+        if (count == 1) {
+            *(BYTE*)NULL = 0;
+        }
+        */
+
+        delete[] m_damageFrames;
+
+        m_pmodeler = NULL;
+        m_pframes = NULL;
+        m_pgeoTrail = NULL;
+        m_pgeoMesh = NULL;
+        m_phullHitGeo = NULL;
+        m_pgeoLights = NULL;
+        m_pgeoBounds = NULL;
+        m_psurfaceTexture = NULL;
+        m_pvectorPositionTrail = NULL;
+        m_pvectorRightTrail = NULL;
+        m_pbooleanMoving = NULL;
+        m_pgroupFlares = NULL;
+        m_pParticleGeo = NULL;
+        m_pbitsGeo = NULL;
+        m_pimageGlow = NULL;
     }
 
     //////////////////////////////////////////////////////////////////////////////

@@ -314,10 +314,45 @@ void Win32App::OnAssertBreak()
 //
 //////////////////////////////////////////////////////////////////////////////
 
-__declspec(dllexport) int WINAPI Win32Main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow)
+//
+// The body of Win32Main lives in its own function: it constructs C++ temporaries
+// (ZString from the command line), and MSVC does not allow __try in a function
+// that needs object unwinding (C2712).
+//
+
+static void Win32MainBody(LPSTR lpszCmdLine)
 {
     HRESULT hr;
 
+    do {
+        #ifdef _DEBUG
+            InitializeDebugf();
+        #endif
+
+        BreakOnError(hr = Window::StaticInitialize());
+        BreakOnError(hr = g_papp->Initialize(lpszCmdLine));
+
+        //
+        // Win32App::Initialize() return S_FALSE if this is a command line app and
+        // we shouldn't run the message loop
+        //
+
+        if (SUCCEEDED(hr) && S_FALSE != hr) {
+            Window::MessageLoop();
+        }
+
+        g_papp->Terminate();
+        Window::StaticTerminate();
+
+        #ifdef _DEBUG
+            TerminateDebugf();
+        #endif
+
+    } while (false);
+}
+
+__declspec(dllexport) int WINAPI Win32Main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow)
+{
     // seed the random number generator with the current time
     // (GetTickCount may be semi-predictable on server startup, so we add the 
     // clock time to shake things up a bit)
@@ -328,35 +363,11 @@ __declspec(dllexport) int WINAPI Win32Main(HINSTANCE hInstance, HINSTANCE hPrevI
     pzSpacer[0] = *(char*)_alloca(4 * (int)random(1, 256));
 
     __try {
-        do {
-            #ifdef _DEBUG
-                InitializeDebugf();
-            #endif
-
-            BreakOnError(hr = Window::StaticInitialize());
-            BreakOnError(hr = g_papp->Initialize(lpszCmdLine));
-
-            //
-            // Win32App::Initialize() return S_FALSE if this is a command line app and
-            // we shouldn't run the message loop
-            //
-
-            if (SUCCEEDED(hr) && S_FALSE != hr) {
-                Window::MessageLoop();
-            }
-
-            g_papp->Terminate();
-            Window::StaticTerminate();
-
-            #ifdef _DEBUG
-                TerminateDebugf();
-            #endif
-
-        } while (false);
+        Win32MainBody(lpszCmdLine);
     } __except (g_papp->OnException(_exception_code(), (ExceptionData*)_exception_info())){
     }
 
-    delete pzSpacer;
+    delete[] pzSpacer;
 
     return 0;
 }

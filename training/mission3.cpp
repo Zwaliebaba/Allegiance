@@ -270,7 +270,8 @@ namespace Training
     {
         // generate the array of leaf conditions and fill it in
         Condition*      pTargetCondition[TM_NUMBER_OF_DERELICTS];
-        for (int i = 0; i < TM_NUMBER_OF_DERELICTS; i++)
+        int i;
+        for (i = 0; i < TM_NUMBER_OF_DERELICTS; i++)
             pTargetCondition[i] = new GetTargetCondition (trekClient.GetShip(), OT_ship, m_derelict_hulls[i]);
 
         // walk the array of leaf conditions pairing them using Or conditions

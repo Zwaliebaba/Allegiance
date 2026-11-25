@@ -7,7 +7,6 @@
 #include "pch.h"
 #include "ddraw.h"
 #include "d3d.h"
-#include "d3drm.h"
 #include "dinput.h"
 
 #ifdef _DEBUG
@@ -454,49 +453,6 @@ HRESULTInfo gpinfo[] =
     {D3DERR_SCENE_END_FAILED, "D3DERR_SCENE_END_FAILED",
         "Scene end failed"},
 
-
-    /*************************************/
-    /*** Direct3D Retained-Mode Errors ***/
-    /*************************************/
-
-    {D3DRMERR_BADOBJECT, "D3DRMERR_BADOBJECT",
-        "Object expected in argument"},
-
-    {D3DRMERR_BADTYPE, "D3DRMERR_BADTYPE",
-        "Bad argument type passed"},
-
-    {D3DRMERR_BADALLOC, "D3DRMERR_ALLOC",
-        "Out of memory"},
-
-    {D3DRMERR_FACEUSED, "D3DRMERR_FACEUSED",
-        "Face already used in a mesh"},
-
-    {D3DRMERR_NOTFOUND, "D3DRMERR_NOTFOUND",
-        "Object not found in specified place"},
-
-    {D3DRMERR_NOTDONEYET, "D3DRMERR_NOTDONEYET",
-        "Unimplemented"},
-
-    {D3DRMERR_FILENOTFOUND, "D3DRMERR_FILENOTFOUND",
-        "File cannot be opened"},
-
-    {D3DRMERR_BADFILE, "D3DRMERR_BADFILE",
-        "Data file is corrupt or has incorrect format"},
-
-    {D3DRMERR_BADDEVICE, "D3DRMERR_BADDEVICE",
-        "Device is not compatible with renderer"},
-
-    {D3DRMERR_BADVALUE, "D3DRMERR_BADVALUE",
-        "Bad argument value passed"},
-
-    {D3DRMERR_BADMAJORVERSION, "D3DRMERR_BADMAJORVERSION",
-        "Bad DLL major version"},
-
-    {D3DRMERR_BADMINORVERSION, "D3DRMERR_BADMINORVERSION",
-        "Bad DLL minor version"},
-
-    {D3DRMERR_UNABLETOEXECUTE, "D3DRMERR_UNABLETOEXECUTE",
-        "Unable to carry out procedure"},
 
     //
     // DirectInput errors

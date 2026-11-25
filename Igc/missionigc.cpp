@@ -260,7 +260,8 @@ int     LoadIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVer
                             for (HullTypeLinkIGC*   l2 = pMission->GetHullTypes()->first(); (l2 != NULL); l2 = l2->next())
                             {
                                 IhullTypeIGC*   h2 = l2->data();
-                                for (HullTypeLinkIGC*   l3 = l2->txen(); (l3 != NULL); l3 = l3->txen())
+                                HullTypeLinkIGC* l3;
+                                for (l3 = l2->txen(); (l3 != NULL); l3 = l3->txen())
                                     if (strcmp(h2->GetName(), l3->data()->GetName()) == 0)
                                         break;
 
@@ -281,7 +282,8 @@ int     LoadIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVer
                             for (StationTypeLinkIGC*   l2 = pMission->GetStationTypes()->first(); (l2 != NULL); l2 = l2->next())
                             {
                                 IstationTypeIGC*   s2 = l2->data();
-                                for (StationTypeLinkIGC*   l3 = l2->txen(); (l3 != NULL); l3 = l3->txen())
+                                StationTypeLinkIGC* l3;
+                                for (l3 = l2->txen(); (l3 != NULL); l3 = l3->txen())
                                     if (strcmp(s2->GetName(), l3->data()->GetName()) == 0)
                                         break;
 
@@ -346,7 +348,8 @@ int     LoadIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVer
                             for (HullTypeLinkIGC*   l2 = pMission->GetHullTypes()->first(); (l2 != NULL); l2 = l2->next())
                             {
                                 IhullTypeIGC*   h2 = l2->data();
-                                for (HullTypeLinkIGC*   l3 = l2->txen(); (l3 != NULL); l3 = l3->txen())
+                                HullTypeLinkIGC* l3;
+                                for (l3 = l2->txen(); (l3 != NULL); l3 = l3->txen())
                                     if (strcmp(h2->GetName(), l3->data()->GetName()) == 0)
                                         break;
 
@@ -367,7 +370,8 @@ int     LoadIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVer
                             for (StationTypeLinkIGC*   l2 = pMission->GetStationTypes()->first(); (l2 != NULL); l2 = l2->next())
                             {
                                 IstationTypeIGC*   s2 = l2->data();
-                                for (StationTypeLinkIGC*   l3 = l2->txen(); (l3 != NULL); l3 = l3->txen())
+                                StationTypeLinkIGC* l3;
+                                for (l3 = l2->txen(); (l3 != NULL); l3 = l3->txen())
                                     if (strcmp(s2->GetName(), l3->data()->GetName()) == 0)
                                         break;
 
@@ -1422,7 +1426,8 @@ void                        CmissionIGC::UpdateSides(Time now,
                                   {255.0f/255.0f, 145.0f/255.0f, 145.0f/255.0f}, //icky orange
                                   { 50.0f/255.0f, 200.0f/255.0f, 125.0f/255.0f}};//icky magenta
 
-    for (SideID sid = GetSides()->n(); sid < pmp->nTeams; sid++)
+    SideID sid;
+    for (sid = GetSides()->n(); sid < pmp->nTeams; sid++)
     {
         IcivilizationIGC*   pcivilization = GetCivilization(pmp->rgCivID[sid]);
         assert (pcivilization);

@@ -1,0 +1,20 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <!-- Solution platform x86 maps to the Win32 platform of each .vcxproj. -->
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Libraries/">
+    <Project Path="zlib/ZLib.vcxproj" />
+    <Project Path="guids/Guids.vcxproj" />
+    <Project Path="_Utility/Utility.vcxproj" />
+    <Project Path="engine/Engine.vcxproj" />
+    <Project Path="effect/Effect.vcxproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="msbuild/Allegiance.Cpp.props" />
+    <File Path="MODERNIZATION.md" />
+  </Folder>
+</Solution>

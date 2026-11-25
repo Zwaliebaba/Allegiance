@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{598956D4-4C9C-46F6-A768-151834BCD97F}</ProjectGuid>
+    <RootNamespace>Engine</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(AllegianceRoot)msbuild\Allegiance.Cpp.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="dderror.cpp" />
+    <ClCompile Include="dinput.cpp" />
+    <ClCompile Include="videoimage.cpp" />
+    <ClCompile Include="geometry.cpp" />
+    <ClCompile Include="bspgeo.cpp" />
+    <ClCompile Include="image.cpp" />
+    <ClCompile Include="bounds.cpp" />
+    <ClCompile Include="surface.cpp" />
+    <ClCompile Include="ddsurface.cpp" />
+    <ClCompile Include="font.cpp" />
+    <ClCompile Include="raster.cpp" />
+    <ClCompile Include="softraster.cpp" />
+    <ClCompile Include="device3d.cpp" />
+    <ClCompile Include="context.cpp" />
+    <ClCompile Include="d3ddevice.cpp" />
+    <ClCompile Include="dddevice.cpp" />
+    <ClCompile Include="engine.cpp" />
+    <ClCompile Include="material.cpp" />
+    <ClCompile Include="palette.cpp" />
+    <ClCompile Include="transform.cpp" />
+    <ClCompile Include="transform2.cpp" />
+    <ClCompile Include="keyframe.cpp" />
+    <ClCompile Include="xfile.cpp" />
+    <ClCompile Include="mdl.cpp" />
+    <ClCompile Include="mdlbin.cpp" />
+    <ClCompile Include="caption.cpp" />
+    <ClCompile Include="engineapp.cpp" />
+    <ClCompile Include="enginewindow.cpp" />
+    <ClCompile Include="value.cpp" />
+    <ClCompile Include="namespace.cpp" />
+    <ClCompile Include="modeler.cpp" />
+    <ClCompile Include="pixelformat.cpp" />
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="viewport.cpp" />
+    <ClCompile Include="pane.cpp" />
+    <ClCompile Include="toppane.cpp" />
+    <ClCompile Include="button.cpp" />
+    <ClCompile Include="controls.cpp" />
+    <ClCompile Include="popup.cpp" />
+    <ClCompile Include="menu.cpp" />
+    <ClCompile Include="paneimage.cpp" />
+    <ClCompile Include="frameimage.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bounds.h" />
+    <ClInclude Include="bspgeo.h" />
+    <ClInclude Include="button.h" />
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="caption.h" />
+    <ClInclude Include="context.h" />
+    <ClInclude Include="controls.h" />
+    <ClInclude Include="ddstruct.h" />
+    <ClInclude Include="engine.h" />
+    <ClInclude Include="engineapp.h" />
+    <ClInclude Include="enginep.h" />
+    <ClInclude Include="enginewindow.h" />
+    <ClInclude Include="fliphelp.h" />
+    <ClInclude Include="font.h" />
+    <ClInclude Include="framedata.h" />
+    <ClInclude Include="frameimage.h" />
+    <ClInclude Include="geometry.h" />
+    <ClInclude Include="image.h" />
+    <ClInclude Include="inputengine.h" />
+    <ClInclude Include="keyframe.h" />
+    <ClInclude Include="material.h" />
+    <ClInclude Include="mdl.h" />
+    <ClInclude Include="menu.h" />
+    <ClInclude Include="model.h" />
+    <ClInclude Include="namespace.h" />
+    <ClInclude Include="palette.h" />
+    <ClInclude Include="pane.h" />
+    <ClInclude Include="paneimage.h" />
+    <ClInclude Include="panewindow.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="pixel.h" />
+    <ClInclude Include="pixelformat.h" />
+    <ClInclude Include="popup.h" />
+    <ClInclude Include="surface.h" />
+    <ClInclude Include="toppane.h" />
+    <ClInclude Include="transform.h" />
+    <ClInclude Include="value.h" />
+    <ClInclude Include="viewport.h" />
+    <ClInclude Include="xfile.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\zlib\ZLib.vcxproj">
+      <Project>{34F19E78-C3AD-4EEC-8F42-C823D58200C8}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

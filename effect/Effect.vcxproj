@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{EF7F71BC-E8E5-4EF8-819D-6AB78F3EEB97}</ProjectGuid>
+    <RootNamespace>Effect</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(AllegianceRoot)msbuild\Allegiance.Cpp.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="conegeo.cpp" />
+    <ClCompile Include="combopane.cpp" />
+    <ClCompile Include="thinggeo.cpp" />
+    <ClCompile Include="explosion.cpp" />
+    <ClCompile Include="starimage.cpp" />
+    <ClCompile Include="debrisgeo.cpp" />
+    <ClCompile Include="alephgeo.cpp" />
+    <ClCompile Include="particlegeo.cpp" />
+    <ClCompile Include="efgeo.cpp" />
+    <ClCompile Include="efimage.cpp" />
+    <ClCompile Include="efpopup.cpp" />
+    <ClCompile Include="efapp.cpp" />
+    <ClCompile Include="efwindow.cpp" />
+    <ClCompile Include="efpane.cpp" />
+    <ClCompile Include="mmlpopup.cpp" />
+    <ClCompile Include="gamestate.cpp" />
+    <ClCompile Include="framedata.cpp" />
+    <ClCompile Include="help.cpp" />
+    <ClCompile Include="pagepane.cpp" />
+    <ClCompile Include="navpane.cpp" />
+    <ClCompile Include="listpane.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="combopane.h" />
+    <ClInclude Include="debrisgeo.h" />
+    <ClInclude Include="efapp.h" />
+    <ClInclude Include="efart.h" />
+    <ClInclude Include="effect.h" />
+    <ClInclude Include="efgeo.h" />
+    <ClInclude Include="efimage.h" />
+    <ClInclude Include="efpane.h" />
+    <ClInclude Include="efpopup.h" />
+    <ClInclude Include="efsound.h" />
+    <ClInclude Include="efwindow.h" />
+    <ClInclude Include="explosion.h" />
+    <ClInclude Include="framedata.h" />
+    <ClInclude Include="gamestate.h" />
+    <ClInclude Include="help.h" />
+    <ClInclude Include="listpane.h" />
+    <ClInclude Include="particlegeo.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="starimage.h" />
+    <ClInclude Include="thinggeo.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\engine\Engine.vcxproj">
+      <Project>{598956D4-4C9C-46F6-A768-151834BCD97F}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

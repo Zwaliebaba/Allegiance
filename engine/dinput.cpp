@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "dinput.h"
 
+#pragma comment(lib, "dinput8.lib")
+#pragma comment(lib, "dxguid.lib")
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // DDWrapers
@@ -180,7 +183,7 @@ private:
     //
     //////////////////////////////////////////////////////////////////////////////
     
-    TRef<IDirectInputDevice2>           m_pdid;
+    TRef<IDirectInputDevice8>           m_pdid;
     TRef<ButtonEvent::SourceImpl>       m_pbuttonEventSource;
     DIDeviceCaps                        m_didc;
     DIDeviceInstance                    m_didi;
@@ -203,7 +206,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
     
-    MouseInputStreamImpl(IDirectInputDevice2* pdid, HWND hwnd) :
+    MouseInputStreamImpl(IDirectInputDevice8* pdid, HWND hwnd) :
         m_pdid(pdid),
         m_rect(0, 0, 0, 0),                                                                         
         m_point(0, 0),
@@ -601,7 +604,7 @@ public:
 
 class JoystickInputStreamImpl : public JoystickInputStream {
 private:
-    TRef<IDirectInputDevice2>           m_pdid;
+    TRef<IDirectInputDevice8>           m_pdid;
     DIDeviceCaps                        m_didc;
     DIDeviceInstance                    m_didi;
     TVector<TRef<ValueDDInputObject > > m_vvalueObject;
@@ -690,7 +693,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    JoystickInputStreamImpl(IDirectInputDevice2* pdid, HWND hwnd) :
+    JoystickInputStreamImpl(IDirectInputDevice8* pdid, HWND hwnd) :
         m_pdid(pdid),
         m_bFocus(false),
         m_vvalueObject(5)
@@ -866,7 +869,8 @@ public:
                 int countValues  = m_vvalueObject.GetCount();
                 int countButtons = m_vbuttonObject.GetCount();
 
-                for (int index = 0; index < countValues; index++) {
+                int index;
+                for (index = 0; index < countValues; index++) {
                     if ((m_vvalueObject[index]->GetDWType() & DIDFT_POV) != 0) {
                         int   ivalue = ((int*)m_pbyteData)[index];
                         float value;
@@ -1205,14 +1209,17 @@ private:
 
     bool EnumDeviceCallback(LPDIDEVICEINSTANCE pdidi)
     {
-        TRef<IDirectInputDevice>  pdid;
-        TRef<IDirectInputDevice2> pdid2;
+        TRef<IDirectInputDevice8> pdid2;
 
-        DDCall(m_pdi->CreateDevice( pdidi->guidInstance, &pdid, NULL));
-        DDCall(pdid->QueryInterface(IID_IDirectInputDevice2, (void**)&pdid2));
+        DDCall(m_pdi->CreateDevice( pdidi->guidInstance, &pdid2, NULL));
 
-        switch (pdidi->dwDevType & 0xff) {
-            case DIDEVTYPE_MOUSE:
+        //
+        // DirectInput 8 splits the old DIDEVTYPE_JOYSTICK into several game
+        // controller types; all of them are joysticks to the engine.
+        //
+
+        switch (GET_DIDEVICE_TYPE(pdidi->dwDevType)) {
+            case DI8DEVTYPE_MOUSE:
                 {
                     if (m_pmouseInputStream == NULL) {
                         m_pmouseInputStream = new MouseInputStreamImpl(pdid2, m_hwnd);
@@ -1220,7 +1227,11 @@ private:
                 }
                 break;
 
-            case DIDEVTYPE_JOYSTICK:
+            case DI8DEVTYPE_JOYSTICK:
+            case DI8DEVTYPE_GAMEPAD:
+            case DI8DEVTYPE_DRIVING:
+            case DI8DEVTYPE_FLIGHT:
+            case DI8DEVTYPE_1STPERSON:
                 {
                     TRef<JoystickInputStreamImpl> pjoystickInputStream = 
                         new JoystickInputStreamImpl(pdid2, m_hwnd);
@@ -1254,10 +1265,9 @@ private:
 
     HWND                                    m_hwnd;
     bool                                    m_bFocus;
-    TRef<IDirectInput>                      m_pdi;
+    TRef<IDirectInput8>                     m_pdi;
     TVector<TRef<JoystickInputStreamImpl> > m_vjoystickInputStream;
     TRef<MouseInputStreamImpl>              m_pmouseInputStream;
-    HINSTANCE                               m_hdinput;
 
 public:
     //////////////////////////////////////////////////////////////////////////////
@@ -1265,8 +1275,6 @@ public:
     // Constructor
     //
     //////////////////////////////////////////////////////////////////////////////
-
-    typedef HRESULT (WINAPI *PFNDirectInputCreate)(HINSTANCE hinst, DWORD dwVersion, LPDIRECTINPUTA *ppDI, LPUNKNOWN punkOuter);
 
     InputEngineImpl(HWND hwnd) :
         m_hwnd(hwnd),
@@ -1276,36 +1284,15 @@ public:
         // Create the direct input object
         //
 
-        #ifdef Dynamic_DInput
-            m_hdinput = ::LoadLibrary("dinput.dll");
-            ZAssert(m_hdinput != NULL);
+        DDCall(DirectInput8Create(
+            GetModuleHandle(NULL),
+            DIRECTINPUT_VERSION,
+            IID_IDirectInput8,
+            (void**)&m_pdi,
+            NULL
+        ));
 
-            PFNDirectInputCreate pfn = (PFNDirectInputCreate)::GetProcAddress(m_hdinput, "DirectInputCreateA");
-            ZAssert(pfn != NULL);
-
-            DDCall(pfn(
-                GetModuleHandle(NULL), 
-                DIRECTINPUT_VERSION, 
-                &m_pdi, 
-                NULL
-            ));
-
-            //
-            // grab the address of a few dinput globals
-            //
-
-            g_pdfDIMouse = (DIDATAFORMAT*)::GetProcAddress(m_hdinput, "c_dfDIMouse");
-            ZAssert(g_pdfDIMouse != NULL);
-        #else
-            DDCall(DirectInputCreate(
-                GetModuleHandle(NULL), 
-                DIRECTINPUT_VERSION, 
-                &m_pdi, 
-                NULL
-            ));
-
-            g_pdfDIMouse = &c_dfDIMouse;
-        #endif
+        g_pdfDIMouse = &c_dfDIMouse;
 
         //
         // If we failed then exit the app
@@ -1342,7 +1329,7 @@ public:
         //
 
         DDCall(m_pdi->EnumDevices(
-            0,//DIDEVTYPE_JOYSTICK,
+            DI8DEVCLASS_ALL,
             (LPDIENUMDEVICESCALLBACK)StaticEnumDeviceCallback,
             this, 
             DIEDFL_ATTACHEDONLY

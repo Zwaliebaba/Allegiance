@@ -298,7 +298,8 @@ CFSMission::~CFSMission()
   }
   
   // remove us from our list of missions
-  for (LinkFSMission * plinkFSMis = s_list.first(); plinkFSMis; plinkFSMis = plinkFSMis->next())
+  LinkFSMission * plinkFSMis;
+  for (plinkFSMis = s_list.first(); plinkFSMis; plinkFSMis = plinkFSMis->next())
   {
     CFSMission * pfsMission = plinkFSMis->data();
     if (this == pfsMission)
@@ -1797,7 +1798,8 @@ void CFSMission::StartCountdown(float fCountdownLength)
   
         // set up the team's money, and set up everyone to autodonate to the team leader
         const ShipListIGC*      pships = pside->GetShips();
-        for (ShipLinkIGC* pshipLink = pships->first();
+        ShipLinkIGC* pshipLink;
+        for (pshipLink = pships->first();
              (pshipLink != NULL);
              pshipLink = pshipLink->next())
         {
