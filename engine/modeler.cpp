@@ -1344,7 +1344,7 @@ public:
             }
         }
 
-        GetValueInternal() = GetWrappedValue()->GetValue();
+        this->GetValueInternal() = GetWrappedValue()->GetValue();
     }
 };
 
