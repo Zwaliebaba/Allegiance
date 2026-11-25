@@ -283,21 +283,13 @@ typedef unsigned __int64 TCUINT64;
 
 inline TCUINT64 FileTimeToUINT64(const FILETIME& ft)
 {
-  #ifdef _M_IX86
-    return *((const TCUINT64*)(&ft));
-  #else
-    return ((TCUINT64)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
-  #endif
+  return ((TCUINT64)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
 }
 
 inline void UINT64ToFileTime(TCUINT64 n64, FILETIME& ft)
 {
-  #ifdef _M_IX86
-    ft = *((FILETIME*)(&n64));
-  #else
-    ft.dwLowDateTime = (DWORD)(n64);
-    ft.dwHighDateTime = (DWORD)(n64 >> 32);
-  #endif
+  ft.dwLowDateTime = (DWORD)(n64);
+  ft.dwHighDateTime = (DWORD)(n64 >> 32);
 }
 
 inline TCUINT64 GetSystemTimeAsUINT64()

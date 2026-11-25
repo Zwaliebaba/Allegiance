@@ -119,10 +119,6 @@ public:
 
     HRESULT Initialize(const ZString& strCommandLine)
     {
-#if defined(_M_IX86)
-        _controlfp(_PC_53, _MCW_PC);    // x87 double precision; x64 has no precision control
-#endif
-
         //
         // Make sure reloader finished correctly--this must be first before any other files are opened
         //

@@ -24,8 +24,6 @@ jobs:
         # Release builds with optimisation and without _DEBUG, so it catches code
         # that only compiles in one of the two (#ifdef _DEBUG blocks, asserts).
         configuration: [ Debug, Release ]
-        # Win32 and x64 are both built until Win32 is dropped (MODERNIZATION.md, "x64").
-        platform: [ Win32, x64 ]
     env:
       # Built one at a time, in dependency order, with BuildProjectReferences=false,
       # so a failure in one project does not hide the compile errors of the
@@ -68,8 +66,8 @@ jobs:
           "MSBUILD=$msbuild" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           & $msbuild -version -nologo
           $vsPath = & $vswhere -latest -products * -property installationPath
-          $toolsets = Get-ChildItem "$vsPath\MSBuild\Microsoft\VC\*\Platforms\Win32\PlatformToolsets\*" -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -Unique
-          "Win32 platform toolsets: $($toolsets -join ', ')"
+          $toolsets = Get-ChildItem "$vsPath\MSBuild\Microsoft\VC\*\Platforms\x64\PlatformToolsets\*" -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -Unique
+          "x64 platform toolsets: $($toolsets -join ', ')"
           if ($toolsets -notcontains 'v145') { Write-Warning "Toolset v145 (VS 2026) not found on this image" }
           $atl = Test-Path "$vsPath\VC\Tools\MSVC\*\atlmfc\include\atlbase.h"
           "ATL/MFC installed: $atl"
@@ -81,11 +79,11 @@ jobs:
           if (Get-Command nuget -ErrorAction SilentlyContinue) {
             nuget restore _Utility\packages.config -PackagesDirectory packages -NonInteractive
           } else {
-            & $env:MSBUILD _Utility/Utility.vcxproj -nologo -t:restore -p:RestorePackagesConfig=true "-p:SolutionDir=$pwd\" -p:Platform=Win32
+            & $env:MSBUILD _Utility/Utility.vcxproj -nologo -t:restore -p:RestorePackagesConfig=true "-p:SolutionDir=$pwd\" -p:Platform=x64
           }
           if (-not (Test-Path packages/Microsoft.Native.Quic.MsQuic.Schannel.*/build/native/include/msquic.h)) { throw "MsQuic was not restored" }
 
-      - name: Build (${{ matrix.configuration }}|${{ matrix.platform }})
+      - name: Build (${{ matrix.configuration }}|x64)
         id: build
         shell: pwsh
         continue-on-error: true
@@ -95,7 +93,7 @@ jobs:
           foreach ($p in $env:PROJECTS -split '\s+' | Where-Object { $_ }) {
             $name = [IO.Path]::GetFileNameWithoutExtension($p)
             Write-Host "::group::$name"
-            & $env:MSBUILD $p -nologo -m -p:Configuration=${{ matrix.configuration }} -p:Platform=${{ matrix.platform }} `
+            & $env:MSBUILD $p -nologo -m -p:Configuration=${{ matrix.configuration }} -p:Platform=x64 `
               -p:BuildProjectReferences=false `
               -fl "-flp:logfile=out/logs/$name.log;verbosity=normal" `
               -fl1 "-flp1:logfile=out/logs/$name.errors.log;errorsonly" `
@@ -123,14 +121,14 @@ jobs:
         continue-on-error: true
         timeout-minutes: 10
         shell: pwsh
-        run: ./tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/${{ matrix.platform }}/${{ matrix.configuration }}/mdlc.exe -Art out/smoke-src -Out out/art-smoke
+        run: ./tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/${{ matrix.configuration }}/mdlc.exe -Art out/smoke-src -Out out/art-smoke
 
       - name: Error summary
         if: always()
         shell: pwsh
         run: |
           $rx = '(?<file>[^\s:][^:]*?)\((?<line>\d+)[^)]*\)\s*:\s*(fatal )?error (?<code>[A-Z]+\d+)\s*:\s*(?<msg>.*?)(\s+\[[^\]]+\])?$'
-          $out = @("## Build errors (${{ matrix.configuration }}|${{ matrix.platform }})", "", "| Project | Errors | Top codes |", "|---|---:|---|")
+          $out = @("## Build errors (${{ matrix.configuration }}|x64)", "", "| Project | Errors | Top codes |", "|---|---:|---|")
           $detail = @()
           foreach ($log in Get-ChildItem out/logs/*.errors.log -ErrorAction SilentlyContinue) {
             $name = $log.BaseName -replace '\.errors$',''
@@ -150,23 +148,22 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: build-logs-${{ matrix.configuration }}-${{ matrix.platform }}
+          name: build-logs-${{ matrix.configuration }}
           path: |
             out/logs/
             out/art-smoke/
           if-no-files-found: warn
 
-      # The art job converts with the Win32 tools (see below)
       - name: Upload art tools
-        if: steps.build.outcome == 'success' && matrix.platform == 'Win32'
+        if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v5
         with:
           name: art-tools-${{ matrix.configuration }}
           path: |
-            out/bin/Win32/${{ matrix.configuration }}/mdlc.*
-            out/bin/Win32/${{ matrix.configuration }}/xmunge.*
-            out/bin/Win32/${{ matrix.configuration }}/cvh.*
-            out/bin/Win32/${{ matrix.configuration }}/qhull.*
+            out/bin/x64/${{ matrix.configuration }}/mdlc.*
+            out/bin/x64/${{ matrix.configuration }}/xmunge.*
+            out/bin/x64/${{ matrix.configuration }}/cvh.*
+            out/bin/x64/${{ matrix.configuration }}/qhull.*
           retention-days: 3
           if-no-files-found: error
 
@@ -203,7 +200,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: art-tools-${{ matrix.configuration }}
-          path: out/bin/Win32/${{ matrix.configuration }}
+          path: out/bin/x64/${{ matrix.configuration }}
 
       - name: Build art
         id: art
@@ -227,7 +224,7 @@ jobs:
         timeout-minutes: 25
         shell: pwsh
         run: |
-          ./tools/ci/mdlc-crash-stack.ps1 -Mdlc out/bin/Win32/${{ matrix.configuration }}/mdlc.exe `
+          ./tools/ci/mdlc-crash-stack.ps1 -Mdlc out/bin/x64/${{ matrix.configuration }}/mdlc.exe `
             -Log out/logs/art.log -ArtSource Artwork/256 -ArtOut out/Artwork -Out out/logs
 
       - name: Upload art

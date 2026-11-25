@@ -6436,7 +6436,6 @@ void LoadSettings()
 
     g.fWantInt3        = ZSettings::GetDWORD("fWantInt3",        1) != 0;
     g.fProtocol        = ZSettings::GetDWORD("fProtocol",        1) != 0;
-    g.fDoublePrecision = ZSettings::GetDWORD("fDoublePrecision", 1) != 0;
     g.fTimeOut         = ZSettings::GetDWORD("fTimeout",         1) != 0;
 
     // PublicLobby = 1: host the public session and connect to the lobby,
@@ -6541,14 +6540,6 @@ int __cdecl main(int argc, char *argv[])
 
     // Load the global settings
     LoadSettings();
-
-    // set the FPU to double precision, instead of long double
-    // (this makes FP compares a little safer). x87 only: x64 has no
-    // precision control (and uses SSE2, which has no long double).
-#if defined(_M_IX86)
-    if (g.fDoublePrecision)
-      _controlfp(_PC_53, _MCW_PC);
-#endif
 
     // seed the random number generator with the current time
     // (GetTickCount may be semi-predictable on server startup, so we add the 

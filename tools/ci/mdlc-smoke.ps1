@@ -1,7 +1,7 @@
 # Smoke test for the art toolchain: does mdlc (which starts the engine with its
 # software DirectDraw path) run on this machine, and does it produce output?
 #
-#   pwsh tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/Win32/Debug/mdlc.exe -Art Artwork/256 -Out out/art-smoke
+#   pwsh tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/Debug/mdlc.exe -Art Artwork/256 -Out out/art-smoke
 #
 # mdlc reports failure by printing a message and exiting 0, and a failed device
 # init or a debug assert can show a modal dialog, so every call runs with a

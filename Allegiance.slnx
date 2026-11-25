@@ -1,7 +1,5 @@
 <Solution>
   <Configurations>
-    <!-- Solution platform x86 maps to the Win32 platform of each .vcxproj. -->
-    <Platform Name="x86" />
     <Platform Name="x64" />
   </Configurations>
   <Folder Name="/Libraries/">
