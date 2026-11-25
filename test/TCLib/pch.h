@@ -34,9 +34,6 @@
 #include <mmsystem.h>
 
 // ZLib headers
-// The CRT/ATL headers above can pull in <assert.h>; zlib provides its own
-// assert and refuses to coexist with the CRT one.
-#undef assert
 #include <..\zlib\zlib.h>
 
 

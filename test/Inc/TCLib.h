@@ -20,9 +20,6 @@
 #include <typeinfo>
 #include <comdef.h>
 #include <crtdbg.h>
-// ATL/CRT headers included before this one can define the CRT assert; zlib
-// provides its own and refuses to coexist with it.
-#undef assert
 #include <zassert.h>
 
 
