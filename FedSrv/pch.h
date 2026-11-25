@@ -65,7 +65,6 @@
 #include <..\TCLib\TCThread.h>
 
 
-#include "Zone.h"
 
 #include <messagesAll.h>
 #include <Messages.h>
@@ -87,7 +86,6 @@
 #include "fscluster.h"
 #include "fsmission.h"
 #include "fedsrvsql.h"
-#include "zauth.h"
 #include "fedsrv.h"
 extern Global g;
 #include "fsship.h"

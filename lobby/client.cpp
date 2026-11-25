@@ -499,7 +499,7 @@ void LobbyClientSite::OnBadCRC(FedMessaging * pthis, CFMConnection & cnxn, BYTE 
   // We don't KNOW it's a logon, but let's assume it is (it's ok if it's not)
   FMD_C_LOGON_LOBBY * pfmLogon = (FMD_C_LOGON_LOBBY *) pMsg;
   if (pfmLogon->fmid == FM_C_LOGON_LOBBY && 
-    cbMsg == sizeof(FMD_C_LOGON_LOBBY) + pfmLogon->cbZoneTicket) // we'll accept it, just so that we can auto-update
+    cbMsg == sizeof(FMD_C_LOGON_LOBBY) + pfmLogon->cbCDKey) // we'll accept it, just so that we can auto-update
   {
     // there can never be a piggy-backed message w/ FM_C_LOGON_LOBBY
     g_fLogonCRC = false;

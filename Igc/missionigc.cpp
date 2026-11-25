@@ -1813,7 +1813,7 @@ const char*             CmissionIGC::GetContextName(void)
   // Format the context string
   char szContext[24];
   sprintf(szContext, "%c%02d%02d%02d%02d%02d%04d%02d",
-      (GetMissionParams()->bObjectModelCreated && GetMissionParams()->bClubGame) ? 'Z' : 'U',
+      'U', // 'Z' marked admin-created games on the Zone club servers
       st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, GetMissionID() % 10000, GetReplayCount() % 100);
 
   // Save the context string for next time

@@ -12,17 +12,8 @@ class GameScreen :
     public EventTargetContainer<GameScreen>,
     public TrekClientEventSink,
     public IItemEvent::Sink,
-    public PasswordDialogSink,
-    public IHTTPSessionSink
+    public PasswordDialogSink
 {
-
-    IHTTPSession *              m_pSession;
-    ZString                     m_strPendingFileList;
-    ZString                     m_strWaitForFile;
-
-    int                         m_nRetriesLeft;
-    enum { c_cRetries = 5 };
-
 public:
 
     enum StatusColor
@@ -63,8 +54,6 @@ private:
 
     TRef<ButtonPane> m_pbuttonBack;
     TRef<ButtonPane> m_pbuttonJoin;
-    TRef<ButtonPane> m_pbuttonDetails;
-    TRef<ButtonPane> m_pbuttonNewGame;
     TRef<ButtonPane> m_pbuttonFilter;
     TRef<ButtonPane> m_pbuttonFindPlayer;
 
@@ -115,25 +104,11 @@ private:
             TRef<IEngineFont> pfont = TrekResources::SmallFont();
             Color             color = Color::White();
 
-            // draw the Zone Icon
-            if (game->WasObjectModelCreated() && trekClient.GetIsZoneClub())
-            {
-                DrawIcon(psurface, m_viColumns[0] - 90, GetYSize()/2, "iconzonebmp");
-
-                // draw the Squad Pointer, but shifted left to make room for the zone icon
-                if (trekClient.HasPlayerSquad(game))
-                    DrawIcon(psurface, m_viColumns[0] - 120, GetYSize()/2, "iconsquadminebmp");
-                else if (game->GetMissionParams().bSquadGame)
-                    DrawIcon(psurface, m_viColumns[0] - 120, GetYSize()/2, "iconsquadherebmp");
-            }
-            else
-            {
-                // draw the Squad Pointer
-                if (trekClient.HasPlayerSquad(game))
-                    DrawIcon(psurface, m_viColumns[0] - 100, GetYSize()/2, "iconsquadminebmp");
-                else if (game->GetMissionParams().bSquadGame)
-                    DrawIcon(psurface, m_viColumns[0] - 100, GetYSize()/2, "iconsquadherebmp");
-            }
+            // draw the Squad Pointer
+            if (trekClient.HasPlayerSquad(game))
+                DrawIcon(psurface, m_viColumns[0] - 100, GetYSize()/2, "iconsquadminebmp");
+            else if (game->GetMissionParams().bSquadGame)
+                DrawIcon(psurface, m_viColumns[0] - 100, GetYSize()/2, "iconsquadherebmp");
             
             // draw the state icon
 
@@ -577,16 +552,10 @@ private:
     TRef<FindDialogPopup> m_pfindDialog;
     TRef<INameSpace>     m_pns;
 
-    static bool IsZoneLobby()
-    {
-        return trekClient.GetIsZoneClub();
-    };
-
 public:
     GameScreen(Modeler* pmodeler)
-        : m_filter(this), m_pSession(NULL), m_nRetriesLeft(c_cRetries)
+        : m_filter(this)
     {
-        trekClient.DisconnectClub();
         trekClient.SetIsLobbied(true);
 
         TRef<IObject> pobjColumns;
@@ -600,13 +569,11 @@ public:
 
         // Load the members from MDL
 
-        m_pns = pmodeler->GetNameSpace(IsZoneLobby() ? "zonegamescreen" : "gamescreen");
+        m_pns = pmodeler->GetNameSpace("gamescreen");
 
         CastTo(m_ppane,                 m_pns->FindMember("screen"           ));
         CastTo(m_pbuttonBack,           m_pns->FindMember("backButtonPane"   ));
         CastTo(m_pbuttonJoin,           m_pns->FindMember("joinButtonPane"   ));
-        CastTo(m_pbuttonDetails,        m_pns->FindMember("detailsButtonPane"));
-        CastTo(m_pbuttonNewGame,        m_pns->FindMember("newGameButtonPane"));
         CastTo(m_pbuttonFilter,         m_pns->FindMember("filterButtonPane" ));
         CastTo(m_pbuttonFindPlayer,     m_pns->FindMember("findPlayerButtonPane"));
         CastTo(m_plistPaneGames, (Pane*)m_pns->FindMember("gameListPane"     ));
@@ -651,11 +618,6 @@ public:
         // buttons
         //
 
-        if (IsZoneLobby())
-        {
-            AddEventTarget(&GameScreen::OnButtonNewGame, m_pbuttonNewGame->GetEventSource());
-            AddEventTarget(&GameScreen::OnButtonDetails, m_pbuttonDetails->GetEventSource());
-        }
         AddEventTarget(&GameScreen::OnButtonFindPlayer, m_pbuttonFindPlayer->GetEventSource());
         AddEventTarget(&GameScreen::OnButtonBack, m_pbuttonBack->GetEventSource());
         AddEventTarget(&GameScreen::OnButtonJoin, m_pbuttonJoin->GetEventSource());
@@ -691,13 +653,7 @@ public:
 
     ~GameScreen()
     {
-        if (m_pSession)
-        {
-            delete m_pSession;
-            m_pSession = NULL;
-        }
-
-        GetModeler()->UnloadNameSpace(IsZoneLobby() ? "zonegamescreen" : "gamescreen");
+        GetModeler()->UnloadNameSpace("gamescreen");
         m_peventGames->RemoveSink(m_psinkGames);
         trekClient.DisconnectLobby();
     }
@@ -713,7 +669,7 @@ public:
         HRESULT hr = trekClient.ConnectToLobby(NULL);
         if (FAILED(hr))
         {
-            GetWindow()->screen(ScreenIDZoneClubScreen);
+            GetWindow()->screen(ScreenIDLobbyScreen);
             TRef<IMessageBox> pmsgBox = 
                 CreateMessageBox("Failed to reconnect to the lobby.");
             GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
@@ -752,22 +708,7 @@ public:
 
     void OnSelectMission(MissionInfo* pmission)
     {
-        bool bEnableJoin = false;
-        bool bShowDetails = false;
-
-        if (pmission)
-        {
-            if (pmission->GetStage() != STAGE_OVER)
-                bEnableJoin = true;
-
-            bShowDetails = !pmission->GetDetailsFiles().IsEmpty();
-        }
-
-
-        m_pbuttonJoin->SetEnabled(bEnableJoin);
-        
-        if (IsZoneLobby())
-            m_pbuttonDetails->SetHidden(!bShowDetails);
+        m_pbuttonJoin->SetEnabled(pmission && pmission->GetStage() != STAGE_OVER);
     }
 
     void RefreshButtonBarGames()
@@ -1155,7 +1096,7 @@ public:
 
     bool OnButtonBack()
     {
-        GetWindow()->screen(ScreenIDZoneClubScreen);
+        GetWindow()->screen(ScreenIDLobbyScreen);
         return false;
     }
 
@@ -1164,16 +1105,6 @@ public:
         MissionInfo* pmission = (MissionInfo*)m_plistPaneGames->GetSelection();
 
         JoinMission(pmission);
-
-        return true;
-    }
-
-    bool OnButtonDetails()
-    {
-        MissionInfo* pmission = (MissionInfo*)m_plistPaneGames->GetSelection();
-
-        if (!pmission->GetDetailsFiles().IsEmpty())
-            BeginEventDetailsDownload(pmission->GetDetailsFiles());
 
         return true;
     }
@@ -1462,201 +1393,6 @@ public:
         GetWindow()->screen(ScreenIDIntroScreen);
         TRef<IMessageBox> pmsgBox = CreateMessageBox(szReason);
         GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-    }
-
-    void OnFrame()
-    {
-        if (m_pSession)
-        {
-            // if the download has completed or an error occured...
-            if (!m_pSession->ContinueDownload())
-            {
-                if (!m_strPendingFileList.IsEmpty())
-                {
-                    DownloadEventDetails(m_strPendingFileList);
-                    m_strPendingFileList.SetEmpty();
-                }
-                else
-                {
-                    // close the session
-                    delete m_pSession;
-                    m_pSession = NULL;
-                }
-            }
-        }
-    }
-
-    void DownloadEventDetails(const ZString& strFileList)
-    {
-        GetWindow()->SetWaitCursor();
-
-        // Generate the file list
-
-        ZString* vstrFileList = new ZString[2*strFileList.GetLength() + 1];
-        PCC* vszFileList = new PCC[2*strFileList.GetLength() + 1];
-
-        ZString strFileListRemaining = strFileList;
-        int i = 0;
-        while (!strFileListRemaining.IsEmpty())
-        {
-            int nIndex; 
-
-            // find and read in the first file name
-            for (nIndex = 0; nIndex < strFileListRemaining.GetLength() 
-                && strFileListRemaining[nIndex] != ' ' 
-                && strFileListRemaining[nIndex] != ','
-                && strFileListRemaining[nIndex] != '"';
-                ++nIndex) 
-            {};
-
-            ZString strFile = strFileListRemaining.Left(nIndex);
-
-            // skip past any remaining white space or commas
-            for (; nIndex < strFileListRemaining.GetLength() 
-                && (strFileListRemaining[nIndex] == ' ' 
-                  || strFileListRemaining[nIndex] == ','
-                  || strFileListRemaining[nIndex] == '"');
-                ++nIndex)
-            {};
-
-            strFileListRemaining = strFileListRemaining.RightOf(nIndex);
-
-            // if we hit leading whitespace in the list, recover from that
-            if (strFile.IsEmpty())
-                continue;
-
-            // add the file in question to the list of files to download
-            // (we have two arrays so that the memory in the ZStrings sticks around)
-            vstrFileList[i*2] = trekClient.GetCfgInfo().strZoneEventDetailsURL + strFile;
-            vstrFileList[i*2 + 1] = strFile;
-
-            vszFileList[i*2] = vstrFileList[i*2];
-            vszFileList[i*2 + 1] = vstrFileList[i*2 + 1];
-
-            // make sure we unload this so we can write to it.
-            GetModeler()->UnloadNameSpace(strFile.LeftOf("."));
-            m_strWaitForFile = strFile; 
-
-            i++;
-        }
-        vszFileList[i*2] = NULL;        
-        
-        // start the download
-
-        if (!m_pSession)
-            m_pSession = CreateHTTPSession(this);
-
-        m_pSession->InitiateDownload(vszFileList, trekClient.GetArtPath());
-
-
-        // clean up
-
-        delete [] vszFileList;
-        delete [] vstrFileList;
-    }
-
-    void OnError(char * szErrorMessage) // on HTTP download error
-    {
-        // Errors are essentially ignored
-        debugf("Error while trying to get a Zone Events description file: %s", szErrorMessage);
-
-        TRef<IMessageBox> pmessagebox = 
-            CreateMessageBox("Failed to retrieve the event description.");
-        GetWindow()->GetPopupContainer()->OpenPopup(pmessagebox);
-
-        // don't try to do a pending transaction after an error
-        m_strPendingFileList.SetEmpty();
-    }
-
-    bool IsFileValid(char * szFileName)
-    {
-        ZFile file(szFileName);
-
-        int n = file.GetLength(); // -1 means error
-        if (n != -1 && n != 0) 
-        {
-            char * pData = new char[n+1];
-            memcpy(pData, file.GetPointer(), n);
-            pData[n] = 0;
-
-            if (strstr(pData, "<html") != NULL
-                || strstr(pData, "<HTML") != NULL
-                || strstr(pData, "<Html") != NULL)
-            {
-                debugf("Found '<html' in %s; assumed failure.\n", szFileName);
-                delete[] pData;
-                return false;
-            }
-            else
-            {
-                delete[] pData;
-                return true;
-            }
-        }
-        else
-        {
-            debugf("File %s error while trying to load event details in the games list.\n", szFileName);
-            return false;
-        }
-    }
-
-    bool OnFileCompleted(char * szFileName)
-    {
-        debugf("Downloaded file: %s\n", szFileName);
-
-        char szPath[MAX_PATH+20];
-        strcpy(szPath, m_pSession->GetDownloadPath());
-        strcat(szPath, szFileName);
-
-        if (!IsFileValid(szPath))
-        {
-            debugf("Download failed.");
-
-            if (m_nRetriesLeft)
-            {
-                // try again
-                --m_nRetriesLeft;
-                return false;
-            }
-            else
-            {
-                TRef<IMessageBox> pmsgBox = CreateMessageBox("Unable download event info from the Zone.  Please try again later.");
-                GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-            }
-        }
-        else
-        {
-            if (szFileName == m_strWaitForFile)
-            {
-                GetWindow()->GetPopupContainer()->OpenPopup(
-                            CreateMMLPopup(
-                                GetModeler(),
-                                m_strWaitForFile,
-                                false
-                            )
-                        );
-                GetWindow()->RestoreCursor();
-            }
-        }
-
-        // reset the retry counter
-        m_nRetriesLeft = c_cRetries;
-
-        return true; // true means don't retry download
-    }
-
-    void BeginEventDetailsDownload(const ZString& strFileList)
-    {
-        assert(!strFileList.IsEmpty());
-
-        if (m_pSession)
-        {
-            m_strPendingFileList = strFileList;
-        }
-        else
-        {
-            DownloadEventDetails(strFileList);
-        }
     }
 };
 

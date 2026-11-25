@@ -55,7 +55,6 @@ typedef enum
     karg_fWantInt3,       
     karg_nUpdatesPerSecond,
     karg_fDebugBreak,
-    karg_ZoneAuth,
 } FEDSRV_ARGS;
 
 struct ClusterGroups 
@@ -255,7 +254,6 @@ struct Global
   {
     // Explicitly initialize the ZString objects
     strLobbyServer.SetEmpty();
-    strAuthServer.SetEmpty();
     strArtPath.SetEmpty();
 #if !defined(ALLSRV_STANDALONE)
     strSQLConfig.Empty();
@@ -283,9 +281,7 @@ struct Global
   bool                fTimeOut;
   bool                fWantInt3;
   ZString             strArtPath;
-  char                m_szToken[24]; // sizeof(_ZONETICKET_TOKEN.szToken)
   int                 nUpdatesPerSecond;
-  TRef<IZoneAuthServer> pzas;
 
   // *** Game state stuff ***
   Time                timeNow;             // cached value (for very short duration) of timeGetTime()
@@ -303,7 +299,6 @@ struct Global
 
   DWORD               dwServerGITCookie;
   ZString             strLobbyServer;
-  ZString             strAuthServer;
   ZString             strLocalAddress;
   char                rgTechs[cTechs][CbTechBitName+1];
 

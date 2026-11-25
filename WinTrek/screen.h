@@ -26,11 +26,7 @@ TRef<Screen> CreateGameScreen(Modeler* pmodeler);
 TRef<Screen> CreateIntroScreen(Modeler* pmodeler);
 TRef<Screen> CreateNewGameScreen(Modeler* pmodeler);
 TRef<Screen> CreateGameOverScreen(Modeler* pmodeler);
-TRef<Screen> CreateLeaderBoardScreen(Modeler* pmodeler, ZString strCharacter);
-TRef<Screen> CreateZoneEventsScreen(Modeler* pmodeler);
-TRef<Screen> CreateZoneClubScreen(Modeler* pmodeler, Number * ptime);
-TRef<Screen> CreateSquadsScreen(Modeler* pmodeler, const char * szNameDudeX, int idZoneDudeX, const char * szSquad);
-TRef<Screen> CreateCharInfoScreen(Modeler* pmodeler, int idZone); // if id is NA, current player is used
+TRef<Screen> CreateLobbyScreen(Modeler* pmodeler, Number * ptime);
 TRef<Screen> CreateHangarScreen(Modeler* pmodeler, const ZString& strNamespace);
 TRef<Screen> CreateTrainingScreen(Modeler* pmodeler);
 TRef<Screen> CreateTrainingSlideshow (Modeler* pmodeler, const ZString& strNamespace, int iMissionIndex);

@@ -190,33 +190,9 @@
             LogAsDBEvent="0"
         />
 
-        <Event id="2007" Name="IncreaseTokensMax"
-            Description="Fired when internal constant cTokensMax needs to be increased."
-            Format="Allegiance: cTokensMax needs to be increased."
-            Severity="Error"
-            LogAsNTEvent="1"
-            LogAsDBEvent="0"
-        />
-
-        <Event id="2008" Name="InvalidZoneTicket"
-            Description="Fired when an invalid zone ticket received!"
-            Format="Allegiance: Hacker alert! Invalid zone ticket received!"
-            Severity="Warning"
-            LogAsNTEvent="1"
-            LogAsDBEvent="0"
-        />
-
-        <Event id="2009" Name="DecryptTicketFailed"
-            Description="Fired when DecryptTicket fails."
-            Format="DecryptTicket failed for an unexpected reason.  Report to dev team immediately."
-            Severity="Error"
-            LogAsNTEvent="1"
-            LogAsDBEvent="0"
-        />
-
         <Event id="2010" Name="NoTicket"
-            Description="Fired when login attempted with no ticket and no character name."
-            Format="Login attempted with no ticket and no character name."
+            Description="Fired when login attempted with no character name."
+            Format="Login attempted with no character name."
             Severity="Warning"
             LogAsNTEvent="1"
             LogAsDBEvent="0"
@@ -314,14 +290,6 @@
             Description="Fired when game server is starting as an NT service."
             Format="Game server starting as an NT service."
             Severity="Info"
-            LogAsNTEvent="1"
-            LogAsDBEvent="0"
-        />
-
-        <Event id="2023" Name="ZoneAuthServer"
-            Description="Fired when game server fails to load zoneauth.dll and/or authauthdecrypt.dll."
-            Format="Game server failed to load zoneauth.dll and/or authauthdecrypt.dll. Verify that they are both registered."
-            Severity="Error"
             LogAsNTEvent="1"
             LogAsDBEvent="0"
         />
@@ -634,14 +602,6 @@
             <Event id="6022" Name="LogonDenied"
                 Description="Fired when a lobby server rejects a logon attempt."
                 Format="The lobby server rejected the logon attempt: %LobbyServer%\n%Reason%\nCharacter Name='%.SubjectName%'"
-                Severity="Warning"
-                LogAsNTEvent="1"
-                LogAsDBEvent="1"
-            />
-
-            <Event id="6023" Name="ZoneAuthFailed"
-                Description="Fired when Zone Club authentication fails."
-                Format="Zone Club authentication failed:\nZoneAuthServer=%ZoneAuthServer%\nHRESULT=%0xHRESULT% (%HRESULT%)\nCharacter Name='%.SubjectName%'"
                 Severity="Warning"
                 LogAsNTEvent="1"
                 LogAsDBEvent="1"

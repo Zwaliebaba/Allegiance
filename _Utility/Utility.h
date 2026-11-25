@@ -56,7 +56,6 @@ const int c_cbDescription   = c_cbDescriptionDB + 1;
 const int c_cbName          = c_cbNameDB        + 1;
 const int c_cbLocAbrev      = c_cbLocAbrevDB    + 1;
 const int c_cbCDKey         = 32 + 1; // TODO: fill in the correct length
-const int c_cbPassportName  = 256 + 1;
 
 class _exposed List_utl
 {

@@ -1,12 +1,12 @@
 use "effect";
-use "zoneclubdata";
+use "lobbydata";
 use "font";
 use "gamepanes";
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Zone Public Screen
+// Lobby Screen
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +58,7 @@ mainmenuButtonPane = SoundButtonPane(ImportImage("btnzone2mainmenubmp", true), B
 
 yellowText          = Color(0.878, 0.573, 0);
 whiteText           = Color(1, 1, 1);
-titlePane           = StringPane("FREE GAMES - ZONE MATCHMAKING SERVICE", yellowText, Point(600, 30), JustifyLeft, titleFont);
+titlePane           = StringPane("FREE GAMES - INTERNET LOBBY", yellowText, Point(600, 30), JustifyLeft, titleFont);
 captionPane         = StringPane("CONNECT TO OTHER SERVERS ON THE INTERNET", whiteText, Point(800, 30), JustifyLeft, promptFont);
 
 //

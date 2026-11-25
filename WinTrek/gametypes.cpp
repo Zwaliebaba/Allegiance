@@ -68,7 +68,6 @@ public:
             && ((misparams.nGoalTeamKills == 0) == (m_nGoalTeamKills == 0))
             && ((misparams.iGoalTerritoryPercentage == 100) == (m_nGoalTerritory == 100))
             && ((misparams.dtGameLength == 0) == (m_fGameLength == 0))
-            //&& (misparams.bScoresCount == trekClient.GetIsZoneClub())
             ;
 
         // note: allow any map type.
@@ -88,7 +87,7 @@ public:
         misparams.iGoalTerritoryPercentage = m_nGoalTerritory;
         misparams.dtGameLength = m_fGameLength;
         misparams.mmMapType = m_mmMapType;
-        misparams.bScoresCount = misparams.bClubGame;
+        misparams.bScoresCount = false; // scores only counted on Zone club games
  }
 };
 

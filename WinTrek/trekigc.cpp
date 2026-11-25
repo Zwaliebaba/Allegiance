@@ -3284,29 +3284,6 @@ void WinTrekClient::OnLogonLobbyAck(bool fValidated, bool bRetry, LPCSTR szFailu
 }
 
 
-void WinTrekClient::OnLogonClubAck(bool fValidated, bool bRetry, LPCSTR szFailureReason)
-{
-    //
-    // We've just logged onto Zone Club server.
-    //
-    // close the "logging in" popup
-    if (GetWindow()->GetPopupContainer() && !GetWindow()->GetPopupContainer()->IsEmpty())
-        GetWindow()->GetPopupContainer()->ClosePopup(NULL);
-    GetWindow()->RestoreCursor();
-        
-    if (!fValidated) 
-    {
-        DisconnectClub();
-        GetClientEventSource()->OnLogonClubFailed(bRetry, szFailureReason);
-        g_bQuickstart = false;
-    }
-    else 
-    {
-        GetClientEventSource()->OnLogonClub(); 
-    }
-}
-
-
 void WinTrekClient::Disconnect(void) 
 {
     BaseClient::Disconnect();
@@ -3372,23 +3349,6 @@ HRESULT WinTrekClient::OnSessionLost(char* szReason, FedMessaging * pthis)
             GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
         }
     }
-    else if (pthis == &m_fmClub)
-    {
-        // close the "connecting..." popup
-        if (GetWindow()->GetPopupContainer() && !GetWindow()->GetPopupContainer()->IsEmpty())
-            GetWindow()->GetPopupContainer()->ClosePopup(NULL);
-        GetWindow()->RestoreCursor();
-
-        GetWindow()->screen(ScreenIDZoneClubScreen);
-
-        TRef<IMessageBox> pmsgBox = 
-            CreateMessageBox(
-                "Your connection to the Club server was lost.\n"
-                "Reason: " + ZString(szReason) + ".\n"
-            );
-
-        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
-    }
     else if (pthis == &m_fmLobby)
     {
         // close the "connecting..." popup
@@ -3396,7 +3356,7 @@ HRESULT WinTrekClient::OnSessionLost(char* szReason, FedMessaging * pthis)
             GetWindow()->GetPopupContainer()->ClosePopup(NULL);
         GetWindow()->RestoreCursor();
 
-        GetWindow()->screen(ScreenIDZoneClubScreen);
+        GetWindow()->screen(ScreenIDLobbyScreen);
 
         TRef<IMessageBox> pmsgBox = 
             CreateMessageBox(
@@ -4677,47 +4637,6 @@ HRESULT WinTrekClient::ConnectToLobby(BaseClient::ConnectInfo * pci)
 }
 
 
-HRESULT WinTrekClient::ConnectToClub(BaseClient::ConnectInfo * pci)
-{
-    HRESULT hr = E_FAIL;
-
-    if (m_fmClub.IsConnected())
-        return S_OK; // maybe specify return code indicating already connected?
-    
-    // if we get a NULL pci, that means we're gonna let BaseClient take care of it (relogin using cached credentials
-    if (pci)
-        pci->strServer = GetCfgInfo().strClub;
-
-    // The actual connect happens in BaseClient
-    hr = BaseClient::ConnectToClub(pci);
-
-    // close the "connecting" popup
-    if (!GetWindow()->GetPopupContainer()->IsEmpty())
-        GetWindow()->GetPopupContainer()->ClosePopup(NULL);
-    GetWindow()->RestoreCursor();
-
-    if (!m_fmClub.IsConnected()) 
-    {
-        TRef<IMessageBox> pmsgBox = CreateMessageBox("Failed to connect to the Allegiance Zone.");
-        Point point(c_PopupX, c_PopupY);
-        Rect rect(point, point);
-        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, rect, false);
-        g_bQuickstart = false;
-    }
-    else
-    {
-        GetWindow()->SetWaitCursor();
-        TRef<IMessageBox> pmsgBox = CreateMessageBox("Logging into the Allegiance Zone...", NULL, false);
-        Point point(c_PopupX, c_PopupY);
-        Rect rect(point, point);
-        GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, rect, false);
-        // waiting for logonack from lobby
-    }
-    
-    return hr;
-}
-
-
 void WinTrekClient::OnQuitMission(QuitSideReason reason, const char* szMessageParam)
 {
     m_sideidLastWinner = NA;
@@ -4770,11 +4689,11 @@ void WinTrekClient::OnQuitMission(QuitSideReason reason, const char* szMessagePa
             break;
 
         case QSR_DuplicateRemoteLogon:
-            strMessage = "Someone used your zone account to log into another game.";
+            strMessage = "Someone used your call sign to log into another game.";
             break;
 
         case QSR_DuplicateLocalLogon:
-            strMessage = "Someone used your zone account to log into the game you were playing.";
+            strMessage = "Someone used your call sign to log into the game you were playing.";
             break;
 
         case QSR_DuplicateCDKey:

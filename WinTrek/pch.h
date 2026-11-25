@@ -56,17 +56,11 @@
 #include "effect.h"
 #include "utility.h"
 #include "igc.h"
-#include "zone.h"
 #include "trekinput.h"
 #include "resource.h"
-#include "Zone.h"
-#ifdef USEAUTH
-#include "zauth.h"
-#endif
 #include "messagesAll.h"
 #include "messages.h"
 #include "messagesLC.h"
-#include "..\Club\ClubMessages.h"
 #include "clintlib.h"
 #include "AutoDownload.h"
 
@@ -83,7 +77,6 @@
 
 #include "wintrekp.h"
 #include "artwork.h"
-#include "ZoneSquad.h"
 #include "logon.h"
 #include "passworddialog.h"
 #include "regkey.h"

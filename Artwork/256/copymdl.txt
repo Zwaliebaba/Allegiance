@@ -1,6 +1,5 @@
 AutoDownloadDialog
 cursor
-CharInfoScreen
 dialog
 stndialog
 circletext
@@ -65,7 +64,6 @@ passworddialog
 test
 skilllevels
 splashscreen
-squadsscreen
 quickchat
 quickchatheader
 sounddef
@@ -91,17 +89,12 @@ invSMine
 invSMissile
 invSWeapon
 invTurret
-zoneclubscreen
 zonepublicscreen
-zonegamescreen
-zoneeventsscreen
-leaderboardscreen
 inputmappane
 defaultinputmap
 helppane
 missionbrief
 musicdef
-defaultevents
 creditspane
 creditstext
 notrainingsounddef
