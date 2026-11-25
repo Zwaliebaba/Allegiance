@@ -26,7 +26,6 @@ inline unsigned char   SideMask(IsideIGC* pside)
 class CFSMission;
 class CFSPlayer;
 class CFSSide;
-class CAdminGame;
 class CAdditionalAGCParamData;
 
 typedef Slist_utl<CFSMission*> ListFSMission;

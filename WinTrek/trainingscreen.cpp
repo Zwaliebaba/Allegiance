@@ -1,12 +1,8 @@
 #include "pch.h"
 #include "Training.h"
 
-// AGC and AllSrv Includes
-#include <agc.h>
-#include <AllSrvModuleIDL.h>
-
-#include "AdminSessionSecure.h"
-#include "AdminSessionSecureHost.h"
+// The local server for training mission 7
+#include <trainingserver.h>
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -34,8 +30,10 @@ private:
     TRef<ButtonPane>                    m_pbuttonTrainMission7;
     TRef<ButtonPane>                    m_pbuttonTrain;
 
-    static  IAdminGamesPtr              m_spAdminGamesPtr;
-    static  IAdminGamePtr               m_spAdminGamePtr;
+    // The local server for training mission 7 (see CreateStandaloneGame)
+    static  HANDLE                      m_hServerProcess;
+    static  HANDLE                      m_hServerJob;
+    static  HANDLE                      m_hServerStop;
 
     static  int                         m_iMissionNext;
 
@@ -390,31 +388,14 @@ public:
     // Game Creation Methods
     //
     //////////////////////////////////////////////////////////////////////////////
-    #define TRAINING_MISSION_7_GAME_NAME    "Training Mission 7"
+    #define TRAINING_MISSION_7_GAME_NAME    c_szTrainingGameName
 
     //////////////////////////////////////////////////////////////////////////////
     static
-    bool    Error (HRESULT hr)
+    void    ShowError (const ZString& strError)
     {
-        if (FAILED (hr))
-        {
-            // get the error codes
-            IErrorInfoPtr spErr;
-            ::GetErrorInfo(0, &spErr);
-
-            // convert that to an english message
-            _com_error e (hr, spErr, true);
-            _bstr_t strError (e.Description().length() ? e.Description() : _bstr_t (e.ErrorMessage()));
-
-            // debug just bail so I can trace the problem
-            // assert (0);
-
-            // put up a dialog about the error
-            TRef<IMessageBox>   pMsgBox = CreateMessageBox (ZString ("Unable to create a game. The home server may not be properly installed. Install the home server from your Allegiance CD.\n\nReason for failure: ") + (LPCTSTR)strError, NULL, true);
-            GetWindow()->GetPopupContainer()->OpenPopup (pMsgBox, false);
-            return true;
-        }
-        return false;
+        TRef<IMessageBox>   pMsgBox = CreateMessageBox (strError, NULL, true);
+        GetWindow()->GetPopupContainer()->OpenPopup (pMsgBox, false);
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -468,140 +449,139 @@ public:
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    void    CheckForExistingGames (void)
-    {
-        // try to get a game pointer from the games list
-        m_spAdminGamesPtr->get_Item (& (_variant_t) (0L), &m_spAdminGamePtr);
-
-        // if we got a valid game
-        if (m_spAdminGamePtr)
-        {
-            // put up a message about the existing game
-            TRef<IMessageBox> pMsgBox = CreateMessageBox ("The training mission game could not be created because there is already a server running on this machine with an active game.");
-            GetWindow ()->GetPopupContainer ()->OpenPopup (pMsgBox, false);
-
-            // and we terminate the entire login process here
-            m_spAdminGamePtr = 0;
-            m_spAdminGamesPtr = 0;
-        }
-        else
-        {
-            // create the game we want
-            CreateTrainingMissionGame ();
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    /*
-    bool    TerminateExistingGames (void)
-    {
-        // kill every game that exists
-        while (m_spAdminGamePtr)
-        {
-            m_spAdminGamePtr->Kill ();
-            m_spAdminGamesPtr->get_Item (& (_variant_t) (0L), &m_spAdminGamePtr);
-        }
-
-        return false;
-    }
-    */
-
-    //////////////////////////////////////////////////////////////////////////////
-    HRESULT CreateTrainingMissionGame (void)
-    {
-        HRESULT                 hr;
-
-        assert (m_spAdminGamesPtr);
-
-        // Create a GameParameters object
-        IAGCGameParametersPtr spParams;
-        if (!Error (hr = spParams.CreateInstance (CLSID_AGCGameParameters)))
-        {
-            // set up game parameters associated with the training game
-            spParams->put_MinPlayers (1);
-            spParams->put_TotalMaxPlayers (1);
-            spParams->put_CivIDs (0, m_civID);  // default is iron league, but user may pick a different one
-            spParams->put_CivIDs (1, 35);       // bios
-            spParams->put_GameName (_bstr_t (TRAINING_MISSION_7_GAME_NAME));
-            spParams->put_LockTeamSettings (true);
-
-            // Create a new game
-            if (!Error (hr = m_spAdminGamesPtr->Add (spParams)))
-            {
-                // get the game
-                if (!Error (hr = m_spAdminGamesPtr->get_Item (& (_variant_t) (0L), &m_spAdminGamePtr)))
-                {
-                    // set up the teams
-                    m_spAdminGamePtr->SetTeamName (0, _bstr_t ("Training Academy"));
-                    m_spAdminGamePtr->SetTeamName (1, _bstr_t ("Bios"));
-
-                    // pop up the Connecting... dialog.   
-                    GetWindow()->SetWaitCursor ();
-                    TRef<IMessageBox> pMsgBox = CreateMessageBox ("Connecting...", NULL, false);
-                    GetWindow ()->GetPopupContainer ()->OpenPopup (pMsgBox, false);
-
-                    // pause to let the "connecting..." box draw itself
-                    AddEventTarget(&TrainingScreen::OnTryLogon, GetWindow(), 0.1f);
-
-                    // this then goes to OnTryLogon
-                }
-            }
-        }
-
-        // terminate the games admin pointer
-        m_spAdminGamesPtr = 0;
-
-        return hr;
-    }
-
+    //
+    // Training mission 7 runs on a local server: AllSrv32.exe next to us,
+    // started as a child process with "-training <civ> -stopevent <handle>"
+    // (see trainingserver.h). The server hosts a LAN session with the one
+    // training game, starts the game when we have joined, and shuts down
+    // when we set the stop event. It is in a job object, so it also goes
+    // away if we crash.
+    //
     //////////////////////////////////////////////////////////////////////////////
     HRESULT CreateStandaloneGame (void)
     {
-        HRESULT                 hr;
+        // only one training server at a time
+        KillStandaloneGame ();
 
-        // Create the AdminSession class object
-        IAdminSessionClassPtr   spClass;
-        if (!Error (hr = CoGetClassObject (__uuidof(AdminSession), CLSCTX_LOCAL_SERVER, NULL, __uuidof(spClass), (void**)&spClass)))
+        // AllSrv32.exe sits next to Allegiance.exe
+        char    szServer[MAX_PATH + 16];
+        DWORD   cch = GetModuleFileName (NULL, szServer, MAX_PATH);
+        char*   pchName = (cch > 0 && cch < MAX_PATH) ? strrchr (szServer, '\\') : NULL;
+        if (!pchName)
         {
-            // Create an instance of the host object for an IAdminSessionHost interface
-            AdminSessionSecureHost    xHost;
-
-            // Create an AdminSession object
-            IAdminSessionPtr spSession;
-            hr = spClass->CreateSession (&xHost, &spSession);
-            ::CoDisconnectObject(&xHost, 0);
-            if (!Error (hr))
-            {
-                // Get the Server property from the session object
-                IAdminServerPtr spServer;
-                if (!Error (hr = spSession->get_Server (&spServer)))
-                {
-                    // Get the Games property from the server object
-                    if (!Error (hr = spServer->get_Games (&m_spAdminGamesPtr)))
-                    {
-                        // check to see if there are existing games
-                        // and proceed only if there aren't
-                        CheckForExistingGames ();
-                    }
-                }
-            }
+            ShowError ("Unable to create a game: cannot find the folder Allegiance runs from.");
+            return E_FAIL;
         }
-        return hr;
+        pchName[1] = '\0';
+        char    szFolder[MAX_PATH + 16];
+        strcpy (szFolder, szServer);
+        strcpy (pchName + 1, "AllSrv32.exe");
+
+        // the stop event, inherited by the server
+        SECURITY_ATTRIBUTES sa = { sizeof (sa), NULL, TRUE };
+        m_hServerStop = CreateEvent (&sa, TRUE, FALSE, NULL);
+
+        // the job that ties the server's lifetime to ours
+        m_hServerJob = CreateJobObject (NULL, NULL);
+        if (m_hServerJob)
+        {
+            JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli;
+            ZeroMemory (&jeli, sizeof (jeli));
+            jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+            SetInformationJobObject (m_hServerJob, JobObjectExtendedLimitInformation, &jeli, sizeof (jeli));
+        }
+
+        // inherit only the stop event
+        SIZE_T  cbAttributes = 0;
+        InitializeProcThreadAttributeList (NULL, 1, 0, &cbAttributes);
+        LPPROC_THREAD_ATTRIBUTE_LIST    pattributes = (LPPROC_THREAD_ATTRIBUTE_LIST) _alloca (cbAttributes);
+        bool    bAttributes = m_hServerStop
+            && InitializeProcThreadAttributeList (pattributes, 1, 0, &cbAttributes)
+            && UpdateProcThreadAttribute (pattributes, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, &m_hServerStop, sizeof (HANDLE), NULL, NULL);
+
+        char    szCommandLine[MAX_PATH + 96];
+        sprintf (szCommandLine, "\"%s\" -training %d -stopevent %llu", szServer, m_civID, (unsigned long long) (UINT_PTR) m_hServerStop);
+
+        STARTUPINFOEX           si;
+        PROCESS_INFORMATION     pi;
+        ZeroMemory (&si, sizeof (si));
+        si.StartupInfo.cb = sizeof (si);
+        si.lpAttributeList = pattributes;
+
+        BOOL    bCreated = bAttributes
+            && CreateProcess (NULL, szCommandLine, NULL, NULL, TRUE,
+                              CREATE_SUSPENDED | CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT,
+                              NULL, szFolder, &si.StartupInfo, &pi);
+        DWORD   dwError = GetLastError ();
+
+        if (bAttributes)
+            DeleteProcThreadAttributeList (pattributes);
+
+        if (!bCreated)
+        {
+            KillStandaloneGame ();
+
+            char    szError[MAX_PATH + 128];
+            sprintf (szError, "Unable to create a game: the training server (%s) could not be started (error %lu).", szServer, dwError);
+            ShowError (szError);
+            return HRESULT_FROM_WIN32 (dwError);
+        }
+
+        if (m_hServerJob)
+            AssignProcessToJobObject (m_hServerJob, pi.hProcess);
+        ResumeThread (pi.hThread);
+        CloseHandle (pi.hThread);
+        m_hServerProcess = pi.hProcess;
+
+        // pop up the Connecting... dialog.   
+        GetWindow()->SetWaitCursor ();
+        TRef<IMessageBox> pMsgBox = CreateMessageBox ("Connecting...", NULL, false);
+        GetWindow ()->GetPopupContainer ()->OpenPopup (pMsgBox, false);
+
+        // pause to let the "connecting..." box draw itself
+        AddEventTarget(&TrainingScreen::OnTryLogon, GetWindow(), 0.1f);
+
+        // this then goes to OnTryLogon
+        return S_OK;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    static
+    bool    HasServerExited (void)
+    {
+        return m_hServerProcess && (WaitForSingleObject (m_hServerProcess, 0) == WAIT_OBJECT_0);
     }
 
     //////////////////////////////////////////////////////////////////////////////
     static
     HRESULT KillStandaloneGame (void)
     {
-        HRESULT hr = S_OK;
-        m_spAdminGamesPtr = 0;
-        if (m_spAdminGamePtr)
+        // ask the server to stop, and give it a moment to do so cleanly
+        if (m_hServerStop)
+            SetEvent (m_hServerStop);
+
+        if (m_hServerProcess)
         {
-            if (CoIsHandlerConnected (m_spAdminGamePtr))
-                hr = m_spAdminGamePtr->Kill ();
-            m_spAdminGamePtr = 0;
+            if (WaitForSingleObject (m_hServerProcess, 3000) != WAIT_OBJECT_0)
+                TerminateProcess (m_hServerProcess, 1);
+            CloseHandle (m_hServerProcess);
+            m_hServerProcess = NULL;
         }
-        return hr;
+
+        // closing the job ends anything left in it
+        if (m_hServerJob)
+        {
+            CloseHandle (m_hServerJob);
+            m_hServerJob = NULL;
+        }
+
+        if (m_hServerStop)
+        {
+            CloseHandle (m_hServerStop);
+            m_hServerStop = NULL;
+        }
+
+        return S_OK;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -611,13 +591,13 @@ public:
 
         // try ten times
         int iTryCount = 10;
-        while (iTryCount-- && (listResults.GetCount () == 0))
+        while (iTryCount-- && (listResults.GetCount () == 0) && !HasServerExited ())
         {
             // initiate a query for the local server
             trekClient.FindStandaloneServersByName ("127.0.0.1", listResults);
 
             // now, for 6 seconds, check to see if we found it every half second
-            for (int i = 0; (i < 12) && (listResults.GetCount () == 0); i++)
+            for (int i = 0; (i < 12) && (listResults.GetCount () == 0) && !HasServerExited (); i++)
             {
                 Sleep (500);
                 trekClient.FindStandaloneServersByName (NULL, listResults);
@@ -663,7 +643,9 @@ public:
             GetWindow()->RestoreCursor();
 
             // give some indication of what happened
-            TRef<IMessageBox> pmsgBox = CreateMessageBox("Connection to standalone server failed.");
+            TRef<IMessageBox> pmsgBox = CreateMessageBox(HasServerExited ()
+                ? "The training server stopped before it could be joined. Another Allegiance server may be running on this machine."
+                : "Connection to standalone server failed.");
             GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
 
             // terminate the game so they can try again
@@ -710,10 +692,8 @@ public:
         {
             debugf ("Player was added, waiting for the game to start\n");
 
-            // start the game
-            Error (m_spAdminGamePtr->StartGame ());
-
-            // next will be OnEnterMission if this succeeds
+            // the training server starts the game now that we have joined;
+            // next will be OnEnterMission
         }
     }
 
@@ -743,8 +723,9 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 int             TrainingScreen::m_iMissionNext = Training::c_TM_1_Introduction;
-IAdminGamesPtr  TrainingScreen::m_spAdminGamesPtr = 0;
-IAdminGamePtr   TrainingScreen::m_spAdminGamePtr = 0;
+HANDLE          TrainingScreen::m_hServerProcess = NULL;
+HANDLE          TrainingScreen::m_hServerJob = NULL;
+HANDLE          TrainingScreen::m_hServerStop = NULL;
 
 //////////////////////////////////////////////////////////////////////////////
 //

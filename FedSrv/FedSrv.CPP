@@ -312,13 +312,6 @@ HRESULT pascal FedSrv_Terminate(void)
   #endif // !defined(ALLSRV_STANDALONE)
   timeEndPeriod(1);
 
-  if (NULL != g.pServerCounters)
-  {
-      g.perfshare.FreeCounters(g.pServerCounters);
-      g.pServerCounters = NULL;
-  }
-  g.perfshare.Terminate();  // this puts to rest the server and client instance perf counters
-
   _AGCModule.TriggerEvent(NULL, AllsrvEventID_Terminate, "", -1, -1, -1, 0);
 
   return(S_OK);
@@ -2442,7 +2435,7 @@ void LogTrapHack(AGCEventID idEvent, CFSPlayer* pfsPlayer,
       pfsPlayer->GetIGCShip()->GetMission()->GetContextName() : NULL;
     pszSubject = pfsPlayer->GetName();
     idSource = 
-      static_cast<USHORT>(CAdminUser::DetermineID(pfsPlayer))
+      static_cast<USHORT>(AGCPlayerID(pfsPlayer))
         | static_cast<DWORD>(AGC_AdminUser << 16);
   }
 
@@ -2793,7 +2786,7 @@ void HandleCOMChatEvents(const char *szMessage, const char *szDest, ShipID shipi
       szSource = pShipIGC->GetName();
       idSource = -1;
       if (pfsShipFrom->IsPlayer())
-        idSource = static_cast<USHORT>(CAdminUser::DetermineID(pfsShipFrom->GetPlayer())) | static_cast<DWORD>(AGC_AdminUser << 16);
+        idSource = static_cast<USHORT>(AGCPlayerID(pfsShipFrom->GetPlayer())) | static_cast<DWORD>(AGC_AdminUser << 16);
 
       idTeam = pShipIGC->GetSide()->GetUniqueID();
     }
@@ -6495,14 +6488,12 @@ void ProcessNetworkMessages()
 
   
   bool bSupposedToConnectToLobby;
-  bool bServerStartedByUI = false;
 
 #if defined(ALLSRV_STANDALONE)
     // If standalone, we download the cfg file right before connecting to the lobby
     // if started by command-line, then always try to connect to lobby
     // if not started by command-line (started by UI) then connect to lobby only for public games
 
-  bServerStartedByUI = _Module.WasCOMStarted();   
   bSupposedToConnectToLobby = !(FEDSRV_GUID != g.fm.GetHostApplicationGuid());  // public games
 #else
     bSupposedToConnectToLobby = !g.strLobbyServer.IsEmpty();
@@ -6801,14 +6792,7 @@ bool OnAutoUpdateEXEDownloadDone(const char * szFilelistCRC, int nFilelistCRC, i
     //
     char * szLaunchPostUpdate;
     
-    if (_Module.WasCOMStarted())
-    {
-      szLaunchPostUpdate = "AllSrvUI32.exe";
-    }
-    else 
-    {
-      szLaunchPostUpdate = _Module.IsInstalledAsService() ? "S:AllSrv32" : "AllSrv32.exe";  // S: is short for "Start as Service"
-    }
+    szLaunchPostUpdate = g.fService ? "S:AllSrv32" : "AllSrv32.exe";  // S: is short for "Start as Service"
 
     char szCommandLine[MAX_PATH * 10];
     _snprintf (szCommandLine, sizeof(szCommandLine)-1, "%s %s %d \"%s\" \"%s\" \"%s\"", szLaunchPostUpdate, szFilelistCRC, nFilelistSize, szSite, szDirectory, PCC(g.strArtPath));
@@ -7033,7 +7017,7 @@ bool RetrieveCFGFile() // returns true iff cfg was successfully retrieved
         // TODO: fire event
         printf("%s\n", szErrorMsg);
         debugf("%s\n", szErrorMsg);
-        if (!_Module.IsInstalledAsService())
+        if (!g.fService)
           MessageBox(NULL, szErrorMsg, "Allegiance Server", MB_SERVICE_NOTIFICATION);
         return false;
     }
@@ -7053,7 +7037,7 @@ bool RetrieveCFGFile() // returns true iff cfg was successfully retrieved
     debugf("\nInvalid CFG File.\n");
     char * szErrorMsg = "\nError Connecting to Zone.  You will not be able to host a public game. (CFG File is invalid.)\n";
     printf(szErrorMsg);
-    if (!_Module.IsInstalledAsService())
+    if (!g.fService)
       MessageBox(NULL, szErrorMsg, "Allegiance Server", MB_SERVICE_NOTIFICATION);
     return false;
   }
@@ -7168,8 +7152,8 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
   if (SUCCEEDED(hr))
   {
   #if defined(ALLSRV_STANDALONE)
-    // if we were started NOT from the COM object model, start any autostart games
-    if (!_Module.WasCOMStarted())
+    // start the games server.json lists (a no-op if they already exist)
+    if (NA == g.civTraining)
       StartDefaultGames();
   #endif
   }
@@ -7337,6 +7321,129 @@ void StartDefaultGames()
  * Parameters:
  *    pThreadParameter: Unused
  */
+/*-------------------------------------------------------------------------
+ * HostSession
+ *-------------------------------------------------------------------------
+ * Purpose:
+ *    Host the game session: the LAN session clients find with their LAN
+ *    browser, or the public session, which also connects to the lobby.
+ *    (This was IAdminServer::put_PublicLobby.)
+ */
+HRESULT HostSession(bool fPublic)
+{
+  const GUID& guidSession = fPublic ? FEDSRV_GUID : FEDSRV_STANDALONE_PRIVATE_GUID;
+
+  printf(fPublic ? "Preparing public session for clients ... " : "Preparing LAN session for clients ... ");
+  #if !defined(ALLSRV_STANDALONE)
+  _AGCModule.TriggerEvent(NULL, AllsrvEventID_HostSession, "", -1, -1, -1, 0);
+  #endif
+
+  HRESULT hr = g.fm.HostSession(guidSession, false, 0 /*g.hPlayerEvent*/, g.fProtocol);
+  if (FAILED(hr))
+  {
+    #if !defined(ALLSRV_STANDALONE)
+    _AGCModule.TriggerEvent(NULL, AllsrvEventID_CantHostSession, "", -1, -1, -1, 0);
+    #endif
+    printf("failed.\n");
+    return hr;
+  }
+  printf("succeeded.\n");
+
+  if (fPublic)
+  {
+    bool bSupposedToConnectToLobby;
+
+    #if defined(ALLSRV_STANDALONE)
+    bSupposedToConnectToLobby = true;
+    #else
+    bSupposedToConnectToLobby = !g.strLobbyServer.IsEmpty();
+    #endif
+
+    if (bSupposedToConnectToLobby)
+    {
+      // A failure is reported by ConnectToLobby; the session stays up and the
+      // connection is retried periodically.
+      if (FAILED(ConnectToLobby(NULL)))
+      {
+        #if !defined(ALLSRV_STANDALONE)
+          _AGCModule.TriggerEvent(NULL, AllsrvEventID_ConnectError, "", -1, -1, -1, 0);
+        #endif // !defined(ALLSRV_STANDALONE)
+      }
+    }
+    else
+    {
+      #if !defined(ALLSRV_STANDALONE)
+      _AGCModule.TriggerEvent(NULL, AllsrvEventID_NoLobby, "", -1, -1, -1, 0);
+      #endif
+    }
+  }
+
+  return S_OK;
+}
+
+
+/*-------------------------------------------------------------------------
+ * Training mission 7
+ *-------------------------------------------------------------------------
+ * The client's live training mission runs this server as a child process
+ * (AllSrv32 -training <civ> -stopevent <handle>, see trainingscreen.cpp).
+ * The server creates the one training game, starts it as soon as the
+ * player has joined, and stops when the client sets the stop event. This
+ * replaced the client driving the server through the DCOM admin objects.
+ */
+#if defined(ALLSRV_STANDALONE)
+
+static void CreateTrainingGame()
+{
+  CGameParamData mp; // MissionParams and the team names, reset to the defaults
+
+  lstrcpynA(mp.strGameName, c_szTrainingGameName, sizeof(mp.strGameName));
+  mp.nTotalMaxPlayersPerGame = 1;
+  mp.nMinPlayersPerTeam      = 1;
+  mp.nMaxPlayersPerTeam      = 1;
+  mp.rgCivID[0]              = g.civTraining; // the civ the player picked
+  mp.rgCivID[1]              = 35;            // Bios
+  mp.bLockTeamSettings       = true;
+  mp.bObjectModelCreated     = true;
+  lstrcpynA(mp.m_szTeamName[0], "Training Academy", c_cbName);
+  lstrcpynA(mp.m_szTeamName[1], "Bios", c_cbName);
+
+  const char * szInvalid = mp.Invalid();
+  if (szInvalid)
+  {
+    printf("Cannot create the training game: %s\n", szInvalid);
+    SetEvent(g.hKillReceiveEvent);
+    return;
+  }
+
+  printf("Starting game \"%s\"\n", mp.strGameName);
+  FedSrvSite * psiteFedSrv = new FedSrvSite();
+  new CFSMission(mp, NULL, psiteFedSrv, psiteFedSrv, &mp, NULL);
+}
+
+static void StartTrainingGameWhenJoined()
+{
+  const ListFSMission * plistMission = CFSMission::GetMissions();
+  for (LinkFSMission * plinkMission = plistMission->first(); plinkMission; plinkMission = plinkMission->next())
+  {
+    CFSMission * pfsMission = plinkMission->data();
+    if (pfsMission->GetStage() == STAGE_NOTSTARTED
+        && pfsMission->GetIGCMission() != g.trekCore
+        && pfsMission->GetCountOfPlayers(NULL, false) > 0)
+    {
+      pfsMission->StartGame();
+    }
+  }
+}
+
+#endif // defined(ALLSRV_STANDALONE)
+
+static VOID CALLBACK OnTrainingStop(PVOID, BOOLEAN)
+{
+  SetEvent(g.hKillReceiveEvent);
+}
+
+
 DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
 {
   HANDLE rgeventHandles[2];
@@ -7354,21 +7461,15 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
   ZSucceeded(hr);
 
   // Initialize the ATL module
-  _Module.Init(g.hInst); // init COM and/or NT service stuff
-
-  // Create the single instance of the CAdminServer object
-  CComObject<CAdminServer>* pServer = NULL;
-  ZSucceeded(pServer->CreateInstance(&pServer));
-
-  // Add the CAdminServer instance to the GIT (the only ref we keep)
-  ZSucceeded(GetAGCGlobal()->RegisterInterfaceInGlobal(pServer->GetUnknown(),
-    IID_IUnknown, &g.dwServerGITCookie));
+  _Module.Init(g.hInst);
 
   // Create a uniquely-named mutex to indicate that the server is running
   TCHandle shMutexRunning = CreateUniqueMutex();
 
-  // Register class objects
-  _Module.RegisterCOMObjects();
+  // A training server stops when the client that started it says so
+  HANDLE hwaitTrainingStop = NULL;
+  if (g.hTrainingStop)
+    RegisterWaitForSingleObject(&hwaitTrainingStop, g.hTrainingStop, OnTrainingStop, NULL, INFINITE, WT_EXECUTEONLYONCE);
 
 
   // Setup the database stuff and connect
@@ -7400,20 +7501,31 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
   // This is the first place where we can might connect to a lobby
   //
 #if defined(ALLSRV_STANDALONE)
-  // standalone servers don't connect to lobby by default
-  if (_Module.WasCOMStarted())
-  {
-    pServer->put_PublicLobby(false); // false == private games mode
-  }
-  else
-  {
+  // Standalone servers host the LAN session that clients find, unless
+  // server.json asks for the public session and lobby (PublicLobby = 1).
+  // A training server is always a LAN one.
+  bool fPublic = g.fPublicLobby && NA == g.civTraining;
+  if (fPublic)
     g.strLobbyServer="?"; // this will be overrided by cfg file download; needs to be non-blank so ConnectToLobby() is called
-    pServer->put_PublicLobby(true); // true means use public dplay session, and connect to lobby is g.strLobbyServer is not empty
-  }
 #else
   //non-standalone servers always should connect to a lobby
-  pServer->put_PublicLobby(true); // true means use public dplay session, and connect to lobby is g.strLobbyServer is not empty
+  bool fPublic = true;
 #endif // !defined(ALLSRV_STANDALONE)
+
+  if (SUCCEEDED(HostSession(fPublic)))
+  {
+  #if defined(ALLSRV_STANDALONE)
+    if (NA != g.civTraining)
+      CreateTrainingGame();
+    else
+      StartDefaultGames();
+  #endif
+  }
+  else if (NA != g.civTraining)
+  {
+    // Nothing to train on: stop, and the client reports it
+    SetEvent(g.hKillReceiveEvent);
+  }
 
   rgeventHandles[0] = g.hKillReceiveEvent;
   // rgeventHandles[1] = g.hPlayerEvent;
@@ -7449,6 +7561,11 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
 
     UpdateMissions(timeStartIteration, timeEndIteration);
 
+  #if defined(ALLSRV_STANDALONE)
+    if (NA != g.civTraining)
+      StartTrainingGameWhenJoined();
+  #endif
+
     //Sleep an amount of time appropriate to total time will be dwUpdateInterval
     DWORD   dwIteration = (Time::Now().clock() - timeStartIteration.clock());
     DWORD   dwSleep = dwIteration < dwUpdateInterval
@@ -7473,28 +7590,11 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
 
   printf("Shutting down server...\n");
 
-  // Suspend creation of any objects
-  CoSuspendClassObjects();
-
-  // Revoke class objects
-  _Module.RevokeCOMObjects();
+  if (hwaitTrainingStop)
+    UnregisterWaitEx(hwaitTrainingStop, INVALID_HANDLE_VALUE);
 
   // Close the uniquely-named mutex to indicate that the server is not running
   shMutexRunning = NULL;
-
-  // Get the CAdminServer instance from the GIT (to keep a ref on it)
-  IUnknownPtr spunkServer;
-  ZSucceeded(GetAGCGlobal()->GetInterfaceFromGlobal(g.dwServerGITCookie,
-    IID_IUnknown, (void**)&spunkServer));
-
-  // Remove the CAdminServer instance from the GIT
-  ZSucceeded(GetAGCGlobal()->RevokeInterfaceFromGlobal(g.dwServerGITCookie));
-
-  // Disconnect any other external references to the CAdminServer instance
-  CoDisconnectObject(spunkServer, 0);
-  
-  // Release the CAdminServer instance
-  spunkServer = NULL;
 
 
   #if !defined(ALLSRV_STANDALONE)
@@ -7584,6 +7684,10 @@ void LoadSettings()
     g.fProtocol        = ZSettings::GetDWORD("fProtocol",        1) != 0;
     g.fDoublePrecision = ZSettings::GetDWORD("fDoublePrecision", 1) != 0;
     g.fTimeOut         = ZSettings::GetDWORD("fTimeout",         1) != 0;
+
+    // PublicLobby = 1: host the public session and connect to the lobby,
+    // instead of the LAN session clients find with their LAN browser
+    g.fPublicLobby     = ZSettings::GetDWORD("PublicLobby",      0) != 0;
 
   #if !defined(ALLSRV_STANDALONE)
     g.csqlNotifyThreads = ZSettings::GetDWORD("SQLThreadsNotify", 3);
@@ -8067,79 +8171,85 @@ void    BuildIGCFiles (char* szArtworkPath, bool bEncrypt = false, bool bMaps = 
 }
 
 
+#if !defined(ALLSRV_STANDALONE)
 /*-------------------------------------------------------------------------
- * RegisterAllSrv()
+ * BuildIGCFilesFromArgs()
  *-------------------------------------------------------------------------
  * Purpose:
- *    Register AllSrv as an EXE or NT Service, and report any errors
- * 
- *  Paramters: 
- *    fReRegister:  are we registering after an autoupdate?
- *    fInstallAsService: TRUE if NT service, FALSE for EXE
+ *    The -BuildIGCFiles family of switches (database builds only)
  */
-void RegisterAllSrv(BOOL fReRegister, BOOL fInstallAsService, int argc, char *argv[])
+static void BuildIGCFilesFromArgs(int argc, char *argv[], bool fEncrypt, bool fMaps)
 {
-  if (fInstallAsService && IsWin9x())
-  {
-    printf("Cannot register as a service on this operating system.\n");
-    return;
-  }
+  if (argc > 2)
+    BuildIGCFiles (argv[2], fEncrypt, fMaps);
+  else
+    printf ("Please provide a path for IGC files to get written to...\n");
+}
+#endif // !defined(ALLSRV_STANDALONE)
 
-  DWORD dwErrorCode(_Module.RegisterServer(fReRegister, TRUE, fInstallAsService, argc, argv));
 
-  if (FAILED(dwErrorCode))
-  {
-    char szBuf[MAX_PATH];
-    sprintf(szBuf, "Unable to register server [0x%08x].  %s is not properly installed.\n", dwErrorCode, argv[0]);
-    PrintSystemErrorMessage(szBuf, dwErrorCode);
-  }
-  else 
-  {
-    // signal success in terms of adding COM related registry stuff
-    printf("Registry Update Successful.\n");
-  }
+/*-------------------------------------------------------------------------
+ * ShowUsage()
+ *-------------------------------------------------------------------------
+ */
+static void ShowUsage()
+{
+  ZVersionInfo vi;
+  printf("%s\n%s\n\n",
+    (LPCSTR)vi.GetFileDescription(), (LPCSTR)vi.GetLegalCopyright());
+
+  //      ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
+  printf("usage is ONE of:\n\n");
+  printf("AllSrv32                           runs the server in this console\n");
+  printf("AllSrv32 -install [user pw]        installs the server as a Windows service\n");
+  printf("AllSrv32 -remove                   removes the Windows service\n");
+#if !defined(ALLSRV_STANDALONE)
+  printf("AllSrv32 -BuildIGCFiles <artpath>    builds igc files from database\n");
+  printf("AllSrv32 -EncryptIGCFiles <artpath>  builds & encrypts igc files from database\n");
+  printf("AllSrv32 -BuildIGCFilesNM <artpath>  as above, but no maps\n");
+  printf("AllSrv32 -EncryptIGCFilesNM <artpath> as above, but no maps\n");
+#endif // !defined(ALLSRV_STANDALONE)
+  printf("\nSettings are read from %s.\n", c_szServerSettingsFile);
+  printf("To start the service once installed: net start %s\n", c_szSvcName);
+  //      ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 }
 
 
 /*-------------------------------------------------------------------------
- * UnregisterSvr()
+ * ParseTrainingArgs()
  *-------------------------------------------------------------------------
  * Purpose:
- *    Unregister AllSrv as an EXE or NT Service, and report any errors
- * 
+ *    -training <civ> [-stopevent <handle>]: the client's training mission 7
+ *    (see trainingserver.h). Returns false if the arguments are malformed.
  */
-void UnregisterAllSrv(char *szServerName)
+static bool ParseTrainingArgs(int argc, char *argv[])
 {
-  DWORD dwErrorCode(_Module.UnregisterServer());
-
-  if (FAILED(dwErrorCode))
+  for (int i = 1; i < argc; i++)
   {
-    char szBuf[MAX_PATH];
-    sprintf(szBuf, "Unable to remove server [0x%08x].  %s is not properly uninstalled.\n", dwErrorCode, szServerName);
-    PrintSystemErrorMessage(szBuf, dwErrorCode);
+    if (!lstrcmpi("-training", argv[i]) && i + 1 < argc)
+      g.civTraining = (short)atoi(argv[++i]);
+    else if (!lstrcmpi("-stopevent", argv[i]) && i + 1 < argc)
+      g.hTrainingStop = (HANDLE)(INT_PTR)_strtoui64(argv[++i], NULL, 10);
+    else
+      return false;
   }
-  else 
-  {
-    // signal success in terms of removing COM related registry stuff
-    printf("Registry Update Successful.\n");
-  }
+  return NA != g.civTraining;
 }
 
 
 ////////////////////////////////////////////////////////////////////////
 // main
 //
-// This is the entry point to the process, whether run as a service, or
-// as an executable.  Since the NT service manager does not send us
-// command line flags, the default case is to run as a service.
-// Additional supported mutually-exclusive functions are installation
-// (with the -install command line switch) de-installation (with the
-// -remove switch) and running as a non-service executable (with the
-// -debug switch).
-//                           
-// This function parses the command line arguments and invokes the
-// selected mode of operation.  When running as an executable, blocking
-// keyboard input is used to prevent the program from exiting prematurely.
+// This is the entry point to the process, whether run in a console, as a
+// service, or by the client for its training mission:
+//
+//   AllSrv32                      run in this console ('Q' quits)
+//   AllSrv32 -install [user pw]   install as a Windows service
+//   AllSrv32 -remove              remove the Windows service
+//   AllSrv32 -service             how the service control manager starts it
+//   AllSrv32 -training <civ> -stopevent <handle>   (trainingserver.h)
+//
+// There is no COM registration any more: AllSrv exposes no COM classes.
 //
 int __cdecl main(int argc, char *argv[])
 {
@@ -8159,187 +8269,72 @@ int __cdecl main(int argc, char *argv[])
     // clock time to shake things up a bit)
     srand(GetTickCount() + time(NULL));
 
-    // Enter this thread into the COM MTA
+    g.hInst = GetModuleHandle(NULL);
+
+    //
+    // Service installation needs neither COM nor AGC
+    //
+    const char * szSwitch = (argc > 1 && (*argv[1]=='-' || *argv[1]=='/')) ? argv[1] + 1 : NULL;
+
+    if (szSwitch && !lstrcmpi("install", szSwitch))
+      return _Module.InstallService(argc, argv) ? 0 : 1;
+
+    if (szSwitch && (!lstrcmpi("remove", szSwitch) || !lstrcmpi("uninstall", szSwitch)))
+      return _Module.RemoveService() ? 0 : 1;
+
+  #if !defined(ALLSRV_STANDALONE)
+    // These run before AGC, as they always did not need it either
+    if (szSwitch && !lstrcmpi("BuildIGCFiles", szSwitch))    { BuildIGCFilesFromArgs(argc, argv, false, true);  return 0; }
+    if (szSwitch && !lstrcmpi("EncryptIGCFiles", szSwitch))  { BuildIGCFilesFromArgs(argc, argv, true,  true);  return 0; }
+    if (szSwitch && !lstrcmpi("BuildIGCFilesNM", szSwitch))  { BuildIGCFilesFromArgs(argc, argv, false, false); return 0; }
+    if (szSwitch && !lstrcmpi("EncryptIGCFilesNM", szSwitch)){ BuildIGCFilesFromArgs(argc, argv, true,  false); return 0; }
+  #endif // !defined(ALLSRV_STANDALONE)
+
+    bool fRun = false;
+    if (argc == 1)
+      fRun = true;
+    else if (szSwitch && !lstrcmpi("service", szSwitch) && argc == 2)
+      fRun = g.fService = true;
+    else if (szSwitch && !lstrcmpi("training", szSwitch))
+      fRun = ParseTrainingArgs(argc, argv);
+
+    if (!fRun)
+    {
+      ShowUsage();
+      return 1;
+    }
+
+    // Enter this thread into the COM MTA (AGC's objects are COM objects in
+    // this process; nothing is exposed outside it)
     TCCoInit init(COINIT_MULTITHREADED);
     ZSucceeded((HRESULT)init);
     if (init.Failed())
       return (HRESULT)init;
 
-    // Set the process-wide COM security
-    // This provides a NULL DACL which will allow access to everyone.
-    PSECURITY_DESCRIPTOR psd = NULL;
-    CSecurityDescriptor sd;
-    if (IsWinNT())
-    {
-      sd.InitializeFromThreadToken();
-      psd = sd;
-    }
-    HRESULT hr;
-    hr = CoInitializeSecurity(psd, -1, NULL, NULL,
-        RPC_C_AUTHN_LEVEL_PKT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
-    ZSucceeded(hr);
-    RETURN_FAILED(hr);
-
     // Initialize AGC
+    HRESULT hr;
     ZSucceeded(hr = _Module.InitAGC());
     RETURN_FAILED(hr);
 
-    char szSvcName[64];
-    strcpy(szSvcName, c_szSvcName);
-    SERVICE_TABLE_ENTRY rgSTE[] =
+    if (g.fService)
     {
-        { szSvcName, (LPSERVICE_MAIN_FUNCTION)_ServiceMain },
-        { NULL, NULL }
-    };
-    bool fShowUsage = false;
-
-    g.hInst = GetModuleHandle(NULL);
-                                                           
-    if (argc < 1) 
-    {
-      //printf ("Hell has frozen over.\n"); // this should never happen
-      // Terminate AGC
-      _Module.TermAGC();
-      return 0;
-    }
-
-    // if registering (after an AutoUpdate)--be sure to keep existing install data intact
-    if (argc > 1 && (*argv[1]=='-' || *argv[1]=='/') && !lstrcmpi ("reregister", argv[1]+1))
-    {
-      RegisterAllSrv(TRUE, _Module.IsInstalledAsService(), argc, argv);
-      // Terminate AGC
-      _Module.TermAGC();
-      return 0;
-    }
-
-    // Check for a weird/busted installation...this really can happen
-    if (_Module.IsInstalledAsService() && !_Module.IsInServiceControlManager())
-    {
-      printf("Incomplete installation detected. Removing incomplete installation...\n");
-
-      UnregisterAllSrv(argv[0]);
-    }
-
-    _Module.SetCOMStarted(argc == 2 && !lstrcmpi("-Embedding",argv[1]));
-
-    #if defined(ALLSRV_STANDALONE)
-    #ifndef _DEBUG
-    if (argc == 1 && !_Module.IsInstalledAsService() && !_Module.WasCOMStarted())
-    {
-      printf("\nUse AllSrvUI32.exe to run the Allegiance Server.\n");
-      // Terminate AGC
-      _Module.TermAGC();
-      return 0;
-    }
-    #endif 
-    #endif 
-
-    if (argc > 1 && (*argv[1]=='-' || *argv[1]=='/') && !_Module.WasCOMStarted())
-    {
-      BOOL fInstallAsService = !lstrcmpi("Service",argv[1]+1); 
-
-      if (fInstallAsService || !lstrcmpi("RegServer",argv[1]+1))
+      char szSvcName[64];
+      strcpy(szSvcName, c_szSvcName);
+      SERVICE_TABLE_ENTRY rgSTE[] =
       {
+          { szSvcName, (LPSERVICE_MAIN_FUNCTION)_ServiceMain },
+          { NULL, NULL }
+      };
 
-        RegisterAllSrv(FALSE, fInstallAsService, argc, argv);
-
-      }
-      else if (!lstrcmpi("UnregServer",argv[1]+1) || !lstrcmpi("Remove",argv[1]+1))
+      if (!StartServiceCtrlDispatcher(rgSTE))
       {
-        UnregisterAllSrv(argv[0]);
-      }
-    #if !defined(ALLSRV_STANDALONE)
-      else if (!lstrcmpi ("BuildIGCFiles", argv[1]+1))
-      {
-        if (argc > 2)
-            BuildIGCFiles (argv[2], false, true);
-        else
-            printf ("Please provide a path for IGC files to get written to...\n");
-      }
-      else if (!lstrcmpi ("EncryptIGCFiles", argv[1]+1))
-      {
-        if (argc > 2)
-            BuildIGCFiles (argv[2], true, true);
-        else
-            printf ("Please provide a path for IGC files to get written to...\n");
-      }
-      else if (!lstrcmpi ("BuildIGCFilesNM", argv[1]+1))
-      {
-        if (argc > 2)
-            BuildIGCFiles (argv[2], false, false);
-        else
-            printf ("Please provide a path for IGC files to get written to...\n");
-      }
-      else if (!lstrcmpi ("EncryptIGCFilesNM", argv[1]+1))
-      {
-        if (argc > 2)
-            BuildIGCFiles (argv[2], true, false);
-        else
-            printf ("Please provide a path for IGC files to get written to...\n");
-      }
-    #endif // !defined(ALLSRV_STANDALONE)
-      else
-      { 
-            // if unknown args
-           fShowUsage = true;
+        PrintSystemErrorMessage("-service is for the service control manager; use -install to install the service.\n",
+          GetLastError());
       }
     }
     else
     {
-      if (argc == 1 || _Module.WasCOMStarted())
-      {
-        if (_Module.IsInstalledAsService())
-        {
-          printf("Trying to run %s as an NT Service...\nType \"%s -RegServer\" to re-install as EXE.\n", argv[0], argv[0]);
-          //start as service
-          if (!StartServiceCtrlDispatcher(rgSTE))
-            _AGCModule.TriggerEvent(NULL, AllsrvEventID_StartingService, "", -1, -1, -1, 0);
-
-        }
-        else
-        {
-          if (!_Module.IsInstalled())
-          {
-            printf("\nInstalling %s as an EXE...\n", argv[0]);
-            RegisterAllSrv(FALSE, FALSE, argc, argv); // FALSE == register as EXE
-          }
-          _Module.RunAsExecutable();
-        }
-      }
-      else // if unknown args
-        fShowUsage = true;
-    }
-
-    if (fShowUsage)
-    {
-      ZVersionInfo vi;
-      printf("%s\n%s\n\n",
-        (LPCSTR)vi.GetFileDescription(), (LPCSTR)vi.GetLegalCopyright());
-      
-      if (!_Module.IsInstalled())
-      {
-        printf("\nThe server needs to be installed before running.\n\n", argv[0]);
-      }
-      //      ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-      printf("usage is ONE of:\n\n");
-      printf("AllSrv                             starts the server if registered as an exe\n");
-      printf("AllSrv -RegServer                  install the server as an EXE\n");
-    if (IsWinNT())
-      printf("AllSrv -Service [user pw]          install the server as an NT Service\n");
-      printf("AllSrv -UnregServer                uninstall the server\n");
-    #if !defined(ALLSRV_STANDALONE)
-      printf("AllSrv -BuildIGCFiles <artpath>    builds igc files from database\n");
-      printf("                                   (see root makefile for required env vars).\n");
-      printf("AllSrv -EncryptIGCFiles <artpath>  builds & encrypts igc files from database\n");
-      printf("                                   (see root makefile for required env vars).\n");
-      printf("AllSrv -BuildIGCFilesNM <artpath>  as above, but no maps\n");
-      printf("                                   (see root makefile for required env vars).\n");
-      printf("AllSrv -EncryptIGCFilesNM <artpath> as above, but no maps\n");
-      printf("                                   (see root makefile for required env vars).\n");
-    #endif // !defined(ALLSRV_STANDALONE)
-    if (IsWinNT())
-      printf("\nTo start this service (when installed as NT service): net start %s\n",c_szSvcName);
-      //      ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
+      _Module.RunAsExecutable();
     }
 
     // Terminate AGC
@@ -8411,15 +8406,8 @@ HRESULT pascal FedSrv_Init()
   // Initialize COM library
   // ZSucceeded(CoInitialize(NULL));
 
-  ZVerify(g.perfshare.Initialize());
-  //
-  // Allocate perfmon counters for the server
-  //
-  g.pServerCounters = (SERVER_COUNTERS *)g.perfshare.AllocateCounters(
-                      "AllSrv",
-                      "0",    // if there are ever multiple servers running, change this
-                      sizeof(SERVER_COUNTERS));
-  memset(g.pServerCounters, 0x00, sizeof(SERVER_COUNTERS));
+  // Server statistics are kept in memory only (they were Windows performance counters)
+  ZeroMemory(g.pServerCounters, sizeof(SERVER_COUNTERS));
 
 
   // create event used by fm to signal a message has arrived

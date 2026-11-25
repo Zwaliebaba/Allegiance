@@ -2,41 +2,22 @@
 /*-------------------------------------------------------------------------
  * fedsrv\AllSrvModule.CPP
  * 
- * This part of AllSrv contains Service-related functions and COM/ATL support.  
+ * How AllSrv runs: as a console program, or as a Windows service (see
+ * allsrvmodule.h). Also sets up AGC and its event logger.
  * 
  * Owner: 
  * 
  * Copyright 1986-1998 Microsoft Corporation, All Rights Reserved
  *-----------------------------------------------------------------------*/
 
-
-
 #include "pch.h"
-#include "AllSrvModuleIDL_i.c"
 #include <AGC.h>
-#include <..\TCAtl\ObjectMap.h>
-#include <..\TCLib\CoInit.h>
-
-#if !defined(ALLSRV_STANDALONE)
-  #include "AdminEventLoggerHook.h"
-  CComObjectGlobal<CAdminEventLoggerHook> g_DBLoggingHook;
-#endif // !defined(ALLSRV_STANDALONE)
 
 #ifdef _DEBUG
   #include "FedSrvApp.h"
   #include <AGCDebugHook.h>
   CComObjectGlobal<CAGCDebugHook> g_DebugHook;
 #endif // _DEBUG
-
-// {E1A86098-DD81-11d2-8B45-00C04F681633}
-static const CATID CATID_AllegianceAdmin = 
-  {0xe1a86098,0xdd81,0x11d2,{0x8b,0x45,0x0,0xc0,0x4f,0x68,0x16,0x33}};
-
-// The following two APP IDs must be the same
-static const GUID APPID_AllSrv =
-  {0xE4E8767E,0xDFDB,0x11d2,{0x8B,0x46,0x00,0xC0,0x4F,0x68,0x16,0x33}};
-
-static const char *c_szAPPID_AllSrv = "{E4E8767E-DFDB-11d2-8B46-00C04F681633}";
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -52,38 +33,11 @@ CServiceModule _Module;
 extern Global g;
 
 
-TC_OBJECT_EXTERN(CAdminSession)
-TC_OBJECT_EXTERN_NON_CREATEABLE(CAdminGame)
-TC_OBJECT_EXTERN_NON_CREATEABLE(CAdminGames)
-TC_OBJECT_EXTERN_NON_CREATEABLE(CAdminServer)
-TC_OBJECT_EXTERN_NON_CREATEABLE(CAdminUser)
-TC_OBJECT_EXTERN_NON_CREATEABLE(CAdminUsers)
-TC_OBJECT_EXTERN_NON_CREATEABLE(CAdminShip)
-// End: External Declarations
-
-
 /////////////////////////////////////////////////////////////////////////////
-// Object Map
+// Object Map: empty, since AllSrv no longer exposes COM classes
 
 BEGIN_OBJECT_MAP(ObjectMap)
-  TC_OBJECT_ENTRY_STD(AdminSession)
-  TC_OBJECT_ENTRY_STD_NON_CREATEABLE(AdminGame)
-  TC_OBJECT_ENTRY_STD_NON_CREATEABLE(AdminGames)
-  TC_OBJECT_ENTRY_STD_NON_CREATEABLE(AdminServer)
-  TC_OBJECT_ENTRY_STD_NON_CREATEABLE(AdminUser)
-  TC_OBJECT_ENTRY_STD_NON_CREATEABLE(AdminUsers)
-  TC_OBJECT_ENTRY_STD_NON_CREATEABLE(AdminShip)
 END_OBJECT_MAP()
-
-
-
-
-#ifdef SHOW_SPONSOR_INFO
-  int cSponsor = 0;    // for debugging in AdminUtil.h
-  int cLimb = 0;
-  CDebugClass DebugClass;
-#endif
-
 
 
 /*-------------------------------------------------------------------------
@@ -123,95 +77,6 @@ void PrintSystemErrorMessage(LPCTSTR szText, DWORD dwErrorCode)
 
 
 /*-------------------------------------------------------------------------
- * IsInstalled()
- *-------------------------------------------------------------------------
- * Returns:
- *    TRUE iff AllSrv was properly installed (either as Service or EXE)
- * 
- */
-BOOL CServiceModule::IsInstalled()
-{
-    // Are we Service or Local Server
-    CRegKey keyAppID;
-    LONG lRes = keyAppID.Open(HKEY_CLASSES_ROOT, _T("AppID"), KEY_READ);
-    if (lRes != ERROR_SUCCESS)
-        return FALSE;
-
-    CRegKey key;
-    lRes = key.Open(keyAppID, c_szAPPID_AllSrv, KEY_READ);
-    if (lRes != ERROR_SUCCESS)
-        return FALSE;
-
-    return TRUE;
-}
-
-
-/*-------------------------------------------------------------------------
- * IsInstalledAsService()
- *-------------------------------------------------------------------------
- * Returns:
- *    TRUE iff AllSrv is installed as an NT service.
- * 
- */
-BOOL CServiceModule::IsInstalledAsService()
-{
-    if (IsWin9x())
-      return false;
-
-    // Are we Service or Local Server
-    CRegKey keyAppID;
-    LONG lRes = keyAppID.Open(HKEY_CLASSES_ROOT, _T("AppID"), KEY_READ);
-    if (lRes != ERROR_SUCCESS)
-        return FALSE;
-
-    CRegKey key;
-    lRes = key.Open(keyAppID, c_szAPPID_AllSrv, KEY_READ);
-    if (lRes != ERROR_SUCCESS)
-        return FALSE;
-
-    TCHAR szValue[_MAX_PATH];
-    DWORD dwLen = _MAX_PATH;
-    lRes = key.QueryValue(szValue, _T("LocalService"), &dwLen);
-
-    if (lRes == ERROR_SUCCESS)
-        return TRUE;
-
-    return FALSE;
-}
-
-/*-------------------------------------------------------------------------
- * IsInServiceControlManager()
- *-------------------------------------------------------------------------
- * Returns:
- *    TRUE iff AllSrv is an NT service (by checking the Service Control 
- *    Manager).
- * 
- */
-BOOL CServiceModule::IsInServiceControlManager()
-{
-    if (IsWin9x())
-      return false;
-
-    BOOL bResult = FALSE;
-
-    SC_HANDLE hSCM = ::OpenSCManager(NULL, NULL, GENERIC_READ);
-
-    if (hSCM != NULL)
-    {
-        SC_HANDLE hService = ::OpenService(hSCM, c_szSvcName, SERVICE_QUERY_CONFIG);
-        if (hService != NULL)
-        {
-            bResult = TRUE;
-            ::CloseServiceHandle(hService);
-        }
-        ::CloseServiceHandle(hSCM);
-    }
-    return bResult;
-}
-
-
-
-/*-------------------------------------------------------------------------
  * CServiceModule::Init
  *-------------------------------------------------------------------------
  * Purpose:
@@ -222,7 +87,7 @@ HRESULT CServiceModule::Init(HINSTANCE hInst)
 {
   // Initialize the ATL module
   HRESULT hr;
-  ZSucceeded(hr = CComModule::Init(ObjectMap, hInst, &LIBID_ALLEGIANCESERVERLib));
+  ZSucceeded(hr = CComModule::Init(ObjectMap, hInst));
   RETURN_FAILED(hr);
 
   // Indicate success
@@ -280,13 +145,6 @@ HRESULT CServiceModule::InitAGC()
   ZSucceeded(hr = spPrivate->Initialize(bstrEventSource, bstrSettingsFile));
   RETURN_FAILED(hr);
 
-  // Hook the event logger for DB event logging
-  #if !defined(ALLSRV_STANDALONE)
-  {
-    ZSucceeded(hr = spPrivate->put_HookForDBLogging(&g_DBLoggingHook));
-  }
-  #endif // !defined(ALLSRV_STANDALONE)
-
   // Indicate success
   return S_OK;
 }
@@ -302,13 +160,6 @@ void CServiceModule::TermAGC()
     // Terminate the event logger
     ZSucceeded(spPrivate->Terminate());
 
-    // Unhook the event logger for DB event logging
-    #if !defined(ALLSRV_STANDALONE)
-    {
-      ZSucceeded(spPrivate->put_HookForDBLogging(NULL));
-    }
-    #endif // !defined(ALLSRV_STANDALONE)
-
     // Release the event logger
     spPrivate = NULL;
     m_spEventLogger = NULL;
@@ -317,244 +168,6 @@ void CServiceModule::TermAGC()
   // Terminate AGC
   _AGCModule.Term();
 }
-
-
-/*-------------------------------------------------------------------------
- * CServiceModule::get_EventLog
- *-------------------------------------------------------------------------
- * Purpose:
- *    Gets the previously created event logger object.
- * 
- */
-HRESULT CServiceModule::get_EventLog(IAGCEventLogger** ppEventLogger)
-{
-  CLEAROUT(ppEventLogger, (IAGCEventLogger*)NULL);
-  (*ppEventLogger = m_spEventLogger)->AddRef();
-  return S_OK;
-}
-
-
-
-/*-------------------------------------------------------------------------
- * RegisterCOMObjects
- *-------------------------------------------------------------------------
- * Purpose:
- *    Let COM know about our class objects 
- * 
- */
-void CServiceModule::RegisterCOMObjects() 
-{
-  // Make sure we haven't already been here
-  assert(m_shevtMTAReady.IsNull());
-  assert(m_shevtMTAExit.IsNull());
-  assert(m_shthMTA.IsNull());
-
-  // Create thread synchronization objects
-  m_shevtMTAReady = CreateEvent(NULL, false, false, NULL);
-  m_shevtMTAExit  = CreateEvent(NULL, false, false, NULL);
-  assert(!m_shevtMTAReady.IsNull());
-  assert(!m_shevtMTAExit.IsNull());
-
-  // Create the thread to keep the MTA alive and register the class objects
-  DWORD dwID = 0;
-  m_shthMTA = CreateThread(NULL, 8192, MTAKeepAliveThunk, this, 0, &dwID);
-  assert(!m_shthMTA.IsNull());
-
-  // Wait for the new thread to do its initialization work
-  WaitForSingleObject(m_shevtMTAReady, INFINITE);
-
-  // Close the 'Ready' event since we're done with it
-  m_shevtMTAReady = NULL;
-
-  // Check for failure
-  if (FAILED(m_hrMTAKeepAlive))
-    PrintSystemErrorMessage("Failed to register COM class objects for Admin Session.", m_hrMTAKeepAlive);
-
-  ZSucceeded(m_hrMTAKeepAlive);
-}
-
-
-/*-------------------------------------------------------------------------
- * RevokeCOMObjects
- *-------------------------------------------------------------------------
- * Purpose:
- *    Let COM 'un-know' about our class objects.
- * 
- */
-void CServiceModule::RevokeCOMObjects() 
-{
-  // Make sure that we have registered correctly
-  assert(m_shevtMTAReady.IsNull());
-  assert(!m_shevtMTAExit.IsNull());
-  assert(!m_shthMTA.IsNull());
-  assert(WAIT_TIMEOUT == WaitForSingleObject(m_shthMTA, 0));
-
-  // Signal the MTA keep-alive thread to exit
-  SetEvent(m_shevtMTAExit);
-
-  // Wait for the MTA keep-alive thread to exit
-  HANDLE hth = m_shthMTA;
-  while (WAIT_OBJECT_0 != MsgWaitForMultipleObjects(1, &hth, false, INFINITE, QS_ALLINPUT))
-  {
-    MSG msg;
-    while (PeekMessage(&msg, NULL, 0, 0, true))
-      DispatchMessage(&msg);
-  }
-
-  // Clear the thread handle
-  m_shthMTA = NULL;
-
-  // Close the 'Exit' event since we're done with it
-  m_shevtMTAExit = NULL;
-}
-
-
-
-
-/*-------------------------------------------------------------------------
- * RegisterServer
- *-------------------------------------------------------------------------
- * Purpose:
- *    Put module into the registry.
- *
- * Paramters: 
- *    bReRegister:  are we registering after an autoupdate?
- *    bRegTypeLib:  should we register the COM Type Lib?
- *    bService:     if TRUE, then module is placed in the service control manager
- *    argc, argv:   arguments passed via command-line (used by Install Service)
- */
-
-HRESULT CServiceModule::RegisterServer(BOOL bReRegister, BOOL bRegTypeLib, BOOL bService, int argc, char * argv[])
-{
-    // Enter the COM MTA
-    TCCoInit init(COINIT_MULTITHREADED);
-    if (init.Failed())
-      return init;
-
-    // Initialize the ATL module
-    HRESULT hr = _Module.Init(g.hInst); // init COM and/or NT service stuff
-    ZSucceeded(hr);
-
-    if (IsWin9x())
-      bService = false; // Windows 9x doesn't support services
-
-    // Remove any previous service since it may point to
-    // the incorrect file
-    if (IsInServiceControlManager() && !bReRegister)
-      RemoveService();
-
-    // Add service entries
-    _Module.UpdateRegistryFromResource(IDR_AllSrv, true,
-      _AGCModule.GetRegMapEntries());
-
-
-
-    // Create the component category manager
-    CComPtr<ICatRegister> spCatReg;
-    hr = CoCreateInstance(CLSID_StdComponentCategoriesMgr, NULL, CLSCTX_ALL,
-      IID_ICatRegister, (void**)&spCatReg);
-    ZSucceeded(hr);
-
-    if (SUCCEEDED(hr))
-    {
-      // Determine the LCID for US English
-      const LANGID langid = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
-      const LCID lcid = MAKELCID(langid, SORT_DEFAULT);
-
-      // Register the component category
-      CATEGORYINFO catinfo;
-      catinfo.catid = CATID_AllegianceAdmin;
-      catinfo.lcid = lcid;
-      wcscpy(catinfo.szDescription, L"Allegiance Admin Objects");
-      hr = spCatReg->RegisterCategories(1, &catinfo);
-      ZSucceeded(hr);
-
-      // Explicitly release the smart pointer
-      spCatReg = NULL;
-    }
-
-    if(!bReRegister)
-    {
-      // Adjust the AppID for Local Server or Service
-      CRegKey keyAppID;
-
-      DWORD lRes = keyAppID.Open(HKEY_CLASSES_ROOT, _T("AppID"), KEY_WRITE);
-      if (lRes != ERROR_SUCCESS)
-          return lRes;
-
-      CRegKey key;
-      lRes = key.Open(keyAppID, _T("{E4E8767E-DFDB-11d2-8B46-00C04F681633}"), KEY_WRITE);
-      if (lRes != ERROR_SUCCESS)
-          return lRes;
-
-      key.DeleteValue(_T("LocalService"));
-    
-      if (bService)
-      {
-          key.SetValue(__MODULE__, _T("LocalService"));
-          key.SetValue(_T("-Service"), _T("ServiceParameters"));
-          // Create service
-          InstallService(argc, argv);
-      }
-    }
-
-    // Add object entries
-    hr = _Module.CComModule::RegisterServer(bRegTypeLib);
-
-    // Terminate the ATL module
-    _Module.Term();
-    return hr;
-}
-
-/*-------------------------------------------------------------------------
- * UnregisterServer
- *-------------------------------------------------------------------------
- * Purpose:
- *    remove module from registry and remove service
- *    from service control manager.
- *
- */
-
-HRESULT CServiceModule::UnregisterServer()
-{
-    // Enter the COM MTA
-    TCCoInit init(COINIT_MULTITHREADED);
-    if (init.Failed())
-      return init;
-
-    // Initialize the ATL module
-    HRESULT hr = _Module.Init(g.hInst); // init COM and/or NT service stuff
-    ZSucceeded(hr);
-
-    // Create the component category manager
-    CComPtr<ICatRegister> spCatReg;
-    hr = CoCreateInstance(CLSID_StdComponentCategoriesMgr, NULL, CLSCTX_ALL,
-      IID_ICatRegister, (void**)&spCatReg);
-    ZSucceeded(hr);
-
-    if (SUCCEEDED(hr))
-    {
-      // Unregister our component category
-      CATID catid = CATID_AllegianceAdmin;
-      spCatReg->UnRegisterCategories(1, &catid);
-      spCatReg = NULL;
-    }
-
-    // Remove service entries
-    UpdateRegistryFromResource(IDR_AllSrv, FALSE);
-    // uninstall service
-    if (IsInServiceControlManager())
-    {
-      RemoveService();
-    }
-    // Remove object entries
-    CComModule::UnregisterServer(TRUE);
-
-    // Terminate the ATL module
-    _Module.Term();
-    return hr;
-}
-
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -566,7 +179,8 @@ BOOL CServiceModule::InstallService(int argc, char * argv[])
 {
     SC_HANDLE schMgr;
     SC_HANDLE schSvc;
-    char szPath[512];
+    char szModule[MAX_PATH];
+    char szPath[MAX_PATH + 16];
     char * szUserName;
     char * szPassword;
 
@@ -579,7 +193,9 @@ BOOL CServiceModule::InstallService(int argc, char * argv[])
         return FALSE;
     }
 
-    GetModuleFileName(NULL,szPath,sizeof(szPath));
+    // The service control manager starts the server with -service
+    GetModuleFileName(NULL, szModule, sizeof(szModule));
+    sprintf(szPath, "\"%s\" -service", szModule);
 
     if (argc > 3)
     {
@@ -593,7 +209,7 @@ BOOL CServiceModule::InstallService(int argc, char * argv[])
 
     schSvc = CreateService(schMgr,
                            c_szSvcName,
-                           "MS Allegiance Game Server",
+                           "Allegiance Game Server",
                            SERVICE_ALL_ACCESS,
                            SERVICE_WIN32_OWN_PROCESS,
                            SERVICE_AUTO_START,
@@ -601,7 +217,7 @@ BOOL CServiceModule::InstallService(int argc, char * argv[])
                            szPath,
                            NULL,
                            NULL,
-                           _T("RPCSS\0"),
+                           NULL,
                            szUserName,
                            szPassword);
 
@@ -704,54 +320,6 @@ BOOL WINAPI HandlerRoutine(
     return FALSE;
 }
 
-void RunAsWindow()
-{
-  // Create an invisible window
-  HWND hwnd = ::CreateWindow("static", "AllSrv32", WS_OVERLAPPED,
-    0, 0, 0, 0, NULL, NULL, ::GetModuleHandle(NULL), NULL);
-
-  // Load the small application icon
-  HICON hIcon = reinterpret_cast<HICON>(::LoadImage(::GetModuleHandle(NULL),
-    MAKEINTRESOURCE(ICO_FEDSRV), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON),
-    ::GetSystemMetrics(SM_CYSMICON), 0));
-
-  // Set the taskbar icon
-  const UINT wm_ShellNotifyIcon = WM_APP;
-  NOTIFYICONDATA nid = {sizeof(nid), hwnd, 0, NIF_ICON | NIF_MESSAGE | NIF_TIP,
-    wm_ShellNotifyIcon, hIcon, "Allegiance Server"};
-  Shell_NotifyIcon(NIM_ADD, &nid);
-
-  // Enter a message loop
-  while (true)
-  {
-    DWORD dwWait = ::MsgWaitForMultipleObjects(1, &g.hKillReceiveEvent,
-      false, INFINITE, QS_ALLINPUT);
-    if (WAIT_OBJECT_0 == dwWait)
-      break;
-
-    MSG msg;
-    while (::PeekMessage(&msg, NULL, 0, 0, true))
-    {
-      ::TranslateMessage(&msg);
-      switch (msg.message)
-      {
-        case WM_QUIT:
-          ::SetEvent(g.hKillReceiveEvent);
-          break;
-        default:
-          ::DispatchMessage(&msg);
-      }
-    }
-  }
-
-  // Remove the taskbar icon
-  Shell_NotifyIcon(NIM_DELETE, &nid);
-
-  // Shutdown the application
-  FedSrv_Terminate();
-}
-
-
 ////////////////////////////////////////////////////////////////////////
 // RunAsExecutable - for debugging, this service can be run from the
 //                   command-line.
@@ -773,16 +341,16 @@ VOID CServiceModule::RunAsExecutable()
 
     hr = FedSrv_Init();
 
-    #if !defined(_CONSOLE)
-        if (SUCCEEDED(hr))
-        {
-            RunAsWindow();
-            return;
-        }
-    #endif
-
-
-    if (SUCCEEDED(hr))
+    //
+    // A training server (started by the client, without a console) just
+    // runs until it is told to stop
+    //
+    if (SUCCEEDED(hr) && NA != g.civTraining)
+    {
+        WaitForSingleObject(g.hKillReceiveEvent, INFINITE);
+        FedSrv_Terminate();
+    }
+    else if (SUCCEEDED(hr))
     {
         HANDLE hConsole;
                                   
@@ -1007,7 +575,7 @@ void WINAPI _ServiceMain(DWORD dwArgc, LPTSTR* lpszArgv)
 
 void CServiceModule::StopAllsrv()
 { 
-  if(_Module.IsInstalledAsService())
+  if (g.fService)
     _Module.ServiceControl(SERVICE_CONTROL_STOP);
   else
   {
@@ -1017,60 +585,3 @@ void CServiceModule::StopAllsrv()
 //        SetEvent(m_hEventStopRunningAsEXE);
   }
 }
-
-
-/*-------------------------------------------------------------------------
- * MTAKeepAliveThunk
- *-------------------------------------------------------------------------
- * Purpose:
- *    static thunk function to reinterpret the thread parameter and call
- *    through it as a 'this' pointer.
- */
-DWORD WINAPI CServiceModule::MTAKeepAliveThunk(void* pvThis)
-{
-  CServiceModule* pThis = reinterpret_cast<CServiceModule*>(pvThis);
-  pThis->MTAKeepAliveThread();
-  return 0;
-}
-
-
-/*-------------------------------------------------------------------------
- * MTAKeepAliveThread
- *-------------------------------------------------------------------------
- * Purpose:
- *    Thread controlling-function that initializes the COM MTA, registers
- *    the server's externally-creatable class objects and sleeps. When the
- *    quit event is signaled, the thread wakes up, revokes the class
- *    objects, and uninitializes the COM MTA.
- */
-void CServiceModule::MTAKeepAliveThread()
-{
-  // Enter the COM MTA
-  TCCoInit init(COINIT_MULTITHREADED);
-  m_hrMTAKeepAlive = init;
-
-  // Register the externally-creatable class objects
-  if (init.Succeeded())
-    m_hrMTAKeepAlive = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER,
-      REGCLS_MULTIPLEUSE);
-
-  // Signal the 'Ready' event
-  assert(!m_shevtMTAReady.IsNull());
-  SetEvent(m_shevtMTAReady);
-  RETURN_FAILED_VOID(m_hrMTAKeepAlive);
-
-  // Wait for the 'Exit' event
-  assert(!m_shevtMTAExit.IsNull());
-  WaitForSingleObject(m_shevtMTAExit, INFINITE);
-
-  // Note: the following call was moved here from the ReceiveThread function
-  // in FedSrv.cpp so that it will always be called from within the MTA.
-  // Destroy all sessions now--before GetAGCGlobal() becomes invalid
-  CAdminSession::DestroyAllSessions();
-
-  // Revoke the class objects
-  _Module.RevokeClassObjects();
-
-  // CoUninitialize called automatically upon leaving scope (using TCCoInit)
-}
-

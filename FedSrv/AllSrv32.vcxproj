@@ -56,16 +56,6 @@
     <ClCompile Include="fsmission.cpp" />
     <ClCompile Include="fsside.cpp" />
     <ClCompile Include="fscluster.cpp" />
-    <ClCompile Include="AdminGame.cpp" />
-    <ClCompile Include="AdminGames.cpp" />
-    <ClCompile Include="AdminServer.cpp" />
-    <ClCompile Include="AdminUser.cpp" />
-    <ClCompile Include="AdminUsers.cpp" />
-    <ClCompile Include="AdminSession.cpp" />
-    <ClCompile Include="AdminSessionClass.cpp" />
-    <ClCompile Include="AdminSessionEventSink.cpp" />
-    <ClCompile Include="AdminEventLoggerHook.cpp" />
-    <ClCompile Include="AdminShip.cpp" />
     <ClCompile Include="allsrvmodule.cpp" />
     <ClCompile Include="fslobby.cpp" />
     <ClCompile Include="srvqguids.cpp" />
@@ -74,20 +64,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AdminEventLoggerHook.h" />
-    <ClInclude Include="AdminGame.h" />
-    <ClInclude Include="AdminGames.h" />
-    <ClInclude Include="AdminServer.h" />
-    <ClInclude Include="AdminSession.h" />
     <ClInclude Include="serversettings.h" />
-    <ClInclude Include="AdminSessionClass.h" />
-    <ClInclude Include="AdminSessionEventSink.h" />
-    <ClInclude Include="AdminSessionSecure.h" />
-    <ClInclude Include="AdminSessionSecureHost.h" />
-    <ClInclude Include="AdminShip.h" />
-    <ClInclude Include="AdminUser.h" />
-    <ClInclude Include="AdminUsers.h" />
-    <ClInclude Include="AdminUtil.h" />
     <ClInclude Include="BitArray.h" />
     <ClInclude Include="FedSrv.H" />
     <ClInclude Include="FedSrvApp.h" />
@@ -113,15 +90,6 @@
     <AllegianceMessage Include="fedmsg.msg">
       <OutputDirectory>$(AllegianceGenDir)AllSrv32\</OutputDirectory>
     </AllegianceMessage>
-    <Midl Include="AllSrvModuleIDL.idl">
-      <OutputDirectory>$(AllegianceGenDir)AllSrv32\</OutputDirectory>
-      <HeaderFileName>AllSrvModuleIDL.h</HeaderFileName>
-      <TypeLibraryName>AllSrvModuleIDL.tlb</TypeLibraryName>
-      <InterfaceIdentifierFileName>AllSrvModuleIDL_i.c</InterfaceIdentifierFileName>
-      <ProxyFileName>AllSrvModuleIDL_p.c</ProxyFileName>
-      <DllDataFileName>AllSrvModuleIDL_d.c</DllDataFileName>
-      <AdditionalIncludeDirectories>$(AllegianceGenDir)AGC\;$(AllegianceRoot)test\Inc;$(AllegianceRoot)Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </Midl>
     <ResourceCompile Include="AllSrv.build.rc">
       <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceGenDir)AllSrv32\;$(AllegianceGenDir)AGC\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>FEDSRV;ALLSRV_STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -136,9 +104,6 @@
     </ProjectReference>
     <ProjectReference Include="..\Igc\Igc.vcxproj">
       <Project>{436BD701-CD33-4132-AC9D-E4A34252E55F}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\sharemem\ShareMem.vcxproj">
-      <Project>{AA05EEE2-AD40-4075-8BC5-5080273DB0E5}</Project>
     </ProjectReference>
     <ProjectReference Include="..\test\TCLib\TCLib.vcxproj">
       <Project>{CB0673C1-D288-4824-BA88-17230F780DED}</Project>

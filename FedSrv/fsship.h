@@ -18,7 +18,13 @@ typedef TLargeBitMask<c_cPlayersMax + c_cDronesMax> ShipDirtyMask;
 class CFSMission;
 class CFSPlayer;
 class CFSDrone;
-class CAdminUser; 
+
+//
+// A 16-bit ID for a player in AGC events: the low word of the event's
+// "unique ID", whose high word is AGC_AdminUser.
+//
+
+USHORT AGCPlayerID(CFSPlayer * pPlayer);
 
 const short c_chatBudgetMax = 100;
 const short c_chatBudgetCost = 20;
@@ -241,8 +247,7 @@ const unsigned char c_ucActiveTurretUpdate   = 2;
 const unsigned char c_ucInactiveTurretUpdate = 3;
 
 class CFSPlayer : 
-  public CFSShip,
-  public CAdminSponsor<CAdminUser>
+  public CFSShip
 {
 public:
   CFSPlayer(CFMConnection * pcnxn, int characterId, const char * szCDKey,

@@ -34,14 +34,14 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)AGC;$(AllegianceRoot)FedSrv;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)test\Inc;$(AllegianceRoot)WinTrek;$(AllegianceGenDir)AGC\;$(AllegianceGenDir)AllSrv32\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)AGC;$(AllegianceRoot)FedSrv;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)test\Inc;$(AllegianceRoot)WinTrek;$(AllegianceGenDir)AGC\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WINTREK;igc_static;IGC_SHIP;_USRDLL;DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)AGC;$(AllegianceRoot)FedSrv;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)test\Inc;$(AllegianceRoot)WinTrek;$(AllegianceGenDir)AGC\;$(AllegianceGenDir)AllSrv32\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;$(AllegianceRoot)_Utility;$(AllegianceRoot)Igc;$(AllegianceRoot)clintlib;$(AllegianceRoot)soundengine;$(AllegianceRoot)AGC;$(AllegianceRoot)FedSrv;$(AllegianceRoot)training;$(AllegianceRoot)lobby;$(AllegianceRoot)test\Inc;$(AllegianceRoot)WinTrek;$(AllegianceGenDir)AGC\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WINTREK;igc_static;IGC_SHIP;_USRDLL;DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
@@ -148,6 +148,13 @@
     <ProjectReference Include="..\clintlib\ClintLib.vcxproj">
       <Project>{5B164402-491E-404E-AB26-C6B1590EBABE}</Project>
     </ProjectReference>
+    <!-- Build-order only: headers the client includes (through Igc, clintlib and
+         training) are MIDL output of AGC in $(AllegianceGenDir). -->
+    <ProjectReference Include="..\AGC\AGC.vcxproj">
+      <Project>{8E3F6558-2352-4F7F-8621-7BC414AC16B1}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="..\AGC\AGCGuid.vcxproj">
       <Project>{98F5F2A7-FBF2-4C2A-AEA7-D4B1F4DB0070}</Project>
     </ProjectReference>
@@ -156,18 +163,6 @@
     </ProjectReference>
     <ProjectReference Include="..\guids\Guids.vcxproj">
       <Project>{CB4A5507-7890-4D3E-ACAB-CD2B1E126D40}</Project>
-    </ProjectReference>
-    <!-- Build-order only: trainingscreen.cpp includes agc.h and AllSrvModuleIDL.h,
-         which are MIDL output of these projects in $(AllegianceGenDir). -->
-    <ProjectReference Include="..\AGC\AGC.vcxproj">
-      <Project>{8E3F6558-2352-4F7F-8621-7BC414AC16B1}</Project>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\FedSrv\AllSrv32.vcxproj">
-      <Project>{482B8658-01BB-4AF0-BAFC-15476EEFFBB4}</Project>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
