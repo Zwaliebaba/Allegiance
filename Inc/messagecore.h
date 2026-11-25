@@ -1,21 +1,13 @@
 #ifndef MessagesCore_h
 #define MessagesCore_h
-#include <dplobby.h>
 #include <d3dtypes.h>
 
-// MONOLITHIC_DPLAY means that we want to use a private dplay (MSRGIP.dll, MSRGTRAN.dll) instead
-// of the stock dplay, which has private fixes. Only those HOSTING a session will use this, even if
-// it's defined, which means that clients will never use it.
-// #define MONOLITHIC_DPLAY
+//
+// FedMessaging runs on MsQuic (FedTransport, _Utility/fedtransport.cpp); see
+// MODERNIZATION.md, "Networking". DirectPlay is gone.
+//
 
 #define OBLIVION_CLIENT_REG_KEY "Allegiance"
-
-// Specify which flavor of dplay we're using. Never specify interface explicity anywhere else
-#define IDirectPlayX IDirectPlay4A
-#define IID_IDirectPlayX IID_IDirectPlay4A
-
-#define IDirectPlayLobbyX IDirectPlayLobby3A
-#define IID_IDirectPlayLobbyX IID_IDirectPlayLobby3A
 
 #define FEDMSGID unsigned short
 #define CFEDMSGID const FEDMSGID
@@ -65,12 +57,14 @@ struct FEDMESSAGE
 class FedMessaging;
 class CFMConnection;
 class CFMGroup;
+struct FedMessagingImpl;   // transport state (Messages.cpp)
 
 /*-------------------------------------------------------------------------
  * CFMRecipient
  *-------------------------------------------------------------------------
   Purpose:
-      This represents an addressable entity in FedMessaging
+      This represents an addressable entity in FedMessaging: a connection or
+      a group. IDs are FedMessaging's own (DirectPlay's DPIDs are gone).
  */
 class CFMRecipient
 {
@@ -78,29 +72,29 @@ friend CFMConnection;
 friend CFMGroup;
 public:
   const char * GetName() {return m_szName;}
-  DWORD     GetID() {return GetDPID();}
+  DWORD     GetID() {return m_id;}
   virtual int GetCountConnections() = 0;
+  virtual CFMGroup * AsGroup() {return NULL;}
 
 protected:
-  CFMRecipient(const char * szName, DPID dpid) :
-    m_dpid(dpid)
+  CFMRecipient(const char * szName, DWORD id) :
+    m_id(id)
   {
     m_szName = new char[lstrlen(szName) + 1];
     lstrcpy(m_szName, szName);
   }
-  ~CFMRecipient()
+  virtual ~CFMRecipient()
   {
     delete [] m_szName;
   }
-  DPID     GetDPID() {return m_dpid;}
 
 private:
   char * m_szName;
 
-protected: // groups set their own dpid since they're not pre-created.
-  void      SetDPID(DPID dpid) {m_dpid = dpid;}
-  DPID    m_dpid;
+protected:
+  DWORD    m_id;
 };
+
 
 /*-------------------------------------------------------------------------
  * CFMConnection
@@ -114,36 +108,28 @@ friend FedMessaging;
 public:
   void    SetPrivateData(DWORD dw) {m_dwPrivate = dw;}
   DWORD   GetPrivateData() {return m_dwPrivate;}
-
   int IncAbsentCount()
   {
     return ++m_cAbsentCount;
   }
-
   void ResetAbsentCount()
   {
     m_cAbsentCount = 0;
   }
-
   void SetLastComplete(DWORD dwTime)
   {
     m_dwTimeLastComplete = dwTime;
   }
-
   DWORD GetLastComplete()
   {
     return m_dwTimeLastComplete;
   }
-
   virtual int GetCountConnections() {return 1;}
 
-
 private:
-  CFMConnection(FedMessaging * fm, const char * szName, DPID dpid); // only FedMessaging::CreateConnection can create these things
+  CFMConnection(FedMessaging * fm, const char * szName, DWORD id); // only FedMessaging::CreateConnection can create these things
   ~CFMConnection() {} // you can't delete these directly. You must use Delete()
-
   void Delete(FedMessaging * pfm); // basically the destructor, but with a parameter
-  
   int     m_cAbsentCount; // for roll call
   DWORD   m_dwTimeLastComplete;
   DWORD   m_dwPrivate;
@@ -151,11 +137,13 @@ private:
 
 typedef TList<CFMConnection*> ListConnections;
 
+
 /*-------------------------------------------------------------------------
  * CMFGroup
  *-------------------------------------------------------------------------
   Purpose:
-      Provide group management
+      Provide group management. Membership is kept here; sending to a group
+      sends to each member.
  */
 class CFMGroup : public CFMRecipient
 {
@@ -163,16 +151,15 @@ friend FedMessaging;
 public:
   void AddConnection(FedMessaging * pfm, CFMConnection * pcnxn);
   void DeleteConnection(FedMessaging * pfm, CFMConnection * pcnxn);
-  virtual int GetCountConnections() {return m_cPlayers;}
+  virtual int GetCountConnections() {return m_listMembers.GetCount();}
+  virtual CFMGroup * AsGroup() {return this;}
+  ListConnections * GetMembers() {return &m_listMembers;}
 
 private:
   CFMGroup(FedMessaging * pfm, const char * szName);
   ~CFMGroup() {}
-  void PlayerAdded(CFMConnection * pcnxn);
-  void PlayerDeleted(CFMConnection * pcnxn);
   void Delete (FedMessaging * pfm);
-
-  int m_cPlayers;
+  ListConnections m_listMembers;
 };
 
 typedef TList<CFMGroup*> ListGroups;
@@ -180,12 +167,11 @@ typedef TList<CFMGroup*> ListGroups;
 class FMSessionDesc
 {
 public:
-  FMSessionDesc(LPDPSESSIONDESC2 pdpSessionDesc);
+  FMSessionDesc(REFGUID guidInstance, const char * szDetails); // details as SetSessionDetails formats them
   PCC     GetGameName()   {return m_strGameName;}
   REFGUID GetInstance()   {return m_guidInstance;}
   int     GetNumPlayers() {return m_nNumPlayers;}
   int     GetMaxPlayers() {return m_nMaxPlayers;}
-  
 private:
   GUID    m_guidInstance;       // ID for the session instance
   ZString m_strGameName; 
@@ -208,7 +194,6 @@ enum FMFlush
   FM_DONT_FLUSH,
 };
 
-
 // Outgoing event interface for FedMessaging
 class IFedMessagingSite : public IObject
 {
@@ -220,8 +205,6 @@ public:
   virtual HRESULT OnNewConnection(FedMessaging * pthis, CFMConnection & cnxn) {return S_OK;}
   virtual HRESULT OnDestroyConnection(FedMessaging * pthis, CFMConnection & cnxn) {return S_OK;}
   virtual HRESULT OnSessionLost(FedMessaging * pthis) {return S_OK;}
-  virtual void    OnPreCreate (FedMessaging * pthis) {}
-  virtual void    OnPostCreate(FedMessaging * pthis, IDirectPlayX* pdpIn, IDirectPlayX** pdpOut) {*pdpOut = pdpIn;}
   virtual void    OnSessionFound(FedMessaging * pthis, FMSessionDesc * pSessionDesc) {} // you cannot save any pointer to session desc
   virtual void    OnMessageSent(FedMessaging * pthis, CFMRecipient * precip, const void * pv, DWORD cb, FMGuaranteed fmg) {}
 #ifndef NO_MSG_CRC
@@ -234,25 +217,25 @@ class FedMessaging
 {
 public:
   static const  MsgClsPrio c_mcpDefault;
+
   FedMessaging(IFedMessagingSite * pfmSite);
   ~FedMessaging();
-  HRESULT             Connect(const char * szAddress);
-  HRESULT             HostSession(GUID guidApplication, bool fKeepAlive, HANDLE hEventServer, bool fProtocol
-#ifdef MONOLITHIC_DPLAY
-    , bool fMonolithic = true
-#endif
-    );
-  HRESULT             JoinSession(GUID guidApplication, const char * szServer, const char * szName);
-  HRESULT             JoinSessionInstance(GUID guidInstance, const char * szName);
 
+  //
+  // fKeepAlive and fProtocol were DirectPlay session options; MsQuic always
+  // keeps connections alive and times them out. hEventServer, if not NULL,
+  // is set whenever something arrives.
+  //
+
+  HRESULT             HostSession(GUID guidApplication, bool fKeepAlive, HANDLE hEventServer, bool fProtocol);
+  HRESULT             JoinSession(GUID guidApplication, const char * szServer, const char * szName); // szServer: host or host:port
+  HRESULT             JoinSessionInstance(GUID guidInstance, const char * szName); // one EnumSessions found
   GUID                GetHostApplicationGuid()
   {
     return m_guidApplication;
   }
-
   GUID                GetSessionGuid()    
   {
-    assert(m_pDirectPlay); 
     return m_guidInstance;
   }
   int                 SendMessages(CFMRecipient * precip, FMGuaranteed fmg, FMFlush fmf);
@@ -266,8 +249,6 @@ public:
   {
     return m_fConnected;
   }
-  bool                CheckVersion();
-
   void *              PFedMsgCreate(bool fQueueMsg, BYTE * pbFMBuff, FEDMSGID fmid, CB cbfm, ...);
   /* The variable parameters are pairings of pointers to the variable length
          members, and their lengths (type MUST be CB), followed by FM_END to 
@@ -279,20 +260,17 @@ public:
          terminated strings, instead of predetermining their length. After 
          creating a message, you then fill in the fixed length stuff yourself.
          The variable length stuff is copied, so you don't have to keep it around.
-         
          ***NEVER*** call this function directly. Use the BEGINPFMCREATE, 
          FM_VAR_PARM, and ENDPFMCREATE macros.
-     
      You can always cast PFedMsgCreate() to a FEDMESSAGE*, but I don't return
          FEDMESSAGE*, so that you can assign the return value to any message
          without requiring additional casting
-     
      Since the only reason to create a message is to send it, messages 
          automagically get recycled after sending them. Hence it is a bug to try 
          to reference a message once it's been sent. Likewise, there is no need 
          (or way) to free a message created with this function.
   */
-  
+
   HRESULT         ReceiveMessages();
   BYTE *          BuffOut()             
   {
@@ -344,7 +322,6 @@ public:
   Time            CheckOdometer(float& flDTime, int& cMsgsOdometer, int& cBytesOdometer);
   void            SetDefaultRecipient(CFMRecipient * precip, FMGuaranteed fmg);
   CFMRecipient *  GetDefaultRecipient(FMGuaranteed * pfmg);
-
   int             GetConnectionCount() 
   {
     return m_listCnxns.GetCount();
@@ -353,10 +330,11 @@ public:
   {
     return &m_listCnxns;
   }
-  CFMConnection * GetConnectionFromId(DWORD id)
+  ListGroups *    GetGroups()
   {
-    return GetConnectionFromDpid((DPID) id);
+    return &m_listGroups;
   }
+  CFMConnection * GetConnectionFromId(DWORD id);
   CFMConnection * GetServerConnection()
   {
     return m_pcnxnServer;
@@ -370,17 +348,7 @@ public:
     m_listGroups.PushFront(pgrp);
     return pgrp;
   }
-
-  void            DeleteConnection(CFMConnection & cnxn) 
-  {
-    static CTempTimer tt("in DeleteConnection", .01f);
-    tt.Start();
-    m_pfmSite->OnDestroyConnection(this, cnxn);
-    tt.Stop();
-    m_listCnxns.Remove(&cnxn);
-    cnxn.Delete(this);
-  }
-
+  void            DeleteConnection(CFMConnection & cnxn);
   void            DeleteGroup(CFMGroup * pgrp)
   {
     if (pgrp)
@@ -392,7 +360,6 @@ public:
       tt.Stop();
     }
   }
-
   void            AddConnectionToGroup(CFMGroup * pgrp, CFMConnection * pcnxn)
   { 
     assert(pgrp && pcnxn);
@@ -401,7 +368,6 @@ public:
     pgrp->AddConnection(this, pcnxn); 
     tt.Stop();
   }
-
   void            DeleteConnectionFromGroup(CFMGroup * pgrp, CFMConnection * pcnxn)
   { 
     assert(pgrp && pcnxn);
@@ -410,31 +376,14 @@ public:
     pgrp->DeleteConnection(this, pcnxn); 
     tt.Stop();
   }
-
   HRESULT         GetIPAddress(CFMConnection & cnxn, char szRemoteAddress[16]);
-  HRESULT         GetSendQueue(DWORD * pcMsgs, DWORD * pcBytes)
-  {
-    return GetDPlay()->GetMessageQueue(0, 0, DPMESSAGEQUEUE_SEND, pcMsgs, pcBytes);
-  }
-  HRESULT         GetReceiveQueue(DWORD * pcMsgs, DWORD * pcBytes)
-  {
-    return GetDPlay()->GetMessageQueue(0, 0, DPMESSAGEQUEUE_RECEIVE, pcMsgs, pcBytes);
-  }
-
-  HRESULT         GetConnectionSendQueue(CFMConnection * pcnxn, DWORD * pcMsgs, DWORD * pcBytes)
-  {
-    return GetDPlay()->GetMessageQueue(0, pcnxn->GetDPID(), DPMESSAGEQUEUE_SEND, pcMsgs, pcBytes);
-  }
-
+  HRESULT         GetSendQueue(DWORD * pcMsgs, DWORD * pcBytes);
+  HRESULT         GetReceiveQueue(DWORD * pcMsgs, DWORD * pcBytes);
+  HRESULT         GetConnectionSendQueue(CFMConnection * pcnxn, DWORD * pcMsgs, DWORD * pcBytes);
   CFMGroup *  Everyone() 
   {
     return m_pgrpEveryone;
   }
-
-  IDirectPlayX *  GetDPlay() // only messaging stuff should need this
-  {
-    return m_pDirectPlay;
-  } 
 
   void UseMainOutBox(bool fMain) // set false for one or more messages that don't go to the same recipient as main stream
   {
@@ -449,15 +398,7 @@ public:
 
   DWORD GetCountConnections()
   {
-    DPSESSIONDESC2 * psd = NULL;
-    DWORD dwSize = 0;
-    HRESULT hr = m_pDirectPlay->GetSessionDesc(psd, &dwSize);
-    assert (DPERR_BUFFERTOOSMALL  == hr);
-    psd = (DPSESSIONDESC2 *) new char[dwSize];
-    ZSucceeded(m_pDirectPlay->GetSessionDesc(psd, &dwSize));
-    DWORD dwConnections = psd->dwCurrentPlayers - 1; // let's not count the server
-    delete [] psd;
-    return dwConnections;
+    return m_listCnxns.GetCount(); // the server isn't one of them
   }
 
   Time GetLastMsgTime()
@@ -465,46 +406,17 @@ public:
     return m_timeMsgLast;
   }
 
+  //
+  // Latency is half the connection's round-trip time; QUIC has no bandwidth
+  // figure to match DirectPlay's, so the speeds are reported as 0.
+  //
+
   HRESULT GetLinkDetails(CFMConnection * pcnxn, OUT DWORD * pdwHundredbpsG, OUT DWORD * pdwmsLatencyG, 
-                                                  OUT DWORD * pdwHundredbpsU, OUT DWORD * pdwmsLatencyU)
-  {
-    DPCAPS caps;
-    HRESULT hr = E_FAIL;
-    if (!pcnxn || !GetDPlay()) // throw error?
-      return E_FAIL;
-    
-    caps.dwSize = sizeof(caps);
-    hr = GetDPlay()->GetPlayerCaps(pcnxn->GetDPID(), &caps, DPGETCAPS_GUARANTEED);
-    if FAILED(hr)
-      goto Exit;
-    if (pdwHundredbpsG)
-      *pdwHundredbpsG = caps.dwHundredBaud;
-    if (pdwmsLatencyG)
-      *pdwmsLatencyG = caps.dwLatency;
+                                                  OUT DWORD * pdwHundredbpsU, OUT DWORD * pdwmsLatencyU);
 
-    hr = GetDPlay()->GetPlayerCaps(pcnxn->GetDPID(), &caps, 0);
-    if FAILED(hr)
-      goto Exit;
-    if (pdwHundredbpsU)
-      *pdwHundredbpsU = caps.dwHundredBaud;
-    if (pdwmsLatencyU)
-      *pdwmsLatencyU = caps.dwLatency;
-  Exit:    
-    return hr;
-  }
+  HRESULT EnumSessions(GUID guidApplication, const char * szServer); // NULL: keep polling the last search; "": broadcast on the LAN
 
-  HRESULT EnumSessions(GUID guidApplication, const char * szServer); // blank for broadcast
-
-  void SetSessionDetails(char * szDetails) // tokenized name/value pairs: Name\tValue\nName\tValue...
-  {
-    char rgchBuff[10<<10];
-    LPDPSESSIONDESC2 pdpSession = (LPDPSESSIONDESC2) rgchBuff;
-    DWORD dw = sizeof(rgchBuff);
-    assert(m_pDirectPlay);
-    ZSucceeded(m_pDirectPlay->GetSessionDesc(pdpSession, &dw));
-    pdpSession->lpszSessionNameA = szDetails;
-    m_pDirectPlay->SetSessionDesc(pdpSession, 0);
-  }
+  void SetSessionDetails(char * szDetails); // tokenized name/value pairs: Name\tValue\nName\tValue...
 
   void ResetOutBuffer()
   {
@@ -512,46 +424,29 @@ public:
     m_pbFMNext      = m_rgbbuffOutPacket;
     m_fSecondaryOut = false;
   }
-  
+
 private:
   Time            m_timeMsgLast;
-  CFMConnection*  GetConnectionFromDpid(DPID dpid);
-  CFMGroup *      GetGroupFromDpid(DPID dpid);
-  CFMConnection * CreateConnection(const char * szName, DPID dpid); // after the physical connection has already been established
 
+  CFMConnection * CreateConnection(const char * szName, DWORD id); // after the physical connection has already been established
   FEDMESSAGE *    PfmGetNext(FEDMESSAGE * pfm); // Use to run through all messages in a received packet
       // returns NULL if no more messages in packet
-  IDirectPlayLobbyX * GetDPlayLobby()     
-  {
-    return m_pDirectPlayLobby;
-  }
   int             SendToDefault(FMFlush fmf);
-  HRESULT         InitDPlay(
-#ifdef MONOLITHIC_DPLAY
-    bool fMonolithic
-#endif
-  );
-  bool            KillSvr();
-  HRESULT         ConnectToDPAddress(LPVOID pAddress);
-  HRESULT         OnSysMessage(FedMessaging * pthis, LPDPMSG_GENERIC pMsg);
-  HRESULT         EnumSessionsInternal(GUID guidApplication, const char * szServer);
-  friend BOOL FAR PASCAL EnumSessionsCallback(LPCDPSESSIONDESC2 lpThisSD,
-                                      LPDWORD lpdwTimeOut,
-                                      DWORD dwFlags,
-                                      LPVOID lpContext);
-  
+  HRESULT         JoinServer(GUID guidApplication, const char * szHost, unsigned short port, const char * szName);
+  void            DispatchPacket(CFMConnection * pcnxnFrom);
+
   BYTE                m_rgbbuffInPacket[c_cbBuff];
   BYTE                m_rgbbuffOutPacket[c_cbBuff];
   BYTE                m_rgbbuffSecondaryOutPacket[1<<10];
   BYTE                m_rgbbuffAlloc[2<<10];      // 2K this is a temp buffer for alloc'd messages
   BYTE *              m_pbFMNext;                 // where next message gets queued in the CURRENT outbox
   BYTE *              m_pbFMNextT;                 // where next message IN THE OTHER OUTBOX gets queued
-  DWORD               m_dwcbPacket;               // size of packet read, not CB because used with DPlay
+  DWORD               m_dwcbPacket;               // size of packet read
   USHORT              m_priority;
   Time                m_timeOdometerStart;
   int                 m_cMsgsOdometer;
   int                 m_cBytesOdometer;
-  CFMRecipient *      m_precipDefault;              // default recipient, if buffer overflows, or DPID_UNKNOWN is specified in SendMessages
+  CFMRecipient *      m_precipDefault;              // default recipient, if the buffer overflows or SendMessages is given NULL
   FMGuaranteed        m_fmGuaranteedDefault;
   bool                m_fConnected    : 1;
   bool                m_fSecondaryOut : 1;
@@ -561,15 +456,13 @@ private:
   CFMGroup *          m_pgrpEveryone;
   GUID                m_guidInstance;
   GUID                m_guidApplication;            // guid given to HostSession()
-  IDirectPlayX *      m_pDirectPlay;
-  IDirectPlayLobbyX * m_pDirectPlayLobby;
+  DWORD               m_idGroupNext;
+  FedMessagingImpl *  m_pimpl;
   IFedMessagingSite * m_pfmSite;
-
-  // these lists are somewhat redundant, since dplay manages them also, but it's nice to have our own list (maybe)
   ListConnections     m_listCnxns; 
   ListGroups          m_listGroups; 
 
-  int                 m_cbConnection; // sizeof each connection
+  friend CFMGroup;
 };
 
 

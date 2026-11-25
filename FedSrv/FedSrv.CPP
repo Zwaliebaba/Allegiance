@@ -2348,79 +2348,6 @@ bool CheatCreateDrones(CFSShip * pfsShip, ZString & strCheat)
 }
 
 
-#ifdef MOVE_TO_FEDMESSAGING
-BOOL FAR PASCAL EnumPlayersCallback(DPID dpId, DWORD dwPlayerType, 
-        LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext)
-{
-  DataEnumPlayers * pdep = (DataEnumPlayers *) lpContext;
-  CFSMission * pfsMission = pdep->pfsShip->GetMission();
-  char rgchdpn[256]; // buffer for DPNAME
-  char szIndent[15];
-  assert (pdep->indent < sizeof(szIndent));
-  szIndent[pdep->indent] = '\0';
-  int i = pdep->indent; 
-  while (i--)
-    szIndent[i] = ' ';
-  if (DPPLAYERTYPE_GROUP == dwPlayerType)
-  {
-    DPNAME * pdpn = (DPNAME *) rgchdpn;
-    DWORD dwSize = sizeof(rgchdpn);
-    ZSucceeded(g.fm.GetDPlay()->GetGroupName(dpId, rgchdpn, &dwSize));
-    if (pdep->pfsShip)
-      pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pdep->pfsShip->GetIGCShip()->GetObjectID(), 
-                                       NA, "%s%s%s (%u): ",
-                                       szIndent, pdpn->lpszShortNameA, pdpn->lpszLongNameA, dpId);
-
-    debugf("%s%s%s (%u): ", szIndent, pdpn->lpszShortNameA, pdpn->lpszLongNameA, dpId);
-    DataEnumPlayers depNew = *pdep;
-    depNew.indent += 2;
-    // First enumerate players
-    ZSucceeded(g.fm.GetDPlay()->EnumGroupPlayers( dpId, NULL, EnumPlayersCallback, (LPVOID) &depNew, DPENUMPLAYERS_ALL));
-    debugf("\n");
-    // Then enumerate child groups
-    ZSucceeded(g.fm.GetDPlay()->EnumGroupsInGroup(dpId, NULL, EnumPlayersCallback, (LPVOID) &depNew, DPENUMGROUPS_LOCAL));
-  }
-  else
-  {
-    CFSShip * pfsShip = NULL;
-    DWORD dwSize = sizeof(CFSShip);
-    ZSucceeded(g.fm.GetDPlay()->GetPlayerData(dpId, &pfsShip, &dwSize, DPGET_LOCAL));
-    if (pdep->pfsShip)
-      pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pdep->pfsShip->GetIGCShip()->GetObjectID(), NA, "%s%s", szIndent, pfsShip->GetName());
-    debugf("%s, ", pfsShip->GetName());
-  }
-  
-  return TRUE;
-}
-
-/*-------------------------------------------------------------------------
- * CheatDPGroups
- *-------------------------------------------------------------------------
- * Purpose:
- *    Cheat code to enumerate all our dpgroups. For debugging purposes only
- * 
- * Parameters:
- *    player requesting 
- */
-void CheatDPGroups(CFSShip * pfsShip)
-{
-  DataEnumPlayers dep;
-  dep.pfsShip = pfsShip;
-  dep.indent = 0;
-  g.fm.GetDPlay()->EnumGroups(NULL, EnumPlayersCallback, &dep, DPENUMGROUPS_LOCAL);
-  if (pfsShip && pfsShip->IsPlayer())
-  {
-    CFSPlayer * pfsPlayer = pfsShip->GetPlayer();
-    char rgchdpn[128];
-    DPNAME * pdpn = (DPNAME *) rgchdpn;
-    DWORD dwSize = sizeof(rgchdpn);
-    DPID dpidGroup = pfsPlayer->GetGroup();
-    ZSucceeded(g.fm.GetDPlay()->GetGroupName(dpidGroup, rgchdpn, &dwSize));
-    pfsShip->GetMission()->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
-                                                NA, "You're in group %s%s (%u)", pdpn->lpszShortNameA, pdpn->lpszLongNameA, dpidGroup);
-  }
-}
-#endif // MOVE_TO_FEDMESSAGING
 
 
 /*-------------------------------------------------------------------------
@@ -2747,10 +2674,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
   else if (!lstrcmpi(strToken, "createdrones"))
     fIsCheat = CheatCreateDrones(pfsShip, strCheat);
 
-#ifdef OUT_OF_ORDER
-  else if (!lstrcmpi(strToken, "dpgroups"))
-    CheatDPGroups(pfsShip);
-#endif // OUT_OF_ORDER
+
 
   else if (!lstrcmpi(strToken, "jpd"))
   {
@@ -3849,7 +3773,7 @@ struct ArtUpdateCallbackInfo
 // Our job here is simply to send one message to the client referred to in pData.
 bool HandleChangedArtwork(FileChangeInfo* pfci, void* pData)
 {
-    static DPID dpidLastPlayer = 0;
+    static DWORD dpidLastPlayer = 0;
     struct ArtUpdateCallbackInfo *pMyData = (struct ArtUpdateCallbackInfo *)pData;
 
     // if a different user then last time this was called,

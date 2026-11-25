@@ -463,11 +463,7 @@ STDMETHODIMP CAdminServer::put_PublicLobby(VARIANT_BOOL bPublic)
       _AGCModule.TriggerEvent(NULL, AllsrvEventID_HostSession, "", -1, -1, -1, 0);
       #endif
 
-      HRESULT hr = g.fm.HostSession(FEDSRV_GUID, false, 0 /*g.hPlayerEvent*/, g.fProtocol
-          #if defined(MONOLITHIC_DPLAY) && defined(ALLSRV_STANDALONE)
-            , false
-          #endif
-          );
+      HRESULT hr = g.fm.HostSession(FEDSRV_GUID, false, 0 /*g.hPlayerEvent*/, g.fProtocol);
 
       if (FAILED(hr))
       {
@@ -525,11 +521,7 @@ STDMETHODIMP CAdminServer::put_PublicLobby(VARIANT_BOOL bPublic)
       _AGCModule.TriggerEvent(NULL, AllsrvEventID_HostSession, "", -1, -1, -1, 0);
       #endif
 
-      HRESULT hr = g.fm.HostSession(FEDSRV_STANDALONE_PRIVATE_GUID, false, 0 /*g.hPlayerEvent*/, g.fProtocol
-          #if defined(MONOLITHIC_DPLAY) && defined(ALLSRV_STANDALONE)
-            , false
-          #endif
-          );
+      HRESULT hr = g.fm.HostSession(FEDSRV_STANDALONE_PRIVATE_GUID, false, 0 /*g.hPlayerEvent*/, g.fProtocol);
       if (FAILED(hr))
       {
         #if !defined(ALLSRV_STANDALONE)

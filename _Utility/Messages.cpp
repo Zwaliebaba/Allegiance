@@ -1,28 +1,73 @@
 /* Messages.cpp
    Interface between WinTrek and FedSrv
    Owner: 
+
+   FedMessaging runs on FedTransport (MsQuic, fedtransport.cpp); see
+   MODERNIZATION.md, "Networking". The message packing below is unchanged.
 */
 
 #include "pch.h"
 #include "MessageCore.h"
+#include "fedtransport.h"
 
 const MsgClsPrio FedMessaging::c_mcpDefault = 1000;
-static GUID g_guidApplication;
 
-static DPID            g_dpidFrom = 0;
+static DWORD           g_idFrom = 0;
 static bool            g_fHandlingMsg = false;
 static CFMConnection * g_pcnxnFrom = NULL;
 static LPBYTE          g_pbReceiveBuff = NULL;
 static DWORD           g_dwMsgPacketSize = 0;
 
-
 // Ok, this is kinda hacky, but it's too late to make wide-effect changes. The problem is that while in the OnAppMessage
 // callback, they may delete the connection from which the message came. Then there may be another FEDMEESSAGE packed in 
-// the dplay message. In order to process any FEDMESSAGE, we need the pfsPlayer, which is no longer valid if we've deleted
+// the same packet. In order to process any FEDMESSAGE, we need the pfsPlayer, which is no longer valid if we've deleted
 // the connection, so we need to set a flag when a connection is deleted, so we know not to process any more FEDMESSAGEs
-// that might be part of the same packet. Note that this does not apply to other messages in different packets (dplay 
-// messages), because in that case the private data for the player will be NULL, and we won't get the pfsPlayer
+// that might be part of the same packet.
 static bool g_fConnectionDeleted = false;
+
+//
+// IDs: the transport numbers its connections from 1, groups have a range of
+// their own, and the local end of a session has a fixed ID
+//
+
+const DWORD c_idGroupFirst = 0x80000000;
+const DWORD c_idMe         = 0x7fffffff;
+
+//
+// UDP ports per application; discovery answers on port + 1
+//
+
+const unsigned short c_portGameServer   = 47700;
+const unsigned short c_portLobbyClients = 47710;
+const unsigned short c_portLobbyServers = 47720;
+
+static unsigned short PortForApplication(REFGUID guid)
+{
+  if (guid == FEDFREELOBBYCLIENTS_GUID || guid == FEDLOBBYCLIENTS_GUID)
+    return c_portLobbyClients;
+
+  if (guid == FEDFREELOBBYSERVERS_GUID || guid == FEDLOBBYSERVERS_GUID)
+    return c_portLobbyServers;
+
+  return c_portGameServer;
+}
+
+struct FedMessagingImpl
+{
+  FedTransport *              m_ptransport;   // while hosting or joined
+  FedDiscovery *              m_pdiscovery;   // EnumSessions
+  GUID                        m_guidEnum;
+  bool                        m_fEnumStarted;
+  std::vector<FedSessionInfo> m_sessions;     // what the last EnumSessions found
+
+  FedMessagingImpl() :
+    m_ptransport(NULL),
+    m_pdiscovery(NULL),
+    m_guidEnum(GUID_NULL),
+    m_fEnumStarted(false)
+  {
+  }
+};
 
 void DumpMemory()
 {
@@ -37,41 +82,12 @@ void whodidit()
     FEDMSGID id = ((FEDMESSAGE*)(g_pbReceiveBuff))->fmid;
     debugf("Currently handling message from %s(%u).\n"
            "cbmsg=%d, fmid=%d, total packet size=%d\n", 
-           g_pcnxnFrom ? g_pcnxnFrom->GetName() : "<unknown>", g_dpidFrom,
+           g_pcnxnFrom ? g_pcnxnFrom->GetName() : "<unknown>", g_idFrom,
            cb, id, g_dwMsgPacketSize);
   }
   else
     debugf("Not currently handling a message.\n");
 }
-
-
-/*-------------------------------------------------------------------------
- * EnumAddressCallback
- *-------------------------------------------------------------------------
- * Purpose:
- *     Silly dplay mechanism to get all the parts of an address
- * 
- * Parameters:
- *     DPlay defined
- * 
- * Returns:
- *     Whether to continue enumerating address parts
- */
-BOOL FAR PASCAL EnumAddressCallback(REFGUID guidDataType,
-                                    DWORD dwDataSize,
-                                    LPCVOID lpData,
-                                    LPVOID lpContext)
-{
-  // What the hell? Why do I get so many parts, and not even of the known guid types??? Oh well, jump through the hoops
-  if (DPAID_INet == guidDataType)
-  {
-    assert(dwDataSize > (DWORD) lstrlen((char *) lpData));
-    lstrcpy((char *) lpContext, (char *) lpData);
-    return FALSE;
-  }
-  return TRUE;
-}
-
 
 /*-------------------------------------------------------------------------
  * VerifyMessages
@@ -105,63 +121,13 @@ void VerifyMessage(LPBYTE pb, CB cbTotal)
 }
 
 
-/*-------------------------------------------------------------------------
- * EnumSessionsCallback
- *-------------------------------------------------------------------------
- * Purpose:
- *    Called by IDirectPlay#::EnumSessions when doing a broadcast EnumSessions
- * 
- * Parameters:
- *    specified by dplay
- */
-BOOL FAR PASCAL EnumSessionsCallback (LPCDPSESSIONDESC2 lpThisSD,
-                                      LPDWORD lpdwTimeOut,
-                                      DWORD dwFlags,
-                                      LPVOID lpContext)
-{
-  if( dwFlags & DPESC_TIMEDOUT )
-      return FALSE; // The enumeration has timed out, so stop the enumeration.
-
-  assert(lpThisSD);
-  // lpContext is a FedMessaging*
-#ifdef DEBUG  
-  char szBuff[128];
-  wsprintf(szBuff, "Found a session: {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x} for application {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}\n", 
-          lpThisSD->guidInstance.Data1,    lpThisSD->guidInstance.Data2, 
-          lpThisSD->guidInstance.Data3,    lpThisSD->guidInstance.Data4[0], 
-          lpThisSD->guidInstance.Data4[1], lpThisSD->guidInstance.Data4[2], 
-          lpThisSD->guidInstance.Data4[3], lpThisSD->guidInstance.Data4[4], 
-          lpThisSD->guidInstance.Data4[5], lpThisSD->guidInstance.Data4[6], 
-          lpThisSD->guidInstance.Data4[7],
-          lpThisSD->guidApplication.Data1,    lpThisSD->guidApplication.Data2, 
-          lpThisSD->guidApplication.Data3,    lpThisSD->guidApplication.Data4[0], 
-          lpThisSD->guidApplication.Data4[1], lpThisSD->guidApplication.Data4[2], 
-          lpThisSD->guidApplication.Data4[3], lpThisSD->guidApplication.Data4[4], 
-          lpThisSD->guidApplication.Data4[5], lpThisSD->guidApplication.Data4[6], 
-          lpThisSD->guidApplication.Data4[7]);
-  debugf(szBuff);
-#endif  
-  if (lpThisSD->guidApplication == g_guidApplication)
-  {
-    FedMessaging * pfm = (FedMessaging *)lpContext;
-    FMSessionDesc fmSession(const_cast<LPDPSESSIONDESC2>(lpThisSD));
-    pfm->m_guidInstance = lpThisSD->guidInstance;
-    if (pfm->m_fSessionCallback)
-      pfm->m_pfmSite->OnSessionFound(pfm, &fmSession);
-  }
-  return TRUE;
-}
-
-
-
 FedMessaging::FedMessaging(IFedMessagingSite * pfmSite) :
-  m_pDirectPlay(NULL),
-  m_pDirectPlayLobby(NULL),
   m_cMsgsOdometer(0),
   m_cBytesOdometer(0),
   m_pbFMNext(m_rgbbuffOutPacket),
   m_pfmSite(pfmSite),
   m_fConnected(false),
+  m_fSessionCallback(false),
   m_precipDefault(NULL),
   m_fmGuaranteedDefault(FM_GUARANTEED),
   m_pcnxnServer(NULL),
@@ -172,7 +138,10 @@ FedMessaging::FedMessaging(IFedMessagingSite * pfmSite) :
   m_guidInstance(GUID_NULL),
   m_guidApplication(GUID_NULL),
   m_timeMsgLast(Time::Now()),
-  m_priority(c_mcpDefault)
+  m_priority(c_mcpDefault),
+  m_dwcbPacket(0),
+  m_idGroupNext(c_idGroupFirst),
+  m_pimpl(new FedMessagingImpl)
 {
   assert (pfmSite);
 }
@@ -181,6 +150,8 @@ FedMessaging::FedMessaging(IFedMessagingSite * pfmSite) :
 FedMessaging::~FedMessaging()
 {
   Shutdown();
+  delete m_pimpl->m_pdiscovery;
+  delete m_pimpl;
 }
 
 
@@ -390,29 +361,12 @@ void FedMessaging::QueueExistingMsg(const FEDMESSAGE * pfm)
  *-------------------------------------------------------------------------
  * Purpose:
  *    All messages go through this. Not used by FedMessaging users directly. Use SendMessages or ForwardMessage.
+ *    A group send goes to each member.
  */
 HRESULT FedMessaging::GenericSend(CFMRecipient * precip, const void * pv, CB cb, FMGuaranteed fmg)
 {
-  DWORD dwFlags, dwPriority, dwTimeout;
-  HRESULT hr;
-
-  //
-  // Give guaranteed messages a higher priority, and longer ttl
-  //
-  bool fGuaranteed = FM_GUARANTEED == fmg;
-  dwFlags = DPSEND_ASYNC | (fGuaranteed ?
-              DPSEND_GUARANTEED : DPSEND_NOSENDCOMPLETEMSG);
-  dwPriority = m_priority;
-  if (fGuaranteed)
-    dwPriority += GetGuaranteedBias();
-  
-  dwTimeout = (fGuaranteed ? 0 : 500); // guaranteed messages will NEVER time out
-
-#ifdef DUMPMSGS
-  debugf("*** Sending message to %u, flags = 0x%x, Priority = %d, "
-          "Timeout = %d, length = %d, thread = 0x%x\n", precip->GetDPID(), dwFlags,
-          dwPriority, dwTimeout, cbBuffer, GetCurrentThreadId());
-#endif
+  bool    fGuaranteed = FM_GUARANTEED == fmg;
+  HRESULT hr          = S_OK;
 
 #ifndef NO_MSG_CRC
     // add the crc to the end to minimize possible conflict of assumptions
@@ -425,21 +379,32 @@ HRESULT FedMessaging::GenericSend(CFMRecipient * precip, const void * pv, CB cb,
     cb += sizeof(crc);
 #endif
 
-static CTempTimer tt("in dplay SendEx", 0.05f);
+  FedTransport * ptransport = m_pimpl->m_ptransport;
+
+  if (!ptransport)
+    return E_FAIL;
+
+  static CTempTimer tt("in FedTransport sends", 0.05f);
   tt.Start();
-  hr = m_pDirectPlay->SendEx(m_pcnxnMe->GetID(), precip->GetID(), dwFlags, (void*) pv, cb, 
-                          dwPriority, dwTimeout, precip, NULL);
-  tt.Stop("dpidTo=%u, guaranteed=%d, hr=%x, 1st message (fmid)=%u", precip->GetID(), fGuaranteed, hr, 
+
+  CFMGroup * pgrp = precip->AsGroup();
+
+  if (pgrp)
+  {
+    for (ListConnections::Iterator iter(*pgrp->GetMembers()); !iter.End(); iter.Next())
+      ptransport->Send(iter.Value()->GetID(), pv, cb, fGuaranteed);
+  }
+  else
+    hr = ptransport->Send(precip->GetID(), pv, cb, fGuaranteed);
+
+  tt.Stop("to=%u, guaranteed=%d, hr=%x, 1st message (fmid)=%u", precip->GetID(), fGuaranteed, hr, 
           ((FEDMESSAGE*)pv)->fmid);
 
   m_pfmSite->OnMessageSent(this, precip, pv, cb, fmg);
-  assert(hr != E_INVALIDARG);
+
 #ifdef DEBUG
-  if (!(hr == E_PENDING || SUCCEEDED(hr)))
-  {
-    debugf("Return code of SendEx was 0x%x to player with dpid %u.\n", 
-           hr, precip->GetID());
-  }
+  if (FAILED(hr))
+    debugf("Send to %s(%u) failed: 0x%x.\n", precip->GetName(), precip->GetID(), hr);
 #endif // DEBUG
 
   return(hr);
@@ -547,474 +512,161 @@ Time FedMessaging::CheckOdometer(float& flDTime, int& cMsgsOdometer, int& cBytes
 
 
 /*-------------------------------------------------------------------------
- * HandleSysMsg
+ * ReceiveMessages
  *-------------------------------------------------------------------------
  * Purpose:
- *    Handle system message
- * 
- * Parameters:
- *    System messages are those that dplay send us. They're handled here
- * 
- * Side Effects:
- *    Various
+ *    Handles everything the transport queued since the last call, and
+ *    dispatches it to the site, on this (the game or server) thread
  */
-HRESULT FedMessaging::OnSysMessage(FedMessaging * pthis, LPDPMSG_GENERIC pMsg)
+HRESULT FedMessaging::ReceiveMessages()
 {
-  // The body of each case is there so you can set a breakpoint and examine
-  // the contents of the message received.
+  assert(!g_fHandlingMsg);
 
-  static CTempTimer timerSysMsg("spent in OnSysMessage()", .01f);
-  timerSysMsg.Start();
-  Time timeNow = Time::Now();
+  FedTransport * ptransport = m_pimpl->m_ptransport;
 
-  m_pfmSite->OnSysMessage(this); // just for tracking
-    
-  switch (pMsg->dwType)
+  if (!ptransport)
+    return S_OK;
+
+  ptransport->Poll(); // servers answer discovery probes here
+
+  g_fHandlingMsg = true;
+
+  FedTransportEvent event;
+
+  while (IsConnected() && ptransport->PopEvent(event))
   {
-    case DPSYS_CREATEPLAYERORGROUP:
+    switch (event.m_type)
     {
-      static CTempTimer tt("handling DPSYS_CREATEPLAYERORGROUP", .01f);
-      tt.Start();
-      LPDPMSG_CREATEPLAYERORGROUP lp = (LPDPMSG_CREATEPLAYERORGROUP) pMsg;
-      bool fPlayer = lp->dwPlayerType == DPPLAYERTYPE_PLAYER;
-      debugf("DPSYS_CREATEPLAYERORGROUP for %s %s(%u)\n", 
-              fPlayer ? "player" : "group", lp->dpnName.lpszShortNameA, lp->dpId);
-
-      // **CFMConnections** are created IN RESPONSE to getting DPSYS_CREATEPLAYERORGROUP.
-      // But **CFMGroups** are created prior to, and result in, getting DPSYS_CREATEPLAYERORGROUP.
-      if (fPlayer)
+      case FedTransportEvent::PeerJoined:
       {
-        CFMConnection * pcnxn = CreateConnection(lp->dpnName.lpszShortNameA, lp->dpId);
+        m_pfmSite->OnSysMessage(this); // just for tracking
+        CFMConnection * pcnxn = CreateConnection(event.m_strText.c_str(), event.m_idPeer);
         char szRemoteAddress[16];
         GetIPAddress(*pcnxn, szRemoteAddress);
-        debugf(" ip=%s, which gives us %u players\n", szRemoteAddress, lp->dwCurrentPlayers);
+        debugf("New connection %s(%u) from %s, which gives us %d connections\n", 
+               pcnxn->GetName(), pcnxn->GetID(), szRemoteAddress, m_listCnxns.GetCount());
       }
-      else
+      break;
+
+      case FedTransportEvent::Packet:
       {
-        assert(0 == lp->dpIdParent); // nesting groups is bad, so we don't support it
+        CFMConnection * pcnxnFrom = GetConnectionFromId(event.m_idPeer);
+        DWORD           cbPacket  = (DWORD)event.m_data.size();
+
+        if (!pcnxnFrom)
+        {
+          debugf("Warning: Ignoring a packet from connection %u, which has no CFMConnection\n", event.m_idPeer);
+          break;
+        }
+
+        if (cbPacket > sizeof(m_rgbbuffInPacket) || cbPacket < sizeof(FEDMESSAGE)
+#ifndef NO_MSG_CRC
+            + sizeof(int)
+#endif
+           )
+        {
+          debugf("Warning: Ignoring a %u-byte packet from %s(%u)\n", cbPacket, pcnxnFrom->GetName(), pcnxnFrom->GetID());
+          break;
+        }
+
+        CopyMemory(m_rgbbuffInPacket, event.m_data.data(), cbPacket);
+        m_dwcbPacket      = cbPacket;
+        g_pbReceiveBuff   = m_rgbbuffInPacket;
+        g_idFrom          = event.m_idPeer;
+        g_dwMsgPacketSize = cbPacket;
+        g_pcnxnFrom       = pcnxnFrom;
+
+        DispatchPacket(pcnxnFrom);
+
+        m_timeMsgLast = Time::Now();
       }
-      tt.Stop();
-    }
-    break;
+      break;
 
-    case DPSYS_DESTROYPLAYERORGROUP:
-    {
-      static CTempTimer tt("handling DPSYS_DESTROYPLAYERORGROUP", .01f);
-      tt.Start();
-      LPDPMSG_DESTROYPLAYERORGROUP lp = (LPDPMSG_DESTROYPLAYERORGROUP) pMsg;
-      bool fPlayer = lp->dwPlayerType == DPPLAYERTYPE_PLAYER;
-      debugf("DPSYS_DESTROYPLAYERORGROUP for %s %s(%u)\n", 
-              fPlayer ? "player" : "group", lp->dpnName.lpszShortNameA, lp->dpId);
-
-      if (fPlayer)
+      case FedTransportEvent::PeerGone:
       {
-        CFMConnection * pcnxn = GetConnectionFromDpid(lp->dpId);
-        // if your player dies, or the server dies, you're SOL--not much point in 
-        // waiting until dplay gets around to telling the session is dead,
-        // since sometimes they don't anyway.
-        if (pcnxn && (m_pcnxnMe == pcnxn || m_pcnxnServer == pcnxn))
+        m_pfmSite->OnSysMessage(this);
+        CFMConnection * pcnxn = GetConnectionFromId(event.m_idPeer);
+        debugf("Connection %s(%u) closed: %s\n", pcnxn ? pcnxn->GetName() : "<gone>", event.m_idPeer, event.m_strText.c_str());
+
+        // if the server goes, the session is over
+        if (pcnxn && pcnxn == m_pcnxnServer)
         {
           m_pfmSite->OnSessionLost(this);
           Shutdown();
         }
         else if (pcnxn)
           DeleteConnection(*pcnxn);
-        // else we've lost the above player, but they don't have an associated CFMConnection, probably because we manually nuked it
       }
-      else
-      {
-        // we should've already nuked our CFMGroup
-        // But there's a very small nonzero chance that dplay got around to nuking their group before we did
-        //assert(!GetGroupFromDpid(lp->dpId));
-      }
-      tt.Stop();
-    }
-    break;
+      break;
 
-    case DPSYS_SENDCOMPLETE:
-    {
-      static CTempTimer tt("handling DPSYS_SENDCOMPLETE", .01f);
-      tt.Start();
-      LPDPMSG_SENDCOMPLETE lp = (LPDPMSG_SENDCOMPLETE) pMsg;
-
-      bool fGroup = true;
-      CFMRecipient * prcp = NULL;
-      prcp = GetGroupFromDpid(lp->idTo);
-      if (!prcp)
+      case FedTransportEvent::SendFailed:
       {
-        fGroup = false;
-        CFMConnection * pcnxn = GetConnectionFromDpid(lp->idTo);
+        m_pfmSite->OnSysMessage(this);
+        CFMConnection * pcnxn = GetConnectionFromId(event.m_idPeer);
+        debugf("A guaranteed message was not delivered to %s(%u).\n", pcnxn ? pcnxn->GetName() : "<gone>", event.m_idPeer);
+
         if (pcnxn)
-        {
-          prcp = pcnxn;
-          if (DP_OK == lp->hr)
-            pcnxn->SetLastComplete(timeNow.clock());
-        }
+          m_pfmSite->OnMessageNAK(this, Time::Now().clock(), pcnxn);
       }
+      break;
 
-      if (DP_OK != lp->hr)
-      {
-
-        debugf("DPSYS_SENDCOMPLETE: Message was not delivered to %s(%u), priority %d, "
-                "hr=0x%x, SendTime=%d.\n",
-                prcp ? prcp->GetName() : "<not found>", lp->idTo, lp->dwPriority, lp->hr, lp->dwSendTime);
-        if (prcp) 
-          m_pfmSite->OnMessageNAK(this, lp->dwSendTime, prcp);
-      }
-      tt.Stop();
-    }
-    break;
-
-    case DPSYS_ADDPLAYERTOGROUP:
-    {
-      LPDPMSG_ADDPLAYERTOGROUP lp = (LPDPMSG_ADDPLAYERTOGROUP) pMsg;
-      CFMGroup * pgrp = GetGroupFromDpid(lp->dpIdGroup );
-      CFMConnection * pcnxn = GetConnectionFromDpid(lp->dpIdPlayer);
-      if (pgrp)
-        pgrp->PlayerAdded(pcnxn);
-      debugf("DPSYS_ADDPLAYERTOGROUP: player %s(%u) to group %s(%u)\n", 
-          pcnxn ? pcnxn->GetName() : "<gone>", lp->dpIdPlayer,
-          pgrp ? pgrp->GetName() : "<gone>", lp->dpIdGroup);
-    }
-    break;
-
-    case DPSYS_DELETEPLAYERFROMGROUP:
-    {
-      LPDPMSG_DELETEPLAYERFROMGROUP lp = (LPDPMSG_DELETEPLAYERFROMGROUP) pMsg;
-      CFMGroup * pgrp = GetGroupFromDpid(lp->dpIdGroup );
-      CFMConnection * pcnxn = GetConnectionFromDpid(lp->dpIdPlayer);
-      if (pgrp)
-        pgrp->PlayerDeleted(pcnxn);
-      debugf("DPSYS_DELETEPLAYERFROMGROUP: player %s(%u) from group %s(%u)\n", 
-          pcnxn ? pcnxn->GetName() : "<gone>", lp->dpIdPlayer,
-          pgrp ? pgrp->GetName() : "<gone>", lp->dpIdGroup);
-    }
-    break;
-
-    case DPSYS_SESSIONLOST:
-    {
-      m_pfmSite->OnSessionLost(this);
-    }
-    break;
-
-    default:
-    {
-        debugf("***** Unknown system message, type %lu *****\n", pMsg->dwType);
+      default: // Joined and JoinRefused only matter while joining (JoinServer)
+      break;
     }
   }
 
-  timerSysMsg.Stop();
-
-  return(S_OK);
-}
-
-/*-------------------------------------------------------------------------
- * ReceiveMessages
- *-------------------------------------------------------------------------
- * Purpose:
- *    Handles all inbound messages and dispatches them appropriately
- */
-HRESULT FedMessaging::ReceiveMessages()
-{
-  HRESULT hr = S_OK;
-  DWORD   dwMsgBufferSize = 0;
-  DPID dpidFrom, dpidTo;
-  assert(!g_fHandlingMsg);
-  g_fHandlingMsg = true;
-
-  // loop to read all messages in queue
-  while (SUCCEEDED(hr) && IsConnected())
-  {
-    // read messages from any player, including system player
-    dpidFrom = 0;
-    dpidTo = 0;
-
-    m_dwcbPacket = sizeof(m_rgbbuffInPacket); // NOT PacketSize()!
-    g_pbReceiveBuff = m_rgbbuffInPacket;
-    static CTempTimer ttReceive("spent in m_pDirectPlay->Receive()", .01f);
-    ttReceive.Start();
-    hr = m_pDirectPlay->Receive(&dpidFrom, &dpidTo, DPRECEIVE_ALL, 
-                                m_rgbbuffInPacket, &m_dwcbPacket);
-    ttReceive.Stop();
-    g_dpidFrom = dpidFrom;
-    g_dwMsgPacketSize = m_dwcbPacket;
-    assert(IMPLIES(FAILED(hr), DPERR_NOMESSAGES == hr)); // this is the only error return code we expect
-
-    if ((SUCCEEDED(hr)) && // successfully read a message
-        m_dwcbPacket >= sizeof(DPMSG_GENERIC))  // it is big enough
-    {
-        /*
-        {
-            static Time     timeStart;
-            static DWORD    cbTotal;
-            static DWORD    cMessagesTotal;
-            static bool     bRunning = false;
-            Time    now = Time::Now();
-            if (bRunning)
-            {
-                float   dt = now - timeStart;
-                if (dt >= 5.0f)
-                {
-                    debugf("Messages @ %d = %f bytes/second; %f total bytes/second; %f packets/second\n",
-                           now.clock(), float(cbTotal) / dt, float(cbTotal + cMessagesTotal * 55) / dt, float(cMessagesTotal) / dt);
-                    timeStart = now;
-                    cbTotal = PacketSize();
-                    cMessagesTotal = 1;
-                }
-                else
-                {
-                    cbTotal += PacketSize();
-                    cMessagesTotal++;
-                }
-            }
-            else
-            {
-                timeStart = now;
-                cbTotal = 0;
-                cMessagesTotal = 0;
-                bRunning = true;
-            }
-        }
-        */
-
-      // check for system message
-      if (dpidFrom == DPID_SYSMSG)
-        OnSysMessage(this, (LPDPMSG_GENERIC) m_rgbbuffInPacket);
-      else
-      {
-        CFMConnection * pcnxnFrom = NULL;
-        DWORD dwSize = sizeof(CFMConnection *);
-        hr = m_pDirectPlay->GetPlayerData(dpidFrom, &pcnxnFrom, &dwSize, DPGET_LOCAL);
-        // debugf("Called GetPlayerData: hr=0x%08x, pcnxnFrom=0x%08x, dwSize=%u\n", hr, pcnxnFrom, dwSize);
-        g_pcnxnFrom = pcnxnFrom;
-        if (pcnxnFrom && SUCCEEDED(hr)) // if we can't resolve the player, then it's into the bit bucket with this message
-        {
-          FEDMESSAGE * pfm = (FEDMESSAGE *) m_rgbbuffInPacket;
-          int cMsgs = 0;
-#ifndef NO_MSG_CRC
-          int crc = MemoryCRC(m_rgbbuffInPacket, PacketSize());
-          if (crc == *(int*)(m_rgbbuffInPacket + PacketSize()))
-          {
-#endif            
-            static CTempTimer tt("spent looping through message queue", .1f);
-            tt.Start();
-            g_fConnectionDeleted = false;
-            while (pfm && !g_fConnectionDeleted)
-            {
-              if(pfm->fmid > 0 && pfm->cbmsg >= sizeof(FEDMESSAGE) && pfm->cbmsg <= PacketSize())
-              {
-                m_pfmSite->OnAppMessage(this, *pcnxnFrom, pfm);
-                pfm = PfmGetNext(pfm);
-                cMsgs++;
-              }
-              else
-              {
-                // ACK! Hacker?
-                whodidit();
-#ifndef NO_MSG_CRC
-                // we'll just call it a bad crc, even though it's not quite the same thing
-                m_pfmSite->OnBadCRC(this, *pcnxnFrom, m_rgbbuffInPacket, m_dwcbPacket);
-#endif
-                break;
-              }
-            }
-            tt.Stop();
-#ifndef NO_MSG_CRC          
-          }
-          else
-          {
-            // ACK! Failed CRC. WTF??? ...<sigh> but it happens
-            m_pfmSite->OnBadCRC(this, *pcnxnFrom, m_rgbbuffInPacket, m_dwcbPacket);
-          }
-#endif          
-        }
-        else
-        {
-          debugf("Warning: Ignoring message from dpid %u who doesn't have an associated CFMConnection\n", dpidFrom);
-          assert(DPERR_INVALIDPLAYER == hr);
-        }
-        m_timeMsgLast = Time::Now();
-      }
-    }
-    else
-      assert (DPERR_NOMESSAGES == hr || !IsConnected());
-  }
-  
-  g_dpidFrom = 0;
+  g_idFrom = 0;
   g_pcnxnFrom = NULL;
   g_fHandlingMsg = false;
-
-  return (DP_OK);
-}
-
-
-/*-------------------------------------------------------------------------
- * ConnectToDPAddress
- *-------------------------------------------------------------------------
- * Purpose:
- *    Connect to a machine, given a dplay address
- */
-HRESULT FedMessaging::ConnectToDPAddress(LPVOID pvAddress)
-{
-  HRESULT hr = m_pDirectPlay->InitializeConnection(pvAddress, 0);
-  if (FAILED(hr))
-  {
-    if (DPERR_ALREADYINITIALIZED == hr)
-      hr = S_OK;
-    else
-      m_pfmSite->OnMessageBox(this, "Failed to connect to server. Please check network connection.",
-                            "Allegiance", MB_OK);
-  }
-  return hr;
-}
-
-
-/*-------------------------------------------------------------------------
- * Connect
- *-------------------------------------------------------------------------
- * Purpose:
- *    Connect to a host machine. Could be self.
- * 
- * Parameters:
- *    string address of host
- */
-HRESULT FedMessaging::Connect(const char * szAddress)
-{
-  assert(m_pDirectPlay);
-  assert(!m_fConnected);
-  void * pvAddress = NULL;
-  DWORD dwAddressSize;
-  HRESULT hr = E_FAIL;
-  // Find out how big the address buffer needs to be--intentional fail 1st time
-  hr = m_pDirectPlayLobby->CreateAddress(DPSPGUID_TCPIP, DPAID_INet, szAddress, 
-          lstrlen(szAddress) + 1, pvAddress, &dwAddressSize);
-  assert(DPERR_BUFFERTOOSMALL == hr);
-    
-  pvAddress = new char[dwAddressSize];
-  ZSucceeded(m_pDirectPlayLobby->CreateAddress(DPSPGUID_TCPIP, DPAID_INet, szAddress, 
-          lstrlen(szAddress) + 1, pvAddress, &dwAddressSize));
-  hr = ConnectToDPAddress(pvAddress);
-  delete [] pvAddress;
-  
-  return hr;
-}
-
-
-/*-------------------------------------------------------------------------
- * KillSvr
- *-------------------------------------------------------------------------
-   Purpose:
-      Kill dplaysvr
-
-   Returns:
-      Whether it was sucessfully killed (or if it wasn't running in the first place)
-   
-   Side Effects:
-      Any running dplay server apps will be killed. This should never be 
-      true if any other dplay server app is running
- */
-bool FedMessaging::KillSvr()
-{
-  PROCESS_INFORMATION pi;
-  STARTUPINFO si;
-  ZeroMemory(&si, sizeof(si));
-  si.cb = sizeof(si); 
-
-  Shutdown(); // can't be doing this with an open session
-  
-  BOOL fCreated = CreateProcess(NULL, "KillSvr.exe", NULL, NULL, FALSE, 
-            CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
-
-  if (fCreated)
-  {
-    // Now we need to make sure it finishes before we go start using dplaysvr again
-    // WARNING: We could hang if killsvr never comes back. Maybe just abort if it doesn't come back in a few seconds?
-    DWORD exitcode = STILL_ACTIVE;
-    
-    int i = 0;
-    const int cRetries = 50; // let's give it 50 retries
-    while (STILL_ACTIVE == exitcode && i > cRetries) 
-    {
-      GetExitCodeProcess(pi.hProcess, &exitcode);
-      Sleep(100);
-      i++;
-    }
-    if (i > cRetries)
-      fCreated = false;
-    else
-      debugf("Slept (100ms) %d times  waiting for killsvr\n", i);
-    Sleep(1000); // wait another second to make sure it's really gone
-  }
-  else
-  {
-    LPVOID lpMsgBuf;
-    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                  NULL,
-                  GetLastError(),
-                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                  (LPTSTR) &lpMsgBuf,
-                  0,
-                  NULL 
-                  );
-    m_pfmSite->OnMessageBox(this, (LPCTSTR)lpMsgBuf, "Couldn't run killsvr.exe.", MB_OK | MB_ICONINFORMATION);
-    LocalFree( lpMsgBuf );
-  }
- 
-  return !!fCreated;
-}
-
-
-/*-------------------------------------------------------------------------
- * InitDPlay
- *-------------------------------------------------------------------------
- * Purpose:
- *    Must be called before you can do anything with dplay
- * 
- * Side Effects:
- *    Creates a dplay object m_pDirectPlay, that must later be closed, 
- *        released, and set to NULL.
- */
-HRESULT FedMessaging::InitDPlay(
-#ifdef MONOLITHIC_DPLAY
-    bool fMonolithic
-#endif
-)
-{
-  HRESULT hr = E_FAIL;
-  assert(!m_fConnected);
-  assert(!m_pDirectPlay);
-
-  // Create an IDirectPlay interface
-  m_pfmSite->OnPreCreate(this);
-  IDirectPlayX* pdp = NULL;
-
-  hr = CoCreateInstance(
-#ifdef MONOLITHIC_DPLAY
-      fMonolithic ? MSRG_CLSID_DPLAY :
-#endif
-      CLSID_DirectPlay, NULL, CLSCTX_INPROC_SERVER, IID_IDirectPlayX, (void**)&pdp);
-
-  m_pfmSite->OnPostCreate(this, pdp, &m_pDirectPlay);
-  if (FAILED(hr))
-  {
-    assert(!pdp);
-    m_pfmSite->OnMessageBox(this, "Failed to initialze DirectPlay in DirectX 6. Check installation of DirectX, and reinstall if necessary.",
-                            "Allegiance", MB_OK);
-    return hr;
-  }
-
-  if (!CheckVersion())
-  {
-    Shutdown();
-    return E_FAIL;
-  }
-
-  IDirectPlayLobby * pDirectPlayLobby;
-  ZSucceeded(DirectPlayLobbyCreate(NULL, &pDirectPlayLobby, NULL, NULL, 0));
-  ZSucceeded(pDirectPlayLobby->QueryInterface(IID_IDirectPlayLobbyX, (LPVOID*) &m_pDirectPlayLobby)); 
-  pDirectPlayLobby->Release();
-  pDirectPlayLobby = NULL;
   return S_OK;
+}
+
+
+/*-------------------------------------------------------------------------
+ * DispatchPacket
+ *-------------------------------------------------------------------------
+ * Purpose:
+ *    Check the packet in m_rgbbuffInPacket and hand each FEDMESSAGE in it to the site
+ */
+void FedMessaging::DispatchPacket(CFMConnection * pcnxnFrom)
+{
+  FEDMESSAGE * pfm = (FEDMESSAGE *) m_rgbbuffInPacket;
+  int cMsgs = 0;
+
+#ifndef NO_MSG_CRC
+  int crc = MemoryCRC(m_rgbbuffInPacket, PacketSize());
+  if (crc != *(int*)(m_rgbbuffInPacket + PacketSize()))
+  {
+    // ACK! Failed CRC. WTF??? ...<sigh> but it happens
+    m_pfmSite->OnBadCRC(this, *pcnxnFrom, m_rgbbuffInPacket, m_dwcbPacket);
+    return;
+  }
+#endif
+
+  static CTempTimer tt("spent looping through message queue", .1f);
+  tt.Start();
+  g_fConnectionDeleted = false;
+  while (pfm && !g_fConnectionDeleted)
+  {
+    if(pfm->fmid > 0 && pfm->cbmsg >= sizeof(FEDMESSAGE) && pfm->cbmsg <= PacketSize() &&
+       (BYTE*)pfm + pfm->cbmsg <= m_rgbbuffInPacket + PacketSize())
+    {
+      m_pfmSite->OnAppMessage(this, *pcnxnFrom, pfm);
+      pfm = PfmGetNext(pfm);
+      cMsgs++;
+    }
+    else
+    {
+      // ACK! Hacker?
+      whodidit();
+#ifndef NO_MSG_CRC
+      // we'll just call it a bad crc, even though it's not quite the same thing
+      m_pfmSite->OnBadCRC(this, *pcnxnFrom, m_rgbbuffInPacket, m_dwcbPacket);
+#endif
+      break;
+    }
+  }
+  tt.Stop();
 }
 
 
@@ -1022,142 +674,51 @@ HRESULT FedMessaging::InitDPlay(
  * HostSession
  *-------------------------------------------------------------------------
  * Purpose:
- *    Start a session and be the host (server)
- * 
- * Parameters:
- *    guidApplication: Clients will only find this session if they ask for the same application
- *    fKeepAlive:      Should dplay detect timeouts and kill players on dead connections?
- *    hEventServer:    Event to be signaled when a message comes to the server
- *    fKillSvr:        Whether to kill the dplaysvr process. 
- * 
- * Returns:
- *    
- * 
- * Side Effects:
- *    
+ *    Start a session and be the host (server): listen on the application's
+ *    port and answer discovery probes on the next one
  */
-HRESULT FedMessaging::HostSession(GUID guidApplication, bool fKeepAlive, HANDLE hEventServer, bool fProtocol
-#ifdef MONOLITHIC_DPLAY
-                                  , bool fMonolithic
-#endif
-                                  )
+HRESULT FedMessaging::HostSession(GUID guidApplication, bool fKeepAlive, HANDLE hEventServer, bool fProtocol)
 {
-  HRESULT hr = E_FAIL;
-  void *           pvAddress = NULL; // dplay address of self
-  // DPSECURITYDESC   securityDesc;
-  DPSESSIONDESC2   sessionDesc;
-  bool             fSecure = false;
-  DPSECURITYDESC * pSecurityDesc = NULL; // assume no security descriptor will be needed;
-  char             szHostName[20]; // length of machine name--also long enough for ip address if that's what we get
-  WSADATA          WSAData;
-
   assert(!m_fConnected);
-  if (false) // TODO: How do we know when to make sure dplaysvr isn't hosed?
-  {
-    if (!KillSvr())
-    {
-      m_pfmSite->OnMessageBox(this, "Failed to successfully run killsvr.exe (or it failed to complete), which kills dplaysvr.exe. If we can't veryify that dplaysvr starts out clean, we're in for trouble, so I'm aborting.",
-                            "Allegiance", MB_OK);
-      return E_FAIL;
-    }
-  }
-  
-  if(!m_pDirectPlay)
-  {
-    hr = InitDPlay(
-#ifdef MONOLITHIC_DPLAY
-      fMonolithic
-#endif      
-    );
-    if FAILED(hr)
-      goto CLEANUP;
-  }
-  
-  hr = E_FAIL;
-  WSAStartup(MAKEWORD(1,1), &WSAData);
-  gethostname(szHostName, sizeof(szHostName));
-  WSACleanup();
+  Shutdown();
 
-  hr = Connect(szHostName);
+  std::string    strError;
+  FedTransport * ptransport = CreateFedTransport(hEventServer, strError);
+
+  if (!ptransport)
+  {
+    m_pfmSite->OnMessageBox(this, ("Networking is unavailable: " + strError).c_str(), "Allegiance", MB_OK);
+    return E_FAIL;
+  }
+
+  GUID guidInstance;
+  CoCreateGuid(&guidInstance);
+
+  unsigned short port = PortForApplication(guidApplication);
+  HRESULT        hr   = ptransport->Listen(guidApplication, guidInstance, port);
+
   if (FAILED(hr))
-    goto CLEANUP;
-
-  // Start session
-  ZeroMemory(&sessionDesc, sizeof(DPSESSIONDESC2));
-  sessionDesc.dwSize = sizeof(DPSESSIONDESC2);
-  sessionDesc.guidApplication = guidApplication;
-  sessionDesc.dwMaxPlayers = 0; // no limit
-  sessionDesc.lpszSessionNameA = "FedSrv";
-#if !defined(DPSESSION_NOSESSSIONDESCMESSAGES)
-  #define DPSESSION_NOSESSSIONDESCMESSAGES  0x00020000  // only available in dx8 and private Allegiance dplay bits
-#endif
-  sessionDesc.dwFlags = DPSESSION_CLIENTSERVER | 
-                        DPSESSION_OPTIMIZELATENCY |
-                        (fProtocol ? DPSESSION_DIRECTPLAYPROTOCOL : 0) | 
-                        DPSESSION_NODATAMESSAGES |
-#ifdef MONOLITHIC_DPLAY
-                        (fMonolithic ? DPSESSION_NOSESSSIONDESCMESSAGES : 0) | 
-#else
-                        DPSESSION_NOSESSSIONDESCMESSAGES | 
-#endif
-                        (fKeepAlive ? DPSESSION_KEEPALIVE    : 0) |
-                        (fSecure    ? DPSESSION_SECURESERVER : 0);
-
-  m_guidApplication = guidApplication;
-
-/*
-  if (fSecure)
   {
-    ZeroMemory(&securityDesc, sizeof(DPSECURITYDESC));
-    securityDesc.dwSize = sizeof(DPSECURITYDESC);
-    securityDesc.dwFlags = 0;
-    securityDesc.lpszSSPIProviderA = "something";
-    pSecurityDesc = &securityDesc;
-  }
-*/
+    delete ptransport;
 
-  // host the session
-  hr = m_pDirectPlay->Open(&sessionDesc, DPOPEN_CREATE);
-  // Now, since we need to use a flag that was added as a bug fix, the version of dplay we run on may or may not have this flag.
-  // The only way to know is to try using it, and if it fails with DPERR_INVALIDFLAGS, then we need to try again without it.
-  if (DPERR_INVALIDFLAGS == hr)
-  {
-    sessionDesc.dwFlags &= ~DPSESSION_NOSESSSIONDESCMESSAGES;
-    hr = m_pDirectPlay->Open(&sessionDesc, DPOPEN_CREATE);
+    char szMsg[256];
+    wsprintf(szMsg, "The server could not listen on UDP port %u. Another server may be using it, "
+                    "or QUIC is unavailable (it needs Windows 11 or Windows Server 2022 or later).", port);
+    m_pfmSite->OnMessageBox(this, szMsg, "Allegiance", MB_OK);
+    return hr;
   }
 
-  ZSucceeded(hr);
-  m_fConnected = true;
+  m_pimpl->m_ptransport = ptransport;
+  m_guidApplication     = guidApplication;
+  m_guidInstance        = guidInstance;
+  m_fConnected          = true;
 
-  // Now let's get the sessiondesc back to look at it
-  {
-    DPSESSIONDESC2 * psd = NULL;
-    DWORD dwSize = 0;
-    hr = m_pDirectPlay->GetSessionDesc(psd, &dwSize);
-    assert (DPERR_BUFFERTOOSMALL  == hr);
-    psd = (DPSESSIONDESC2 *) new char[dwSize];
-    hr = m_pDirectPlay->GetSessionDesc(psd, &dwSize);
-    m_guidInstance = psd->guidInstance;
-    delete [] psd;
-  }
-
-  // create a server "player"
-  DPID dpid;
-  ZSucceeded(m_pDirectPlay->CreatePlayer(&dpid, NULL, hEventServer, 
-                                     NULL, 0, DPPLAYER_SERVERPLAYER));
-  assert(dpid == DPID_SERVERPLAYER);
-  m_pcnxnMe = new CFMConnection(this, "<Server connection>", dpid);
-
-  // then create the Everyone group
+  m_pcnxnMe = new CFMConnection(this, "<Server connection>", c_idMe);
   ZVerify(m_pgrpEveryone = CreateGroup("Everyone"));
-
   ResetOutBuffer();
 
-CLEANUP:
-  if (FAILED(hr))
-    Shutdown();
-  
-  return hr;
+  debugf("Hosting on UDP port %u (discovery %u)\n", port, port + 1);
+  return S_OK;
 }
 
 
@@ -1165,36 +726,24 @@ CLEANUP:
  * Shutdown
  *-------------------------------------------------------------------------
  * Purpose:
- *    Shutdown an open session. It is assumed that logoff, etc. has already been done
+ *    Shutdown an open session. It is assumed that logoff, etc. has already been done.
+ *    Closing the transport delivers what is still queued before the connections close.
  */
 void FedMessaging::Shutdown()
 {
   static CTempTimer tt("In FedMessaging::Shutdown", 0.1f);
   tt.Start();
-  if (m_pDirectPlay)
-  {
-    // empty the msg queue, and wait to make sure sys msgs get flushed
-    m_pDirectPlay->CancelMessage(0, 0);
-    DWORD dwQueueLen = 0;
-    do
-    {
-      Sleep(100); // don't ask
-      GetSendQueue(&dwQueueLen, NULL);
-    } while (dwQueueLen > 0);
-    
-    if (m_pcnxnMe)
-    {
-      Sleep(100); // don't ask
-      m_pDirectPlay->DestroyPlayer(m_pcnxnMe->GetDPID());
-      delete m_pcnxnMe;
-      m_pcnxnMe = NULL;
-    }
-    Sleep(1); // don't ask
-    
-    m_pDirectPlay->Close();
-    m_pDirectPlay->Release();
-    m_pDirectPlay = NULL;
 
+  if (m_pimpl->m_ptransport)
+  {
+    delete m_pimpl->m_ptransport;
+    m_pimpl->m_ptransport = NULL;
+  }
+
+  if (m_pcnxnMe)
+  {
+    delete m_pcnxnMe;
+    m_pcnxnMe = NULL;
   }
 
   if (m_pcnxnServer)
@@ -1202,6 +751,7 @@ void FedMessaging::Shutdown()
     delete m_pcnxnServer;
     m_pcnxnServer = NULL;
   }
+
   ResetOutBuffer();
   m_guidInstance = GUID_NULL;
   m_fConnected  = false;
@@ -1216,40 +766,44 @@ void FedMessaging::Shutdown()
  *    Become a client in a session
  * 
  * Parameters:
- *    what server, what application, and what instance to join (or NULL for default)
- *    OUT: connection to the sevrer that all messages should be sent to
+ *    what application, what server (host or host:port; empty to take the
+ *    first one that answers on the LAN), and the player's name
  */
 HRESULT FedMessaging::JoinSession(GUID guidApplication, const char * szServer, const char * szCharName)
 {
-  HRESULT hr = E_FAIL;
-  Time timeStart = Time::Now();
-  m_fSessionCallback = false; // we're going to join the session right here, so we don't want any site methods being called
+  std::string    strHost;
+  unsigned short port;
 
-  hr = EnumSessionsInternal(guidApplication, szServer);
-  do
+  FedParseHostPort(szServer, PortForApplication(guidApplication), strHost, port);
+
+  if (strHost.empty())
   {
-    Sleep(500);
-    hr = EnumSessionsInternal(guidApplication, NULL);
-    if (DPERR_CONNECTING != hr && FAILED(hr))
-      goto Cleanup;
-    // Important implementation detail!!! dplay times out enum requests at 15 seconds, and bad things have been known to happen
-    // if you try and kill a request, so to avoid that possibility, let's make SURE we wait longer than that.
-  } while ((SUCCEEDED(hr) || DPERR_CONNECTING == hr) && 
-           IsEqualGUID(GUID_NULL, m_guidInstance) && 
-           (Time::Now().clock() - timeStart.clock() < 17000)); // don't try for more than 17 seconds
+    //
+    // Find one on the LAN, as DirectPlay's broadcast enumeration did
+    //
 
-  if (IsEqualGUID(GUID_NULL, m_guidInstance))
-    hr = E_FAIL; // something else?
-  else
-    hr = JoinSessionInstance(m_guidInstance, szCharName);
+    FedDiscovery * pdiscovery = CreateFedDiscovery();
+    std::vector<FedSessionInfo> sessions;
+    DWORD timeStart = GetTickCount();
 
-  ResetOutBuffer();
+    pdiscovery->Start(guidApplication, "", port + 1);
 
-Cleanup:
-  if (FAILED(hr))
-    Shutdown();
-  
-  return hr;
+    do
+    {
+      Sleep(250);
+      pdiscovery->Poll(sessions);
+    } while (sessions.empty() && GetTickCount() - timeStart < 5000);
+
+    delete pdiscovery;
+
+    if (sessions.empty())
+      return E_FAIL;
+
+    strHost = sessions[0].m_strHost;
+    port    = sessions[0].m_port;
+  }
+
+  return JoinServer(guidApplication, strHost.c_str(), port, szCharName);
 }
 
 
@@ -1257,359 +811,329 @@ Cleanup:
  * FedMessaging.JoinSessionInstance
  *-------------------------------------------------------------------------
   Purpose:
-      Join a session that has already been enum'd
-
-  Parameters:
-      session instance and name of player to create 
-
-  Side Effects:
-      joins the session, creates the named player
+      Join a session that EnumSessions has found
  */
 HRESULT FedMessaging::JoinSessionInstance(GUID guidInstance, const char * szName)
 {
-  DPSESSIONDESC2 sessionDesc;
-  static CTempTimer tt("in FedMessaging::JoinSessionInstance", 0.5f);
-  tt.Start();
-  ZeroMemory(&sessionDesc, sizeof(sessionDesc));
-  sessionDesc.dwSize = sizeof(sessionDesc);
-  sessionDesc.guidInstance = guidInstance;
+  for (size_t index = 0; index < m_pimpl->m_sessions.size(); index++)
+  {
+    const FedSessionInfo & info = m_pimpl->m_sessions[index];
 
-  assert(m_pDirectPlay);
-  // But just to be paranoid, since people will be using retail clients before this can get lots of testing...
-  if (!m_pDirectPlay)
-    return E_FAIL;
-  
-  HRESULT hr = m_pDirectPlay->Open(&sessionDesc, DPOPEN_JOIN);
-  if (FAILED(hr))
-    goto CLEANUP;
+    if (info.m_guidInstance == guidInstance)
+      return JoinServer(m_pimpl->m_guidEnum, info.m_strHost.c_str(), info.m_port, szName);
+  }
 
-  m_guidInstance = sessionDesc.guidInstance;
-  m_fConnected = true;
-  DPNAME dpName;
-  dpName.dwSize = sizeof(DPNAME);
-  dpName.dwFlags = 0;
-  dpName.lpszLongNameA = 
-  dpName.lpszShortNameA = const_cast<char*>(szName);
-  DPID dpid;
-  ZSucceeded(hr = m_pDirectPlay->CreatePlayer(&dpid, &dpName, NULL, NULL, 0, 0));
-  m_pcnxnMe = new CFMConnection(this, szName, dpid);
-
-  // Set the output connection that the client will send msgs to
-  m_pcnxnServer = new CFMConnection(this, "Server", DPID_SERVERPLAYER);
-
-CLEANUP:
-  tt.Stop();
-  return hr;
+  debugf("JoinSessionInstance: that session has not answered recently\n");
+  return E_FAIL;
 }
 
 
 /*-------------------------------------------------------------------------
- * CheckVersion
+ * JoinServer
  *-------------------------------------------------------------------------
-   Purpose:
-      Verify that the version of dplay on the system is the one expected
-          by other machines in the session
-
-      There are a variety of acceptable versions of dplay. You pass the test if:
-          you're using our custom branded dplay (1.2.3.12), or
-          you're using the released dx6.1a on win9x, or
-          you're using some minimum build of dx7 on win9x, or
-          you're using some minimum build of w2k (save caveat as above)
-   
-   Returns:
-      Whether version is correct
-   
-   Side Effects:
-      Fire message event if version is wrong
+  Purpose:
+      Connect, and wait for the server's welcome (or refusal), as the
+      DirectPlay join did before it returned
  */
-bool FedMessaging::CheckVersion()
+HRESULT FedMessaging::JoinServer(GUID guidApplication, const char * szHost, unsigned short port, const char * szName)
 {
-    HANDLE hMem = NULL;         
-    LPVOID lpvMem = NULL;         
-    char  szFullPath[256];     
-    DWORD dwVerHnd; 
-    DWORD dwVerInfoSize;
-    bool fRet = false;
-    UINT dwBytes = 0; 
-    VS_FIXEDFILEINFO *lpvsFixedFileInfo = NULL;
-
-    // Get version information from the application 
-    HMODULE hmodDPlay = GetModuleHandle("dplayx");
-    if (NULL == hmodDPlay) // why isn't the dll loaded???
-      goto Cleanup;
-
-    GetModuleFileName(hmodDPlay, szFullPath, sizeof(szFullPath)); 
-    if (0 == (dwVerInfoSize = GetFileVersionInfoSize(szFullPath, &dwVerHnd)))
-      goto Cleanup;
-
-    if (NULL == (hMem = GlobalAlloc(GMEM_MOVEABLE, dwVerInfoSize)) ||
-        NULL == (lpvMem = GlobalLock(hMem)))
-      goto Cleanup;
-
-    GetFileVersionInfo(szFullPath, dwVerHnd, dwVerInfoSize, lpvMem);
-    if (!VerQueryValue(lpvMem, "\\", (LPVOID*) &lpvsFixedFileInfo, &dwBytes))
-      goto Cleanup;
-    {
-      WORD ver1 = HIWORD(lpvsFixedFileInfo->dwFileVersionMS);
-      WORD ver2 = LOWORD(lpvsFixedFileInfo->dwFileVersionMS);
-      WORD ver3 = HIWORD(lpvsFixedFileInfo->dwFileVersionLS);
-      WORD ver4 = LOWORD(lpvsFixedFileInfo->dwFileVersionLS);
-
-      char msg[256];
-      
-      sprintf(msg, "DPlay Version found: %d.%d.%d.%d. Version Required: 4.7.0.177 (DX7) or 5.0.2046.1 (Win2k) or 4.6.3.516 (DX6.1a)\r\n", 
-        ver1, ver2, ver3, ver4);
-      debugf(msg);
-
-      if (ver1 > 5) // assume all major new versions work
-        fRet = true;
-
-      if (ver1 == 5) // NT -- WARNING -- if future versions of DX go outside 4.??? and spill into NT versions, we're in trouble
-      {
-        fRet = ver2 > 0 || ver3 >= 2113; // ver3 == NT build #
-      }
-      
-      if (ver1 == 4) // Stand-alone DX runtimes
-      {
-        if (ver2 > 7) // new major dx versions (DX8+)
-          fRet = true;
-
-        if (ver2 == 7) // DX7.0a
-          fRet = ver3 > 0 || ver4 >= 700;
-
-        if (ver2 == 6) // DX6.1a
-          fRet = (ver3 == 3 && ver4 >= 516) || ver3 > 3;
-
-        // Anything before 6.1a is NOT sufficient.
-      }
-
-      if (!fRet)
-      {
-        m_pfmSite->OnMessageBox(this, msg, "Allegiance",  MB_OK);
-        goto Cleanup;
-      }
-    }
-        
-Cleanup:
-
-    if (lpvMem)
-      GlobalUnlock(hMem);
-    if (hMem)
-      GlobalFree(hMem);
-        
-  return fRet;
-}
-
-CFMConnection * FedMessaging::GetConnectionFromDpid(DPID dpid)
-{
-  DWORD dwSize = sizeof(CFMConnection);
-  CFMConnection * pcnxn = NULL;
-  static CTempTimer tt("in GetConnectionFromDpid", .01f);
+  static CTempTimer tt("in FedMessaging::JoinServer", 0.5f);
   tt.Start();
-  HRESULT hr = GetDPlay()->GetPlayerData(dpid, &pcnxn, &dwSize, DPGET_LOCAL);
-  if (hr == DPERR_INVALIDPLAYER) // dplay killed our player already! :-( See if we can find the dpid in our list
+
+  Shutdown();
+
+  std::string    strError;
+  FedTransport * ptransport = CreateFedTransport(NULL, strError);
+
+  if (!ptransport)
   {
-    assert(!pcnxn);
-    ListConnections::Iterator iter(m_listCnxns);
-    for (; !pcnxn && !iter.End(); iter.Next()) 
-    {
-      if (iter.Value()->GetDPID() == dpid)
-      {
-        pcnxn = iter.Value();
-        break;
-      }
-    }
-    if (m_pcnxnMe && (m_pcnxnMe->GetDPID() == dpid))
-      pcnxn = m_pcnxnMe;
-    else if (m_pcnxnServer && (m_pcnxnServer->GetDPID() == dpid))
-      pcnxn = m_pcnxnServer;
+    m_pfmSite->OnMessageBox(this, ("Networking is unavailable: " + strError).c_str(), "Allegiance", MB_OK);
+    tt.Stop();
+    return E_FAIL;
   }
+
+  DWORD       idServer  = 0;
+  HRESULT     hr        = ptransport->Connect(guidApplication, szHost, port, szName, &idServer);
+  std::string strReason = "the server did not answer";
+
+  if (SUCCEEDED(hr))
+  {
+    hr = E_FAIL;
+
+    DWORD             timeStart = GetTickCount();
+    FedTransportEvent event;
+
+    for (;;)
+    {
+      if (ptransport->PopEvent(event))
+      {
+        if (FedTransportEvent::Joined == event.m_type)
+        {
+          m_guidInstance = event.m_guid;
+          hr = S_OK;
+          break;
+        }
+
+        if (FedTransportEvent::JoinRefused == event.m_type)
+        {
+          strReason = event.m_strText;
+          break;
+        }
+
+        continue; // nothing else comes before the welcome
+      }
+
+      if (GetTickCount() - timeStart > 15000)
+        break;
+
+      ptransport->WaitForEvent(100);
+    }
+  }
+  else
+  {
+    FedTransportEvent event;
+
+    if (ptransport->PopEvent(event) && FedTransportEvent::JoinRefused == event.m_type)
+      strReason = event.m_strText;
+  }
+
+  if (FAILED(hr))
+  {
+    debugf("Joining %s:%u failed: %s\n", szHost, port, strReason.c_str());
+    delete ptransport;
+
+    char szMsg[512];
+    _snprintf(szMsg, sizeof(szMsg) - 1, "Could not join the session on %s: %s.", szHost, strReason.c_str());
+    szMsg[sizeof(szMsg) - 1] = '\0';
+    m_pfmSite->OnMessageBox(this, szMsg, "Allegiance", MB_OK);
+
+    tt.Stop();
+    return hr;
+  }
+
+  m_pimpl->m_ptransport = ptransport;
+  m_guidApplication     = guidApplication;
+  m_fConnected          = true;
+
+  m_pcnxnMe     = new CFMConnection(this, szName, c_idMe);
+  m_pcnxnServer = new CFMConnection(this, "Server", idServer);
+  ResetOutBuffer();
+
   tt.Stop();
-  return pcnxn;
+  return S_OK;
 }
 
 
-CFMGroup * FedMessaging::GetGroupFromDpid(DPID dpid)
+CFMConnection * FedMessaging::GetConnectionFromId(DWORD id)
 {
-  DWORD dwSize = sizeof(CFMGroup);
-  CFMGroup * pgrp = NULL;
-  static CTempTimer tt("in GetGroupFromDpid", .01f);
-  tt.Start();
-  GetDPlay()->GetGroupData(dpid, &pgrp, &dwSize, DPGET_LOCAL);
-  tt.Stop();
-  return pgrp;
+  for (ListConnections::Iterator iter(m_listCnxns); !iter.End(); iter.Next()) 
+  {
+    if (iter.Value()->GetID() == id)
+      return iter.Value();
+  }
+
+  if (m_pcnxnServer && m_pcnxnServer->GetID() == id)
+    return m_pcnxnServer;
+
+  if (m_pcnxnMe && m_pcnxnMe->GetID() == id)
+    return m_pcnxnMe;
+
+  return NULL;
 }
 
 
 HRESULT FedMessaging::GetIPAddress(CFMConnection & cnxn, char szRemoteAddress[16])
 {
-  char rgcDPAddress[300];
-  DWORD cbDPAddress = sizeof(rgcDPAddress);
-  static CTempTimer tt("in GetIPAddress", .01f);
-  tt.Start();
-  HRESULT hr = GetDPlay()->GetPlayerAddress(cnxn.GetDPID(), rgcDPAddress, &cbDPAddress);
-  if (SUCCEEDED(hr))
-    hr = GetDPlayLobby()->EnumAddress(EnumAddressCallback, rgcDPAddress, cbDPAddress, szRemoteAddress);
-  tt.Stop();
-  return hr;
+  char szAddress[64];
+
+  szRemoteAddress[0] = '\0';
+
+  if (!m_pimpl->m_ptransport || !m_pimpl->m_ptransport->GetPeerAddress(cnxn.GetID(), szAddress, sizeof(szAddress)))
+    return E_FAIL;
+
+  lstrcpyn(szRemoteAddress, szAddress, 16);
+  return S_OK;
 }
 
 
+HRESULT FedMessaging::GetSendQueue(DWORD * pcMsgs, DWORD * pcBytes)
+{
+  DWORD cMsgs = 0, cBytes = 0;
 
+  if (m_pimpl->m_ptransport)
+    m_pimpl->m_ptransport->GetTotals(&cMsgs, &cBytes, NULL);
+
+  if (pcMsgs)  *pcMsgs  = cMsgs;
+  if (pcBytes) *pcBytes = cBytes;
+  return S_OK;
+}
+
+
+HRESULT FedMessaging::GetReceiveQueue(DWORD * pcMsgs, DWORD * pcBytes)
+{
+  DWORD cEvents = 0;
+
+  if (m_pimpl->m_ptransport)
+    m_pimpl->m_ptransport->GetTotals(NULL, NULL, &cEvents);
+
+  if (pcMsgs)  *pcMsgs  = cEvents;
+  if (pcBytes) *pcBytes = 0;
+  return S_OK;
+}
+
+
+HRESULT FedMessaging::GetConnectionSendQueue(CFMConnection * pcnxn, DWORD * pcMsgs, DWORD * pcBytes)
+{
+  if (!pcnxn || !m_pimpl->m_ptransport || !m_pimpl->m_ptransport->GetPeerStats(pcnxn->GetID(), NULL, pcMsgs, pcBytes))
+    return E_FAIL;
+
+  return S_OK;
+}
+
+
+HRESULT FedMessaging::GetLinkDetails(CFMConnection * pcnxn, OUT DWORD * pdwHundredbpsG, OUT DWORD * pdwmsLatencyG, 
+                                                              OUT DWORD * pdwHundredbpsU, OUT DWORD * pdwmsLatencyU)
+{
+  DWORD msRtt = 0;
+
+  if (!pcnxn || !m_pimpl->m_ptransport || !m_pimpl->m_ptransport->GetPeerStats(pcnxn->GetID(), &msRtt, NULL, NULL))
+    return E_FAIL;
+
+  if (pdwHundredbpsG) *pdwHundredbpsG = 0;
+  if (pdwmsLatencyG)  *pdwmsLatencyG  = msRtt / 2;
+  if (pdwHundredbpsU) *pdwHundredbpsU = 0;
+  if (pdwmsLatencyU)  *pdwmsLatencyU  = msRtt / 2;
+  return S_OK;
+}
+
+
+/*-------------------------------------------------------------------------
+ * EnumSessions
+ *-------------------------------------------------------------------------
+  Purpose:
+      Look for sessions, and report (OnSessionFound) those that answered so
+      far. Call it repeatedly, as callers did with DirectPlay's.
+  Parameters:
+      szServer: a host (or host:port) to ask, "" to broadcast on the LAN,
+                NULL to keep polling the current search
+ */
 HRESULT FedMessaging::EnumSessions(GUID guidApplication, const char * szServer)
 {
   m_fSessionCallback = true;
-  
-  return EnumSessionsInternal(guidApplication, szServer);
+
+  if (!m_pimpl->m_pdiscovery)
+    m_pimpl->m_pdiscovery = CreateFedDiscovery();
+
+  if (szServer || !m_pimpl->m_fEnumStarted || guidApplication != m_pimpl->m_guidEnum)
+  {
+    std::string    strHost;
+    unsigned short port;
+
+    FedParseHostPort(szServer, PortForApplication(guidApplication), strHost, port);
+
+    m_pimpl->m_pdiscovery->Start(guidApplication, strHost.c_str(), port + 1);
+    m_pimpl->m_guidEnum     = guidApplication;
+    m_pimpl->m_fEnumStarted = true;
+  }
+
+  m_pimpl->m_pdiscovery->Poll(m_pimpl->m_sessions);
+
+  for (size_t index = 0; index < m_pimpl->m_sessions.size(); index++)
+  {
+    FMSessionDesc desc(m_pimpl->m_sessions[index].m_guidInstance, m_pimpl->m_sessions[index].m_strDetails.c_str());
+
+    if (m_fSessionCallback)
+      m_pfmSite->OnSessionFound(this, &desc);
+  }
+
+  return S_OK;
 }
 
 
-HRESULT FedMessaging::EnumSessionsInternal(GUID guidApplication, const char * szServer)
+void FedMessaging::SetSessionDetails(char * szDetails)
 {
-  HRESULT hr = E_FAIL;
-  DWORD dwSize = 0;
-  Time timeStart = Time::Now();
-  static CTempTimer tt("in FedMessaging::EnumSessionsInternal", 1.0f);
-  tt.Start();
-  // restore the hourglass cursor
-  SetCursor(LoadCursor(NULL, IDC_WAIT));
+  if (m_pimpl->m_ptransport)
+    m_pimpl->m_ptransport->SetSessionDetails(szDetails);
+}
 
-  if (szServer)
-    Shutdown();
 
-  if(!m_pDirectPlay)
-  {
-    hr = InitDPlay(
-#ifdef MONOLITHIC_DPLAY
-        false
-#endif
-    );
-    if FAILED(hr)
-      goto CLEANUP;
-  }
-
-  if (szServer)
-  {
-    hr = Connect(szServer);
-    if FAILED(hr)
-      goto CLEANUP;
-  }
-    
-  // Find the session.
-  DPSESSIONDESC2 sessionDesc;
-
-  ZeroMemory(&sessionDesc, sizeof(sessionDesc));
-  sessionDesc.dwSize = sizeof(sessionDesc);
-  g_guidApplication = guidApplication;
-  sessionDesc.guidApplication = guidApplication; //GUID_NULL;
-  debugf("Looking for session on \"%s\"\n", szServer);
-
-  if (szServer)
-    hr = m_pDirectPlay->EnumSessions(&sessionDesc, 20000, EnumSessionsCallback, // resend every 3 seconds if we don't hear back
-                                    this, DPENUMSESSIONS_STOPASYNC);
-
-  hr = m_pDirectPlay->EnumSessions(&sessionDesc, 20000, EnumSessionsCallback, // resend every 3 seconds if we don't hear back
-                                    this, DPENUMSESSIONS_ASYNC);
-      
-CLEANUP:
-  tt.Stop(); // the shutdown below has its own timer
-  if (DPERR_CONNECTING != hr && FAILED(hr))
-    Shutdown();
-  // else we need to keep the connection/sessions around for more enum'ing and joining later
-  
-  return hr;
-}  
-
-CFMConnection * FedMessaging::CreateConnection(const char * szName, DPID dpid) // after the physical connection has already been established
+CFMConnection * FedMessaging::CreateConnection(const char * szName, DWORD id) // after the physical connection has already been established
 {
   static CTempTimer tt("in CreateConnection", .01f);
   tt.Start();
-  CFMConnection * pcnxn = new CFMConnection(this, szName, dpid);
+  CFMConnection * pcnxn = new CFMConnection(this, szName, id);
   m_listCnxns.PushFront(pcnxn);
-  m_pgrpEveryone->AddConnection(this, pcnxn); // we'll let dplay own removing them when they disconnect, since they retain lifetime membership
+  m_pgrpEveryone->AddConnection(this, pcnxn); // they stay in Everyone until the connection is deleted
   m_pfmSite->OnNewConnection(this, *pcnxn);
   tt.Stop();
   return pcnxn;
 }
 
 
-CFMConnection::CFMConnection(FedMessaging * pfm, const char * szName, DPID dpid) : // only FedMessaging::CreateConnection can create these things
-    CFMRecipient(szName, dpid),
+void FedMessaging::DeleteConnection(CFMConnection & cnxn)
+{
+  static CTempTimer tt("in DeleteConnection", .01f);
+  tt.Start();
+  m_pfmSite->OnDestroyConnection(this, cnxn);
+  tt.Stop();
+
+  m_listCnxns.Remove(&cnxn);
+
+  //
+  // A deleted connection leaves every group, as DirectPlay players did
+  //
+
+  for (ListGroups::Iterator iter(m_listGroups); !iter.End(); iter.Next())
+    iter.Value()->m_listMembers.Remove(&cnxn);
+
+  if (m_pimpl->m_ptransport)
+    m_pimpl->m_ptransport->ClosePeer(cnxn.GetID());
+
+  cnxn.Delete(this);
+}
+
+
+CFMConnection::CFMConnection(FedMessaging * pfm, const char * szName, DWORD id) : // only FedMessaging::CreateConnection can create these things
+    CFMRecipient(szName, id),
     m_cAbsentCount(0),
+    m_dwTimeLastComplete(0),
     m_dwPrivate(0)
 {
-  assert(GetDPID() == dpid);
-  debugf("New CFMConnection: dpid=%u, name=%s, playerdata(this)=%p, private=%u\n", 
-          dpid, szName, this, m_dwPrivate);
-  LPVOID pv = this;
-  if (FAILED((pfm->GetDPlay()->SetPlayerData(GetDPID(), &pv, sizeof(pv), DPSET_LOCAL))))
-    debugf("Player %s(%u) gone immediately after connection. He should drop out rsn.\n", szName, dpid);
+  debugf("New CFMConnection: id=%u, name=%s, this=%p\n", id, szName, this);
 }
 
 
 void CFMConnection::Delete(FedMessaging * pfm) // basically the destructor, but with a parameter
 {
-  debugf("Deleting connection: dpid=%u, name=%s, playerdata=%p, private=%u\n", 
-          GetDPID(), GetName(), this, m_dwPrivate);
-  // Don't want to hear anything more from this player
-  static CTempTimer tt("in DestroyPlayer/SetPlayerData", 0.02f);
-  tt.Start();
-  HRESULT hr = pfm->GetDPlay()->SetPlayerData(GetDPID(), NULL, 0, DPSET_LOCAL); // just in case dplay hasn't really killed the player yet. ignore return code; they may already be dead
-  debugf("SetPlayerData=0x%08x\n", hr);
-  hr = pfm->GetDPlay()->DestroyPlayer(GetDPID());
-  debugf("DestroyPlayer=0x%08x\n", hr);
-  tt.Stop();
+  debugf("Deleting connection: id=%u, name=%s, this=%p, private=%u\n", 
+          GetID(), GetName(), this, m_dwPrivate);
   delete this;
   g_fConnectionDeleted = true;
 }
 
 
-// **************  CFMGroup  **************
-
 void CFMGroup::AddConnection(FedMessaging * pfm, CFMConnection * pcnxn)
 {
-  pfm->GetDPlay()->AddPlayerToGroup(GetDPID(), pcnxn->GetDPID());
+  if (!m_listMembers.Find(pcnxn))
+    m_listMembers.PushEnd(pcnxn);
 }
 
 
 void CFMGroup::DeleteConnection(FedMessaging * pfm, CFMConnection * pcnxn)
 {
-  // ignore return code, since dplay connection could already be dead
-  pfm->GetDPlay()->DeletePlayerFromGroup(GetDPID(), pcnxn->GetDPID());
+  m_listMembers.Remove(pcnxn);
 }
 
 
 CFMGroup::CFMGroup(FedMessaging * pfm, const char * szName) :
-    m_cPlayers(0),
-    CFMRecipient(szName, 0) // dplay group hasn't been created yet
+    CFMRecipient(szName, pfm->m_idGroupNext++)
 {
-  DPNAME dpn;
-  dpn.dwSize = sizeof(dpn);
-  dpn.dwFlags = 0;
-  dpn.lpszShortNameA = const_cast<char*>(szName);
-  dpn.lpszLongNameA  = "";
-  ZSucceeded(pfm->GetDPlay()->CreateGroup(&m_dpid, &dpn, NULL, 0, 0));
-  LPVOID pv = this;
-  ZSucceeded(pfm->GetDPlay()->SetGroupData(GetDPID(), &pv, sizeof(pv), DPSET_LOCAL));
 }
 
 
 void CFMGroup::Delete (FedMessaging * pfm) 
 {
-  pfm->GetDPlay()->DestroyGroup(GetDPID());
   delete this;
-}
-
-
-void CFMGroup::PlayerAdded(CFMConnection * pcnxn)
-{
-  m_cPlayers++;
-}
-
-
-void CFMGroup::PlayerDeleted(CFMConnection * pcnxn)
-{
-  m_cPlayers--;
 }
 
 
@@ -1617,19 +1141,21 @@ void CFMGroup::PlayerDeleted(CFMConnection * pcnxn)
  * FMSessionDesc.FMSessionDesc
  *-------------------------------------------------------------------------
   Purpose:
-      Crack the name/value pairs in the dplay session name and populate the members
-
+      Crack the name/value pairs in the session details and populate the members
   Side Effects:
       This is kinda of bad coupling, since the server packs this, and the messaging layer unpacks. 
  */
-FMSessionDesc::FMSessionDesc(LPDPSESSIONDESC2 pdpSessionDesc)
+FMSessionDesc::FMSessionDesc(REFGUID guidInstance, const char * szDetails)
 {
   char * szName = NULL;
   char * szValue = NULL;
   m_nNumPlayers = 0;
   m_nMaxPlayers = 1;
+  m_guidInstance = guidInstance;
 
-  szName = strtok((char *) pdpSessionDesc->lpszSessionNameA, "\t");
+  std::vector<char> details(szDetails, szDetails + lstrlen(szDetails) + 1);
+
+  szName = strtok(details.data(), "\t");
   while(szName)
   {
     if (!lstrcmp(szName, "GAM"))
@@ -1640,24 +1166,17 @@ FMSessionDesc::FMSessionDesc(LPDPSESSIONDESC2 pdpSessionDesc)
     else if (!lstrcmp(szName, "PLR"))
     {
       szValue = strtok(NULL, "\n");
-      m_nNumPlayers = (short)atoi(szValue);
+      m_nNumPlayers = szValue ? (short)atoi(szValue) : 0;
     }
     else if (!lstrcmp(szName, "LIM"))
     {
       szValue = strtok(NULL, "\n");
-      m_nMaxPlayers = (short)atoi(szValue);
+      m_nMaxPlayers = szValue ? (short)atoi(szValue) : 1;
     }
-    // there could be many more
     else // throw away any remainder
     {
       szValue = strtok(NULL, "\n");
     }
-
     szName = strtok(NULL, "\t");
   }
-  
-  m_guidInstance = pdpSessionDesc->guidInstance;
 }
-
-
-

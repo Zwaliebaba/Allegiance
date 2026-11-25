@@ -871,18 +871,7 @@ CFSPlayer::CFSPlayer(CFMConnection * pcnxn, int characterID, const char * szCDKe
 
 CFSPlayer::~CFSPlayer()
 {
-  /*
-    People get removed from the groups automatically when the player is destroyed
-  ZSucceeded(g.pDirectPlay->DeletePlayerFromGroup(g.dpidEveryone, m_dpid));
-  if (NA == GetSide())
-    ZSucceeded(g.pDirectPlay->DeletePlayerFromGroup(g.dpidLobby, m_dpid));
-  else
-    ZSucceeded(g.pDirectPlay->DeletePlayerFromGroup(g.rgdpidSides[GetSide()], m_dpid));
-
-  if (m_dpidGroup)
-    ZSucceeded(g.pDirectPlay->DeletePlayerFromGroup(m_dpidGroup, m_dpid));
-  // NYI: They might be in sector overview too
-  */
+  // People leave their groups when their connection is deleted (FedMessaging::DeleteConnection)
   m_pcnxn->SetPrivateData(0); // disconnect two-way link between connection and this
 
   LPCSTR pszContext = GetIGCShip() ? GetIGCShip()->GetMission()->GetContextName() : NULL;
@@ -906,7 +895,7 @@ CFSPlayer::~CFSPlayer()
     delete pperplrscoLink;
   }
   
-  // Too risky, dplay may block-- g.fm.GetDPlay()->DestroyPlayer(m_dpid);
+
 }
 
 

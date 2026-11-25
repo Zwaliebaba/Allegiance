@@ -409,38 +409,6 @@ void CServiceModule::RevokeCOMObjects()
 }
 
 
-#ifdef MONOLITHIC_DPLAY
-  void RegisterMonolithicDPlay()
-  {
-    HKEY hKey = NULL;
-    const char * szKey = "CLSID\\{DA9CABC6-C724-4265-A61D-6E78EB2042B4}\\InprocServer32";
-    // check to see if it's already registered, and if so, do nothing, otherwise register it
-    if (ERROR_SUCCESS != RegOpenKeyEx(HKEY_CLASSES_ROOT, szKey, 0, KEY_READ, &hKey))
-    {
-      // Get the module path
-      TCHAR szFilePath[_MAX_PATH * 2], szDrive[_MAX_DRIVE], szDir[_MAX_DIR * 2];
-      ::GetModuleFileName(NULL, szFilePath, sizeofArray(szFilePath));
-      _tsplitpath(szFilePath, szDrive, szDir, NULL, NULL);
-      _tmakepath(szFilePath, szDrive, szDir, NULL, NULL);
-      int cch = _tcslen(szFilePath);
-      if (TEXT('\\') == szFilePath[cch - 1])
-        szFilePath[cch - 1] = TEXT('\0');
-
-      // Update the registry from the DPMono.rgs
-      USES_CONVERSION;
-      _ATL_REGMAP_ENTRY regmap[] =
-      {
-        {L"MODULE_PATH", T2COLE(szFilePath)},
-        {NULL          ,               NULL},
-      };
-      _Module.UpdateRegistryFromResource(IDR_DPMONO, true, regmap);
-    }
-    else
-    {
-      RegCloseKey(hKey);
-    }
-  }
-#endif
 
 
 /*-------------------------------------------------------------------------
@@ -479,10 +447,7 @@ HRESULT CServiceModule::RegisterServer(BOOL bReRegister, BOOL bRegTypeLib, BOOL 
     _Module.UpdateRegistryFromResource(IDR_AllSrv, true,
       _AGCModule.GetRegMapEntries());
 
-    #ifdef MONOLITHIC_DPLAY
-      // Register custom dplay bits
-      RegisterMonolithicDPlay();
-    #endif
+
 
     // Create the component category manager
     CComPtr<ICatRegister> spCatReg;

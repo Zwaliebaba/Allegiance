@@ -12,7 +12,7 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Renderer | New Direct3D 11 backend behind the engine's existing `Engine` / `Surface` / rasterizer seam. DirectDraw 4, Direct3D 3 and the MMX software rasterizer are removed. |
 | Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project. Stage B: new MDL version with 32-bit / BC7 DDS textures generated from the 24-bit source BMPs. |
 | Level of detail | Reduced LOD meshes are dropped. They were a 1999 performance optimisation (the models are hundreds to a few thousand triangles). Every LOD slot uses the full-detail mesh, which removes `xmunge -reduce`, the MSR progressive-mesh binaries and meshoptimizer. |
-| Networking | Own Winsock UDP transport behind the existing `FedMessaging` interface, replacing DirectPlay 4. Built in Phase 3 with a loopback / packet-loss test harness that runs in CI. |
+| Networking | MsQuic (Schannel build) behind the existing `FedMessaging` interface, replacing DirectPlay 4. This replaced the first plan of an own Winsock UDP layer; with QUIC providing reliability and loss recovery, no loopback / packet-loss harness was built, and LAN play is verified by hand. Windows 11 or Server 2022 and later. |
 | Scope | Tier 1 is built. Tier 2 stays in the repo, outside the solution. Tier 3 is deleted once nothing in Tier 1 or 2 references it. |
 | Verification | GitHub Actions on `windows-2025` (VS 2026). `.github/workflows/windows-build.yml`. |
 
@@ -104,7 +104,7 @@ moves into Tier 1 and is ported with the server, keeping the admin and event fea
 - Old ATL 3 code (`statreg.cpp`, `atlimpl.cpp`, `CComModule`) moved to the current ATL module classes.
 - Compile-time shims for the DirectX headers that are no longer in the SDK (`d3drm.h`, `dplay.h`,
   `dplobby.h`), so everything links before behaviour changes. The shims are written for this project, not vendored from
-  old SDKs, and they are deleted as Phase 3 replaces each API.
+  old SDKs, and they are deleted as Phase 3 replaces each API (`compat/dplay` went with the MsQuic networking).
 - Zone and Club code paths removed. The MSN Gaming Zone services they talked to no longer exist, and
   nothing built ran them: `USEAUTH` (Zone authentication) was never defined, and `AllSrv32` is the
   standalone server, which compiles out every `!ALLSRV_STANDALONE` Zone-server path. Removed:
@@ -150,7 +150,7 @@ moves into Tier 1 and is ported with the server, keeping the admin and event fea
 | Input | DirectInput 2/7 | DirectInput 8 |
 | Audio | DirectSound / DS3D | Unchanged at first; XAudio2 later |
 | Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Same `IDiskPlayer` interface, playing the WAVs from `Artwork/redbook` (track order from `tracks.lst`) |
-| Networking | DirectPlay 4 inside `FedMessaging` | Own Winsock UDP layer: reliable-ordered and unreliable channels, fragmentation, timeouts, broadcast LAN discovery replacing `EnumSessions` |
+| Networking | DirectPlay 4 inside `FedMessaging` | MsQuic: a reliable ordered stream and unreliable datagrams per connection, plus a UDP probe for LAN discovery (see "Networking" below) |
 
 The DirectPlay surface used by `FedMessaging` is about 15 calls: `Open`, `Close`, `EnumSessions`,
 `GetSessionDesc`, `SetSessionDesc`, `CreatePlayer`, `DestroyPlayer`, `GetPlayerData`, `SendEx`,
@@ -255,6 +255,45 @@ Differences to look for when testing:
   precedence slip); the GPU draws the whole glyph up to the clip edge.
 - Stretch blits sample at pixel centres, which can pick a neighbouring source pixel compared with the
   integer CPU loop. Only the (stubbed) movie image uses them.
+
+#### Networking: MsQuic replaces DirectPlay
+
+Decisions:
+
+- **Transport.** [MsQuic](https://github.com/microsoft/msquic), the Schannel build. One QUIC connection per
+  client: a bidirectional stream carries the guaranteed messages in order, QUIC datagrams (RFC 9221) carry
+  the unguaranteed ones. Congestion control, loss recovery, fragmentation and keep-alives are MsQuic's.
+- **Windows.** The Schannel build needs TLS 1.3 from Windows, so Windows 11 or Server 2022 and later.
+  Windows 10 is out of support (October 2025); it would need the OpenSSL build.
+- **Server identity.** QUIC requires TLS, so every server has a certificate: `AllSrv32` creates a
+  self-signed one at startup (ECDSA P-256, key kept under a fixed name in the user's key store so it is not
+  regenerated every time). Clients don't validate it for now. Traffic is encrypted, but the server isn't
+  authenticated. Pinning a fingerprint published by the lobby is the planned next step.
+- **Delivery.** The `Microsoft.Native.Quic.MsQuic.Schannel` NuGet package (packages.config, restored by
+  Visual Studio and by CI into `packages/`). `msquic.dll` is copied next to the exes and loaded at run
+  time, so the game still starts without it (networking then reports why it can't).
+- **Verification.** CI builds it; LAN play is tested by hand.
+
+What FedMessaging used DirectPlay for, and what replaces it:
+
+| DirectPlay | Replacement |
+|---|---|
+| `Open(DPOPEN_CREATE)`, server player | `HostSession`: a MsQuic listener on the session's port, plus the discovery socket |
+| `Open(DPOPEN_JOIN)`, `CreatePlayer` | `JoinSession`: connect, open the stream, send a hello (application GUID, protocol version, player name); the server answers with a welcome (session instance) or a refusal. The call waits for that, as the DirectPlay join did |
+| `DPSYS_CREATEPLAYERORGROUP` / `DESTROYPLAYERORGROUP` | A hello creates the `CFMConnection` (`OnNewConnection`); connection shutdown deletes it, or ends the session on a client |
+| `SendEx` guaranteed / unguaranteed | A length-prefixed frame on the stream / a datagram. An unguaranteed packet bigger than the connection's datagram limit goes on the stream |
+| Groups (`CreateGroup`, `AddPlayerToGroup`, group sends) | Membership lists kept by FedMessaging; a group send goes to each member. A deleted connection leaves every group, as with DirectPlay |
+| `DPSYS_SENDCOMPLETE` failure → `OnMessageNAK` | A guaranteed send cancelled by MsQuic (the connection is going away) |
+| `EnumSessions` | A UDP probe, broadcast on the LAN or sent to a named server, answered with the session instance, its QUIC port and the details `SetSessionDetails` sets (game name, players, limit). Calls are polled, as before: each call reports what has answered so far |
+| `GetPlayerAddress`, `GetPlayerCaps`, `GetMessageQueue` | Remote address, RTT and bytes in flight from MsQuic's connection statistics |
+| `dplobby.h` addresses, `CheckVersion`, `killsvr.exe` | Gone |
+
+Threading: MsQuic calls back on its own threads. Those callbacks only queue events (new peer, packet,
+peer gone, send failed); `FedMessaging::ReceiveMessages` drains the queue on the game thread, so the
+`IFedMessagingSite` callbacks run where they always did.
+
+Ports (UDP): game servers 47700 (QUIC) and 47701 (discovery); the lobby's client side 47710/47711 and its
+server side 47720/47721. A server address may name another port as `host:port`.
 
 ### Phase 4: art pipeline
 
@@ -376,6 +415,16 @@ CI builds each library on its own (`-p:BuildProjectReferences=false`), so one fa
 errors of the others. The error summary is on the workflow run page, and the full logs are attached to
 the run.
 
+MsQuic comes from NuGet (`_Utility/packages.config`, into `packages\`). Visual Studio restores it on
+build; from the command line, restore first:
+
+```
+msbuild _Utility\Utility.vcxproj -t:restore -p:RestorePackagesConfig=true -p:SolutionDir=%CD%\
+```
+
+The build copies `msquic.dll` next to the exes. Networking needs Windows 11 or Windows Server 2022 or
+later (QUIC's TLS 1.3 comes from Windows), and UDP 47700-47701 open for a game server.
+
 Then build the art with the tools from that build:
 
 ```
@@ -415,7 +464,7 @@ Fixes are made per CI round, and each change keeps the original runtime behaviou
 | `d3drm.h` included only for a debug error-string table | Retained-mode entries and the include removed | `engine/dderror.cpp` |
 | DirectInput 7 (`DirectInputCreate`, `IDirectInputDevice2`, `DIDEVTYPE_*`) not in the SDK | Ported to DirectInput 8. All DI8 game-controller types map to the engine's joystick. Unused dynamic-load path removed. `DIRECTINPUT_VERSION=0x0800` is set globally. | `engine/dinput.cpp` |
 | C2712 in `ThingGeoImpl::~ThingGeoImpl` (`__try` in a destructor of a class with `TRef` members) | Guarded release moved into a static member that has no objects of its own. The members are released inside it, so the implicit member destructors afterwards do nothing. | `effect/thinggeo.cpp` |
-| `dplay.h` / `dplobby.h` not in the SDK | Compile-only stand-ins in `compat/dplay/`. All GUIDs are null, so `CoCreateInstance` fails and the existing "DirectPlay unavailable" paths run. No call can reach `dplayx.dll` with a guessed ABI. Removed in Phase 3. | `Inc/messagecore.h` and users |
+| `dplay.h` / `dplobby.h` not in the SDK | Compile-only stand-ins in `compat/dplay/`. All GUIDs are null, so `CoCreateInstance` fails and the existing "DirectPlay unavailable" paths run. No call can reach `dplayx.dll` with a guessed ABI. Removed in Phase 3, when MsQuic replaced DirectPlay. | `Inc/messagecore.h` and users |
 | Zone auth SDK (`zoneauth.h`, `zoneauthdecrypt.h`) not in the source release | `_Utility/zauth.cpp` reimplemented behind the same interface as "Zone unavailable": every authentication fails. The factories return objects rather than NULL because the callers never check for NULL. | `_Utility/zauth.cpp` (deleted with the Zone code) |
 | Debug `#define new new(__FILE__, __LINE__)` (`zlib/alloc.h`) breaks ATL's `new(std::nothrow)` | `push_macro`/`pop_macro` around the ATL include | `Inc/allegdb.h` |
 | Original bug: when a hat direction is bound in the key-mapping UI, the stored joystick index was the leftover loop counter (always one past the last joystick). That broke the saved mapping, its "Joy N Hat ..." label and duplicate detection. | Use the joystick that axis 5 (the hat, which drives `m_ppboolHatButton`) is mapped to | `WinTrek/trekinput.cpp` |
