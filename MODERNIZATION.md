@@ -175,7 +175,9 @@ How it was checked:
 - The real `mdlc` conversion runs only in CI.
 - `fig02pit` is left out because its source is missing.
 
-Each model's template refers to its `.x` files by absolute path in `out\artobj\models\`. That lets `mdlc` run in `out\art\` without the intermediates. It has to run there because textures are looked up on the art path, and a texture that isn't found is silently dropped, not reported as an error.
+Each model's template refers to its `.x` files by absolute path in `out\artobj\models\`. That lets `mdlc` run in `out\art\` without the intermediates. It has to run there because textures are looked up on the art path, and a missing texture is a fatal error (`ModelerImpl::GetFile` asserts).
+
+`ops1` and `ops2` are in `makegeo.mak`, and their textures `ops1.bmp` and `ops2.bmp` are in the drop. But the textures were never listed in `bitmap.txt`, so the original build could not have produced these two models. Both lines are now added to `bitmap.txt`.
 
 Two `mdlc` changes support this:
 
