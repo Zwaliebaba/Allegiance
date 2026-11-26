@@ -71,6 +71,7 @@ Invoke-Mdlc 'dds-anim'       @('-dds', 'animlaunch.bmp', 'animlaunch.dds') 'anim
 # The animation as Art.proj writes it: a text MDL that builds the frames from
 # the DDS strip when loaded. Compiling it to binary MDL loads it (FrameImage).
 @(
+    'use "model";'
     'frame = ModifiableNumber(0);'
     'image = FrameImage(ImportImage("animlaunchbmp", false), frame, 4, 4);'
 ) | Set-Content (Join-Path $Out 'animlaunch.mdl') -Encoding ascii

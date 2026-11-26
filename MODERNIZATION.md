@@ -618,7 +618,7 @@ had cut them to RGB565.
 | Transparency | The game's only transparency was a colour key: pixels that are 0 in RGB565 (pure black, and near-black up to about RGB 8,4,8) are transparent where an MDL file asks for the key (`ImportImage("name", true)`). `mdlc -dds` bakes exactly that set into alpha: alpha 0 there, and RGB 0 too, so "alpha 0" and "black" stay the same pixels. 1.4 million near-black pixels in 635 bitmaps are transparent only because of the 565 rounding; keying on pure black instead would have made them visible |
 | When alpha applies | Only where the MDL file asks for the key, as before. An image loaded without it is drawn opaque, alpha ignored, so bitmaps used both ways (with and without the key) look as they did |
 | Model textures | The 230 bitmaps that a model's `.x` file names (`TextureFilename`) get a mip chain (2x2 box filter, down to 1x1), found by an inline task in `Art.proj` that scans the `.x` files. All are power-of-two sized. Distant models no longer shimmer; their textures are a third larger |
-| Animations | The six strips are DDS images too. Each gets a two-line text MDL (`frame = ModifiableNumber(0); image = FrameImage(ImportImage("<name>bmp", false), frame, x, y);`) that compresses the frames when it loads, with the code `mdlc -compressanim` ran at build time |
+| Animations | The six strips are DDS images too. Each gets a small text MDL (`use "model"; frame = ModifiableNumber(0); image = FrameImage(ImportImage("<name>bmp", false), frame, x, y);`) that compresses the frames when it loads, with the code `mdlc -compressanim` ran at build time |
 | Fonts | Stay in `font.mdl` (glyph bitmaps plus metrics, not textures) |
 
 How the engine reads them:
