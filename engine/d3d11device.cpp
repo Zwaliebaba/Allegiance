@@ -36,8 +36,9 @@ ZString NarrowString(const wchar_t* pwsz)
 //////////////////////////////////////////////////////////////////////////////
 //
 // Pixel conversion shared by the texture cache, the rasterizer and the
-// presenter. Surfaces are 565 almost always; anything else goes through
-// PixelFormat's per-pixel path.
+// presenter. Surfaces are 32-bit premultiplied BGRA almost always (the DDS
+// images and the CPU surfaces); anything else goes through PixelFormat's
+// per-pixel path.
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -82,11 +83,11 @@ void ConvertSurfaceToBGRA(
             && ppf->BlueMask()   == 0x000000ff
         ) {
             //
-            // 32-bit BGRA: DDS images, whose alpha holds the colour key (alpha
-            // 0 exactly where the pixel is black), and alpha-less 32-bit
-            // surfaces, where black is the key. Alpha is used only when the
-            // surface is colour keyed (as an MDL file asks with ImportImage);
-            // otherwise the image is opaque, as it was before DDS.
+            // 32-bit BGRA: DDS images and CPU surfaces, premultiplied alpha
+            // (alpha 0 is the colour key), and alpha-less 32-bit surfaces,
+            // where black is the key. Alpha is used only when the surface is
+            // colour keyed (as an MDL file asks with ImportImage); otherwise
+            // the image is opaque, as it was before DDS.
             //
 
             const DWORD* pw        = (const DWORD*)ps;
@@ -111,15 +112,8 @@ void ConvertSurfaceToBGRA(
             int bytes = ppf->PixelBytes();
 
             for (int x = 0; x < size.X(); x++) {
-                Pixel pixel = ppf->GetPixel(ps + x * bytes);
-                Color color = ppf->MakeColor(pixel);
-                DWORD a     = (bColorKey && pixel.Value() == 0) ? 0 : 0xff;
-
-                pd[x] =
-                      (a << 24)
-                    | (DWORD(color.GetRed()   * 255.0f + 0.5f) << 16)
-                    | (DWORD(color.GetGreen() * 255.0f + 0.5f) <<  8)
-                    |  DWORD(color.GetBlue()  * 255.0f + 0.5f);
+                DWORD bgra = ppf->GetBGRA(ppf->GetPixel(ps + x * bytes));
+                pd[x] = bColorKey ? bgra : (bgra | 0xff000000);
             }
         }
     }
@@ -148,19 +142,38 @@ void ConvertBGRAToSurface(
                     | ((c >> 3) & 0x001f)
                 );
             }
+        } else if (
+               ppf->PixelBytes() == 4
+            && ppf->RedMask()    == 0x00ff0000
+            && ppf->GreenMask()  == 0x0000ff00
+            && ppf->BlueMask()   == 0x000000ff
+        ) {
+            //
+            // A render target's alpha is coverage, premultiplied; an opaque
+            // pixel that is black (in 565 terms) is the colour key of the
+            // pane, so it comes back as alpha 0, as pixels drawn black on
+            // the CPU are (PixelFormat::MakePixel)
+            //
+
+            DWORD* pw        = (DWORD*)pd;
+            bool   bAlpha    = ppf->AlphaMask() == 0xff000000;
+
+            for (int x = 0; x < size.X(); x++) {
+                DWORD c = ps[x];
+
+                if (!bAlpha) {
+                    pw[x] = c & 0x00ffffff;
+                } else if ((c >> 24) == 0xff && D3D11IsKeyBlack(c)) {
+                    pw[x] = 0;
+                } else {
+                    pw[x] = c;
+                }
+            }
         } else {
             int bytes = ppf->PixelBytes();
 
             for (int x = 0; x < size.X(); x++) {
-                DWORD c = ps[x];
-                ppf->SetColor(
-                    pd + x * bytes,
-                    Color(
-                        ((c >> 16) & 0xff) / 255.0f,
-                        ((c >>  8) & 0xff) / 255.0f,
-                        ( c        & 0xff) / 255.0f
-                    )
-                );
+                ppf->SetPixel(pd + x * bytes, ppf->MakePixelBGRA(ps[x]));
             }
         }
     }
@@ -392,8 +405,9 @@ public:
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // Texture cache. Textures are BGRA8 with the colour key (black, the only
-    // key the game uses) in alpha. The DirectX 6 path capped textures at
+    // Texture cache. Textures are BGRA8, premultiplied alpha, as the DDS
+    // images are; a colour keyed surface keeps its alpha (alpha 0 is the
+    // key), anything else is opaque. The DirectX 6 path capped textures at
     // 256x256 and halved anything larger; full size is kept now.
     //
     //////////////////////////////////////////////////////////////////////////////

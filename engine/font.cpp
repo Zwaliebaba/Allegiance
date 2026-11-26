@@ -368,7 +368,8 @@ public:
         int ysize, 
         int x, BYTE* 
         pdestTop, 
-        WORD pixel, 
+        DWORD pixel, 
+        int pixelBytes,
         int pitchDest
     ) {
         const CharData& charData  = m_data[ch];
@@ -403,7 +404,7 @@ public:
               m_pdata 
             + charData.m_offset 
             + bytesSource * ytop;
-        BYTE* pdestStart          = pdestTop + (x + xleft) * 2;
+        BYTE* pdestStart          = pdestTop + (x + xleft) * pixelBytes;
 
         //
         // copy bits between xleft and xright
@@ -423,7 +424,7 @@ public:
             while (ibit < xleft) {
                 byte = byte >> 1;
                 ibit++;
-                if (ibit & 0x7 == 0) {
+                if ((ibit & 0x7) == 0) {
                     byte = *psource;
                     psource++;
                 }
@@ -435,13 +436,17 @@ public:
 
             while (ibit < xright) {
                 if (byte & 1) {
-                    *(WORD*)pdest = pixel;
+                    if (pixelBytes == 4) {
+                        *(DWORD*)pdest = pixel;
+                    } else {
+                        *(WORD*)pdest = (WORD)pixel;
+                    }
                 }
 
-                pdest += 2;
+                pdest += pixelBytes;
                 byte   = byte >> 1;
                 ibit  += 1;
-                if (ibit & 0x7 == 0) {
+                if ((ibit & 0x7) == 0) {
                     byte = *psource;
                     psource++;
                 }
@@ -769,9 +774,9 @@ public:
         int          pixelBytes = ppf->PixelBytes();
         WinPoint     sizeDest   = psurface->GetSize();
         int          pitchDest  = psurface->GetPitch();
-        WORD         pixel      = (WORD)(ppf->MakePixel(color).Value());
+        DWORD        pixel      = ppf->MakePixel(color).Value();
 
-        ZAssert(pixelBytes == 2);
+        ZAssert(pixelBytes == 2 || pixelBytes == 4);
 
         //
         // loop through characters that are clipped on the left
@@ -814,7 +819,7 @@ public:
 
         if (x < rectClip.XMin()) 
         {
-            DrawClippedChar(rectClip, str[ichar], ytop, ysize, x, pdestTop, pixel, pitchDest);
+            DrawClippedChar(rectClip, str[ichar], ytop, ysize, x, pdestTop, pixel, pixelBytes, pitchDest);
             if (++ichar >= length)
                 return;
             x     += m_data[(BYTE)str[ichar]].m_size.X();
@@ -850,26 +855,30 @@ public:
                         int   scans               = ysize;
                         int   bytesSource         = (xsizeChar + 7) / 8;
                         BYTE* psource             = m_pdata + charData.m_offset + (bytesSource * ytop);
-                        BYTE* pdest               = pdestTop + x * 2;
+                        BYTE* pdest               = pdestTop + x * pixelBytes;
 
                         //
-                        // transparent blt 1bpp -> 16bpp: each source byte is
-                        // eight pixels, least significant bit first (it was
-                        // x86 assembly)
+                        // transparent blt 1bpp -> 16 or 32bpp: each source
+                        // byte is eight pixels, least significant bit first
+                        // (it was x86 assembly)
                         //
 
                         for (int yscan = 0; yscan < scans; yscan++)
                         {
-                            WORD* pdestPixel = (WORD*)(pdest + yscan * pitchDest);
+                            BYTE* pdestPixel = pdest + yscan * pitchDest;
 
-                            for (int ibyte = 0; ibyte < bytesSource; ibyte++, pdestPixel += 8)
+                            for (int ibyte = 0; ibyte < bytesSource; ibyte++, pdestPixel += 8 * pixelBytes)
                             {
                                 BYTE bits = *psource++;
 
                                 for (int ibit = 0; bits != 0; ibit++, bits >>= 1)
                                 {
-                                    if (bits & 1)
-                                        pdestPixel[ibit] = pixel;
+                                    if (bits & 1) {
+                                        if (pixelBytes == 4)
+                                            ((DWORD*)pdestPixel)[ibit] = pixel;
+                                        else
+                                            ((WORD*)pdestPixel)[ibit] = (WORD)pixel;
+                                    }
                                 }
                             }
                         }
@@ -888,7 +897,7 @@ public:
         //
 
         if (x < rectClip.XMax())
-           DrawClippedChar(rectClip, str[ichar], ytop, ysize, x, pdestTop, pixel, pitchDest);
+           DrawClippedChar(rectClip, str[ichar], ytop, ysize, x, pdestTop, pixel, pixelBytes, pitchDest);
     }
 };
 

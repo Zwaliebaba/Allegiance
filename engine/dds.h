@@ -6,9 +6,11 @@
 // DDS files for the game's images: uncompressed 32-bit BGRA (DDS A8R8G8B8),
 // optionally with a mip chain. See MODERNIZATION.md, "Textures: 32-bit DDS".
 //
-// A pixel is transparent exactly when its RGB is 0, and then its alpha is 0
-// too: the art build bakes the RGB565 colour key into alpha that way, so the
-// files say the same thing to the engine and to other tools.
+// Alpha is premultiplied (RGB never exceeds alpha; alpha 0 means RGB 0). The
+// converted art has only alpha 0 and 255: the RGB565 colour key was baked into
+// alpha 0, RGB 0, so the files say the same thing to the engine and to other
+// tools. Soft alpha works wherever the image is colour keyed (see
+// MODERNIZATION.md, "Soft alpha").
 //
 // They are the source art (Artwork/256, converted once from the original BMPs
 // by tools/art/bmp2dds.py, which also rebuilds a model texture's mip levels),

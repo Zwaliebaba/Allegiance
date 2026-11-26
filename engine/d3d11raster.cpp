@@ -458,7 +458,8 @@ public:
 
             //
             // A texture that is itself a GPU surface (a pane image) is read
-            // directly; its colour key is black, not alpha
+            // directly; its alpha is coverage, and opaque black is its colour
+            // key too
             //
 
             psrv = ptexture->GetGpuSource();
@@ -472,11 +473,13 @@ public:
 
         bool  bFlat   = !bPoints && m_shadeMode == ShadeModeFlat;
         bool  bDecal  = m_shadeMode == ShadeModeNone || m_shadeMode == ShadeModeCopy;
+        bool  bBlend  = !bPoints && m_blendMode != BlendModeSource;
         DWORD flags   =
               (psrv != NULL ? 1 : 0)
             | (bDecal       ? 2 : 0)
             | (m_bColorKey  ? 4 : 0)
-            | (bKeyBlack    ? 8 : 0);
+            | (bKeyBlack    ? 8 : 0)
+            | (bBlend       ? 16 : 0);
 
         if (flags != m_flagsBound) {
             D3D11_MAPPED_SUBRESOURCE mapped;

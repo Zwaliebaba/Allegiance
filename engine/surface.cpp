@@ -3,6 +3,37 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// Premultiplied "over" for 32-bit BGRA pixels: dest = source + dest * (1 - a)
+//
+//////////////////////////////////////////////////////////////////////////////
+
+namespace {
+
+inline DWORD BlendOver(DWORD source, DWORD dest)
+{
+    DWORD a = source >> 24;
+
+    if (a == 255) {
+        return source;
+    } else if (a == 0) {
+        return dest;
+    }
+
+    DWORD inv    = 255 - a;
+    DWORD result = 0;
+
+    for (int shift = 0; shift < 32; shift += 8) {
+        DWORD c = ((source >> shift) & 0xff) + (((dest >> shift) & 0xff) * inv + 127) / 255;
+        result |= (c > 255 ? 255 : c) << shift;
+    }
+
+    return result;
+}
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // Surface
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -957,14 +988,15 @@ public:
             }
         } else {
             //
-            // Not going to or from an important format so go through the slow code
+            // Anything else goes through 8-bit BGRA, which keeps alpha (and
+            // turns the colour key of a format without alpha into alpha 0)
             //
 
             for (int y = rectSource.YSize(); y > 0; y--) {
                 for (int x = 0; x < rectSource.XSize(); x++) {
-                    m_ppf->SetColor(
+                    m_ppf->SetPixel(
                         pdest + x * bytesDest,
-                        ppfSource->GetColor(psource + x * bytesSource)
+                        m_ppf->MakePixelBGRA(ppfSource->GetBGRA(ppfSource->GetPixel(psource + x * bytesSource)))
                     );
                 }
                 psource += pitchSource;
@@ -990,9 +1022,24 @@ public:
         int         scanSize    = rect.XSize() * m_ppf->PixelBytes();
         int         ysize       = rect.YSize();
 
-        if (psurfaceSource->HasColorKey() && m_ppf->PixelBytes() == 4) {
-            // Copy the 32-bit pixels that are not the colour key (black; in a
-            // format with alpha, black pixels are also the ones with alpha 0)
+        if (psurfaceSource->HasColorKey() && m_ppf->PixelBytes() == 4 && m_ppf->AlphaMask() == 0xff000000) {
+            // 32-bit premultiplied alpha: blend over the destination (opaque
+            // pixels are copied, alpha 0 ones, the colour key, left alone)
+            int xpixels = scanSize / 4;
+
+            for (int y = 0; y < ysize; y++) {
+                const DWORD* psrc = (const DWORD*)psource;
+                DWORD*       pdst = (DWORD*)pdest;
+
+                for (int x = 0; x < xpixels; x++) {
+                    pdst[x] = BlendOver(psrc[x], pdst[x]);
+                }
+
+                psource += pitchSource;
+                pdest   += pitchDest;
+            }
+        } else if (psurfaceSource->HasColorKey() && m_ppf->PixelBytes() == 4) {
+            // Copy the 32-bit pixels that are not the colour key (black)
             int xpixels = scanSize / 4;
 
             for (int y = 0; y < ysize; y++) {
@@ -1150,6 +1197,7 @@ public:
 
         int         bytes       = m_ppf->PixelBytes();
         bool        bColorKey   = psurfaceSourceOriginal->HasColorKey();
+        bool        bAlpha      = bColorKey && bytes == 4 && m_ppf->AlphaMask() == 0xff000000;
         Pixel       pixelKey    = bColorKey ? m_ppf->MakePixel(psurfaceSourceOriginal->GetColorKey()) : Pixel::Create(0);
         const BYTE* psource     = psurfaceSource->GetPointer();
         int         pitchSource = psurfaceSource->GetPitch();
@@ -1164,7 +1212,9 @@ public:
                 int xSource = rectSource.XMin() + (x - rectTarget.XMin()) * rectSource.XSize() / rectTarget.XSize();
                 Pixel pixel = m_ppf->GetPixel(psource + ySource * pitchSource + xSource * bytes);
 
-                if (!bColorKey || pixel.Value() != pixelKey.Value()) {
+                if (bAlpha) {
+                    *(DWORD*)pdest = BlendOver(pixel.Value(), *(DWORD*)pdest);
+                } else if (!bColorKey || pixel.Value() != pixelKey.Value()) {
                     m_ppf->SetPixel(pdest, pixel);
                 }
 
@@ -1231,16 +1281,27 @@ public:
         ZAssert(rect.YMax() <= m_size.Y());
 
         {
-            ZAssert(m_ppf->PixelBytes() == 2);
-
-            BYTE* pdest    = GetWritablePointer(rect.Min());
-            int   scanSize = rect.XSize() * 2;
-            WORD  wPixel   = (WORD)pixel.Value();
-            int   pitch    = GetPitch();
+            BYTE* pdest = GetWritablePointer(rect.Min());
+            int   bytes = m_ppf->PixelBytes();
+            int   pitch = GetPitch();
 
             for (int y = rect.YSize(); y > 0; y--) {
-                for (int x = 0; x < rect.XSize(); x++) {
-                    ((WORD*)pdest)[x] = wPixel;
+                if (bytes == 4) {
+                    DWORD dwPixel = pixel.Value();
+
+                    for (int x = 0; x < rect.XSize(); x++) {
+                        ((DWORD*)pdest)[x] = dwPixel;
+                    }
+                } else if (bytes == 2) {
+                    WORD wPixel = (WORD)pixel.Value();
+
+                    for (int x = 0; x < rect.XSize(); x++) {
+                        ((WORD*)pdest)[x] = wPixel;
+                    }
+                } else {
+                    for (int x = 0; x < rect.XSize(); x++) {
+                        m_ppf->SetPixel(pdest + x * bytes, pixel);
+                    }
                 }
                 pdest += pitch;
             }
@@ -1310,66 +1371,6 @@ public:
     void FillSurfaceWithColorKey()
     {
         FillSurface(m_colorKey);
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Save the surface to a file
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    void Save(ZFile* pfile)
-    {
-        SyncCpu();
-
-        ZAssert(m_ppf->PixelBits() == 16);
-
-        BITMAPFILEHEADER bmfh;
-        BITMAPINFOHEADER bmih;
-
-        int sizeHeader = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + 12;
-        int sizeBits   = m_pitch * m_size.Y();
-
-        bmfh.bfType          = 0x4d42;
-        bmfh.bfSize          = sizeHeader + sizeBits;
-        bmfh.bfReserved1     = 0;
-        bmfh.bfReserved2     = 0;
-        bmfh.bfOffBits       = sizeHeader;
-
-        bmih.biSize          = sizeof(BITMAPINFOHEADER);
-        bmih.biWidth         = m_size.X();
-        bmih.biHeight        = m_size.Y();
-        bmih.biPlanes        = 1;
-        bmih.biBitCount      = (WORD)m_ppf->PixelBits();
-        bmih.biCompression   = BI_BITFIELDS;
-        bmih.biSizeImage     = 0;
-        bmih.biXPelsPerMeter = 0;
-        bmih.biYPelsPerMeter = 0;
-        bmih.biClrUsed       = 0;
-        bmih.biClrImportant  = 0;
-
-        DWORD masks[3] =
-            {
-                m_ppf->RedMask(),
-                m_ppf->GreenMask(),
-                m_ppf->BlueMask()
-            };
-
-        //
-        // Write out the header
-        //
-
-        pfile->Write(&bmfh, sizeof(BITMAPFILEHEADER));
-        pfile->Write(&bmih, sizeof(BITMAPINFOHEADER));
-        pfile->Write(masks, 12);
-
-        //
-        // Write out the bits
-        //
-
-        for (int y = m_size.Y() - 1 ; y >= 0; y--) { 
-            pfile->Write(m_pbits + m_pitch * y, m_pitch);
-        }
     }
 };
 

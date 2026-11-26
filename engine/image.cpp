@@ -139,6 +139,24 @@ ZString ConstantImage::GetFunctionName()
     return "ImportImage";
 }
 
+//
+// Is a colour keyed surface hit at this point? With alpha, where it is at
+// least half opaque (so faint glows and shadows don't catch clicks);
+// without, where it isn't the key colour.
+//
+
+static bool IsSurfaceHit(Surface* psurface, const WinPoint& point)
+{
+    PixelFormat* ppf = psurface->GetPixelFormat();
+
+    if (ppf->AlphaMask() != 0) {
+        DWORD alpha = (psurface->GetPixel(point).Value() & ppf->AlphaMask()) >> ppf->AlphaShift();
+        return alpha * 2 >= ppf->AlphaSize();
+    }
+
+    return psurface->GetColor(point) != psurface->GetColorKey();
+}
+
 void ConstantImage::Write(IMDLBinaryFile* pmdlFile)
 {
     pmdlFile->WriteReference("ImportImage");
@@ -150,7 +168,7 @@ MouseResult ConstantImage::HitTest(IInputProvider* pprovider, const Point& point
 {
     if (m_bounds.GetRect().Inside(point)) {
         if (m_psurface->HasColorKey()) {
-            bool bHit = m_psurface->GetColor(WinPoint((int)point.X(), (int)point.Y())) != m_psurface->GetColorKey();
+            bool bHit = IsSurfaceHit(m_psurface, WinPoint((int)point.X(), (int)point.Y()));
             m_psurface->ReleasePointer();
             
             if (bHit) {
@@ -637,7 +655,7 @@ MouseResult AnimatedImage::HitTest(IInputProvider* pprovider, const Point& point
 
     bool bHit = 
            (!psurface->HasColorKey())
-        || psurface->GetColor(WinPoint((int)point.X(), (int)point.Y())) != psurface->GetColorKey();
+        || IsSurfaceHit(psurface, WinPoint((int)point.X(), (int)point.Y()));
 
     psurface->ReleasePointer();
     
