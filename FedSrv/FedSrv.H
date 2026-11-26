@@ -240,8 +240,8 @@ struct Global
   void Init()
   {
     // Explicitly initialize the ZString objects
-    strLobbyServer.SetEmpty();
-    strArtPath.SetEmpty();
+    strLobbyServer.clear();
+    strArtPath.clear();
   }
 
   SERVICE_STATUS_HANDLE ssh;

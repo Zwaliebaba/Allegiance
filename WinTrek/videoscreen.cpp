@@ -80,10 +80,10 @@ public:
 
         m_strCD = ZString(ZSettings::GetString("CDPath", "").c_str());
 
-        if (!m_strCD.IsEmpty()) {
-            m_strCD.ReplaceAll("\\", '/');
+        if (!m_strCD.empty()) {
+            StrReplaceAll(m_strCD, "\\", '/');
 
-            if (m_strCD[m_strCD.GetLength() - 1] != '/') {
+            if (m_strCD[(int)m_strCD.size() - 1] != '/') {
                 m_strCD += "/";
             }
         }
@@ -151,7 +151,7 @@ public:
 
         if (
                (m_pvideoImage == NULL || (!m_pvideoImage->IsValid()))
-            && (!m_strCD.IsEmpty())
+            && (!m_strCD.empty())
         ) {
             m_pvideoImage = 
                 CreateVideoImage(

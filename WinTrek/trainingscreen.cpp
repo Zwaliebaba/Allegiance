@@ -403,7 +403,7 @@ public:
     {
         // Make sure that they have entered a CD Key, since the server will boot 
         // them if they have not.  
-        if (g_bAskForCDKey && trekClient.GetCDKey ().IsEmpty () )
+        if (g_bAskForCDKey && trekClient.GetCDKey ().empty () )
         {
             TRef<IPopup> ppopupCDKey = CreateCDKeyPopup ();
             GetWindow ()->GetPopupContainer ()->OpenPopup (ppopupCDKey, false);

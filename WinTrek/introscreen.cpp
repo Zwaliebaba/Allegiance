@@ -560,7 +560,7 @@ public:
       }
     }
 
-    if (g_bAskForCDKey && !bHaveVisited && trekClient.GetCDKey().IsEmpty())
+    if (g_bAskForCDKey && !bHaveVisited && trekClient.GetCDKey().empty())
     {
       TRef<IPopup> ppopupCDKey = CreateCDKeyPopup();
       GetWindow()->GetPopupContainer()->OpenPopup(ppopupCDKey, false);
@@ -654,7 +654,7 @@ public:
 
     // get the app build number
     ZVersionInfo vi;
-    ZString strBuild(vi.GetFileBuildNumber());
+    ZString strBuild = StrFromInt(vi.GetFileBuildNumber());
 
     // start with a default name
     lstrcpy(config_file_name, "Allegiance");

@@ -256,7 +256,7 @@ private:
                     TrekResources::SmallFont(),
                     Color::White(),
                     WinPoint(m_viColumns[0], m_nHeight * 1/2 - 8),
-                    CensorBadWords (m_pMission->SideName(pitem->GetSideID())).ToUpper()
+                    StrToUpper(CensorBadWords (m_pMission->SideName(pitem->GetSideID())))
                 );
                 psurface->RestoreClipRect(rectClipOld);
 
@@ -364,7 +364,7 @@ private:
                 TrekResources::SmallFont(),
                 color,
                 WinPoint(m_viColumns[2] + 2, 0),
-                ZString(" (") + ZString(pplayer->GetPersistScore(NA).GetRank()) + ZString(")") + ZString(trekClient.LookupRankName(pplayer->Rank(), pplayer->GetCivID()))
+                ZString(" (") + StrFromInt(pplayer->GetPersistScore(NA).GetRank()) + ZString(")") + ZString(trekClient.LookupRankName(pplayer->Rank(), pplayer->GetCivID()))
             );
             psurface->RestoreClipRect(rectClipOld);
 
@@ -458,7 +458,7 @@ private:
         void SetCivilization(IcivilizationIGC* pciv)
         {
             m_pimageCivIcon = GetModeler()->LoadImage(
-                ZString("icon") + ZString(pciv->GetIconName()).ToLower() + ZString("bmp"), true
+                ZString("icon") + StrToLower(ZString(pciv->GetIconName())) + ZString("bmp"), true
                 );
         }
 
@@ -525,7 +525,7 @@ private:
 
             for (int nCiv = 0; nCiv < (int)vectCivs.size() - 1; nCiv++)
             {
-                if (!strResult.IsEmpty())
+                if (!strResult.empty())
                     strResult += ", ";
                 strResult += trekClient.GetCore()->GetCivilization(vectCivs[nCiv])->GetName();
             }
@@ -1132,15 +1132,15 @@ public:
         {
             // nothing more to do
         }
-        else if (_stricmp(strChat.LeftOf(":"), "admin") == 0)
+        else if (_stricmp(StrLeftOf(strChat, ":"), "admin") == 0)
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_ADMIN, NA,
-                                NA, (const char*)strChat.RightOf(":"));
+                                NA, (const char*)StrRightOf(strChat, ":"));
         }
-        else if (NULL != (pplayer = trekClient.FindPlayer(strChat.LeftOf(":"))))
+        else if (NULL != (pplayer = trekClient.FindPlayer(StrLeftOf(strChat, ":"))))
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_INDIVIDUAL, pplayer->ShipID(),
-                                NA, (const char*)strChat.RightOf(":"));
+                                NA, (const char*)StrRightOf(strChat, ":"));
         }
         else
         {
@@ -1250,17 +1250,17 @@ public:
 
     void UpdateTitleText()
     {   
-        ZString str = ZString(m_pMission->Name()).ToUpper();
+        ZString str = StrToUpper(ZString(m_pMission->Name()));
         m_ptextTitle->SetString(((strcmp(str, "") != 0) ? CensorBadWords (m_pMission->Name()) : ZString("THIS GAME")));
     }
     
     void UpdatePromptText()
     {
         if (trekClient.GetSideID() != NA && trekClient.GetSideID() != SIDE_TEAMLOBBY)
-            m_ptextPrompt->SetString(ZString(trekClient.GetShip()->GetName()).ToUpper() 
-                + ZString(", YOU ARE ON TEAM ") + CensorBadWords (ZString(trekClient.GetSide()->GetName())).ToUpper());
+            m_ptextPrompt->SetString(StrToUpper(ZString(trekClient.GetShip()->GetName())) 
+                + ZString(", YOU ARE ON TEAM ") + StrToUpper(CensorBadWords (ZString(trekClient.GetSide()->GetName()))));
         else
-            m_ptextPrompt->SetString(ZString(trekClient.GetShip()->GetName()).ToUpper() 
+            m_ptextPrompt->SetString(StrToUpper(ZString(trekClient.GetShip()->GetName())) 
                 + ZString(" -- you need to pick a team"));
     }
 
@@ -1281,7 +1281,7 @@ public:
                 }
 
                 if (!m_pmissionBriefPopup && GetCountdownTime() > 0 
-                    && !trekClient.GetBriefingText().IsEmpty())
+                    && !trekClient.GetBriefingText().empty())
                 {
                     m_pmissionBriefPopup = new MissionBriefPopup();
                     GetWindow()->GetPopupContainer()->OpenPopup(m_pmissionBriefPopup, false);
@@ -1408,7 +1408,7 @@ public:
                     }
                     else
                     {
-                        m_ptextStatus->SetString(CensorBadWords (ZString(trekClient.GetCore()->GetSide(idBlockingSide)->GetName())).ToUpper());
+                        m_ptextStatus->SetString(StrToUpper(CensorBadWords (ZString(trekClient.GetCore()->GetSide(idBlockingSide)->GetName()))));
                         m_ptextStatus2->SetString(ZString("IS ") + szBlockingReason);
                     }
                     m_pbuttonStart->SetEnabled(false);
@@ -1429,14 +1429,14 @@ public:
         int nSeconds = nTime - nMinutes * 60 - nHours * 60 * 60;
 
         if (nHours > 0)
-            m_ptextTimer->SetString(ZString(nHours) 
-                + ((nMinutes > 9) ? ":" : ":0") + ZString(nMinutes)
-                + ((nSeconds > 9) ? ":" : ":0") + ZString(nSeconds));
+            m_ptextTimer->SetString(StrFromInt(nHours) 
+                + ((nMinutes > 9) ? ":" : ":0") + StrFromInt(nMinutes)
+                + ((nSeconds > 9) ? ":" : ":0") + StrFromInt(nSeconds));
         else if (nMinutes > 0)
-            m_ptextTimer->SetString(ZString(nMinutes) + 
-                ((nSeconds > 9) ? ":" : ":0") + ZString(nSeconds));
+            m_ptextTimer->SetString(StrFromInt(nMinutes) + 
+                ((nSeconds > 9) ? ":" : ":0") + StrFromInt(nSeconds));
         else
-            m_ptextTimer->SetString(ZString(nSeconds));
+            m_ptextTimer->SetString(StrFromInt(nSeconds));
     }
 
     void UpdateCountdownText()
@@ -1675,7 +1675,7 @@ public:
         TRef<Image> pimage;
 
         if (pside && m_sideCurrent != SIDE_TEAMLOBBY && pside->GetShips()->n() > 0) {
-            ZString str = ZString(pside->GetCivilization()->GetIconName()).ToLower() + "lobbybmp";
+            ZString str = StrToLower(ZString(pside->GetCivilization()->GetIconName())) + "lobbybmp";
 
             m_pwrapImageCiv->SetImage(GetModeler()->LoadImage(str, true));
         } else {
@@ -1771,7 +1771,7 @@ public:
 
     bool OnEvent(TEvent<ZString>::Source* pevent, ZString str)
     {
-        if (!str.IsEmpty())
+        if (!str.empty())
             SendChat(str);
         m_peditPane->SetString(ZString());
 
@@ -2195,7 +2195,7 @@ public:
     {
         ZString str = m_peditPane->GetString();
 
-        if (!str.IsEmpty())
+        if (!str.empty())
             SendChat(str);
         m_peditPane->SetString(ZString());
 
@@ -2377,7 +2377,7 @@ public:
                 break;
             }
 
-            if (!strMessage.IsEmpty())
+            if (!strMessage.empty())
             {
                 TRef<IMessageBox> pmsgBox = CreateMessageBox(strMessage);
 
