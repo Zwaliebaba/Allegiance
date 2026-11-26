@@ -126,7 +126,7 @@ TRef<IMessageBox> CreateMessageBox(
 ) {
     TRef<ButtonPane> pbutton = pbuttonIn;
 
-    debugf("Creating message box with text \"%s\"\n", (const char*)str);
+    debugf("Creating message box with text \"%s\"\n", str.c_str());
 
     if (fAddDefaultButton) {
         assert(pbutton == NULL);
@@ -2952,22 +2952,22 @@ public:
 
     void SavePreference(const ZString& szName, DWORD dwValue)
     {
-        ZSettings::SetDWORD(szName, dwValue);
+        ZSettings::SetDWORD(szName.c_str(), dwValue);
     }
 
     DWORD LoadPreference(const ZString& szName, DWORD dwDefault)
     {
-        return ZSettings::GetDWORD(szName, dwDefault);
+        return ZSettings::GetDWORD(szName.c_str(), dwDefault);
     }
 
     void SavePreference(const ZString& szName, const ZString& strValue)
     {
-        ZSettings::SetString(szName, strValue);
+        ZSettings::SetString(szName.c_str(), strValue.c_str());
     }
 
     ZString LoadPreference(const ZString& szName, const ZString& strDefault)
     {
-        return ZString(ZSettings::GetString(szName, strDefault).c_str());
+        return ZString(ZSettings::GetString(szName.c_str(), strDefault.c_str()).c_str());
     }
 
     void Terminate()
@@ -4795,7 +4795,7 @@ public:
 
     void SetViewMode(ViewMode vm, bool bForce = false)
     {
-        ZDebugOutput("SetViewMode(" + StrFromInt((int)vm) + ")\n");
+        ZDebugOutput(("SetViewMode(" + StrFromInt((int)vm) + ")\n").c_str());
 
         //
         // Ignore the set display mode.
@@ -7245,7 +7245,7 @@ public:
             // Help pages can include a file named by a setting
             //
 
-            ZString strFile(ZSettings::GetString(str, "").c_str());
+            ZString strFile(ZSettings::GetString(str.c_str(), "").c_str());
 
             if (strFile.empty()) {
                 return NULL;
@@ -8642,9 +8642,9 @@ public:
             assert (pht);
 
             trekClient.PostText(true, "%s",
-                                (const char*)((pshipSender->GetName() + c_str1) + 
+                                (((pshipSender->GetName() + c_str1) + 
                                               (StrFromInt(money) + c_str2) +
-                                              (pht->GetName() + c_str3)));
+                                              (pht->GetName() + c_str3))).c_str());
         }
     }
 

@@ -197,7 +197,7 @@ public:
     void SetFullscreenSize(const WinPoint& point)
     {
         if (g_bWindowLog) {
-            ZDebugOutput("Engine::SetFullscreenSize(" + GetString(point) + ")\n");
+            ZDebugOutput(("Engine::SetFullscreenSize(" + GetString(point) + ")\n").c_str());
         }
 
         if (m_pointFullscreen != point) {

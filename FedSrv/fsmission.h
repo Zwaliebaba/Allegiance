@@ -398,7 +398,7 @@ public:
 
   IsideIGC*             GetSideWon(void) const { return m_psideWon; }
 
-  const char*           GetStoryText() const {return m_strStoryText;}
+  const char*           GetStoryText() const {return m_strStoryText.c_str();}
   
 private:
   void                  InitSide(SideID sid);

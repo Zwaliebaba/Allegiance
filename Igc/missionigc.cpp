@@ -1620,7 +1620,7 @@ const char*             CmissionIGC::GetContextName(void)
 {
   // Return if it has already been generated
   if (!m_strContextName.empty())
-     return m_strContextName;
+     return m_strContextName.c_str();
 
   // Get the mission creation time
   SYSTEMTIME st;
@@ -1636,6 +1636,6 @@ const char*             CmissionIGC::GetContextName(void)
   m_strContextName = szContext;
 
   // Return the string (becomes invalid when m_strContextName changes)
-  return m_strContextName;
+  return m_strContextName.c_str();
 }
 

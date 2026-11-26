@@ -69,7 +69,7 @@ void EngineApp::ParseCommandLine(
     bPrimaryOnly     = false;
     bSoftwareOnly    = false;
 
-    PCC pcc = strCommandLine;
+    PCC pcc = strCommandLine.c_str();
     CommandLineToken token(pcc, (int)strCommandLine.size());
 
     while (token.MoreTokens()) {

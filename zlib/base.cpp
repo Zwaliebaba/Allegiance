@@ -39,7 +39,7 @@ ZFile::ZFile(const PathString& strPath, DWORD how) :
     OFSTRUCT rob;
     // An HFILE is a file handle in 32 bits; HFILE_ERROR (-1) sign-extends
     // to INVALID_HANDLE_VALUE.
-    m_handle = (HANDLE)(INT_PTR)OpenFile(strPath, &rob, how);
+    m_handle = (HANDLE)(INT_PTR)OpenFile(strPath.c_str(), &rob, how);
 }
 
 ZFile::~ZFile()
@@ -76,19 +76,19 @@ DWORD ZFile::Write(void* p, DWORD length)
 
 bool ZFile::Write(const ZString& str)
 {
-    return (Write((void*)(PCC)str, (int)str.size()) != 0);
+    return (Write((void*)str.c_str(), (int)str.size()) != 0);
 }
 
 bool  ZFile::WriteString(const ZString& str)
 {
-    return (Write((void*)(PCC)str, (int)str.size() + 1) != 0);
+    return (Write((void*)str.c_str(), (int)str.size() + 1) != 0);
 }
 
 bool  ZFile::WriteAlignedString(const ZString& str)
 {
     int length = (int)str.size() + 1;
 
-    if (Write((void*)(PCC)str, (int)str.size() + 1) != 0) {
+    if (Write((void*)str.c_str(), (int)str.size() + 1) != 0) {
         return WritePad(length);
     }
 

@@ -229,7 +229,7 @@ class  WinTrekClient :
         virtual IAutoUpdateSink * OnBeginAutoUpdate(IAutoUpdateSink * pSink, bool bConnectToLobby);
         virtual bool ShouldCheckFiles();
 
-        virtual const char* GetArtPath()  { return GetModeler()->GetArtPath(); }
+        virtual const char* GetArtPath()  { return GetModeler()->GetArtPath().c_str(); }
 
 
         IObject*          LoadRadarIcon(const char* szName);

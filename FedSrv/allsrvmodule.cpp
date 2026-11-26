@@ -241,7 +241,7 @@ VOID CServiceModule::RunAsExecutable()
 
     ZVersionInfo vi;
     printf("%s\n%s\n\n",
-      (LPCSTR)vi.GetFileDescription(), (LPCSTR)vi.GetLegalCopyright());
+      vi.GetFileDescription().c_str(), vi.GetLegalCopyright().c_str());
 
     if (IsWinNT())
       printf("Running as an executable.\n");

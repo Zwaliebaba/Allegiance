@@ -610,7 +610,7 @@ public:
         } else {
             ZString str("<Color|red>Error: Can't open file '" + str + "'");
 
-            Parse(pns, PCC(str), PCC(str) + (int)str.size());
+            Parse(pns, str.c_str(), str.c_str() + (int)str.size());
         }
     }
 
@@ -621,7 +621,7 @@ public:
         m_color = m_colorDefault;
         m_pfont = m_pfontDefault;
 
-        PCC pcc = str;
+        PCC pcc = str.c_str();
         Parse(pns, pcc, pcc + (int)str.size());
     }
 

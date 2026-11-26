@@ -272,7 +272,7 @@ public:
         }
 
         GetModeler()->SetArtPath(pathStr);
-        UTL::SetArtPath(pathStr);
+        UTL::SetArtPath(pathStr.c_str());
 
         //
         // load the fonts
@@ -301,7 +301,7 @@ public:
         bool bSecondary       = false;
         ZString strMap;
 
-        PCC pcc = strCommandLine;
+        PCC pcc = strCommandLine.c_str();
         CommandLineToken token(pcc, (int)strCommandLine.size());
 
         while (token.MoreTokens()) {

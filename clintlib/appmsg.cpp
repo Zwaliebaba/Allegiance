@@ -513,9 +513,9 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 {
                     IshipIGC * pship = GetCore()->GetShip(pfmStation->launcher);
                     PostText(true, START_COLOR_STRING "%s" END_COLOR_STRING " destroyed " START_COLOR_STRING "%s's %s" END_COLOR_STRING " in %s.", 
-                        (PCC) ConvertColorToString (pship ? pship->GetSide ()->GetColor () : Color::White ()),
+                        ConvertColorToString (pship ? pship->GetSide ()->GetColor () : Color::White ()).c_str(),
                         (pship ? pship->GetName() : "Unknown ship"), 
-                        (PCC) ConvertColorToString (station->GetSide ()->GetColor ()),
+                        ConvertColorToString (station->GetSide ()->GetColor ()).c_str(),
                         station->GetSide()->GetName(), 
                         station->GetName(), 
                         station->GetCluster()->GetName()
@@ -523,7 +523,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 }
                 else
                     PostText(true, START_COLOR_STRING "%s's %s" END_COLOR_STRING " in %s was destroyed.", 
-                        (PCC) ConvertColorToString (station->GetSide()->GetColor ()),
+                        ConvertColorToString (station->GetSide()->GetColor ()).c_str(),
                         station->GetSide()->GetName(), 
                         station->GetName(), 
                         station->GetCluster()->GetName());
@@ -646,9 +646,9 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 IsideIGC*   psideNew = m_pCoreIGC->GetSide(pfmStationCapture->sidNew);
 
                 PostText(true, START_COLOR_STRING "%s" END_COLOR_STRING " captured " START_COLOR_STRING "%s's %s" END_COLOR_STRING " in %s.", 
-                    (PCC) ConvertColorToString (GetCore()->GetShip(pfmStationCapture->shipIDCredit)->GetSide ()->GetColor ()),
+                    ConvertColorToString (GetCore()->GetShip(pfmStationCapture->shipIDCredit)->GetSide ()->GetColor ()).c_str(),
                     GetCore()->GetShip(pfmStationCapture->shipIDCredit)->GetName(), 
-                    (PCC) ConvertColorToString (station->GetSide()->GetColor ()),
+                    ConvertColorToString (station->GetSide()->GetColor ()).c_str(),
                     station->GetSide()->GetName(), 
                     station->GetName(), 
                     station->GetCluster()->GetName()
@@ -2699,9 +2699,9 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 if (pfmKillShip->shipID == shipID)
                     PostText(true, pfmKillShip->bDeathCredit ? "You were killed" : "You ejected");
                 else if (bConstructorOrMiner)
-                    PostText(pPlayerInfo->SideID() == GetSideID(), START_COLOR_STRING "%s" END_COLOR_STRING " was killed", (PCC) ConvertColorToString (m_pCoreIGC->GetSide(pPlayerInfo->SideID())->GetColor ()), pszVictim);
+                    PostText(pPlayerInfo->SideID() == GetSideID(), START_COLOR_STRING "%s" END_COLOR_STRING " was killed", ConvertColorToString (m_pCoreIGC->GetSide(pPlayerInfo->SideID())->GetColor ()).c_str(), pszVictim);
                 else 
-                    PostText(false, pfmKillShip->bDeathCredit ? START_COLOR_STRING "%s" END_COLOR_STRING " was killed" : START_COLOR_STRING "%s" END_COLOR_STRING " ejected", (PCC) ConvertColorToString (m_pCoreIGC->GetSide(pPlayerInfo->SideID())->GetColor ()), pszVictim);
+                    PostText(false, pfmKillShip->bDeathCredit ? START_COLOR_STRING "%s" END_COLOR_STRING " was killed" : START_COLOR_STRING "%s" END_COLOR_STRING " ejected", ConvertColorToString (m_pCoreIGC->GetSide(pPlayerInfo->SideID())->GetColor ()).c_str(), pszVictim);
             }
             else
             {
@@ -2723,13 +2723,13 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                              pfmKillShip->bDeathCredit
                              ? "You were killed by " START_COLOR_STRING "%s" END_COLOR_STRING
                              : "You were forced to eject by " START_COLOR_STRING "%s" END_COLOR_STRING,
-                             (PCC) ConvertColorToString (pLauncherInfo->GetShip()->GetSide()->GetColor ()), pszLauncher);
+                             ConvertColorToString (pLauncherInfo->GetShip()->GetSide()->GetColor ()).c_str(), pszLauncher);
                 else if (pmodelKiller == m_ship)
                     PostText(true,
                              pfmKillShip->bDeathCredit
                              ? "You killed " START_COLOR_STRING "%s"  END_COLOR_STRING
                              : "You forced " START_COLOR_STRING "%s"  END_COLOR_STRING " to eject",
-                             (PCC) ConvertColorToString (pPlayerInfo->GetShip()->GetSide()->GetColor ()), pszVictim);
+                             ConvertColorToString (pPlayerInfo->GetShip()->GetSide()->GetColor ()).c_str(), pszVictim);
                 else
                 {
                     if (bConstructorOrMiner && pPlayerInfo->SideID() != GetSideID())
@@ -2737,7 +2737,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                                  pfmKillShip->bDeathCredit
                                  ? (START_COLOR_STRING "%s %s" END_COLOR_STRING " was killed by %s") 
                                  : (START_COLOR_STRING "%s %s" END_COLOR_STRING " was forced to eject by %s"),
-                                 (PCC) ConvertColorToString (pPlayerInfo->GetShip()->GetSide()->GetColor ()),
+                                 ConvertColorToString (pPlayerInfo->GetShip()->GetSide()->GetColor ()).c_str(),
                                  pPlayerInfo->GetShip()->GetSide()->GetName(),
                                  pszVictim, pszLauncher);
                     else
@@ -2996,7 +2996,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                     {
                         PostText(true, "%s has stolen " START_COLOR_STRING "%s's" END_COLOR_STRING " flag.", 
                             pship->GetName(), 
-                            (PCC) ConvertColorToString (GetCore()->GetSide(pfmGain->sideidFlag)->GetColor ()),
+                            ConvertColorToString (GetCore()->GetSide(pfmGain->sideidFlag)->GetColor ()).c_str(),
                             GetCore()->GetSide(pfmGain->sideidFlag)->GetName()
                             );
 
@@ -3014,9 +3014,9 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 {
                     ZString color = ConvertColorToString (pship->GetSide()->GetColor ());
                     PostText(true, START_COLOR_STRING "%s" END_COLOR_STRING " of " START_COLOR_STRING "%s" END_COLOR_STRING " has stolen our flag.", 
-                        (PCC) color,
+                        color.c_str(),
                         pship->GetName(), 
-                        (PCC) color,
+                        color.c_str(),
                         pship->GetSide()->GetName()
                         );
 
@@ -3113,7 +3113,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 {
                     IstationIGC* pstation = GetCore()->GetStation(pfmObjectSpotted->oidObject);
                     assert(pstation);
-                    PostText(GetShip()->GetWingID() == 0, strSpotterName + " discovered an enemy " + pstation->GetName() + " in sector " + pstation->GetCluster()->GetName());
+                    PostText(GetShip()->GetWingID() == 0, (strSpotterName + " discovered an enemy " + pstation->GetName() + " in sector " + pstation->GetCluster()->GetName()).c_str());
                 }
                 break;
 
@@ -3121,7 +3121,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 {
                     IasteroidIGC* pasteroid = GetCore()->GetAsteroid(pfmObjectSpotted->oidObject);
                     assert(pasteroid);
-                    PostText(GetShip()->GetWingID() == 0, strSpotterName + " discovered a " + IasteroidIGC::GetTypeName(pasteroid->GetCapabilities()) + " asteroid in sector " + pasteroid->GetCluster()->GetName());
+                    PostText(GetShip()->GetWingID() == 0, (strSpotterName + " discovered a " + IasteroidIGC::GetTypeName(pasteroid->GetCapabilities()) + " asteroid in sector " + pasteroid->GetCluster()->GetName()).c_str());
                 }
                 break;
 
@@ -3129,7 +3129,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 {
                     IwarpIGC* paleph = GetCore()->GetWarp(pfmObjectSpotted->oidObject);
                     assert(paleph);
-                    PostText(GetShip()->GetWingID() == 0, strSpotterName + " discovered an aleph from sector " + paleph->GetCluster()->GetName() + " to sector " + paleph->GetDestination()->GetCluster()->GetName());
+                    PostText(GetShip()->GetWingID() == 0, (strSpotterName + " discovered an aleph from sector " + paleph->GetCluster()->GetName() + " to sector " + paleph->GetDestination()->GetCluster()->GetName()).c_str());
                 }
                 break;
 

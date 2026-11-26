@@ -1197,9 +1197,9 @@ HRESULT BaseClient::ConnectToServer(ConnectInfo & ci, DWORD dwCookie, Time now, 
     else
     {
         if (bStandalonePrivate)
-          hr = m_fm.JoinSession(FEDSRV_STANDALONE_PRIVATE_GUID, ci.strServer, ci.szName);
+          hr = m_fm.JoinSession(FEDSRV_STANDALONE_PRIVATE_GUID, ci.strServer.c_str(), ci.szName);
         else
-          hr = m_fm.JoinSession(FEDSRV_GUID, ci.strServer, ci.szName);
+          hr = m_fm.JoinSession(FEDSRV_GUID, ci.strServer.c_str(), ci.szName);
     }
 
     // TODO: Remove this when we are ready to enforce CD Keys
@@ -1213,14 +1213,14 @@ HRESULT BaseClient::ConnectToServer(ConnectInfo & ci, DWORD dwCookie, Time now, 
         SetMessageType(c_mtGuaranteed);
         BEGIN_PFM_CREATE(m_fm, pfmLogon, C, LOGONREQ)
             FM_VAR_PARM(ci.szName, CB_ZTS)
-            FM_VAR_PARM((PCC)StrScramble(m_strCDKey, bStandalonePrivate ? "corrupt wave file" : ci.szName), CB_ZTS)
+            FM_VAR_PARM(StrScramble(m_strCDKey, bStandalonePrivate ? "corrupt wave file" : ci.szName).c_str(), CB_ZTS)
             FM_VAR_PARM(szPassword, CB_ZTS)
         END_PFM_CREATE
         pfmLogon->fedsrvVer = MSGVER;
         pfmLogon->dwCookie = dwCookie;
         pfmLogon->time = Time::Now ();
         debugf("Logging on to game server \"%s\"...\n",
-          ci.strServer.empty() ? "" : (LPCSTR)ci.strServer);
+          ci.strServer.empty() ? "" : ci.strServer.c_str());
         SendMessages();
     }
     retailf("$$MSRGuard:Set:UserName=%s\n", ci.szName);
@@ -1262,7 +1262,7 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
         iterMissions.Next();
     }
     m_mapMissions.SetEmpty();
-    hr = m_fmLobby.JoinSession(FEDFREELOBBYCLIENTS_GUID, m_ci.strServer, m_ci.szName);
+    hr = m_fmLobby.JoinSession(FEDFREELOBBYCLIENTS_GUID, m_ci.strServer.c_str(), m_ci.szName);
     assert(IFF(m_fmLobby.IsConnected(), SUCCEEDED(hr)));
     if (m_fmLobby.IsConnected())
     {
@@ -1273,7 +1273,7 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
 
         // Let's formally announce ourselves to the server
         BEGIN_PFM_CREATE(m_fmLobby, pfmLogon, C, LOGON_LOBBY)
-            FM_VAR_PARM(PCC(StrScramble(m_strCDKey, szEncryptionKey)), CB_ZTS)
+            FM_VAR_PARM(StrScramble(m_strCDKey, szEncryptionKey).c_str(), CB_ZTS)
         END_PFM_CREATE
         pfmLogon->verLobby = LOBBYVER;
         pfmLogon->crcFileList = crcFileList;
@@ -1282,7 +1282,7 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
 
         // do art update--see ConnectToServer
         debugf("Logging on to lobby \"%s\"...\n",
-          m_ci.strServer.empty() ? "" : (LPCSTR)m_ci.strServer);
+          m_ci.strServer.empty() ? "" : m_ci.strServer.c_str());
         lstrcpy(m_szLobbyCharName, m_ci.szName);
         SendLobbyMessages();
     }
@@ -3538,17 +3538,17 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
                 {
                 case QSR_LeaderBooted:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted from the team by the team leader.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg, c_cidNone, NA, NA);
+                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_OwnerBooted:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted from the game by the mission owner.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg, c_cidNone, NA, NA);
+                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_AdminBooted:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted from the team by an admin.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg, c_cidNone, NA, NA);
+                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_ServerShutdown:
@@ -3556,7 +3556,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
 
                 case QSR_SquadChange:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted because of a squad change.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg, c_cidNone, NA, NA);
+                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_SideDestroyed:
@@ -3564,22 +3564,22 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
 
                 case QSR_RankLimits:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted because he/she did not meet the new rank limits.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg, c_cidNone, NA, NA);
+                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_TeamSizeLimits:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted to reduce the team size within it's new limits.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg, c_cidNone, NA, NA);
+                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_Quit:
                     msg = pPlayerInfo->CharacterName() + ZString(" has quit.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg, c_cidNone, NA, NA);
+                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_SwitchingSides: 
                     msg = pPlayerInfo->CharacterName() + ZString(" is switching sides.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salChangeSidesSound, msg, c_cidNone, NA, NA);
+                    ReceiveChat(NULL, CHAT_TEAM, NA, salChangeSidesSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_DuplicateLocalLogon:
@@ -3594,7 +3594,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
 
                 case QSR_DuplicateRemoteLogon:
                     msg = pPlayerInfo->CharacterName() + ZString(" has been booted due to a duplicate logon.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg, c_cidNone, NA, NA);
+                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 default:
@@ -3602,7 +3602,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
                     // intentional fallthrough
                 case QSR_LinkDead:
                     msg = pPlayerInfo->CharacterName() + ZString(" is MIA.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salMIASound, msg, c_cidNone, NA, NA);
+                    ReceiveChat(NULL, CHAT_TEAM, NA, salMIASound, msg.c_str(), c_cidNone, NA, NA);
                     break;
                 };
             }
@@ -3610,7 +3610,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
             {
                 msg = pPlayerInfo->CharacterName() + ZString(" has left ") 
                     + GetCore()->GetSide(sideOld)->GetName() + ZString(".");
-                ReceiveChat(NULL, CHAT_TEAM, NA, salEnemyLeavesSound, msg, c_cidNone, NA, NA);
+                ReceiveChat(NULL, CHAT_TEAM, NA, salEnemyLeavesSound, msg.c_str(), c_cidNone, NA, NA);
             }
         }
     }
@@ -3750,14 +3750,14 @@ void BaseClient::AddPlayerToSide(PlayerInfo* pPlayerInfo, SideID sideID)
         {
             ZString msg = pPlayerInfo->CharacterName() + ZString(" has joined your team.");
 
-            ReceiveChat(NULL, CHAT_TEAM, NA, salRecruitsArrivedSound, msg, c_cidNone, NA, NA);
+            ReceiveChat(NULL, CHAT_TEAM, NA, salRecruitsArrivedSound, msg.c_str(), c_cidNone, NA, NA);
         }
         else if (m_pPlayerInfo && GetSide() && GetSideID() != SIDE_TEAMLOBBY)
         {
             ZString msg = pPlayerInfo->CharacterName() + ZString(" has joined ")
                 + pside->GetName() + ZString(".");
 
-            ReceiveChat(NULL, CHAT_TEAM, NA, salEnemyJoinersSound, msg, c_cidNone, NA, NA);
+            ReceiveChat(NULL, CHAT_TEAM, NA, salEnemyJoinersSound, msg.c_str(), c_cidNone, NA, NA);
         }
     }
 }

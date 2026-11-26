@@ -479,7 +479,7 @@ public:
         // parse the string
         //
 
-        Token(str, (int)str.size()).ReadStrobe(phase, period);
+        Token(str.c_str(), (int)str.size()).ReadStrobe(phase, period);
 
 
         //
@@ -730,7 +730,7 @@ TRef<INameSpace> EffectApp::OptimizeThingGeo(const ZString& str, Geo* pgeo, Numb
     // Extract the lights and frames
     //
 
-    ZDebugOutput("Before Callback: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
+    ZDebugOutput(("Before Callback: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n").c_str());
 
     TRef<GroupGeoCallbackImpl> pcallback = new GroupGeoCallbackImpl(pframes, plights);
     pwrap->GetGeo()->CallGroupGeoCallback(Matrix::GetIdentity(), pcallback);
@@ -755,33 +755,33 @@ TRef<INameSpace> EffectApp::OptimizeThingGeo(const ZString& str, Geo* pgeo, Numb
     TRef<Geo> pgeoFold;
     do {
         bAnyFold = false;
-        ZDebugOutput("Before RemoveMaterial: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
+        ZDebugOutput(("Before RemoveMaterial: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n").c_str());
 
         pgeoFold = pwrap->GetGeo()->RemoveMaterial();
 
         if (pgeoFold) {
             bAnyFold = true;
             pwrap->SetGeo(pgeoFold);
-            ZDebugOutput("Before           Fold: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
+            ZDebugOutput(("Before           Fold: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n").c_str());
             pwrap->GetGeo()->DoFold();
         }
 
-        ZDebugOutput("Before    FoldTexture: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
+        ZDebugOutput(("Before    FoldTexture: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n").c_str());
         pgeoFold = pwrap->GetGeo()->FoldTexture();
 
         if (pgeoFold) {
             bAnyFold = true;
             pwrap->SetGeo(pgeoFold);
-            ZDebugOutput("Before           Fold: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
+            ZDebugOutput(("Before           Fold: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n").c_str());
             pwrap->GetGeo()->DoFold();
         }
         if (!bAnyFold) {
-            ZDebugOutput("Before           Fold: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
+            ZDebugOutput(("Before           Fold: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n").c_str());
             bAnyFold = pwrap->GetGeo()->DoFold();
         }
     } while (bAnyFold);
 
-    ZDebugOutput("After Optimization: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
+    ZDebugOutput(("After Optimization: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n").c_str());
 
     //
     // We're done

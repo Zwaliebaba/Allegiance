@@ -14,7 +14,7 @@ public:
     {
         HANDLE hFile;
 
-        hFile = CreateFile(strFilename, 0, FILE_SHARE_READ, NULL, 
+        hFile = CreateFile(strFilename.c_str(), 0, FILE_SHARE_READ, NULL, 
             OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL);
 
         if (INVALID_HANDLE_VALUE == hFile)

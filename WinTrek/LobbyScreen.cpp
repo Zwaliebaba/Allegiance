@@ -111,9 +111,9 @@ public:
 
         assert (!trekClient.LoggedOn() && !trekClient.m_fm.IsConnected());
 
-        lstrcpyn(m_szName, trekClient.GetSavedCharacterName(), sizeof(m_szName));
+        lstrcpyn(m_szName, trekClient.GetSavedCharacterName().c_str(), sizeof(m_szName));
 
-        TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this, strPrompt, m_szName);
+        TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this, strPrompt.c_str(), m_szName);
         Point point(c_PopupX, c_PopupY);
         Rect rect(point, point);
         GetWindow()->GetPopupContainer()->OpenPopup(plogonPopup, rect, false);
@@ -191,7 +191,7 @@ public:
         PathString path(trekClient.GetArtPath());
         path = path + szMessageOfTheDayFileName;
 
-        int crc = FileCRC(PCC(path), NULL);
+        int crc = FileCRC(path.c_str(), NULL);
 
         if (crc != 0 && crc == trekClient.GetCfgInfo().crcPublicMessageFile)
         {
@@ -207,7 +207,7 @@ public:
         if (m_pSession)
             return;
 
-        PCC szMessageOfTheDayURL = PCC(trekClient.GetCfgInfo().strPublicMessageURL);
+        PCC szMessageOfTheDayURL = trekClient.GetCfgInfo().strPublicMessageURL.c_str();
 
         debugf("Beginning messageoftheday download: %s.\n", szMessageOfTheDayURL);
 
@@ -325,19 +325,19 @@ public:
             if (bDownloadSuccesful)
             {
                 PathString pathTemp(pathEXE + "temp.cfg");
-                trekClient.GetCfgInfo().Load(PCC(pathTemp));
-                debugf("Loaded downloaded config file: %s\n", PCC(pathTemp));
+                trekClient.GetCfgInfo().Load(pathTemp.c_str());
+                debugf("Loaded downloaded config file: %s\n", pathTemp.c_str());
 
                 // rename file, so that next time if there is an error, there is
                 // a recent config file to use.
-                debugf("Renaming %s to %s\n", PCC(pathTemp), PCC(pathConfig));
-                DeleteFile(PCC(pathConfig));
-                MoveFile(PCC(pathTemp), PCC(pathConfig));
+                debugf("Renaming %s to %s\n", pathTemp.c_str(), pathConfig.c_str());
+                DeleteFile(pathConfig.c_str());
+                MoveFile(pathTemp.c_str(), pathConfig.c_str());
             }
             else
             {
-                debugf("Error detected, loading existing config file: %s\n", PCC(pathConfig));
-                trekClient.GetCfgInfo().Load(PCC(pathConfig));
+                debugf("Error detected, loading existing config file: %s\n", pathConfig.c_str());
+                trekClient.GetCfgInfo().Load(pathConfig.c_str());
             }
         }
         else
@@ -368,8 +368,8 @@ public:
                 IAutoUpdateSink * pAutoUpdateSink = trekClient.OnBeginAutoUpdate(this, false);
                 assert(pAutoUpdateSink);
 
-                trekClient.m_pAutoDownload->SetFTPSite(PCC(trekClient.GetCfgInfo().strFilelistSite),
-                                                       PCC(trekClient.GetCfgInfo().strFilelistDirectory),
+                trekClient.m_pAutoDownload->SetFTPSite(trekClient.GetCfgInfo().strFilelistSite.c_str(),
+                                                       trekClient.GetCfgInfo().strFilelistDirectory.c_str(),
                                                        "blah", // account
                                                        "blah"); // pw
 
@@ -462,7 +462,7 @@ public:
 
     void OnLogon(const ZString& strName)
     {
-        lstrcpyn(m_szName, strName, sizeof(m_szName));
+        lstrcpyn(m_szName, strName.c_str(), sizeof(m_szName));
         trekClient.SaveCharacterName(strName);
 
         GetWindow()->SetWaitCursor();

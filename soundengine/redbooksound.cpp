@@ -119,10 +119,10 @@ public:
         //
 
         ZString strList = strFolder + "\\tracks.lst";
-        FILE*   pfile = fopen(strList, "rt");
+        FILE*   pfile = fopen(strList.c_str(), "rt");
         if (!pfile)
         {
-            debugf("Music: no track list %s\n", (const char*)strList);
+            debugf("Music: no track list %s\n", strList.c_str());
             return E_FAIL;
         }
 
@@ -189,7 +189,7 @@ public:
         if (nTrack == m_nCurrentTrack && IsPlaying() == S_OK)
             return S_OK;
 
-        const char* szPath = m_vstrTracks[iFile];
+        const char* szPath = m_vstrTracks[iFile].c_str();
         int         cwch   = MultiByteToWideChar(CP_ACP, 0, szPath, -1, NULL, 0);
         BSTR        bstr   = SysAllocStringLen(NULL, cwch);
         if (!bstr)

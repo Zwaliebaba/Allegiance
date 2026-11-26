@@ -525,7 +525,7 @@ private:
             GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
 
             BEGIN_PFM_CREATE(trekClient.m_fmLobby, pfmFindPlayer, C, FIND_PLAYER)
-                FM_VAR_PARM((const char*)m_peditPane->GetString(), CB_ZTS)  
+                FM_VAR_PARM(m_peditPane->GetString().c_str(), CB_ZTS)  
             END_PFM_CREATE
             trekClient.SendLobbyMessages();
 
@@ -1294,7 +1294,7 @@ public:
     virtual void OnPassword(ZString strPassword)
     {
         MissionInfo* pmissionSelected = (MissionInfo*)m_plistPaneGames->GetSelection();
-        JoinMission(pmissionSelected, strPassword);
+        JoinMission(pmissionSelected, strPassword.c_str());
     }
 
     // Gets the name for a given min and max skill level

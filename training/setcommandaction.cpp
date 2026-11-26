@@ -88,7 +88,7 @@ namespace Training
                 if (pTarget)
                     strOrder = strOrder + " " + GetModelName (pTarget);
                 pWindow->SetQueuedCommand (pCommander, m_commandID, pTarget);
-                trekClient.PostText(true, "New orders from %s to %s: %s. Press [insert] to accept.", (const char*)GetModelName (pCommander), GetModelName (pShip), (const char*) strOrder);
+                trekClient.PostText(true, "New orders from %s to %s: %s. Press [insert] to accept.", (const char*)GetModelName (pCommander), GetModelName (pShip), strOrder.c_str());
             }
             else
                 pShip->SetCommand (m_command, pTarget, m_commandID);
