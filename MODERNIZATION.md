@@ -194,7 +194,7 @@ Design:
 
 | Piece | Old | New |
 |---|---|---|
-| Surfaces | System memory, or DirectDraw "video" surfaces; locks and conversions between them | Always system memory (565). Read-only MDL mappings are copied on first write |
+| Surfaces | System memory, or DirectDraw "video" surfaces; locks and conversions between them | Always system memory (565 then; 32-bit BGRA since "Soft alpha"). Read-only MDL mappings are copied on first write |
 | 3D | `D3DRasterizer` (HAL) or `SoftwareRasterizer`, per surface | `d3d11raster.cpp` for every 3D surface. At `BeginScene` the CPU pixels are uploaded if they changed; at `EndScene` the result is read back if anything was drawn. The Context already ends the scene before each 2D operation |
 | State | DirectX 6 render states | HLSL in `engine/shaders`, compiled by `FxCompile` in CI. Covers DECAL/MODULATE, flat/Gouraud, colour-key discard, the three blend modes, z test/write, cull, scissor, and a Z clear limited to the clip rect. Vertices are shifted half a pixel to keep DirectX 6 pixel centres |
 | Textures | DirectDraw texture surfaces, re-`Load`ed when changed | `D3D11Device` cache: BGRA8 with the colour key in alpha, refreshed when the surface's change counter moves, full size |
@@ -244,7 +244,7 @@ Design:
 
 | Piece | Stage 1 | Stage 2 |
 |---|---|---|
-| Surface storage | System memory only; the rasterizer kept a GPU copy for the length of a scene | A surface that the GPU has rendered into keeps a GPU copy (BGRA8 render target and shader resource, plus a z-buffer on demand) next to its 565 pixels. Two flags say which copy is current |
+| Surface storage | System memory only; the rasterizer kept a GPU copy for the length of a scene | A surface that the GPU has rendered into keeps a GPU copy (BGRA8 render target and shader resource, plus a z-buffer on demand) next to its CPU pixels. Two flags say which copy is current |
 | Synchronisation | Upload at `BeginScene`, readback at `EndScene` | Lazy, per access. Reading the pixels (`GetPointer`, `GetPixel`, `Save`, `Write`, a CPU blit from it) reads back if only the GPU copy is current. Writing them (`GetWritablePointer`, `SetPixel`) makes the CPU copy current. A GPU draw uploads first if only the CPU copy is current |
 | 2D into a GPU-resident surface | CPU loops | Blits are textured quads with point sampling (exact pixels); the colour key discards. Fills are solid quads; `FillSurface` is a clear. Text draws quads from a per-font glyph atlas built from the 1-bit glyphs. Stretch blits are scaled quads. Clipping is the scissor rect |
 | 2D into a CPU surface | CPU loops | Unchanged. Surfaces that never take a 3D draw (art, 2D-only panes) never get a GPU copy, so `mdlc` still needs no GPU |
@@ -624,7 +624,7 @@ files byte for byte with what `mdlc` (`-dds` / `-ddsmips`, removed since) wrote 
 | When alpha applies | Only where the MDL file asks for the key, as before. An image loaded without it is drawn opaque, alpha ignored, so bitmaps used both ways (with and without the key) look as they did |
 | Model textures | The 230 images that a model's `.x` file names (`TextureFilename`) have a mip chain (2x2 box filter, down to 1x1) baked into the file. All are power-of-two sized. Distant models no longer shimmer; their textures are a third larger. The `.x` files still name them `<name>.bmp`, which the engine maps to `<name>.dds` |
 | Images never built | The 29 BMPs that `bitmap.txt` did not list (referenced by name from code or MDL, so missing at runtime since 2004; see "Art directory cleanup") were converted too and added to the list, so they now ship. Untested: they appear wherever the code asks for them |
-| Editing an image | Use any editor that writes uncompressed 32-bit DDS (Paint.NET, GIMP). Keep the rule: a pixel is opaque (alpha 255) or transparent with alpha 0 *and* RGB 0. For a model texture, rebuild its mip chain afterwards: `python tools/art/bmp2dds.py mips Artwork/256/<name>.dds` |
+| Editing an image | Use any editor that writes uncompressed 32-bit DDS (Paint.NET, GIMP). Alpha is premultiplied ("Soft alpha" below); editors save straight alpha, so run `python tools/art/bmp2dds.py premultiply Artwork/256/<name>.dds` after saving (it also rebuilds an existing mip chain). For a model texture saved without its mips, rebuild them: `python tools/art/bmp2dds.py mips Artwork/256/<name>.dds` |
 | Animations | The six strips are DDS images too. Each gets a small text MDL (`use "model"; frame = ModifiableNumber(0); image = FrameImage(ImportImage("<name>bmp", false), frame, x, y);`) that compresses the frames when it loads, with the code `mdlc -compressanim` ran at build time |
 | Fonts | Stay in `font.mdl` (glyph bitmaps plus metrics, not textures) |
 
@@ -640,19 +640,38 @@ How the engine reads them:
 - The surface points into the file mapping, like the image MDL files did. Its mip levels go to the
   texture cache with it and are dropped on the first write to the pixels.
 - The texture cache takes alpha from the image when it is colour keyed, and makes it opaque otherwise.
-  In a pixel format with alpha, `PixelFormat::MakePixel` gives black alpha 0 and everything else alpha
-  255, so code that draws into such a surface keeps the rule. The CPU colour-key blit handles 32-bit
-  surfaces (it asserted 16-bit).
-- The engine's own CPU-side 2D surfaces are still RGB565 (`GetPrimaryPixelFormat`). Whatever is still
-  composed on the CPU converts down to 565 there; what the GPU samples gets the full 32 bits.
+- The engine's CPU-side surfaces are 32-bit BGRA with alpha too, the same pixel format object as the
+  images, so drawing an image into one copies it unconverted ("Soft alpha").
 
 Nothing reads BMP files any more: `mdlc -convert`, `-compressanim`, `-dds` and `-ddsmips` are removed,
 and so are `Modeler::LoadBitmap` and `Engine::CreateSurface(HBITMAP)`. The smoke test checks the format
 and the key rule in three of the DDS sources (one a model texture with mip levels) and loads an
 animation from a DDS strip.
 
-Not done: soft (partial) alpha edges. The alpha channel makes it possible, but it is a visible change,
-and the art has no partial alpha to start from.
+#### Soft alpha
+
+Partial alpha works in the engine; the art doesn't use it yet (its alpha is 0 or 255), so nothing looks
+different until an image is authored with soft edges.
+
+| Topic | Decision |
+|---|---|
+| Alpha form | Premultiplied, in the DDS files and everywhere after. The converted art already is: its transparent pixels are RGB 0, so the baked mip levels (a box filter over those pixels) are premultiplied averages. Treating the files as straight alpha would have meant premultiplying in the texture cache, which darkens the edge texels of every model texture's mip levels a second time. Editors save straight alpha; `bmp2dds.py premultiply` converts |
+| Where it applies | Wherever an image is colour keyed, as before: UI images (blits, on the GPU and on the CPU), and images drawn through the 3D path with blending (`BlendModeSourceAlpha`, `BlendModeAdd`: HUD indicators, radar, loadout, effect images), where the texture's alpha multiplies the vertex alpha. Opaque 3D draws (model textures, `BlendModeSource`) still cut out at alpha 50%, which is the old colour key for 0/255 art, with no sorting of transparent parts |
+| Hit testing | A keyed image catches clicks where its alpha is at least 50%, so faint glows and shadows don't |
+| CPU surfaces | `GetPrimaryPixelFormat` is 32-bit BGRA with alpha (it was RGB565). Fills, text, conversions, the GPU readback and the colour-keyed blit (now a premultiplied "over") handle it; the fill asserted 16-bit, which an `AnimatedImage` of a DDS strip with more than one frame hit since the DDS change. `Surface::Save` (16-bit BMP, no callers) is removed |
+| Render targets | A pane's GPU copy holds premultiplied alpha as coverage. Fills, text and opaque blits replace pixels (alpha 1); keyed blits blend over them, colour and alpha; opaque 3D draws write alpha 1, blended ones accumulate it. A fill with the colour key (black, in 565 terms) writes alpha 0, so a keyed pane cleared that way starts transparent and keeps soft edges drawn into it |
+| Legacy black key | Panes were keyed on black: whatever was drawn black, or left black, was transparent when the pane was composited. That still holds, but only for opaque pixels: when a render target is the source of a keyed blit or a 3D texture, an opaque pixel that is black in 565 terms is transparent, and the readback to the CPU turns it into alpha 0. Translucent dark pixels (shadows) survive. On the CPU, `MakePixel` gives a colour that is black in 565 terms alpha 0 |
+
+Visible differences, for 0/255 art:
+
+- Images drawn through the 3D path with blending and linear filtering: their filtered edge texels used to
+  be cut at alpha 50%; now they blend, so those edges are anti-aliased rather than stair-stepped.
+- Translucent 3D content drawn into a keyed pane (over its cleared, transparent background) stays
+  translucent when the pane is composited; it used to come out opaque and darkened, since only black
+  was transparent.
+- CPU-composed surfaces (the hangar, the LOD scroll pane) now keep 24-bit colour instead of 565.
+- CPU text: glyphs clipped at the left or right edge lost their pixels beyond the first eight columns
+  (`ibit & 0x7 == 0` parses as `ibit & (0x7 == 0)`); fixed. The GPU text path was not affected.
 
 ### Phase 5: optional
 

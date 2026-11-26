@@ -49,6 +49,16 @@ Pixel PixelFormat::MakePixel(DWORD red, DWORD green, DWORD blue) const
 
 Pixel PixelFormat::MakePixel(const Color& color) const
 {
+    //
+    // In a format with alpha, a colour that 565 would have made black is the
+    // colour key, as when everything was 565 (and as the art build keyed the
+    // DDS images): transparent, alpha 0.
+    //
+
+    if (AlphaMask() != 0 && IsKeyBlack(color)) {
+        return Pixel::Create(0);
+    }
+
     return
         MakePixel(
             int(color.GetRed()   * RedSize()  ),
@@ -119,6 +129,76 @@ void PixelFormat::SetColor(BYTE* pb, const Color& color) const
 Color PixelFormat::GetColor(const BYTE* pb) const
 {
     return MakeColor(GetPixel(pb));
+}
+
+bool PixelFormat::IsKeyBlack(const Color& color)
+{
+    return
+           int(color.GetRed()   * 31) == 0
+        && int(color.GetGreen() * 63) == 0
+        && int(color.GetBlue()  * 31) == 0;
+}
+
+//
+// 8-bit BGRA, premultiplied like the DDS images, for converting between
+// formats. A format without alpha is opaque except for the colour key (pixel
+// 0); going back, alpha is dropped (premultiplied colour is what such a
+// format would have shown).
+//
+
+DWORD PixelFormat::GetBGRA(Pixel pixel) const
+{
+    DWORD value = pixel.Value();
+
+    if (
+           m_bits      == 32
+        && m_redMask   == 0x00ff0000
+        && m_greenMask == 0x0000ff00
+        && m_blueMask  == 0x000000ff
+    ) {
+        return m_alphaMask == 0xff000000 ? value : ((value & 0x00ffffff) == 0 ? 0 : (value | 0xff000000));
+    }
+
+    DWORD r = RedMask()   == 0 ? 0 : ((value & RedMask())   >> RedShift())   * 255 / RedSize();
+    DWORD g = GreenMask() == 0 ? 0 : ((value & GreenMask()) >> GreenShift()) * 255 / GreenSize();
+    DWORD b = BlueMask()  == 0 ? 0 : ((value & BlueMask())  >> BlueShift())  * 255 / BlueSize();
+    DWORD a;
+
+    if (AlphaMask() != 0) {
+        a = ((value & AlphaMask()) >> AlphaShift()) * 255 / AlphaSize();
+    } else {
+        a = (value & (RedMask() | GreenMask() | BlueMask())) == 0 ? 0 : 255;
+    }
+
+    return (a << 24) | (r << 16) | (g << 8) | b;
+}
+
+Pixel PixelFormat::MakePixelBGRA(DWORD bgra) const
+{
+    if (
+           m_bits      == 32
+        && m_redMask   == 0x00ff0000
+        && m_greenMask == 0x0000ff00
+        && m_blueMask  == 0x000000ff
+    ) {
+        return Pixel::Create(m_alphaMask == 0xff000000 ? bgra : (bgra & 0x00ffffff));
+    }
+
+    DWORD a = (bgra >> 24) & 0xff;
+    DWORD r = (bgra >> 16) & 0xff;
+    DWORD g = (bgra >>  8) & 0xff;
+    DWORD b =  bgra        & 0xff;
+
+    DWORD value =
+          (((r * RedSize()   + 127) / 255) << RedShift())
+        | (((g * GreenSize() + 127) / 255) << GreenShift())
+        | (((b * BlueSize()  + 127) / 255) << BlueShift());
+
+    if (AlphaMask() != 0) {
+        value |= ((a * AlphaSize() + 127) / 255) << AlphaShift();
+    }
+
+    return Pixel::Create(value);
 }
 
 bool PixelFormat::Is565() const

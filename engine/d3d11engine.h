@@ -20,7 +20,9 @@ template<class T> inline T MinOf(T a, T b) { return a < b ? a : b; }
 template<class T> inline T MaxOf(T a, T b) { return a > b ? a : b; }
 
 //
-// Surface pixels <-> BGRA8. bColorKey puts the (black) colour key into alpha.
+// Surface pixels <-> BGRA8, premultiplied alpha. bColorKey keeps alpha (or,
+// for a format without it, puts the black colour key into alpha); otherwise
+// the result is opaque. Going back, an opaque black pixel becomes alpha 0.
 //
 
 void ConvertSurfaceToBGRA(
@@ -32,6 +34,19 @@ void ConvertSurfaceToBGRA(
     DWORD*          pdest,
     int             pitchDest
 );
+
+//
+// The colour key in BGRA: black once quantised to 565 (r < 8, g < 4, b < 8),
+// the threshold the shaders use too
+//
+
+inline bool D3D11IsKeyBlack(DWORD bgra)
+{
+    return
+           ((bgra >> 16) & 0xff) < 8
+        && ((bgra >>  8) & 0xff) < 4
+        && ( bgra        & 0xff) < 8;
+}
 
 void ConvertBGRAToSurface(
     const DWORD*    psource,

@@ -10,7 +10,8 @@
 cbuffer RasterConstants : register(b0)
 {
     float4 g_screen;    // x: 2 / width, y: 2 / height
-    uint4  g_flags;     // x: bit 0 textured, bit 1 decal, bit 2 colour key, bit 3 key by black
+    uint4  g_flags;     // x: bit 0 textured, bit 1 decal, bit 2 colour key, bit 3 key by black,
+                        //    bit 4 blended (BlendModeAdd or BlendModeSourceAlpha)
 };
 
 Texture2D    g_texture : register(t0);
@@ -42,29 +43,43 @@ float4 ScreenToClip(float4 p)
 
 float4 Shade(float4 color, float2 uv)
 {
-    float4 result = color;
+    float4 result  = color;
+    bool   bBlend  = (g_flags.x & 16) != 0;
 
     if (g_flags.x & 1) {
         float4 texel = g_texture.Sample(g_sampler, uv);
 
         //
-        // The texture cache stores the colour key as alpha 0 (the textures
-        // themselves have no alpha). Discarding reproduces
-        // D3DRENDERSTATE_COLORKEYENABLE.
+        // Texture-cache textures hold the image's premultiplied alpha (alpha
+        // 0 is the colour key). A texture that is another GPU surface (a pane
+        // image) holds coverage, and there an opaque pixel that is black
+        // (anything that would have been black in 565, as when the pane was
+        // read back into 565 pixels) is the pane's colour key.
         //
 
-        if ((g_flags.x & 12) == 4 && texel.a < 0.5) {
-            discard;
+        if ((g_flags.x & 12) == 12 && texel.a >= 1.0 && texel.r < 8.0 / 255.0 && texel.g < 4.0 / 255.0 && texel.b < 8.0 / 255.0) {
+            texel = float4(0, 0, 0, 0);
         }
 
         //
-        // A texture that is another GPU surface (a pane image) has no key in
-        // alpha: its key is black, counting anything that would have been
-        // black in 565, as when the pane was read back into 565 pixels
+        // With the colour key on: blended draws (HUD images, radar) blend
+        // the texture's alpha in, so soft edges stay soft; opaque draws
+        // (model textures) cut out at half alpha, which reproduces
+        // D3DRENDERSTATE_COLORKEYENABLE for the 0 / 255 art. Fully
+        // transparent pixels are discarded either way, so they write no
+        // depth. With it off the texture is opaque.
         //
 
-        if ((g_flags.x & 12) == 12 && texel.r < 8.0 / 255.0 && texel.g < 4.0 / 255.0 && texel.b < 8.0 / 255.0) {
-            discard;
+        float alpha = 1.0;
+
+        if (g_flags.x & 4) {
+            if (texel.a <= 0.0 || (!bBlend && texel.a < 0.5)) {
+                discard;
+            }
+
+            if (bBlend) {
+                alpha = texel.a;
+            }
         }
 
         //
@@ -73,12 +88,21 @@ float4 Shade(float4 color, float2 uv)
         //
 
         if (g_flags.x & 2) {
-            // D3DTBLEND_DECAL: texture colour, texture alpha (always opaque)
-            result = float4(texel.rgb, 1.0);
+            // D3DTBLEND_DECAL: texture colour and alpha
+            result = float4(texel.rgb, alpha);
         } else {
-            // D3DTBLEND_MODULATE without texture alpha: alpha from the vertex
-            result = float4(texel.rgb * color.rgb, color.a);
+            // D3DTBLEND_MODULATE: alpha from the vertex, times the texture's
+            result = float4(texel.rgb * color.rgb, color.a * alpha);
         }
+    }
+
+    //
+    // The target's alpha is coverage (premultiplied): what an opaque draw
+    // covers is opaque
+    //
+
+    if (!bBlend) {
+        result.a = 1.0;
     }
 
     return result;

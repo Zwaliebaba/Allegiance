@@ -45,7 +45,6 @@ public:
     // Serialization
     //
 
-    virtual void Save(ZFile* pfile)  = 0; // save as a bmp
     virtual void Write(ZFile* pfile) = 0; // write to an mdl file
 
     //

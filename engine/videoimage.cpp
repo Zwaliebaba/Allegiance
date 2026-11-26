@@ -294,18 +294,35 @@ public:
         if (pbScan0)
         {
             //
-            // BGRX to the surface's pixel format (normally 565)
+            // BGRX to the surface's pixel format (normally BGRA, where the
+            // frame is opaque)
             //
 
             PixelFormat* ppf    = m_psurface->GetPixelFormat();
             DWORD        cbPixel = ppf->PixelBytes();
             BYTE*        pdest  = m_psurface->GetWritablePointer();
             int          pitch  = m_psurface->GetPitch();
+            bool         bBGRA  =
+                   cbPixel             == 4
+                && ppf->RedMask()      == 0x00ff0000
+                && ppf->GreenMask()    == 0x0000ff00
+                && ppf->BlueMask()     == 0x000000ff;
 
             for (int y = 0; y < m_sizeVideo.Y(); y++)
             {
                 const BYTE* psrc = pbScan0 + (LONGLONG)lPitch * y;
                 BYTE*       prow = pdest + pitch * y;
+
+                if (bBGRA)
+                {
+                    const DWORD* psrc32 = (const DWORD*)psrc;
+                    DWORD        alpha  = ppf->AlphaMask();
+
+                    for (int x = 0; x < m_sizeVideo.X(); x++)
+                        ((DWORD*)prow)[x] = (psrc32[x] & 0x00ffffff) | alpha;
+
+                    continue;
+                }
 
                 for (int x = 0; x < m_sizeVideo.X(); x++, psrc += 4)
                 {

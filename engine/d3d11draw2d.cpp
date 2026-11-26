@@ -9,9 +9,15 @@
 // GPU copies of surfaces and 2D drawing into them
 //
 // The window frame and the 3D panes keep a BGRA8 render target next to their
-// 565 pixels (see surface.cpp for when each copy is current). This file
+// CPU pixels (see surface.cpp for when each copy is current). This file
 // creates those targets, copies pixels between the two copies, and draws the
 // 2D primitives the engine used to do with CPU loops: blits, fills and text.
+//
+// Targets hold premultiplied alpha, which is coverage: colour keyed images
+// are blended over what is there, fills and opaque images replace it, and a
+// fill with the colour key (black) leaves alpha 0, so a keyed pane starts out
+// transparent and keeps the soft edges drawn into it. See MODERNIZATION.md,
+// "Soft alpha".
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +43,8 @@ struct Pipeline2D {
     TRef<ID3D11Buffer>             m_pcb;
     TRef<ID3D11Buffer>             m_pvb;
     TRef<ID3D11Buffer>             m_pib;
-    TRef<ID3D11BlendState>         m_pblend;
+    TRef<ID3D11BlendState>         m_pblendReplace;
+    TRef<ID3D11BlendState>         m_pblendOver;
     TRef<ID3D11DepthStencilState>  m_pdepth;
     TRef<ID3D11RasterizerState>    m_praster;
     TRef<ID3D11SamplerState>       m_psampler;
@@ -117,12 +124,24 @@ bool CreatePipeline2D(D3D11Device* pdevice)
     if (FAILED(pd3d->CreateBuffer(&ibd, &data, &p.m_pib))) return false;
 
     //
-    // Pixels are replaced, never blended; no depth; scissored
+    // Fills, text and opaque blits replace pixels; keyed blits are blended
+    // over them, premultiplied (one, inverse source alpha), colour and alpha
+    // alike. No depth; scissored.
     //
 
     D3D11_BLEND_DESC bld = {};
     bld.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-    if (FAILED(pd3d->CreateBlendState(&bld, &p.m_pblend))) return false;
+    if (FAILED(pd3d->CreateBlendState(&bld, &p.m_pblendReplace))) return false;
+
+    D3D11_RENDER_TARGET_BLEND_DESC& rt = bld.RenderTarget[0];
+    rt.BlendEnable    = TRUE;
+    rt.SrcBlend       = D3D11_BLEND_ONE;
+    rt.DestBlend      = D3D11_BLEND_INV_SRC_ALPHA;
+    rt.BlendOp        = D3D11_BLEND_OP_ADD;
+    rt.SrcBlendAlpha  = D3D11_BLEND_ONE;
+    rt.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+    rt.BlendOpAlpha   = D3D11_BLEND_OP_ADD;
+    if (FAILED(pd3d->CreateBlendState(&bld, &p.m_pblendOver))) return false;
 
     D3D11_DEPTH_STENCIL_DESC dsd = {};
     dsd.DepthEnable = FALSE;
@@ -218,7 +237,7 @@ void DrawQuads(
 
     ID3D11RenderTargetView* prtv = ptarget->m_prtv;
     pcontext->OMSetRenderTargets(1, &prtv, NULL);
-    pcontext->OMSetBlendState(p.m_pblend, NULL, 0xffffffff);
+    pcontext->OMSetBlendState(mode == 1 && keyMode != D3D11KeyNone ? p.m_pblendOver : p.m_pblendReplace, NULL, 0xffffffff);
     pcontext->OMSetDepthStencilState(p.m_pdepth, 0);
 
     D3D11_VIEWPORT vp;
@@ -387,8 +406,13 @@ void D3D11Upload(D3D11Device* pdevice, D3D11Target* ptarget, const BYTE* psource
 {
     const WinPoint& size = ptarget->m_size;
 
+    //
+    // Alpha is kept: the CPU pixels' alpha 0 (the colour key) stays
+    // transparent on the GPU
+    //
+
     g_vconvert.resize(size.X() * size.Y());
-    ConvertSurfaceToBGRA(psource, pitch, ppf, size, false, g_vconvert.data(), size.X() * 4);
+    ConvertSurfaceToBGRA(psource, pitch, ppf, size, true, g_vconvert.data(), size.X() * 4);
 
     pdevice->GetContext()->UpdateSubresource(ptarget->m_ptexture, 0, NULL, g_vconvert.data(), size.X() * 4, 0);
     g_d3d11Stats.m_uploads++;
@@ -491,8 +515,19 @@ void D3D11Fill(D3D11Device* pdevice, D3D11Target* ptarget, const WinRect& rect, 
         return;
     }
 
+    //
+    // Opaque, except the colour key: black (in 565 terms, as the CPU fills
+    // do) is transparent, alpha 0
+    //
+
+    DWORD bgra = D3D11MakeBGRA(color) | 0xff000000;
+
+    if (D3D11IsKeyBlack(bgra)) {
+        bgra = 0;
+    }
+
     Vertex2D quad[4];
-    SetQuad(quad, rect, 0, 0, 0, 0, D3D11MakeBGRA(color));
+    SetQuad(quad, rect, 0, 0, 0, 0, bgra);
 
     DrawQuads(pdevice, ptarget, quad, 1, 0, 0, NULL, rect);
 }

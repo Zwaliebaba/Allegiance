@@ -49,7 +49,20 @@ public:
     void  SetColor(BYTE* pb, const Color& color)        const;
     Color GetColor(const BYTE* pb)                      const;
 
+    //
+    // 8-bit premultiplied BGRA <-> pixels, alpha kept where the format has it
+    //
+
+    DWORD GetBGRA(Pixel pixel)                          const;
+    Pixel MakePixelBGRA(DWORD bgra)                     const;
+
     bool  Is565()                                       const;
+
+    //
+    // The colour key: colours that are black once quantised to 565
+    //
+
+    static bool IsKeyBlack(const Color& color);
 
     bool Equivalent(int bits, DWORD redMask, DWORD greenMask, DWORD blueMask, DWORD alphaMask) const;
 };

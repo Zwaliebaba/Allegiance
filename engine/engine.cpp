@@ -56,10 +56,12 @@ public:
         m_bDeviceFailed(false)
     {
         //
-        // The art is 16-bit 565 throughout, so that is the device format.
+        // 32-bit BGRA with premultiplied alpha, the format of the DDS images
+        // (so drawing them into a CPU surface needs no conversion) and of the
+        // GPU copies. See MODERNIZATION.md, "Soft alpha".
         //
 
-        m_ppf = GetPixelFormat(16, 0xf800, 0x07e0, 0x001f, 0x0000);
+        m_ppf = GetPixelFormat(32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
     }
 
 private:
