@@ -2916,7 +2916,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
         {
             m_bInGame = false;
             m_bWaitingForGameRestart = true;
-            m_strBriefingText.SetEmpty();
+            m_strBriefingText.clear();
             m_bGenerateCivBriefing = false;
 
             CASTPFM(pfmGameOver, S, GAME_OVER, pfm);

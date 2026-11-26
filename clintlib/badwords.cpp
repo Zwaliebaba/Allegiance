@@ -369,7 +369,7 @@ ZString CensorBadWords (const ZString& string)
 {
     if (g_bCensor)
     {
-        char*       szBuffer = new char[string.GetLength () + 1];
+        char*       szBuffer = new char[(int)string.size() + 1];
         strcpy (szBuffer, string);
         FilterBadWords (szBuffer);
         ZString     result (szBuffer);
