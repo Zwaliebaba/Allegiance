@@ -84,7 +84,7 @@ public:
             m_strCD.ReplaceAll("\\", '/');
 
             if (m_strCD[m_strCD.GetLength() - 1] != '/') {
-                m_strCD += '/';
+                m_strCD += "/";
             }
         }
 

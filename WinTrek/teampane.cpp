@@ -1596,14 +1596,14 @@ class ExpandedTeamPane : public TeamPane
             // draw the deaths
             
             if (pplayer->MissionDeaths())
-                psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 27, 1), pplayer->MissionDeaths());
+                psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 27, 1), ZString(pplayer->MissionDeaths()));
             else
                 psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 27, 1), ZString("0"));
             
             // draw the kills
             
             if (pplayer->MissionKills())
-                psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 2, 1), pplayer->MissionKills());
+                psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 2, 1), ZString(pplayer->MissionKills()));
             else
                 psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 2, 1), ZString("0"));
             

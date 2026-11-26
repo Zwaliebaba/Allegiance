@@ -391,7 +391,7 @@ public:
               if (pil->data().count > 1)
               {
                 TRef<IEngineFont> pfont = TrekResources::SmallFont();
-                ZString strCount = pil->data().count;
+                ZString strCount(pil->data().count);
                 WinPoint pt = pfont->GetTextExtent(strCount);
                 pcontext->DrawString(pfont, Color::White(), ptNext + Point(0, (pil->data().psurfaceIcon->GetSize().Y() - pt.Y()) / 2),
                                      strCount);

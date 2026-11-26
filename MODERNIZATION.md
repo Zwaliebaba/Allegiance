@@ -712,7 +712,7 @@ Decided scope:
 | `TStack` | Its only use, the MDL evaluator's operand stack, is a small `ObjectStack` class over `std::vector` (`engine/mdl.h`): the factories use `Pop()`'s value in expressions about 300 times, and `std::stack::pop` returns nothing. Done |
 | `TList`, `TMap` | Kept. They are reference-counted objects, and `TList`'s sink parameter is how UI list panes get change notifications; replacing them is a redesign, not a swap |
 | `Slist_utl` / `Slink_utl` (IGC) | Kept. Intrusive lists whose members unlink themselves on destruction; game-object lifetime depends on them |
-| `ZString` | To `std::string`, in steps: first its number constructors become explicit (`"Score " + n` formats a number with `ZString` but appends one `char` with `std::string`), then one library group per PR, with explicit `.c_str()` where `ZString` converted to `const char*` silently |
+| `ZString` | To `std::string`, in steps: first its number constructors become explicit (done) (`"Score " + n` formats a number with `ZString` but appends one `char` with `std::string`), then one library group per PR, with explicit `.c_str()` where `ZString` converted to `const char*` silently |
 
 How the container change was made: `TVector` was first replaced by a shim deriving from
 `std::vector` whose every old member was `[[deprecated]]`, so a clang sweep of all projects listed
@@ -730,6 +730,16 @@ Behaviour differences:
 - Element bounds checks: `TVector` asserted in debug builds; the MSVC debug STL does the same.
 - An empty `TVector` could be assigned `NULL` (through its `int` constructor); the one place that did
   calls `clear()`.
+
+ZString's number constructors (`ZString(int)`, `ZString(float)`, `ZString(bool)`) are explicit (done).
+Implicitly they formatted numbers wherever a `ZString` was expected, and `std::string` would silently
+turn the same code into appending one `char`. The compiler listed the 23 places that relied on it
+(score and team-pane columns, a mission's lives, a sector map count, an MDL number-to-string value,
+vector and sound-buffer debug strings); each now says `ZString(n)`. One was a bug: the video screen's
+CD path was meant to get a `/` appended, and got `"47"` (the char's code, through `ZString(int)`).
+With the constructors explicit, `ZString + int` would compile as pointer arithmetic through the
+`const char*` conversion (before, it was ambiguous and never compiled), so `ZString`/`int` `operator+`
+is deleted.
 
 ## Building
 

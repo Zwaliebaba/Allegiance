@@ -65,10 +65,15 @@ public:
     ZString(PCC, int length, bool bStatic);
     ZString(char ch, int length);
     ZString(const ZString&);
-    ZString(int);
-    ZString(float value);
+    //
+    // Numbers format only when asked: ZString(n). Implicit, they turned chars
+    // into their codes and would become std::string's append-one-char.
+    //
+
+    explicit ZString(int);
+    explicit ZString(float value);
     ZString(float value, int total, int precision);
-    ZString(bool);
+    explicit ZString(bool);
 
 
     const char& operator[](int index) const { return m_pdata->GetPointer()[index]; }
@@ -103,6 +108,15 @@ public:
     ZString RightOf(const ZString& str) const;
 
     friend ZString operator+(const ZString&, const ZString&);
+
+    //
+    // ZString + a number: the number constructors are explicit, so without
+    // these it would compile as pointer arithmetic through operator PCC (and a
+    // char used to become its code, "47" for '/'). Write ZString(n).
+    //
+
+    friend ZString operator+(const ZString&, int) = delete;
+    friend ZString operator+(int, const ZString&) = delete;
 
     friend bool operator==(const ZString&, const ZString&);
     friend bool operator==(const ZString&, PCC);
