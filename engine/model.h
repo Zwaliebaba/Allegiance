@@ -34,10 +34,10 @@ class Image;
 class GroupGeoCallback : public IObject {
 public:
     virtual TRef<Geo> Execute(const Matrix& mat, GroupGeo* pgroup) = 0;
-    virtual void ReportTriangles(const Matrix& mat, const TVector<Vertex>&  vertices, const TVector<MeshIndex>& indices) = 0;
-    virtual void ReportTriangles(const Matrix& mat, const TVector<VertexL>& vertices, const TVector<MeshIndex>& indices) = 0;
-    virtual void ReportTriangles(const Matrix& mat, const TVector<D3DVertex>& vertices, const TVector<MeshIndex>& indices) = 0;
-    virtual void ReportTriangles(const Matrix& mat, const TVector<D3DLVertex>& vertices, const TVector<MeshIndex>& indices) = 0;
+    virtual void ReportTriangles(const Matrix& mat, const std::vector<Vertex>&  vertices, const std::vector<MeshIndex>& indices) = 0;
+    virtual void ReportTriangles(const Matrix& mat, const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices) = 0;
+    virtual void ReportTriangles(const Matrix& mat, const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices) = 0;
+    virtual void ReportTriangles(const Matrix& mat, const std::vector<D3DLVertex>& vertices, const std::vector<MeshIndex>& indices) = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -79,9 +79,9 @@ public:
         IObject* pobjectMemory
     );
 
-    static TRef<Geo> CreateMesh(const TVector<D3DVertex>& vertices, const TVector<MeshIndex>& indices);
-    static TRef<Geo> CreateMesh(const TVector<Vertex>& vertices, const TVector<MeshIndex>& indices);
-    static TRef<Geo> CreateMesh(const TVector<VertexL>& vertices, const TVector<MeshIndex>& indices);
+    static TRef<Geo> CreateMesh(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices);
+    static TRef<Geo> CreateMesh(const std::vector<Vertex>& vertices, const std::vector<MeshIndex>& indices);
+    static TRef<Geo> CreateMesh(const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices);
 
     //
     // Geo members

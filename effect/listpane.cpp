@@ -55,7 +55,7 @@ private:
 
     bool                         m_bHorizontal;
 
-    TVector<ItemID>              m_vectItemsOld;
+    std::vector<ItemID>              m_vectItemsOld;
     bool                         m_bNeedScrollUpdate;
     bool                         m_bNeedSelectionOnScreen;
     int                          m_iOldSelection;
@@ -483,10 +483,10 @@ public:
 
             int nNewCount = m_plist->GetCount();
 
-            m_vectItemsOld.SetCount(nNewCount);
+            m_vectItemsOld.resize(nNewCount);
 
             for (int i = 0; i < nNewCount; i++) {
-                m_vectItemsOld.Set(i, m_plist->GetItem(i));
+                m_vectItemsOld[i] = m_plist->GetItem(i);
             }
 
             m_iOldSelection = m_indexSelection;
@@ -495,10 +495,10 @@ public:
 
     int FindNearestNewIndex(int nOldIndex)
     {
-        if (nOldIndex == -1 || m_vectItemsOld.GetCount() == 0)
+        if (nOldIndex == -1 || (int)m_vectItemsOld.size() == 0)
             return -1;
         
-        ZAssert(nOldIndex >= 0 && nOldIndex < m_vectItemsOld.GetCount());
+        ZAssert(nOldIndex >= 0 && nOldIndex < (int)m_vectItemsOld.size());
 
         int nNewIndex;
 
@@ -509,12 +509,12 @@ public:
         int iDelta = 1;
         while (nNewIndex == -1 
             && (nOldIndex - iDelta >= 0 
-                || nOldIndex + iDelta < m_vectItemsOld.GetCount()))
+                || nOldIndex + iDelta < (int)m_vectItemsOld.size()))
         {
             if (nOldIndex - iDelta >= 0)
                 nNewIndex = m_plist->GetIndex(m_vectItemsOld[nOldIndex - iDelta]);
 
-            if (nNewIndex != -1 && nOldIndex + iDelta < m_vectItemsOld.GetCount())
+            if (nNewIndex != -1 && nOldIndex + iDelta < (int)m_vectItemsOld.size())
                 nNewIndex = m_plist->GetIndex(m_vectItemsOld[nOldIndex - iDelta]);
 
             ++iDelta;

@@ -9,7 +9,7 @@
 namespace SoundInit {
     void InitializeSoundTemplates(
         Modeler* pmodeler, 
-        TVector<TRef<ISoundTemplate> >& vSoundMap
+        std::vector<TRef<ISoundTemplate>> & vSoundMap
     ) {
         DWORD dwStartTime = timeGetTime();
 

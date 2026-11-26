@@ -701,6 +701,36 @@ uses libstdc++, so the MSVC STL's C++20 removals (negators, `result_of`, allocat
 No identifier is a new keyword (`concept`, `requires`, `char8_t`, the coroutine keywords), and no
 `u8` literals are used.
 
+#### Library cleanup: containers and ZString (in progress)
+
+Decided scope:
+
+| Piece | Treatment |
+|---|---|
+| `TVector` (value array with copy-on-write over file mappings) | `std::vector`. Done |
+| `TArray` | `std::array`. Done |
+| `TStack` | Its only use, the MDL evaluator's operand stack, is a small `ObjectStack` class over `std::vector` (`engine/mdl.h`): the factories use `Pop()`'s value in expressions about 300 times, and `std::stack::pop` returns nothing. Done |
+| `TList`, `TMap` | Kept. They are reference-counted objects, and `TList`'s sink parameter is how UI list panes get change notifications; replacing them is a redesign, not a swap |
+| `Slist_utl` / `Slink_utl` (IGC) | Kept. Intrusive lists whose members unlink themselves on destruction; game-object lifetime depends on them |
+| `ZString` | To `std::string`, in steps: first its number constructors become explicit (`"Score " + n` formats a number with `ZString` but appends one `char` with `std::string`), then one library group per PR, with explicit `.c_str()` where `ZString` converted to `const char*` silently |
+
+How the container change was made: `TVector` was first replaced by a shim deriving from
+`std::vector` whose every old member was `[[deprecated]]`, so a clang sweep of all projects listed
+each call site (462). A script rewrote them from those exact locations (`GetCount()` becomes
+`(int)size()`, since `engine` builds with warnings as errors; `Set(i, v)` becomes `[i] = v`; and so
+on); the constructors and the few `Find`/`Remove`/`Insert` calls were done by hand. Then the shim was
+deleted, so anything left is a compile error, not a silent change. The one trap that would have
+compiled is `TVector(countAlloc, count)`, which `std::vector` reads as `count` copies of a value; all
+20 uses (equal arguments, or a reserve of an empty vector) were rewritten first.
+
+Behaviour differences:
+
+- A mesh loaded from a binary MDL file copies its vertices and indices; `TVector` could point into the
+  file mapping, `std::vector` can't. Load time and memory grow by the size of the geometry.
+- Element bounds checks: `TVector` asserted in debug builds; the MSVC debug STL does the same.
+- An empty `TVector` could be assigned `NULL` (through its `int` constructor); the one place that did
+  calls `clear()`.
+
 ## Building
 
 Open `Allegiance.slnx` in Visual Studio 2026 (Desktop development with C++, plus the C++ ATL and MFC
@@ -803,7 +833,7 @@ Fixes are made per CI round, and each change keeps the original runtime behaviou
 | `/permissive-`: a dependent nested type without `typename` | `typename` | `zlib/event.h` |
 | `/permissive-`: a template calls `::GetString` / `::Write` / `::GetFunctionName` qualified, which finds only the overloads declared before it (two-phase lookup) | Called through `ValueGetString` / `ValueWrite` / `ValueGetFunctionName`, global forwarders that call unqualified, so argument-dependent lookup finds later overloads (`Matrix`, fonts) at instantiation; the `float` and `bool` overloads are declared ahead of them | `engine/value.h` |
 | `/permissive-`: a non-dependent use of a class defined later (`TLookup` uses `IObjectPair`) | `IObjectPair` moved from `mdl.h` into `value.h`, ahead of `TLookup` | `engine/value.h`, `engine/mdl.h` |
-| Empty member-initializer list (`TArray(TValue pvalue[count]) :`) | `:` removed | `zlib/tarray.h` |
+| Empty member-initializer list (`TArray(TValue pvalue[count]) :`) | `:` removed | `zlib/tarray.h` (removed since; `std::array`) |
 | `and`, `or`, `not`, `bit_and`, `bit_or` defined as macros; the first three are keywords | Macros removed; the code uses the standard alternative tokens, `bitand` / `bitor` included | `training/pch.h` and four `training/*.cpp` |
 | Extra qualification on an in-class member declaration (`void PaneImage::Render()` inside `PaneImage`) | Qualification removed | `engine/paneimage.cpp`, `engine/model.h`, `FedSrv/BitArray.h`, `test/TCLib/UtilityThread.cpp`, `test/TCLib/WorkerThread.cpp` |
 | `/permissive-`: a template's base-class members used unqualified, in classes that use many of them | Using-declarations and typedefs for the base's members | `zlib/point.h` (`TPoint`), `zlib/rect.h` (`TRect`), `_Utility/listwrappers.h` (`TListListWrapper`, `TMapListWrapper`) |

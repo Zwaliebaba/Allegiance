@@ -174,6 +174,6 @@ public:
 };
 
 TRef<ButtonBarPane> CreateButtonBarPane(bool bActAsTabs = false, bool bUseColumn = false);
-TRef<ButtonBarPane> CreateButtonBarPane(Surface* psurface, DWORD dwFaces, TVector<int>& vecColumns, bool bActAsTabs);
+TRef<ButtonBarPane> CreateButtonBarPane(Surface* psurface, DWORD dwFaces, std::vector<int>& vecColumns, bool bActAsTabs);
 
 #endif

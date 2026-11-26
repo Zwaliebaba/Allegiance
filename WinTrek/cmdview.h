@@ -58,8 +58,8 @@ public:
 class CommandGeo : public Geo
 {
 private:
-    TVector<VertexL>  m_vertices;
-    TVector<WORD>     m_indices;
+    std::vector<VertexL>  m_vertices;
+    std::vector<WORD>     m_indices;
     TRef<IclusterIGC> m_pcluster;
     float             m_zGrid;
 

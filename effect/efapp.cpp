@@ -570,20 +570,20 @@ public:
         return NULL;
     }
 
-    void ReportTriangles(const Matrix& mat, const TVector<Vertex>&  vertices, const TVector<WORD>& indices)
+    void ReportTriangles(const Matrix& mat, const std::vector<Vertex>&  vertices, const std::vector<WORD>& indices)
     {
         // we don't care about triangles here but might be nice to count for LOD analysis
     }
 
-    void ReportTriangles(const Matrix& mat, const TVector<VertexL>& vertices, const TVector<WORD>& indices)
+    void ReportTriangles(const Matrix& mat, const std::vector<VertexL>& vertices, const std::vector<WORD>& indices)
     {
     }
 
-    void ReportTriangles(const Matrix& mat, const TVector<D3DLVertex>& vertices, const TVector<WORD>& indices)
+    void ReportTriangles(const Matrix& mat, const std::vector<D3DLVertex>& vertices, const std::vector<WORD>& indices)
     {
     }
 
-    void ReportTriangles(const Matrix& mat, const TVector<D3DVertex>& vertices, const TVector<WORD>& indices)
+    void ReportTriangles(const Matrix& mat, const std::vector<D3DVertex>& vertices, const std::vector<WORD>& indices)
     {
     }
 

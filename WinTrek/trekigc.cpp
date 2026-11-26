@@ -2322,37 +2322,37 @@ void WinTrekClient::Initialize(Time timeNow)
 
     m_pimageShockWave = GetModeler()->LoadImage(AWF_SHOCKWAVE, true);
 
-    m_vpimageExplosion[0].SetCount(5);
-    m_vpimageExplosion[0].Set(0, LoadExplosionImage(AWF_EXPLOSION_00));
-    m_vpimageExplosion[0].Set(1, LoadExplosionImage(AWF_EXPLOSION_01));
-    m_vpimageExplosion[0].Set(2, LoadExplosionImage(AWF_EXPLOSION_02));
-    m_vpimageExplosion[0].Set(3, LoadExplosionImage(AWF_EXPLOSION_03));
-    m_vpimageExplosion[0].Set(4, LoadExplosionImage(AWF_EXPLOSION_04));
+    m_vpimageExplosion[0].resize(5);
+    m_vpimageExplosion[0][0] = LoadExplosionImage(AWF_EXPLOSION_00);
+    m_vpimageExplosion[0][1] = LoadExplosionImage(AWF_EXPLOSION_01);
+    m_vpimageExplosion[0][2] = LoadExplosionImage(AWF_EXPLOSION_02);
+    m_vpimageExplosion[0][3] = LoadExplosionImage(AWF_EXPLOSION_03);
+    m_vpimageExplosion[0][4] = LoadExplosionImage(AWF_EXPLOSION_04);
 
-    m_vpimageExplosion[1].SetCount(1);
-    m_vpimageExplosion[1].Set(0, m_vpimageExplosion[0][3]);
+    m_vpimageExplosion[1].resize(1);
+    m_vpimageExplosion[1][0] = m_vpimageExplosion[0][3];
 
-    m_vpimageExplosion[2].SetCount(1);
-    m_vpimageExplosion[2].Set(0, m_vpimageExplosion[0][0]);
+    m_vpimageExplosion[2].resize(1);
+    m_vpimageExplosion[2][0] = m_vpimageExplosion[0][0];
 
-    m_vpimageExplosion[3].SetCount(2);
-    m_vpimageExplosion[3].Set(0, m_vpimageExplosion[0][4]);
-    m_vpimageExplosion[3].Set(1, m_vpimageExplosion[0][1]);
+    m_vpimageExplosion[3].resize(2);
+    m_vpimageExplosion[3][0] = m_vpimageExplosion[0][4];
+    m_vpimageExplosion[3][1] = m_vpimageExplosion[0][1];
 
-    m_vpimageExplosion[4].SetCount(2);
-    m_vpimageExplosion[4].Set(0, m_vpimageExplosion[0][4]);
-    m_vpimageExplosion[4].Set(1, m_vpimageExplosion[0][1]);
+    m_vpimageExplosion[4].resize(2);
+    m_vpimageExplosion[4][0] = m_vpimageExplosion[0][4];
+    m_vpimageExplosion[4][1] = m_vpimageExplosion[0][1];
 
-    m_vpimageExplosion[5].SetCount(2);
-    m_vpimageExplosion[5].Set(0, m_vpimageExplosion[0][4]);
-    m_vpimageExplosion[5].Set(1, m_vpimageExplosion[0][2]);
+    m_vpimageExplosion[5].resize(2);
+    m_vpimageExplosion[5][0] = m_vpimageExplosion[0][4];
+    m_vpimageExplosion[5][1] = m_vpimageExplosion[0][2];
 
-    m_vpimageExplosion[6].SetCount(1);
-    m_vpimageExplosion[6].Set(0, m_vpimageExplosion[0][3]);
+    m_vpimageExplosion[6].resize(1);
+    m_vpimageExplosion[6][0] = m_vpimageExplosion[0][3];
 
-    m_vpimageExplosion[7].SetCount(2);
-    m_vpimageExplosion[7].Set(0, m_vpimageExplosion[0][4]);
-    m_vpimageExplosion[7].Set(1, m_vpimageExplosion[0][2]);
+    m_vpimageExplosion[7].resize(2);
+    m_vpimageExplosion[7][0] = m_vpimageExplosion[0][4];
+    m_vpimageExplosion[7][1] = m_vpimageExplosion[0][2];
 }
 
 TRef<AnimatedImage> WinTrekClient::LoadExplosionImage(const ZString& str)

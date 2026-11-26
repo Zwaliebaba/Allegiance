@@ -85,7 +85,7 @@ public:
 
 class AnimatedImage : public Image {
 private:
-    TVector<TRef<Surface> > m_psurfaces;
+    std::vector<TRef<Surface>>  m_psurfaces;
     int  m_index;
 
     Number* GetTime() { return Number::Cast(GetChild(0)); }
@@ -98,7 +98,7 @@ public:
 
     int GetCount()
     {
-        return m_psurfaces.GetCount();
+        return (int)m_psurfaces.size();
     }
 
     TRef<Surface> GetSurface(int index)

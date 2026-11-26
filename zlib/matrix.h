@@ -137,7 +137,7 @@ public:
     //
 
     Point Transform(const Point& point) const;
-    void  Transform(const TVector<Point>&, TVector<Point>&) const;
+    void  Transform(const std::vector<Point>&, std::vector<Point>&) const;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -244,9 +244,9 @@ public:
     Vector Transform(const Vector& vec) const;
     Vector TransformDirection(const Vector& vec) const;
 
-    void Transform(const TVector<Point>&, TVector<Point>&) const;
-    void Transform(const TVector<HVector>&, TVector<HVector>&) const;
-    void Transform(const TVector<Vector>&, TVector<Vector>&) const;
+    void Transform(const std::vector<Point>&, std::vector<Point>&) const;
+    void Transform(const std::vector<HVector>&, std::vector<HVector>&) const;
+    void Transform(const std::vector<Vector>&, std::vector<Vector>&) const;
 };
 
 #endif

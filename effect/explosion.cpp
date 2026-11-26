@@ -47,7 +47,7 @@ private:
     //////////////////////////////////////////////////////////////////////////////
 
     TList<ShockwaveData>       m_listShockwave;
-    TVector<ExplosionDataList> m_vlistExplosion;
+    std::vector<ExplosionDataList> m_vlistExplosion;
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -79,7 +79,7 @@ public:
         float                         radiusShockWave,
         const Color&                  color,
         int                           countDecals,
-        TVector<TRef<AnimatedImage> > vpimage,
+        std::vector<TRef<AnimatedImage>>  vpimage,
         Image*                        pimageShockwave
     ) {
         //
@@ -104,11 +104,11 @@ public:
         // Add the little explosions
         //
 
-        int countImage = vpimage.GetCount();
+        int countImage = (int)vpimage.size();
         int indexImage = 0;
 
         for (int index = 0; index < countDecals; index++) {
-            ExplosionDataList& list  = m_vlistExplosion.Get(index);
+            ExplosionDataList& list  = m_vlistExplosion[index];
             list.PushFront();
             ExplosionData&     edata = list.GetFront();
 
@@ -219,10 +219,10 @@ public:
         
         fill += RenderShockwaves(pcontext);
 
-        int count = m_vlistExplosion.GetCount();
+        int count = (int)m_vlistExplosion.size();
 
         for (int index = 0; index < count; index++) {
-            fill += RenderExplosions(pcontext, m_vlistExplosion.Get(index));
+            fill += RenderExplosions(pcontext, m_vlistExplosion[index]);
 
             //
             // If we have passed the fill limit throw away the rest of the explosions
@@ -230,7 +230,7 @@ public:
 
             if (fill > 2.0f) {
                 for (int index2 = index + 1; index2 < count; index2++) {
-                    m_vlistExplosion.Get(index2).SetEmpty();
+                    m_vlistExplosion[index2].SetEmpty();
                 }
                 return;
             }

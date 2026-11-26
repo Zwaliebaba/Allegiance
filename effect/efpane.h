@@ -102,8 +102,8 @@ public:
     void Update(Time time);
 };
 
-void ParseIntVector(IObject* pobject, TVector<int>& vec);
-void ParseFloatVector(IObject* pobject, TVector<int>& vec);
-void ParseStringVector(IObject* pobject, TVector<ZString>& vec);
+void ParseIntVector(IObject* pobject, std::vector<int>& vec);
+void ParseFloatVector(IObject* pobject, std::vector<int>& vec);
+void ParseStringVector(IObject* pobject, std::vector<ZString>& vec);
 
 #endif

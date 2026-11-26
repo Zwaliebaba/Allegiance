@@ -166,9 +166,9 @@ private:
                 );
 
             if (index == -1) {
-                m_vvalueObject.PushEnd(pobject);
+                m_vvalueObject.push_back(pobject);
             } else {
-                m_vvalueObject.Set(index, pobject);
+                m_vvalueObject[index] = pobject;
             }
         } else if (pddoi->dwType & DIDFT_PSHBUTTON) {
             ButtonDDInputObject* pobject =
@@ -178,7 +178,7 @@ private:
                     pddoi->guidType
                 );
 
-            m_vbuttonObject.PushEnd(pobject);
+            m_vbuttonObject.push_back(pobject);
         } 
 
         return DIENUM_CONTINUE;
@@ -208,8 +208,8 @@ private:
     TRef<ButtonEvent::SourceImpl>       m_pbuttonEventSource;
     DIDeviceCaps                        m_didc;
     DIDeviceInstance                    m_didi;
-    TVector<TRef<ValueDDInputObject > > m_vvalueObject;
-    TVector<TRef<ButtonDDInputObject> > m_vbuttonObject;
+    std::vector<TRef<ValueDDInputObject >>  m_vvalueObject;
+    std::vector<TRef<ButtonDDInputObject>>  m_vbuttonObject;
     Rect                                m_rect;
     Point                               m_point;
     float                               m_z;
@@ -394,7 +394,7 @@ public:
             //ZDebugOutput("MouseDZ: " + ZString(dz) + "\n");
             m_z += float(dz);
 
-            if (m_vvalueObject.GetCount() >= 3) {
+            if ((int)m_vvalueObject.size() >= 3) {
                 m_vvalueObject[0]->GetValue()->SetValue(m_z);
             }
         }
@@ -497,7 +497,7 @@ public:
         DeltaPosition(dx, dy);
         DeltaWheel(dz);
 
-        int count = m_vbuttonObject.GetCount();
+        int count = (int)m_vbuttonObject.size();
 
         for (int index = 0; index < count; index++) {
             bool               bDown = ((dims.rgbButtons[index] & 0x80) != 0);
@@ -585,17 +585,17 @@ public:
     
     int GetValueCount()
     {
-        return m_vvalueObject.GetCount();
+        return (int)m_vvalueObject.size();
     }
 
     int GetButtonCount()
     {
-        return m_vbuttonObject.GetCount();
+        return (int)m_vbuttonObject.size();
     }
 
     Boolean* IsDown(int id)
     {
-        if (id < m_vbuttonObject.GetCount()) {
+        if (id < (int)m_vbuttonObject.size()) {
             return m_vbuttonObject[id]->GetValue();
         } else {
             return NULL;
@@ -604,7 +604,7 @@ public:
 
     Number* GetValue(int id)
     {
-        if (id < m_vvalueObject.GetCount()) {
+        if (id < (int)m_vvalueObject.size()) {
             return m_vvalueObject[id]->GetValue();
         } else {
             return NULL;
@@ -628,8 +628,8 @@ private:
     TRef<IDirectInputDevice8>           m_pdid;
     DIDeviceCaps                        m_didc;
     DIDeviceInstance                    m_didi;
-    TVector<TRef<ValueDDInputObject > > m_vvalueObject;
-    TVector<TRef<ButtonDDInputObject> > m_vbuttonObject;
+    std::vector<TRef<ValueDDInputObject >>  m_vvalueObject;
+    std::vector<TRef<ButtonDDInputObject>>  m_vbuttonObject;
     BYTE*                               m_pbyteData;
     DWORD                               m_sizeData;
     bool                                m_bFocus;
@@ -676,9 +676,9 @@ public:
                 );
 
             if (index == -1) {
-                m_vvalueObject.PushEnd(pobject);
+                m_vvalueObject.push_back(pobject);
             } else {
-                m_vvalueObject.Set(index, pobject);
+                m_vvalueObject[index] = pobject;
             }
         } else if (pddoi->dwType & DIDFT_PSHBUTTON) {
             ButtonDDInputObject* pobject =
@@ -688,7 +688,7 @@ public:
                     pddoi->guidType
                 );
 
-            m_vbuttonObject.PushEnd(pobject);
+            m_vbuttonObject.push_back(pobject);
         } 
 
         return DIENUM_CONTINUE;
@@ -733,17 +733,17 @@ public:
         //
 
         int index;
-        int countValues = m_vvalueObject.GetCount();
+        int countValues = (int)m_vvalueObject.size();
 
         index = 0;
         while (index < countValues) {
             if (m_vvalueObject[index] == NULL) {
                 if (index != countValues - 1) {
-                    m_vvalueObject.Set(index, m_vvalueObject[countValues - 1]);
+                    m_vvalueObject[index] = m_vvalueObject[countValues - 1];
                 }
 
                 countValues--;
-                m_vvalueObject.SetCount(countValues);
+                m_vvalueObject.resize(countValues);
             } else {
                 index++;
             }
@@ -753,7 +753,7 @@ public:
         // Build the data format
         //
 
-        int countButtons = m_vbuttonObject.GetCount();
+        int countButtons = (int)m_vbuttonObject.size();
 
         m_sizeData  = NextMultipleOf(4, countValues * 4 + countButtons * 1);
 
@@ -825,7 +825,7 @@ public:
     {
         m_pdid->Unacquire();
 
-        int countValues  = m_vvalueObject.GetCount();
+        int countValues  = (int)m_vvalueObject.size();
 
         for (int index = 0; index < countValues; index++) {
             if (m_vvalueObject[index] != NULL) {
@@ -887,8 +887,8 @@ public:
                 // Unpack the data
                 //
 
-                int countValues  = m_vvalueObject.GetCount();
-                int countButtons = m_vbuttonObject.GetCount();
+                int countValues  = (int)m_vvalueObject.size();
+                int countButtons = (int)m_vbuttonObject.size();
 
                 int index;
                 for (index = 0; index < countValues; index++) {
@@ -1181,17 +1181,17 @@ public:
 
     int GetValueCount()
     {
-        return m_vvalueObject.GetCount();
+        return (int)m_vvalueObject.size();
     }
 
     int GetButtonCount()
     {
-        return m_vbuttonObject.GetCount();
+        return (int)m_vbuttonObject.size();
     }
 
     Boolean* IsDown(int id)
     {
-        if (id < m_vbuttonObject.GetCount()) {
+        if (id < (int)m_vbuttonObject.size()) {
             return m_vbuttonObject[id]->GetValue();
         } else {
             return NULL;
@@ -1200,7 +1200,7 @@ public:
 
     Number* GetValue(int id)
     {
-        if (id < m_vvalueObject.GetCount()) {
+        if (id < (int)m_vvalueObject.size()) {
             return m_vvalueObject[id]->GetValue();
         } else {
             return NULL;
@@ -1257,7 +1257,7 @@ private:
                     TRef<JoystickInputStreamImpl> pjoystickInputStream = 
                         new JoystickInputStreamImpl(pdid2, m_hwnd);
 
-                    m_vjoystickInputStream.PushEnd(pjoystickInputStream);
+                    m_vjoystickInputStream.push_back(pjoystickInputStream);
                 }
                 break;
         }
@@ -1287,7 +1287,7 @@ private:
     HWND                                    m_hwnd;
     bool                                    m_bFocus;
     TRef<IDirectInput8>                     m_pdi;
-    TVector<TRef<JoystickInputStreamImpl> > m_vjoystickInputStream;
+    std::vector<TRef<JoystickInputStreamImpl>>  m_vjoystickInputStream;
     TRef<MouseInputStreamImpl>              m_pmouseInputStream;
 
 public:
@@ -1343,7 +1343,7 @@ public:
         // Free up the old devices
         //
 
-        m_vjoystickInputStream.SetEmpty();
+        m_vjoystickInputStream.clear();
 
         //
         // Enumerate all of the devices
@@ -1359,14 +1359,14 @@ public:
 
     int GetJoystickCount()
     {
-        return m_vjoystickInputStream.GetCount();
+        return (int)m_vjoystickInputStream.size();
     }
 
     JoystickInputStream* GetJoystick(int index)
     {
         if (
                index >= 0
-            && index < m_vjoystickInputStream.GetCount()
+            && index < (int)m_vjoystickInputStream.size()
         ) {
             return m_vjoystickInputStream[index];
         } else {
@@ -1384,7 +1384,7 @@ public:
         if (m_bFocus) {
             m_pmouseInputStream->Update();
 
-            int count = m_vjoystickInputStream.GetCount();
+            int count = (int)m_vjoystickInputStream.size();
 
             for(int index = 0; index < count; index++) {
                 m_vjoystickInputStream[index]->Update();
@@ -1397,7 +1397,7 @@ public:
         if (m_bFocus != bFocus) {
             m_bFocus = bFocus;
 
-            int count = m_vjoystickInputStream.GetCount();
+            int count = (int)m_vjoystickInputStream.size();
 
             for(int index = 0; index < count; index++) {
                 m_vjoystickInputStream[index]->SetFocus(m_bFocus);

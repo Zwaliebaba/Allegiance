@@ -128,7 +128,7 @@ class  WinTrekClient :
         // Explosions
         //
 
-        TVector<TRef<AnimatedImage> > m_vpimageExplosion[8];
+        std::vector<TRef<AnimatedImage>>  m_vpimageExplosion[8];
         TRef<Image>                   m_pimageShockWave;
 
         TRef<AnimatedImage> LoadExplosion(const ZString& str);

@@ -545,14 +545,14 @@ public:
 
     int FindClosestValue(float fValue[], const char* szTableName[], int nLists)
     {
-        TVector<IObjectList*> plists; 
+        std::vector<IObjectList*> plists; 
         
         {
             for (int nList = 0; nList < nLists; nList++)
             {
                 IObjectList* plist; 
                 CastTo(plist, m_pns->FindMember(szTableName[nList]));
-                plists.PushEnd(plist);
+                plists.push_back(plist);
                 plists[nList]->GetFirst();
             }
         }

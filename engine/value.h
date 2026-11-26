@@ -69,7 +69,7 @@ class Value : public IObject {
 private:
     // vtable                             // 1 DWORD
     // m_count                            // 1 DWORD
-    TVector<TRef<Value> > m_pchildren;    // 2 DWORDS
+    std::vector<TRef<Value>>  m_pchildren;    // 2 DWORDS
     TList<Value*>         m_listParents;  // 3 DWORDS
     TRef<INameSpaceInfo>  m_pnsInfo;      // 1 DWORD
     bool                  m_bChanged;     // 1 DWORD
@@ -102,7 +102,7 @@ protected:
     void   AddChild(Value* pchild);
     void   SetChild(int index, Value* m_pvalueChild);
     Value* GetChild(int index) const { return m_pchildren[index];     }
-    int    GetChildCount()     const { return m_pchildren.GetCount(); }
+    int    GetChildCount()     const { return (int)m_pchildren.size(); }
 
 public:
     virtual ~Value();
@@ -668,7 +668,7 @@ public:
 template<class Type, class SetIndexType = DontSetIndex>
 class TLookup {
 public:
-    static void Parse(IObjectList* plist, int offset, TVector<TRef<Type> >& m_v)
+    static void Parse(IObjectList* plist, int offset, std::vector<TRef<Type>> & m_v)
     {
         int maxIndex = offset;
 
@@ -686,7 +686,7 @@ public:
             plist->GetNext();
         }
 
-        m_v.SetCount(maxIndex + 1);
+        m_v.resize(maxIndex + 1);
 
         plist->GetFirst();
         while (plist->GetCurrent() != NULL) {
@@ -696,7 +696,7 @@ public:
             TRef<Type>    pobject = (Type*)(ppair->GetSecond());
             int index = (int)pindex->GetValue() + offset;
 
-            m_v.Set(index, pobject);
+            m_v[index] = pobject;
             SetIndexType::SetIndex(pobject, index);
 
             plist->GetNext();

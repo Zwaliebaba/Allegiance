@@ -7,7 +7,27 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-typedef TStack<TRef<IObject> >      ObjectStack;
+//
+// The MDL evaluator's operand stack. Pop returns the value, which the
+// factories use in expressions (std::stack's pop returns nothing).
+//
+
+class ObjectStack {
+    std::vector<TRef<IObject>> m_vstack;
+
+public:
+    void Push(IObject* pobject) { m_vstack.push_back(pobject); }
+
+    TRef<IObject> Pop()
+    {
+        ZAssert(!m_vstack.empty());
+        TRef<IObject> pobject = m_vstack.back();
+        m_vstack.pop_back();
+        return pobject;
+    }
+
+    int GetCount() const { return (int)m_vstack.size(); }
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //

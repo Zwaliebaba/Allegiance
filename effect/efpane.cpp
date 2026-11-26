@@ -108,14 +108,14 @@ void GaugePane::Update(Time time)
 //
 //////////////////////////////////////////////////////////////////////////////
 
-void ParseIntVector(IObject* pobject, TVector<int>& vec)
+void ParseIntVector(IObject* pobject, std::vector<int>& vec)
 {
     IObjectList* plistVertices; CastTo(plistVertices, pobject);
 
     plistVertices->GetFirst();
 
     while (plistVertices->GetCurrent() != NULL) {
-        vec.PushEnd((int)GetNumber(plistVertices->GetCurrent()));
+        vec.push_back((int)GetNumber(plistVertices->GetCurrent()));
         plistVertices->GetNext();
     }
 }
@@ -126,14 +126,14 @@ void ParseIntVector(IObject* pobject, TVector<int>& vec)
 //
 //////////////////////////////////////////////////////////////////////////////
 
-void ParseFloatVector(IObject* pobject, TVector<float>& vec)
+void ParseFloatVector(IObject* pobject, std::vector<float>& vec)
 {
     IObjectList* plistVertices; CastTo(plistVertices, pobject);
 
     plistVertices->GetFirst();
 
     while (plistVertices->GetCurrent() != NULL) {
-        vec.PushEnd((float)GetNumber(plistVertices->GetCurrent()));
+        vec.push_back((float)GetNumber(plistVertices->GetCurrent()));
         plistVertices->GetNext();
     }
 }
@@ -144,14 +144,14 @@ void ParseFloatVector(IObject* pobject, TVector<float>& vec)
 //
 //////////////////////////////////////////////////////////////////////////////
 
-void ParseStringVector(IObject* pobject, TVector<ZString>& vec)
+void ParseStringVector(IObject* pobject, std::vector<ZString>& vec)
 {
     IObjectList* plistVertices; CastTo(plistVertices, pobject);
 
     plistVertices->GetFirst();
 
     while (plistVertices->GetCurrent() != NULL) {
-        vec.PushEnd(GetString(plistVertices->GetCurrent()));
+        vec.push_back(GetString(plistVertices->GetCurrent()));
         plistVertices->GetNext();
     }
 }
@@ -816,11 +816,11 @@ class HoverPaneColumns : public Pane {
 private:
     TRef<HoverSite> m_psite;
     float           m_id;
-	TVector<int>	m_vecColumns;
+	std::vector<int>	m_vecColumns;
 	float			m_startid;
 
 public:
-    HoverPaneColumns(HoverSite* psite, float id, Pane* ppane, TVector<int>& pvecColumns) :
+    HoverPaneColumns(HoverSite* psite, float id, Pane* ppane, std::vector<int>& pvecColumns) :
         Pane(ppane),
         m_psite(psite),
         m_id(id),
@@ -854,7 +854,7 @@ public:
 
 	void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside)
 	{
-		int count = m_vecColumns.GetCount();
+		int count = (int)m_vecColumns.size();
 		int xprev = 0;
 			
 		for (int index = 0; index < count; index++) {
@@ -873,7 +873,7 @@ public:
 	}
 };
 
-TRef<Pane> CreateHoverPaneColumns(HoverSite* psite, float id, Pane* ppane, TVector<int>& pvecColumns)
+TRef<Pane> CreateHoverPaneColumns(HoverSite* psite, float id, Pane* ppane, std::vector<int>& pvecColumns)
 {
     return new HoverPaneColumns(psite, id, ppane, pvecColumns);
 }
@@ -885,7 +885,7 @@ public:
         TRef<HoverSite>		psite;				CastTo(psite,			(IObject*)stack.Pop());
         TRef<Number>		pid;				CastTo(pid,				(IObject*)stack.Pop());
         TRef<Pane>          ppane;				CastTo(ppane,			(IObject*)stack.Pop());
-		TVector<int>		pvecColumns;
+		std::vector<int>		pvecColumns;
 		ParseIntVector((IObject*)stack.Pop(), pvecColumns);
 		
 

@@ -36,16 +36,16 @@ public:
 
     TRef<InputEngine>                       m_pinputEngine;
     TRef<JoystickImage>                     m_pjoystickImage;
-    TArray<TRef<Number>, countAxis>         m_ppnumberAxis;
+    std::array<TRef<Number>, countAxis>         m_ppnumberAxis;
 
     //
     // Joystick mapping
     //
 
-    TArray<TRef<Boolean>, TK_Max>           m_ppboolTrekKeyButtonDown;
-    TArray<bool         , TK_Max>           m_boolTrekKeyButtonDown;
+    std::array<TRef<Boolean>, TK_Max>           m_ppboolTrekKeyButtonDown;
+    std::array<bool         , TK_Max>           m_boolTrekKeyButtonDown;
 
-    TArray<TRef<ModifiableBoolean>, 4>      m_ppboolHatButton;
+    std::array<TRef<ModifiableBoolean>, 4>      m_ppboolHatButton;
 
     //
     // Keyboard mapping
@@ -53,17 +53,17 @@ public:
 
     bool                                    m_bFocus;
 
-    TArray<TrekKey, keyMax>                 m_KeyMap;
-    TArray<TrekKey, keyMax>                 m_ShiftKeyMap;
-    TArray<TrekKey, keyMax>                 m_ControlKeyMap;
-    TArray<TrekKey, keyMax>                 m_AltKeyMap;
-    TArray<TrekKey, keyMax>                 m_ControlShiftKeyMap;
-    TArray<TrekKey, keyMax>                 m_ShiftAltKeyMap;
-    TArray<TrekKey, keyMax>                 m_ControlAltKeyMap;
-    TArray<TrekKey, keyMax>                 m_ControlShiftAltKeyMap;
+    std::array<TrekKey, keyMax>                 m_KeyMap;
+    std::array<TrekKey, keyMax>                 m_ShiftKeyMap;
+    std::array<TrekKey, keyMax>                 m_ControlKeyMap;
+    std::array<TrekKey, keyMax>                 m_AltKeyMap;
+    std::array<TrekKey, keyMax>                 m_ControlShiftKeyMap;
+    std::array<TrekKey, keyMax>                 m_ShiftAltKeyMap;
+    std::array<TrekKey, keyMax>                 m_ControlAltKeyMap;
+    std::array<TrekKey, keyMax>                 m_ControlShiftAltKeyMap;
 
-    TArray<TRef<ModifiableBoolean>, keyMax> m_pboolKeyDown;
-    TArray<TRef<Boolean>,           TK_Max> m_pboolTrekKeyDown;
+    std::array<TRef<ModifiableBoolean>, keyMax> m_pboolKeyDown;
+    std::array<TRef<Boolean>,           TK_Max> m_pboolTrekKeyDown;
 
     TRef<Boolean>                           m_pboolNone;
     TRef<Boolean>                           m_pboolJustShift;
@@ -446,7 +446,7 @@ public:
             m_ppboolTrekKeyButtonDown[index] = NULL;
         }
 
-        for (index = 0; index < m_ppnumberAxis.GetCount(); index++) {
+        for (index = 0; index < (int)m_ppnumberAxis.size(); index++) {
             m_ppnumberAxis[index] = NULL;
         }
 
@@ -465,7 +465,7 @@ public:
                 int modifiers = (int)GetNumber(ppair->GetNth(1)    );
                 int tk        = (int)GetNumber(ppair->GetLastNth(2));
 
-                TArray<TrekKey, keyMax>* pptk;
+                std::array<TrekKey, keyMax>* pptk;
 
                 if (modifiers & ModifierShift) {
                     if (modifiers & ModifierControl) {
@@ -682,7 +682,7 @@ public:
             }
         
             plist->GetFirst();
-            for (int indexValueOutput = 0; indexValueOutput < m_ppnumberAxis.GetCount(); indexValueOutput++) {
+            for (int indexValueOutput = 0; indexValueOutput < (int)m_ppnumberAxis.size(); indexValueOutput++) {
                 TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
                 if (ppair) {
@@ -1724,7 +1724,7 @@ private:
             return str;
         }
 
-        void FillModifierMap(TArray<bool, 256>& pbNoModifiers)
+        void FillModifierMap(std::array<bool, 256>& pbNoModifiers)
         {
             TList<KeyMapping>::Iterator iter(m_listKeyMapping);
 
@@ -1739,7 +1739,7 @@ private:
             }
         }
 
-        void WriteKeyboardMapping(ZFile* pfile, int cmd, bool& bFirst, TArray<bool, 256>& pbNoModifiers)
+        void WriteKeyboardMapping(ZFile* pfile, int cmd, bool& bFirst, std::array<bool, 256>& pbNoModifiers)
         {
             {
                 TList<KeyMapping>::Iterator iter(m_listKeyMapping);
@@ -1892,9 +1892,9 @@ private:
     //////////////////////////////////////////////////////////////////////////////
 
     CommandMap                  m_pcommandMap[TK_Max];
-    TArray<Axis, countAxis>     m_paxis;
-    TVector<float>              m_vvalue;
-    TArray<bool, 256>           m_pbNoModifiers;
+    std::array<Axis, countAxis>     m_paxis;
+    std::vector<float>              m_vvalue;
+    std::array<bool, 256>           m_pbNoModifiers;
 
     TRef<Modeler>               m_pmodeler;
     TRef<InputEngine>           m_pinputEngine;
@@ -2152,7 +2152,7 @@ public:
             }
         
             plist->GetFirst();
-            for (int indexValueOutput = 0; indexValueOutput < m_paxis.GetCount(); indexValueOutput++) {
+            for (int indexValueOutput = 0; indexValueOutput < (int)m_paxis.size(); indexValueOutput++) {
                 TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
                 if (ppair) {
@@ -2267,7 +2267,7 @@ public:
         pfile->Write(ZString("numericValuesNew =\n"));
         pfile->Write(ZString("    [\n"          ));
 
-        for (index = 0; index < m_paxis.GetCount(); index++) {
+        for (index = 0; index < (int)m_paxis.size(); index++) {
             pfile->Write(
                    "        ("
                 + ZString(m_paxis[index].m_indexJoystick)
@@ -2276,7 +2276,7 @@ public:
                 + ")"
             );
 
-            if (index != m_paxis.GetCount() - 1) {
+            if (index != (int)m_paxis.size() - 1) {
                 pfile->Write(ZString(","));
             }
 
@@ -2370,7 +2370,7 @@ public:
             // Record the initial values of all the joystick axis
             //
 
-            m_vvalue.SetCount(0);
+            m_vvalue.resize(0);
 
             int countJoystick = m_pinputEngine->GetJoystickCount();
             for (int indexJoystick = 0; indexJoystick < countJoystick; indexJoystick++) {
@@ -2379,7 +2379,7 @@ public:
                 int count = pjoystick->GetValueCount();
 
                 for (int index = 0; index < count; index++) {
-                    m_vvalue.PushEnd(pjoystick->GetValue(index)->GetValue());
+                    m_vvalue.push_back(pjoystick->GetValue(index)->GetValue());
                 }
             }
             m_bEditing = true;
@@ -2496,7 +2496,7 @@ public:
 
     void RemoveAxisMapping(int indexJoystick, int indexValue)
     {
-        for (int index = 0; index < m_paxis.GetCount(); index++) {
+        for (int index = 0; index < (int)m_paxis.size(); index++) {
             if (
                    m_paxis[index].m_indexJoystick == indexJoystick
                 && m_paxis[index].m_indexValue    == indexValue
@@ -2513,7 +2513,7 @@ public:
         // See if the axis is already being used
         //
 
-        for (int index = 0; index < m_paxis.GetCount(); index++) {
+        for (int index = 0; index < (int)m_paxis.size(); index++) {
             if (
                    (m_paxis[index].m_indexJoystick == indexJoystick)
                 && (m_paxis[index].m_indexValue    == indexValue)
@@ -2668,7 +2668,7 @@ public:
 
     int GetCount()
     {
-        return g_nCommandInfo + m_paxis.GetCount();
+        return g_nCommandInfo + (int)m_paxis.size();
     }
 
     ItemID GetItem(int index)

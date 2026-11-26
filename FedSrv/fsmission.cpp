@@ -4534,8 +4534,12 @@ void Ballot::Cancel()
 void Ballot::CastVote(CFSPlayer* pfsPlayer, bool bVote)
 {
   // if they are in the list of valid voters
-  if (m_vShips.Remove(pfsPlayer->GetShipID()) != -1)
+  auto itShip = std::find(m_vShips.begin(), m_vShips.end(), pfsPlayer->GetShipID());
+
+  if (itShip != m_vShips.end())
   {
+    m_vShips.erase(itShip);
+
     SideID sideID = pfsPlayer->GetSide()->GetObjectID();
 
     assert(sideID >= 0);
@@ -4586,7 +4590,7 @@ void Ballot::Init(CFSPlayer* pfsInitiator, const ZString& strProposalName, const
   // add the players
   assert(pfsInitiator->GetSide());
   const ShipListIGC* shipsList = pfsInitiator->GetSide()->GetShips();
-  m_vShips.Reserve(shipsList->n());
+  m_vShips.reserve(shipsList->n());
   SideID sideIDInitiator = m_groupID;
 
   for (ShipLinkIGC* shipLink = shipsList->first(); shipLink; shipLink = shipLink->next())
@@ -4596,7 +4600,7 @@ void Ballot::Init(CFSPlayer* pfsInitiator, const ZString& strProposalName, const
     if (pfsShip->IsPlayer())
     {
       ++m_cAbstaining[sideIDInitiator];
-      m_vShips.PushEnd(pfsShip->GetShipID());
+      m_vShips.push_back(pfsShip->GetShipID());
     }
   }
 
@@ -4643,7 +4647,7 @@ void Ballot::Init(CFSSide* pfsideInitiator, const ZString& strProposalName, cons
 
   // add the players
   const ShipListIGC* shipsList = pfsideInitiator->GetMission()->GetIGCMission()->GetShips();
-  m_vShips.Reserve(shipsList->n());
+  m_vShips.reserve(shipsList->n());
   SideID sideIDInitiator = pfsideInitiator->GetSideIGC()->GetObjectID();
 
   assert(sideIDInitiator >= 0);
@@ -4656,7 +4660,7 @@ void Ballot::Init(CFSSide* pfsideInitiator, const ZString& strProposalName, cons
     if (pfsShip->IsPlayer() && pside->GetActiveF() && sideIDPlayer >= 0 && sideIDPlayer != sideIDInitiator)
     {
       ++m_cAbstaining[sideIDPlayer];
-      m_vShips.PushEnd(pfsShip->GetShipID());
+      m_vShips.push_back(pfsShip->GetShipID());
     }
   }
 

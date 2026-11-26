@@ -824,8 +824,10 @@ public:
     // draw all the connecting lines for warps
     {
       const WarpListIGC* warps = trekClient.m_pCoreIGC->GetWarps();
-      TVector<VertexL> vertices(warps->n(), 0);
-      TVector<WORD> indices(warps->n(), 0);
+      std::vector<VertexL> vertices;
+      std::vector<WORD> indices;
+      vertices.reserve(warps->n());
+      indices.reserve(warps->n());
 
       for (WarpLinkIGC* warpLink = warps->first(); warpLink != nullptr; warpLink = warpLink->next())
       {
@@ -838,14 +840,14 @@ public:
           WinPoint point1 = GetClusterPoint(pWarp->GetCluster());
           WinPoint point2 = GetClusterPoint(pwarpDestination->GetCluster());
 
-          indices.PushEnd(vertices.GetCount());
-          vertices.PushEnd(VertexL(Vector(point1.x, point1.y, 0), colorWarp));
-          indices.PushEnd(vertices.GetCount());
-          vertices.PushEnd(VertexL(Vector(point2.x, point2.y, 0), colorWarp));
+          indices.push_back((int)vertices.size());
+          vertices.push_back(VertexL(Vector(point1.x, point1.y, 0), colorWarp));
+          indices.push_back((int)vertices.size());
+          vertices.push_back(VertexL(Vector(point2.x, point2.y, 0), colorWarp));
         }
       }
 
-      if (vertices.GetCount() != 0)
+      if ((int)vertices.size() != 0)
       {
         pcontext->SetLineWidth(1.0f);
         pcontext->DrawLines(vertices, indices);

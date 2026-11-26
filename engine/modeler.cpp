@@ -1484,8 +1484,8 @@ public:
         TRef<IObjectList> plistVertices; CastTo(plistVertices, (IObject*)stack.Pop());
         TRef<IObjectList> plistIndices;  CastTo(plistIndices,  (IObject*)stack.Pop() );
 
-        TVector<Vertex> vertices;
-        TVector<WORD> indices;
+        std::vector<Vertex> vertices;
+        std::vector<WORD> indices;
 
         plistVertices->GetFirst();
 
@@ -1501,7 +1501,7 @@ public:
             float tx = GetNumber(plistVertices->GetNext());
             float ty = GetNumber(plistVertices->GetNext());
 
-            vertices.PushEnd(Vertex(x, y, z, nx, ny, nz, tx,ty));
+            vertices.push_back(Vertex(x, y, z, nx, ny, nz, tx,ty));
 
             plistVertices->GetNext();
         }
@@ -1509,7 +1509,7 @@ public:
         plistIndices->GetFirst();
 
         while (plistIndices->GetCurrent() != NULL) {
-            indices.PushEnd((WORD)GetNumber(plistIndices->GetCurrent()));
+            indices.push_back((WORD)GetNumber(plistIndices->GetCurrent()));
             plistIndices->GetNext();
         }
 

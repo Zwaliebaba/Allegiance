@@ -9,7 +9,7 @@
 class MineFieldGeoImpl : public MineFieldGeo {
 private:
     TRef<Surface>   m_psurface;
-    TVector<Vector> m_vposition;
+    std::vector<Vector> m_vposition;
     float           m_radius;
 
     static int  GetCount(float strength, float radius)
@@ -23,8 +23,8 @@ public:
         m_vposition(GetCount(strength, radius)),
         m_radius(radius)
     {
-        for (int index = 0; index < m_vposition.GetCount(); index++) {
-            m_vposition.Set(index, Vector::RandomPosition(radius));
+        for (int index = 0; index < (int)m_vposition.size(); index++) {
+            m_vposition[index] = Vector::RandomPosition(radius);
         }
     }
 
@@ -38,9 +38,9 @@ public:
     {
         int count = GetCount(strength, m_radius);
 
-        ZAssert(count <= m_vposition.GetCount());
+        ZAssert(count <= (int)m_vposition.size());
 
-        m_vposition.SetCount(count);
+        m_vposition.resize(count);
         Changed();        
     }
 
@@ -63,7 +63,7 @@ public:
         if (bright > 0) {
             Color  color(bright, bright, bright);
 
-            int count = m_vposition.GetCount();
+            int count = (int)m_vposition.size();
 
             for (int index = 0; index < count; index++) {
                 pcontext->DrawDecal(
@@ -239,20 +239,14 @@ TRef<BuildEffectGeo> CreateBuildEffectGeo(
 
 class WireSphereGeo : public Geo {
 private:
-    TVector<VertexL>   m_vertices;
-    TVector<MeshIndex> m_indices;
+    std::vector<VertexL>   m_vertices;
+    std::vector<MeshIndex> m_indices;
 
     static const int vSegments;
 public:
     WireSphereGeo(float minDot, int hSegments) :
-        m_vertices(
-            hSegments * (vSegments - 1),
-            hSegments * (vSegments - 1)
-        ),
-        m_indices(
-            2 * hSegments * (vSegments * 2 - 3),
-            2 * hSegments * (vSegments * 2 - 3)
-        )
+        m_vertices(hSegments * (vSegments - 1)),
+        m_indices(2 * hSegments * (vSegments * 2 - 3))
     {
         //
         // Create the vertex array
@@ -277,9 +271,7 @@ public:
 
                 static const float intensity = 1.0f;
 
-                m_vertices.Set(
-                    index,
-                    VertexL(
+                m_vertices[index] = VertexL(
                         1000 * x,
                         1000 * y,
                         1000 * z,
@@ -289,8 +281,7 @@ public:
                         1,
                         0,
                         0
-                    )
-                );
+                    );
             }
         }
 
@@ -302,10 +293,10 @@ public:
 
         for (vIndex = 0; vIndex < vSegments - 2; vIndex++) {
             for (hIndex = 0; hIndex < hSegments; hIndex++) {
-                m_indices.Set(index    ,       vIndex * hSegments + hIndex);
-                m_indices.Set(index + 1, (vIndex + 1) * hSegments + hIndex);
-                ZAssert(m_indices[index    ] >= 0 && m_indices[index    ] < m_vertices.GetCount());
-                ZAssert(m_indices[index + 1] >= 0 && m_indices[index + 1] < m_vertices.GetCount());
+                m_indices[index] = vIndex * hSegments + hIndex;
+                m_indices[index + 1] = (vIndex + 1) * hSegments + hIndex;
+                ZAssert(m_indices[index    ] >= 0 && m_indices[index    ] < (int)m_vertices.size());
+                ZAssert(m_indices[index + 1] >= 0 && m_indices[index + 1] < (int)m_vertices.size());
                 index += 2;
             }
         }
@@ -316,19 +307,17 @@ public:
 
         for (vIndex = 0; vIndex < vSegments - 1; vIndex++) {
             for (hIndex = 0; hIndex < hSegments; hIndex++) {
-                m_indices.Set(index, vIndex * hSegments + hIndex);
-                m_indices.Set(index + 1,
-                    hIndex == hSegments - 1 ?
+                m_indices[index] = vIndex * hSegments + hIndex;
+                m_indices[index + 1] = hIndex == hSegments - 1 ?
                           vIndex * hSegments
-                        : vIndex * hSegments + hIndex + 1
-                );
-                ZAssert(m_indices[index    ] >= 0 && m_indices[index    ] < m_vertices.GetCount());
-                ZAssert(m_indices[index + 1] >= 0 && m_indices[index + 1] < m_vertices.GetCount());
+                        : vIndex * hSegments + hIndex + 1;
+                ZAssert(m_indices[index    ] >= 0 && m_indices[index    ] < (int)m_vertices.size());
+                ZAssert(m_indices[index + 1] >= 0 && m_indices[index + 1] < (int)m_vertices.size());
                 index += 2;
             }
         }
 
-        ZAssert(index == m_indices.GetCount());
+        ZAssert(index == (int)m_indices.size());
     }
 
     void Render(Context* pcontext)
@@ -482,8 +471,8 @@ const float timeDelta = 0.5f;
 
 class TrailGeo : public Geo, public IGeoCallback {
 private:
-    TVector<VertexL>   m_vertices;
-    TVector<MeshIndex> m_indices;
+    std::vector<VertexL>   m_vertices;
+    std::vector<MeshIndex> m_indices;
     int                m_section;
     float              m_timeLast;
     Color              m_color;
@@ -507,8 +496,8 @@ public:
         Geo(ptime, pvectorPosition, pvectorRight, pbooleanMoving),
         m_color(color),
         m_vecRightLast(pvectorRight->GetValue()),
-        m_vertices((maxSections + 1) * 2, (maxSections + 1) * 2),
-        m_indices(maxSections * 6, maxSections * 6),
+        m_vertices((maxSections + 1) * 2),
+        m_indices(maxSections * 6),
         m_section(0),
         m_timeLast(-1)
     {
@@ -520,19 +509,19 @@ public:
             int indexVertex = index * 2;
             int indexIndex  = index * 6;
 
-            m_indices.Set(indexIndex + 0, indexVertex + 0);
-            m_indices.Set(indexIndex + 1, indexVertex + 2);
-            m_indices.Set(indexIndex + 2, indexVertex + 3);
+            m_indices[indexIndex + 0] = indexVertex + 0;
+            m_indices[indexIndex + 1] = indexVertex + 2;
+            m_indices[indexIndex + 2] = indexVertex + 3;
 
-            m_indices.Set(indexIndex + 3, indexVertex + 0);
-            m_indices.Set(indexIndex + 4, indexVertex + 3);
-            m_indices.Set(indexIndex + 5, indexVertex + 1);
+            m_indices[indexIndex + 3] = indexVertex + 0;
+            m_indices[indexIndex + 4] = indexVertex + 3;
+            m_indices[indexIndex + 5] = indexVertex + 1;
         }
 
-        int count = m_vertices.GetCount();
+        int count = (int)m_vertices.size();
         for(index = 0; index < count; index += 2) {
-            m_vertices.Get(index    ).SetTextureCoordinate(Point(0, 0));
-            m_vertices.Get(index + 1).SetTextureCoordinate(Point(1, 0));
+            m_vertices[index    ].SetTextureCoordinate(Point(0, 0));
+            m_vertices[index + 1].SetTextureCoordinate(Point(1, 0));
         }
     }
 
@@ -552,8 +541,8 @@ public:
                     bright = 0;
                 }
 
-                m_vertices.Get(index * 2    ).SetColor(color);
-                m_vertices.Get(index * 2 + 1).SetColor(color);
+                m_vertices[index * 2    ].SetColor(color);
+                m_vertices[index * 2 + 1].SetColor(color);
             }
         }
     }
@@ -577,7 +566,7 @@ public:
                     }
 
                     for(int index = m_section * 2 + 1; index > 1; index--) {
-                        m_vertices.Set(index, m_vertices[index - 2]);
+                        m_vertices[index] = m_vertices[index - 2];
                     }
                 }
             }
@@ -586,8 +575,8 @@ public:
                 m_vecRightLast = vecRight;
             }
 
-            m_vertices.Get(0).SetPosition(vecPos - m_vecRightLast);
-            m_vertices.Get(1).SetPosition(vecPos + m_vecRightLast);
+            m_vertices[0].SetPosition(vecPos - m_vecRightLast);
+            m_vertices[1].SetPosition(vecPos + m_vecRightLast);
 
             UpdateColors(time);
         }

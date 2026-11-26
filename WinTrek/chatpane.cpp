@@ -15,7 +15,7 @@ private:
 
     LONG_PTR                m_lData;
     ChatInfo*           m_pchatInfo;
-    TVector<ZString>    m_vMsgLines;
+    std::vector<ZString>    m_vMsgLines;
     WinPoint            m_ptLineSize;
     
 public:
@@ -42,17 +42,17 @@ public:
             {
                 // put a blank line without the character
                 nStrLenLine = 3;
-                m_vMsgLines.PushEnd("");
+                m_vMsgLines.push_back("");
             }
             else
             {
-                m_vMsgLines.PushEnd(strMsg.Left(nStrLenLine));
+                m_vMsgLines.push_back(strMsg.Left(nStrLenLine));
             }
             strMsg = "  " + strMsg.RightOf(nStrLenLine);
             nStrLenLeft -= nStrLenLine - 2;
             ZAssert(strMsg.GetLength() == nStrLenLeft);
         }
-        m_vMsgLines.PushEnd(strMsg);
+        m_vMsgLines.push_back(strMsg);
     }
 
     ~ChatListItem()
@@ -62,7 +62,7 @@ public:
 
     short GetItemHeight()
     {
-        return m_vMsgLines.GetCount();
+        return (int)m_vMsgLines.size();
     }
 
     LONG_PTR GetItemData()
@@ -90,7 +90,7 @@ public:
         WinPoint pt(rect.Min() + WinPoint(3,3));
         for (
             int i = iFirstSlot; 
-            i < m_vMsgLines.GetCount() && pt.Y() < rect.YMax(); 
+            i < (int)m_vMsgLines.size() && pt.Y() < rect.YMax(); 
             i++
         ) {
             pSurface->DrawString(pfont, m_pchatInfo->GetColor(), pt, m_vMsgLines[i]);

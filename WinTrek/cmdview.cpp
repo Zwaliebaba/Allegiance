@@ -12,14 +12,8 @@ float xMin, float yMin,
 */
 CommandGeo::CommandGeo(float radius, float zGrid, int nSegments)
 :
-        m_vertices(
-            4 * (nSegments + 1),
-            4 * (nSegments + 1)
-        ),
-        m_indices(
-            4 * (nSegments + 1),
-            4 * (nSegments + 1)
-        ),
+        m_vertices(4 * (nSegments + 1)),
+        m_indices(4 * (nSegments + 1)),
         m_zGrid(zGrid)
 {
     int index = 0;
@@ -35,10 +29,8 @@ CommandGeo::CommandGeo(float radius, float zGrid, int nSegments)
         const Color& color = (segment%5 == 0) ? s_colorGridMajor : s_colorGrid;
         
         //Vertical lines
-        m_indices.Set(index, index);
-        m_vertices.Set(
-            index, 
-            VertexL(
+        m_indices[index] = index;
+        m_vertices[index] = VertexL(
                 x,
                 yMin,
                 zGrid,
@@ -48,14 +40,11 @@ CommandGeo::CommandGeo(float radius, float zGrid, int nSegments)
                 1,
                 0,
                 0
-            )
-        );
+            );
         index++;
         
-        m_indices.Set(index, index);
-        m_vertices.Set(
-            index,
-            VertexL(
+        m_indices[index] = index;
+        m_vertices[index] = VertexL(
                 x,
                 yMax,
                 zGrid,
@@ -65,15 +54,12 @@ CommandGeo::CommandGeo(float radius, float zGrid, int nSegments)
                 1,
                 0,
                 0
-            )
-        );
+            );
         index++;
 
         //Horizontal lines
-        m_indices.Set(index, index);
-        m_vertices.Set(
-            index,
-            VertexL(
+        m_indices[index] = index;
+        m_vertices[index] = VertexL(
                 yMin,
                 x,
                 zGrid,
@@ -83,14 +69,11 @@ CommandGeo::CommandGeo(float radius, float zGrid, int nSegments)
                 1,
                 0,
                 0
-            )
-        );
+            );
         index++;
         
-        m_indices.Set(index, index);
-        m_vertices.Set(
-            index,
-            VertexL(
+        m_indices[index] = index;
+        m_vertices[index] = VertexL(
                 yMax,
                 x,
                 zGrid,
@@ -100,12 +83,11 @@ CommandGeo::CommandGeo(float radius, float zGrid, int nSegments)
                 1,
                 0,
                 0
-            )
-        );
+            );
         index++;
     }
 
-    ZAssert(index == m_indices.GetCount());
+    ZAssert(index == (int)m_indices.size());
 }
 
 void CommandGeo::DrawShips(Context* pcontext)
@@ -114,8 +96,8 @@ void CommandGeo::DrawShips(Context* pcontext)
     assert (m_pcluster);
 
     int                 index = 0;
-    TVector<VertexL>    vertices;
-    TVector<WORD>       indices;
+    std::vector<VertexL>    vertices;
+    std::vector<WORD>       indices;
     const ModelListIGC* models = m_pcluster->GetPickableModels();
 
     assert (models);
@@ -157,8 +139,8 @@ void CommandGeo::DrawShips(Context* pcontext)
                     // Add a drop line for the ship
                     const Color& color = vecPosition.Z() > m_zGrid ? s_colorDropLineUp : s_colorDropLineDown;
 
-                    indices.PushEnd(index);
-                    vertices.PushEnd(VertexL(
+                    indices.push_back(index);
+                    vertices.push_back(VertexL(
                                 vecPosition.X(),
                                 vecPosition.Y(),
                                 vecPosition.Z(),
@@ -171,8 +153,8 @@ void CommandGeo::DrawShips(Context* pcontext)
                             ));
                     index++;
 
-                    indices.PushEnd(index);
-                    vertices.PushEnd(VertexL(
+                    indices.push_back(index);
+                    vertices.push_back(VertexL(
                                 vecPosition.X(),
                                 vecPosition.Y(),
                                 m_zGrid,
@@ -188,8 +170,8 @@ void CommandGeo::DrawShips(Context* pcontext)
                     // add some feet
                     static int sizeFeet = 15;
                 
-                    indices.PushEnd(index);
-                    vertices.PushEnd(VertexL(
+                    indices.push_back(index);
+                    vertices.push_back(VertexL(
                                 vecPosition.X()+sizeFeet,
                                 vecPosition.Y(),
                                 m_zGrid,
@@ -202,8 +184,8 @@ void CommandGeo::DrawShips(Context* pcontext)
                             ));
                     index++;
 
-                    indices.PushEnd(index);
-                    vertices.PushEnd(VertexL(
+                    indices.push_back(index);
+                    vertices.push_back(VertexL(
                                 vecPosition.X()-sizeFeet,
                                 vecPosition.Y(),
                                 m_zGrid,
@@ -216,8 +198,8 @@ void CommandGeo::DrawShips(Context* pcontext)
                             ));
                     index++;
 
-                    indices.PushEnd(index);
-                    vertices.PushEnd(VertexL(
+                    indices.push_back(index);
+                    vertices.push_back(VertexL(
                                 vecPosition.X(),
                                 vecPosition.Y()+sizeFeet,
                                 m_zGrid,
@@ -230,8 +212,8 @@ void CommandGeo::DrawShips(Context* pcontext)
                             ));
                     index++;
 
-                    indices.PushEnd(index);
-                    vertices.PushEnd(VertexL(
+                    indices.push_back(index);
+                    vertices.push_back(VertexL(
                                 vecPosition.X(),
                                 vecPosition.Y()-sizeFeet,
                                 m_zGrid,

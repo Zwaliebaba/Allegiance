@@ -134,7 +134,7 @@ private:
     TRef<ComboFacePane>          m_pface;
     TRef<IPopupContainer>        m_ppopupContainer;
     bool                         m_bFirstItem;
-    TVector<ZString>             m_vstrItems;
+    std::vector<ZString>             m_vstrItems;
     int                          m_idSelection;
     bool                         m_bEnabled;
     bool                         m_bInside;
@@ -216,7 +216,7 @@ public:
     {
         m_bFirstItem = true;
         m_idSelection = 0;
-        m_vstrItems.SetEmpty();
+        m_vstrItems.clear();
 
         m_pmenu =
             CreateMenu(
@@ -235,7 +235,7 @@ public:
             m_pface->SetString(pitem->GetString());
             m_pface->SetColor(pitem->GetColor());
         }
-        m_vstrItems.PushEnd(str);
+        m_vstrItems.push_back(str);
 
         return pitem;
     }

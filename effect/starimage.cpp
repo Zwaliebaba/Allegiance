@@ -16,7 +16,7 @@ class StarImageImpl : public StarImage {
         Color  m_color;
     };
 
-    TVector<StarData> m_data;
+    std::vector<StarData> m_data;
 
     Viewport*  GetViewport() { return Viewport::Cast(GetChild(0));  }
     Camera*    GetCamera()   { return GetViewport()->GetCamera();   }
@@ -32,7 +32,7 @@ public:
     void SetCount(unsigned int seed, short count)
     {
         count = count * 4;
-        m_data.SetCount(count);
+        m_data.resize(count);
 
         srand(seed);
 
@@ -41,7 +41,7 @@ public:
             // Allocate star positions with a nice uniform density
             //
 
-            StarData& data = m_data.Get(index);
+            StarData& data = m_data[index];
 
             data.m_direction = Vector::RandomDirection();
             data.m_bFirstFrame = true;
@@ -54,7 +54,7 @@ public:
 
     void Render(Context* pcontext)
     {
-        int count = m_data.GetCount();
+        int count = (int)m_data.size();
 
         if (count > 0) {
                   Camera* pcamera = GetCamera();
@@ -73,7 +73,7 @@ public:
             int index      = 0;
             int indexPoint = count * 2;
             for(int indexSource = 0; indexSource < count; indexSource++) {
-                StarData& data      = m_data.Get(indexSource);
+                StarData& data      = m_data[indexSource];
                 Color&    color     = data.m_color;
                 Vector&   direction = data.m_direction;
                 Point&    pointOld  = data.m_pointOld;

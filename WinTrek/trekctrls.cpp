@@ -209,7 +209,7 @@ private:
     TRef<Image> m_pImageBkgndSel;
     WinPoint    m_ptImgOrigin;
 
-    TVector<TRef<ListItem> > m_vItems;
+    std::vector<TRef<ListItem>>  m_vItems;
 
 public:
     ListPaneOldImpl(WinPoint size, int nItemHeight, bool bScroll, Pane* ppane) :
@@ -282,7 +282,7 @@ public:
 
     int GetCountItems()
     {
-        return m_vItems.GetCount();
+        return (int)m_vItems.size();
     }
 
     IIntegerEventSource* GetEventSource()
@@ -320,7 +320,7 @@ public:
     void InsertItem(int iItem, ListItem* pListItem)
     {
         for (int i = 0; i < pListItem->GetItemHeight(); i++) {
-            m_vItems.Insert(iItem, pListItem);
+            m_vItems.insert(m_vItems.begin() + iItem, pListItem);
         }
 
         if (iItem <= m_iSelItem) {
@@ -328,7 +328,7 @@ public:
         }
 
         if (m_pScrollPane) {
-            m_pScrollPane->SetSize(m_vItems.GetCount());
+            m_pScrollPane->SetSize((int)m_vItems.size());
             if (iItem <= m_iTopItem) {
                 m_pScrollPane->SetPos(m_iTopItem + pListItem->GetItemHeight());
             }
@@ -338,7 +338,7 @@ public:
 
     int AppendItem(ListItem* pListItem)
     {
-        int iItem = m_vItems.GetCount();
+        int iItem = (int)m_vItems.size();
         InsertItem(iItem, pListItem);
         return iItem;
     }
@@ -362,8 +362,8 @@ public:
             // now remove all the matching items
 
             TRef<ListItem> pListItem = m_vItems[iItem];
-            while (iItem < m_vItems.GetCount() && m_vItems[iItem] == pListItem) {
-                m_vItems.Remove(iItem);
+            while (iItem < (int)m_vItems.size() && m_vItems[iItem] == pListItem) {
+                m_vItems.erase(m_vItems.begin() + iItem);
                 numRemoved++;
             }
                 
@@ -377,13 +377,13 @@ public:
                 // save the old top item, because shrinking the scroll pane could change it
                 int iOldTopItem = m_iTopItem;
 
-                m_pScrollPane->SetSize(m_vItems.GetCount());
+                m_pScrollPane->SetSize((int)m_vItems.size());
                 
                 if (iItem < iOldTopItem) {
                     SetScrollPosition(max(iOldTopItem - numRemoved, 0));
                 } else {
                     SetScrollPosition(min(iOldTopItem, 
-                        max(m_vItems.GetCount() - m_cVisibleItems, 0)));
+                        max((int)m_vItems.size() - m_cVisibleItems, 0)));
                 }
             }
             NeedPaint();
@@ -397,9 +397,9 @@ public:
 
     void RemoveAll()
     {
-        m_vItems.SetEmpty();
+        m_vItems.clear();
         if (m_pScrollPane) {
-            m_pScrollPane->SetSize(m_vItems.GetCount());
+            m_pScrollPane->SetSize((int)m_vItems.size());
             m_pScrollPane->SetPos(0);
         }
         SetSelItemByIdx(-1);
@@ -432,7 +432,7 @@ public:
     void UpdateAll()
     {
         bool bNeedPaint = false;
-        for (int iItem = 0; iItem < m_vItems.GetCount(); 
+        for (int iItem = 0; iItem < (int)m_vItems.size(); 
                     iItem += m_vItems[iItem]->GetItemHeight())
             {
             if (m_vItems[iItem]->Update())
@@ -451,8 +451,8 @@ public:
     {
         if (iItem < 0)
             iItem = -1;
-        if (iItem >= m_vItems.GetCount())
-            iItem = m_vItems.GetCount() - 1;
+        if (iItem >= (int)m_vItems.size())
+            iItem = (int)m_vItems.size() - 1;
 
         // find the first matching item
         while (iItem >= 1 && m_vItems[iItem-1] == m_vItems[iItem])
@@ -481,7 +481,7 @@ public:
 
     TRef<ListItem>  GetItemByIdx(long iItem)
     {
-        if ((-1 >= iItem) || (iItem >= m_vItems.GetCount()))
+        if ((-1 >= iItem) || (iItem >= (int)m_vItems.size()))
             return NULL;
         else
             return m_vItems[iItem];
@@ -494,7 +494,7 @@ public:
 
     int GetItemIdx(ListItem* pListItem)
     {
-        int cItems = m_vItems.GetCount();
+        int cItems = (int)m_vItems.size();
         for (int iItem = 0; iItem < cItems; iItem++)
             {
             if (m_vItems[iItem] == pListItem)
@@ -505,7 +505,7 @@ public:
     
     int GetItemIdxByData(LONG_PTR lItemData)
     {
-        int cItems = m_vItems.GetCount();
+        int cItems = (int)m_vItems.size();
         for (int iItem = 0; iItem < cItems; iItem++)
             {
             if (m_vItems[iItem]->GetItemData() == lItemData)
@@ -533,8 +533,8 @@ public:
     {
         m_iTopItem = iPosition;
 
-        if (m_iTopItem > (m_vItems.GetCount() - m_cVisibleItems)) {
-            m_iTopItem = max(0, m_vItems.GetCount() - m_cVisibleItems);
+        if (m_iTopItem > ((int)m_vItems.size() - m_cVisibleItems)) {
+            m_iTopItem = max(0, (int)m_vItems.size() - m_cVisibleItems);
         }
 
         if (m_iTopItem < 0) {
@@ -550,20 +550,20 @@ public:
 
     void ScrollToItemByIdx(int iItem)
     {        
-        if (m_vItems.GetCount() == 0)
+        if ((int)m_vItems.size() == 0)
             {
             // nothing to do
             return;
             }
 
-        ZAssert((iItem == 0) || ((iItem > 0) && (iItem < m_vItems.GetCount())));
+        ZAssert((iItem == 0) || ((iItem > 0) && (iItem < (int)m_vItems.size())));
 
         // find the first and last matching item
         int iTop, iBottom;
         iTop = iBottom = iItem;
         while (iTop > 0 && m_vItems[iTop-1] == m_vItems[iTop])
             iTop--;
-        while (iBottom < m_vItems.GetCount()-1 && m_vItems[iBottom+1] == m_vItems[iBottom])
+        while (iBottom < (int)m_vItems.size()-1 && m_vItems[iBottom+1] == m_vItems[iBottom])
             iBottom++;
 
         if (iBottom > LastVisibleItem())
@@ -594,7 +594,7 @@ public:
 
     void ScrollBottom()
     {
-        SetScrollPosition(m_vItems.GetCount() - m_cVisibleItems);
+        SetScrollPosition((int)m_vItems.size() - m_cVisibleItems);
     }
 
     bool IsItemVisible(ListItem* pListItem)
@@ -621,7 +621,7 @@ public:
                 if (bDown) 
                     {
                     int iItem = PointToIdx(point);
-                    if (iItem < m_vItems.GetCount())
+                    if (iItem < (int)m_vItems.size())
                         {
                         m_bMouseSel = true; 
                         SetSelItemByIdx(iItem);
@@ -639,7 +639,7 @@ public:
         if (point.X() < m_pBlankPane->GetSize().X() && point.X() > 0)
             {
             int iItem = PointToIdx(point);
-            if (iItem < m_vItems.GetCount())
+            if (iItem < (int)m_vItems.size())
                 {
                 m_pMouseOverEventSource->Trigger(iItem);
                 }
@@ -720,7 +720,7 @@ private:
 
         // calc num Items to draw
         int iLastVisibleItem = LastVisibleItem();
-        int iLastItem = m_vItems.GetCount() - 1;
+        int iLastItem = (int)m_vItems.size() - 1;
         if (iLastVisibleItem > iLastItem)
             iLastVisibleItem = iLastItem;
 
@@ -733,7 +733,7 @@ private:
         // count the number of slots for the first item which we are not drawing
         int nNumHiddenSlots = 0;
         
-        if (m_vItems.GetCount() > 0)
+        if ((int)m_vItems.size() > 0)
             {
             while (m_iTopItem - nNumHiddenSlots > 0 
                 && m_vItems[m_iTopItem - (nNumHiddenSlots + 1)] == m_vItems[m_iTopItem])

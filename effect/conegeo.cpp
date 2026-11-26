@@ -13,8 +13,8 @@ class ConeGeo :
     public Geo
 {
 private:
-    TVector<Vertex>    m_vvertex;
-    TVector<MeshIndex> m_vindex;
+    std::vector<Vertex>    m_vvertex;
+    std::vector<MeshIndex> m_vindex;
     TRef<Material>     m_pmaterial;
     
     float GetAngle() { return Number::Cast(GetChild(0))->GetValue(); }
@@ -33,8 +33,8 @@ public:
 
     void InitializeVertices()
     {
-        m_vvertex.Set(0, Vertex(Vector(0, 0, 1), Vector(0, 0,  1)));
-        m_vvertex.Set(1, Vertex(Vector(0, 0, 0), Vector(0, 0, -1)));
+        m_vvertex[0] = Vertex(Vector(0, 0, 1), Vector(0, 0,  1));
+        m_vvertex[1] = Vertex(Vector(0, 0, 0), Vector(0, 0, -1));
 
         float angle = GetAngle();
 
@@ -47,9 +47,7 @@ public:
             for (int hIndex = 0; hIndex < g_hSegments; hIndex++) {
                 float hAngle = 2 * pi * hIndex / g_hSegments;
 
-                m_vvertex.Set(
-                    index + hIndex,
-                    Vertex(
+                m_vvertex[index + hIndex] = Vertex(
                         Vector(
                             radius * cos(hAngle), 
                             radius * sin(hAngle), 
@@ -60,8 +58,7 @@ public:
                             radius * sin(hAngle), 
                             z
                         )
-                    )
-                );
+                    );
             }
         }
     }
@@ -83,9 +80,9 @@ public:
                     ? (1 - g_hSegments) 
                     : 1;
 
-                m_vindex.Set(indexIndex + 0, 0);
-                m_vindex.Set(indexIndex + 1, indexVertex + hIndex + delta);
-                m_vindex.Set(indexIndex + 2, indexVertex + hIndex        );
+                m_vindex[indexIndex + 0] = 0;
+                m_vindex[indexIndex + 1] = indexVertex + hIndex + delta;
+                m_vindex[indexIndex + 2] = indexVertex + hIndex;
 
                 indexIndex += 3;
             }
@@ -104,13 +101,13 @@ public:
                     ? (1 - g_hSegments) 
                     : 1;
 
-                m_vindex.Set(indexIndex + 0, indexVertex + hIndex                      );
-                m_vindex.Set(indexIndex + 1, indexVertex + hIndex + g_hSegments + delta);
-                m_vindex.Set(indexIndex + 2, indexVertex + hIndex + g_hSegments        );
+                m_vindex[indexIndex + 0] = indexVertex + hIndex;
+                m_vindex[indexIndex + 1] = indexVertex + hIndex + g_hSegments + delta;
+                m_vindex[indexIndex + 2] = indexVertex + hIndex + g_hSegments;
                                             
-                m_vindex.Set(indexIndex + 3, indexVertex + hIndex                      );
-                m_vindex.Set(indexIndex + 4, indexVertex + hIndex               + delta);
-                m_vindex.Set(indexIndex + 5, indexVertex + hIndex + g_hSegments + delta);
+                m_vindex[indexIndex + 3] = indexVertex + hIndex;
+                m_vindex[indexIndex + 4] = indexVertex + hIndex               + delta;
+                m_vindex[indexIndex + 5] = indexVertex + hIndex + g_hSegments + delta;
 
                 indexIndex += 6;
             }
@@ -129,9 +126,9 @@ public:
                     ? (1 - g_hSegments) 
                     : 1;
 
-                m_vindex.Set(indexIndex + 0, 1);
-                m_vindex.Set(indexIndex + 1, indexVertex + hIndex        );
-                m_vindex.Set(indexIndex + 2, indexVertex + hIndex + delta);
+                m_vindex[indexIndex + 0] = 1;
+                m_vindex[indexIndex + 1] = indexVertex + hIndex;
+                m_vindex[indexIndex + 2] = indexVertex + hIndex + delta;
 
                 indexIndex += 3;
             }

@@ -8,8 +8,8 @@
 
 class JoystickImageImpl : public JoystickImage {
 private:
-    TArray<TRef<ModifiableNumber> , 2> m_ppnumber;
-    TArray<TRef<ModifiableBoolean>, 3> m_ppboolButton;
+    std::array<TRef<ModifiableNumber> , 2> m_ppnumber;
+    std::array<TRef<ModifiableBoolean>, 3> m_ppboolButton;
     bool                               m_bJoystickEnabled;
     bool                               m_bButtonsEnabled;
     bool                               m_bJustEnabled;
@@ -25,7 +25,7 @@ public:
         m_ppnumber[0] = new ModifiableNumber(0);
         m_ppnumber[1] = new ModifiableNumber(0);
 
-        for (int index = 0; index < m_ppboolButton.GetCount(); index++) {
+        for (int index = 0; index < (int)m_ppboolButton.size(); index++) {
             m_ppboolButton[index] = new ModifiableBoolean(false);
         }
     }
@@ -53,7 +53,7 @@ public:
             m_bButtonsEnabled = bButtonsEnabled;
 
             if (!m_bButtonsEnabled) {
-                for (int index = 0; index < m_ppboolButton.GetCount(); index++) {
+                for (int index = 0; index < (int)m_ppboolButton.size(); index++) {
                     m_ppboolButton[index]->SetValue(false);
                 }
             }
@@ -248,9 +248,9 @@ private:
     //////////////////////////////////////////////////////////////////////////////
 
     TRef<IEngineFont>          m_pfont;
-    TVector<TVector<ZString> > m_vvstr;
-    TVector<Color>             m_vcolor;
-    TVector<float>             m_vColumn;
+    std::vector<std::vector<ZString>> m_vvstr;
+    std::vector<Color>             m_vcolor;
+    std::vector<float>             m_vColumn;
     float                      m_ysizeRow; 
 
 public:
@@ -267,7 +267,7 @@ public:
         m_vColumn(columns)
     {
         for (int index = 0; index < rows; index++) {
-            m_vvstr.Get(index).SetCount(columns);
+            m_vvstr[index].resize(columns);
         }
 
         m_ysizeRow = (float)(m_pfont->GetTextExtent("W").Y());
@@ -281,28 +281,28 @@ public:
 
     void SetString(int row, int column, const ZString& str)
     {
-        if (m_vvstr.Get(row).Get(column) != str) {
-            m_vvstr.Get(row).Set(column, str);
+        if (m_vvstr[row][column] != str) {
+            m_vvstr[row][column] = str;
             Changed();
         }
     }
 
     void SetColor(int row, const Color& color)
     {
-        if (m_vcolor.Get(row) != color) {
-            m_vcolor.Set(row, color);
+        if (m_vcolor[row] != color) {
+            m_vcolor[row] = color;
             Changed();
         }
     }
 
     void SetSize(int rows, int columns)
     {
-        m_vvstr.SetCount(rows);
-        m_vcolor.SetCount(rows);
-        m_vColumn.SetCount(columns);
+        m_vvstr.resize(rows);
+        m_vcolor.resize(rows);
+        m_vColumn.resize(columns);
 
         for (int index = 0; index < rows; index++) {
-            m_vvstr.Get(index).SetCount(columns);
+            m_vvstr[index].resize(columns);
         }
 
         Changed();
@@ -316,13 +316,13 @@ public:
 
     void CalcBounds()
     {
-        int rows    = m_vvstr.GetCount();
-        int columns = m_vvstr[0].GetCount();
+        int rows    = (int)m_vvstr.size();
+        int columns = (int)m_vvstr[0].size();
 
         float xsize = 0;
 
         for (int column = 0; column < columns; column++) {
-            m_vColumn.Set(column, xsize);
+            m_vColumn[column] = xsize;
 
             float xsizeColumn = 0;
             for (int row = 0; row < rows; row++) {
@@ -347,8 +347,8 @@ public:
 
     void Render(Context* pcontext)
     {
-        int rows    = m_vvstr.GetCount();
-        int columns = m_vvstr[0].GetCount();
+        int rows    = (int)m_vvstr.size();
+        int columns = (int)m_vvstr[0].size();
         
         for (int row = 0; row < rows; row++) {
             float y = -(m_ysizeRow * (float)(row + 1));

@@ -64,10 +64,11 @@
 #include "zmath.h"
 #include "zadapt.h"
 
+#include <array>
+#include <vector>
+#include <algorithm>
+
 #include "tcompare.h"
-#include "tarray.h"
-#include "tvector.h"
-#include "tstack.h"
 #include "tlist.h"
 #include "tmap.h"
 

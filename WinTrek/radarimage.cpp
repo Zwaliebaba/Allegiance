@@ -128,8 +128,8 @@ class RadarImageImpl : public RadarImage {
 
     RadarLOD            m_radarLOD;
 
-    TVector<VertexL>    m_vertices;
-    TVector<WORD>       m_indices;
+    std::vector<VertexL>    m_vertices;
+    std::vector<WORD>       m_indices;
     float               m_fRoundRadarRadius;
 
     static Color s_colorNeutral;
@@ -156,24 +156,24 @@ class RadarImageImpl : public RadarImage {
         const int   cCount = 60;
         const float fAngleStep = RadiansFromDegrees (360.0f / cCount);
 
-        m_vertices.SetCount (cCount);
-        m_indices.SetCount (cCount * 2);
+        m_vertices.resize (cCount);
+        m_indices.resize (cCount * 2);
         for (int j = 0; j < cCount; j++)
         {
-            m_indices.Set (j * 2, j);
-            m_indices.Set ((j * 2) + 1, (j + 1) % m_vertices.GetCount ());
+            m_indices[j * 2] = j;
+            m_indices[(j * 2) + 1] = (j + 1) % (int)m_vertices.size();
         }
 
         {        
             m_fRoundRadarRadius = ((rectImage.YMax () - rectImage.YMin ()) * 0.48f);
 
             // this recalculates the vertices of the round radar circle
-            for (int i = 0; i < m_vertices.GetCount (); i++)
+            for (int i = 0; i < (int)m_vertices.size(); i++)
             {
                 float   fTheta = fAngleStep * static_cast<float> (i),
                         fCosTheta = cosf (fTheta),
                         fSinTheta = sinf (fTheta);
-                m_vertices.Set (i, VertexL (Vector (fCosTheta * m_fRoundRadarRadius, fSinTheta * m_fRoundRadarRadius, 0.0f), color));
+                m_vertices[i] = VertexL (Vector (fCosTheta * m_fRoundRadarRadius, fSinTheta * m_fRoundRadarRadius, 0.0f), color);
             }
         }
         /*

@@ -45,8 +45,8 @@ public:
 
     static ZString m_strGameNameSubstring;
 
-    static TVector<unsigned, DefaultEquals> m_vuSorts;
-    static TVector<bool, DefaultEquals>     m_vbReversedSorts;
+    static std::vector<unsigned> m_vuSorts;
+    static std::vector<bool>     m_vbReversedSorts;
 
 private:
 
@@ -65,18 +65,18 @@ private:
     TRef<IItemEvent::Source>   m_peventGames;
     TRef<TEvent<ItemID>::Sink> m_psinkGames;
 
-    TVector<int>    m_viColumns;
+    std::vector<int>    m_viColumns;
 
     ZString         m_strLastPassword;
 
     class GameItemPainter : public ItemPainter
     {
-        const TVector<int>& m_viColumns;
+        const std::vector<int>& m_viColumns;
         GameScreen* m_pparent;
 
     public:
 
-        GameItemPainter(const TVector<int>& viColumns, GameScreen* pparent)
+        GameItemPainter(const std::vector<int>& viColumns, GameScreen* pparent)
             : m_viColumns(viColumns), m_pparent(pparent) {};
 
         int GetXSize()
@@ -602,8 +602,8 @@ public:
         {
             ResetFilters();
 
-            m_vuSorts.PushEnd(0);
-            m_vbReversedSorts.PushEnd(false);
+            m_vuSorts.push_back(0);
+            m_vbReversedSorts.push_back(false);
 
             bStaticsInitialized = true;
         }
@@ -720,10 +720,10 @@ public:
             m_pbuttonbarGamesHeader->SetChecked2(i, false);
         }
 
-        if (m_vbReversedSorts.GetEnd())
-            m_pbuttonbarGamesHeader->SetChecked(m_vuSorts.GetEnd(), true);
+        if (m_vbReversedSorts.back())
+            m_pbuttonbarGamesHeader->SetChecked(m_vuSorts.back(), true);
         else
-            m_pbuttonbarGamesHeader->SetChecked2(m_vuSorts.GetEnd(), true);
+            m_pbuttonbarGamesHeader->SetChecked2(m_vuSorts.back(), true);
     }
 
     bool OnButtonBarGames(int nColumn)
@@ -753,15 +753,16 @@ public:
         }
 
         // add this to the stack of sorting criteria
-        int nIndex = m_vuSorts.Find(nColumn);
+        auto itSort = std::find(m_vuSorts.begin(), m_vuSorts.end(), nColumn);
 
-        if (nIndex != -1)
+        if (itSort != m_vuSorts.end())
         {
-            m_vuSorts.Remove(nIndex);
-            m_vbReversedSorts.Remove(nIndex);
+            int nIndex = (int)(itSort - m_vuSorts.begin());
+            m_vuSorts.erase(m_vuSorts.begin() + nIndex);
+            m_vbReversedSorts.erase(m_vbReversedSorts.begin() + nIndex);
         }
-        m_vuSorts.PushEnd(nColumn);
-        m_vbReversedSorts.PushEnd(bReverse);
+        m_vuSorts.push_back(nColumn);
+        m_vbReversedSorts.push_back(bReverse);
 
         UpdateGameList();
 
@@ -1025,7 +1026,7 @@ public:
 
         plist = new FilteredList<GameScreenFilter>(plist, m_filter);
 
-        for (int i = 0; i < m_vuSorts.GetCount(); i++)
+        for (int i = 0; i < (int)m_vuSorts.size(); i++)
         {
             switch (m_vuSorts[i])
             {
@@ -1327,14 +1328,14 @@ public:
     // (used for skill level)
     int FindClosestValue(float fValue[], const char* szTableName[], int nLists)
     {
-        TVector<IObjectList*> plists; 
+        std::vector<IObjectList*> plists; 
         
         {
             for (int nList = 0; nList < nLists; nList++)
             {
                 IObjectList* plist; 
                 CastTo(plist, m_pns->FindMember(szTableName[nList]));
-                plists.PushEnd(plist);
+                plists.push_back(plist);
                 plists[nList]->GetFirst();
             }
         }
@@ -1411,8 +1412,8 @@ GameScreen::BooleanFilterState GameScreen::m_sFilterTerritorial;
 
 ZString GameScreen::m_strGameNameSubstring;
 
-TVector<unsigned, DefaultEquals> GameScreen::m_vuSorts;
-TVector<bool, DefaultEquals>     GameScreen::m_vbReversedSorts;
+std::vector<unsigned> GameScreen::m_vuSorts;
+std::vector<bool>     GameScreen::m_vbReversedSorts;
 
 //////////////////////////////////////////////////////////////////////////////
 //

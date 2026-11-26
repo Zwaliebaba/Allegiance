@@ -2117,13 +2117,13 @@ public:
         {
             UpdatePick3D();
 
-            TVector<VertexL>    vertices;
-            TVector<WORD>       indices;
+            std::vector<VertexL>    vertices;
+            std::vector<WORD>       indices;
 
             const Color& color = m_positionStop.Z() > 0.0 ? CommandGeo::s_colorDropLineUp : CommandGeo::s_colorDropLineDown;
 
-            indices.PushEnd(0);
-            vertices.PushEnd(VertexL(m_positionStart.X(),
+            indices.push_back(0);
+            vertices.push_back(VertexL(m_positionStart.X(),
                                      m_positionStart.Y(),
                                      m_positionStart.Z(),
                                      color.R(),
@@ -2132,8 +2132,8 @@ public:
                                      1,
                                      0,
                                      0));
-            indices.PushEnd(1);
-            vertices.PushEnd(VertexL(m_positionStop.X(),
+            indices.push_back(1);
+            vertices.push_back(VertexL(m_positionStop.X(),
                                      m_positionStop.Y(),
                                      m_positionStop.Z(),
                                      color.R(),
@@ -2963,7 +2963,7 @@ class ConsoleImageImpl : public ConsoleImage
 {
 private:
     TRef<ConsoleDataImpl>        m_pconsoleData;
-    TVector<TRef<DisplayImage> > m_vpdisplayImages;
+    std::vector<TRef<DisplayImage>>  m_vpdisplayImages;
     TRef<GroupImage>             m_pgroupDisplays;
     TRef<IObject>                m_pobjectTeamPane;
     TRef<IObject>                m_pobjectExpandedTeamPane;
@@ -3053,7 +3053,7 @@ public:
             }
         }
 
-        for (short i = 0; i < m_vpdisplayImages.GetCount(); i++)
+        for (short i = 0; i < (int)m_vpdisplayImages.size(); i++)
             m_vpdisplayImages[i]->SetOverlayFlags(om);
         m_pconsoleData->SetOverlayFlags(om);
     }
@@ -3111,7 +3111,7 @@ public:
         OverlayMask om = GetOverlayFlags();
 
         m_pconsoleData            = NULL;
-        m_vpdisplayImages         = NULL;
+        m_vpdisplayImages.clear();
         m_pgroupDisplays          = NULL;
         m_pobjectTeamPane         = NULL;
         m_pobjectExpandedTeamPane = NULL;
@@ -3233,7 +3233,7 @@ private:
                 bUndetectable
             );
 
-        m_vpdisplayImages.PushEnd(pdisplayImage);
+        m_vpdisplayImages.push_back(pdisplayImage);
         m_pgroupDisplays->AddImage(pdisplayImage);
         return pdisplayImage;
     }

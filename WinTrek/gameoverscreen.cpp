@@ -38,8 +38,8 @@ public:
     TRef<TEvent<ZString>::Source> m_peventChatEdit;
     TRef<IKeyboardInput>        m_pkeyboardInputOldFocus;
     
-    TVector<int>                m_viStatsColumns;
-    TVector<int>                m_viStatsSideColumns;
+    std::vector<int>                m_viStatsColumns;
+    std::vector<int>                m_viStatsSideColumns;
 
     TRef<TListListWrapper<PlayerEndgameInfo*> > m_plistStats;
     TRef<TListListWrapper<SideEndgameInfo*> > m_plistStatsSide;
@@ -58,12 +58,12 @@ public:
 
     class PlayerPainter : public ItemPainter
     {
-        const TVector<int>& m_viColumns;
+        const std::vector<int>& m_viColumns;
         GameOverScreen* m_pparent;
 
     public:
 
-        PlayerPainter(const TVector<int>& viColumns, GameOverScreen* pparent)
+        PlayerPainter(const std::vector<int>& viColumns, GameOverScreen* pparent)
             : m_viColumns(viColumns), m_pparent(pparent) {};
 
         int GetXSize()
@@ -189,12 +189,12 @@ public:
 
     class SidePainter : public ItemPainter
     {
-        const TVector<int>& m_viColumns;
+        const std::vector<int>& m_viColumns;
         GameOverScreen* m_pparent;
 
     public:
 
-        SidePainter(const TVector<int>& viColumns, GameOverScreen* pparent)
+        SidePainter(const std::vector<int>& viColumns, GameOverScreen* pparent)
             : m_viColumns(viColumns), m_pparent(pparent) {};
 
         int GetXSize()

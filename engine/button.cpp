@@ -900,7 +900,7 @@ TRef<ButtonBarPane> CreateButtonBarPane(bool bActAsTabs, bool bUseColumn)
     return new ButtonBarPaneImpl(bActAsTabs, bUseColumn);
 }
 
-TRef<ButtonBarPane> CreateButtonBarPane(Surface* psurface, DWORD dwFaces, TVector<int>& vecColumns, bool bActAsTabs)
+TRef<ButtonBarPane> CreateButtonBarPane(Surface* psurface, DWORD dwFaces, std::vector<int>& vecColumns, bool bActAsTabs)
 {
     TRef<ButtonBarPane> pbuttonBar = new ButtonBarPaneImpl(bActAsTabs, false);
 
@@ -908,7 +908,7 @@ TRef<ButtonBarPane> CreateButtonBarPane(Surface* psurface, DWORD dwFaces, TVecto
     // Create all the buttons
     //
 
-    int count = vecColumns.GetCount();
+    int count = (int)vecColumns.size();
     int xprev = 0;
 
     for (int index = 0; index < count; index++) {

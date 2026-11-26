@@ -448,8 +448,8 @@ public:
         Point               pointDelta;
         Point               pointText;
         Point               pointTextSize;
-        TVector<VertexL>    edgeVertices;
-        TVector<MeshIndex>  edgeIndices;
+        std::vector<VertexL>    edgeVertices;
+        std::vector<MeshIndex>  edgeIndices;
         ZString             description;
         Color               colorLine (1.0f, 0.0f, 0.0f, 0.9f);
 
@@ -633,17 +633,17 @@ public:
         pointText = Point (fLeft, fBottom);
 
         // build the vertex list from the three points
-        edgeVertices.SetCount (3);
-        edgeVertices.Set (0, VertexL (Vector (pointA.X (), pointA.Y (), 0.0f), colorLine));
-        edgeVertices.Set (1, VertexL (Vector (pointB.X (), pointB.Y (), 0.0f), colorLine));
-        edgeVertices.Set (2, VertexL (Vector (pointC.X (), pointC.Y (), 0.0f), colorLine));
+        edgeVertices.resize (3);
+        edgeVertices[0] = VertexL (Vector (pointA.X (), pointA.Y (), 0.0f), colorLine);
+        edgeVertices[1] = VertexL (Vector (pointB.X (), pointB.Y (), 0.0f), colorLine);
+        edgeVertices[2] = VertexL (Vector (pointC.X (), pointC.Y (), 0.0f), colorLine);
 
         // set the indices up for the edge list. There are two edges to draw
-        edgeIndices.SetCount (4);
-        edgeIndices.Set (0, 0);
-        edgeIndices.Set (1, 1);
-        edgeIndices.Set (2, 1);
-        edgeIndices.Set (3, 2);
+        edgeIndices.resize (4);
+        edgeIndices[0] = 0;
+        edgeIndices[1] = 1;
+        edgeIndices[2] = 1;
+        edgeIndices[3] = 2;
 
         // draw the lines, the description, and the hilite image
         pContext->DrawLines(edgeVertices, edgeIndices);
