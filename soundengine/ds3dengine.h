@@ -86,15 +86,21 @@ class DS3DSoundEngine : public ISoundEngine, public ISoundBufferSource  SoundDeb
     // provides a complete ordering of virtual sound buffers by priority.
     struct SoundPriorityCompare
     {
-        typedef DSVirtualSoundBuffer* first_argument_type;
-        typedef DSVirtualSoundBuffer* second_argument_type;
-        typedef bool result_type;
-
         bool operator () (DSVirtualSoundBuffer* psound1, DSVirtualSoundBuffer* psound2) const
         {
             return psound1->GetDynamicPriority() > psound2->GetDynamicPriority()
                 || (psound1->GetDynamicPriority() == psound2->GetDynamicPriority()
                     && psound1 > psound2);
+        }
+    };
+
+    // The opposite order (what std::not2 of the above gave; std::not2 is gone
+    // in C++20)
+    struct SoundPriorityCompareReversed
+    {
+        bool operator () (DSVirtualSoundBuffer* psound1, DSVirtualSoundBuffer* psound2) const
+        {
+            return !SoundPriorityCompare()(psound1, psound2);
         }
     };
 

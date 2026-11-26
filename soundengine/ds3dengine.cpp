@@ -373,7 +373,7 @@ HRESULT DS3DSoundEngine::Update()
             listAllSounds.begin(), RefToPtr<DSVirtualSoundBuffer>());
 
         // turn it into a priority queue
-        std::make_heap(listAllSounds.begin(), listAllSounds.end(), std::not2(SoundPriorityCompare()));
+        std::make_heap(listAllSounds.begin(), listAllSounds.end(), SoundPriorityCompareReversed());
 
         // get the m_nNumBuffersDesired most important sounds by popping 
         // them off of the queue
@@ -381,7 +381,7 @@ HRESULT DS3DSoundEngine::Update()
         for (int nSound = 0; nSound < min(m_nNumBuffersDesired, listAllSounds.size()); nSound++)
         {
             std::pop_heap(listAllSounds.begin(), listAllSounds.end() - nSound, 
-                std::not2(SoundPriorityCompare()));
+                SoundPriorityCompareReversed());
 
             DSVirtualSoundBuffer* pbuffer = (*(listAllSounds.end() - nSound - 1));
             if (pbuffer->IsAudible())
@@ -401,7 +401,7 @@ HRESULT DS3DSoundEngine::Update()
         TempSoundList::iterator iterDead = 
             (listNewSounds.empty()) ? listPrevSounds.begin() :
             std::find_if(listPrevSounds.begin(), listPrevSounds.end(), 
-                std::bind1st(SoundPriorityCompare(), *(listNewSounds.end() - 1)));
+                [plast = *(listNewSounds.end() - 1)](DSVirtualSoundBuffer* psound) { return SoundPriorityCompare()(plast, psound); });
 
         // stop all of the old buffers 
         // REVIEW: should fade out, if we have buffers.

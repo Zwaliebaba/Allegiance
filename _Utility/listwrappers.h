@@ -113,11 +113,11 @@ public:
     operator T () { return m_t; }
     operator ItemID () { return (ItemID)(INT_PTR)((m_t == 0) ? (T)ZeroValue : m_t); };
 
-    bool operator == (IntItemIDWrapper<T> t) const { return m_t == t; }
-    bool operator <= (IntItemIDWrapper<T> t) const { return m_t <= t; }
-    bool operator >= (IntItemIDWrapper<T> t) const { return m_t >= t; }
-    bool operator <  (IntItemIDWrapper<T> t) const { return m_t < t; }
-    bool operator >  (IntItemIDWrapper<T> t) const { return m_t > t; }
+    bool operator == (IntItemIDWrapper<T> t) const { return m_t == t.m_t; }
+    bool operator <= (IntItemIDWrapper<T> t) const { return m_t <= t.m_t; }
+    bool operator >= (IntItemIDWrapper<T> t) const { return m_t >= t.m_t; }
+    bool operator <  (IntItemIDWrapper<T> t) const { return m_t < t.m_t; }
+    bool operator >  (IntItemIDWrapper<T> t) const { return m_t > t.m_t; }
 };
 
 //////////////////////////////////////////////////////////////////////////////

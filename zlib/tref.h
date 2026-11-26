@@ -204,6 +204,21 @@ public:
         return t1.m_pt == pt;
     }
 
+    //
+    // TRef against TRef exactly: otherwise C++20's reversed candidates make
+    // (TRef, Type*) and (Type*, TRef) equally good
+    //
+
+    friend bool operator==(const TRef& t1, const TRef& t2)
+    {
+        return t1.m_pt == t2.m_pt;
+    }
+
+    friend bool operator!=(const TRef& t1, const TRef& t2)
+    {
+        return t1.m_pt != t2.m_pt;
+    }
+
     friend bool operator!=(const TRef& t1, Type* pt)
     {
         return t1.m_pt != pt;
