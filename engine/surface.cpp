@@ -70,6 +70,14 @@ public:
     bool                      m_bGpuCurrent;
 
     //
+    // Precomputed mip levels 1.. (SetMipLevels), dropped on the first write
+    // to the pixels (a colour key change doesn't touch them)
+    //
+
+    std::vector<const BYTE*>  m_vmipLevels;
+    TRef<IObject>             m_pobjectMipMemory;
+
+    //
     // Transforms and clipping
     //
 
@@ -268,6 +276,7 @@ public:
     void SetPixelFormat(PixelFormat* ppf)
     {
         ZAssert(m_pobjectMemory == NULL);
+        DropMipLevels();
 
         m_pcontext      = NULL;
 
@@ -300,6 +309,38 @@ public:
     int GetChangeID()
     {
         return m_id;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //
+    // Mip levels
+    //
+    //////////////////////////////////////////////////////////////////////////////
+
+    void SetMipLevels(int count, const BYTE* const* plevels, IObject* pobjectMemory)
+    {
+        m_vmipLevels.assign(plevels, plevels + count);
+        m_pobjectMipMemory = pobjectMemory;
+        SurfaceChanged();   // the texture cache re-creates the texture with them
+    }
+
+    void DropMipLevels()
+    {
+        if (!m_vmipLevels.empty()) {
+            m_vmipLevels.clear();
+            m_pobjectMipMemory = NULL;
+        }
+    }
+
+    int GetMipLevelCount()
+    {
+        return 1 + (int)m_vmipLevels.size();
+    }
+
+    const BYTE* GetMipLevel(int level)
+    {
+        ZAssert(level >= 1 && level < GetMipLevelCount());
+        return m_vmipLevels[level - 1];
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -553,6 +594,8 @@ public:
 
     D3D11Target* BeginGpuDraw(bool bDiscard)
     {
+        DropMipLevels();
+
         D3D11Device* pdevice = EnsureGpuTarget();
 
         if (pdevice == NULL) {
@@ -722,6 +765,7 @@ public:
 
     BYTE* GetWritablePointer()
     {
+        DropMipLevels();
         SyncCpu();
         SurfaceChanged();
         MakeWritable();
@@ -946,7 +990,25 @@ public:
         int         scanSize    = rect.XSize() * m_ppf->PixelBytes();
         int         ysize       = rect.YSize();
 
-        if (psurfaceSource->HasColorKey()) {
+        if (psurfaceSource->HasColorKey() && m_ppf->PixelBytes() == 4) {
+            // Copy the 32-bit pixels that are not the colour key (black; in a
+            // format with alpha, black pixels are also the ones with alpha 0)
+            int xpixels = scanSize / 4;
+
+            for (int y = 0; y < ysize; y++) {
+                const DWORD* psrc = (const DWORD*)psource;
+                DWORD*       pdst = (DWORD*)pdest;
+
+                for (int x = 0; x < xpixels; x++) {
+                    if ((psrc[x] & 0x00ffffff) != 0) {
+                        pdst[x] = psrc[x];
+                    }
+                }
+
+                psource += pitchSource;
+                pdest   += pitchDest;
+            }
+        } else if (psurfaceSource->HasColorKey()) {
             ZAssert(m_ppf->PixelBytes() == 2);
 
             // Copy the 16-bit pixels that are not the color key (0)

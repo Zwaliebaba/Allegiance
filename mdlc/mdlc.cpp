@@ -13,6 +13,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "main.h"
+#include "dds.h"
+#include <vector>
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -190,102 +192,139 @@ public:
         }
     }
 
-    void DoConvert(const PathString& strInput, const PathString& strOutput)
+    //////////////////////////////////////////////////////////////////////////////
+    //
+    // -dds / -ddsmips: a bitmap to a 32-bit BGRA DDS file (engine/dds.h)
+    //
+    // The colours keep the source's full depth (the image MDL files that
+    // mdlc -convert made cut them to RGB565). The colour key goes into alpha
+    // exactly as the game applied it: a pixel is transparent where its RGB565
+    // conversion is 0. Those pixels get RGB 0 as well, so "alpha 0" and
+    // "black" stay the same set of pixels, as the engine expects.
+    //
+    // -ddsmips adds a mip chain (2x2 box filter down to 1x1), for textures
+    // used on 3D models.
+    //
+    //////////////////////////////////////////////////////////////////////////////
+
+    void DoConvertDDS(const PathString& strInput, const PathString& strOutput, bool bMips)
     {
-        printf(ZString("Converting image ") + strInput + "\n");
-
-        //
-        // Get the basenames for the bitmap files
-        //
-
-        ZString strName       = strInput.GetName().ToLower();
-        ZString strOutputName = strOutput.GetName().ToLower();
-
-        //
-        // Load the bitmap
-        //
+        printf(ZString("Converting image ") + strInput + (bMips ? " (with mip levels)\n" : "\n"));
 
         HBITMAP hbitmap = GetModeler()->LoadBitmap(strInput);
         if (hbitmap == NULL)
             Fail("cannot load " + strInput);
-        TRef<Surface> psurface = GetEngine()->CreateSurface(hbitmap);
-        ZVerify(::DeleteObject(hbitmap));
 
         //
-        // Convert the bitmap to 16bpp
+        // The key: the bitmap converted to RGB565, as for the MDL files
         //
+
+        TRef<Surface> psurface = GetEngine()->CreateSurface(hbitmap);
+        WinPoint      size     = psurface->GetSize();
 
         TRef<Surface> psurface16 =
             GetEngine()->CreateSurface(
-                psurface->GetSize(),
+                size,
                 new PixelFormat(16, 0xf800, 0x07e0, 0x001f, 0x0000)
             );
 
         psurface16->BitBlt(WinPoint(0, 0), psurface);
 
         //
-        // Create a namespace with the bitmap in it
+        // The colours, as 32-bit BGRA rows, top down
         //
 
-        TRef<INameSpace> pns = GetModeler()->CreateNameSpace(strOutputName, GetModeler()->GetNameSpace("model"));
-        pns->AddMember(strOutputName, (Value*)new ConstantImage(psurface16, strName));
+        std::vector<DWORD> vpixels(size.X() * size.Y());
+
+        BITMAPINFO bmi;
+        memset(&bmi, 0, sizeof(bmi));
+        bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+        bmi.bmiHeader.biWidth       = size.X();
+        bmi.bmiHeader.biHeight      = -size.Y();
+        bmi.bmiHeader.biPlanes      = 1;
+        bmi.bmiHeader.biBitCount    = 32;
+        bmi.bmiHeader.biCompression = BI_RGB;
+
+        HDC hdc   = ::CreateCompatibleDC(NULL);
+        int lines = ::GetDIBits(hdc, hbitmap, 0, size.Y(), vpixels.data(), &bmi, DIB_RGB_COLORS);
+        ::DeleteDC(hdc);
+        ZVerify(::DeleteObject(hbitmap));
+
+        if (lines != size.Y())
+            Fail("cannot read the pixels of " + strInput);
+
+        const BYTE* p16     = psurface16->GetPointer();
+        int         pitch16 = psurface16->GetPitch();
+
+        for (int y = 0; y < size.Y(); y++) {
+            const WORD* pkey = (const WORD*)(p16 + y * pitch16);
+            DWORD*      pd   = vpixels.data() + y * size.X();
+
+            for (int x = 0; x < size.X(); x++) {
+                pd[x] = pkey[x] == 0 ? 0 : ((pd[x] & 0x00ffffff) | 0xff000000);
+            }
+        }
+
+        psurface16->ReleasePointer();
 
         //
-        // Write out the namespace
+        // Mip levels
         //
 
-        Write(pns, strOutput);
-        GetModeler()->UnloadNameSpace(strOutputName);
-    }
+        std::vector<std::vector<DWORD>> vlevels;
+        vlevels.push_back(vpixels);
 
-    void DoCompressAnim(
-        int xframes,
-        int yframes,
-        const PathString& strInput, 
-        const PathString& strOutput
-    ) {
-        printf(ZString("Compressing animation ") + strInput + "\n");
+        if (bMips) {
+            int w = size.X();
+            int h = size.Y();
 
-        //
-        // Get the basenames for the bitmap files
-        //
+            while (w > 1 || h > 1) {
+                const std::vector<DWORD>& vsource = vlevels.back();
+                int wNext = w > 1 ? w / 2 : 1;
+                int hNext = h > 1 ? h / 2 : 1;
 
-        ZString strName       = strInput.GetName().ToLower();
-        ZString strOutputName = strOutput.GetName().ToLower();
+                std::vector<DWORD> vnext(wNext * hNext);
 
-        //
-        // Create the frame image
-        //
+                for (int y = 0; y < hNext; y++) {
+                    int y0 = (2 * y)     < h ? 2 * y     : h - 1;
+                    int y1 = (2 * y + 1) < h ? 2 * y + 1 : h - 1;
 
-        TRef<Number> pnumberFrame = new ModifiableNumber(0);
+                    for (int x = 0; x < wNext; x++) {
+                        int x0 = (2 * x)     < w ? 2 * x     : w - 1;
+                        int x1 = (2 * x + 1) < w ? 2 * x + 1 : w - 1;
 
-        TRef<Image> pimageFrame =
-            CreateFrameImage(
-                pnumberFrame,
-                GetModeler()->LoadSurface(strInput, false),
-                xframes,
-                yframes
-            );
+                        DWORD p[4] = {
+                            vsource[y0 * w + x0], vsource[y0 * w + x1],
+                            vsource[y1 * w + x0], vsource[y1 * w + x1]
+                        };
 
-        //
-        // Create the name space
-        //
+                        DWORD result = 0;
 
-        TRef<INameSpace> pns = 
-            GetModeler()->CreateNameSpace(
-                strOutputName, 
-                GetModeler()->GetNameSpace("model")
-            );
+                        for (int shift = 0; shift < 32; shift += 8) {
+                            DWORD sum = 2;
+                            for (int i = 0; i < 4; i++) {
+                                sum += (p[i] >> shift) & 0xff;
+                            }
+                            result |= (sum / 4) << shift;
+                        }
 
-        pns->AddMember("frame", pnumberFrame);
-        pns->AddMember("image", (Value*)pimageFrame);
+                        vnext[y * wNext + x] = result;
+                    }
+                }
 
-        //
-        // Write out the namespace
-        //
+                vlevels.push_back(vnext);
+                w = wNext;
+                h = hNext;
+            }
+        }
 
-        Write(pns, strOutput);
-        GetModeler()->UnloadNameSpace(strOutputName);
+        std::vector<const DWORD*> vpointers;
+        for (const std::vector<DWORD>& v : vlevels) {
+            vpointers.push_back(v.data());
+        }
+
+        if (!WriteDDS(PCC(ZString(strOutput)), size.X(), size.Y(), vpointers))
+            Fail("cannot write " + strOutput);
     }
 
     HRESULT Initialize(const ZString& strCommandLine)
@@ -337,7 +376,7 @@ public:
         }
 
         if (FAILED(RunCommand(strCommandLine)))
-            Fail("usage: mdlc [-fontdir dir] [-optimize | -convert | -compressanim x y | -info | -genheader | -batch] input [output]");
+            Fail("usage: mdlc [-fontdir dir] [-optimize | -dds | -ddsmips | -info | -genheader | -batch] input [output]");
 
         return S_FALSE;
     }
@@ -371,27 +410,12 @@ public:
                                 return S_FALSE;
                             }
                         }
-                    } else if (str == "compressanim") {
-                        ZString strInput;
-                        ZString strOutput;
-                        float xframes;
-                        float yframes;
-                        if (token.IsNumber(xframes)) {
-                            if (token.IsNumber(yframes)) {
-                                if (token.IsString(strInput)) {
-                                    if (token.IsString(strOutput)) {
-                                        DoCompressAnim((int)xframes, (int)yframes, strInput, strOutput);
-                                        return S_FALSE;
-                                    }
-                                }
-                            }
-                        }
-                    } else if (str == "convert") {
+                    } else if (str == "dds" || str == "ddsmips") {
                         ZString strInput;
                         ZString strOutput;
                         if (token.IsString(strInput)) {
                             if (token.IsString(strOutput)) {
-                                DoConvert(strInput, strOutput);
+                                DoConvertDDS(strInput, strOutput, str == "ddsmips");
                                 return S_FALSE;
                             }
                         }
