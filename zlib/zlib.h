@@ -33,6 +33,8 @@
 #include <cmath>
 #include <cstdlib>
 #include <utility>   // std::swap, see zmath.h
+#include <memory>    // std::construct_at (engine/mdl.cpp); before alloc.h #defines new
+#include <string>    // ZString is a std::string
 
 
 //

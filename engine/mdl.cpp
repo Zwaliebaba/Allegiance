@@ -13,6 +13,12 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+//
+// ZStrings in an MDL object's zeroed member buffer: constructed in place
+// when the member is read (each is read once), destroyed explicitly.
+// construct_at, since debug builds #define new (zlib/alloc.h)
+//
+
 class StringMDLType : public MDLType {
 private:
 public:
@@ -28,7 +34,7 @@ public:
 
     void Destruct(BYTE*& pbyte)
     {
-        ((ZString*)pbyte)->m_pdata = NULL;
+        std::destroy_at((ZString*)pbyte);
         pbyte += sizeof(ZString);
     }
 
@@ -36,13 +42,13 @@ public:
     {
         TRef<StringValue> pstring; CastTo(pstring, (IObject*)stack.Pop());
 
-        *(ZString*)pbyte = pstring->GetValue();
+        std::construct_at((ZString*)pbyte, pstring->GetValue());
         pbyte += sizeof(ZString);
     }
 
     void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack)
     {
-        *(ZString*)pbyte = psite->GetString();
+        std::construct_at((ZString*)pbyte, psite->GetString());
         pbyte += sizeof(ZString);
     }
 

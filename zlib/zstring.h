@@ -10,154 +10,35 @@ typedef const char* PCC;
 //
 //////////////////////////////////////////////////////////////////////////////
 
-class StringMDLType;
+#include <string>
 
-class ZString {
-private:
-    friend class StringMDLType;
-    class ZStringData : public IObjectSingle {
-    protected:
-        PCC   m_pcc;
-        char* m_pch;
-        int   m_length;
+//
+// ZString is std::string. The class adds only what keeps old call sites
+// safe: constructing from or assigning a null const char* gives the empty
+// string (as ZString always did; std::string's is undefined), and ZString
+// plus a number doesn't compile (std::string's += would append one char).
+// Anything that takes a const std::string& takes a ZString. See
+// MODERNIZATION.md, "Library cleanup".
+//
 
-    public:
-        ZStringData(PCC pch);
-        ZStringData(PCC pch, bool bStatic);
-        ZStringData(PCC pch, int length);
-        ZStringData(char ch, int length);
-        ZStringData(const ZStringData* pdata1, const ZStringData* pdata2);
-        ~ZStringData();
-
-        void Set(int index, char ch);
-        PCC  GetPointer() { return m_pcc; }
-
-        int GetLength() const
-        {
-            return m_length;
-        }
-
-        int        Find(const ZStringData* pdata) const;
-        int ReverseFind(const ZStringData* pdata) const;
-
-        int        Find(char ch, int index) const;
-        int ReverseFind(char ch, int index) const;
-
-        int        FindAny(const ZStringData* pdata, int index) const;
-        int ReverseFindAny(const ZStringData* pdata, int index) const;
-
-        //BSTR MakeBSTR() const;
-    };
-
-    static TRef<ZStringData> s_pemptyData;
-
-    TRef<ZStringData> m_pdata;
-
-    void UniqueData();
-
-    ZString(ZStringData*);
-
+class ZString : public std::string {
 public:
-    ZString();
-    ZString(PCC);
-    ZString(PCC, bool bStatic);
-    ZString(PCC, int length);
-    ZString(PCC, int length, bool bStatic);
-    ZString(char ch, int length);
-    ZString(const ZString&);
-    //
-    // Numbers format only when asked: ZString(n). Implicit, they turned chars
-    // into their codes and would become std::string's append-one-char.
-    //
+    ZString() {}
+    ZString(PCC pcc)                 : std::string(pcc ? pcc : "") {}
+    ZString(PCC pcc, int length)     : std::string(pcc, (size_t)length) {}
+    ZString(const std::string& str)  : std::string(str) {}
+    ZString(std::string&& str)       : std::string(std::move(str)) {}
 
-    explicit ZString(int);
-    explicit ZString(float value);
-    ZString(float value, int total, int precision);
-    explicit ZString(bool);
+    ZString& operator=(PCC pcc)                 { std::string::operator=(pcc ? pcc : ""); return *this; }
+    ZString& operator=(const std::string& str)  { std::string::operator=(str); return *this; }
+    ZString& operator=(std::string&& str)       { std::string::operator=(std::move(str)); return *this; }
 
-
-    const char& operator[](int index) const { return m_pdata->GetPointer()[index]; }
-
-    //
-    // std::string's names, so call sites can move to them while ZString is
-    // still the type (see MODERNIZATION.md, "Library cleanup")
-    //
-
-    size_t size()   const { return (size_t)GetLength(); }
-    size_t length() const { return (size_t)GetLength(); }
-    bool   empty()  const { return GetLength() == 0; }
-    PCC    c_str()  const { return m_pdata->GetPointer(); }
-    PCC    data()   const { return m_pdata->GetPointer(); }
-    void   clear()        { SetEmpty(); }
-    int GetLength() const { return m_pdata->GetLength(); }
-    bool IsEmpty() const { return GetLength() == 0; }
-    BSTR MakeBSTR() const;
-
-    int Find(char ch, int index = 0) const;
-    int Find(const ZString& str) const;
-    int ReverseFind(char ch, int index = 0) const;
-    int ReverseFind(const ZString& str) const;
-    int FindAny(const ZString& str, int index = 0) const;
-    int ReverseFindAny(const ZString& str, int index = 0) const;
-
-    int GetInteger() const;
-
-    ZString ToLower() const;
-    ZString ToUpper() const;
-
-    ZString Scramble(const ZString& strKey) const;
-    ZString Unscramble(const ZString& strKey) const;
-
-    ZString Left(int index) const;
-    ZString Right(int index) const;
-    ZString Middle(int index, int length) const;
-
-    ZString LeftOf(int index) const;
-    ZString RightOf(int index) const;
-
-    ZString LeftOf(const ZString& str) const;
-    ZString RightOf(const ZString& str) const;
-
-    friend ZString operator+(const ZString&, const ZString&);
-
-    //
-    // ZString + a number: the number constructors are explicit, so without
-    // these it would compile as pointer arithmetic through operator PCC (and a
-    // char used to become its code, "47" for '/'). Write ZString(n).
-    //
-
-    friend ZString operator+(const ZString&, int) = delete;
-    friend ZString operator+(int, const ZString&) = delete;
-
-    friend bool operator==(const ZString&, const ZString&);
-    friend bool operator==(const ZString&, PCC);
-    friend bool operator==(           PCC, const ZString&);
-    friend bool operator!=(const ZString&, const ZString&);
-    friend bool operator!=(const ZString&, PCC);
-    friend bool operator!=(           PCC, const ZString&);
-    friend bool operator<(const ZString&, const ZString&);
-    friend bool operator<(const ZString&, PCC);
-    friend bool operator<(           PCC, const ZString&);
-
-    // define the other comparison operators in terms of less than.
-    inline friend bool operator>(const ZString& str1, const ZString& str2)   { return str2 < str1; }
-    inline friend bool operator>(const ZString& str, PCC pcc)    { return pcc < str; }
-    inline friend bool operator>(           PCC pcc, const ZString& str)    { return str < pcc; }
-    inline friend bool operator<=(const ZString& str1, const ZString& str2)     { return !(str2 < str1); }
-    inline friend bool operator<=(const ZString& str, PCC pcc)   { return !(pcc < str); }
-    inline friend bool operator<=(           PCC pcc, const ZString& str)     { return !(str < pcc); }
-    inline friend bool operator>=(const ZString& str1, const ZString& str2)     { return !(str1 < str2); }
-    inline friend bool operator>=(const ZString& str, PCC pcc)     { return !(str < pcc); }
-    inline friend bool operator>=(           PCC pcc, const ZString& str)     { return !(pcc < str); }
-
-    void ReplaceAll(const ZString& str, char ch);
-    void RemoveAll(char chToRemove);
-    ZString& operator=(const ZString&);
-    ZString& operator+=(const ZString&);
-    void Set(int index, char ch);
-    void SetEmpty();
-    ZString GetToken();
+    using std::string::operator+=;
+    ZString& operator+=(int) = delete;
 };
+
+ZString operator+(const ZString&, int) = delete;
+ZString operator+(int, const ZString&) = delete;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -195,11 +76,13 @@ public:
     PathString() : ZString() {}
     PathString(PCC pcc);
     PathString(const ZString& str) : ZString(str) {}
+    PathString(const std::string& str) : ZString(str) {}
 
     static PathString GetCurrentDirectory();
     static PathString GetModulePath();
 
     PathString operator+(const PathString&) const;
+    PathString operator+(PCC pcc) const { return *this + PathString(pcc); }   // a path join, not std::string's +
 
     FilenameString GetFilename()  const;
     ZString        GetExtension() const;

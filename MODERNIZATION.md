@@ -701,7 +701,7 @@ uses libstdc++, so the MSVC STL's C++20 removals (negators, `result_of`, allocat
 No identifier is a new keyword (`concept`, `requires`, `char8_t`, the coroutine keywords), and no
 `u8` literals are used.
 
-#### Library cleanup: containers and ZString (in progress)
+#### Library cleanup: containers and ZString (done)
 
 Decided scope:
 
@@ -759,9 +759,25 @@ switch would need conversions at every interface, since `ZString` is in all of t
    it tests `!empty()` now. And the sonic-chat code kept a pointer into the `ZString` that
    `GetSonicChatText` returns by value, which only stayed valid because the copy shared the stored
    string's data; it keeps its own copy for the function now, as `std::string` will need.
-4. `ZString` becomes `std::string`. The members, the reference-counted data and the static
-   (file-mapping) strings go; constructing from a null pointer, which `ZString` made empty and
-   `std::string` doesn't allow, is checked first.
+4. `ZString` becomes `std::string` (done): `class ZString : public std::string` with nothing but a
+   null-safe `const char*` constructor and assignment (null gives the empty string, as before;
+   `std::string`'s is undefined, and network message fields read with `FM_VAR_REF` are null when
+   empty, 53 of them), and `+=` / `+` with an `int` deleted, since `std::string`'s `+=` would append
+   one char. Everything that takes a `const std::string&` takes a `ZString`; the name can go per site
+   later. The reference-counted data, the static file-mapping strings and the members are gone; the
+   `Str*` functions are now written on `std::string`, with the same semantics (where `ZString` read
+   past the end for an out-of-range count, they clamp). Other effects:
+   - Copies are real copies. Every stored `c_str()` was checked in step 3 to point into a named
+     string, not a temporary.
+   - `PathString + "name"` stays a path join (a `PathString + const char*` overload; it would have
+     been ambiguous with `std::string`'s `+`), and `PathString` takes a `std::string`.
+   - MDL struct members of type `String` live in a zeroed byte buffer: they are constructed in place
+     when read and destroyed explicitly (`std::construct_at` / `std::destroy_at`, since debug builds
+     `#define new`), where the old code assigned into the zeroes and cleared the pointer.
+   - `std::string`'s `[]` asserts in debug builds past `size()`; `PathString::GetDrive` read `[1]` of
+     possibly shorter strings and checks the length now.
+   - Two `_TRACE`-only uses of the old constructors (`zlib/Win32app.cpp`) that no build compiles were
+     converted too.
 
 ## Building
 

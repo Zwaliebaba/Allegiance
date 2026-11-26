@@ -2,548 +2,243 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ZString::ZStringData
+// ZString's own operations (zstring.h), on std::string. They keep the
+// semantics the ZString members had: int indices, -1 for not found, and the
+// quirks noted in zstring.h. Out-of-range counts are clamped where ZString
+// read past the end.
 //
 //////////////////////////////////////////////////////////////////////////////
 
-ZString::ZStringData::ZStringData(PCC pcc)
-{
-    m_length = pcc ? strlen(pcc) : 0;
-    m_pch    = new char[m_length + 1];
-    m_pcc    = m_pch;
-    memcpy(m_pch, pcc ? pcc : "", m_length + 1);
-}
-
-ZString::ZStringData::ZStringData(PCC pcc, bool bStatic)
-{
-    ZAssert(bStatic);
-
-    m_length = strlen(pcc);
-    m_pch    = NULL;
-    m_pcc    = pcc;
-}
-
-ZString::ZStringData::ZStringData(PCC pcc, int length)
-{
-    m_length = length;
-    m_pch    = new char[m_length + 1];
-    m_pcc    = m_pch;
-    memcpy(m_pch, pcc, m_length);
-    m_pch[m_length] = 0;
-}
-
-ZString::ZStringData::ZStringData(char ch, int length)
-{
-    m_length = length;
-    m_pch    = new char[m_length + 1];
-    m_pcc    = m_pch;
-    memset(m_pch, ch, m_length);
-    m_pch[m_length] = 0;
-}
-
-ZString::ZStringData::ZStringData(const ZStringData* pdata1, const ZStringData* pdata2) :
-    m_length(pdata1->GetLength() + pdata2->GetLength())
-{
-    m_pch = new char[m_length + 1];
-    m_pcc = m_pch;
-    memcpy(m_pch, pdata1->m_pcc, pdata1->GetLength());
-    memcpy(m_pch + pdata1->m_length, pdata2->m_pcc, pdata2->GetLength() + 1);
-}
-
-ZString::ZStringData::~ZStringData()
-{
-    if (m_pch) {
-        delete[] m_pch;
-    }
-}
-
-void ZString::ZStringData::Set(int index, char ch)
-{
-    ZAssert(
-           m_pch != NULL
-        && index < m_length
-        && GetCount() == 1
-    );
-
-    m_pch[index] = ch;
-}
-
-int ZString::ZStringData::Find(const ZStringData* pdata) const
-{
-    for(int index = 0; index < m_length - pdata->m_length + 1; index++) {
-        int index2;
-        for (index2 = 0; index2 < pdata->m_length; index2++) {
-            if (m_pcc[index + index2] != pdata->m_pcc[index2]) {
-                break;
-            }
-        }
-        if (index2 == pdata->m_length) {
-            return index;
-        }
-    }
-
-    return -1;
-}
-
-int ZString::ZStringData::ReverseFind(const ZStringData* pdata) const
-{
-    for(int index = m_length - pdata->m_length + 1; index >=0 ; index--) {
-        int index2;
-        for (index2 = 0; index2 < pdata->m_length; index2++) {
-            if (m_pcc[index + index2] != pdata->m_pcc[index2]) {
-                break;
-            }
-        }
-        if (index2 == pdata->m_length) {
-            return index;
-        }
-    }
-
-    return -1;
-}
-
-int ZString::ZStringData::Find(char ch, int index) const
-{
-    for(; index < m_length; index++) {
-        if (m_pcc[index] == ch) {
-            return index;
-        }
-    }
-
-    return -1;
-}
-
-int ZString::ZStringData::ReverseFind(char ch, int index) const
-{
-    index = m_length - index;
-
-    for(; index >= 0; index--) {
-        if (m_pcc[index] == ch) {
-            return index;
-        }
-    }
-
-    return -1;
-}
-
-int ZString::ZStringData::FindAny(const ZStringData* pdata, int index) const
-{
-    int length = pdata->GetLength();
-
-    for(; index < m_length; index++) {
-        for (int index2 = 0; index2 < length; index2++) {
-            if (m_pcc[index] == pdata->m_pcc[index2]) {
-                return index;
-            }
-        }
-    }
-
-    return -1;
-}
-
-int ZString::ZStringData::ReverseFindAny(const ZStringData* pdata, int index) const
-{
-    int length = pdata->GetLength();
-
-    index = m_length - index;
-
-    for(; index >= 0; index--) {
-        for (int index2 = 0; index2 < length; index2++) {
-            if (m_pcc[index] == pdata->m_pcc[index2]) {
-                return index;
-            }
-        }
-    }
-
-    return -1;
-}
-
-/*
-BSTR ZString::ZStringData::MakeBSTR() const
-{
-    if (m_length != 0) {
-        WCHAR* pszw = new WCHAR[m_length];
-        MultiByteToWideChar(CP_ACP, 0, m_pcc, -1, pszw, m_length);
-        BSTR bstr = SysAllocStringLen(pszw, m_length);
-        delete[] pszw;
-        return bstr;
-    } else {
-        return SysAllocStringLen(L"", 0);
-    }
-}
-*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// ZString Constructors
-//
-//////////////////////////////////////////////////////////////////////////////
-
-TRef<ZString::ZStringData> ZString::s_pemptyData = new ZString::ZStringData("", true);
-
-ZString::ZString() :
-    m_pdata(s_pemptyData)
-{
-}
-
-ZString::ZString(PCC pcc) :
-    m_pdata(new ZStringData(pcc))
-{
-}
-
-ZString::ZString(PCC pcc, bool bStatic) :
-    m_pdata(new ZStringData(pcc, bStatic))
-{
-}
-
-ZString::ZString(PCC pcc, int length)
-{
-    if (length == 0) {
-        m_pdata = s_pemptyData;
-    } else {
-        m_pdata = new ZStringData(pcc, length);
-    }
-}
-
-ZString::ZString(char ch, int length)
-{
-    if (length == 0) {
-        m_pdata = s_pemptyData;
-    } else {
-        m_pdata = new ZStringData(ch, length);
-    }
-}
-
-ZString::ZString(PCC pcc, int length, bool bStatic)
-{
-    if (length == 0) {
-        m_pdata = s_pemptyData;
-    } else {
-        m_pdata = new ZStringData(pcc, length);
-    }
-}
-
-ZString::ZString(const ZString& str) :
-    m_pdata(str.m_pdata)
-{
-}
-
-ZString::ZString(ZStringData* pdata) :
-    m_pdata(pdata)
-{
-}
-
-ZString::ZString(int value)
+ZString StrFromInt(int value)
 {
     char buf[32];
-
-    _itoa(value,buf,10);
-
-    m_pdata = new ZStringData(buf);
+    _itoa(value, buf, 10);
+    return buf;
 }
 
-ZString::ZString(float value, int total, int precision)
+ZString StrFromFloat(float value)
 {
-    char format[32];
     char buf[32];
-
-    sprintf(format, "%%%d.%df", total, precision);
-    sprintf(buf, format, value);
-
-    m_pdata = new ZStringData(buf);
+    sprintf(buf, "%g", value);
+    return buf;
 }
 
-ZString::ZString(float value)
+ZString StrFromFloat(float value, int total, int precision)
 {
-        char buf[32];
-        sprintf(buf, "%g", value);
-        m_pdata = new ZStringData(buf);
+    char buf[64];
+    sprintf(buf, "%*.*f", total, precision, value);
+    return buf;
 }
 
-ZString::ZString(bool b)
+ZString StrFromBool(bool value)
 {
-    if (b) {
-        m_pdata = new ZStringData("true");
-    } else {
-        m_pdata = new ZStringData("false");
-    }
+    return value ? "true" : "false";
 }
 
-ZString operator+(const ZString& str1, const ZString& str2)
+ZString StrRepeat(char ch, int length)
 {
-    return ZString(new ZString::ZStringData(str1.m_pdata, str2.m_pdata));
+    return length > 0 ? ZString(std::string((size_t)length, ch)) : ZString();
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// ZString Operations
-//
-//////////////////////////////////////////////////////////////////////////////
-
-void ZString::UniqueData()
+static int ToIndex(size_t pos)
 {
-    if (m_pdata->GetCount() != 1) {
-        m_pdata = new ZStringData(m_pdata->GetPointer());
-    }
+    return pos == std::string::npos ? -1 : (int)pos;
 }
 
-void ZString::SetEmpty()
+int StrFind(const ZString& str, char ch, int index)
 {
-    m_pdata = s_pemptyData;
+    return index < 0 || index >= (int)str.size() ? -1 : ToIndex(str.find(ch, (size_t)index));
 }
 
-void ZString::Set(int index, char ch)
+int StrFind(const ZString& str, const ZString& strFind)
 {
-    if (index < GetLength()) {
-        if (m_pdata->GetPointer()[index] != ch) {
-            UniqueData();
-            m_pdata->Set(index, ch);
+    return ToIndex(str.find(strFind));
+}
+
+int StrFindAny(const ZString& str, const ZString& strChars, int index)
+{
+    return index < 0 || index >= (int)str.size() ? -1 : ToIndex(str.find_first_of(strChars, (size_t)index));
+}
+
+int StrReverseFind(const ZString& str, char ch, int index)
+{
+    //
+    // From `index` characters before the end; at the end itself the
+    // terminator is what ZString compared
+    //
+
+    for (int i = (int)str.size() - index; i >= 0; i--) {
+        char c = i < (int)str.size() ? str[i] : '\0';
+
+        if (c == ch) {
+            return i;
         }
     }
+
+    return -1;
 }
 
-ZString& ZString::operator+=(const ZString& str)
+int StrReverseFindAny(const ZString& str, const ZString& strChars, int index)
 {
-    m_pdata = new ZStringData(m_pdata, str.m_pdata);
-
-    return *this;
-}
-
-ZString& ZString::operator=(const ZString& str)
-{
-    m_pdata = str.m_pdata;
-
-    return *this;
-}
-
-void ZString::ReplaceAll(const ZString& str, char ch)
-{
-    UniqueData();
-
-    int length = str.GetLength();
-
-    for(int index = 0; index < GetLength(); index++) {
-        for (int index2 = 0; index2 < length; index2++) {
-            if (m_pdata->GetPointer()[index] == str[index2]) {
-                m_pdata->Set(index, ch);
-                break;
-            }
+    for (int i = (int)str.size() - index; i >= 0; i--) {
+        if (i < (int)str.size() && strChars.find(str[i]) != std::string::npos) {
+            return i;
         }
     }
+
+    return -1;
 }
 
-void ZString::RemoveAll(char chToRemove)
+int StrReverseFind(const ZString& str, const ZString& strFind)
 {
-    int length = GetLength();
-    char* cbNew = (char*)_alloca(length + 1);
-    int nLengthNew = 0;
-
-    for (int indexOld = 0; indexOld < GetLength(); indexOld++) {
-        char chCurrent = m_pdata->GetPointer()[indexOld];
-
-        if (chCurrent != chToRemove) {
-            cbNew[nLengthNew] = chCurrent;
-            ++nLengthNew;            
-        }
-    }
-    cbNew[nLengthNew] = '\0';
-
-    m_pdata = new ZStringData(cbNew, nLengthNew);
+    return StrFind(str, strFind);   // forwards, as ZString::ReverseFind did
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// ZString Accessors
-//
-//////////////////////////////////////////////////////////////////////////////
-
-bool operator==(const ZString& str1, const ZString& str2)
+ZString StrLeft(const ZString& str, int count)
 {
-    return
-           str1.GetLength() == str2.GetLength()
-        && (strncmp(str1.c_str(), str2.c_str(), str1.GetLength()) == 0);
+    return count <= 0 ? ZString() : ZString(str.substr(0, (size_t)count));
 }
 
-bool operator==(const ZString& str, PCC pcc)
+ZString StrRight(const ZString& str, int count)
 {
-    ZAssert(pcc != NULL);
+    int length = (int)str.size();
 
-    return
-           str.GetLength() == (int)strlen(pcc)
-        && (strncmp(str.c_str(), pcc, str.GetLength()) == 0);
-}
-
-bool operator==(PCC pcc, const ZString& str)
-{
-    ZAssert(pcc != NULL);
-
-    return
-           str.GetLength() == (int)strlen(pcc)
-        && (strncmp(str.c_str(), pcc, str.GetLength()) == 0);
-}
-
-bool operator!=(const ZString& str1, const ZString& str2)
-{
-    return
-           str1.GetLength() != str2.GetLength()
-        || (strncmp(str1.c_str(), str2.c_str(), str1.GetLength()) != 0);
-}
-
-bool operator!=(const ZString& str, PCC pcc)
-{
-    ZAssert(pcc != NULL);
-
-    return
-           str.GetLength() != (int)strlen(pcc)
-        || (strncmp(str.c_str(), pcc, str.GetLength()) != 0);
-}
-
-bool operator!=(PCC pcc, const ZString& str)
-{
-    ZAssert(pcc != NULL);
-
-    return 
-           str.GetLength() != (int)strlen(pcc)
-        || (strncmp(str.c_str(), pcc, str.GetLength()) != 0);
-}
-
-bool operator<(const ZString& str1, const ZString& str2)
-{
-    return strcmp(str1.c_str(), str2.c_str()) < 0;
-}
-
-bool operator<(const ZString& str, PCC pcc)
-{
-    return strcmp(str.c_str(), pcc) < 0;
-}
-
-bool operator<(PCC pcc, const ZString& str)
-{
-    return strcmp(pcc, str.c_str()) < 0;
-}
-
-/*
-BSTR ZString::MakeBSTR() const 
-{ 
-    return m_pdata->MakeBSTR(); 
-}
-*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// Find functions
-//
-//////////////////////////////////////////////////////////////////////////////
-
-int ZString::Find(const ZString& str) const
-{
-    return m_pdata->Find(str.m_pdata);
-}
-
-int ZString::ReverseFind(const ZString& str) const
-{
-    return m_pdata->Find(str.m_pdata);
-}
-
-int ZString::Find(char ch, int index) const
-{
-    return m_pdata->Find(ch, index);
-}
-
-int ZString::ReverseFind(char ch, int index) const
-{
-    return m_pdata->ReverseFind(ch, index);
-}
-
-int ZString::FindAny(const ZString& str, int index) const
-{
-    return m_pdata->FindAny(str.m_pdata, index);
-}
-
-int ZString::ReverseFindAny(const ZString& str, int index) const
-{
-    return m_pdata->ReverseFindAny(str.m_pdata, index);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// Utility functions
-//
-//////////////////////////////////////////////////////////////////////////////
-
-int ZString::GetInteger() const
-{
-    return atoi(m_pdata->GetPointer());
-}
-
-ZString ZString::Left(int index) const
-{
-    return ZString(m_pdata->GetPointer(), index);
-}
-
-ZString ZString::Right(int index) const
-{
-    return ZString(m_pdata->GetPointer() + GetLength() - index, index);
-}
-
-ZString ZString::Middle(int index, int length) const
-{
-    return ZString(m_pdata->GetPointer() + index, length);
-}
-
-ZString ZString::LeftOf(int index) const
-{
-    return Left(GetLength() - index);
-}
-
-ZString ZString::RightOf(int index) const
-{
-    int size = GetLength() - index;
-    if (size > 0) {
-        return Right(size);
-    } else {
+    if (count <= 0) {
         return ZString();
-    }
-}
-
-ZString ZString::LeftOf(const ZString& str) const
-{
-    int index = FindAny(str);
-
-    if (index == -1) {
+    } else if (count >= length) {
         return str;
-    } else {
-        return Left(index);
     }
+
+    return str.substr((size_t)(length - count));
 }
 
-ZString ZString::RightOf(const ZString& str) const
+ZString StrMiddle(const ZString& str, int index, int count)
 {
-    int index = FindAny(str);
-
-    if (index == -1) {
+    if (index < 0 || index >= (int)str.size() || count <= 0) {
         return ZString();
-    } else {
-        return Right(GetLength() - index - 1);
+    }
+
+    return str.substr((size_t)index, (size_t)count);
+}
+
+ZString StrLeftOf(const ZString& str, int count)
+{
+    return StrLeft(str, (int)str.size() - count);
+}
+
+ZString StrRightOf(const ZString& str, int count)
+{
+    return StrRight(str, (int)str.size() - count);
+}
+
+ZString StrLeftOf(const ZString& str, const ZString& strChars)
+{
+    int index = StrFindAny(str, strChars);
+
+    return index == -1 ? strChars : StrLeft(str, index);
+}
+
+ZString StrRightOf(const ZString& str, const ZString& strChars)
+{
+    int index = StrFindAny(str, strChars);
+
+    return index == -1 ? ZString() : StrRight(str, (int)str.size() - index - 1);
+}
+
+ZString StrToLower(const ZString& str)
+{
+    ZString result = str;
+
+    for (char& ch : result) {
+        if (ch >= 'A' && ch <= 'Z') {
+            ch = ch - 'A' + 'a';
+        }
+    }
+
+    return result;
+}
+
+ZString StrToUpper(const ZString& str)
+{
+    ZString result = str;
+
+    for (char& ch : result) {
+        if (ch >= 'a' && ch <= 'z') {
+            ch = ch - 'a' + 'A';
+        }
+    }
+
+    return result;
+}
+
+ZString StrScramble(const ZString& str, const ZString& strKey)
+{
+    std::string result(str.size() + 1, '\0');
+    ZScramble(result.data(), str.c_str(), strKey.c_str());
+    result.resize(strlen(result.c_str()));
+    return result;
+}
+
+ZString StrUnscramble(const ZString& str, const ZString& strKey)
+{
+    std::string result(str.size() + 1, '\0');
+    ZUnscramble(result.data(), str.c_str(), strKey.c_str());
+    result.resize(strlen(result.c_str()));
+    return result;
+}
+
+void StrReplaceAll(ZString& str, const ZString& strChars, char ch)
+{
+    for (char& c : str) {
+        if (strChars.find(c) != std::string::npos) {
+            c = ch;
+        }
     }
 }
 
-ZString ZString::ToLower() const
+void StrRemoveAll(ZString& str, char ch)
 {
-    char* cbResult = (char*)_alloca(GetLength() + 1);
-
-    ZToLower(cbResult, c_str());
-
-    return cbResult;
+    str.erase(std::remove(str.begin(), str.end(), ch), str.end());
 }
 
-ZString ZString::ToUpper() const
+void StrSetChar(ZString& str, int index, char ch)
 {
-    char* cbResult = (char*)_alloca(GetLength() + 1);
+    if (index >= 0 && index < (int)str.size()) {
+        str[index] = ch;
+    }
+}
 
-    ZToUpper(cbResult, c_str());
+ZString StrGetToken(ZString& str)
+{
+    ZString strToken;
+    int     length = (int)str.size();
+    int     index;
 
-    return cbResult;
+    if (length > 0 && str[0] == '"') {
+        index = 1;
+
+        while (index < length && str[index] != '"')
+            index++;
+
+        if (index < length)
+            strToken = StrMiddle(str, 1, index++ - 1);
+        else
+            strToken = str;
+    } else {
+        index = 0;
+
+        while (index < length && str[index] != ' ')
+            index++;
+
+        strToken = StrLeft(str, index);
+    }
+
+    while (index < length && str[index] == ' ')
+        index++;
+
+    str = StrRight(str, length - index);
+
+    return strToken;
 }
 
 void ZToLower(char* szDest, PCC szSource)
@@ -574,48 +269,6 @@ void ZToUpper(char* szDest, PCC szSource)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Command line
-//
-//////////////////////////////////////////////////////////////////////////////
-
-ZString ZString::GetToken()
-{
-    ZString strToken;
-    int length = GetLength();
-    int index;
-
-    if (m_pdata->GetPointer()[0] == '"')
-    {
-        index = 1;
-
-        while (index < length && m_pdata->GetPointer()[index] != '"') 
-            index++;
-
-        if (index < length)
-            strToken = Middle(1, index++ - 1);
-        else
-            strToken = *this;
-    }
-    else
-    {
-        index = 0;
-
-        while (index < length && m_pdata->GetPointer()[index] != ' ')
-            index++;
-
-        strToken = Left(index);
-    }
-
-    while (index < length && m_pdata->GetPointer()[index] == ' ')
-        index++;
-
-    *this = Right(length - index);
-
-    return strToken;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // FilenameString
 //
 // foo.ext
@@ -624,17 +277,17 @@ ZString ZString::GetToken()
 
 ZString FilenameString::GetExtension() const
 {
-    return RightOf(".");
+    return StrRightOf(*this, ".");
 }
 
 ZString FilenameString::GetName() const
 {
-    int index = Find('.', 0);
+    int index = StrFind(*this, '.', 0);
 
     if (index == -1) {
         return *this;
     } else {
-        return Left(index);
+        return StrLeft(*this, index);
     }
 }
 
@@ -663,7 +316,7 @@ PathString::PathString(PCC pcc) :
 {
     //  : make sure str is valid
 
-        ReplaceAll("\\", '/');
+        StrReplaceAll(*this, "\\", '/');
 }
 
 PathString PathString::GetCurrentDirectory()
@@ -672,7 +325,7 @@ PathString PathString::GetCurrentDirectory()
     char* pch = new char[size];
     ::GetCurrentDirectory(size, pch);
     PathString str(pch);
-    delete pch;
+    delete[] pch;
 
     return str;
 }
@@ -686,12 +339,12 @@ PathString PathString::GetModulePath()
 
 FilenameString PathString::GetFilename() const
 {
-    int index = ReverseFindAny("/\\:");
+    int index = StrReverseFindAny(*this, "/\\:");
 
     if (index == -1) {
         return *this;
     } else {
-        return Right(GetLength() - index - 1);
+        return StrRight(*this, (int)size() - index - 1);
     }
 }
 
@@ -707,30 +360,30 @@ ZString PathString::GetName() const
 
 PathString PathString::GetDirectory() const
 {
-    int index = ReverseFindAny("/\\:");
+    int index = StrReverseFindAny(*this, "/\\:");
 
     if (index == -1) {
         return PathString();
     } else {
-        return Left(index);
+        return StrLeft(*this, index);
     }
 }
 
 PathString PathString::GetDrive() const
 {
-    char ch0 = (*this)[0];
-    char ch1 = (*this)[1];
+    char ch0 = size() > 0 ? (*this)[0] : 0;     // std::string asserts past the end
+    char ch1 = size() > 1 ? (*this)[1] : 0;
 
     if (   (ch0 ==  '/' && ch1 ==  '/')
         || (ch0 == '\\' && ch1 == '\\')
     ) {
         // network path
 
-        return Left(FindAny("/\\", FindAny("/\\", 2) + 1) - 1);
+        return StrLeft(*this, StrFindAny(*this, "/\\", StrFindAny(*this, "/\\", 2) + 1) - 1);
     } else if (ch1 == ':') {
         // drive letter
 
-        return Left(2);
+        return StrLeft(*this, 2);
     }
 
     return PathString();
@@ -741,7 +394,7 @@ PathString PathString::operator+(const PathString& strRelativeArg) const
     PathString strAbsolute = *this;
     ZString strRelative = strRelativeArg;
 
-    int length = strRelative.GetLength();
+    int length = (int)strRelative.size();
     char ch0 = strRelative[0];
     char ch1 = length > 0 ? strRelative[1] : 0;
     char ch2 = length > 1 ? strRelative[2] : 0;
@@ -772,42 +425,43 @@ PathString PathString::operator+(const PathString& strRelativeArg) const
             ch0 = strRelative[0];
 
             if (ch0 == '.') {
-                int length = strRelative.GetLength();
+                int length = (int)strRelative.size();
 
                 if (strRelative[1] == '.') {
                     strAbsolute = strAbsolute.GetDirectory();
-                    strRelative = strRelative.Right(strRelative.GetLength() - 2);
+                    strRelative = StrRight(strRelative, (int)strRelative.size() - 2);
                 } else {
-                    strRelative = strRelative.Right(strRelative.GetLength() - 1);
+                    strRelative = StrRight(strRelative, (int)strRelative.size() - 1);
                 }
             } else {
-                int index = strRelative.FindAny("/\\");
+                int index = StrFindAny(strRelative, "/\\");
 
                 if (index == -1) {
-                    index = strRelative.GetLength();
+                    index = (int)strRelative.size();
                 }
 
-                char chLast = strAbsolute[strAbsolute.GetLength() - 1];
+                char chLast = strAbsolute.empty() ? 0 : strAbsolute[strAbsolute.size() - 1];
 
                 if (chLast == '/' || chLast == '\\') {
-                    strAbsolute = ZString(strAbsolute) + strRelative.Left(index);
+                    strAbsolute = ZString(strAbsolute) + StrLeft(strRelative, index);
                 } else {
-                    strAbsolute = ZString(strAbsolute) + g_szDirSep + strRelative.Left(index);
+                    strAbsolute = ZString(strAbsolute) + g_szDirSep + StrLeft(strRelative, index);
                 }
 
-                strRelative = strRelative.Right(strRelative.GetLength() - index);
+                strRelative = StrRight(strRelative, (int)strRelative.size() - index);
             }
 
             ch0 = strRelative[0];
 
             if (ch0 == '/' || ch0 == '\\') {
-                strRelative = strRelative.Right(strRelative.GetLength() - 1);
+                strRelative = StrRight(strRelative, (int)strRelative.size() - 1);
             } else {
                 return strAbsolute;
             }
         }
     }
 }
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -998,57 +652,3 @@ void ZUnscramble(char* szDest, PCC szSource, PCC szKey)
     }
 }
 
-ZString ZString::Scramble(const ZString& strKey) const
-{
-    char* cbResult = (char*)_alloca(GetLength() + 1);
-
-    ZScramble(cbResult, c_str(), strKey.c_str());
-
-    return cbResult;
-}
-
-ZString ZString::Unscramble(const ZString& strKey) const
-{
-    char* cbResult = (char*)_alloca(GetLength() + 1);
-
-    ZUnscramble(cbResult, c_str(), strKey.c_str());
-
-    return cbResult;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// Free-function forms (zstring.h). For now they forward to the members.
-//
-//////////////////////////////////////////////////////////////////////////////
-
-ZString StrFromInt(int value)                                { return ZString(value); }
-ZString StrFromFloat(float value)                            { return ZString(value); }
-ZString StrFromFloat(float value, int total, int precision)  { return ZString(value, total, precision); }
-ZString StrFromBool(bool value)                              { return ZString(value); }
-ZString StrRepeat(char ch, int length)                       { return ZString(ch, length); }
-
-int StrFind(const ZString& str, char ch, int index)                        { return str.Find(ch, index); }
-int StrFind(const ZString& str, const ZString& strFind)                    { return str.Find(strFind); }
-int StrFindAny(const ZString& str, const ZString& strChars, int index)     { return str.FindAny(strChars, index); }
-int StrReverseFind(const ZString& str, char ch, int index)                 { return str.ReverseFind(ch, index); }
-int StrReverseFindAny(const ZString& str, const ZString& strChars, int index) { return str.ReverseFindAny(strChars, index); }
-int StrReverseFind(const ZString& str, const ZString& strFind)             { return str.ReverseFind(strFind); }
-
-ZString StrLeft(const ZString& str, int count)                     { return str.Left(count); }
-ZString StrRight(const ZString& str, int count)                    { return str.Right(count); }
-ZString StrMiddle(const ZString& str, int index, int count)        { return str.Middle(index, count); }
-ZString StrLeftOf(const ZString& str, int count)                   { return str.LeftOf(count); }
-ZString StrRightOf(const ZString& str, int count)                  { return str.RightOf(count); }
-ZString StrLeftOf(const ZString& str, const ZString& strChars)     { return str.LeftOf(strChars); }
-ZString StrRightOf(const ZString& str, const ZString& strChars)    { return str.RightOf(strChars); }
-
-ZString StrToLower(const ZString& str)                             { return str.ToLower(); }
-ZString StrToUpper(const ZString& str)                             { return str.ToUpper(); }
-ZString StrScramble(const ZString& str, const ZString& strKey)     { return str.Scramble(strKey); }
-ZString StrUnscramble(const ZString& str, const ZString& strKey)   { return str.Unscramble(strKey); }
-
-void    StrReplaceAll(ZString& str, const ZString& strChars, char ch) { str.ReplaceAll(strChars, ch); }
-void    StrRemoveAll(ZString& str, char ch)                        { str.RemoveAll(ch); }
-void    StrSetChar(ZString& str, int index, char ch)               { str.Set(index, ch); }
-ZString StrGetToken(ZString& str)                                  { return str.GetToken(); }

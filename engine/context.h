@@ -566,21 +566,21 @@ public:
 inline ZString GetString(const D3DLVertex& v)
 {
     return
-          ZString(v.x) + ", "
-        + ZString(v.y) + ", "
-        + ZString(v.z) + ", "
-        + ZString(v.tu) + ", "
-        + ZString(v.tv);
+          StrFromFloat(v.x) + ", "
+        + StrFromFloat(v.y) + ", "
+        + StrFromFloat(v.z) + ", "
+        + StrFromFloat(v.tu) + ", "
+        + StrFromFloat(v.tv);
 }
 
 inline ZString GetString(const D3DVertex& v)
 {
     return
-          ZString(v.x) + ", "
-        + ZString(v.y) + ", "
-        + ZString(v.z) + ", "
-        + ZString(v.tu) + ", "
-        + ZString(v.tv);
+          StrFromFloat(v.x) + ", "
+        + StrFromFloat(v.y) + ", "
+        + StrFromFloat(v.z) + ", "
+        + StrFromFloat(v.tu) + ", "
+        + StrFromFloat(v.tv);
 }
 
 struct VertexScreen {

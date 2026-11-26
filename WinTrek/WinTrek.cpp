@@ -4382,7 +4382,7 @@ public:
         }
         else
         {
-            strResult += "to " + ZString(min(0, max(c_nMinGain, fCurrentGain + fDelta))) + " dB";
+            strResult += "to " + StrFromFloat(min(0, max(c_nMinGain, fCurrentGain + fDelta))) + " dB";
         }
 
         return strResult;

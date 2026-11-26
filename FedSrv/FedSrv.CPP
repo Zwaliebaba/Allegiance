@@ -5554,7 +5554,7 @@ IHTTPSession * BeginConfigDownload()
 {
   // Get the version information of the current module
   ZVersionInfo vi;
-  ZString strBuild(vi.GetFileBuildNumber());
+  ZString strBuild = StrFromInt(vi.GetFileBuildNumber());
 
   char szConfig[MAX_PATH];
   lstrcpy(szConfig, "http://Allegiance.zone.com/Allegiance.cfg");

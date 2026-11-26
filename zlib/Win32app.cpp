@@ -140,21 +140,21 @@ extern bool g_bOutput = true;
         {
             g_strSpaces = 
                   " "
-                + ZString((float)g_indent, 2, 0) 
-                + ZString(' ', g_indent * 2 + 1);
+                + StrFromFloat((float)g_indent, 2, 0) 
+                + StrRepeat(' ', g_indent * 2 + 1);
         }
 
         void ZTraceImpl(const char* pcc)
         {
             if (g_bEnableTrace) {
-                ZDebugOutput(ZString((float)g_line, 4, 0) + g_strSpaces + ZString(pcc) + "\n");
+                ZDebugOutput((StrFromFloat((float)g_line, 4, 0) + g_strSpaces + ZString(pcc) + "\n").c_str());
             }
             g_line++;
         }
 
         void ZEnterImpl(const char* pcc) 
         {
-            ZTraceImpl("enter " + ZString(pcc));
+            ZTraceImpl(("enter " + ZString(pcc)).c_str());
             g_indent += 1;
             SetStrSpaces();
         }
@@ -163,7 +163,7 @@ extern bool g_bOutput = true;
         {
             g_indent -= 1;
             SetStrSpaces();
-            ZTraceImpl("exit   " + ZString(pcc));
+            ZTraceImpl(("exit   " + ZString(pcc)).c_str());
         }
 
         void ZStartTraceImpl(const char* pcc)
