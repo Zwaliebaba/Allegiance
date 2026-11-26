@@ -343,7 +343,7 @@ protected:
             //
             // Open file for download
             //
-            while (!(m_hFileConnection = FtpOpenFile(m_hFTPSession, *m_pszFileList, GENERIC_READ, FTP_TRANSFER_TYPE_BINARY | INTERNET_FLAG_RELOAD, 0)))
+            while ((m_hFileConnection = FtpOpenFile(m_hFTPSession, *m_pszFileList, GENERIC_READ, FTP_TRANSFER_TYPE_BINARY | INTERNET_FLAG_RELOAD, 0)), m_hFileConnection == NULL) // no use of a volatile assignment's value (deprecated in C++20)
             {
                 //
                 // Okay, it failed.  On NT5, this seems to sometimes happen for no apparent reason, so lets try a 
@@ -806,7 +806,7 @@ public:
             //
             // Open file for download
             //
-            while (!(m_hFileConnection = InternetOpenUrl(m_hInternetSession, *m_pszFileList, NULL, 0, INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE, 0)))
+            while ((m_hFileConnection = InternetOpenUrl(m_hInternetSession, *m_pszFileList, NULL, 0, INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE, 0)), m_hFileConnection == NULL)
             {
                 DWORD dwError = GetLastError();
                 cTries++;

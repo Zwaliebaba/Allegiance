@@ -87,7 +87,7 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
 ### Phase 1: MSBuild skeleton (done)
 
 - `Directory.Build.props`: toolset v145, Windows SDK 10.0, MultiByte character set.
-- `msbuild/Allegiance.Cpp.props`: shared compiler settings (static CRT, C++17, `/EHsc`, `/W3`, shared
+- `msbuild/Allegiance.Cpp.props`: shared compiler settings (static CRT, C++20 since Phase 5, C++17 before, `/EHsc`, `/W3`, shared
   include order taken from the original `makefile.inc`). Output goes to `out/`, which git ignores.
 - `Allegiance.slnx` with `.vcxproj` files for `zlib`, `guids`, `_Utility`, `engine` and `effect`. Source
   lists are taken from the original makefiles; files the original build excluded (`dcbase.cpp`,
@@ -148,6 +148,7 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
   is not built; `lobby/pch.h` includes the deleted `zauth.h`.
 - `/permissive-` turned on (`ConformanceMode` in `msbuild/Allegiance.Cpp.props`); the fixes are in the
   conformance fix log below.
+- C++20 (`/std:c++20`, Phase 5); its fixes are in the same log.
 - The old build system is deleted (190 files): the nmake makefiles, `makefile.inc`/`makeexe.inc`/`makedep.inc`,
   the VC6 `.dsp`/`.dsw` and VS.NET `.vcproj`/`.sln` files, `VSNet.Readme`, and `build/`, the 1999 build-lab
   scripts (build numbering, BVT scripts, setup packaging, all hard-wired to `%FEDROOT%`). Git history keeps
@@ -677,6 +678,27 @@ Visible differences, for 0/255 art:
 
 C++20, replacing `ZString` and the custom containers, XAudio2, a D3D12 backend, a new lobby service.
 
+#### C++20 (done)
+
+`LanguageStandard` is `stdcpp20` for every project. The switch by itself changes no behaviour; it is the
+base for the library cleanup (`std::span`, `<format>`, concepts for `TRef`). Few fixes were needed,
+since `/permissive-` had already done the conformance work:
+
+- C++20 also tries `b == a` for `a == b`. `TRef` compared only against `Type*`, so `TRef == TRef` had two
+  equally good candidates, `(TRef, Type*)` and its reversal. `TRef` now has exact `TRef`-to-`TRef`
+  `==` and `!=`.
+- The library pieces removed in C++17 and C++20 (`std::bind1st`, `std::not2`, `std::binary_function`,
+  `std::binary_negate`) are replaced with lambdas and plain function objects, so `_HAS_AUTO_PTR_ETC=1` is
+  gone.
+- Using the value of an assignment to a `volatile` is deprecated; the two loops that did it are rewritten.
+
+How it was checked: every project was swept with clang (`-std=c++17` and `-std=c++20`, with C++20's
+compatibility and deprecation warnings on), and the second run showed nothing the first did not. Clang
+uses libstdc++, so the MSVC STL's C++20 removals (negators, `result_of`, allocator members, the
+`<ciso646>`-style headers, `uncaught_exception`) were checked by search; only the negators were used.
+No identifier is a new keyword (`concept`, `requires`, `char8_t`, the coroutine keywords), and no
+`u8` literals are used.
+
 ## Building
 
 Open `Allegiance.slnx` in Visual Studio 2026 (Desktop development with C++, plus the C++ ATL and MFC
@@ -748,7 +770,10 @@ Fixes are made per CI round, and each change keeps the original runtime behaviou
 | ICQ chat relay (`icqmapi.dll`, proprietary ICQ API, header not in the release, service gone) | Handler for `FM_S_ICQ_CHAT_ACK` made a no-op, which is what the original did when the DLL was missing. The hard-coded ICQ licence key is removed with it. | `WinTrek/WinTrek.cpp` |
 | ATL 3 implementation files (`atlimpl.cpp`, `statreg.cpp`) included into precompiled headers | Removed; current ATL is header-only plus `atls.lib` | `FedSrv/pch.cpp`, `AGC/pch.cpp` |
 | `<ZoneAuthDecrypt.h>` included but unused | Include removed | `FedSrv/pch.h` |
-| Library pieces removed in C++17 (`std::bind1st`, `std::binary_function`) | `_HAS_AUTO_PTR_ETC=1` restores them for now; they get replaced with lambdas and plain function objects in the Phase 5 library cleanup | `soundengine`, `AGC`, `test/TCLib` |
+| Library pieces removed in C++17 (`std::bind1st`, `std::binary_function`) | `_HAS_AUTO_PTR_ETC=1` restored them until C++20; then replaced with lambdas and plain function objects, and the define removed | `soundengine`, `AGC` (removed), `test/TCLib` |
+| C++20: `std::not2` / `std::binary_negate` removed | `SoundPriorityCompareReversed`, and small function objects for `ci_greater` | `soundengine/ds3dengine.*`, `test/TCLib/tstring.h` |
+| C++20: `TRef == TRef` ambiguous with the reversed `(Type*, TRef)` candidate | Exact `TRef`/`TRef` `==` and `!=` | `zlib/tref.h` |
+| C++20: value of an assignment to a `volatile` used in a loop condition (deprecated) | Comma expression, then the test | `zlib/FTPSession.cpp` |
 | More default-int forms: `static IsXValid(...)`, `const c_numGrooveLevels = 3;` | Explicit `bool` / `int` | `Zone/Member.h`, `Zone/Squad.h` (both deleted with the Zone code), `WinTrek/WinTrek.h` |
 | `<assert.h>` pulled in by current CRT/ATL headers trips zlib's "own assert only" guard; the guard's `Don't` was also lexed as an unterminated character literal | `#undef assert` before `zlib.h` in TCLib; message reworded | `test/TCLib/pch.h`, `zlib/zassert.h` |
 | qhull's `__STDC__` check: MSVC defines it only in standard C mode | `/std:c17` plus `/Zc:__STDC__` for qhull | `qhull/qhull.vcxproj` |
