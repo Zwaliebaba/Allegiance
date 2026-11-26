@@ -99,7 +99,7 @@ public:
                 TrekResources::SmallFont(),
                 (nPosition > 0) ? (0.75 * Color::White()) : Color::White(),
                 WinPoint(2, 0),
-                (nPosition + 1)
+                ZString(nPosition + 1)
             );
 
             // draw the player's name, bold if they were the leader, dimmed if the game did not count
@@ -134,39 +134,39 @@ public:
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[2] + 7, 0),
-                pplayer->scoring.GetRecentBaseKills()
+                ZString(pplayer->scoring.GetRecentBaseKills())
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[3] + 5, 0),
-                pplayer->scoring.GetRecentBaseCaptures()
+                ZString(pplayer->scoring.GetRecentBaseCaptures())
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[4] + 5, 0),
-                (int)pplayer->scoring.GetRecentScore()
+                ZString((int)pplayer->scoring.GetRecentScore())
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[5] + 5, 0),
-                pplayer->scoring.GetRecentAssists()
+                ZString(pplayer->scoring.GetRecentAssists())
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[6] + 5, 0),
-                pplayer->scoring.GetRecentKills()
+                ZString(pplayer->scoring.GetRecentKills())
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[7] + 9, 0),
-                trekClient.GetGameoverEjectPods() 
+                ZString(trekClient.GetGameoverEjectPods() 
                     ? pplayer->scoring.GetRecentEjections() 
-                    : pplayer->scoring.GetRecentDeaths()
+                    : pplayer->scoring.GetRecentDeaths())
                 );
 
             int nTime = (int)pplayer->scoring.GetRecentTimePlayed();
@@ -230,7 +230,7 @@ public:
                 TrekResources::SmallFont(),
                 (nPosition > 0) ? (0.75 * Color::White()) : Color::White(),
                 WinPoint(2, 0),
-                (nPosition + 1)
+                ZString(nPosition + 1)
             );
 
             // draw the side's name
@@ -250,37 +250,37 @@ public:
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[1] + 2, 0),
-                pside->cBaseKills
+                ZString(pside->cBaseKills)
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[2] + 2, 0),
-                pside->cBaseCaptures
+                ZString(pside->cBaseCaptures)
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[3] + 2, 0),
-                pside->cFlags
+                ZString(pside->cFlags)
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[4] + 2, 0),
-                pside->cArtifacts
+                ZString(pside->cArtifacts)
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[5] + 2, 0),
-                pside->cKills
+                ZString(pside->cKills)
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[6] + 2, 0),
-                pside->cDeaths
+                ZString(pside->cDeaths)
                 );
         }
     };

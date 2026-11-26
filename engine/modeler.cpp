@@ -1889,7 +1889,7 @@ public:
 
     void Evaluate()
     {
-        GetValueInternal() = (int)(GetNumber()->GetValue() + 0.5);
+        GetValueInternal() = ZString((int)(GetNumber()->GetValue() + 0.5));
     }
 
     ZString GetFunctionName() { return "NumberString"; }

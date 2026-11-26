@@ -193,7 +193,7 @@ public:
         if (missionparams.iLives == 32767) {
             return "Unlimited";    
         } else {
-            return missionparams.iLives;
+            return ZString(missionparams.iLives);
         }
     }
 
