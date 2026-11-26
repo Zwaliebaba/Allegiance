@@ -16,8 +16,11 @@ New-Item -ItemType Directory -Force $Out | Out-Null
 $Out = (Resolve-Path $Out).Path
 
 $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-$vstest = & $vswhere -latest -products * -find '**\TestPlatform\vstest.console.exe' | Select-Object -First 1
-if (-not $vstest) { throw "vstest.console.exe not found" }
+# Its fixed place in the installation (a -find '**' search walks the whole
+# installation, two minutes on a runner)
+$vsPath = & $vswhere -latest -products * -property installationPath
+$vstest = Join-Path $vsPath 'Common7\IDE\Extensions\TestPlatform\vstest.console.exe'
+if (-not (Test-Path $vstest)) { throw "vstest.console.exe not found at $vstest" }
 Write-Host "vstest: $vstest"
 
 $trx = "unit-tests$(if ($Label) { "-$Label" }).trx"

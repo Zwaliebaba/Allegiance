@@ -807,7 +807,8 @@ headers.
 The `asan` CI job builds zlib, engine, effect, mdlc and the tests in Release with
 `/fsanitize=address` (`-p:EnableASAN=true`; Debug's `/RTC` checks don't combine with it) and runs the
 unit tests and the mdlc smoke test, which loads text and binary MDL (the code that had the
-use-after-free). The ASan runtime DLL comes from the Visual Studio installation and is put on `PATH`;
+use-after-free). Before that it checks that `mdlc.exe` and the test DLL import the ASan runtime, so a clean
+run can't come from uninstrumented binaries. First run: 41 tests and the smoke test clean. The ASan runtime DLL comes from the Visual Studio installation and is put on `PATH`;
 a report goes to stderr, which the smoke script keeps in `out/art-smoke/<step>.log.err` (attached to
 the run as `asan-logs`).
 

@@ -241,6 +241,17 @@ jobs:
           }
           if ($failed.Count) { Write-Host "Failed: $($failed -join ', ')"; exit 1 }
 
+      # A clean run only means something if the binaries are instrumented
+      - name: Check the binaries use the ASan runtime
+        if: steps.build.outcome == 'success'
+        shell: pwsh
+        run: |
+          foreach ($f in 'mdlc.exe', 'UnitTests.dll') {
+            $deps = dumpbin /nologo /dependents "out/bin/x64/$env:CONFIGURATION/$f" | Out-String
+            if ($deps -notmatch 'clang_rt\.asan_dynamic-x86_64\.dll') { Write-Host $deps; throw "$f is not built with AddressSanitizer" }
+            "$f links clang_rt.asan_dynamic-x86_64.dll"
+          }
+
       - name: Unit tests under ASan
         id: tests
         if: always()
