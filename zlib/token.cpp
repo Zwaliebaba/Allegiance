@@ -8,7 +8,7 @@
 
 void TextTokenImpl::SetError(const ZString& strError)
 {
-    ZError("Parsing error - " + strError);
+    ZError(("Parsing error - " + strError).c_str());
     m_strError = strError;
 }
 

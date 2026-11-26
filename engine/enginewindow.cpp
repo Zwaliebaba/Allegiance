@@ -300,7 +300,7 @@ bool g_bWindowLog = false;
 
 void EngineWindow::ParseCommandLine(const ZString& strCommandLine, bool& bStartFullscreen)
 {
-    PCC pcc = strCommandLine;
+    PCC pcc = strCommandLine.c_str();
     CommandLineToken token(pcc, (int)strCommandLine.size());
 
     while (token.MoreTokens()) {
@@ -452,7 +452,7 @@ void EngineWindow::UpdateRectValues()
             );
 
         if (g_bWindowLog) {
-            ZDebugOutput("  Fullscreen: " + GetString(0, rect) + "\n");
+            ZDebugOutput(("  Fullscreen: " + GetString(0, rect) + "\n").c_str());
         }
 
         m_prectValueScreen->SetValue(rect);
@@ -461,7 +461,7 @@ void EngineWindow::UpdateRectValues()
         WinRect rect(WinPoint(0, 0), m_sizeWindowed);
 
         if (g_bWindowLog) {
-            ZDebugOutput("  Windowed: " + GetString(0, rect) + "\n");
+            ZDebugOutput(("  Windowed: " + GetString(0, rect) + "\n").c_str());
         }
 
         m_prectValueScreen->SetValue(rect);
@@ -683,7 +683,7 @@ WinPoint EngineWindow::GetFullscreenSize()
 void EngineWindow::SetWindowedSize(const WinPoint& size)
 {
     if (g_bWindowLog) {
-        ZDebugOutput("EngineWindow::SetWindowedSize(" + GetString(size) + ")\n");
+        ZDebugOutput(("EngineWindow::SetWindowedSize(" + GetString(size) + ")\n").c_str());
     }
 
     if (m_sizeWindowed != size) {
@@ -950,7 +950,7 @@ void EngineWindow::OutputPerformanceCounters()
 {
    if (m_bFPS) {
         ZString strOut = m_strPerformance1 + " " + m_strPerformance2 + "\r\n";
-        OutputDebugStringA(strOut);
+        OutputDebugStringA(strOut.c_str());
     }
 }
 
@@ -1163,11 +1163,11 @@ bool EngineWindow::OnActivateApp(bool bActive)
 {
     if (g_bWindowLog) {
         ZDebugOutput(
-              ZString("OnActivateApp: was ")
+              (ZString("OnActivateApp: was ")
             + (m_bActive ? "active" : "inactive")
             + ", becoming "
             + (bActive ? "active" : "inactive")
-            + "\n"
+            + "\n").c_str()
         );
     }
 

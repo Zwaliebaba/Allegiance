@@ -301,13 +301,13 @@ void Win32App::DebugOutput(const char *psz)
 bool Win32App::OnAssert(const char* psz, const char* pszFile, int line, const char* pszModule)
 {
     ZDebugOutput(
-          ZString("assertion failed: '")
+          (ZString("assertion failed: '")
         + psz
         + "' ("
         + pszFile
         + ":"
         + StrFromInt(line)
-        + ")\n"
+        + ")\n").c_str()
     );
     LogAssertCallStack();
 

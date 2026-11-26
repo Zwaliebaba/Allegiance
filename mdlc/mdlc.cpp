@@ -24,7 +24,7 @@ class ModelerSiteImpl : public ModelerSite {
 public:
     void Error(const ZString& str)
     {
-        printf(str);
+        printf(str.c_str());
         printf("\n");
         fflush(stdout);
         _exit(1);   // was 0, which hid failures from the build
@@ -41,7 +41,7 @@ class MDLCApp : public EffectApp {
 public:
     static void Fail(const ZString& str)
     {
-        printf("mdlc: " + str + "\n");
+        printf(("mdlc: " + str + "\n").c_str());
         fflush(stdout);
         _exit(1);
     }
@@ -64,18 +64,18 @@ public:
         const char* patterns[] = { "*.ttf", "*.otf", "*.fon" };
         for (int i = 0; i < ARRAYSIZE(patterns); i++) {
             WIN32_FIND_DATA data;
-            HANDLE hfind = FindFirstFile(strDir + "\\" + patterns[i], &data);
+            HANDLE hfind = FindFirstFile((strDir + "\\" + patterns[i]).c_str(), &data);
             if (hfind == INVALID_HANDLE_VALUE)
                 continue;
             do {
-                if (AddFontResourceEx(strDir + "\\" + data.cFileName, FR_PRIVATE, NULL) != 0)
+                if (AddFontResourceEx((strDir + "\\" + data.cFileName).c_str(), FR_PRIVATE, NULL) != 0)
                     count++;
                 else
-                    printf("mdlc : warning : could not load font %s\\%s\n", (PCC)strDir, data.cFileName);
+                    printf("mdlc : warning : could not load font %s\\%s\n", strDir.c_str(), data.cFileName);
             } while (FindNextFile(hfind, &data));
             FindClose(hfind);
         }
-        printf("mdlc: loaded %d fonts from %s\n", count, (PCC)strDir);
+        printf("mdlc: loaded %d fonts from %s\n", count, strDir.c_str());
     }
 
     static void Write(INameSpace* pns, const ZString& strOutput)
@@ -129,7 +129,7 @@ public:
             TRef<LODGeo> plodGeo; CastTo(plodGeo, pgeo);
 
             if (plodGeo) {
-                printf(plodGeo->GetInfo());
+                printf(plodGeo->GetInfo().c_str());
                 return;
             }
 
@@ -150,7 +150,7 @@ public:
 
     void DoOptimize(const ZString& strInput, const ZString& strOutput)
     {
-        printf(ZString("Optimizing ") + strInput + "\n");
+        printf((ZString("Optimizing ") + strInput + "\n").c_str());
 
         //
         // Load an mdl file
@@ -207,7 +207,7 @@ public:
         //
 
         {
-            PCC pcc = strCommandLine;
+            PCC pcc = strCommandLine.c_str();
             CommandLineToken token(pcc, (int)strCommandLine.size());
             ZString str;
             ZString strFile;
@@ -216,7 +216,7 @@ public:
                 if (!token.IsString(strFile))
                     Fail("usage: mdlc -batch <file>");
 
-                FILE* f = fopen(strFile, "r");
+                FILE* f = fopen(strFile.c_str(), "r");
                 if (f == NULL)
                     Fail("cannot open " + strFile);
 
@@ -251,7 +251,7 @@ public:
             // Parse the command line
             //
 
-            PCC pcc = strCommandLine;
+            PCC pcc = strCommandLine.c_str();
             CommandLineToken token(pcc, (int)strCommandLine.size());
 
             while (token.MoreTokens()) {

@@ -408,24 +408,24 @@ public:
     {
         PlayerInfo* pplayer;
 
-        if (trekClient.ParseShellCommand(strChat))
+        if (trekClient.ParseShellCommand(strChat.c_str()))
         {
             // nothing more to do
         }
-        else if (_stricmp(StrLeftOf(strChat, ":"), "admin") == 0)
+        else if (_stricmp(StrLeftOf(strChat, ":").c_str(), "admin") == 0)
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_ADMIN, NA,
-                                NA, (const char*)StrRightOf(strChat, ":"));
+                                NA, StrRightOf(strChat, ":").c_str());
         }
-        else if (NULL != (pplayer = trekClient.FindPlayer(StrLeftOf(strChat, ":"))))
+        else if (NULL != (pplayer = trekClient.FindPlayer(StrLeftOf(strChat, ":").c_str())))
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_INDIVIDUAL, pplayer->ShipID(),
-                                NA, (const char*)StrRightOf(strChat, ":"));
+                                NA, StrRightOf(strChat, ":").c_str());
         }
         else
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_EVERYONE, NA,
-                                NA, (const char*)strChat);
+                                NA, strChat.c_str());
         }
     }
 

@@ -560,7 +560,7 @@ private:
             else 
                 strMainText = GetCivString("Default", pns);
 
-            _snprintf(cbTemp, nMaxText, strMainText, (const char*)CensorBadWords (trekClient.GetSide()->GetName()), (const char*)trekClient.GetBriefingText(), (const char*)GetCivListString());
+            _snprintf(cbTemp, nMaxText, strMainText.c_str(), CensorBadWords (trekClient.GetSide()->GetName()).c_str(), trekClient.GetBriefingText().c_str(), GetCivListString().c_str());
             strResult = cbTemp;
 
             if (misparams.IsArtifactsGame() || misparams.IsFlagsGame() || misparams.IsCountdownGame() 
@@ -571,37 +571,37 @@ private:
 
                 if (misparams.IsConquestGame() && misparams.GetConquestPercentage() != 100)
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Conquest", pns), misparams.GetConquestPercentage());
+                    _snprintf(cbTemp, nMaxText, GetCivString("Conquest", pns).c_str(), misparams.GetConquestPercentage());
                     strResult += cbTemp;
                 }
 
                 if (misparams.IsArtifactsGame())
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Artifacts", pns), misparams.nGoalArtifactsCount);
+                    _snprintf(cbTemp, nMaxText, GetCivString("Artifacts", pns).c_str(), misparams.nGoalArtifactsCount);
                     strResult += cbTemp;
                 }
 
                 if (misparams.IsFlagsGame())
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Flags", pns), misparams.nGoalFlagsCount);
+                    _snprintf(cbTemp, nMaxText, GetCivString("Flags", pns).c_str(), misparams.nGoalFlagsCount);
                     strResult += cbTemp;
                 }
 
                 if (misparams.IsCountdownGame())
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Countdown", pns), (int)(misparams.GetCountDownTime() / 60));
+                    _snprintf(cbTemp, nMaxText, GetCivString("Countdown", pns).c_str(), (int)(misparams.GetCountDownTime() / 60));
                     strResult += cbTemp;
                 }
 
                 if (misparams.IsDeathMatchGame())
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Deathmatch", pns), misparams.GetDeathMatchKillLimit());
+                    _snprintf(cbTemp, nMaxText, GetCivString("Deathmatch", pns).c_str(), misparams.GetDeathMatchKillLimit());
                     strResult += cbTemp;
                 }
 
                 if (misparams.IsProsperityGame())
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Prosperity", pns), (int)(misparams.fGoalTeamMoney * trekClient.GetCore()->GetFloatConstant(c_fcidWinTheGameMoney)));
+                    _snprintf(cbTemp, nMaxText, GetCivString("Prosperity", pns).c_str(), (int)(misparams.fGoalTeamMoney * trekClient.GetCore()->GetFloatConstant(c_fcidWinTheGameMoney)));
                     strResult += cbTemp;
                 }
             }
@@ -835,7 +835,7 @@ private:
             else
             {
                 pfmSetTeamInfo->squadID = NA;
-                strcpy(pfmSetTeamInfo->SideName, m_peditPaneTeamName->GetString());
+                strcpy(pfmSetTeamInfo->SideName, m_peditPaneTeamName->GetString().c_str());
             }
 
             trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
@@ -1128,24 +1128,24 @@ public:
     {
         PlayerInfo* pplayer;
 
-        if (trekClient.ParseShellCommand(strChat))
+        if (trekClient.ParseShellCommand(strChat.c_str()))
         {
             // nothing more to do
         }
-        else if (_stricmp(StrLeftOf(strChat, ":"), "admin") == 0)
+        else if (_stricmp(StrLeftOf(strChat, ":").c_str(), "admin") == 0)
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_ADMIN, NA,
-                                NA, (const char*)StrRightOf(strChat, ":"));
+                                NA, StrRightOf(strChat, ":").c_str());
         }
-        else if (NULL != (pplayer = trekClient.FindPlayer(StrLeftOf(strChat, ":"))))
+        else if (NULL != (pplayer = trekClient.FindPlayer(StrLeftOf(strChat, ":").c_str())))
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_INDIVIDUAL, pplayer->ShipID(),
-                                NA, (const char*)StrRightOf(strChat, ":"));
+                                NA, StrRightOf(strChat, ":").c_str());
         }
         else
         {
             trekClient.SendChat(trekClient.GetShip(), m_chattargetChannel, NA,
-                                NA, (const char*)strChat);
+                                NA, strChat.c_str());
         }
     }
 
@@ -1251,7 +1251,7 @@ public:
     void UpdateTitleText()
     {   
         ZString str = StrToUpper(ZString(m_pMission->Name()));
-        m_ptextTitle->SetString(((strcmp(str, "") != 0) ? CensorBadWords (m_pMission->Name()) : ZString("THIS GAME")));
+        m_ptextTitle->SetString(((strcmp(str.c_str(), "") != 0) ? CensorBadWords (m_pMission->Name()) : ZString("THIS GAME")));
     }
     
     void UpdatePromptText()

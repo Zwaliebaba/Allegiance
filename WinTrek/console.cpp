@@ -925,8 +925,8 @@ public:
                 !(m_rPreviousMissileLock > 0.0f && m_rPreviousMissileLock < 1.0f))
             trekClient.PostText(false, "Partial missile lock - center the target on screen to improve the lock.");
         else if (rMissileLock == 1.0f && m_rPreviousMissileLock != 1.0f)
-            trekClient.PostText(false, "%s", (const char*)(ZString("Missile lock acquired - press [Ctrl]-[Space] to fire a ")
-                + magazine->GetMissileType()->GetName() + " missile at the target."));
+            trekClient.PostText(false, "%s", ((ZString("Missile lock acquired - press [Ctrl]-[Space] to fire a ")
+                + magazine->GetMissileType()->GetName() + " missile at the target.")).c_str());
         else if (rMissileLock == 0.0f && m_rPreviousMissileLock != 0.0f && !m_fTargetChanged)
             trekClient.PostText(false, "Missile lock lost.");
 
@@ -1268,7 +1268,7 @@ public:
                         int lenText = (int)m_strTypedText.size();
                         strcpy(bfr, (m_pmodelTarget == trekClient.GetShip()) &&
                                     (lenText <= 2) &&
-                                    (_strnicmp(m_strTypedText, "me", lenText) == 0)
+                                    (_strnicmp(m_strTypedText.c_str(), "me", lenText) == 0)
                                     ? "me"
                                     : GetModelName(m_pmodelTarget));
 
@@ -1562,14 +1562,14 @@ public:
         {
             assert ((int)m_strTypedText.size() != 0);
 
-            SendChatInternal(m_strTypedText,
+            SendChatInternal(m_strTypedText.c_str(),
                              NA,
                              c_cidNone,
                              NULL);
         }
         else if (m_csComposeState == c_csComposeShell)
         {
-            trekClient.ParseShellCommand(m_strTypedText);
+            trekClient.ParseShellCommand(m_strTypedText.c_str());
         }
         else
         {
@@ -2361,7 +2361,7 @@ public:
     {
         SetChatObject(NULL);
 
-        const char* pszText = m_strTypedText;
+        const char* pszText = m_strTypedText.c_str();
         if (*pszText == '\0')
             return;
 
@@ -2566,7 +2566,7 @@ public:
     void OnTab()
     {
         assert (m_csComposeState > c_csComposeMouseCommand);
-        const char* pcc = m_strTypedText;
+        const char* pcc = m_strTypedText.c_str();
 
         if ((*pcc == '\0') || (*pcc == ' '))
         {

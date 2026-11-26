@@ -310,7 +310,7 @@ public:
   }
   const char*     GetCDKey() 
   { 
-    return m_strCDKey; 
+    return m_strCDKey.c_str(); 
   }
   virtual void    SetSide(CFSMission * pmission, IsideIGC * pside);
   bool            CanCheat()            

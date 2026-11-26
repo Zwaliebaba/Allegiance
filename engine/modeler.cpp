@@ -23,7 +23,7 @@ public:
 
     void Error(const ZString& str)
     {
-        ZError(str);
+        ZError(str.c_str());
     }
 };
 
@@ -1774,9 +1774,9 @@ public:
                 FALSE, FALSE, FALSE, ANSI_CHARSET,
                 OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
                 DEFAULT_QUALITY, DEFAULT_PITCH | FF_MODERN,
-                pstringName->GetValue()
+                pstringName->GetValue().c_str()
             );
-        WarnIfFontSubstituted(hfont, pstringName->GetValue());
+        WarnIfFontSubstituted(hfont, pstringName->GetValue().c_str());
 
         return new FontValue(CreateEngineFont(hfont));
     }
@@ -2404,7 +2404,7 @@ public:
         std::vector<DDSLevel> levels;
 
         if (!ReadDDS(pdata, pfile->GetLength(), levels)) {
-            ZDebugOutput("Not a 32-bit BGRA DDS file: '" + StrLeft(str, (int)str.size() - 3) + ".dds'\n");
+            ZDebugOutput(("Not a 32-bit BGRA DDS file: '" + StrLeft(str, (int)str.size() - 3) + ".dds'\n").c_str());
             return NULL;
         }
 
@@ -2461,7 +2461,7 @@ public:
 
         if (pns) {
             if (g_bMDLLog) {
-                ZDebugOutput("Reading DDS image '" + str + "'\n");
+                ZDebugOutput(("Reading DDS image '" + str + "'\n").c_str());
             }
             m_mapNameSpace.Set(str, pns);
             return pns;
@@ -2472,12 +2472,12 @@ public:
         if (pfile != NULL) {
             if (*(DWORD*)pfile->GetPointer(false, false) == MDLMagic) {
                 if (g_bMDLLog) {
-                    ZDebugOutput("Reading Binary MDL file '" + str + "'\n");
+                    ZDebugOutput(("Reading Binary MDL file '" + str + "'\n").c_str());
                 }
                 pns = CreateBinaryNameSpace(str, this, pfile);
             } else {
                 if (g_bMDLLog) {
-                    ZDebugOutput("Reading Text MDL file '" + str + "'\n");
+                    ZDebugOutput(("Reading Text MDL file '" + str + "'\n").c_str());
                 }
                 pns = ::CreateNameSpace(str, this, pfile);
             }

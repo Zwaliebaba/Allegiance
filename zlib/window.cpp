@@ -92,7 +92,7 @@ Window::Window(
         m_hwnd = ::CreateWindowEx(
             m_styleEX.GetWord(),
             TEXT(GetTopLevelWindowClassname()),
-            strTitle,
+            strTitle.c_str(),
             m_style.GetWord(),
             CW_USEDEFAULT, CW_USEDEFAULT,
             //m_rect.XMin(), m_rect.YMin(), 
@@ -105,8 +105,8 @@ Window::Window(
     } else {
         m_hwnd = ::CreateWindowEx(
             m_styleEX.GetWord(),
-            strClass,
-            strTitle,
+            strClass.c_str(),
+            strTitle.c_str(),
             m_style.GetWord(),
             CW_USEDEFAULT, CW_USEDEFAULT,
             //m_rect.XMin(), m_rect.YMin(), 

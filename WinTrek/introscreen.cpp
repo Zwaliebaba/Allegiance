@@ -200,7 +200,7 @@ class IntroScreen
       auto serverInfo1 = static_cast<LANServerInfo*>(pitem1);
       auto serverInfo2 = static_cast<LANServerInfo*>(pitem2);
 
-      return _stricmp(serverInfo1->strGameName, serverInfo2->strGameName) > 0;
+      return _stricmp(serverInfo1->strGameName.c_str(), serverInfo2->strGameName.c_str()) > 0;
     }
 
   public:
@@ -271,7 +271,7 @@ class IntroScreen
       GetWindow()->SetFocus(m_peditPane);
       m_bDoBackgroundPolling = true;
 
-      FindGames(m_peditPane->GetString());
+      FindGames(m_peditPane->GetString().c_str());
       IPopup::SetContainer(pcontainer);
     }
 
@@ -301,7 +301,7 @@ class IntroScreen
     bool OnButtonFind()
     {
       m_plistServers->SetEmpty();
-      FindGames(m_peditPane->GetString());
+      FindGames(m_peditPane->GetString().c_str());
 
       return true;
     }
@@ -451,7 +451,7 @@ class IntroScreen
     bool OnEvent(IIntegerEventSource* pevent, int value) override
     {
       if (value == IDOK)
-        GetWindow()->ShowWebPage(m_strURL);
+        GetWindow()->ShowWebPage(m_strURL.c_str());
       return false;
     }
   };
@@ -599,7 +599,7 @@ public:
     //
 
     TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this, "Enter a call sign to use for this game.",
-                                                trekClient.GetSavedCharacterName());
+                                                trekClient.GetSavedCharacterName().c_str());
     GetWindow()->GetPopupContainer()->OpenPopup(plogonPopup, false);
 
     return true;
@@ -658,7 +658,7 @@ public:
 
     // start with a default name
     lstrcpy(config_file_name, "Allegiance");
-    lstrcat(config_file_name, static_cast<PCC>(strBuild));
+    lstrcat(config_file_name, strBuild.c_str());
     lstrcat(config_file_name, ".cfg");
 
     // then look to see if the settings name one we should use instead
@@ -672,11 +672,11 @@ public:
 
     // load the config data
     CfgInfo cfgInfo;
-    cfgInfo.Load(pathConfig);
-    if (cfgInfo.strTrainingURL)
+    cfgInfo.Load(pathConfig.c_str());
+    if (!cfgInfo.strTrainingURL.empty())
     {
       // if everything is OK, launch the web page
-      GetWindow()->ShowWebPage(cfgInfo.strTrainingURL);
+      GetWindow()->ShowWebPage(cfgInfo.strTrainingURL.c_str());
 
       // ... and close our application
       GetWindow()->PostMessage(WM_CLOSE);
@@ -712,10 +712,10 @@ public:
 
     BaseClient::ConnectInfo ci;
     ci.guidSession = m_guidSession;
-    strcpy(ci.szName, m_strCharacterName);
-    assert(strlen(m_strPassword) < c_cbGamePassword);
+    strcpy(ci.szName, m_strCharacterName.c_str());
+    assert(strlen(m_strPassword.c_str()) < c_cbGamePassword);
 
-    trekClient.ConnectToServer(ci, NA, Time::Now(), m_strPassword, true);
+    trekClient.ConnectToServer(ci, NA, Time::Now(), m_strPassword.c_str(), true);
 
     return false;
   }
@@ -733,7 +733,7 @@ public:
     if (bRetry)
     {
       // pop up the call sign/login dialog
-      TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this, szReason, trekClient.GetSavedCharacterName());
+      TRef<IPopup> plogonPopup = CreateLogonPopup(m_pmodeler, this, szReason, trekClient.GetSavedCharacterName().c_str());
       GetWindow()->GetPopupContainer()->OpenPopup(plogonPopup, false);
     }
     else

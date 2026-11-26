@@ -753,8 +753,8 @@ public:
     {
         misparams = GetBaseMissionParams();
 
-        strcpy(misparams.strGameName, m_peditPaneGameName->GetString());
-        strcpy(misparams.strGamePassword, m_peditPaneGamePassword->GetString());
+        strcpy(misparams.strGameName, m_peditPaneGameName->GetString().c_str());
+        strcpy(misparams.strGamePassword, m_peditPaneGamePassword->GetString().c_str());
 
         misparams.bEjectPods = m_pbuttonEjectPods->GetChecked();
         misparams.bAllowFriendlyFire = m_pbuttonFriendlyFire->GetChecked();

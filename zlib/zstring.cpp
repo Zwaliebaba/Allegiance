@@ -361,7 +361,7 @@ bool operator==(const ZString& str1, const ZString& str2)
 {
     return
            str1.GetLength() == str2.GetLength()
-        && (strncmp(str1, str2, str1.GetLength()) == 0);
+        && (strncmp(str1.c_str(), str2.c_str(), str1.GetLength()) == 0);
 }
 
 bool operator==(const ZString& str, PCC pcc)
@@ -370,7 +370,7 @@ bool operator==(const ZString& str, PCC pcc)
 
     return
            str.GetLength() == (int)strlen(pcc)
-        && (strncmp(str, pcc, str.GetLength()) == 0);
+        && (strncmp(str.c_str(), pcc, str.GetLength()) == 0);
 }
 
 bool operator==(PCC pcc, const ZString& str)
@@ -379,14 +379,14 @@ bool operator==(PCC pcc, const ZString& str)
 
     return
            str.GetLength() == (int)strlen(pcc)
-        && (strncmp(str, pcc, str.GetLength()) == 0);
+        && (strncmp(str.c_str(), pcc, str.GetLength()) == 0);
 }
 
 bool operator!=(const ZString& str1, const ZString& str2)
 {
     return
            str1.GetLength() != str2.GetLength()
-        || (strncmp(str1, str2, str1.GetLength()) != 0);
+        || (strncmp(str1.c_str(), str2.c_str(), str1.GetLength()) != 0);
 }
 
 bool operator!=(const ZString& str, PCC pcc)
@@ -395,7 +395,7 @@ bool operator!=(const ZString& str, PCC pcc)
 
     return
            str.GetLength() != (int)strlen(pcc)
-        || (strncmp(str, pcc, str.GetLength()) != 0);
+        || (strncmp(str.c_str(), pcc, str.GetLength()) != 0);
 }
 
 bool operator!=(PCC pcc, const ZString& str)
@@ -404,22 +404,22 @@ bool operator!=(PCC pcc, const ZString& str)
 
     return 
            str.GetLength() != (int)strlen(pcc)
-        || (strncmp(str, pcc, str.GetLength()) != 0);
+        || (strncmp(str.c_str(), pcc, str.GetLength()) != 0);
 }
 
 bool operator<(const ZString& str1, const ZString& str2)
 {
-    return strcmp(str1, str2) < 0;
+    return strcmp(str1.c_str(), str2.c_str()) < 0;
 }
 
 bool operator<(const ZString& str, PCC pcc)
 {
-    return strcmp(str, pcc) < 0;
+    return strcmp(str.c_str(), pcc) < 0;
 }
 
 bool operator<(PCC pcc, const ZString& str)
 {
-    return strcmp(pcc, str) < 0;
+    return strcmp(pcc, str.c_str()) < 0;
 }
 
 /*
@@ -532,7 +532,7 @@ ZString ZString::ToLower() const
 {
     char* cbResult = (char*)_alloca(GetLength() + 1);
 
-    ZToLower(cbResult, (*this));
+    ZToLower(cbResult, c_str());
 
     return cbResult;
 }
@@ -541,7 +541,7 @@ ZString ZString::ToUpper() const
 {
     char* cbResult = (char*)_alloca(GetLength() + 1);
 
-    ZToUpper(cbResult, (*this));
+    ZToUpper(cbResult, c_str());
 
     return cbResult;
 }
@@ -1002,7 +1002,7 @@ ZString ZString::Scramble(const ZString& strKey) const
 {
     char* cbResult = (char*)_alloca(GetLength() + 1);
 
-    ZScramble(cbResult, (*this), strKey);
+    ZScramble(cbResult, c_str(), strKey.c_str());
 
     return cbResult;
 }
@@ -1011,7 +1011,7 @@ ZString ZString::Unscramble(const ZString& strKey) const
 {
     char* cbResult = (char*)_alloca(GetLength() + 1);
 
-    ZUnscramble(cbResult, (*this), strKey);
+    ZUnscramble(cbResult, c_str(), strKey.c_str());
 
     return cbResult;
 }

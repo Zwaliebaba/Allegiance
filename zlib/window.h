@@ -256,7 +256,7 @@ public:
 
     int MessageBox(const ZString& strText, const ZString& strCaption, UINT nType)
     {
-        return ::MessageBox(m_hwnd, strText, strCaption, nType);
+        return ::MessageBox(m_hwnd, strText.c_str(), strCaption.c_str(), nType);
     }
 
     HMENU GetSystemMenu(BOOL bRevert = false)

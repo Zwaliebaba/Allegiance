@@ -453,7 +453,7 @@ namespace Training
         dataShip.hullID = hullID;
         dataShip.sideID = sideID;
         dataShip.pilotType = pilotType;
-        strcpy (dataShip.name, name);
+        strcpy (dataShip.name, name.c_str());
 
         // clear out the dynamic values
         //dataShip.wingID = 0;
@@ -619,7 +619,7 @@ namespace Training
         CreatePlayerInfo (trekClient.GetShip (), 0, pCore->GenerateNewShipID());
 
         // now load the actual map world
-        LoadIGCFile (name, pCore);
+        LoadIGCFile (name.c_str(), pCore);
 
         // set up the default loadouts for the desired ship
         IhullTypeIGC*   pHullType = pCore->GetHullType (hullID);

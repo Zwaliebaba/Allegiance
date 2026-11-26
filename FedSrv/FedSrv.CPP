@@ -1185,13 +1185,13 @@ bool CheatCreateDrones(CFSShip * pfsShip, ZString & strCheat)
   CFSMission * pfsMission = pfsShip->GetMission();
   // Syntax: CreateDrones [DroneType] [[# of drones] [DroneSide] [shipTypeID]]
   bool fIsCheat = true;
-  ZString strDroneType(strCheat.GetToken());
-  ZString strNumDrones(strCheat.GetToken());
-  ZString strDroneSide(strCheat.GetToken());
-  ZString strMessage(strCheat.GetToken());
-  ZString strShipTypeID(strCheat.GetToken());
+  ZString strDroneType(StrGetToken(strCheat));
+  ZString strNumDrones(StrGetToken(strCheat));
+  ZString strDroneSide(StrGetToken(strCheat));
+  ZString strMessage(StrGetToken(strCheat));
+  ZString strShipTypeID(StrGetToken(strCheat));
 
-  if (strDroneType.IsEmpty())
+  if (strDroneType.empty())
       fIsCheat = false;
   else
   {
@@ -1202,16 +1202,16 @@ bool CheatCreateDrones(CFSShip * pfsShip, ZString & strCheat)
     IsideIGC* psideDrone = NULL;
     int iNumDrones{};
     
-    if (!lstrcmpi(strDroneType, "carrier"))
+    if (!lstrcmpi(strDroneType.c_str(), "carrier"))
         ptPilotType = c_ptCarrier;
-    else if (!lstrcmpi(strDroneType, "miner"))
+    else if (!lstrcmpi(strDroneType.c_str(), "miner"))
         ptPilotType = c_ptMiner;
-    else if (!lstrcmpi(strDroneType, "wingman"))
+    else if (!lstrcmpi(strDroneType.c_str(), "wingman"))
         ptPilotType = c_ptWingman;
     else 
     {
         pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
-                                         NA, "%s is not a valid drone type.  Aborting cheat code.", (PCC) strDroneType);
+                                         NA, "%s is not a valid drone type.  Aborting cheat code.", strDroneType.c_str());
         fIsCheat = false;
     }
 
@@ -1231,18 +1231,18 @@ bool CheatCreateDrones(CFSShip * pfsShip, ZString & strCheat)
       if (!pdronetype)
       {
         pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
-                                         NA, "There are not any %s type drones defined. Aborting cheat code.", (const char*)strDroneType);
+                                         NA, "There are not any %s type drones defined. Aborting cheat code.", strDroneType.c_str());
         fIsCheat = false;
       }
     }
 
     if (fIsCheat)
     {
-      iNumDrones = strNumDrones.IsEmpty() ? 1 : atoi(strNumDrones);
+      iNumDrones = strNumDrones.empty() ? 1 : atoi(strNumDrones.c_str());
 
-      if (!strDroneSide.IsEmpty()) 
+      if (!strDroneSide.empty()) 
       {
-        psideDrone = pfsMission->GetIGCMission()->GetSide(atoi(strDroneSide));
+        psideDrone = pfsMission->GetIGCMission()->GetSide(atoi(strDroneSide.c_str()));
         if (!psideDrone)
           fIsCheat = false;
       }
@@ -1431,19 +1431,19 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
   CFSMission * pfsMission = pfsShip->GetMission();
   bool fIsCheat = true;
   ZString strCheat(szMessage);
-  ZString strToken = strCheat.GetToken();
+  ZString strToken = StrGetToken(strCheat);
   // debugf("!!! Cheat from %s: %s\n", pfsShip->GetName(), (PCC) strToken);
   
-  if (!lstrcmpi(strToken, "bootme"))
+  if (!lstrcmpi(strToken.c_str(), "bootme"))
   {
     Sleep(1000); // give the client a chance to get some messages into the receive queue--if they're flying that is
     LogTrapHack(EventID_HackBoot, pfsShip->GetPlayer(), pfsShip->GetPlayer()->GetConnection(), "bootme cheat code", __LINE__);
   }
-  else if (!lstrcmpi(strToken, "spew"))
+  else if (!lstrcmpi(strToken.c_str(), "spew"))
   {
-    debugf("===> %s\n", (PCC) strCheat);
+    debugf("===> %s\n", strCheat.c_str());
   }
-  else if (!lstrcmpi(strToken, "stations")) 
+  else if (!lstrcmpi(strToken.c_str(), "stations")) 
   {
     // show status on all stations
     pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
@@ -1460,10 +1460,10 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
           (int)(100.0f * pStation->GetFraction()), (int)(100.0f * pStation->GetShieldFraction()), pStation->GetCluster()->GetName());
     }
   }
-  else if (!lstrcmpi(strToken, "exile"))
+  else if (!lstrcmpi(strToken.c_str(), "exile"))
   {
-    ZString strPlayer(strCheat.GetToken());
-    if (strPlayer.IsEmpty()) // must specify valid station
+    ZString strPlayer(StrGetToken(strCheat));
+    if (strPlayer.empty()) // must specify valid station
       fIsCheat = false;
     else
     {
@@ -1471,7 +1471,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
       for (ShipLinkIGC* psl = pfsMission->GetIGCMission()->GetShips()->first(); (psl != NULL); psl = psl->next())
       {
           CFSShip*  pfsShip = (CFSShip*)(psl->data()->GetPrivateData());
-          if (pfsShip->IsPlayer() && (lstrcmpi(strPlayer, psl->data()->GetName()) == 0))
+          if (pfsShip->IsPlayer() && (lstrcmpi(strPlayer.c_str(), psl->data()->GetName()) == 0))
           {
               // send them to the game lobby
               pfsMission->RemovePlayerFromMission(pfsShip->GetPlayer(), QSR_AdminBooted);
@@ -1480,7 +1480,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
       }
     }
   }
-  else if (!lstrcmpi(strToken, "OhSayCanYouSee"))
+  else if (!lstrcmpi(strToken.c_str(), "OhSayCanYouSee"))
   {
     IclusterIGC*    pcluster = pfsShip->GetIGCShip()->GetCluster();
     if (pcluster)
@@ -1497,7 +1497,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
     else
         fIsCheat = false;
   }
-  else if (!lstrcmpi(strToken, "IfYouBuildIt"))
+  else if (!lstrcmpi(strToken.c_str(), "IfYouBuildIt"))
   {
     ZString strTech;
     if (pfsMission->GetStage() != STAGE_STARTED)
@@ -1507,9 +1507,9 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
     {
       IsideIGC * pside = pfsShip->GetSide();
       SideID sideid = pside->GetObjectID();
-      while (!(strTech = strCheat.GetToken()).IsEmpty()) // get a new token, and proceed if non-empty
+      while (!(strTech = StrGetToken(strCheat)).empty()) // get a new token, and proceed if non-empty
       {
-        int ibit = TechBitFromToken(strTech);
+        int ibit = TechBitFromToken(strTech.c_str());
         if (NA != ibit)
         {
           TechTreeBitMask ttbm;
@@ -1520,12 +1520,12 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
         else
         {
           pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
-                                           NA, "Sorry, no tech found named %s.", (const char*)strTech);
+                                           NA, "Sorry, no tech found named %s.", strTech.c_str());
         }
       } 
     }
   }
-  else if (!lstrcmpi(strToken, "IfYouWishUponAStar"))
+  else if (!lstrcmpi(strToken.c_str(), "IfYouWishUponAStar"))
   {
     ZString strTech;
     if (pfsMission->GetStage() != STAGE_STARTED)
@@ -1540,27 +1540,27 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
       pside->ApplyDevelopmentTechs(ttbm);
     }
   }
-  else if (!lstrcmpi(strToken, "fourteen"))
+  else if (!lstrcmpi(strToken.c_str(), "fourteen"))
   {
     CFSMission * pfsMission = pfsShip->GetMission();
     if (STAGE_NOTSTARTED == pfsMission->GetStage() || STAGE_STARTING == pfsMission->GetStage())
       pfsMission->StartGame();
   }
-  else if (!lstrcmpi(strToken, "fifteen"))
+  else if (!lstrcmpi(strToken.c_str(), "fifteen"))
   {
     CFSMission * pfsMission = pfsShip->GetMission();
     if (STAGE_NOTSTARTED == pfsMission->GetStage() || STAGE_STARTING == pfsMission->GetStage())
       pfsMission->StartCountdown(15);
   }
-  else if (!lstrcmpi(strToken, "ragnarok"))
+  else if (!lstrcmpi(strToken.c_str(), "ragnarok"))
   {
     // crash the server on debug builds (for testing purposes)
     assert(false);
   }
-  else if (!lstrcmpi(strToken, "gimme"))
+  else if (!lstrcmpi(strToken.c_str(), "gimme"))
   {
-    ZString strMoney(strCheat.GetToken());
-    if (strMoney.IsEmpty()) // must specify valid station
+    ZString strMoney(StrGetToken(strCheat));
+    if (strMoney.empty()) // must specify valid station
       fIsCheat = false;
     else
     {
@@ -1569,15 +1569,15 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
 
       pfmMoney->sidTo = pfsShip->GetShipID();
       pfmMoney->sidFrom = NA;
-      pfmMoney->dMoney = max(-pfsShip->GetMoney(), atoi(strMoney));
+      pfmMoney->dMoney = max(-pfsShip->GetMoney(), atoi(strMoney.c_str()));
 
       pfsShip->SetMoney(pfsShip->GetMoney() + pfmMoney->dMoney);
       g.fm.SendMessages(CFSSide::FromIGC(pfsShip->GetSide())->GetGroup(), FM_GUARANTEED, FM_FLUSH);
     }
   }
-  else if (!lstrcmpi(strToken, "winwinwin"))
+  else if (!lstrcmpi(strToken.c_str(), "winwinwin"))
     pfsMission->GameOver(pfsShip->GetSide(), "By a cheat");
-  else if (!lstrcmpi(strToken, "checkbank"))
+  else if (!lstrcmpi(strToken.c_str(), "checkbank"))
     pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
                                      NA, "You have %d in your bank account.", pfsShip->GetMoney());
 
@@ -1586,14 +1586,14 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
     CheatSides(pfsShip, pfsMission);
 */
 
-  else if (!lstrcmpi(strToken, "capture"))
+  else if (!lstrcmpi(strToken.c_str(), "capture"))
   {
-    ZString strStation(strCheat.GetToken());
-    if (strStation.IsEmpty()) // must specify valid station
+    ZString strStation(StrGetToken(strCheat));
+    if (strStation.empty()) // must specify valid station
       fIsCheat = false;
     else
     {
-      StationID stationID = atoi(strStation);
+      StationID stationID = atoi(strStation.c_str());
       IstationIGC * pstation = pfsMission->GetIGCMission()->GetStation(stationID);
       if (pstation)
         pfsShip->CaptureStation(pstation);
@@ -1603,16 +1603,16 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
     }
   }
 
-  else if (!lstrcmpi(strToken, "createdrones"))
+  else if (!lstrcmpi(strToken.c_str(), "createdrones"))
     fIsCheat = CheatCreateDrones(pfsShip, strCheat);
 
 
 
-  else if (!lstrcmpi(strToken, "jpd"))
+  else if (!lstrcmpi(strToken.c_str(), "jpd"))
   {
     CheatJPD(pfsShip);
   }
-  else if (!lstrcmpi(strToken, "fireaway"))
+  else if (!lstrcmpi(strToken.c_str(), "fireaway"))
   {
     int cChats = 0;
     Time timeStart = Time::Now();
@@ -5218,13 +5218,13 @@ void DisconnectFromLobby()
   {
     g_events.TriggerEvent(NULL, AllsrvEventID_DisconnectingLobby,
       "", -1, -1, -1, 1,
-      "LobbyServer", VT_LPSTR, (LPCTSTR)g.strLobbyServer);
+      "LobbyServer", VT_LPSTR, g.strLobbyServer.c_str());
 
     g.fmLobby.Shutdown();
 
     g_events.TriggerEvent(NULL, AllsrvEventID_DisconnectedLobby,
       "", -1, -1, -1, 1,
-      "LobbyServer", VT_LPSTR, (LPCTSTR)g.strLobbyServer);
+      "LobbyServer", VT_LPSTR, g.strLobbyServer.c_str());
   }
 }
 
@@ -5565,7 +5565,7 @@ IHTTPSession * BeginConfigDownload()
     strcpy(szConfig, strConfig.c_str());
 
 
-  if (ZString(szConfig).Find("http://") == -1) 
+  if (StrFind(ZString(szConfig), "http://") == -1) 
   {
     CopyFile(szConfig, ".\\temp.cfg", FALSE);    // copy to current folder
     debugf("Using local config file because the cfgfile setting has no \"http://\": %s\n", szConfig);
@@ -5610,7 +5610,7 @@ bool OnAutoUpdateEXEDownloadDone(const char * szFilelistCRC, int nFilelistCRC, i
     szLaunchPostUpdate = g.fService ? "S:AllSrv32" : "AllSrv32.exe";  // S: is short for "Start as Service"
 
     char szCommandLine[MAX_PATH * 10];
-    _snprintf (szCommandLine, sizeof(szCommandLine)-1, "%s %s %d \"%s\" \"%s\" \"%s\"", szLaunchPostUpdate, szFilelistCRC, nFilelistSize, szSite, szDirectory, PCC(g.strArtPath));
+    _snprintf (szCommandLine, sizeof(szCommandLine)-1, "%s %s %d \"%s\" \"%s\" \"%s\"", szLaunchPostUpdate, szFilelistCRC, nFilelistSize, szSite, szDirectory, g.strArtPath.c_str());
 
     printf("Launching AutoUpdate.exe ... ");
     // Start the AutoUpdate utility
@@ -5841,9 +5841,9 @@ bool RetrieveCFGFile() // returns true iff cfg was successfully retrieved
   PathString pathCurrent(PathString::GetCurrentDirectory());
   PathString pathConfig(pathCurrent + PathString(PathString("temp.cfg").GetFilename()));
 
-  if (IsCFGFileValid(PCC(pathConfig)))
+  if (IsCFGFileValid(pathConfig.c_str()))
   {
-    return OnCFGDownloadDone(PCC(pathConfig));
+    return OnCFGDownloadDone(pathConfig.c_str());
   }
   else
   {
@@ -5911,26 +5911,26 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
   if(pszLobby_OverrideCFG)
     g.strLobbyServer = pszLobby_OverrideCFG;
 
-  printf("Connecting to lobby: %s ... ", PCC(g.strLobbyServer));
+  printf("Connecting to lobby: %s ... ", g.strLobbyServer.c_str());
   g_events.TriggerEvent(NULL, AllsrvEventID_Connecting, "", -1, -1, -1, 1,
-    "LobbyServer", VT_LPSTR, PCC(g.strLobbyServer));
+    "LobbyServer", VT_LPSTR, g.strLobbyServer.c_str());
   HRESULT hr = g.fmLobby.JoinSession(
         FEDFREELOBBYSERVERS_GUID, 
-        PCC(g.strLobbyServer), PCC(g.strLocalAddress));
+        g.strLobbyServer.c_str(), g.strLocalAddress.c_str());
   if (FAILED(hr))
   {
-    printf("failed.\n", PCC(g.strLobbyServer));
+    printf("failed.\n", g.strLobbyServer.c_str());
     return hr;
   }
   
-  printf("succeeded.\n", PCC(g.strLobbyServer));
+  printf("succeeded.\n", g.strLobbyServer.c_str());
 
   // Save the new LobbyServer value
-  g.strLobbyServer = PCC(g.strLobbyServer);
+  g.strLobbyServer = g.strLobbyServer.c_str();
 
   g_events.TriggerEvent(NULL, AllsrvEventID_ConnectedLobby,
     "", -1, -1, -1, 1,
-    "LobbyServer", VT_LPSTR, PCC(g.strLobbyServer));
+    "LobbyServer", VT_LPSTR, g.strLobbyServer.c_str());
 
   // Give lobby the version
   BEGIN_PFM_CREATE(g.fmLobby, pfmLogon, S, LOGON_LOBBY)
@@ -6245,7 +6245,7 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
 {
   HANDLE rgeventHandles[2];
   ZVersionInfo vi;
-  debugf("Running %s %s\n", (PCC) vi.GetInternalName(), (PCC) vi.GetProductVersionString());
+  debugf("Running %s %s\n", vi.GetInternalName().c_str(), vi.GetProductVersionString().c_str());
       
   debugf("Entering ReceiveThread\n");
   DWORD dwUpdateInterval = g.nUpdatesPerSecond <= 0 ? (1000 / 10) : (1000 / g.nUpdatesPerSecond); // milliseconds
@@ -6266,7 +6266,7 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
 
   // Setup the database stuff and connect
 
-  UTL::SetArtPath(g.strArtPath);
+  UTL::SetArtPath(g.strArtPath.c_str());
 
   g.trekCore = CreateMission(); // this isn't a *real* mission, just a gateway to static stuff
   g.trekCore->Initialize (Time::Now(), &g.siteFedSrv);
@@ -6427,9 +6427,9 @@ void LoadSettings()
     }
 
     ZString strArtPath(ZSettings::GetString("ArtPath", "").c_str());
-    if (!strArtPath.IsEmpty())
+    if (!strArtPath.empty())
     {
-      if (strArtPath.Right(1) != "\\")
+      if (StrRight(strArtPath, 1) != "\\")
         strArtPath += "\\";
       g.strArtPath = strArtPath;
     }
@@ -6484,7 +6484,7 @@ static void ShowUsage()
 {
   ZVersionInfo vi;
   printf("%s\n%s\n\n",
-    (LPCSTR)vi.GetFileDescription(), (LPCSTR)vi.GetLegalCopyright());
+    vi.GetFileDescription().c_str(), vi.GetLegalCopyright().c_str());
 
   //      ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
   printf("usage is ONE of:\n\n");

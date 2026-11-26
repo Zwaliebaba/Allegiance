@@ -127,16 +127,16 @@ public:
 
     static BSTR WidePath(const ZString& str)
     {
-        int  cwch = MultiByteToWideChar(CP_ACP, 0, str, -1, NULL, 0);
+        int  cwch = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
         BSTR bstr = SysAllocStringLen(NULL, cwch);
         if (bstr)
-            MultiByteToWideChar(CP_ACP, 0, str, -1, bstr, cwch);
+            MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, bstr, cwch);
         return bstr;
     }
 
     void Open()
     {
-        if (GetFileAttributesA(m_strFile) == INVALID_FILE_ATTRIBUTES)
+        if (GetFileAttributesA(m_strFile.c_str()) == INVALID_FILE_ATTRIBUTES)
             return;
 
         if (FAILED(MFStartup(MF_VERSION)))
@@ -185,7 +185,7 @@ public:
 
             if (FAILED(hr) || cx == 0 || cy == 0)
             {
-                debugf("VideoImage: cannot decode %s (0x%08x)\n", (const char*)m_strFile, hr);
+                debugf("VideoImage: cannot decode %s (0x%08x)\n", m_strFile.c_str(), hr);
                 m_preader->Release();
                 m_preader = NULL;
             }

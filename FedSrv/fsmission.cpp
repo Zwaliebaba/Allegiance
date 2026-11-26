@@ -640,7 +640,7 @@ void CFSMission::AddPlayerToSide(CFSPlayer * pfsPlayer, IsideIGC * pside)
     // tell them their starting sector so they can display the mission briefing
     bool bGenerateCivBriefing = m_strStoryText.empty();
     const char* szBriefingText =  bGenerateCivBriefing
-        ? GetBase(pside)->GetCluster()->GetName() : (const char*)m_strStoryText;
+        ? GetBase(pside)->GetCluster()->GetName() : m_strStoryText.c_str();
     BEGIN_PFM_CREATE(g.fm, pfmSetBriefingText, S, SET_BRIEFING_TEXT)
       FM_VAR_PARM(szBriefingText, CB_ZTS)
     END_PFM_CREATE    
@@ -1363,7 +1363,7 @@ void CFSMission::SetSideName(SideID sid, const char* szName)
   LPCSTR pszContext = GetIGCMission() ? GetIGCMission()->GetContextName() : NULL;
 
   g_events.TriggerContextEvent(NULL, EventID_TeamInfoChange, pszContext,
-    strNameOld, idTeam, -1, -1, 3,
+    strNameOld.c_str(), idTeam, -1, -1, 3,
     "GameID"     , VT_I4   , idGame,
     "GameName"   , VT_LPSTR, pszGame,
     "NewTeamName", VT_LPSTR, szName);
@@ -1718,7 +1718,7 @@ void CFSMission::StartCountdown(float fCountdownLength)
         // tell them their starting sector so they can display the mission briefing
         bool bGenerateCivBriefing = m_strStoryText.empty();
         const char* szBriefingText =  bGenerateCivBriefing
-            ? GetBase(pside)->GetCluster()->GetName() : (const char*)m_strStoryText;
+            ? GetBase(pside)->GetCluster()->GetName() : m_strStoryText.c_str();
         BEGIN_PFM_CREATE(g.fm, pfmSetBriefingText, S, SET_BRIEFING_TEXT)
           FM_VAR_PARM(szBriefingText, CB_ZTS)
         END_PFM_CREATE    
@@ -3263,7 +3263,7 @@ void CFSMission::QueueLobbyMissionInfo()
   BEGIN_PFM_CREATE(g.fmLobby, pfmLobbyMissionInfo, LS, LOBBYMISSIONINFO)
     FM_VAR_PARM(m_misdef.misparms.strGameName, CB_ZTS)
     FM_VAR_PARM(nSquadCount ? rgSquadIDs : NULL, nSquadCount * sizeof(SquadID))
-    FM_VAR_PARM((PCC)m_strDetailsFiles, CB_ZTS)
+    FM_VAR_PARM(m_strDetailsFiles.c_str(), CB_ZTS)
   END_PFM_CREATE
 
   pfmLobbyMissionInfo->dwCookie = GetCookie();
@@ -4606,7 +4606,7 @@ void Ballot::Init(CFSPlayer* pfsInitiator, const ZString& strProposalName, const
 
   // tell the clients about the vote
   BEGIN_PFM_CREATE(g.fm, pfmBallot, S, BALLOT)
-    FM_VAR_PARM((PCC)(strBallotText), CB_ZTS)
+    FM_VAR_PARM(((strBallotText)).c_str(), CB_ZTS)
   END_PFM_CREATE
 
   pfmBallot->ballotID = m_ballotID;
@@ -4666,7 +4666,7 @@ void Ballot::Init(CFSSide* pfsideInitiator, const ZString& strProposalName, cons
 
   // tell the clients about the vote
   BEGIN_PFM_CREATE(g.fm, pfmBallot, S, BALLOT)
-    FM_VAR_PARM((PCC)(strBallotText), CB_ZTS)
+    FM_VAR_PARM(((strBallotText)).c_str(), CB_ZTS)
   END_PFM_CREATE
 
   pfmBallot->ballotID = m_ballotID;
@@ -4721,7 +4721,7 @@ void Ballot::OnPassed()
   ZString strMessage = m_strProposal + " has passed.  " + GetTallyString();
 
   m_pmission->GetSite()->SendChat(NULL, m_chattarget, m_groupID, NA, 
-      strMessage, c_cidNone, NA, NA, NULL, true);
+      strMessage.c_str(), c_cidNone, NA, NA, NULL, true);
 }
 
 // performs the appropriate result when the vote passes
@@ -4730,7 +4730,7 @@ void Ballot::OnFailed()
   ZString strMessage = m_strProposal + " has been defeated.  " + GetTallyString();
 
   m_pmission->GetSite()->SendChat(NULL, m_chattarget, m_groupID, NA, 
-      strMessage, c_cidNone, NA, NA, NULL, true);
+      strMessage.c_str(), c_cidNone, NA, NA, NULL, true);
 }
 
 // tests whether the vote passes

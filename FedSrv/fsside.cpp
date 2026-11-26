@@ -11,7 +11,7 @@ CFSSide::CFSSide(TRef<IsideIGC> pSide, CFSMission * pfsmission) :
   m_pIsideIGC(pSide),
   m_pfsmission(pfsmission)
 {
-  m_pgrpSide = g.fm.CreateGroup(ZString(pSide->GetName()));
+  m_pgrpSide = g.fm.CreateGroup(ZString(pSide->GetName()).c_str());
   m_pIsideIGC->SetPrivateData((DWORD_PTR) this); // link to IGC side
 }
 
@@ -46,7 +46,7 @@ bool CFSSide::IsInvited(CFSPlayer * pfsPlayer)
       {
         SquadMembership* psquadmembership = (pSquadLink->data());
 
-        if (_stricmp(psquadmembership->GetName(), PCC(static_cast<ZString>(*i))) == 0)
+        if (_stricmp(psquadmembership->GetName(), (static_cast<ZString>(*i)).c_str()) == 0)
           return true;
       }
     }
@@ -55,7 +55,7 @@ bool CFSSide::IsInvited(CFSPlayer * pfsPlayer)
   {
     for (std::vector<ZString>::iterator i(m_Invitations.begin()); i != m_Invitations.end(); ++i)
     {
-      if (_stricmp(PCC(static_cast<ZString>(*i)), pfsPlayer->GetName()) == 0)
+      if (_stricmp((static_cast<ZString>(*i)).c_str(), pfsPlayer->GetName()) == 0)
         return true;
     }
   }
@@ -86,5 +86,5 @@ const char*  CFSSide::GetInvitedSquadName()
 {
   if (m_Invitations.size() == 0)
     return NULL;
-  return *(m_Invitations.begin());
+  return (*(m_Invitations.begin())).c_str();
 }

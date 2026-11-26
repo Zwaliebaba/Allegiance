@@ -530,7 +530,7 @@ bool g_bDumpDD = false;
 bool DDError(HRESULT hresult, const char* pszCall, const char* pszFile, int line, const char* pszModule)
 {
     if (g_bDumpDD) {
-        ZDebugOutput(ZString(pszCall) + "\n");
+        ZDebugOutput((ZString(pszCall) + "\n").c_str());
     }
 
     if (FAILED(hresult)) {
@@ -540,7 +540,7 @@ bool DDError(HRESULT hresult, const char* pszCall, const char* pszFile, int line
             pinfo++;
         }
 
-        ZDebugOutput(ZString(pszCall) + "\n");
+        ZDebugOutput((ZString(pszCall) + "\n").c_str());
         if (pinfo->hresult == 0) {
             ZAssertImpl(false, "unknown error code", pszFile, line, pszModule);
         } else {

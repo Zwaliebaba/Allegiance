@@ -1247,7 +1247,7 @@ public:
         PlayerInfo* pplayer1 = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitem1));
         PlayerInfo* pplayer2 = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitem2));
         
-        return _stricmp(ShipName(pplayer1), ShipName(pplayer2)) > 0;
+        return _stricmp(ShipName(pplayer1).c_str(), ShipName(pplayer2).c_str()) > 0;
     }
     
     static bool PlayerSectorCompare(ItemID pitem1, ItemID pitem2)
@@ -1255,7 +1255,7 @@ public:
         PlayerInfo* pplayer1 = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitem1));
         PlayerInfo* pplayer2 = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitem2));
         
-        return _stricmp(SectorName(pplayer1->LastSeenSector()), SectorName(pplayer2->LastSeenSector())) > 0;
+        return _stricmp(SectorName(pplayer1->LastSeenSector()).c_str(), SectorName(pplayer2->LastSeenSector()).c_str()) > 0;
     }
     
     static bool PlayerMoneyCompare(ItemID pitem1, ItemID pitem2)
@@ -1271,7 +1271,7 @@ public:
         IshipIGC* pship1 = trekClient.GetCore()->GetShip(IntItemIDWrapper<ShipID>(pitem1));
         IshipIGC* pship2 = trekClient.GetCore()->GetShip(IntItemIDWrapper<ShipID>(pitem2));
         
-        return _stricmp(CurrentCommandText(pship1), CurrentCommandText(pship2)) > 0;
+        return _stricmp(CurrentCommandText(pship1).c_str(), CurrentCommandText(pship2).c_str()) > 0;
     }
     
     static bool PlayerRankCompare(ItemID pitem1, ItemID pitem2)

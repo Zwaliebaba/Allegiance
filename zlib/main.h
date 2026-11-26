@@ -43,5 +43,5 @@ int main( int argc, char *argv[ ])
         }
     }
 
-    return WinMain(GetModuleHandle(NULL), NULL, (char*)(PCC)strCommandLine, SW_SHOW);
+    return WinMain(GetModuleHandle(NULL), NULL, (char*)strCommandLine.c_str(), SW_SHOW);
 }

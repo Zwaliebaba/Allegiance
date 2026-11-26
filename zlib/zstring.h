@@ -90,7 +90,6 @@ public:
     PCC    data()   const { return m_pdata->GetPointer(); }
     void   clear()        { SetEmpty(); }
     int GetLength() const { return m_pdata->GetLength(); }
-    operator PCC() const { return m_pdata->GetPointer(); }
     bool IsEmpty() const { return GetLength() == 0; }
     BSTR MakeBSTR() const;
 

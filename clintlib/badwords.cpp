@@ -370,7 +370,7 @@ ZString CensorBadWords (const ZString& string)
     if (g_bCensor)
     {
         char*       szBuffer = new char[(int)string.size() + 1];
-        strcpy (szBuffer, string);
+        strcpy (szBuffer, string.c_str());
         FilterBadWords (szBuffer);
         ZString     result (szBuffer);
         delete[] szBuffer;

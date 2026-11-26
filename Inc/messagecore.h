@@ -168,7 +168,7 @@ class FMSessionDesc
 {
 public:
   FMSessionDesc(REFGUID guidInstance, const char * szDetails); // details as SetSessionDetails formats them
-  PCC     GetGameName()   {return m_strGameName;}
+  PCC     GetGameName()   {return m_strGameName.c_str();}
   REFGUID GetInstance()   {return m_guidInstance;}
   int     GetNumPlayers() {return m_nNumPlayers;}
   int     GetMaxPlayers() {return m_nMaxPlayers;}

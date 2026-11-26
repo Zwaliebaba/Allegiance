@@ -42,7 +42,7 @@ private:
 
     bool Error(const ZString& str)
     {
-        ZError(str);
+        ZError(str.c_str());
         return false;
     }
 

@@ -1970,7 +1970,7 @@ class ThingSiteImpl : public ThingSitePrivate
                                     pcs->SetClusterAssetMask(pcs->GetClusterAssetMask() | c_amEnemyTeleport);
 
                                     trekClient.PostText(true, START_COLOR_STRING "%s %s" END_COLOR_STRING " spotted in %s",
-                                                        (PCC) ConvertColorToString (pside->GetColor ()), pside->GetName(), GetModelName(pmodel), pcluster->GetName());
+                                                        ConvertColorToString (pside->GetColor ()).c_str(), pside->GetName(), GetModelName(pmodel), pcluster->GetName());
                                 }
                                 else
                                 {
@@ -2779,7 +2779,7 @@ void WinTrekClient::ActivateTeleportProbe(IprobeIGC* pprobe)
     {
         assert (pside);
         PostText(true, START_COLOR_STRING "%s %s" END_COLOR_STRING " active in %s",
-                 (PCC) ConvertColorToString (pside->GetColor ()), pside->GetName(), GetModelName(pprobe), pcluster->GetName());
+                 ConvertColorToString (pside->GetColor ()).c_str(), pside->GetName(), GetModelName(pprobe), pcluster->GetName());
     }
     else
     {
@@ -2810,7 +2810,7 @@ void WinTrekClient::DestroyTeleportProbe(IprobeIGC* pprobe)
         pcs->SetClusterAssetMask(am);
 
         PostText(false, START_COLOR_STRING "%s %s" END_COLOR_STRING " in %s was destroyed",
-                 (PCC) ConvertColorToString (pside->GetColor ()), pside->GetName(), GetModelName(pprobe), pcluster->GetName());
+                 ConvertColorToString (pside->GetColor ()).c_str(), pside->GetName(), GetModelName(pprobe), pcluster->GetName());
     }
     else
     {
@@ -2862,7 +2862,7 @@ ZString WinTrekClient::GetSavedCharacterName()
 
 void WinTrekClient::SaveCharacterName(ZString strName)
 {
-    ZSettings::SetString("CharacterName", strName);
+    ZSettings::SetString("CharacterName", strName.c_str());
 }
 
 
@@ -3925,13 +3925,15 @@ void      WinTrekClient::ReceiveChat(IshipIGC*   pshipSender,
         return;
 
     bool bIsSonicChat = false;
+    ZString strSonicChat;   // owns the text pszText points to, for the whole function
 
     if (idSonicChat != NA)
     {
         if (pszText == NULL)
         {
             // make sure the string sticks around through the entire function
-            pszText = GetWindow()->GetSonicChatText(idSonicChat, 0);
+            strSonicChat = GetWindow()->GetSonicChatText(idSonicChat, 0);
+            pszText = strSonicChat.c_str();
             bIsSonicChat = true;
 
             // if quick coms are being filtered, at least don't play the sound
@@ -4291,11 +4293,11 @@ void      WinTrekClient::ReceiveChat(IshipIGC*   pshipSender,
                         pshipSender->GetBaseHullType()->HasCapability(c_habmRescue))
                     {
                         trekClient.PostText(true, "New orders from %s: prepare for recovery. Press [insert] to accept.", 
-                                            (const char*)strSender);
+                                            strSender.c_str());
                     }
                     else
                         trekClient.PostText(true, "New orders from %s to %s: %s. Press [insert] to accept.", 
-                                            (const char*)strSender, (const char*)strRecipient, (const char*)strOrder);
+                                            strSender.c_str(), strRecipient.c_str(), strOrder.c_str());
                 }
             }
         }
@@ -4321,7 +4323,7 @@ void            WinTrekClient::Preload(const char*  pszModelName,
 void WinTrekClient::SetCDKey(const ZString& strCDKey)
 {
     // save the new key for future use.
-    ZSettings::SetString("CDKey", strCDKey);
+    ZSettings::SetString("CDKey", strCDKey.c_str());
     
     BaseClient::SetCDKey(strCDKey);
 }

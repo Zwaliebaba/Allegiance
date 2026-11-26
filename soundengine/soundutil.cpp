@@ -72,7 +72,7 @@ private:
 
         HANDLE hFile, hMapping;
 
-        hFile = CreateFile(strFilename, GENERIC_READ, FILE_SHARE_READ, NULL, 
+        hFile = CreateFile(strFilename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, 
             OPEN_EXISTING, 0, NULL);
 
         if (hFile == INVALID_HANDLE_VALUE)
@@ -88,7 +88,7 @@ private:
         {
             CloseHandle(hFile); 
             
-            hFile = CreateFile(strFilename, GENERIC_READ, FILE_SHARE_READ, NULL, 
+            hFile = CreateFile(strFilename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, 
                 OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
             if (hFile == INVALID_HANDLE_VALUE)
