@@ -1337,7 +1337,7 @@ void                    CmissionIGC::GenerateMission(Time                   now,
       ++m_nReplayCount;
 
       // Clear the context name, so that it re-generates
-      m_strContextName.SetEmpty();
+      m_strContextName.clear();
     }
     else
     {
@@ -1619,7 +1619,7 @@ short                   CmissionIGC::GetReplayCount(void) const
 const char*             CmissionIGC::GetContextName(void)
 {
   // Return if it has already been generated
-  if (!m_strContextName.IsEmpty())
+  if (!m_strContextName.empty())
      return m_strContextName;
 
   // Get the mission creation time

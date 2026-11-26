@@ -1191,7 +1191,7 @@ HRESULT BaseClient::ConnectToServer(ConnectInfo & ci, DWORD dwCookie, Time now, 
     // this does everything up to, and including, creating a new player
     if (ci.guidSession != GUID_NULL)
     {
-        assert(ci.strServer.IsEmpty());
+        assert(ci.strServer.empty());
         hr = m_fm.JoinSessionInstance(ci.guidSession, ci.szName);
     }
     else
@@ -1203,8 +1203,8 @@ HRESULT BaseClient::ConnectToServer(ConnectInfo & ci, DWORD dwCookie, Time now, 
     }
 
     // TODO: Remove this when we are ready to enforce CD Keys
-    if (m_strCDKey.IsEmpty())
-        m_strCDKey = ZString(ci.szName).ToUpper();
+    if (m_strCDKey.empty())
+        m_strCDKey = StrToUpper(ZString(ci.szName));
 
     if (m_fm.IsConnected())
     {
@@ -1213,14 +1213,14 @@ HRESULT BaseClient::ConnectToServer(ConnectInfo & ci, DWORD dwCookie, Time now, 
         SetMessageType(c_mtGuaranteed);
         BEGIN_PFM_CREATE(m_fm, pfmLogon, C, LOGONREQ)
             FM_VAR_PARM(ci.szName, CB_ZTS)
-            FM_VAR_PARM((PCC)m_strCDKey.Scramble(bStandalonePrivate ? "corrupt wave file" : ci.szName), CB_ZTS)
+            FM_VAR_PARM((PCC)StrScramble(m_strCDKey, bStandalonePrivate ? "corrupt wave file" : ci.szName), CB_ZTS)
             FM_VAR_PARM(szPassword, CB_ZTS)
         END_PFM_CREATE
         pfmLogon->fedsrvVer = MSGVER;
         pfmLogon->dwCookie = dwCookie;
         pfmLogon->time = Time::Now ();
         debugf("Logging on to game server \"%s\"...\n",
-          ci.strServer.IsEmpty() ? "" : (LPCSTR)ci.strServer);
+          ci.strServer.empty() ? "" : (LPCSTR)ci.strServer);
         SendMessages();
     }
     retailf("$$MSRGuard:Set:UserName=%s\n", ci.szName);
@@ -1247,8 +1247,8 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
     m_ci.strServer = GetCfgInfo().strPublicLobby;
     
     // TODO: Remove this when we are ready to enforce CD Keys
-    if (m_strCDKey.IsEmpty())
-        m_strCDKey = ZString(m_ci.szName).ToUpper();
+    if (m_strCDKey.empty())
+        m_strCDKey = StrToUpper(ZString(m_ci.szName));
 
     if (m_fmLobby.IsConnected())
         return S_OK;
@@ -1273,7 +1273,7 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
 
         // Let's formally announce ourselves to the server
         BEGIN_PFM_CREATE(m_fmLobby, pfmLogon, C, LOGON_LOBBY)
-            FM_VAR_PARM(PCC(m_strCDKey.Scramble(szEncryptionKey)), CB_ZTS)
+            FM_VAR_PARM(PCC(StrScramble(m_strCDKey, szEncryptionKey)), CB_ZTS)
         END_PFM_CREATE
         pfmLogon->verLobby = LOBBYVER;
         pfmLogon->crcFileList = crcFileList;
@@ -1282,7 +1282,7 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
 
         // do art update--see ConnectToServer
         debugf("Logging on to lobby \"%s\"...\n",
-          m_ci.strServer.IsEmpty() ? "" : (LPCSTR)m_ci.strServer);
+          m_ci.strServer.empty() ? "" : (LPCSTR)m_ci.strServer);
         lstrcpy(m_szLobbyCharName, m_ci.szName);
         SendLobbyMessages();
     }
@@ -1305,7 +1305,7 @@ void BaseClient::FindStandaloneServersByName(const char* szName, TList<TRef<LANS
 
 void BaseClient::SetCDKey(const ZString& strCDKey)
 {
-    m_strCDKey = strCDKey.ToUpper();
+    m_strCDKey = StrToUpper(strCDKey);
 }
 
 void BaseClient::HandleAutoDownload(DWORD dwTimeAlloted)
@@ -3394,7 +3394,7 @@ void BaseClient::OnQuitSide()
 void BaseClient::OnJoinSide()
 {
     ResetShip();
-    m_strBriefingText.SetEmpty();
+    m_strBriefingText.clear();
     m_bGenerateCivBriefing = false;
 
     if (m_pPlayerInfo->SideID() != SIDE_TEAMLOBBY)
