@@ -81,15 +81,12 @@
     <ClInclude Include="point.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="rect.h" />
-    <ClInclude Include="tarray.h" />
     <ClInclude Include="tcompare.h" />
     <ClInclude Include="tlist.h" />
     <ClInclude Include="tmap.h" />
     <ClInclude Include="token.h" />
     <ClInclude Include="zsettings.h" />
     <ClInclude Include="tref.h" />
-    <ClInclude Include="tstack.h" />
-    <ClInclude Include="tvector.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="vertex.h" />
     <ClInclude Include="window.h" />

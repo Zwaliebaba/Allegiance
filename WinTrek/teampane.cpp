@@ -85,7 +85,7 @@ protected:
     
     
     
-    TVector<int>             m_viColumns;
+    std::vector<int>             m_viColumns;
     
     enum 
     {
@@ -106,11 +106,11 @@ protected:
 public:
     class PlayerPainter : public ItemPainter
     {
-        const TVector<int>& m_viColumns;
+        const std::vector<int>& m_viColumns;
         
     public:
         
-        PlayerPainter(const TVector<int>& viColumns)
+        PlayerPainter(const std::vector<int>& viColumns)
             : m_viColumns(viColumns) {};
         
         int GetXSize()
@@ -1138,13 +1138,13 @@ public:
     {
         // do radio-button behavior
         
-        for (int i = 0; i < m_viColumns.GetCount(); i++) {
+        for (int i = 0; i < (int)m_viColumns.size(); i++) {
             if (i != iButton) {
                 m_pbuttonbarPlayers->SetChecked(i, false);
             }
         }
         
-        if (iButton < m_viColumns.GetCount()) {
+        if (iButton < (int)m_viColumns.size()) {
             m_pbuttonbarPlayers->SetChecked(iButton, true);
         }
         
@@ -1497,11 +1497,11 @@ class ExpandedTeamPane : public TeamPane
     
     class ExpandedPlayerPainter : public TeamPane::PlayerPainter
     {
-        const TVector<int>& m_viColumns;
+        const std::vector<int>& m_viColumns;
         
     public:
         
-        ExpandedPlayerPainter(const TVector<int>& viColumns)
+        ExpandedPlayerPainter(const std::vector<int>& viColumns)
             : m_viColumns(viColumns), PlayerPainter(viColumns) {};
         
         int GetXSize()

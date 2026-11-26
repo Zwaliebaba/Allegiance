@@ -172,19 +172,23 @@ public:
 
 template<class VertexType>
 class TMeshGeo : public MeshGeo {
-    TRef<IObject>       m_pobjectMemory;
-    TVector<VertexType> m_vertices;
-    TVector<MeshIndex>  m_indices;
+    std::vector<VertexType> m_vertices;
+    std::vector<MeshIndex>  m_indices;
 
 public:
+    //
+    // The arrays may point into a binary MDL file's mapping; they are copied
+    // (std::vector can't alias it, as TVector's static mode did), so the
+    // mapping isn't kept alive for the mesh
+    //
+
     TMeshGeo(VertexType* pvertices, int vcount, MeshIndex* pindices, int icount, IObject* pobjectMemory = NULL) :
-        m_pobjectMemory(pobjectMemory),
-        m_vertices(vcount, pvertices, pobjectMemory != NULL),
-        m_indices(icount, pindices, pobjectMemory != NULL)
+        m_vertices(pvertices, pvertices + vcount),
+        m_indices(pindices, pindices + icount)
     {
     }
 
-    TMeshGeo(const TVector<VertexType>& vertices, const TVector<MeshIndex>& indices) :
+    TMeshGeo(const std::vector<VertexType>& vertices, const std::vector<MeshIndex>& indices) :
         m_vertices(vertices),
         m_indices(indices)
     {
@@ -209,29 +213,29 @@ public:
     {
         TMeshGeo* pmesh; CastTo(pmesh, pmeshArg);
 
-        TVector<VertexType> vertices(pmesh->m_vertices);
-        TVector<MeshIndex>       indices(pmesh->m_indices);
+        std::vector<VertexType> vertices(pmesh->m_vertices);
+        std::vector<MeshIndex>       indices(pmesh->m_indices);
 
-        int countSource = m_vertices.GetCount();
+        int countSource = (int)m_vertices.size();
         int indexSource;
-        TVector<MeshIndex> indexMap(countSource, countSource);
+        std::vector<MeshIndex> indexMap(countSource);
 
         //
         // Combine any common vertices
         //
 
         for(indexSource = 0; indexSource < countSource; indexSource++) {
-            int count = vertices.GetCount();
+            int count = (int)vertices.size();
             int index = 0;
             while (true) {
                 if (m_vertices[indexSource] == vertices[index]) {
-                    indexMap.Set(indexSource, index);
+                    indexMap[indexSource] = index;
                     break;
                 }
                 index++;
                 if (index == count) {
-                    indexMap.Set(indexSource, count);
-                    vertices.PushEnd(m_vertices[indexSource]);
+                    indexMap[indexSource] = count;
+                    vertices.push_back(m_vertices[indexSource]);
                     break;
                 }
             }
@@ -241,9 +245,9 @@ public:
         // Map the indices to the new vertex list
         //
 
-        countSource = m_indices.GetCount();
+        countSource = (int)m_indices.size();
         for(indexSource = 0; indexSource < countSource; indexSource++) {
-            indices.PushEnd(indexMap[m_indices[indexSource]]);
+            indices.push_back(indexMap[m_indices[indexSource]]);
         }
 
         //
@@ -261,17 +265,17 @@ public:
         matNormal.SetInverse(mat);
         matNormal.Transpose();
 
-        TVector<VertexType> vertices(m_vertices);
+        std::vector<VertexType> vertices(m_vertices);
 
-        int count = m_vertices.GetCount();
+        int count = (int)m_vertices.size();
         for(int index = 0; index < count; index++) {
-            vertices.Get(index).SetPosition(
+            vertices[index].SetPosition(
                 mat.Transform(
                     m_vertices[index].GetPosition()
                 )
             );
 
-            vertices.Get(index).SetNormal(
+            vertices[index].SetNormal(
                 matNormal.Transform(
                     m_vertices[index].GetNormal()
                 )
@@ -283,13 +287,13 @@ public:
 
     int GetTriangleCount()
     {
-        return m_indices.GetCount() / 3;
+        return (int)m_indices.size() / 3;
     }
 
     float GetRadius(const Matrix& mat)
     {
         float radius = 0;
-        int count = m_vertices.GetCount();
+        int count = (int)m_vertices.size();
         for(int index = 0; index < count; index++) {
             Vector vec = mat.Transform(m_vertices[index].GetPosition());
             radius = max(radius, vec.Length());
@@ -304,7 +308,7 @@ public:
 
         ZString str = "MeshGeo([\n";
 
-        int count = m_vertices.GetCount();
+        int count = (int)m_vertices.size();
         int index;
         for(index = 0; index < count; index++) {
             str += Indent(indent + 1) + ::GetString(m_vertices[index]);
@@ -318,7 +322,7 @@ public:
 
         str += Indent(indent) + "], [\n";
 
-        count = m_indices.GetCount();
+        count = (int)m_indices.size();
         for(index = 0; index < count; index += 3) {
             str +=
                   Indent(indent + 1)
@@ -352,10 +356,10 @@ public:
         pmdlFile->WriteReference("MeshGeo");
         TRef<ZFile> pfile = pmdlFile->WriteBinary();
 
-        pfile->Write(m_vertices.GetCount());
-        pfile->Write(m_indices.GetCount());
-        pfile->Write((void*)&(m_vertices[0]), sizeof(VertexType) * m_vertices.GetCount());
-        pfile->Write((void*)&(m_indices[0]),  sizeof(MeshIndex) * m_indices.GetCount());
+        pfile->Write((int)m_vertices.size());
+        pfile->Write((int)m_indices.size());
+        pfile->Write((void*)&(m_vertices[0]), sizeof(VertexType) * (int)m_vertices.size());
+        pfile->Write((void*)&(m_indices[0]),  sizeof(MeshIndex) * (int)m_indices.size());
     }
 };
 
@@ -387,17 +391,17 @@ TRef<Geo> Geo::CreateMesh(
     return new TMeshGeo<D3DVertex>(pvertices, vcount, pindices, icount, pobjectMemory);
 }
 
-TRef<Geo> Geo::CreateMesh(const TVector<Vertex>& vertices, const TVector<MeshIndex>& indices)
+TRef<Geo> Geo::CreateMesh(const std::vector<Vertex>& vertices, const std::vector<MeshIndex>& indices)
 {
     return new TMeshGeo<Vertex>(vertices, indices);
 }
 
-TRef<Geo> Geo::CreateMesh(const TVector<VertexL>& vertices, const TVector<MeshIndex>& indices)
+TRef<Geo> Geo::CreateMesh(const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices)
 {
     return new TMeshGeo<VertexL>(vertices, indices);
 }
 
-TRef<Geo> Geo::CreateMesh(const TVector<D3DVertex>& vertices, const TVector<MeshIndex>& indices)
+TRef<Geo> Geo::CreateMesh(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices)
 {
     return new TMeshGeo<D3DVertex>(vertices, indices);
 }
@@ -1512,7 +1516,7 @@ private:
     // members
     //
 
-    TVector<float> m_radii;
+    std::vector<float> m_radii;
 
 public:
     LODGeoImpl(Geo* pgeo) :
@@ -1565,14 +1569,14 @@ public:
             //
 
             AddChild(pgeo);
-            m_radii.PushEnd(radius);
+            m_radii.push_back(radius);
         } else {
             //
             // move the last geo
             //
 
             AddChild(GetChild(count - 1));
-            m_radii.PushEnd();
+            m_radii.emplace_back();
 
             //
             // Insert before index
@@ -1580,10 +1584,10 @@ public:
 
             int inew;
             for (inew = count - 1; inew > index; inew--) {
-                m_radii.Set(inew, m_radii[inew - 1]);
+                m_radii[inew] = m_radii[inew - 1];
             }
 
-            m_radii.Set(index, radius);
+            m_radii[index] = radius;
 
             for (inew = count - 1; inew > index + 1; inew--) {
                 SetChild(inew, GetChild(inew - 1));

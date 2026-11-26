@@ -841,15 +841,15 @@ public:
     // Rendering with TVectors
     //
 
-    virtual void DrawPoints(const TVector<VertexL>& vertices) = 0;
+    virtual void DrawPoints(const std::vector<VertexL>& vertices) = 0;
 
-    virtual void DrawLines(const TVector<D3DVertex>& vertices, const TVector<MeshIndex>& indices) = 0;
-    virtual void DrawLines(const TVector<Vertex>&    vertices, const TVector<MeshIndex>& indices) = 0;
-    virtual void DrawLines(const TVector<VertexL>&   vertices, const TVector<MeshIndex>& indices) = 0;
+    virtual void DrawLines(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices) = 0;
+    virtual void DrawLines(const std::vector<Vertex>&    vertices, const std::vector<MeshIndex>& indices) = 0;
+    virtual void DrawLines(const std::vector<VertexL>&   vertices, const std::vector<MeshIndex>& indices) = 0;
 
-    virtual void DrawTriangles(const TVector<D3DVertex>& vertices, const TVector<MeshIndex>& indices) = 0;
-    virtual void DrawTriangles(const TVector<Vertex>&    vertices, const TVector<MeshIndex>& indices) = 0;
-    virtual void DrawTriangles(const TVector<VertexL>&   vertices, const TVector<MeshIndex>& indices) = 0;
+    virtual void DrawTriangles(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices) = 0;
+    virtual void DrawTriangles(const std::vector<Vertex>&    vertices, const std::vector<MeshIndex>& indices) = 0;
+    virtual void DrawTriangles(const std::vector<VertexL>&   vertices, const std::vector<MeshIndex>& indices) = 0;
 
     //
     // Decals

@@ -803,63 +803,54 @@ Vector Matrix::TransformDirection(const Vector& vec) const
          );
 }
 
-void Matrix::Transform(const TVector<Point>& vSource, TVector<Point>& vDest) const
+void Matrix::Transform(const std::vector<Point>& vSource, std::vector<Point>& vDest) const
 {
-    int count = vSource.GetCount();
-    vDest.SetCount(count);
+    int count = (int)vSource.size();
+    vDest.resize(count);
 
     for (int index = 0; index < count; index++) {
         float x = vSource[index].X();
         float y = vSource[index].Y();
 
-        vDest.Set(
-            index,
-            Point(
+        vDest[index] = Point(
                 m_m[0][0] * x + m_m[0][1] * y + m_m[0][3],
                 m_m[1][0] * x + m_m[1][1] * y + m_m[1][3]
-            )
-        );
+            );
     }
 }
 
-void Matrix::Transform(const TVector<HVector>& vSource, TVector<HVector>& vDest) const
+void Matrix::Transform(const std::vector<HVector>& vSource, std::vector<HVector>& vDest) const
 {
-    int count = vSource.GetCount();
-    vDest.SetCount(count);
+    int count = (int)vSource.size();
+    vDest.resize(count);
 
     for (int index = 0; index < count; index++) {
         float x = vSource[index].X();
         float y = vSource[index].Y();
         float z = vSource[index].Z();
 
-        vDest.Set(
-            index,
-            HVector(
+        vDest[index] = HVector(
                 m_m[0][0] * x + m_m[0][1] * y + m_m[0][2] * z + m_m[0][3],
                 m_m[1][0] * x + m_m[1][1] * y + m_m[1][2] * z + m_m[1][3],
                 m_m[2][0] * x + m_m[2][1] * y + m_m[2][2] * z + m_m[2][3]
-            )
-        );
+            );
     }
 }
 
-void Matrix::Transform(const TVector<Vector>& vSource, TVector<Vector>& vDest) const
+void Matrix::Transform(const std::vector<Vector>& vSource, std::vector<Vector>& vDest) const
 {
-    int count = vSource.GetCount();
-    vDest.SetCount(count);
+    int count = (int)vSource.size();
+    vDest.resize(count);
 
     for (int index = 0; index < count; index++) {
         float x = vSource[index].X();
         float y = vSource[index].Y();
         float z = vSource[index].Z();
 
-        vDest.Set(
-            index,
-            Vector(
+        vDest[index] = Vector(
                 m_m[0][0] * x + m_m[0][1] * y + m_m[0][2] * z + m_m[0][3],
                 m_m[1][0] * x + m_m[1][1] * y + m_m[1][2] * z + m_m[1][3],
                 m_m[2][0] * x + m_m[2][1] * y + m_m[2][2] * z + m_m[2][3]
-            )
-        );
+            );
     }
 }

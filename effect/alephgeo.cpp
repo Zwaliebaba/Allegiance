@@ -10,8 +10,8 @@ class AlephGeo : public Geo, public IGeoCallback, public TEvent<float>::Sink {
 private:
     int              m_countDepth;
     int              m_countSection;
-    TVector<VertexL> m_vertices;
-    TVector<WORD>    m_indices;
+    std::vector<VertexL> m_vertices;
+    std::vector<WORD>    m_indices;
     TRef<Surface>    m_psurfaceTexture;
     TRef<Image>      m_pimageStar;
     float            m_time;
@@ -31,14 +31,8 @@ public:
         Geo(ptime),
         m_countDepth(countDepth),
         m_countSection(countSection),
-        m_vertices(
-            (m_countDepth + 1) * (m_countSection + 1),
-            (m_countDepth + 1) * (m_countSection + 1)
-        ),
-        m_indices(
-            m_countDepth * m_countSection * 6,
-            m_countDepth * m_countSection * 6
-        ),
+        m_vertices((m_countDepth + 1) * (m_countSection + 1)),
+        m_indices(m_countDepth * m_countSection * 6),
         m_fExplodeTime (-1.0f),
         m_pevent(pevent)
     {
@@ -79,9 +73,7 @@ public:
             for (int indexSection = 0; indexSection < (m_countSection + 1); indexSection++) {
                 float angle = 2 * pi * indexSection / m_countSection;
 
-                m_vertices.Set(
-                    index + indexSection,
-                    VertexL(
+                m_vertices[index + indexSection] = VertexL(
                         radius * cos(angle), 
                         radius * sin(angle), 
                         z,
@@ -91,8 +83,7 @@ public:
                         1,
                         0,
                         0
-                    )
-                );
+                    );
             }
         }
     }
@@ -105,13 +96,13 @@ public:
             int indexVertex = indexDepth * (m_countSection + 1);
 
             for(int indexSection = 0; indexSection < m_countSection; indexSection++) {
-                m_indices.Set(indexIndex + 0, indexVertex + indexSection);
-                m_indices.Set(indexIndex + 1, indexVertex + indexSection + (m_countSection + 1));
-                m_indices.Set(indexIndex + 2, indexVertex + indexSection + (m_countSection + 1) + 1);
+                m_indices[indexIndex + 0] = indexVertex + indexSection;
+                m_indices[indexIndex + 1] = indexVertex + indexSection + (m_countSection + 1);
+                m_indices[indexIndex + 2] = indexVertex + indexSection + (m_countSection + 1) + 1;
                                             
-                m_indices.Set(indexIndex + 3, indexVertex + indexSection);
-                m_indices.Set(indexIndex + 4, indexVertex + indexSection + (m_countSection + 1) + 1);
-                m_indices.Set(indexIndex + 5, indexVertex + indexSection + 1);
+                m_indices[indexIndex + 3] = indexVertex + indexSection;
+                m_indices[indexIndex + 4] = indexVertex + indexSection + (m_countSection + 1) + 1;
+                m_indices[indexIndex + 5] = indexVertex + indexSection + 1;
 
                 indexIndex += 6;
             }
@@ -131,7 +122,7 @@ public:
             for (int indexSection = 0; indexSection < (m_countSection + 1); indexSection++) {
                 float angle = 4 * (float)indexSection / m_countSection + angleOffset;
 
-                VertexL& vertex = m_vertices.Get(index + indexSection);
+                VertexL& vertex = m_vertices[index + indexSection];
 
                 vertex.u = angle;
                 vertex.v = z;
@@ -218,9 +209,9 @@ public:
 
         pcontext->DrawTriangles(
             &m_vertices[0],
-            m_vertices.GetCount(),
+            (int)m_vertices.size(),
             &m_indices[0],
-            m_indices.GetCount()
+            (int)m_indices.size()
         );
     }
 

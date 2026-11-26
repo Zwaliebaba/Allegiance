@@ -93,8 +93,8 @@ class BSPGeo : public Geo {
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    TVector<VertexL>   m_vvertex;
-    TVector<MeshIndex> m_vindex;
+    std::vector<VertexL>   m_vvertex;
+    std::vector<MeshIndex> m_vindex;
     TRef<Node>         m_pnode;
 
 public:
@@ -158,7 +158,7 @@ public:
     float GetRadius(const Matrix& mat)
     {
         float radius = 0;
-        int count = m_vvertex.GetCount();
+        int count = (int)m_vvertex.size();
         for(int index = 0; index < count; index++) {
             Vector vec = mat.Transform(m_vvertex[index].GetPosition());
             radius = max(radius, vec.Length());

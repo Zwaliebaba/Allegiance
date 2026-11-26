@@ -101,8 +101,8 @@ private:
     } m_sortPlayers;
     bool m_bReverseSort;
 
-    TVector<int>    m_viPlayerColumns;
-    TVector<int>    m_viTeamColumns;
+    std::vector<int>    m_viPlayerColumns;
+    std::vector<int>    m_viTeamColumns;
 
     bool            m_fQuiting;
 
@@ -121,10 +121,10 @@ private:
         float m_fColorBrightness;
 
         int m_nHeight;
-        const TVector<int>& m_viColumns;
+        const std::vector<int>& m_viColumns;
 
     public:
-        TeamPainter(MissionInfo* pMission, const TVector<int>& viColumns, int nHeight, float fColorIntensity, float fColorBrightness) : 
+        TeamPainter(MissionInfo* pMission, const std::vector<int>& viColumns, int nHeight, float fColorIntensity, float fColorBrightness) : 
             m_pMission(pMission), 
             m_viColumns(viColumns), 
             m_nHeight(nHeight),
@@ -286,12 +286,12 @@ private:
     class PlayerPainter : public ItemPainter
     {
         MissionInfo* m_pMission;
-        const TVector<int>& m_viColumns;
+        const std::vector<int>& m_viColumns;
         const SideID& m_sideCurrent;
 
     public:
 
-        PlayerPainter(MissionInfo* pMission, const TVector<int>& viColumns, const SideID& sideCurrent)
+        PlayerPainter(MissionInfo* pMission, const std::vector<int>& viColumns, const SideID& sideCurrent)
             : m_viColumns(viColumns), m_sideCurrent(sideCurrent), m_pMission(pMission) {};
 
         int GetXSize()
@@ -503,7 +503,7 @@ private:
 
         ZString GetCivListString()
         {
-            TVector<CivID, DefaultEquals> vectCivs;
+            std::vector<CivID> vectCivs;
 
             for (SideID id = 0; id < trekClient.MyMission()->NumSides(); id++)
             {
@@ -512,28 +512,28 @@ private:
                     // if we don't have the civ yet, add it to the list.
                     CivID civId = trekClient.GetCore()->GetSide(id)->GetCivilization()->GetObjectID();
 
-                    if (-1 == vectCivs.Find(civId))
+                    if (std::find(vectCivs.begin(), vectCivs.end(), civId) == vectCivs.end())
                     {
-                        vectCivs.PushEnd(civId);
+                        vectCivs.push_back(civId);
                     }
                 }
             }
 
-            assert(vectCivs.GetCount() >= 1);
+            assert((int)vectCivs.size() >= 1);
             
             ZString strResult;
 
-            for (int nCiv = 0; nCiv < vectCivs.GetCount() - 1; nCiv++)
+            for (int nCiv = 0; nCiv < (int)vectCivs.size() - 1; nCiv++)
             {
                 if (!strResult.IsEmpty())
                     strResult += ", ";
                 strResult += trekClient.GetCore()->GetCivilization(vectCivs[nCiv])->GetName();
             }
 
-            if (vectCivs.GetCount() > 1)
+            if ((int)vectCivs.size() > 1)
                 strResult += " and ";
 
-            strResult += trekClient.GetCore()->GetCivilization(vectCivs.GetEnd())->GetName();
+            strResult += trekClient.GetCore()->GetCivilization(vectCivs.back())->GetName();
 
             return strResult;
         }

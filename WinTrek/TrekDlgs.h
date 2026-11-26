@@ -333,7 +333,7 @@ public:
 
 protected:
     long m_lRowData;
-    TVector<TRef<TrekGridCell> > m_vCells;
+    std::vector<TRef<TrekGridCell>>  m_vCells;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -394,8 +394,8 @@ protected:
 
     TRef<TrekScrollBar> m_pScrollBar;
     TRef<IIntegerEventSink> m_psinkScrollBar;
-    TVector<TRef<TrekGridRow> > m_vRows;
-    TVector<int> m_vColWidths;
+    std::vector<TRef<TrekGridRow>>  m_vRows;
+    std::vector<int> m_vColWidths;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -738,7 +738,7 @@ private:
     TrekEdit            m_editMinPlayers;
     TrekEdit            m_editMapType;
 
-    TVector<TRef<PaneWindow> >  m_rgppaneWindows;
+    std::vector<TRef<PaneWindow>>   m_rgppaneWindows;
    
     TrekImgButton       m_btnBack;
     TrekImgButton       m_btnCreate;

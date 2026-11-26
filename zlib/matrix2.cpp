@@ -388,21 +388,18 @@ Point Matrix2::Transform(const Point& point) const
         );
 }
 
-void Matrix2::Transform(const TVector<Point>& vSource, TVector<Point>& vDest) const
+void Matrix2::Transform(const std::vector<Point>& vSource, std::vector<Point>& vDest) const
 {
-    int count = vSource.GetCount();
-    vDest.SetCount(count);
+    int count = (int)vSource.size();
+    vDest.resize(count);
 
     for (int index = 0; index < count; index++) {
         float x = vSource[index].X();
         float y = vSource[index].Y();
 
-        vDest.Set(
-            index,
-            Point(
+        vDest[index] = Point(
                 m_m[0][0] * x + m_m[0][1] * y + m_m[0][2],
                 m_m[1][0] * x + m_m[1][1] * y + m_m[1][2]
-            )
-        );
+            );
     }
 }

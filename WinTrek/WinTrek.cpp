@@ -37,7 +37,7 @@ const int c_nMinGain = -60;
 namespace SoundInit {
     void InitializeSoundTemplates(
         Modeler* pmodeler, 
-        TVector<TRef<ISoundTemplate> >& vSoundMap
+        std::vector<TRef<ISoundTemplate>> & vSoundMap
     );
     void AddMembers(INameSpace* pns);
 }
@@ -836,7 +836,7 @@ public:
     };
     friend class QuickChatMenuCommandSink;
 
-    TVector<TRef<SonicChat> > m_vsonicChats;
+    std::vector<TRef<SonicChat>>  m_vsonicChats;
     TRef<IMenu>               m_pmenuQuickChat;
     TRef<QuickChatMenu>       m_pqcmenuMain;
     TRef<MDLType>             m_pmdlTypeMenu;
@@ -990,7 +990,7 @@ public:
 
     void PlaySonicChat(int id, int voice)
     {
-        if ((id >= 0) && (id < m_vsonicChats.GetCount()))
+        if ((id >= 0) && (id < (int)m_vsonicChats.size()))
         {
             SonicChat*           psonicChat  = m_vsonicChats[id];
             if (psonicChat)
@@ -1011,7 +1011,7 @@ public:
 
     ZString GetSonicChatText(int id, int voice)
     {
-        if ((id >= 0) && (id < m_vsonicChats.GetCount()))
+        if ((id >= 0) && (id < (int)m_vsonicChats.size()))
         {
             SonicChat*           psonicChat  = m_vsonicChats[id];
             if (psonicChat)
@@ -1285,7 +1285,7 @@ public:
     //
 
     TRef<ISoundEngine>              m_pSoundEngine;
-    TVector<TRef<ISoundTemplate> >  m_vSoundMap;
+    std::vector<TRef<ISoundTemplate>>   m_vSoundMap;
     ISoundEngine::Quality           m_soundquality;
     bool                            m_bEnableSoundHardware;
     TRef<IDiskPlayer>               m_pDiskPlayer;
@@ -3053,8 +3053,8 @@ public:
         m_pconsoleImage = NULL;
 
         m_psoundMusic = NULL;
-        m_vSoundMap.SetEmpty();
-        m_vsonicChats.SetEmpty();
+        m_vSoundMap.clear();
+        m_vsonicChats.clear();
         m_pqcmenuMain = NULL;
         m_psoundmutexSal->Reset();
         m_psoundmutexVO->Reset();
@@ -9121,7 +9121,7 @@ public:
 
     TRef<ISoundInstance>  StartSound(SoundID soundId, ISoundPositionSource* psource = NULL)
     {
-        if (soundId < 0 || soundId > m_vSoundMap.GetCount())
+        if (soundId < 0 || soundId > (int)m_vSoundMap.size())
         {
             // may avoid some art crashes in retail builds
             ZAssert(false);

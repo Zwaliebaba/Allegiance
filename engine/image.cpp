@@ -599,11 +599,11 @@ AnimatedImage::AnimatedImage(Number* ptime, Surface* psurfaceSource, int nRows, 
     int h = psurfaceSource->GetSize().X() / nCols;
     int w = psurfaceSource->GetSize().Y() / nRows;
 
-    m_psurfaces.SetCount(nRows * nCols);
+    m_psurfaces.resize(nRows * nCols);
 
-    if (m_psurfaces.GetCount() == 1) {
+    if ((int)m_psurfaces.size() == 1) {
         psurfaceSource->SetColorKey(Color(0, 0, 0));
-        m_psurfaces.Set(0, psurfaceSource);
+        m_psurfaces[0] = psurfaceSource;
     } else {
         for (int row = 0; row < nRows; row++) {
             for (int col = 0; col < nCols; col++) {
@@ -626,7 +626,7 @@ AnimatedImage::AnimatedImage(Number* ptime, Surface* psurfaceSource, int nRows, 
                 );
 
                 psurfaceTextureSource->SetColorKey(Color(0, 0, 0));
-                m_psurfaces.Set(index, psurfaceTextureSource);
+                m_psurfaces[index] = psurfaceTextureSource;
             }
         }
     }
@@ -636,7 +636,7 @@ void AnimatedImage::Evaluate()
 {
     float time = GetTime()->GetValue();
 
-    int count = m_psurfaces.GetCount();
+    int count = (int)m_psurfaces.size();
     m_index = (int)(time * count) % count;
 
     Image::Evaluate();

@@ -239,11 +239,11 @@ private:
     class DecalSet {
     public:
         TRef<Surface>  m_psurface;
-        TVector<Decal> m_vdecal;
+        std::vector<Decal> m_vdecal;
     };
 
-    TVector<DecalSet> m_vdecalSet;
-    TVector<DecalSet> m_vdecalSetOpaque;
+    std::vector<DecalSet> m_vdecalSet;
+    std::vector<DecalSet> m_vdecalSetOpaque;
 
     //
     // Delayed 3D Rendering
@@ -1942,49 +1942,49 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawTriangles(const TVector<Vertex>& vertices, const TVector<MeshIndex>& indices)
+    void DrawTriangles(const std::vector<Vertex>& vertices, const std::vector<MeshIndex>& indices)
     {
-        DrawTriangles(&(vertices[0]), vertices.GetCount(), &(indices[0]), indices.GetCount());
+        DrawTriangles(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawTriangles(const TVector<VertexL>& vertices, const TVector<MeshIndex>& indices)
+    void DrawTriangles(const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices)
     {
-        DrawTriangles(&(vertices[0]), vertices.GetCount(), &(indices[0]), indices.GetCount());
+        DrawTriangles(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawTriangles(const TVector<D3DVertex>& vertices, const TVector<MeshIndex>& indices)
+    void DrawTriangles(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices)
     {
-        DrawTriangles(&(vertices[0]), vertices.GetCount(), &(indices[0]), indices.GetCount());
+        DrawTriangles(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawLines(const TVector<Vertex>& vertices, const TVector<MeshIndex>& indices)
+    void DrawLines(const std::vector<Vertex>& vertices, const std::vector<MeshIndex>& indices)
     {
-        DrawLines(&(vertices[0]), vertices.GetCount(), &(indices[0]), indices.GetCount());
+        DrawLines(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawLines(const TVector<VertexL>& vertices, const TVector<MeshIndex>& indices)
+    void DrawLines(const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices)
     {
-        DrawLines(&(vertices[0]), vertices.GetCount(), &(indices[0]), indices.GetCount());
+        DrawLines(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawLines(const TVector<D3DVertex>& vertices, const TVector<MeshIndex>& indices)
+    void DrawLines(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices)
     {
-        DrawLines(&(vertices[0]), vertices.GetCount(), &(indices[0]), indices.GetCount());
+        DrawLines(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawPoints(const TVector<Vertex>& vertices)
+    void DrawPoints(const std::vector<Vertex>& vertices)
     {
-        DrawPoints(&(vertices[0]), vertices.GetCount());
+        DrawPoints(&(vertices[0]), (int)vertices.size());
     }
 
-    void DrawPoints(const TVector<VertexL>& vertices)
+    void DrawPoints(const std::vector<VertexL>& vertices)
     {
-        DrawPoints(&(vertices[0]), vertices.GetCount());
+        DrawPoints(&(vertices[0]), (int)vertices.size());
     }
 
-    void DrawPoints(const TVector<D3DVertex>& vertices)
+    void DrawPoints(const std::vector<D3DVertex>& vertices)
     {
-        DrawPoints(&(vertices[0]), vertices.GetCount());
+        DrawPoints(&(vertices[0]), (int)vertices.size());
     }
     
     //////////////////////////////////////////////////////////////////////////////
@@ -1993,13 +1993,13 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Decal& AddDecal(TVector<DecalSet>& vdecalSet, Surface* psurface)
+    Decal& AddDecal(std::vector<DecalSet>& vdecalSet, Surface* psurface)
     {
         //
         // find the associated decal set
         //
 
-        int countDecalSets = vdecalSet.GetCount();
+        int countDecalSets = (int)vdecalSet.size();
         int indexSet;
         for(indexSet = 0; indexSet < countDecalSets; indexSet++) {
             const DecalSet& set = vdecalSet[indexSet];
@@ -2014,18 +2014,18 @@ public:
         //
 
         if (indexSet == countDecalSets) {
-            vdecalSet.PushEnd();
-            vdecalSet.Get(indexSet).m_psurface = psurface;
+            vdecalSet.emplace_back();
+            vdecalSet[indexSet].m_psurface = psurface;
         }
 
-        DecalSet& set = vdecalSet.Get(indexSet);
+        DecalSet& set = vdecalSet[indexSet];
 
         //
         // Return a reference to the newly created decal
         //
 
-        set.m_vdecal.PushEnd();
-        return set.m_vdecal.Get(set.m_vdecal.GetCount() - 1);
+        set.m_vdecal.emplace_back();
+        return set.m_vdecal.back();
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -2102,16 +2102,16 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawVDecalSet(TVector<DecalSet>& vdecalSet)
+    void DrawVDecalSet(std::vector<DecalSet>& vdecalSet)
     {
         //
         // Iterate through the decal sets
         //
 
-        int countDecalSets = vdecalSet.GetCount();
+        int countDecalSets = (int)vdecalSet.size();
         for(int indexSet = 0; indexSet < countDecalSets; indexSet++) {
-            DecalSet& set = vdecalSet.Get(indexSet);
-            int countDecal = set.m_vdecal.GetCount();
+            DecalSet& set = vdecalSet[indexSet];
+            int countDecal = (int)set.m_vdecal.size();
 
             if (countDecal > 0) {
                 SetTexture(set.m_psurface, false);
@@ -2140,7 +2140,7 @@ public:
                     index * 6
                 );
 
-                set.m_vdecal.SetCount(0);
+                set.m_vdecal.resize(0);
             }
         }
     }

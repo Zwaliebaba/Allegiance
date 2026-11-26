@@ -131,7 +131,7 @@ protected:
   int m_cAbstaining[c_cSidesMax];
 
   // the ships that can still vote
-  TVector<ShipID, DefaultEquals> m_vShips;
+  std::vector<ShipID> m_vShips;
 
   // the ID of this ballot
   BallotID m_ballotID;

@@ -14,7 +14,7 @@ private:
         Vector m_vec;
     };
 
-    TVector<KeyData> m_keys;
+    std::vector<KeyData> m_keys;
 
     Number* GetFrame() { return Number::Cast(GetChild(0)); }
 
@@ -26,13 +26,13 @@ public:
 
     void AddKey(float frame, const Vector& vec)
     {
-        int count = m_keys.GetCount();
+        int count = (int)m_keys.size();
 
-        ZAssert(count == 0 || frame > m_keys.GetEnd().m_frame);
+        ZAssert(count == 0 || frame > m_keys.back().m_frame);
 
-        m_keys.PushEnd();
-        m_keys.GetEnd().m_frame = frame;
-        m_keys.GetEnd().m_vec   = vec;
+        m_keys.emplace_back();
+        m_keys.back().m_frame = frame;
+        m_keys.back().m_vec   = vec;
     }
 
     //
@@ -60,7 +60,7 @@ public:
     {
         float frame = GetFrame()->GetValue();
 
-        int count = m_keys.GetCount();
+        int count = (int)m_keys.size();
 
         if (frame <= m_keys[0].m_frame) {
             //
@@ -98,7 +98,7 @@ public:
 
         ZString str = "KeyFramedTranslate(\n" + Indent(indent + 1) + "[\n";
 
-        int count = m_keys.GetCount();
+        int count = (int)m_keys.size();
         for (int index = 0; index < count; index++) {
             str +=
                   Indent(indent + 2)
@@ -135,7 +135,7 @@ private:
         Vector m_vec;
     };
 
-    TVector<KeyData> m_keys;
+    std::vector<KeyData> m_keys;
 
     Number* GetFrame() { return Number::Cast(GetChild(0)); }
 
@@ -147,13 +147,13 @@ public:
 
     void AddKey(float frame, const Vector& vec)
     {
-        int count = m_keys.GetCount();
+        int count = (int)m_keys.size();
 
-        ZAssert(count == 0 || frame > m_keys.GetEnd().m_frame);
+        ZAssert(count == 0 || frame > m_keys.back().m_frame);
 
-        m_keys.PushEnd();
-        m_keys.GetEnd().m_frame = frame;
-        m_keys.GetEnd().m_vec   = vec;
+        m_keys.emplace_back();
+        m_keys.back().m_frame = frame;
+        m_keys.back().m_vec   = vec;
     }
 
     /*  , no animations
@@ -177,7 +177,7 @@ public:
     {
         float frame = GetFrame()->GetValue();
 
-        int count = m_keys.GetCount();
+        int count = (int)m_keys.size();
 
         if (frame <= m_keys[0].m_frame) {
             //
@@ -215,7 +215,7 @@ public:
 
         ZString str = "KeyFramedScale(\n" + Indent(indent + 1) + "[\n";
 
-        int count = m_keys.GetCount();
+        int count = (int)m_keys.size();
         for (int index = 0; index < count; index++) {
             str +=
                   Indent(indent + 2)
@@ -252,7 +252,7 @@ private:
         Quaternion m_quat;
     };
 
-    TVector<KeyData> m_keys;
+    std::vector<KeyData> m_keys;
 
     Number* GetFrame() { return Number::Cast(GetChild(0)); }
 
@@ -264,13 +264,13 @@ public:
 
     void AddKey(float frame, const Quaternion& quat)
     {
-        int count = m_keys.GetCount();
+        int count = (int)m_keys.size();
 
-        ZAssert(count == 0 || frame > m_keys.GetEnd().m_frame);
+        ZAssert(count == 0 || frame > m_keys.back().m_frame);
 
-        m_keys.PushEnd();
-        m_keys.GetEnd().m_frame = frame;
-        m_keys.GetEnd().m_quat  = quat;
+        m_keys.emplace_back();
+        m_keys.back().m_frame = frame;
+        m_keys.back().m_quat  = quat;
     }
 
     /*  , no animations
@@ -294,7 +294,7 @@ public:
     {
         float frame = GetFrame()->GetValue();
 
-        int count = m_keys.GetCount();
+        int count = (int)m_keys.size();
 
         if (frame <= m_keys[0].m_frame) {
             //
@@ -340,7 +340,7 @@ public:
 
         ZString str = "KeyFramedRotate(\n" + Indent(indent + 1) + "[\n";
 
-        int count = m_keys.GetCount();
+        int count = (int)m_keys.size();
         for (int index = 0; index < count; index++) {
             str +=
                   Indent(indent + 2)

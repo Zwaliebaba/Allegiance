@@ -24,7 +24,7 @@ public:
         float radiusShockWave,
 		const Color& color,
 		int   countDecals,
-        TVector<TRef<AnimatedImage> > vimage,
+        std::vector<TRef<AnimatedImage>>  vimage,
         Image* pimageShockWave
 	) = 0;
 };

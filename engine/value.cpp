@@ -15,25 +15,25 @@
 
 Value::Value() :
     m_bChanged(true),
-    m_pchildren(0, 0)
+    m_pchildren(0)
 {
 }
 
 Value::Value(Value* pvalue0) :
     m_bChanged(true),
-    m_pchildren(1, 1)
+    m_pchildren(1)
 {
-    m_pchildren.Set(0, pvalue0);
+    m_pchildren[0] = pvalue0;
 
     pvalue0->AddParent(this);
 }
 
 Value::Value(Value* pvalue0, Value* pvalue1) :
     m_bChanged(true),
-    m_pchildren(2, 2)
+    m_pchildren(2)
 {
-    m_pchildren.Set(0, pvalue0);
-    m_pchildren.Set(1, pvalue1);
+    m_pchildren[0] = pvalue0;
+    m_pchildren[1] = pvalue1;
 
     pvalue0->AddParent(this);
     pvalue1->AddParent(this);
@@ -41,11 +41,11 @@ Value::Value(Value* pvalue0, Value* pvalue1) :
 
 Value::Value(Value* pvalue0, Value* pvalue1, Value* pvalue2) :
     m_bChanged(true),
-    m_pchildren(3, 3)
+    m_pchildren(3)
 {
-    m_pchildren.Set(0, pvalue0);
-    m_pchildren.Set(1, pvalue1);
-    m_pchildren.Set(2, pvalue2);
+    m_pchildren[0] = pvalue0;
+    m_pchildren[1] = pvalue1;
+    m_pchildren[2] = pvalue2;
 
     pvalue0->AddParent(this);
     pvalue1->AddParent(this);
@@ -54,12 +54,12 @@ Value::Value(Value* pvalue0, Value* pvalue1, Value* pvalue2) :
 
 Value::Value(Value* pvalue0, Value* pvalue1, Value* pvalue2, Value* pvalue3) :
     m_bChanged(true),
-    m_pchildren(4, 4)
+    m_pchildren(4)
 {
-    m_pchildren.Set(0, pvalue0);
-    m_pchildren.Set(1, pvalue1);
-    m_pchildren.Set(2, pvalue2);
-    m_pchildren.Set(3, pvalue3);
+    m_pchildren[0] = pvalue0;
+    m_pchildren[1] = pvalue1;
+    m_pchildren[2] = pvalue2;
+    m_pchildren[3] = pvalue3;
 
     pvalue0->AddParent(this);
     pvalue1->AddParent(this);
@@ -75,7 +75,7 @@ Value::Value(Value* pvalue0, Value* pvalue1, Value* pvalue2, Value* pvalue3) :
 
 Value::~Value()
 {
-    int count = m_pchildren.GetCount();
+    int count = (int)m_pchildren.size();
     for (int index = 0; index < count; index++) {
         m_pchildren[index]->RemoveParent(this);
     }
@@ -104,7 +104,7 @@ bool Value::DoFold()
     // Fold all of the children first
     //
 
-    int count = m_pchildren.GetCount();
+    int count = (int)m_pchildren.size();
     for (int index = 0; index < count; index++) {
         if (m_pchildren[index]->DoFold()) {
             bAnyFold = true;
@@ -130,7 +130,7 @@ bool Value::DoFold()
 void Value::ChildChanged(Value* pvalue, Value* pvalueNew)
 {
     if (pvalueNew != NULL) {
-        int count = m_pchildren.GetCount();
+        int count = (int)m_pchildren.size();
         for (int index = 0; index < count; index++) {
             if (pvalue == m_pchildren[index]) {
                 SetChild(index, pvalueNew);
@@ -147,7 +147,7 @@ void Value::InternalUpdate()
 {
     m_bChanged = false;
 
-    int count = m_pchildren.GetCount();
+    int count = (int)m_pchildren.size();
     for (int index = 0; index < count; index++) {
         if (m_pchildren[index]->HasChanged()) {
             m_pchildren[index]->InternalUpdate();
@@ -228,14 +228,14 @@ void Value::SetChild(int index, Value* pvalueChild)
     if (m_pchildren[index] != pvalueChild) {
         m_pchildren[index]->RemoveParent(this);
         pvalueChild->AddParent(this);
-        m_pchildren.Set(index, pvalueChild);
+        m_pchildren[index] = pvalueChild;
         Changed();
     }
 }
 
 void Value::AddChild(Value* pvalueChild)
 {
-    m_pchildren.PushEnd(pvalueChild);
+    m_pchildren.push_back(pvalueChild);
     pvalueChild->AddParent(this);
 }
 
@@ -260,7 +260,7 @@ void Value::WriteInternal(IMDLBinaryFile* pfile)
 
 void Value::WriteChildren(IMDLBinaryFile* pfile)
 {
-    int count = m_pchildren.GetCount();
+    int count = (int)m_pchildren.size();
     for (int index = count - 1; index >= 0; index--) {
         m_pchildren[index]->WriteInternal(pfile);
     }
@@ -287,7 +287,7 @@ void Value::FillImportTable(IMDLBinaryFile* pfile)
         pfile->AddImport(str);
     }
 
-    int count = m_pchildren.GetCount();
+    int count = (int)m_pchildren.size();
     for (int index = count - 1; index >= 0; index--) {
         m_pchildren[index]->FillImportTable(pfile);
     }
@@ -308,7 +308,7 @@ int Value::GetNodeCount()
 {
     int nodes = 1;
 
-    int count = m_pchildren.GetCount();
+    int count = (int)m_pchildren.size();
     for (int index = 0; index < count; index++) {
         nodes += m_pchildren[index]->GetNodeCount();
     }
@@ -347,7 +347,7 @@ ZString Value::GetString(int indent)
 
     ZString str = GetFunctionName() + "(\n";
 
-    int count = m_pchildren.GetCount();
+    int count = (int)m_pchildren.size();
     for (int index = 0; index < count; index++) {
         str += Indent(indent + 1) + m_pchildren[index]->GetChildString(indent + 1);
 

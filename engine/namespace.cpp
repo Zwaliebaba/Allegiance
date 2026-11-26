@@ -282,8 +282,8 @@ public:
             ZString m_str;
         };
 
-        TVector<TRef<INameSpace> > m_pnss;
-        TVector<ImportData> m_importDatas;
+        std::vector<TRef<INameSpace>>  m_pnss;
+        std::vector<ImportData> m_importDatas;
         TRef<NameSpaceImpl> m_pns;
         TRef<ZFile>         m_pfile;
 
@@ -297,7 +297,7 @@ public:
 
         int FindImport(const ZString& str)
         {
-            int count = m_importDatas.GetCount();
+            int count = (int)m_importDatas.size();
             for (int index = 0; index < count; index++) {
                 if (m_importDatas[index].m_str == str) {
                     return index;
@@ -309,7 +309,7 @@ public:
 
         void AddImport(const ZString& str, INameSpace* pns)
         {
-            int count = m_pnss.GetCount();
+            int count = (int)m_pnss.size();
             int index;
             for (index = 0; index < count; index++) {
                 if (m_pnss[index] == pns) {
@@ -322,15 +322,15 @@ public:
             //
 
             if (index == count) {
-                m_pnss.PushEnd(pns);
+                m_pnss.push_back(pns);
             }
 
             //
             // Add the new import symbol
             //
 
-            m_importDatas.PushEnd();
-            ImportData& data = m_importDatas.GetEnd();
+            m_importDatas.emplace_back();
+            ImportData& data = m_importDatas.back();
 
             data.m_indexNameSpaceTable = index;
             data.m_str                 = str;
@@ -455,7 +455,7 @@ public:
 
         void CreateImportTable()
         {
-            m_importDatas.SetCount(0);
+            m_importDatas.resize(0);
 
             SymbolList::Iterator iter(m_pns->m_listSymbols);
             DWORD index = 0;
@@ -479,8 +479,8 @@ public:
 
             m_pfile->Write(MDLMagic                       );
             m_pfile->Write(MDLVersion                     );
-            m_pfile->Write(m_pnss.GetCount()              );  // imported libraries
-            m_pfile->Write(m_importDatas.GetCount()       );  // imported symbols
+            m_pfile->Write((int)m_pnss.size()              );  // imported libraries
+            m_pfile->Write((int)m_importDatas.size()       );  // imported symbols
             m_pfile->Write(m_pns->m_listSymbols.GetCount());  // exported symbols
             m_pfile->Write(0                              );  // other defined objects
 
@@ -489,7 +489,7 @@ public:
             //
 
             {
-                int count = m_pnss.GetCount();
+                int count = (int)m_pnss.size();
                 for (int index = 0; index < count; index++) {
                     const ZString& str = m_pnss[index]->GetName();
                     m_pfile->WriteAlignedString(str);
@@ -501,7 +501,7 @@ public:
             //
 
             {
-                int count = m_importDatas.GetCount();
+                int count = (int)m_importDatas.size();
                 for (int index = 0; index < count; index++) {
                     const ImportData& data = m_importDatas[index];
 

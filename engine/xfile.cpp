@@ -422,11 +422,11 @@ public:
             return false;
         }
 
-        TVector<Vertex> ppositions(vcount, vcount);
+        std::vector<Vertex> ppositions(vcount);
 
         int index;
         for(index = 0; index < vcount; index++) {
-            Vertex& vertex = ppositions.Get(index);
+            Vertex& vertex = ppositions[index];
             float z;
 
             if (
@@ -451,14 +451,14 @@ public:
             return false;
         }
 
-        TVector<WORD> pvi;
-        TVector<int> pfaceVCounts(countFace, countFace);
+        std::vector<WORD> pvi;
+        std::vector<int> pfaceVCounts(countFace);
 
         for(index = 0; index < countFace; index++) {
             int firstIndex ;
             int secondIndex;
             if (
-                   !m_ptoken->ReadInt(pfaceVCounts.Get(index))
+                   !m_ptoken->ReadInt(pfaceVCounts[index])
                 || !m_ptoken->ReadInt(firstIndex )
                 || !m_ptoken->ReadInt(secondIndex)
             ) {
@@ -471,9 +471,9 @@ public:
                     return false;
                 }
 
-                pvi.PushEnd(firstIndex);
-                pvi.PushEnd(secondIndex);
-                pvi.PushEnd(thirdIndex);
+                pvi.push_back(firstIndex);
+                pvi.push_back(secondIndex);
+                pvi.push_back(thirdIndex);
 
                 secondIndex = thirdIndex;
             }
@@ -485,13 +485,13 @@ public:
 
         int                      mcount = 0;
         int                      matCountFace = 0;
-        TVector<TRef<Material> > pmaterials;
-        TVector<TRef<Image> >    pimageTextures;
-        TVector<WORD>            pmi;
+        std::vector<TRef<Material>>  pmaterials;
+        std::vector<TRef<Image>>     pimageTextures;
+        std::vector<WORD>            pmi;
 
         int             ncount = 0;
-        TVector<Vector> pnormals;
-        TVector<WORD>   pni;
+        std::vector<Vector> pnormals;
+        std::vector<WORD>   pni;
 
         ZString strType;
         ZString strName;
@@ -516,7 +516,7 @@ public:
                     if (!m_ptoken->ReadInt(mi)) {
                         return false;
                     }
-                    pmi.PushEnd(mi);
+                    pmi.push_back(mi);
                 }
 
                 //
@@ -574,7 +574,7 @@ public:
                         return false;
                     }
 
-                    pmaterials.PushEnd(
+                    pmaterials.push_back(
                         CreateMaterial(
                             colorDiffuse,
                             colorSpecular,
@@ -582,7 +582,7 @@ public:
                             power
                         )
                     );
-                    pimageTextures.PushEnd(pimageTexture);
+                    pimageTextures.push_back(pimageTexture);
                     m_ptoken->LeaveSection();
                 }
             } else if (strType == "MeshVertexColors" ) {
@@ -597,7 +597,7 @@ public:
                 ZAssert(vcount == vcountTextureCoords);
 
                 for(index = 0; index < vcount; index++) {
-                    Vertex& vertex = ppositions.Get(index);
+                    Vertex& vertex = ppositions[index];
 
                     if (
                            !m_ptoken->ReadFloat(vertex.u)
@@ -615,7 +615,7 @@ public:
                     return false;
                 }
 
-                pnormals.SetCount(ncount);
+                pnormals.resize(ncount);
 
                 for(index = 0; index < ncount; index++) {
                     float x, y, z;
@@ -627,7 +627,7 @@ public:
                         return false;
                     }
 
-                    pnormals.Get(index) = Vector(x, y, -z);
+                    pnormals[index] = Vector(x, y, -z);
                 }
 
                 //
@@ -660,9 +660,9 @@ public:
                             return false;
                         }
 
-                        pni.PushEnd(firstIndex);
-                        pni.PushEnd(secondIndex);
-                        pni.PushEnd(thirdIndex);
+                        pni.push_back(firstIndex);
+                        pni.push_back(secondIndex);
+                        pni.push_back(thirdIndex);
 
                         secondIndex = thirdIndex;
                     }
@@ -679,18 +679,18 @@ public:
         // Create unique Position Normal pairs
         //
 
-        TVector<Vertex> vertices;
-        TVector<WORD> indices;
+        std::vector<Vertex> vertices;
+        std::vector<WORD> indices;
 
         if (ncount > 0) {
-            TVector<TList<WORD> > vertexTree(vcount, vcount);
-            int count = pvi.GetCount();
+            std::vector<TList<WORD>>  vertexTree(vcount);
+            int count = (int)pvi.size();
 
             for (index = 0; index < count; index++) {
                 int iVertex = pvi[index];
                 int iNormal = pni[index];
 
-                TList<WORD>::Iterator iter(vertexTree.Get(iVertex));
+                TList<WORD>::Iterator iter(vertexTree[iVertex]);
 
                 do {
                     if (iter.End()) {
@@ -707,20 +707,20 @@ public:
                         vertex.ny = pnormals[iNormal].Y();
                         vertex.nz = pnormals[iNormal].Z();
 
-                        vertices.PushEnd(vertex);
-                        indices.PushEnd(vertices.GetCount() - 1);
-                        vertexTree.Get(iVertex).PushFront(vertices.GetCount() - 1);
+                        vertices.push_back(vertex);
+                        indices.push_back((int)vertices.size() - 1);
+                        vertexTree[iVertex].PushFront((int)vertices.size() - 1);
                         break;
                     }
 
-                    Vertex& vertex = vertices.Get(iter.Value());
+                    Vertex& vertex = vertices[iter.Value()];
 
                     if (
                         vertex.nx == pnormals[iNormal].X()
                      && vertex.ny == pnormals[iNormal].Y()
                      && vertex.nz == pnormals[iNormal].Z()
                     ) {
-                        indices.PushEnd(iter.Value());
+                        indices.push_back(iter.Value());
                         break;
                     }
 
@@ -765,25 +765,25 @@ public:
         //
 
         TRef<GroupGeo> pgroup = GroupGeo::Create();
-        TVector<Vertex> componentVertices;
-        TVector<WORD> componentIndices;
-        TVector<WORD> map(vertices.GetCount(), vertices.GetCount());
+        std::vector<Vertex> componentVertices;
+        std::vector<WORD> componentIndices;
+        std::vector<WORD> map((int)vertices.size());
 
         //
         // for each material create a smaller mesh for all the faces that have that material
         //
 
         for (int indexMaterial = 0; indexMaterial < mcount; indexMaterial++) {
-            for (index = 0; index < map.GetCount(); index++) {
-                map.Set(index, 0xffff);
+            for (index = 0; index < (int)map.size(); index++) {
+                map[index] = 0xffff;
             }
 
             //
             // set the small mesh to empty
             //
 
-            componentVertices.SetCount(0);
-            componentIndices.SetCount(0);
+            componentVertices.resize(0);
+            componentIndices.resize(0);
 
             //
             // add all of the verticies and faces for which the material matches
@@ -801,10 +801,10 @@ public:
                     ) {
                         int indexVertex = indices[index];
                         if (map[indexVertex] == 0xffff) {
-                            map.Set(indexVertex, componentVertices.GetCount());
-                            componentVertices.PushEnd(vertices[indexVertex]);
+                            map[indexVertex] = (WORD)componentVertices.size();
+                            componentVertices.push_back(vertices[indexVertex]);
                         }
-                        componentIndices.PushEnd(map[indexVertex]);
+                        componentIndices.push_back(map[indexVertex]);
                     }
                 }
 

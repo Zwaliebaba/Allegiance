@@ -639,7 +639,7 @@ public:
         TRef<Number>      pnumberFaces;  CastTo(pnumberFaces,  (IObject*)stack.Pop());
         bool              bActAsTabs = false;
 
-        TVector<int> m_vecColumns;
+        std::vector<int> m_vecColumns;
         ParseIntVector((IObject*)stack.Pop(), m_vecColumns);
 
         if (stack.GetCount() > 0)

@@ -19,7 +19,7 @@ protected:
     TRef<IItemEvent::Source> m_peventDestinations;
     TRef<IItemEvent::Sink>   m_psinkDestinations;
 
-    TVector<int>             m_viColumns;
+    std::vector<int>             m_viColumns;
 
     TRef<TListListWrapper<ImodelIGC*> > m_plistDestinations;
 
@@ -33,11 +33,11 @@ protected:
 public:
     class DestinationPainter : public ItemPainter
     {
-        const TVector<int>& m_viColumns;
+        const std::vector<int>& m_viColumns;
 
     public:
 
-        DestinationPainter(const TVector<int>& viColumns)
+        DestinationPainter(const std::vector<int>& viColumns)
             : m_viColumns(viColumns) {};
 
         int GetXSize()

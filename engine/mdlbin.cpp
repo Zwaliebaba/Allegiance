@@ -29,10 +29,10 @@ private:
     TRef<Modeler>              m_pmodeler;
     TRef<ZFile>                m_pfile;
     BYTE*                      m_pdata;
-    TVector<TRef<INameSpace> > m_pnsImports;
-    TVector<ZString>           m_strExportNames;
-    TVector<TRef<IObject> >    m_pobjectImports;
-    TVector<TRef<IObject> >    m_pobjects;
+    std::vector<TRef<INameSpace>>  m_pnsImports;
+    std::vector<ZString>           m_strExportNames;
+    std::vector<TRef<IObject>>     m_pobjectImports;
+    std::vector<TRef<IObject>>     m_pobjects;
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -232,21 +232,21 @@ private:
         // Imported NameSpaces
         //
 
-        m_pnsImports.SetCount(countNameSpaces);
+        m_pnsImports.resize(countNameSpaces);
 
         for(index = 0; index < countNameSpaces; index++) {
             ZString str = ReadString();
             TRef<INameSpace> pns = m_pmodeler->GetNameSpace(str);
             ZAssert(pns != NULL);
 
-            m_pnsImports.Set(index, pns);
+            m_pnsImports[index] = pns;
         }
 
         //
         // Imports
         //
 
-        m_pobjectImports.SetCount(countImports);
+        m_pobjectImports.resize(countImports);
         for(index = 0; index < countImports; index++) {
             DWORD indexLibrary = ReadDWORD();
             ZString str = ReadString();
@@ -257,18 +257,18 @@ private:
 
             ZAssert(pobject != NULL);
 
-            m_pobjectImports.Set(index, pobject);
+            m_pobjectImports[index] = pobject;
         }
 
         //
         // Exports
         //
 
-        m_pobjects.SetCount(countExports + countDefinitions);
-        m_strExportNames.SetCount(countExports);
+        m_pobjects.resize(countExports + countDefinitions);
+        m_strExportNames.resize(countExports);
 
         for(index = 0; index < countExports; index++) {
-            m_strExportNames.Set(index, ReadString());
+            m_strExportNames[index] = ReadString();
         }
 
         //
@@ -277,7 +277,7 @@ private:
 
         for(index = 0; index < countExports + countDefinitions; index++) {
             DWORD indexObject = ReadDWORD();
-            m_pobjects.Set(indexObject, ReadObject());
+            m_pobjects[indexObject] = ReadObject();
         }
 
         //
@@ -338,7 +338,7 @@ public:
             return pobject;
         }
 
-        int count = m_pnsImports.GetCount();
+        int count = (int)m_pnsImports.size();
 
         for(int index = 0; index < count; index++) {
             pobject = m_pnsImports[index]->FindMemberAndNameSpace(strName, pns);
@@ -360,7 +360,7 @@ public:
 
     IObject* FindMemberLocal(const ZString& strName)
     {
-        int count = m_strExportNames.GetCount();
+        int count = (int)m_strExportNames.size();
 
         for(int index = 0; index < count; index++) {
             if (m_strExportNames[index] == strName) {

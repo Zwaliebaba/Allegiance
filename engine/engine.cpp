@@ -41,7 +41,7 @@ private:
 
     SurfaceList               m_listSurfaces;
     SurfaceList               m_listDeviceFormatSurfaces;
-    TVector<TRef<PixelFormat> > m_ppfs;
+    std::vector<TRef<PixelFormat>>  m_ppfs;
 
 public:
     EngineImpl(bool bAllow3DAcceleration, bool bAllowSecondary) :
@@ -213,7 +213,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void GetModes(TVector<WinPoint>& modes)
+    void GetModes(std::vector<WinPoint>& modes)
     {
         static const WinPoint s_modes[] = {
             WinPoint( 640,  480),
@@ -243,17 +243,17 @@ public:
                 || (   s_modes[index].X() <= sizeMonitor.X()
                     && s_modes[index].Y() <= sizeMonitor.Y())
             ) {
-                modes.PushEnd(s_modes[index]);
+                modes.push_back(s_modes[index]);
             }
         }
     }
 
     void ChangeFullscreenSize(bool bLarger)
     {
-        TVector<WinPoint> modes;
+        std::vector<WinPoint> modes;
         GetModes(modes);
 
-        int count = modes.GetCount();
+        int count = (int)modes.size();
         WinPoint point = m_pointFullscreen;
 
         if (bLarger) {
@@ -363,7 +363,7 @@ public:
         DWORD blueMask,
         DWORD alphaMask
     ) {
-        int count = m_ppfs.GetCount();
+        int count = (int)m_ppfs.size();
 
         for(int index = 0; index < count; index++) {
             if (m_ppfs[index]->Equivalent(bits, redMask, greenMask, blueMask, alphaMask)) {
@@ -373,7 +373,7 @@ public:
 
         TRef<PixelFormat> ppf = new PixelFormat(bits, redMask, greenMask, blueMask, alphaMask);
 
-        m_ppfs.PushEnd(ppf);
+        m_ppfs.push_back(ppf);
 
         return ppf;
     }

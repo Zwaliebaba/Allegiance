@@ -554,7 +554,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 // BucketStatusArray
 
-typedef TVector<Money> MoneyVector;
+typedef std::vector<Money> MoneyVector;
 
 class BucketStatusArray : public MoneyVector, public IObjectSingle 
 {
