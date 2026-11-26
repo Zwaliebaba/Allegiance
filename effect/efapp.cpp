@@ -213,11 +213,11 @@ public:
                   Indent(indent + 1)
                 + "( " + ::GetString(indent, data.m_color)
                 + ", " + ::GetString(indent, data.m_vec)
-                + ", " + ZString(data.m_period)
-                + ", " + ZString(data.m_phase)
-                + ", " + ZString(data.m_rampUp)
-                + ", " + ZString(data.m_hold)
-                + ", " + ZString(data.m_rampDown)
+                + ", " + StrFromFloat(data.m_period)
+                + ", " + StrFromFloat(data.m_phase)
+                + ", " + StrFromFloat(data.m_rampUp)
+                + ", " + StrFromFloat(data.m_hold)
+                + ", " + StrFromFloat(data.m_rampDown)
                 + ")";
 
             iter.Next();
@@ -479,7 +479,7 @@ public:
         // parse the string
         //
 
-        Token(str, str.GetLength()).ReadStrobe(phase, period);
+        Token(str, (int)str.size()).ReadStrobe(phase, period);
 
 
         //
@@ -497,17 +497,17 @@ public:
     {
         ZString strName = pgroup->GetName();
 
-        if (!strName.IsEmpty()) {
-            if (   strName.Find("frm-") == 0
+        if (!strName.empty()) {
+            if (   StrFind(strName, "frm-") == 0
                 && (!pgroup->AnyChildGroups())
             ) {
                 Vector vecPosition = mat.Transform(Vector(0, 0, 0));
                 Vector vecForward  = mat.TransformDirection(Vector(0, 0, -1));
                 Vector vecUp       = mat.TransformDirection(Vector(0, 1,  0));
 
-                strName = strName.RightOf(4);
+                strName = StrRightOf(strName, 4);
 
-                if (strName.Find("SS") != -1) {
+                if (StrFind(strName, "SS") != -1) {
                     //
                     // a strobe light
                     //
@@ -525,9 +525,9 @@ public:
 
                     return Geo::GetEmpty();
                 } else if (
-                       strName.Find("thrust") != -1
-                    || strName.Find("smoke") != -1
-                    || strName.Find("rocket") != -1
+                       StrFind(strName, "thrust") != -1
+                    || StrFind(strName, "smoke") != -1
+                    || StrFind(strName, "rocket") != -1
                 ) {
                     //
                     // this is an engine
@@ -539,11 +539,11 @@ public:
 
                     return Geo::GetEmpty();
                 } else if (
-                       (strName.Find("weapon") != -1)
-                    || (strName.Find("wepatt") != -1)
-                    || (strName.Find("wepemt") != -1)
-                    || (strName.Find("wepmnt") != -1)
-                    || (strName.Find("trail")  != -1)
+                       (StrFind(strName, "weapon") != -1)
+                    || (StrFind(strName, "wepatt") != -1)
+                    || (StrFind(strName, "wepemt") != -1)
+                    || (StrFind(strName, "wepmnt") != -1)
+                    || (StrFind(strName, "trail")  != -1)
                 ) {
                     //
                     // This is an attachment point
@@ -554,7 +554,7 @@ public:
                     );
                     return Geo::GetEmpty();
                 } else if (
-                       (strName.Find("garage") != -1)
+                       (StrFind(strName, "garage") != -1)
                 ) {
                     //
                     // This is a garage we need to leave the frame in the graph
@@ -730,7 +730,7 @@ TRef<INameSpace> EffectApp::OptimizeThingGeo(const ZString& str, Geo* pgeo, Numb
     // Extract the lights and frames
     //
 
-    ZDebugOutput("Before Callback: " + ZString(pwrap->GetGeo()->GetNodeCount()) + "\n");
+    ZDebugOutput("Before Callback: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
 
     TRef<GroupGeoCallbackImpl> pcallback = new GroupGeoCallbackImpl(pframes, plights);
     pwrap->GetGeo()->CallGroupGeoCallback(Matrix::GetIdentity(), pcallback);
@@ -755,33 +755,33 @@ TRef<INameSpace> EffectApp::OptimizeThingGeo(const ZString& str, Geo* pgeo, Numb
     TRef<Geo> pgeoFold;
     do {
         bAnyFold = false;
-        ZDebugOutput("Before RemoveMaterial: " + ZString(pwrap->GetGeo()->GetNodeCount()) + "\n");
+        ZDebugOutput("Before RemoveMaterial: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
 
         pgeoFold = pwrap->GetGeo()->RemoveMaterial();
 
         if (pgeoFold) {
             bAnyFold = true;
             pwrap->SetGeo(pgeoFold);
-            ZDebugOutput("Before           Fold: " + ZString(pwrap->GetGeo()->GetNodeCount()) + "\n");
+            ZDebugOutput("Before           Fold: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
             pwrap->GetGeo()->DoFold();
         }
 
-        ZDebugOutput("Before    FoldTexture: " + ZString(pwrap->GetGeo()->GetNodeCount()) + "\n");
+        ZDebugOutput("Before    FoldTexture: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
         pgeoFold = pwrap->GetGeo()->FoldTexture();
 
         if (pgeoFold) {
             bAnyFold = true;
             pwrap->SetGeo(pgeoFold);
-            ZDebugOutput("Before           Fold: " + ZString(pwrap->GetGeo()->GetNodeCount()) + "\n");
+            ZDebugOutput("Before           Fold: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
             pwrap->GetGeo()->DoFold();
         }
         if (!bAnyFold) {
-            ZDebugOutput("Before           Fold: " + ZString(pwrap->GetGeo()->GetNodeCount()) + "\n");
+            ZDebugOutput("Before           Fold: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
             bAnyFold = pwrap->GetGeo()->DoFold();
         }
     } while (bAnyFold);
 
-    ZDebugOutput("After Optimization: " + ZString(pwrap->GetGeo()->GetNodeCount()) + "\n");
+    ZDebugOutput("After Optimization: " + StrFromInt(pwrap->GetGeo()->GetNodeCount()) + "\n");
 
     //
     // We're done

@@ -547,7 +547,7 @@ public:
 
     void Parse(INameSpace* pns, const ZString& str)
     {
-        Parse(pns, &str[0], (&str[0]) + str.GetLength());
+        Parse(pns, &str[0], (&str[0]) + (int)str.size());
     }
 
     void FixupLineY(Pane* ppaneFirst, Pane* ppaneLast, int ysize)
@@ -610,7 +610,7 @@ public:
         } else {
             ZString str("<Color|red>Error: Can't open file '" + str + "'");
 
-            Parse(pns, PCC(str), PCC(str) + str.GetLength());
+            Parse(pns, PCC(str), PCC(str) + (int)str.size());
         }
     }
 
@@ -622,7 +622,7 @@ public:
         m_pfont = m_pfontDefault;
 
         PCC pcc = str;
-        Parse(pns, pcc, pcc + str.GetLength());
+        Parse(pns, pcc, pcc + (int)str.size());
     }
 
     void SetPagePaneIncluder(PagePaneIncluder* ppagePaneIncluder)

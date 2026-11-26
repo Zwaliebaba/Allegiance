@@ -314,10 +314,10 @@ public:
     ZString DebugDump(const ZString& strIndent = "")
     {
         return strIndent + ZString("SoundFile \"") + m_strFilename 
-            + "\" \n" + strIndent + "  ("  + ZString((int)GetSampleRate())
-            + " Hz x " + ZString((int)GetBitsPerSample()) 
-            + " bits x " + ZString((int)GetNumberOfChannels()) 
-            + " channels, " + ZString(GetSize()/(float)GetBytesPerSec()) 
+            + "\" \n" + strIndent + "  ("  + StrFromInt((int)GetSampleRate())
+            + " Hz x " + StrFromInt((int)GetBitsPerSample()) 
+            + " bits x " + StrFromInt((int)GetNumberOfChannels()) 
+            + " channels, " + StrFromFloat(GetSize()/(float)GetBytesPerSec()) 
             + " seconds)\n";
     }
 #endif

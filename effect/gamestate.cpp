@@ -183,8 +183,8 @@ public:
                 seconds -= minutes * 60;
 
                 m_pstringPaneTime->SetString(
-                    "Time Elapsed: " + ZString(minutes) + ":" 
-                    + ((seconds > 9) ? ZString(seconds) : ("0" + ZString(seconds)))
+                    "Time Elapsed: " + StrFromInt(minutes) + ":" 
+                    + ((seconds > 9) ? StrFromInt(seconds) : ("0" + StrFromInt(seconds)))
 					);
             }
         }
@@ -205,8 +205,8 @@ public:
                 seconds -= minutes * 60;
 
                 m_pstringPaneTime->SetString(
-                    "Time Remaining: " + ZString(minutes) + ":" 
-                    + ((seconds > 9) ? ZString(seconds) : ("0" + ZString(seconds)))
+                    "Time Remaining: " + StrFromInt(minutes) + ":" 
+                    + ((seconds > 9) ? StrFromInt(seconds) : ("0" + StrFromInt(seconds)))
 					);
             }
         }

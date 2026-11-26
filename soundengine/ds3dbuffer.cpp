@@ -393,8 +393,8 @@ ZString DS3DSoundBuffer::DebugDump(const ZString& strIndent)
         + ((dwStatus & DSBSTATUS_LOCSOFTWARE) ? " in software" : "")
 #endif
         + (m_b3D ? ("\n" + strIndent + "  Pos(" 
-                + ZString(m_vectPosition.X()) + ", " + ZString(m_vectPosition.Y()) + ", " 
-                + ZString(m_vectPosition.Z()) + ")") 
+                + StrFromFloat(m_vectPosition.X()) + ", " + StrFromFloat(m_vectPosition.Y()) + ", " 
+                + StrFromFloat(m_vectPosition.Z()) + ")") 
                 + (m_bListenerRelative ? " listener rel" : "")
             : ZString(""))
         + "\n";

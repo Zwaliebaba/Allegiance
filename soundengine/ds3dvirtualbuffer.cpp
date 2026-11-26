@@ -489,10 +489,10 @@ TRef<ISoundTweakable3D> DSVirtualSoundBuffer::GetISoundTweakable3D()
 // strIndent to the beginning of each line.  
 ZString DSVirtualSoundBuffer::DebugDump(const ZString& strIndent)
 {
-    return strIndent + "DSVirtualSoundBuffer: Priority " + ZString(m_fDynamicPriority)
-        + ", Age " + ZString(m_fAge) 
-        + ", gain " + ZString(m_fGain) 
-        + ", pitch " + ZString(m_fPitch) + "\n"
+    return strIndent + "DSVirtualSoundBuffer: Priority " + StrFromFloat(m_fDynamicPriority)
+        + ", Age " + StrFromFloat(m_fAge) 
+        + ", gain " + StrFromFloat(m_fGain) 
+        + ", pitch " + StrFromFloat(m_fPitch) + "\n"
         + SoundDebugDump(m_pdata, strIndent + "  ")
         + ((m_pds3dbuffer) ? SoundDebugDump(m_pds3dbuffer, strIndent + "  ") : ZString());
 }
