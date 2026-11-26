@@ -691,6 +691,8 @@ since `/permissive-` had already done the conformance work:
   `std::binary_negate`) are replaced with lambdas and plain function objects, so `_HAS_AUTO_PTR_ETC=1` is
   gone.
 - Using the value of an assignment to a `volatile` is deprecated; the two loops that did it are rewritten.
+- `IntItemIDWrapper` compared its value with the other wrapper through a conversion, which the reversed
+  `operator==` made ambiguous for MSVC (clang resolved it); it compares the two values directly now.
 
 How it was checked: every project was swept with clang (`-std=c++17` and `-std=c++20`, with C++20's
 compatibility and deprecation warnings on), and the second run showed nothing the first did not. Clang
@@ -773,6 +775,7 @@ Fixes are made per CI round, and each change keeps the original runtime behaviou
 | Library pieces removed in C++17 (`std::bind1st`, `std::binary_function`) | `_HAS_AUTO_PTR_ETC=1` restored them until C++20; then replaced with lambdas and plain function objects, and the define removed | `soundengine`, `AGC` (removed), `test/TCLib` |
 | C++20: `std::not2` / `std::binary_negate` removed | `SoundPriorityCompareReversed`, and small function objects for `ci_greater` | `soundengine/ds3dengine.*`, `test/TCLib/tstring.h` |
 | C++20: `TRef == TRef` ambiguous with the reversed `(Type*, TRef)` candidate | Exact `TRef`/`TRef` `==` and `!=` | `zlib/tref.h` |
+| C++20: `IntItemIDWrapper`'s comparisons compared `m_t` with the wrapper itself, so the conversion to `T` competed with the reversed member `operator==` (C2666; clang chose one, MSVC did not) | Compare `m_t` with the other wrapper's `m_t` | `_Utility/listwrappers.h` |
 | C++20: value of an assignment to a `volatile` used in a loop condition (deprecated) | Comma expression, then the test | `zlib/FTPSession.cpp` |
 | More default-int forms: `static IsXValid(...)`, `const c_numGrooveLevels = 3;` | Explicit `bool` / `int` | `Zone/Member.h`, `Zone/Squad.h` (both deleted with the Zone code), `WinTrek/WinTrek.h` |
 | `<assert.h>` pulled in by current CRT/ATL headers trips zlib's "own assert only" guard; the guard's `Don't` was also lexed as an unterminated character literal | `#undef assert` before `zlib.h` in TCLib; message reworded | `test/TCLib/pch.h`, `zlib/zassert.h` |
