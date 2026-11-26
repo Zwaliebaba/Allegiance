@@ -144,7 +144,7 @@ public:
                         pfont,
                         color,
                         WinPoint(m_viColumns[2] + 2, 0), 
-                        ZString((int)MannedTurrets(pship)) + ZString("/") + ZString(nNumTurrets)
+                        StrFromInt((int)MannedTurrets(pship)) + ZString("/") + StrFromInt(nNumTurrets)
                     );
                 }
             }

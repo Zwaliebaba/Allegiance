@@ -107,7 +107,7 @@ CFSMission::CFSMission(
 
   psiteMission->Create(this);
 
-  assert(!g.strLobbyServer.IsEmpty() == !!g.fmLobby.IsConnected());
+  assert(!g.strLobbyServer.empty() == !!g.fmLobby.IsConnected());
 
   // keep track of whether this is a lobbied and/or club game
   m_misdef.misparms.bLobbiedGame = g.fmLobby.IsConnected();
@@ -638,7 +638,7 @@ void CFSMission::AddPlayerToSide(CFSPlayer * pfsPlayer, IsideIGC * pside)
     pfsPlayer->SetAutoDonate((pfsPlayer != pfsLeader) ? pfsLeader : NULL, 0, true);
 
     // tell them their starting sector so they can display the mission briefing
-    bool bGenerateCivBriefing = m_strStoryText.IsEmpty();
+    bool bGenerateCivBriefing = m_strStoryText.empty();
     const char* szBriefingText =  bGenerateCivBriefing
         ? GetBase(pside)->GetCluster()->GetName() : (const char*)m_strStoryText;
     BEGIN_PFM_CREATE(g.fm, pfmSetBriefingText, S, SET_BRIEFING_TEXT)
@@ -1716,7 +1716,7 @@ void CFSMission::StartCountdown(float fCountdownLength)
         IsideIGC * pside = l->data();
 
         // tell them their starting sector so they can display the mission briefing
-        bool bGenerateCivBriefing = m_strStoryText.IsEmpty();
+        bool bGenerateCivBriefing = m_strStoryText.empty();
         const char* szBriefingText =  bGenerateCivBriefing
             ? GetBase(pside)->GetCluster()->GetName() : (const char*)m_strStoryText;
         BEGIN_PFM_CREATE(g.fm, pfmSetBriefingText, S, SET_BRIEFING_TEXT)
@@ -4701,11 +4701,11 @@ ZString Ballot::GetTallyString()
         strMessage += ZString(m_pmission->GetIGCMission()->GetSide(sideID)->GetName()) + ":" ;
           
       if (m_cInFavor[sideID])
-        strMessage += " " + ZString(m_cInFavor[sideID]) + " for";
+        strMessage += " " + StrFromInt(m_cInFavor[sideID]) + " for";
       if (m_cOpposed[sideID])
-        strMessage += " " + ZString(m_cOpposed[sideID]) + " against";
+        strMessage += " " + StrFromInt(m_cOpposed[sideID]) + " against";
       if (m_cAbstaining[sideID])
-        strMessage += " " + ZString(m_cAbstaining[sideID]) + " abstained";
+        strMessage += " " + StrFromInt(m_cAbstaining[sideID]) + " abstained";
     }
   }
 

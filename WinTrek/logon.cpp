@@ -47,7 +47,7 @@ public:
     bool OnButtonLogon()
     {
         // Make sure that they have entered a CD Key
-        if (g_bAskForCDKey && trekClient.GetCDKey().IsEmpty())
+        if (g_bAskForCDKey && trekClient.GetCDKey().empty())
         {
             TRef<IPopup> ppopupCDKey = CreateCDKeyPopup();
             GetWindow()->GetPopupContainer()->OpenPopup(ppopupCDKey, false);
@@ -98,7 +98,7 @@ public:
 
     bool OnEvent(TEvent<ZString>::Source* psource, ZString str)
     {
-        m_pbuttonLogon->SetEnabled(!str.IsEmpty());
+        m_pbuttonLogon->SetEnabled(!str.empty());
         return true;
     }
 

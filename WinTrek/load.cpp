@@ -124,7 +124,7 @@ public:
                 // Try to load the bitmap that fits this slot.
                 //
 
-                ZString str = (m_strPrefix + ZString(ppartType->GetModelName()) + "bmp").ToLower();
+                ZString str = StrToLower((m_strPrefix + ZString(ppartType->GetModelName()) + "bmp"));
                 m_pimage = GetModeler()->LoadImage(str, false, false);
 
                 //
@@ -132,7 +132,7 @@ public:
                 //
 
                 if (m_pimage == NULL) {
-                    ZString str = (ZString("l") + ZString(ppartType->GetModelName()) + "bmp").ToLower();
+                    ZString str = StrToLower((ZString("l") + ZString(ppartType->GetModelName()) + "bmp"));
                     m_pimage = GetModeler()->LoadImage(str, false);
                 }
             } else {
@@ -201,7 +201,7 @@ public:
                     ObjectType  type = m_ppart->GetObjectType();
                     if ((type == OT_pack) || IlauncherIGC::IsLauncher(m_ppart->GetObjectType()))
                     {
-                        ZString strText((int)m_ppart->GetAmount());
+                        ZString strText = StrFromInt((int)m_ppart->GetAmount());
                         int nTextWidth = TrekResources::SmallFont()->GetTextExtent(strText).X();
 
                         // display the count of expendibles
@@ -567,7 +567,7 @@ public:
 
         for (int index = 0; index < c_maxMountedWeapons; index++) {
             pnsLoadoutData->AddMember(
-                "gunner" + ZString(index),  
+                "gunner" + StrFromInt(index),  
                 m_pstringGunners[index] = new ModifiableString("unmanned")
             );
         }
@@ -829,9 +829,9 @@ public:
         IsideIGC* pside = trekClient.GetSide();
 
         if (pside) {
-            ZString str = ZString(pside->GetCivilization()->GetIconName()).ToLower() + "loadoutpanebmp";
+            ZString str = StrToLower(ZString(pside->GetCivilization()->GetIconName())) + "loadoutpanebmp";
             m_pwrapImageCiv->SetImage(GetModeler()->LoadImage(str, false));
-            ZString str2 = ZString(pside->GetCivilization()->GetIconName()).ToLower() + "hullinfobmp";
+            ZString str2 = StrToLower(ZString(pside->GetCivilization()->GetIconName())) + "hullinfobmp";
             m_pwrapImageHullCiv->SetImage(GetModeler()->LoadImage(str2, false));
         } else {
             m_pwrapImageCiv->SetImage(GetModeler()->LoadImage("loadoutpanemp", false));
@@ -962,7 +962,7 @@ public:
 
     void SetHullTitle()
     {
-        m_pstringTitle->SetValue(ZString(m_phullType->GetName()).ToUpper());
+        m_pstringTitle->SetValue(StrToUpper(ZString(m_phullType->GetName())));
         m_pstringHullDescription->SetValue(m_phullType->GetDescription());
     }
 
@@ -1261,7 +1261,7 @@ public:
             //m_pstringPartDescription->SetValue("Part desc");
             m_pstringPartName->SetValue(GetBuyableName(ppartType));
             
-            ZString str = ZString("l") + ZString(ppartType->GetModelName()) + ZString("bmp").ToLower();
+            ZString str = ZString("l") + ZString(ppartType->GetModelName()) + StrToLower(ZString("bmp"));
             TRef<Image> pimage = GetModeler()->LoadImage(str, false);
             m_pwrapImagePart->SetImage(pimage); 
             
@@ -1932,7 +1932,7 @@ public:
         {
             ZString str =
                   ZString("loadout")
-                + ZString(m_phullType->GetObjectID())
+                + StrFromInt(m_phullType->GetObjectID())
                 + ZString("overlay");
             TRef<Image> pimage = m_pnsLoadout->FindImage(str);
 
@@ -1951,7 +1951,7 @@ public:
             // Find the loadout definition
             //
 
-            ZString str = ZString("loadout") + ZString(m_phullType->GetObjectID());
+            ZString str = ZString("loadout") + StrFromInt(m_phullType->GetObjectID());
             TRef<IObjectList> plist = m_pnsLoadout->FindList(str);
 
             if (plist == NULL) {

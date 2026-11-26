@@ -48,7 +48,7 @@ public:
         m_pImageBkgnd = GetModeler()->LoadImage(AWF_LOADOUT_ITEM, true);
         m_pImageSelect = GetModeler()->LoadImage("investhighlightbmp", true);
         m_pImagePart = GetModeler()->LoadImage(
-            (ZString("i") + ZString(m_szModel) + "bmp").ToLower(), 
+            StrToLower((ZString("i") + ZString(m_szModel) + "bmp")), 
             false
             );
         
@@ -200,7 +200,7 @@ public:
                         IstationTypeIGC* pStationtype;
                         CastTo(pStationtype, m_pBucket->GetBuyable());
                         nTotalNumber = CountStationsOfType(pStationtype);
-                        strName = "Build " + strName + " (" + ZString(nTotalNumber) + ")";
+                        strName = "Build " + strName + " (" + StrFromInt(nTotalNumber) + ")";
                     }
                     break;
 
@@ -221,8 +221,8 @@ public:
                            );
                         }
 
-                        strName = "Build " + strName + " (" + ZString(nTotalNumber) 
-                            + "/" + ZString(nMaxMiners) + ")";
+                        strName = "Build " + strName + " (" + StrFromInt(nTotalNumber) 
+                            + "/" + StrFromInt(nMaxMiners) + ")";
                     }
                     break;
 
@@ -230,7 +230,7 @@ public:
                     case OT_hullType:
                     {
                         nTotalNumber = m_pBucket->GetSide()->GetStockpile(m_pBucket->GetBuyable());
-                        strName = "Build " + strName + " (" + ZString(nTotalNumber) + ")";
+                        strName = "Build " + strName + " (" + StrFromInt(nTotalNumber) + ")";
                     }
                 }
             }
@@ -1097,13 +1097,13 @@ private:
         TRef<IEngineFont> pfont = TrekResources::SmallFont();
         Color             color = MakeColorFromCOLORREF(RGB(180,180,180));
 
-        pSurface->DrawString(pfont, color, WinPoint(nBorderWidth, 15 + nLineHeight),   ZString("Cost:           $") + ZString(pBuyable->GetPrice()));
-        pSurface->DrawString(pfont, color, WinPoint(nBorderWidth, 15 + 2*nLineHeight), ZString("Time:          ") + ZString((int)pBuyable->GetTimeToBuild()) + ZString(" Sec."));
+        pSurface->DrawString(pfont, color, WinPoint(nBorderWidth, 15 + nLineHeight),   ZString("Cost:           $") + StrFromInt(pBuyable->GetPrice()));
+        pSurface->DrawString(pfont, color, WinPoint(nBorderWidth, 15 + 2*nLineHeight), ZString("Time:          ") + StrFromInt((int)pBuyable->GetTimeToBuild()) + ZString(" Sec."));
 
         ZString strDescription(pBuyable->GetDescription() + ZString(" "));
         
         
-        while (strDescription.GetLength() != 0)
+        while ((int)strDescription.size() != 0)
         {
             // calculate the number of characters we can display on this line
             int nLineLength = TrekResources::SmallFont()->GetMaxTextLength(strDescription, nWidth, true);
@@ -1124,11 +1124,11 @@ private:
             else
             {
                 pSurface->DrawString(pfont, color, WinPoint(nBorderWidth,nCurrentYPos), 
-                    strDescription.Left(nLineLength));
+                    StrLeft(strDescription, nLineLength));
                 nCurrentYPos += nLineHeight;
             }
             
-            strDescription = strDescription.RightOf(nLineLength);
+            strDescription = StrRightOf(strDescription, nLineLength);
         }
     }
     

@@ -785,7 +785,7 @@ public:
         m_sFilterFlags = DontCare;
         m_sFilterTerritorial = DontCare;
 
-        m_strGameNameSubstring.SetEmpty();
+        m_strGameNameSubstring.clear();
 
         UpdateGameList();
     }
@@ -858,8 +858,8 @@ public:
                     != pgame->GoalTerritory())
                 return false;
 
-            if (!m_pparent->m_strGameNameSubstring.IsEmpty()
-                && (ZString(pgame->Name()).ToLower().Find(m_pparent->m_strGameNameSubstring.ToLower()) == -1)) 
+            if (!m_pparent->m_strGameNameSubstring.empty()
+                && (StrFind(StrToLower(ZString(pgame->Name())), StrToLower(m_pparent->m_strGameNameSubstring)) == -1)) 
                 return false;
             
             return true;

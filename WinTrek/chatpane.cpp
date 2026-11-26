@@ -27,7 +27,7 @@ public:
     {
         ZString strMsg = CensorBadWords (m_pchatInfo->GetMessage());
         IEngineFont* pfont = pchatInfo->IsFromLeader() ? TrekResources::SmallBoldFont() : TrekResources::SmallFont();
-        int nStrLenLeft = strMsg.GetLength();
+        int nStrLenLeft = (int)strMsg.size();
         int nStrLenLine;
         while ((nStrLenLine = pfont->GetMaxTextLength(strMsg, ptLineSize.X(), true))
                 < nStrLenLeft)
@@ -46,11 +46,11 @@ public:
             }
             else
             {
-                m_vMsgLines.push_back(strMsg.Left(nStrLenLine));
+                m_vMsgLines.push_back(StrLeft(strMsg, nStrLenLine));
             }
-            strMsg = "  " + strMsg.RightOf(nStrLenLine);
+            strMsg = "  " + StrRightOf(strMsg, nStrLenLine);
             nStrLenLeft -= nStrLenLine - 2;
-            ZAssert(strMsg.GetLength() == nStrLenLeft);
+            ZAssert((int)strMsg.size() == nStrLenLeft);
         }
         m_vMsgLines.push_back(strMsg);
     }

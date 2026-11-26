@@ -1700,16 +1700,16 @@ private:
                     }
 
                     if (map.m_indexJoystick == -1) {
-                        str += "Mouse Btn " + ZString(map.m_indexButton + 1);
+                        str += "Mouse Btn " + StrFromInt(map.m_indexButton + 1);
                     } else {
-                        str += "Joy " + ZString(map.m_indexJoystick);
+                        str += "Joy " + StrFromInt(map.m_indexJoystick);
 
                         switch(map.m_indexButton) {
                             case -1: str += " Hat Forward"                          ; break;
                             case -2: str += " Hat Right"                            ; break;
                             case -3: str += " Hat Backward"                         ; break;
                             case -4: str += " Hat Left    "                         ; break;
-                            default: str += " Btn " + ZString(map.m_indexButton + 1); break;
+                            default: str += " Btn " + StrFromInt(map.m_indexButton + 1); break;
                         }
                     }
 
@@ -1764,11 +1764,11 @@ private:
 
                     pfile->Write(
                           "        (" 
-                        + ZString(map.m_vk) 
+                        + StrFromInt(map.m_vk) 
                         + ", " 
-                        + ZString(modifiers)
+                        + StrFromInt(modifiers)
                         + ", "
-                        + ZString(cmd)
+                        + StrFromInt(cmd)
                         + ")"
                     );
 
@@ -1793,9 +1793,9 @@ private:
 
                     pfile->Write(
                           "        (" 
-                        + ZString(map.m_indexButton)
+                        + StrFromInt(map.m_indexButton)
                         + ", "
-                        + ZString(cmd)
+                        + StrFromInt(cmd)
                         + ")"
                     );
                 }
@@ -1820,11 +1820,11 @@ private:
 
                     pfile->Write(
                           "        (" 
-                        + ZString(map.m_indexJoystick) 
+                        + StrFromInt(map.m_indexJoystick) 
                         + ", " 
-                        + ZString(map.m_indexButton)
+                        + StrFromInt(map.m_indexButton)
                         + ", "
-                        + ZString(cmd)
+                        + StrFromInt(cmd)
                         + ")"
                     );
                 }
@@ -2035,7 +2035,7 @@ public:
 
     void SetMessage(const ZString& str = ZString())
     {
-        if (str.IsEmpty()) {
+        if (str.empty()) {
             m_pstringText->SetValue("Press Enter to add a mapping or Delete to remove mapping.");
         } else {
             m_pstringText->SetValue(str);
@@ -2270,9 +2270,9 @@ public:
         for (index = 0; index < (int)m_paxis.size(); index++) {
             pfile->Write(
                    "        ("
-                + ZString(m_paxis[index].m_indexJoystick)
+                + StrFromInt(m_paxis[index].m_indexJoystick)
                 + ", "
-                + ZString(m_paxis[index].m_indexValue)
+                + StrFromInt(m_paxis[index].m_indexValue)
                 + ")"
             );
 
@@ -2740,9 +2740,9 @@ public:
                         + pjoystick->GetValueDescription(m_paxis[indexAxis].m_indexValue);
                 } else {
                     strMapping = 
-                          "Joy " + ZString(m_paxis[indexAxis].m_indexJoystick)
+                          "Joy " + StrFromInt(m_paxis[indexAxis].m_indexJoystick)
                         + " Value "
-                        + ZString(m_paxis[indexAxis].m_indexValue);
+                        + StrFromInt(m_paxis[indexAxis].m_indexValue);
                 }
             }
         } else {

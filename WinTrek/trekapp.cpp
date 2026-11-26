@@ -214,7 +214,7 @@ public:
         // ArtPath: where the artwork is; by default "artwork" next to the executable
         PathString pathStr(ZSettings::GetString("ArtPath", "").c_str());
 
-        if (pathStr.IsEmpty()) {
+        if (pathStr.empty()) {
             char    szArtPath[MAX_PATH + 16];
             GetModuleFileNameA(NULL, szArtPath, MAX_PATH);
             char*   p = strrchr(szArtPath, '\\');
@@ -230,7 +230,7 @@ public:
         if (ZSettings::GetDWORD("LogFrameData", 0) == 1)
         {
             ZString strFile(ZSettings::GetString("LogFrameDataPath", "").c_str());
-            if (!strFile.IsEmpty())
+            if (!strFile.empty())
             {
                 g_pzfFrameDump = new ZWriteFile(strFile);
                 // check for a valid file handle
@@ -302,7 +302,7 @@ public:
         ZString strMap;
 
         PCC pcc = strCommandLine;
-        CommandLineToken token(pcc, strCommandLine.GetLength());
+        CommandLineToken token(pcc, (int)strCommandLine.size());
 
         while (token.MoreTokens()) {
             ZString str;

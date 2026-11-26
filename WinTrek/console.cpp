@@ -1043,7 +1043,7 @@ public:
         // critical tip after it (a hack because of the max of 2 lines, 
         // hardcoded font, and hardcoded width)
         static IEngineFont* pfont = GetModeler()->GetNameSpace("font")->FindFont("medBoldVerdana");
-        if (pfont->GetMaxTextLength(strHelp, 620, true) < strHelp.GetLength())
+        if (pfont->GetMaxTextLength(strHelp, 620, true) < (int)strHelp.size())
             SetCriticalTipText("");
     }
 
@@ -1265,7 +1265,7 @@ public:
                     {
                         //Fill in the rest of the chat text with the remainder of the picked name
                         char    bfr[c_cbName];
-                        int lenText = m_strTypedText.GetLength();
+                        int lenText = (int)m_strTypedText.size();
                         strcpy(bfr, (m_pmodelTarget == trekClient.GetShip()) &&
                                     (lenText <= 2) &&
                                     (_strnicmp(m_strTypedText, "me", lenText) == 0)
@@ -1560,7 +1560,7 @@ public:
     {
         if (m_csComposeState == c_csComposeChat)
         {
-            assert (m_strTypedText.GetLength() != 0);
+            assert ((int)m_strTypedText.size() != 0);
 
             SendChatInternal(m_strTypedText,
                              NA,
@@ -1615,7 +1615,7 @@ public:
         m_pchsCurrent = pchsTarget;
 
         SetChatObject(NULL);
-        m_strTypedText.SetEmpty();
+        m_strTypedText.clear();
 
         // set the compose state
         SetComposeState(cs);
@@ -2231,7 +2231,7 @@ public:
         {
             trekClient.PlaySoundEffect(chatKeySound);
 
-            if (ks.bControl && (m_csComposeState != c_csComposeCommand) && m_strTypedText.IsEmpty())
+            if (ks.bControl && (m_csComposeState != c_csComposeCommand) && m_strTypedText.empty())
             {
                 //Lets assume the 1st char of all commands are unique
                 for (CommandID  cid = c_cidAttack; (cid < c_cidMax); cid++)
@@ -2254,7 +2254,7 @@ public:
                 switch (ks.vk)
                 {
                     case VK_RETURN:
-                        if (m_strTypedText.IsEmpty())
+                        if (m_strTypedText.empty())
                         {
                             QuitComposing();
                         }
@@ -2267,7 +2267,7 @@ public:
                     case VK_ESCAPE:
                         if (m_csComposeState == c_csComposeCommand)
                         {
-                            m_strTypedText.SetEmpty();
+                            m_strTypedText.clear();
                             SetComposeState(c_csComposeChat);
                             UpdateComposedChat();
                         }
@@ -2292,7 +2292,7 @@ public:
 
                     case '!':
                     {
-                        if ((m_csComposeState == c_csComposeChat) && m_strTypedText.IsEmpty())
+                        if ((m_csComposeState == c_csComposeChat) && m_strTypedText.empty())
                         {
                             m_strTypedText = ZString("!");
                             SetComposeState(c_csComposeShell);
@@ -2487,16 +2487,16 @@ public:
     {
         assert (m_csComposeState > c_csComposeMouseCommand);
 
-        if (m_strTypedText.GetLength() != 0)
+        if ((int)m_strTypedText.size() != 0)
         {
-            if ((m_csComposeState == c_csComposeShell) && (m_strTypedText.GetLength() == 1))
+            if ((m_csComposeState == c_csComposeShell) && ((int)m_strTypedText.size() == 1))
             {
-                m_strTypedText.SetEmpty();
+                m_strTypedText.clear();
                 SetComposeState(c_csComposeChat);
             }
             else
             {
-                m_strTypedText = m_strTypedText.LeftOf(1);
+                m_strTypedText = StrLeftOf(m_strTypedText, 1);
                 if (m_csComposeState == c_csComposeCommand)
                     MatchTarget();
             }
@@ -2578,7 +2578,7 @@ public:
             if (MatchName(pcc, "admin") == 0)
             {
                 SetChatObject(NULL);
-                m_strTypedText.SetEmpty();
+                m_strTypedText.clear();
                 m_pchsCurrent->SetRecipient(CHAT_ADMIN, NA, NULL);
             }
             else
@@ -2741,7 +2741,7 @@ public:
                                                     SetVerb(cid);
 
                                                     SetChatObject(NULL);
-                                                    m_strTypedText.SetEmpty();
+                                                    m_strTypedText.clear();
                                                     UpdateComposedChat();
 
                                                     return;
@@ -2758,7 +2758,7 @@ public:
                 if (scoreBest != c_badMatch)
                 {
                     SetChatObject(NULL);
-                    m_strTypedText.SetEmpty();
+                    m_strTypedText.clear();
                     m_pchsCurrent->SetRecipient(ct, oidRecipient, pbaseRecipient);
                 }
                 else
@@ -2774,7 +2774,7 @@ public:
     {
         assert (m_csComposeState > c_csComposeMouseCommand);
 
-        m_strTypedText += ZString(ch, 1);
+        m_strTypedText += StrRepeat(ch, 1);
 
         if (m_csComposeState == c_csComposeCommand)
         {

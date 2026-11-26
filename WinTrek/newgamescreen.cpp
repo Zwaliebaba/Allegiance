@@ -112,8 +112,8 @@ private:
 
         m_pcomboTeamCount->SetSelection(FindClosestValue(missionparams.nTeams, "TeamCountValues"));
         m_pcomboMaxPlayers->SetSelection(FindClosestValue(missionparams.nMaxPlayersPerTeam, "MaxPlayersValues"));
-        m_ptextMaxPlayers->SetString(ZString(missionparams.nMinPlayersPerTeam) 
-            + " - " + ZString(missionparams.nMaxPlayersPerTeam));
+        m_ptextMaxPlayers->SetString(StrFromInt(missionparams.nMinPlayersPerTeam) 
+            + " - " + StrFromInt(missionparams.nMaxPlayersPerTeam));
         //m_ptextMinPlayers->SetString(ZString(missionparams.nMinPlayersPerTeam));
 
         m_pcomboMaxImbalance   ->SetSelection(FindClosestValue(missionparams.iMaxImbalance, "MaxImbalanceValues"));
@@ -193,7 +193,7 @@ public:
         if (missionparams.iLives == 32767) {
             return "Unlimited";    
         } else {
-            return ZString(missionparams.iLives);
+            return StrFromInt(missionparams.iLives);
         }
     }
 
@@ -489,7 +489,7 @@ public:
         }
 
         if (bEliminatedItem)
-            pcombo->AddItem(ZString((int)fLimit), (int)fLimit);
+            pcombo->AddItem(StrFromInt((int)fLimit), (int)fLimit);
     }
 
     float FindValue(int index, const char* szTableName)
@@ -665,8 +665,8 @@ public:
     bool OnTeamCountChange(int max)
     {
         m_ptextMaxPlayers->SetString(
-            ZString(GetBaseMissionParams().nMinPlayersPerTeam) + " - " 
-                + ZString(GetBaseMissionParams().nTotalMaxPlayersPerGame 
+            StrFromInt(GetBaseMissionParams().nMinPlayersPerTeam) + " - " 
+                + StrFromInt(GetBaseMissionParams().nTotalMaxPlayersPerGame 
                     / (int)FindValue(m_pcomboTeamCount->GetSelection(), "TeamCountValues"))
             );
         return true;
@@ -973,10 +973,10 @@ public:
             int nSecondsLeft = nTimeLeft - nMinutesLeft * 60;
 
             if (nMinutesLeft > 0)
-                m_ptextCountdown->SetString(ZString(nMinutesLeft) + 
-                    ((nSecondsLeft > 9) ? ":" : ":0") + ZString(nSecondsLeft));
+                m_ptextCountdown->SetString(StrFromInt(nMinutesLeft) + 
+                    ((nSecondsLeft > 9) ? ":" : ":0") + StrFromInt(nSecondsLeft));
             else
-                m_ptextCountdown->SetString(ZString(nSecondsLeft));
+                m_ptextCountdown->SetString(StrFromInt(nSecondsLeft));
         }
         else
         {

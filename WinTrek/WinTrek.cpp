@@ -1430,7 +1430,7 @@ public:
                 m_pstringPaneConquest->SetString("1st team to own all of the starbases wins");
             } else {
                 m_pstringPaneConquest->SetString(
-                    "1st team to own " + ZString(pmp->GetConquestPercentage()) + "% of the starbases wins"
+                    "1st team to own " + StrFromInt(pmp->GetConquestPercentage()) + "% of the starbases wins"
                 );
             }
         } else {
@@ -1447,7 +1447,7 @@ public:
             m_pstringPaneTerritory->SetTextColor(Color::White());
 
             m_pstringPaneTerritory->SetString(
-                "1st team to own " + ZString((50 + trekClient.m_pCoreIGC->GetClusters()->n() * 
+                "1st team to own " + StrFromInt((50 + trekClient.m_pCoreIGC->GetClusters()->n() * 
                                                    pmp->GetTerritoryPercentage()) / 100) + " sectors wins"
             );
         } else {
@@ -1479,7 +1479,7 @@ public:
             m_pstringPaneArtifacts->SetFont(TrekResources::SmallFont());
             m_pstringPaneArtifacts->SetTextColor(Color::White());
             m_pstringPaneArtifacts->SetString(
-                "First team to own " + ZString(pmp->nGoalArtifactsCount) + " artifacts wins"
+                "First team to own " + StrFromInt(pmp->nGoalArtifactsCount) + " artifacts wins"
             );
         } else {
             m_pstringGridImageArtifacts = NULL;
@@ -1494,7 +1494,7 @@ public:
             m_pstringPaneFlags->SetFont(TrekResources::SmallFont());
             m_pstringPaneFlags->SetTextColor(Color::White());
             m_pstringPaneFlags->SetString(
-                "First team to capture " + ZString(pmp->nGoalFlagsCount) + " flags wins"
+                "First team to capture " + StrFromInt(pmp->nGoalFlagsCount) + " flags wins"
             );
         } else {
             m_pstringGridImageFlags = NULL;
@@ -1513,7 +1513,7 @@ public:
             m_pstringPaneDeathMatch->SetTextColor(Color::White());
 
             m_pstringPaneDeathMatch->SetString(pmp->IsDeathMatchGame()
-                                               ? "1st team to kill " + ZString(pmp->GetDeathMatchKillLimit()) + " ships wins"
+                                               ? "1st team to kill " + StrFromInt(pmp->GetDeathMatchKillLimit()) + " ships wins"
                                                : ZString());
         }
         UpdateGameStateContainer();
@@ -1603,7 +1603,7 @@ public:
             pgrid->SetString(
                 row,
                 2,
-                ZString(pside->GetConquestPercent()) + "% owned"
+                StrFromInt(pside->GetConquestPercent()) + "% owned"
             );
         }
 
@@ -1630,7 +1630,7 @@ public:
             pgrid->SetString(
                 row,
                 2,
-                ZString(c) + ((c == 1) ? " sector owned" : " sectors owned")
+                StrFromInt(c) + ((c == 1) ? " sector owned" : " sectors owned")
             );
         }
 
@@ -1653,9 +1653,9 @@ public:
     public:
         void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside)
         {
-            pgrid->SetString(row, 2, ZString(pside->GetKills() ) + " kills" );
-            pgrid->SetString(row, 3, ZString(pside->GetEjections()) + " ejects");
-            pgrid->SetString(row, 4, ZString(pside->GetDeaths()) + " deaths");
+            pgrid->SetString(row, 2, StrFromInt(pside->GetKills() ) + " kills" );
+            pgrid->SetString(row, 3, StrFromInt(pside->GetEjections()) + " ejects");
+            pgrid->SetString(row, 4, StrFromInt(pside->GetDeaths()) + " deaths");
         }
 
         bool Greater(IsideIGC* pside1, IsideIGC* pside2)
@@ -1672,9 +1672,9 @@ public:
     public:
         void FillLine(StringGridImage* pgrid, int row, IshipIGC* pship)
         {
-            pgrid->SetString(row, 2, ZString(pship->GetKills() ) + " kills" );
-            pgrid->SetString(row, 3, ZString(pship->GetEjections()) + " ejects");
-            pgrid->SetString(row, 4, ZString(pship->GetDeaths()) + " deaths");
+            pgrid->SetString(row, 2, StrFromInt(pship->GetKills() ) + " kills" );
+            pgrid->SetString(row, 3, StrFromInt(pship->GetEjections()) + " ejects");
+            pgrid->SetString(row, 4, StrFromInt(pship->GetDeaths()) + " deaths");
         }
         virtual void ClearLine(StringGridImage* pgrid, int row) 
         {
@@ -1724,7 +1724,7 @@ public:
             pgrid->SetString(
                 row,
                 2,
-                ZString(prosperity) + "% invested"
+                StrFromInt(prosperity) + "% invested"
             );
         }
 
@@ -1751,7 +1751,7 @@ public:
             pgrid->SetString(
                 row,
                 2,
-                ZString(pside->GetArtifacts()) + " owned"
+                StrFromInt(pside->GetArtifacts()) + " owned"
             );
         }
 
@@ -1777,7 +1777,7 @@ public:
             pgrid->SetString(
                 row,
                 2,
-                ZString(pside->GetFlags()) + " captured"
+                StrFromInt(pside->GetFlags()) + " captured"
             );
         }
 
@@ -1922,7 +1922,7 @@ public:
                 pgrid->SetColor(2, pshipTop->GetSide()->GetColor());
                 shipInfo.FillLine(pgrid, 2, pshipTop);
 
-                pgrid->SetString(3, 0, c_pound + ZString(myRank));
+                pgrid->SetString(3, 0, c_pound + StrFromInt(myRank));
                 pgrid->SetString(3, 1, pshipMe->GetName());
                 pgrid->SetColor(3, psideMe->GetColor());
                 shipInfo.FillLine(pgrid, 3, pshipMe);
@@ -4795,7 +4795,7 @@ public:
 
     void SetViewMode(ViewMode vm, bool bForce = false)
     {
-        ZDebugOutput("SetViewMode(" + ZString((int)vm) + ")\n");
+        ZDebugOutput("SetViewMode(" + StrFromInt((int)vm) + ")\n");
 
         //
         // Ignore the set display mode.
@@ -5490,18 +5490,18 @@ public:
 
         if (g_pzfFrameDump && g_pzfFrameDump->IsValid())
         {
-            ZString str = ZString((int)mspf) + "," + ZString((int)fps) + ",";
+            ZString str = StrFromInt((int)mspf) + "," + StrFromInt((int)fps) + ",";
 
             int i;
             for (i=0; i<7; i++)
-                str += ZString(g_fdInfo.objects_drawn[i]) + ",";
+                str += StrFromInt(g_fdInfo.objects_drawn[i]) + ",";
 
             for (i=0; i<7; i++)
-                str += ZString(g_fdInfo.objects_insector[i]) + ",";
+                str += StrFromInt(g_fdInfo.objects_insector[i]) + ",";
 
-            str += ZString(pcontext->GetPerformanceCounter(CounterTriangles)) + ",";
-            str += ZString(pcontext->GetPerformanceCounter(CounterDrawStrings)) + ",";
-            str += ZString(pcontext->GetPerformanceCounter(CounterDrawStringChars)) + "\n";
+            str += StrFromInt(pcontext->GetPerformanceCounter(CounterTriangles)) + ",";
+            str += StrFromInt(pcontext->GetPerformanceCounter(CounterDrawStrings)) + ",";
+            str += StrFromInt(pcontext->GetPerformanceCounter(CounterDrawStringChars)) + "\n";
 
             g_pzfFrameDump->Write(str);
         }
@@ -5510,9 +5510,9 @@ public:
             const Vector& myPosition = trekClient.GetShip()->GetPosition();
             strPosition =
                   " pos("
-                + ZString((int)myPosition.X()) + ","
-                + ZString((int)myPosition.Y()) + ","
-                + ZString((int)myPosition.Z()) + ")";
+                + StrFromInt((int)myPosition.X()) + ","
+                + StrFromInt((int)myPosition.Y()) + ","
+                + StrFromInt((int)myPosition.Z()) + ")";
         } else {
             strPosition = " pos: (Dead)";
         }
@@ -5546,15 +5546,15 @@ public:
           lstrcpy(szRemoteAddress, "N/A");
         
         return
-              "TC:" + ZString(ThingGeo::GetTrashCount())
-            + " CC:" + ZString(ThingGeo::GetCrashCount())
+              "TC:" + StrFromInt(ThingGeo::GetTrashCount())
+            + " CC:" + StrFromInt(ThingGeo::GetCrashCount())
             + " Server: " + ZString(szRemoteAddress)
-            + " fov: " + ((m_pcamera != NULL) ? ZString(DegreesFromRadians(m_pcamera->GetFOV())) : ZString())
+            + " fov: " + ((m_pcamera != NULL) ? StrFromFloat(DegreesFromRadians(m_pcamera->GetFOV())) : ZString())
             + strPosition
-            + " lag: " + ZString((int) trekClient.m_serverLag)
-            + " ping: " + ZString(Time::Now() - trekClient.m_timeLastPing)
-            + " sync: " + ZString(int(100.0f * trekClient.m_sync))
-            + " snds: " + ZString(nNumPlayingSoundBuffers);
+            + " lag: " + StrFromInt((int) trekClient.m_serverLag)
+            + " ping: " + StrFromFloat(Time::Now() - trekClient.m_timeLastPing)
+            + " sync: " + StrFromInt(int(100.0f * trekClient.m_sync))
+            + " snds: " + StrFromInt(nNumPlayingSoundBuffers);
 
         //return m_ptrekInput->GetFPSString();
     }
@@ -7247,7 +7247,7 @@ public:
 
             ZString strFile(ZSettings::GetString(str, "").c_str());
 
-            if (strFile.IsEmpty()) {
+            if (strFile.empty()) {
                 return NULL;
             }
 
@@ -8643,7 +8643,7 @@ public:
 
             trekClient.PostText(true, "%s",
                                 (const char*)((pshipSender->GetName() + c_str1) + 
-                                              (ZString(money) + c_str2) +
+                                              (StrFromInt(money) + c_str2) +
                                               (pht->GetName() + c_str3)));
         }
     }

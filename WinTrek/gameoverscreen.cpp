@@ -99,7 +99,7 @@ public:
                 TrekResources::SmallFont(),
                 (nPosition > 0) ? (0.75 * Color::White()) : Color::White(),
                 WinPoint(2, 0),
-                ZString(nPosition + 1)
+                StrFromInt(nPosition + 1)
             );
 
             // draw the player's name, bold if they were the leader, dimmed if the game did not count
@@ -134,37 +134,37 @@ public:
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[2] + 7, 0),
-                ZString(pplayer->scoring.GetRecentBaseKills())
+                StrFromInt(pplayer->scoring.GetRecentBaseKills())
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[3] + 5, 0),
-                ZString(pplayer->scoring.GetRecentBaseCaptures())
+                StrFromInt(pplayer->scoring.GetRecentBaseCaptures())
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[4] + 5, 0),
-                ZString((int)pplayer->scoring.GetRecentScore())
+                StrFromInt((int)pplayer->scoring.GetRecentScore())
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[5] + 5, 0),
-                ZString(pplayer->scoring.GetRecentAssists())
+                StrFromInt(pplayer->scoring.GetRecentAssists())
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[6] + 5, 0),
-                ZString(pplayer->scoring.GetRecentKills())
+                StrFromInt(pplayer->scoring.GetRecentKills())
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[7] + 9, 0),
-                ZString(trekClient.GetGameoverEjectPods() 
+                StrFromInt(trekClient.GetGameoverEjectPods() 
                     ? pplayer->scoring.GetRecentEjections() 
                     : pplayer->scoring.GetRecentDeaths())
                 );
@@ -174,8 +174,8 @@ public:
             int nMinutes = nTime/60 - nHours * 60;
             int nSeconds = nTime - nMinutes * 60 - nHours * 60 * 60;
 
-            ZString strPlayTime = ZString(nHours) 
-                + ((nMinutes > 9) ? ":" : ":0") + ZString(nMinutes)
+            ZString strPlayTime = StrFromInt(nHours) 
+                + ((nMinutes > 9) ? ":" : ":0") + StrFromInt(nMinutes)
                 ;//+ ((nSeconds > 9) ? ":" : ":0") + ZString(nSeconds);
 
             psurface->DrawString(
@@ -230,7 +230,7 @@ public:
                 TrekResources::SmallFont(),
                 (nPosition > 0) ? (0.75 * Color::White()) : Color::White(),
                 WinPoint(2, 0),
-                ZString(nPosition + 1)
+                StrFromInt(nPosition + 1)
             );
 
             // draw the side's name
@@ -250,37 +250,37 @@ public:
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[1] + 2, 0),
-                ZString(pside->cBaseKills)
+                StrFromInt(pside->cBaseKills)
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[2] + 2, 0),
-                ZString(pside->cBaseCaptures)
+                StrFromInt(pside->cBaseCaptures)
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[3] + 2, 0),
-                ZString(pside->cFlags)
+                StrFromInt(pside->cFlags)
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[4] + 2, 0),
-                ZString(pside->cArtifacts)
+                StrFromInt(pside->cArtifacts)
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[5] + 2, 0),
-                ZString(pside->cKills)
+                StrFromInt(pside->cKills)
                 );
             psurface->DrawString(
                 TrekResources::SmallFont(),
                 Color::White(),
                 WinPoint(m_viColumns[6] + 2, 0),
-                ZString(pside->cDeaths)
+                StrFromInt(pside->cDeaths)
                 );
         }
     };
@@ -412,15 +412,15 @@ public:
         {
             // nothing more to do
         }
-        else if (_stricmp(strChat.LeftOf(":"), "admin") == 0)
+        else if (_stricmp(StrLeftOf(strChat, ":"), "admin") == 0)
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_ADMIN, NA,
-                                NA, (const char*)strChat.RightOf(":"));
+                                NA, (const char*)StrRightOf(strChat, ":"));
         }
-        else if (NULL != (pplayer = trekClient.FindPlayer(strChat.LeftOf(":"))))
+        else if (NULL != (pplayer = trekClient.FindPlayer(StrLeftOf(strChat, ":"))))
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_INDIVIDUAL, pplayer->ShipID(),
-                                NA, (const char*)strChat.RightOf(":"));
+                                NA, (const char*)StrRightOf(strChat, ":"));
         }
         else
         {
@@ -433,7 +433,7 @@ public:
     {
         ZString str = m_peditPane->GetString();
 
-        if (!str.IsEmpty())
+        if (!str.empty())
             SendChat(str);
         m_peditPane->SetString(ZString());
 
@@ -442,7 +442,7 @@ public:
 
     bool OnEvent(TEvent<ZString>::Source* pevent, ZString str)
     {
-        if (!str.IsEmpty())
+        if (!str.empty())
             SendChat(str);
         m_peditPane->SetString(ZString());
 
@@ -500,10 +500,10 @@ public:
             int nSecondsLeft = nTimeLeft - nMinutesLeft * 60;
 
             if (nMinutesLeft > 0)
-                m_ptextCountdown->SetString(ZString(nMinutesLeft) + 
-                    ((nSecondsLeft > 9) ? ":" : ":0") + ZString(nSecondsLeft));
+                m_ptextCountdown->SetString(StrFromInt(nMinutesLeft) + 
+                    ((nSecondsLeft > 9) ? ":" : ":0") + StrFromInt(nSecondsLeft));
             else
-                m_ptextCountdown->SetString(ZString(nSecondsLeft));
+                m_ptextCountdown->SetString(StrFromInt(nSecondsLeft));
         }
         else
         {

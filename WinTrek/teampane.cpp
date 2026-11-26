@@ -212,13 +212,13 @@ public:
             // draw the deaths
             
             if (pplayer->MissionDeaths())
-                psurface->DrawString(TrekResources::SmallFont(), color, WinPoint(143, 2), ZString(pplayer->MissionDeaths()));
+                psurface->DrawString(TrekResources::SmallFont(), color, WinPoint(143, 2), StrFromInt(pplayer->MissionDeaths()));
             else
                 psurface->DrawString(TrekResources::SmallFont(), color, WinPoint(143, 2), ZString("0"));
             // draw the kills
             
             if (pplayer->MissionKills())
-                psurface->DrawString(TrekResources::SmallFont(), color, WinPoint(120, 2), ZString(pplayer->MissionKills()));
+                psurface->DrawString(TrekResources::SmallFont(), color, WinPoint(120, 2), StrFromInt(pplayer->MissionKills()));
             else
                 psurface->DrawString(TrekResources::SmallFont(), color, WinPoint(120, 2), ZString("0"));
         }
@@ -324,7 +324,7 @@ public:
                   TrekResources::SmallFont(),
                   Color::White(),
                   WinPoint(110, 2),
-                  ZString("(") + ZString(m_pMission->SideNumPlayers(pitem->GetSideID())) + ZString(")")
+                  ZString("(") + StrFromInt(m_pMission->SideNumPlayers(pitem->GetSideID())) + ZString(")")
                   );
               
           }
@@ -403,7 +403,7 @@ public:
               IcivilizationIGC* pciv = pside ? pside->GetCivilization() : NULL;
               ZString str;
               
-              str = ZString("icon") + ZString(pciv->GetIconName()).ToLower() + ZString("bmp");
+              str = ZString("icon") + StrToLower(ZString(pciv->GetIconName())) + ZString("bmp");
               TRef<Image> pimageCiv = GetModeler()->LoadImage(str, true);
               
               psurface->BitBlt(WinPoint(2, 2), pimageCiv->GetSurface());
@@ -552,7 +552,7 @@ public:
                 
                 TRef<IMenuItem> pitem =
                     m_pcomboTeams->AddItem(
-                    CensorBadWords (trekClient.MyMission()->SideName(sideID)) + ZString("  (") + ZString(trekClient.MyMission()->SideNumPlayers(sideID)) + ZString(")"),
+                    CensorBadWords (trekClient.MyMission()->SideName(sideID)) + ZString("  (") + StrFromInt(trekClient.MyMission()->SideNumPlayers(sideID)) + ZString(")"),
                     sideID,
                     color
                     );
@@ -1596,14 +1596,14 @@ class ExpandedTeamPane : public TeamPane
             // draw the deaths
             
             if (pplayer->MissionDeaths())
-                psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 27, 1), ZString(pplayer->MissionDeaths()));
+                psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 27, 1), StrFromInt(pplayer->MissionDeaths()));
             else
                 psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 27, 1), ZString("0"));
             
             // draw the kills
             
             if (pplayer->MissionKills())
-                psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 2, 1), ZString(pplayer->MissionKills()));
+                psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 2, 1), StrFromInt(pplayer->MissionKills()));
             else
                 psurface->DrawString(pfont, color, WinPoint(m_viColumns[0] + 2, 1), ZString("0"));
             

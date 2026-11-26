@@ -3117,7 +3117,7 @@ public:
 
         if (nEstimatedSecondsLeft != -1 && 
             m_pstrpaneApproxMinutes) // if they have an up-to-date art file
-          m_pstrpaneApproxMinutes->SetString(ZString("Min Left ") + ZString((((int)nEstimatedSecondsLeft-1)/60)+1));
+          m_pstrpaneApproxMinutes->SetString(ZString("Min Left ") + StrFromInt((((int)nEstimatedSecondsLeft-1)/60)+1));
 
         m_pModifiableNumberDownloadPercent->SetValue(float(cTotalBytes)/float(m_cGrandTotalBytes));
         m_pModifiableNumberDownloadPercent->Update();
@@ -3352,7 +3352,7 @@ HRESULT WinTrekClient::OnSessionLost(const char* szReason, FedMessaging * pthis)
 
 void WinTrekClient::FlushSessionLostMessage()
 {
-    if (!m_strDisconnectReason.IsEmpty())
+    if (!m_strDisconnectReason.empty())
     {
         TRef<IMessageBox> pmsgBox = CreateMessageBox(m_strDisconnectReason);
         m_strDisconnectReason = "";
@@ -4668,7 +4668,7 @@ void WinTrekClient::OnQuitMission(QuitSideReason reason, const char* szMessagePa
             break;
         }
 
-        if (!strMessage.IsEmpty())
+        if (!strMessage.empty())
         {
             if (trekClient.GetIsLobbied())
             {

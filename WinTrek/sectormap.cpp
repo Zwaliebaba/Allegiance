@@ -293,7 +293,7 @@ public:
     while (!iterCount.End())
     {
       pcontext->DrawImage3D(iterIcon.Value(), Color::White(), false, ptNext);
-      pcontext->DrawString(pfont, Color::White(), ptNext + Point(iterIcon.Value()->GetSize().X() + 4, 0), ZString(iterCount.Value()));
+      pcontext->DrawString(pfont, Color::White(), ptNext + Point(iterIcon.Value()->GetSize().X() + 4, 0), StrFromInt(iterCount.Value()));
 
       ptNext = ptNext - Point(0, iterIcon.Value()->GetSize().Y());
       iterCount.Next();
@@ -391,7 +391,7 @@ public:
               if (pil->data().count > 1)
               {
                 TRef<IEngineFont> pfont = TrekResources::SmallFont();
-                ZString strCount(pil->data().count);
+                ZString strCount = StrFromInt(pil->data().count);
                 WinPoint pt = pfont->GetTextExtent(strCount);
                 pcontext->DrawString(pfont, Color::White(), ptNext + Point(0, (pil->data().psurfaceIcon->GetSize().Y() - pt.Y()) / 2),
                                      strCount);
@@ -410,7 +410,7 @@ public:
         Point ptAsteroids(xSecondColumn, yTop - 45);
 
         // draw the helium count
-        pcontext->DrawString(pfont, Color::White(), ptHelium, "He3: " + ZString(static_cast<int>(GetHeliumInCluster(m_pClusterSel))));
+        pcontext->DrawString(pfont, Color::White(), ptHelium, "He3: " + StrFromInt(static_cast<int>(GetHeliumInCluster(m_pClusterSel))));
 
         // draw asteroids
         DrawAsteroidIcons(pcontext, pfont, m_pClusterSel, ptAsteroids);

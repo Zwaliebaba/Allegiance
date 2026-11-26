@@ -99,7 +99,7 @@ public:
 
     void ConnectToLobby(ScreenID screenid, const ZString& strPrompt)
     {
-        if (trekClient.GetCfgInfo().strPublicLobby.IsEmpty())
+        if (trekClient.GetCfgInfo().strPublicLobby.empty())
         {
             TRef<IMessageBox> pmsgBox = CreateMessageBox(
                 "The lobby is not available at the moment.  Please try again later.");
@@ -149,7 +149,7 @@ public:
         if (!strCfgFile.empty() && strCfgFile.size() < sizeof(m_szConfig))
             lstrcpy(m_szConfig, strCfgFile.c_str());
 
-        if (ZString(m_szConfig).Find("http://") == -1)
+        if (StrFind(ZString(m_szConfig), "http://") == -1)
         {
             debugf("Using local config file because the CfgFile setting has no \"http://\": %s\n", m_szConfig);
 

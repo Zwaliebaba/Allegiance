@@ -47,18 +47,18 @@ public:
 
     ZString InsertHyphen(ZString strSource, int nOffset)
     {
-        if (strSource.GetLength() < nOffset)
+        if ((int)strSource.size() < nOffset)
             return strSource;
         else
-            return strSource.Left(nOffset) + ZString("-") + strSource.RightOf(nOffset);
+            return StrLeft(strSource, nOffset) + ZString("-") + StrRightOf(strSource, nOffset);
     }
 
     ZString FormatKey(const ZString& strSource)
     {
-        ZString strResult = strSource.ToUpper(); 
+        ZString strResult = StrToUpper(strSource); 
 
         // remove all spaces
-        strResult.RemoveAll(' ');
+        StrRemoveAll(strResult, ' ');
 
         return strResult;
     }
@@ -157,7 +157,7 @@ public:
     static bool CDKeyIsValid(const ZString& strCDKey)
     {
         // TODO: do a more sound check.
-        return strCDKey.GetLength() > 0;
+        return (int)strCDKey.size() > 0;
     }
 };
 
