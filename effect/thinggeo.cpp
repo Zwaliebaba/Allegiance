@@ -780,9 +780,9 @@ public:
             {
                 FrameData&  frame = iter.Value ();
                 int         iFrameType = 0;
-                if (frame.m_strName.Find ("rocket") != -1)
+                if (StrFind(frame.m_strName, "rocket") != -1)
                     iFrameType = 1;
-                else if (frame.m_strName.Find ("smoke") != -1)
+                else if (StrFind(frame.m_strName, "smoke") != -1)
                 {
                     if (m_bUsePrivateAfterburners)
                         iFrameType = 1;
@@ -1421,7 +1421,7 @@ public:
             while (!iter.End()) {
                 FrameData& data = iter.Value();
 
-                if (data.m_strName.Find("thrust") != -1) {
+                if (StrFind(data.m_strName, "thrust") != -1) {
                     pcontext->DrawDecal(
                         m_pimageGlow->GetSurface(),
                         m_colorGlow,

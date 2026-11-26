@@ -58,7 +58,7 @@ public:
         if (!m_pdata)
         {
             // try to load it.
-            ZAssert(!m_strFilename.IsEmpty());
+            ZAssert(!m_strFilename.empty());
             if (FAILED(LoadWaveFile(m_pdata, m_strFilename)))
             {
                 if (ZFailed(CreateDummyPCMData(m_pdata)))

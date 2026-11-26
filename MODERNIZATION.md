@@ -751,7 +751,7 @@ switch would need conversions at every interface, since `ZString` is in all of t
    `StrFromInt` / `StrFromFloat` / `StrFromBool` (`"%g"` for floats, not `std::to_string`'s `"%f"`), and
    `StrRepeat(ch, n)` replaces `ZString(ch, n)`, whose argument order `std::string` reverses.
 2. Call sites move to those names, one library group per PR, by a script driven by a clang sweep in
-   which the old members are marked deprecated (locally only). zlib, engine and mdlc: done (181 sites).
+   which the old members are marked deprecated (locally only). zlib, engine and mdlc: done (181 sites); effect and soundengine: done (50).
 3. The implicit conversion to `const char*` goes; every remaining use gets `.c_str()`.
 4. `ZString` becomes `std::string`. The members, the reference-counted data and the static
    (file-mapping) strings go; constructing from a null pointer, which `ZString` made empty and
