@@ -77,6 +77,18 @@ public:
 
 
     const char& operator[](int index) const { return m_pdata->GetPointer()[index]; }
+
+    //
+    // std::string's names, so call sites can move to them while ZString is
+    // still the type (see MODERNIZATION.md, "Library cleanup")
+    //
+
+    size_t size()   const { return (size_t)GetLength(); }
+    size_t length() const { return (size_t)GetLength(); }
+    bool   empty()  const { return GetLength() == 0; }
+    PCC    c_str()  const { return m_pdata->GetPointer(); }
+    PCC    data()   const { return m_pdata->GetPointer(); }
+    void   clear()        { SetEmpty(); }
     int GetLength() const { return m_pdata->GetLength(); }
     operator PCC() const { return m_pdata->GetPointer(); }
     bool IsEmpty() const { return GetLength() == 0; }
@@ -215,6 +227,61 @@ public:
 // fragmentation in the lobby).
 //
 //////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// ZString's own operations as free functions, which keep their exact
+// semantics (int indices, -1 for not found, the quirks noted below) and work
+// the same once ZString is std::string
+//
+//////////////////////////////////////////////////////////////////////////////
+
+// Numbers: decimal (itoa), "%g", "%<total>.<precision>f", "true"/"false"
+ZString StrFromInt(int value);
+ZString StrFromFloat(float value);
+ZString StrFromFloat(float value, int total, int precision);
+ZString StrFromBool(bool value);
+
+// length copies of ch (ZString(ch, length); std::string's order is the reverse)
+ZString StrRepeat(char ch, int length);
+
+// Searches: the index, or -1
+int StrFind(const ZString& str, char ch, int index = 0);
+int StrFind(const ZString& str, const ZString& strFind);
+int StrFindAny(const ZString& str, const ZString& strChars, int index = 0);
+// Backwards, starting `index` characters before the end (at the terminator
+// for 0)
+int StrReverseFind(const ZString& str, char ch, int index = 0);
+int StrReverseFindAny(const ZString& str, const ZString& strChars, int index = 0);
+// Searches forwards: ZString::ReverseFind(const ZString&) always did
+int StrReverseFind(const ZString& str, const ZString& strFind);
+
+// Pieces, by count (unchecked, as before: callers keep them in range)
+ZString StrLeft(const ZString& str, int count);
+ZString StrRight(const ZString& str, int count);
+ZString StrMiddle(const ZString& str, int index, int count);
+// All but the last / first `count` characters
+ZString StrLeftOf(const ZString& str, int count);
+ZString StrRightOf(const ZString& str, int count);
+// Before / after the first of strChars; with none, LeftOf gives strChars
+// itself (sic) and RightOf the empty string
+ZString StrLeftOf(const ZString& str, const ZString& strChars);
+ZString StrRightOf(const ZString& str, const ZString& strChars);
+
+// ASCII case
+ZString StrToLower(const ZString& str);
+ZString StrToUpper(const ZString& str);
+
+ZString StrScramble(const ZString& str, const ZString& strKey);
+ZString StrUnscramble(const ZString& str, const ZString& strKey);
+
+// In place: each of strChars becomes ch; every ch is removed; one character
+// (ignored past the end); the first token (quoted, or up to a space) is
+// removed and returned
+void    StrReplaceAll(ZString& str, const ZString& strChars, char ch);
+void    StrRemoveAll(ZString& str, char ch);
+void    StrSetChar(ZString& str, int index, char ch);
+ZString StrGetToken(ZString& str);
 
 void ZScramble(char* szDest, PCC szSource, PCC szKey);
 void ZUnscramble(char* szDest, PCC szSource, PCC szKey);

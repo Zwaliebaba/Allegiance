@@ -73,7 +73,7 @@ private:
 
         ZString str((PCC)m_pdata);
 
-        int length       = str.GetLength() + 1;
+        int length       = (int)str.size() + 1;
         int paddedlength = (length + 3) & (~0x3);
 
         m_pdata += paddedlength;

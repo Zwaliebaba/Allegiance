@@ -301,7 +301,7 @@ bool g_bWindowLog = false;
 void EngineWindow::ParseCommandLine(const ZString& strCommandLine, bool& bStartFullscreen)
 {
     PCC pcc = strCommandLine;
-    CommandLineToken token(pcc, strCommandLine.GetLength());
+    CommandLineToken token(pcc, (int)strCommandLine.size());
 
     while (token.MoreTokens()) {
         ZString str;
@@ -790,14 +790,14 @@ ZString EngineWindow::GetResolutionString()
 {
     Point size = GetScreenRectValue()->GetValue().Size();
 
-    return "Resolution: " + ZString(size.X()) + " x " + ZString(size.Y());
+    return "Resolution: " + StrFromFloat(size.X()) + " x " + StrFromFloat(size.Y());
 }
 
 ZString EngineWindow::GetRenderingString()
 {
     Point size = GetRenderRectValue()->GetValue().Size();
 
-    return "Rendering: " + ZString(size.X()) + " x " + ZString(size.Y());
+    return "Rendering: " + StrFromFloat(size.X()) + " x " + StrFromFloat(size.Y());
 }
 
 ZString EngineWindow::GetRendererString()
@@ -909,20 +909,20 @@ void EngineWindow::UpdatePerformanceCounters(Context* pcontext, Time timeCurrent
                         ZString("Retail ")
                       #endif
                     + m_pszLabel
-                    + "mspf: " + ZString(MakeInt(mspf))
-                    + " fps: " + ZString(MakeInt(fps))
-                    + " tmem: (" + ZString(m_pengine->GetAvailableTextureMemory() / 1024)
-                    + ", " + ZString(m_pengine->GetTotalTextureMemory() / 1024)
-                    + ") vmem: (" + ZString(m_pengine->GetAvailableVideoMemory() / 1024)
-                    + ", " + ZString(m_pengine->GetTotalVideoMemory() / 1024)
-                    + ") tpf: " + ZString(MakeInt(tpf))
-                    + " tps: " + ZString(MakeInt(tps))
-                    + " ppf: " + ZString(MakeInt(ppf))
-                    + " gamma: " + ZString(GetEngine()->GetGammaLevel(), 6, 4);
+                    + "mspf: " + StrFromInt(MakeInt(mspf))
+                    + " fps: " + StrFromInt(MakeInt(fps))
+                    + " tmem: (" + StrFromInt(m_pengine->GetAvailableTextureMemory() / 1024)
+                    + ", " + StrFromInt(m_pengine->GetTotalTextureMemory() / 1024)
+                    + ") vmem: (" + StrFromInt(m_pengine->GetAvailableVideoMemory() / 1024)
+                    + ", " + StrFromInt(m_pengine->GetTotalVideoMemory() / 1024)
+                    + ") tpf: " + StrFromInt(MakeInt(tpf))
+                    + " tps: " + StrFromInt(MakeInt(tps))
+                    + " ppf: " + StrFromInt(MakeInt(ppf))
+                    + " gamma: " + StrFromFloat(GetEngine()->GetGammaLevel(), 6, 4);
 
                 m_strPerformance2 = GetFPSString((float)fps, (float)mspf, pcontext);
             } else {
-                m_strPerformance1 = ZString(MakeInt(mspf)) + "/" + ZString(MakeInt(fps));
+                m_strPerformance1 = StrFromInt(MakeInt(mspf)) + "/" + StrFromInt(MakeInt(fps));
             }
 
             {
@@ -930,11 +930,11 @@ void EngineWindow::UpdatePerformanceCounters(Context* pcontext, Time timeCurrent
                 double frames = m_frameCount;
 
                 g_strGpu =
-                      "gpu per frame: uploads " + ZString((float)((now.m_uploads - g_statsLast.m_uploads) / frames), 4, 1)
-                    + " readbacks "             + ZString((float)((now.m_readbacks - g_statsLast.m_readbacks) / frames), 4, 1)
-                    + " textures "              + ZString((float)((now.m_textureUploads - g_statsLast.m_textureUploads) / frames), 4, 1)
-                    + " 2D draws "              + ZString(MakeInt((now.m_draws2D - g_statsLast.m_draws2D) / frames))
-                    + " 3D draws "              + ZString(MakeInt((now.m_draws3D - g_statsLast.m_draws3D) / frames));
+                      "gpu per frame: uploads " + StrFromFloat((float)((now.m_uploads - g_statsLast.m_uploads) / frames), 4, 1)
+                    + " readbacks "             + StrFromFloat((float)((now.m_readbacks - g_statsLast.m_readbacks) / frames), 4, 1)
+                    + " textures "              + StrFromFloat((float)((now.m_textureUploads - g_statsLast.m_textureUploads) / frames), 4, 1)
+                    + " 2D draws "              + StrFromInt(MakeInt((now.m_draws2D - g_statsLast.m_draws2D) / frames))
+                    + " 3D draws "              + StrFromInt(MakeInt((now.m_draws3D - g_statsLast.m_draws3D) / frames));
 
                 g_statsLast = now;
             }
@@ -964,7 +964,7 @@ void EngineWindow::RenderPerformanceCounters(Surface* psurface)
 
             if (m_indexFPS == 0) {
                 psurface->DrawString(m_pfontFPS, color, WinPoint(1, 1 + 1 * ysize), m_strPerformance2);
-                psurface->DrawString(m_pfontFPS, color, WinPoint(1, 1 + 2 * ysize), "Frame " + ZString(m_frameTotal));
+                psurface->DrawString(m_pfontFPS, color, WinPoint(1, 1 + 2 * ysize), "Frame " + StrFromInt(m_frameTotal));
                 psurface->DrawString(m_pfontFPS, color, WinPoint(1, 1 + 3 * ysize), g_strGpu);
             }
         }

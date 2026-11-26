@@ -291,9 +291,9 @@ public:
         // Search forward for any new lines
         //
 
-        int indexNewLine = str.Find("\n");
+        int indexNewLine = StrFind(str, "\n");
         if (indexNewLine == -1) {
-            indexNewLine = str.GetLength();
+            indexNewLine = (int)str.size();
         }
 
         //
@@ -313,7 +313,7 @@ public:
             // Search backwards for the first space
             //
 
-            if (nchar != str.GetLength()) {
+            if (nchar != (int)str.size()) {
                 for (int index = nchar - 1; index >= 0; index--) {
                     if (str[index] == ' ') {
                         while (index > 0) {
@@ -329,17 +329,17 @@ public:
             }
         }
 
-        if (nchar < str.GetLength()) {
-            str = strSave.RightOf(nchar + 1);
-            return strSave.Left(nchar);
+        if (nchar < (int)str.size()) {
+            str = StrRightOf(strSave, nchar + 1);
+            return StrLeft(strSave, nchar);
         } else {
             //
             // remove any leading spaces from the next line
             //
 
-            str = strSave.RightOf(nchar);
+            str = StrRightOf(strSave, nchar);
 
-            int length = str.GetLength();
+            int length = (int)str.size();
             int index = 0;
 
             while (index < length && str[index] == ' ') {
@@ -347,10 +347,10 @@ public:
             }
 
             if (index != 0) {
-                str = str.RightOf(index);
+                str = StrRightOf(str, index);
             }
 
-            return strSave.Left(nchar);
+            return StrLeft(strSave, nchar);
         }
     }
 
@@ -367,7 +367,7 @@ public:
         int     ysize  = 0;
         int     indent = 0;
 
-        while (!str.IsEmpty()) {
+        while (!str.empty()) {
             ZString strLine = BreakLine(str, m_width - indent);
             WinPoint size   = m_pfont->GetTextExtent(strLine);
 
@@ -388,7 +388,7 @@ public:
 
         const Color& color = GetColor()->GetValue();
 
-        while (!str.IsEmpty()) {
+        while (!str.empty()) {
             ZString  strLine = BreakLine(str, m_width - indent);
             WinPoint size    = m_pfont->GetTextExtent(strLine);
             int      x{};

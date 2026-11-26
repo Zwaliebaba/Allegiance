@@ -343,9 +343,9 @@ public:
         //
 
         int index = 0;
-        while (index < str.GetLength()) {
+        while (index < (int)str.size()) {
             if (str[index] == 0xd) {
-                str = str.Left(index) + str.Right(str.GetLength() - index - 1);
+                str = StrLeft(str, index) + StrRight(str, (int)str.size() - index - 1);
             } else {
                 index++;
             }
@@ -1889,7 +1889,7 @@ public:
 
     void Evaluate()
     {
-        GetValueInternal() = ZString((int)(GetNumber()->GetValue() + 0.5));
+        GetValueInternal() = StrFromInt((int)(GetNumber()->GetValue() + 0.5));
     }
 
     ZString GetFunctionName() { return "NumberString"; }
@@ -2231,7 +2231,7 @@ public:
         ZString strExtension = pathStr.GetExtension();
         ZString strToOpen;
 
-        if (!strExtension.IsEmpty()) {
+        if (!strExtension.empty()) {
             if (strExtension != strExtensionArg) {
                 return NULL;
             }
@@ -2277,8 +2277,8 @@ public:
 
     TRef<Image> LoadImage(const ZString& str, bool bColorKey, bool bError)
     {
-        ZAssert(str.ToLower() == str);
-        ZAssert(str.Right(3) == "bmp");
+        ZAssert(StrToLower(str) == str);
+        ZAssert(StrRight(str, 3) == "bmp");
 
         //
         // Is the image already loaded?
@@ -2327,7 +2327,7 @@ public:
 
     TRef<Geo> LoadGeo(const ZString& str, bool bError)
     {
-        ZAssert(str.ToLower() == str);
+        ZAssert(StrToLower(str) == str);
         TRef<INameSpace> pns = GetNameSpace(str, bError);
 
         if (pns) {
@@ -2390,11 +2390,11 @@ public:
 
     TRef<INameSpace> LoadDDSNameSpace(const ZString& str)
     {
-        if (str.GetLength() <= 3 || str.Right(3) != "bmp") {
+        if ((int)str.size() <= 3 || StrRight(str, 3) != "bmp") {
             return NULL;
         }
 
-        TRef<ZFile> pfile = GetFile(str.Left(str.GetLength() - 3), "dds", false);
+        TRef<ZFile> pfile = GetFile(StrLeft(str, (int)str.size() - 3), "dds", false);
 
         if (pfile == NULL) {
             return NULL;
@@ -2404,7 +2404,7 @@ public:
         std::vector<DDSLevel> levels;
 
         if (!ReadDDS(pdata, pfile->GetLength(), levels)) {
-            ZDebugOutput("Not a 32-bit BGRA DDS file: '" + str.Left(str.GetLength() - 3) + ".dds'\n");
+            ZDebugOutput("Not a 32-bit BGRA DDS file: '" + StrLeft(str, (int)str.size() - 3) + ".dds'\n");
             return NULL;
         }
 

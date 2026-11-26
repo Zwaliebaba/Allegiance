@@ -531,9 +531,9 @@ void StringPane::Paint(Surface* psurface)
 
     if (m_bClipped) {
         if (m_justification == JustifyRight() || m_justification == JustifyLeftClipRight())
-            strClipped = m_str.Right(GetFont()->GetMaxTextLength(m_str, m_ptSize.X(), false));
+            strClipped = StrRight(m_str, GetFont()->GetMaxTextLength(m_str, m_ptSize.X(), false));
         else
-            strClipped =  m_str.Left(GetFont()->GetMaxTextLength(m_str, m_ptSize.X(), true ));
+            strClipped =  StrLeft(m_str, GetFont()->GetMaxTextLength(m_str, m_ptSize.X(), true ));
     } else {
         strClipped = m_str;
     }
@@ -633,29 +633,25 @@ public:
     void UpdateStrings()
     {
         if (m_type == Password) {
-            m_strDisplay = ZString('*', m_str.GetLength());
+            m_strDisplay = StrRepeat('*', (int)m_str.size());
         } else {
             m_strDisplay = m_str;
         }
 
         if (m_bFocus && !m_bReadOnly) {
             m_strClipped =
-                m_strDisplay.Right(
-                    m_pfont->GetMaxTextLength(
+                StrRight(m_strDisplay, m_pfont->GetMaxTextLength(
                         m_strDisplay,
                         GetSize().X() - m_xsizeCursor,
                         false
-                    )
-                );
+                    ));
         } else {
             m_strClipped =
-                m_strDisplay.Left(
-                    m_pfont->GetMaxTextLength(
+                StrLeft(m_strDisplay, m_pfont->GetMaxTextLength(
                         m_strDisplay,
                         GetSize().X(),
                         true
-                    )
-                );
+                    ));
         }
     }
 
@@ -723,8 +719,8 @@ public:
     {
         m_maxLength = length;
 
-        if (m_str.GetLength() > m_maxLength) {
-            SetString(m_str.Left(m_maxLength));
+        if ((int)m_str.size() > m_maxLength) {
+            SetString(StrLeft(m_str, m_maxLength));
         }
     }
 
@@ -748,8 +744,8 @@ public:
         if (ks.vk == 13) {
             m_peventSourceZString->Trigger(m_str);
         } else if (ks.vk == 8) {
-            if (m_str.GetLength() > 0) {
-                SetString(m_str.LeftOf(1));
+            if ((int)m_str.size() > 0) {
+                SetString(StrLeftOf(m_str, 1));
                 NeedPaint();
             }
         } else {
@@ -773,7 +769,7 @@ public:
             // Limit the length
             //
 
-            if (m_maxLength != -1 && m_str.GetLength() == m_maxLength) {
+            if (m_maxLength != -1 && (int)m_str.size() == m_maxLength) {
                 return true;
             }
 
@@ -781,7 +777,7 @@ public:
             // Everythings ok add the character
             //
 
-            SetString(m_str + ZString(ch, 1));
+            SetString(m_str + StrRepeat(ch, 1));
             NeedPaint();
         }
 

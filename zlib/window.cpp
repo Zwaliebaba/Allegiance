@@ -88,7 +88,7 @@ Window::Window(
     m_rect = rect;
     AdjustWindowRect(&m_rect, m_style.GetWord(), m_hmenu != NULL);
 
-    if (strClass.IsEmpty()) {
+    if (strClass.empty()) {
         m_hwnd = ::CreateWindowEx(
             m_styleEX.GetWord(),
             TEXT(GetTopLevelWindowClassname()),

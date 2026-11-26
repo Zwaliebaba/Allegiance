@@ -19,7 +19,7 @@ void TextTokenImpl::SetErrorUnexpected()
     } else if (m_type == String) {
         SetError("Unexpected string " + m_string);
     } else if (m_type == Number) {
-        SetError("Unexpected number " + ZString(m_numberValue));
+        SetError("Unexpected number " + StrFromFloat(m_numberValue));
     } else if (m_type == NULL) {
         SetError("Unexpected end of file");
     } else {
@@ -32,7 +32,7 @@ void TextTokenImpl::SetErrorUnexpected()
 
 bool TextTokenImpl::Error()
 {
-    return !m_strError.IsEmpty();
+    return !m_strError.empty();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -228,7 +228,7 @@ bool TextTokenImpl::ReadNumber(bool bExponent)
 
 bool TextTokenImpl::ReadString(char chEnd)
 {
-    m_string.SetEmpty();
+    m_string.clear();
 
     //
     // Skip initial quote

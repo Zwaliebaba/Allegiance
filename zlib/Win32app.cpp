@@ -306,7 +306,7 @@ bool Win32App::OnAssert(const char* psz, const char* pszFile, int line, const ch
         + "' ("
         + pszFile
         + ":"
-        + ZString(line)
+        + StrFromInt(line)
         + ")\n"
     );
     LogAssertCallStack();

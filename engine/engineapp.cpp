@@ -70,7 +70,7 @@ void EngineApp::ParseCommandLine(
     bSoftwareOnly    = false;
 
     PCC pcc = strCommandLine;
-    CommandLineToken token(pcc, strCommandLine.GetLength());
+    CommandLineToken token(pcc, (int)strCommandLine.size());
 
     while (token.MoreTokens()) {
         ZString str;

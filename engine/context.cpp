@@ -700,7 +700,7 @@ public:
     ) {
         #ifdef EnablePerformanceCounters
             m_countDrawString++;
-            m_countDrawStringChars += str.GetLength();
+            m_countDrawStringChars += (int)str.size();
         #endif
 
         DD2D();
