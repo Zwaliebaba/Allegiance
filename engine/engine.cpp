@@ -481,64 +481,6 @@ public:
             );
     }
 
-    //
-    // Load a GDI bitmap (mdlc's BMP import), reading the pixels with
-    // GetDIBits instead of a DirectDraw surface DC.
-    //
-    //  - 16-bit sources (BI_RGB, so 555) are read as they are, so the 565
-    //    conversion is the same bit expansion the DirectDraw path did.
-    //  - Everything else is read as 32-bit BGR. For 24-bit sources the pixel
-    //    values are exactly the DirectDraw path's. 8-bit sources are expanded
-    //    through their palette; the old conversion ignored palettes (zero
-    //    colour masks), so those few images now get their real colours.
-    //
-
-    TRef<Surface> CreateSurface(HBITMAP hbitmap)
-    {
-        BITMAP bm;
-        ZVerify(::GetObject(hbitmap, sizeof(bm), &bm));
-
-        WinPoint size(bm.bmWidth, abs(bm.bmHeight));
-        bool     b16 = bm.bmBitsPixel == 16;
-
-        TRef<PrivateSurface> psurface =
-            CreatePrivateSurface(
-                this,
-                  b16
-                ? GetPixelFormat(16, 0x7c00, 0x03e0, 0x001f, 0)
-                : GetPixelFormat(32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0),
-                size,
-                SurfaceType2D(),
-                NULL
-            );
-
-        BITMAPINFO bmi;
-        memset(&bmi, 0, sizeof(bmi));
-        bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-        bmi.bmiHeader.biWidth       = size.X();
-        bmi.bmiHeader.biHeight      = -size.Y();   // top-down
-        bmi.bmiHeader.biPlanes      = 1;
-        bmi.bmiHeader.biBitCount    = b16 ? 16 : 32;
-        bmi.bmiHeader.biCompression = BI_RGB;
-
-        HDC   hdc   = ::CreateCompatibleDC(NULL);
-        BYTE* pbits = psurface->GetWritablePointer();
-
-        //
-        // DIB rows and surface rows are both padded to 4 bytes
-        //
-
-        ZAssert(psurface->GetPitch() == ((size.X() * (b16 ? 2 : 4) + 3) & ~3));
-
-        int lines = ::GetDIBits(hdc, hbitmap, 0, size.Y(), pbits, &bmi, DIB_RGB_COLORS);
-        ZAssert(lines == size.Y());
-
-        psurface->ReleasePointer();
-        ZVerify(::DeleteDC(hdc));
-
-        return AddSurface(psurface, false);
-    }
-
     TRef<Surface> CreateSurface(
     const WinPoint&    size,
           PixelFormat* ppf,

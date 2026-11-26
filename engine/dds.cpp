@@ -3,7 +3,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// The DDS header (the classic DirectX 9 layout, which every DDS reader takes)
+// The DDS header (the classic DirectX 9 layout, which every DDS reader takes;
+// tools/art/bmp2dds.py writes it)
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -11,19 +12,8 @@ namespace {
 
 const DWORD c_ddsMagic          = 0x20534444;   // "DDS "
 
-const DWORD c_DDSD_CAPS           = 0x00000001;
-const DWORD c_DDSD_HEIGHT         = 0x00000002;
-const DWORD c_DDSD_WIDTH          = 0x00000004;
-const DWORD c_DDSD_PITCH          = 0x00000008;
-const DWORD c_DDSD_PIXELFORMAT    = 0x00001000;
 const DWORD c_DDSD_MIPMAPCOUNT    = 0x00020000;
-
-const DWORD c_DDPF_ALPHAPIXELS    = 0x00000001;
 const DWORD c_DDPF_RGB            = 0x00000040;
-
-const DWORD c_DDSCAPS_COMPLEX     = 0x00000008;
-const DWORD c_DDSCAPS_TEXTURE     = 0x00001000;
-const DWORD c_DDSCAPS_MIPMAP      = 0x00400000;
 
 struct DDSPixelFormat {
     DWORD m_size;
@@ -124,55 +114,4 @@ bool ReadDDS(const BYTE* pdata, int size, std::vector<DDSLevel>& levels)
     }
 
     return true;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// Write
-//
-//////////////////////////////////////////////////////////////////////////////
-
-bool WriteDDS(const char* szPath, int width, int height, const std::vector<const DWORD*>& levels)
-{
-    if (width <= 0 || height <= 0 || levels.empty()) {
-        return false;
-    }
-
-    DDSHeader header = {};
-    header.m_size              = sizeof(DDSHeader);
-    header.m_flags             = c_DDSD_CAPS | c_DDSD_HEIGHT | c_DDSD_WIDTH | c_DDSD_PITCH | c_DDSD_PIXELFORMAT;
-    header.m_height            = height;
-    header.m_width             = width;
-    header.m_pitchOrLinearSize = width * 4;
-    header.m_caps              = c_DDSCAPS_TEXTURE;
-
-    if (levels.size() > 1) {
-        header.m_flags      |= c_DDSD_MIPMAPCOUNT;
-        header.m_mipMapCount = (DWORD)levels.size();
-        header.m_caps       |= c_DDSCAPS_COMPLEX | c_DDSCAPS_MIPMAP;
-    }
-
-    header.m_ddspf.m_size        = sizeof(DDSPixelFormat);
-    header.m_ddspf.m_flags       = c_DDPF_RGB | c_DDPF_ALPHAPIXELS;
-    header.m_ddspf.m_rgbBitCount = 32;
-    header.m_ddspf.m_redMask     = c_redMask;
-    header.m_ddspf.m_greenMask   = c_greenMask;
-    header.m_ddspf.m_blueMask    = c_blueMask;
-    header.m_ddspf.m_alphaMask   = c_alphaMask;
-
-    FILE* pfile = fopen(szPath, "wb");
-    if (pfile == NULL) {
-        return false;
-    }
-
-    bool bOK =
-           fwrite(&c_ddsMagic, sizeof(c_ddsMagic), 1, pfile) == 1
-        && fwrite(&header, sizeof(header), 1, pfile) == 1;
-
-    for (int level = 0; bOK && level < (int)levels.size(); level++) {
-        size_t count = (size_t)DDSLevelSize(width, level) * DDSLevelSize(height, level);
-        bOK = fwrite(levels[level], sizeof(DWORD), count, pfile) == count;
-    }
-
-    return (fclose(pfile) == 0) && bOK;
 }

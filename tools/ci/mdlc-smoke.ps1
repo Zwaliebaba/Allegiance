@@ -1,5 +1,7 @@
 # Smoke test for the art toolchain: does mdlc (which starts the engine with its
 # software DirectDraw path) run on this machine, and does it produce output?
+# It also checks a few of the DDS source images (Artwork/256) and loads an
+# animation from one.
 #
 #   pwsh tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/Debug/mdlc.exe -Art Artwork/256 -Out out/art-smoke
 #
@@ -22,7 +24,7 @@ $Out  = (Resolve-Path $Out).Path
 
 # mdlc resolves inputs relative to the current directory, like the original
 # makefiles (which cd'd into the output directory), so stage the inputs there.
-foreach ($f in 'acbuild.bmp', 'animlaunch.bmp', 'fontsource.mdl') {
+foreach ($f in 'acbuild.dds', 'acs01.dds', 'animlaunch.dds', 'fontsource.mdl') {
     Copy-Item (Join-Path $Art $f) $Out -Force
 }
 
@@ -63,10 +65,7 @@ $script:cdb = @(
 ) | Where-Object { Test-Path $_ } | Select-Object -First 1
 Write-Host "cdb: $(if ($script:cdb) { $script:cdb } else { 'not found' })"
 
-Invoke-Mdlc 'dds-bitmap'     @('-dds', 'acbuild.bmp', 'acbuild.dds') 'acbuild.dds'
-Invoke-Mdlc 'dds-mips'       @('-ddsmips', 'acbuild.bmp', 'acbuildmips.dds') 'acbuildmips.dds'
 Invoke-Mdlc 'compile-font'   @('fontsource', 'font.mdl') 'font.mdl'
-Invoke-Mdlc 'dds-anim'       @('-dds', 'animlaunch.bmp', 'animlaunch.dds') 'animlaunch.dds'
 
 # The animation as Art.proj writes it: a text MDL that builds the frames from
 # the DDS strip when loaded. Compiling it to binary MDL loads it (FrameImage).
@@ -99,8 +98,9 @@ function Test-Dds([string] $Name, [bool] $Mips) {
     if ($bad) { $problems += "$bad pixels break the key rule" }
     $script:results += [pscustomobject]@{ Step = "check $Name"; Result = $(if ($problems) { 'FAIL' } else { 'OK' }); Process = '-'; Output = "${w}x${h}, $levels level(s), $keyed keyed pixels"; Message = ($problems -join '; ') }
 }
-Test-Dds 'acbuild.dds'     $false
-Test-Dds 'acbuildmips.dds' $true
+Test-Dds 'acbuild.dds'    $false
+Test-Dds 'acs01.dds'      $true      # a model texture, with mip levels
+Test-Dds 'animlaunch.dds' $false
 
 $results | Format-Table -AutoSize -Wrap | Out-String -Width 200 | Write-Host
 

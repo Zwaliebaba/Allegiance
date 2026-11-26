@@ -10,8 +10,10 @@
 // too: the art build bakes the RGB565 colour key into alpha that way, so the
 // files say the same thing to the engine and to other tools.
 //
-// The art build writes them (mdlc -dds) and the modeler reads them: an image
-// namespace "<name>bmp" is loaded from <name>.dds.
+// They are the source art (Artwork/256, converted once from the original BMPs
+// by tools/art/bmp2dds.py, which also rebuilds a model texture's mip levels),
+// and the modeler reads them: an image namespace "<name>bmp" is loaded from
+// <name>.dds.
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -29,13 +31,6 @@ struct DDSLevel {
 //
 
 bool ReadDDS(const BYTE* pdata, int size, std::vector<DDSLevel>& levels);
-
-//
-// Write a DDS file: level 0 is width x height, each further level half the
-// size of the one before (at least 1), all tightly packed BGRA.
-//
-
-bool WriteDDS(const char* szPath, int width, int height, const std::vector<const DWORD*>& levels);
 
 //
 // The size of mip level n of a width x height image.

@@ -2325,30 +2325,6 @@ public:
         return NULL;
     }
 
-    HBITMAP LoadBitmap(const PathString& pathStrArg, bool bError)
-    {
-        PathString pathStr = m_pathStr + pathStrArg;
-        ZString strExtension = pathStr.GetExtension();
-
-        if (strExtension == "bmp" || strExtension.IsEmpty()) {
-            if (strExtension.IsEmpty()) {
-                pathStr += ".bmp";
-            }
-
-            return
-                (HBITMAP)::LoadImageA(
-                    NULL,
-                    pathStr,
-                    IMAGE_BITMAP,
-                    0,
-                    0,
-                    LR_LOADFROMFILE | LR_CREATEDIBSECTION
-                );
-        }
-
-        return NULL;
-    }
-
     TRef<Geo> LoadGeo(const ZString& str, bool bError)
     {
         ZAssert(str.ToLower() == str);

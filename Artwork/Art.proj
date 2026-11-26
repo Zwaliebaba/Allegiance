@@ -10,8 +10,9 @@
   configuration; this project does not build C++.
 
   Inputs are the original manifests, unchanged:
-    256\bitmap.txt   bitmaps converted to <name>.dds (32-bit BGRA, the colour
-                     key in alpha; model textures with mip levels)
+    256\bitmap.txt   the images to ship: 256\<name>.dds, copied (32-bit BGRA,
+                     the colour key in alpha, model textures with mip levels;
+                     see tools\art\bmp2dds.py)
     256\copymdl.txt  text MDL files copied as-is
     256\*.wav *.rtf *.mp4 *.igc *.mml   copied as-is
     redbook\*.wav, tracks.lst          the music, copied to redbook\
@@ -64,7 +65,7 @@
     </ReadLinesFromFile>
 
     <ItemGroup>
-      <ArtBitmap Include="@(_BitmapName->'$(ArtSource)%(Identity).bmp')" Condition="'%(Identity)' != ''" />
+      <ArtBitmap Include="@(_BitmapName->'$(ArtSource)%(Identity).dds')" Condition="'%(Identity)' != ''" />
       <ArtCopy Include="@(_CopyMdlName->'$(ArtSource)%(Identity).mdl')" Condition="'%(Identity)' != ''" />
       <ArtCopy Include="$(ArtSource)*.wav;$(ArtSource)*.rtf;$(ArtSource)*.mp4;$(ArtSource)*.igc;$(ArtSource)*.mml" />
 
@@ -111,60 +112,15 @@
   </Target>
 
   <!--
-    Bitmaps to DDS (mdlc -dds; see engine/dds.h): 32-bit BGRA with the colour
-    key baked into alpha exactly as RGB565 keyed it. Textures that a model's .x
-    file names (TextureFilename) also get mip levels (mdlc -ddsmips).
+    Images: the DDS files in Artwork\256 are the source art (engine/dds.h,
+    tools\art\bmp2dds.py), copied as they are.
   -->
-
-  <UsingTask TaskName="AllegianceDdsBatch" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
-    <ParameterGroup>
-      <Bitmaps ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
-      <XFiles  ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
-      <OutDir  ParameterType="System.String" Required="true" />
-      <Lines   ParameterType="System.String[]" Output="true" />
-      <MipCount ParameterType="System.Int32" Output="true" />
-    </ParameterGroup>
-    <Task>
-      <Using Namespace="System" />
-      <Using Namespace="System.IO" />
-      <Using Namespace="System.Collections.Generic" />
-      <Using Namespace="System.Text.RegularExpressions" />
-      <Code Type="Fragment" Language="cs"><![CDATA[
-        var textures = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var rx = new Regex("TextureFilename\\s*\\{\\s*\"([^\"]+)\"", RegexOptions.IgnoreCase);
-        foreach (var x in XFiles) {
-            foreach (Match m in rx.Matches(File.ReadAllText(x.ItemSpec))) {
-                textures.Add(Path.GetFileNameWithoutExtension(m.Groups[1].Value));
-            }
-        }
-        var lines = new List<string>();
-        int mips = 0;
-        foreach (var b in Bitmaps) {
-            string name = b.GetMetadata("Filename");
-            bool bMips = textures.Contains(name);
-            if (bMips) mips++;
-            lines.Add((bMips ? "-ddsmips \"" : "-dds \"") + b.GetMetadata("FullPath") + "\" \"" + Path.Combine(OutDir, name + ".dds") + "\"");
-        }
-        Lines = lines.ToArray();
-        MipCount = mips;
-      ]]></Code>
-    </Task>
-  </UsingTask>
 
   <Target Name="Bitmaps"
           DependsOnTargets="ReadManifests;CheckTools"
-          Inputs="@(ArtBitmap);$(Mdlc)"
+          Inputs="@(ArtBitmap)"
           Outputs="@(ArtBitmap->'$(ArtOutDir)%(Filename).dds')">
-    <ItemGroup>
-      <_ArtXFile Include="$(ArtSource)*.x" />
-    </ItemGroup>
-    <AllegianceDdsBatch Bitmaps="@(ArtBitmap)" XFiles="@(_ArtXFile)" OutDir="$(ArtOutDir)">
-      <Output TaskParameter="Lines" ItemName="_ArtBitmapLine" />
-      <Output TaskParameter="MipCount" PropertyName="_ArtMipCount" />
-    </AllegianceDdsBatch>
-    <Message Importance="high" Text="Bitmaps: @(ArtBitmap->Count()) to DDS, $(_ArtMipCount) of them model textures with mip levels" />
-    <WriteLinesToFile File="$(ArtIntDir)bitmaps.batch" Lines="@(_ArtBitmapLine)" Overwrite="true" />
-    <Exec Command="&quot;$(Mdlc)&quot; -batch &quot;$(ArtIntDir)bitmaps.batch&quot;" WorkingDirectory="$(ArtSource)" />
+    <Copy SourceFiles="@(ArtBitmap)" DestinationFolder="$(ArtOutDir)" SkipUnchangedFiles="true" />
   </Target>
 
   <!--
