@@ -343,6 +343,20 @@ public:
     virtual D3D11Target*              BeginGpuDraw()     = 0;
     virtual ID3D11ShaderResourceView* GetGpuSource()     = 0;
     virtual bool                      MakeGpuResident()  = 0;
+
+    //
+    // Mip levels below the surface itself, precomputed by the art build (a
+    // DDS file with a mip chain) and uploaded with it by the texture cache.
+    // Level n is the surface's size >> n (at least 1), in the surface's pixel
+    // format, rows tightly packed. They describe the pixels as loaded: once
+    // the surface is written to, GetMipLevelCount returns 1.
+    //
+    // SetMipLevels: plevels[0] is level 1; pobjectMemory keeps them alive.
+    //
+
+    virtual void        SetMipLevels(int count, const BYTE* const* plevels, IObject* pobjectMemory) = 0;
+    virtual int         GetMipLevelCount()          = 0;   // including the surface (level 0)
+    virtual const BYTE* GetMipLevel(int level)      = 0;   // 1 .. count - 1
 };
 
 //////////////////////////////////////////////////////////////////////////////

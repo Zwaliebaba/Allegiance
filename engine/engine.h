@@ -123,8 +123,6 @@ public:
     // Surface Constructors
     //
 
-    virtual TRef<Surface> CreateSurface(HBITMAP hbitmap) = 0;
-
     virtual TRef<Surface> CreateSurface(
         const WinPoint& size, 
         SurfaceType     stype, 

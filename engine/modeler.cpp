@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "dds.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2324,30 +2325,6 @@ public:
         return NULL;
     }
 
-    HBITMAP LoadBitmap(const PathString& pathStrArg, bool bError)
-    {
-        PathString pathStr = m_pathStr + pathStrArg;
-        ZString strExtension = pathStr.GetExtension();
-
-        if (strExtension == "bmp" || strExtension.IsEmpty()) {
-            if (strExtension.IsEmpty()) {
-                pathStr += ".bmp";
-            }
-
-            return
-                (HBITMAP)::LoadImageA(
-                    NULL,
-                    pathStr,
-                    IMAGE_BITMAP,
-                    0,
-                    0,
-                    LR_LOADFROMFILE | LR_CREATEDIBSECTION
-                );
-        }
-
-        return NULL;
-    }
-
     TRef<Geo> LoadGeo(const ZString& str, bool bError)
     {
         ZAssert(str.ToLower() == str);
@@ -2405,11 +2382,88 @@ public:
         return NULL;
     }
 
+    //
+    // An image namespace "<name>bmp" is read from <name>.dds: one member,
+    // named like the namespace, holding the image. The art build used to wrap
+    // every bitmap in a binary MDL file of its own; see dds.h.
+    //
+
+    TRef<INameSpace> LoadDDSNameSpace(const ZString& str)
+    {
+        if (str.GetLength() <= 3 || str.Right(3) != "bmp") {
+            return NULL;
+        }
+
+        TRef<ZFile> pfile = GetFile(str.Left(str.GetLength() - 3), "dds", false);
+
+        if (pfile == NULL) {
+            return NULL;
+        }
+
+        BYTE* pdata = pfile->GetPointer(false, false);
+        std::vector<DDSLevel> levels;
+
+        if (!ReadDDS(pdata, pfile->GetLength(), levels)) {
+            ZDebugOutput("Not a 32-bit BGRA DDS file: '" + str.Left(str.GetLength() - 3) + ".dds'\n");
+            return NULL;
+        }
+
+        TRef<PrivateEngine> pengine; CastTo(pengine, m_pengine);
+
+        TRef<PixelFormat> ppf = pengine->GetPixelFormat(32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+
+        TRef<Surface> psurface =
+            m_pengine->CreateSurface(
+                WinPoint(levels[0].m_width, levels[0].m_height),
+                ppf,
+                NULL,
+                levels[0].m_width * 4,
+                (BYTE*)levels[0].m_pdata,
+                pfile
+            );
+
+        if (levels.size() > 1) {
+            std::vector<const BYTE*> vmips;
+
+            for (size_t level = 1; level < levels.size(); level++) {
+                vmips.push_back(levels[level].m_pdata);
+            }
+
+            TRef<PrivateSurface> pprivate; CastTo(pprivate, psurface);
+            pprivate->SetMipLevels((int)vmips.size(), vmips.data(), pfile);
+        }
+
+        TRef<INameSpace>    pns    = ::CreateNameSpace(str);
+        TRef<ConstantImage> pimage = new ConstantImage(psurface, str);
+
+        pns->AddMember(str, (Value*)pimage);
+
+        //
+        // So an MDL file written with this image (mdlc -optimize, a model
+        // and its textures) imports it by name instead of embedding the
+        // pixels. AddMember does this only in debug builds.
+        //
+
+        pimage->SetNameSpaceInfo(CreateNameSpaceInfo(pns, str));
+
+        return pns;
+    }
+
     INameSpace* GetNameSpace(const ZString& str, bool bError)
     {
         TRef<INameSpace> pns = GetCachedNameSpace(str);
 
         if (pns) {
+            return pns;
+        }
+
+        pns = LoadDDSNameSpace(str);
+
+        if (pns) {
+            if (g_bMDLLog) {
+                ZDebugOutput("Reading DDS image '" + str + "'\n");
+            }
+            m_mapNameSpace.Set(str, pns);
             return pns;
         }
 

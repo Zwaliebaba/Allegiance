@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "d3d11engine.h"
+#include "dds.h"
 
 #include "present_vs.h"
 #include "present_ps.h"
@@ -74,6 +75,38 @@ void ConvertSurfaceToBGRA(
                     | (((g << 2) | (g >> 4)) <<  8)
                     |  ((b << 3) | (b >> 2));
             }
+        } else if (
+               ppf->PixelBytes() == 4
+            && ppf->RedMask()    == 0x00ff0000
+            && ppf->GreenMask()  == 0x0000ff00
+            && ppf->BlueMask()   == 0x000000ff
+        ) {
+            //
+            // 32-bit BGRA: DDS images, whose alpha holds the colour key (alpha
+            // 0 exactly where the pixel is black), and alpha-less 32-bit
+            // surfaces, where black is the key. Alpha is used only when the
+            // surface is colour keyed (as an MDL file asks with ImportImage);
+            // otherwise the image is opaque, as it was before DDS.
+            //
+
+            const DWORD* pw        = (const DWORD*)ps;
+            DWORD        alphaMask = ppf->AlphaMask();
+
+            for (int x = 0; x < size.X(); x++) {
+                DWORD p   = pw[x];
+                DWORD rgb = p & 0x00ffffff;
+                DWORD a;
+
+                if (!bColorKey) {
+                    a = 0xff000000;
+                } else if (alphaMask != 0) {
+                    a = p & 0xff000000;
+                } else {
+                    a = rgb == 0 ? 0 : 0xff000000;
+                }
+
+                pd[x] = a | rgb;
+            }
         } else {
             int bytes = ppf->PixelBytes();
 
@@ -147,6 +180,7 @@ private:
         WinPoint                       m_size;
         int                            m_id;
         bool                           m_bColorKey;
+        int                            m_mipLevels;
     };
 
     struct SwapChainEntry {
@@ -373,12 +407,14 @@ public:
         TextureEntry& entry     = m_textures[psurface];
         WinPoint      size      = psurface->GetSize();
         bool          bColorKey = psurface->HasColorKey();
+        int           mipLevels = psurface->GetMipLevelCount();
 
         if (
                entry.m_psrv != NULL
             && entry.m_id == psurface->GetChangeID()
             && entry.m_bColorKey == bColorKey
             && entry.m_size == size
+            && entry.m_mipLevels == mipLevels
         ) {
             return entry.m_psrv;
         }
@@ -388,7 +424,8 @@ public:
         }
 
         //
-        // Convert to BGRA
+        // Convert to BGRA: the surface, and the mip levels below it that the
+        // art build made (model textures from DDS files)
         //
 
         g_d3d11Stats.m_textureUploads++;
@@ -406,27 +443,49 @@ public:
         );
         psurface->ReleasePointer();
 
-        if (entry.m_ptexture != NULL && entry.m_size == size) {
+        std::vector<std::vector<DWORD>> vmips(mipLevels - 1);
+
+        for (int level = 1; level < mipLevels; level++) {
+            WinPoint sizeLevel(DDSLevelSize(size.X(), level), DDSLevelSize(size.Y(), level));
+            vmips[level - 1].resize(sizeLevel.X() * sizeLevel.Y());
+
+            ConvertSurfaceToBGRA(
+                psurface->GetMipLevel(level),
+                sizeLevel.X() * psurface->GetPixelFormat()->PixelBytes(),
+                psurface->GetPixelFormat(),
+                sizeLevel,
+                bColorKey,
+                vmips[level - 1].data(),
+                sizeLevel.X() * 4
+            );
+        }
+
+        if (entry.m_ptexture != NULL && entry.m_size == size && entry.m_mipLevels == mipLevels && mipLevels == 1) {
             m_pcontext->UpdateSubresource(entry.m_ptexture, 0, NULL, m_vconvert.data(), size.X() * 4, 0);
         } else {
             D3D11_TEXTURE2D_DESC td = {};
             td.Width            = size.X();
             td.Height           = size.Y();
-            td.MipLevels        = 1;
+            td.MipLevels        = mipLevels;
             td.ArraySize        = 1;
             td.Format           = DXGI_FORMAT_B8G8R8A8_UNORM;
             td.SampleDesc.Count = 1;
             td.Usage            = D3D11_USAGE_DEFAULT;
             td.BindFlags        = D3D11_BIND_SHADER_RESOURCE;
 
-            D3D11_SUBRESOURCE_DATA data = {};
-            data.pSysMem     = m_vconvert.data();
-            data.SysMemPitch = size.X() * 4;
+            std::vector<D3D11_SUBRESOURCE_DATA> vdata(mipLevels);
+            vdata[0].pSysMem     = m_vconvert.data();
+            vdata[0].SysMemPitch = size.X() * 4;
+
+            for (int level = 1; level < mipLevels; level++) {
+                vdata[level].pSysMem     = vmips[level - 1].data();
+                vdata[level].SysMemPitch = DDSLevelSize(size.X(), level) * 4;
+            }
 
             entry.m_ptexture = NULL;
             entry.m_psrv     = NULL;
 
-            HRESULT hr = m_pdevice->CreateTexture2D(&td, &data, &entry.m_ptexture);
+            HRESULT hr = m_pdevice->CreateTexture2D(&td, vdata.data(), &entry.m_ptexture);
 
             if (FAILED(hr)) {
                 CheckDeviceLost(hr);
@@ -442,6 +501,7 @@ public:
             }
         }
 
+        entry.m_mipLevels = mipLevels;
         entry.m_size      = size;
         entry.m_id        = psurface->GetChangeID();
         entry.m_bColorKey = bColorKey;

@@ -102,3 +102,6 @@
 # normalization pass can never corrupt one.
 *.rc            -text
 *.rc2           -text
+
+# DDS images (Artwork/256) are binary source art
+*.dds binary

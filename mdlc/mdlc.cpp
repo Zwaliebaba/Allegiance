@@ -190,104 +190,6 @@ public:
         }
     }
 
-    void DoConvert(const PathString& strInput, const PathString& strOutput)
-    {
-        printf(ZString("Converting image ") + strInput + "\n");
-
-        //
-        // Get the basenames for the bitmap files
-        //
-
-        ZString strName       = strInput.GetName().ToLower();
-        ZString strOutputName = strOutput.GetName().ToLower();
-
-        //
-        // Load the bitmap
-        //
-
-        HBITMAP hbitmap = GetModeler()->LoadBitmap(strInput);
-        if (hbitmap == NULL)
-            Fail("cannot load " + strInput);
-        TRef<Surface> psurface = GetEngine()->CreateSurface(hbitmap);
-        ZVerify(::DeleteObject(hbitmap));
-
-        //
-        // Convert the bitmap to 16bpp
-        //
-
-        TRef<Surface> psurface16 =
-            GetEngine()->CreateSurface(
-                psurface->GetSize(),
-                new PixelFormat(16, 0xf800, 0x07e0, 0x001f, 0x0000)
-            );
-
-        psurface16->BitBlt(WinPoint(0, 0), psurface);
-
-        //
-        // Create a namespace with the bitmap in it
-        //
-
-        TRef<INameSpace> pns = GetModeler()->CreateNameSpace(strOutputName, GetModeler()->GetNameSpace("model"));
-        pns->AddMember(strOutputName, (Value*)new ConstantImage(psurface16, strName));
-
-        //
-        // Write out the namespace
-        //
-
-        Write(pns, strOutput);
-        GetModeler()->UnloadNameSpace(strOutputName);
-    }
-
-    void DoCompressAnim(
-        int xframes,
-        int yframes,
-        const PathString& strInput, 
-        const PathString& strOutput
-    ) {
-        printf(ZString("Compressing animation ") + strInput + "\n");
-
-        //
-        // Get the basenames for the bitmap files
-        //
-
-        ZString strName       = strInput.GetName().ToLower();
-        ZString strOutputName = strOutput.GetName().ToLower();
-
-        //
-        // Create the frame image
-        //
-
-        TRef<Number> pnumberFrame = new ModifiableNumber(0);
-
-        TRef<Image> pimageFrame =
-            CreateFrameImage(
-                pnumberFrame,
-                GetModeler()->LoadSurface(strInput, false),
-                xframes,
-                yframes
-            );
-
-        //
-        // Create the name space
-        //
-
-        TRef<INameSpace> pns = 
-            GetModeler()->CreateNameSpace(
-                strOutputName, 
-                GetModeler()->GetNameSpace("model")
-            );
-
-        pns->AddMember("frame", pnumberFrame);
-        pns->AddMember("image", (Value*)pimageFrame);
-
-        //
-        // Write out the namespace
-        //
-
-        Write(pns, strOutput);
-        GetModeler()->UnloadNameSpace(strOutputName);
-    }
-
     HRESULT Initialize(const ZString& strCommandLine)
     {
         // Unbuffered, so the last line printed before a crash shows how far a
@@ -337,7 +239,7 @@ public:
         }
 
         if (FAILED(RunCommand(strCommandLine)))
-            Fail("usage: mdlc [-fontdir dir] [-optimize | -convert | -compressanim x y | -info | -genheader | -batch] input [output]");
+            Fail("usage: mdlc [-fontdir dir] [-optimize | -info | -genheader | -batch] input [output]");
 
         return S_FALSE;
     }
@@ -368,30 +270,6 @@ public:
                         if (token.IsString(strInput)) {
                             if (token.IsString(strOutput)) {
                                 DoOptimize(strInput, strOutput);
-                                return S_FALSE;
-                            }
-                        }
-                    } else if (str == "compressanim") {
-                        ZString strInput;
-                        ZString strOutput;
-                        float xframes;
-                        float yframes;
-                        if (token.IsNumber(xframes)) {
-                            if (token.IsNumber(yframes)) {
-                                if (token.IsString(strInput)) {
-                                    if (token.IsString(strOutput)) {
-                                        DoCompressAnim((int)xframes, (int)yframes, strInput, strOutput);
-                                        return S_FALSE;
-                                    }
-                                }
-                            }
-                        }
-                    } else if (str == "convert") {
-                        ZString strInput;
-                        ZString strOutput;
-                        if (token.IsString(strInput)) {
-                            if (token.IsString(strOutput)) {
-                                DoConvert(strInput, strOutput);
                                 return S_FALSE;
                             }
                         }

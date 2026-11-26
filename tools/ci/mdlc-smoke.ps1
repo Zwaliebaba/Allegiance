@@ -1,5 +1,7 @@
 # Smoke test for the art toolchain: does mdlc (which starts the engine with its
 # software DirectDraw path) run on this machine, and does it produce output?
+# It also checks a few of the DDS source images (Artwork/256) and loads an
+# animation from one.
 #
 #   pwsh tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/Debug/mdlc.exe -Art Artwork/256 -Out out/art-smoke
 #
@@ -22,7 +24,7 @@ $Out  = (Resolve-Path $Out).Path
 
 # mdlc resolves inputs relative to the current directory, like the original
 # makefiles (which cd'd into the output directory), so stage the inputs there.
-foreach ($f in 'acbuild.bmp', 'animlaunch.bmp', 'fontsource.mdl') {
+foreach ($f in 'acbuild.dds', 'acs01.dds', 'animlaunch.dds', 'fontsource.mdl') {
     Copy-Item (Join-Path $Art $f) $Out -Force
 }
 
@@ -63,10 +65,42 @@ $script:cdb = @(
 ) | Where-Object { Test-Path $_ } | Select-Object -First 1
 Write-Host "cdb: $(if ($script:cdb) { $script:cdb } else { 'not found' })"
 
-Invoke-Mdlc 'convert-bitmap' @('-convert', 'acbuild.bmp', 'acbuildbmp.mdl') 'acbuildbmp.mdl'
 Invoke-Mdlc 'compile-font'   @('fontsource', 'font.mdl') 'font.mdl'
-Invoke-Mdlc 'convert-anim'   @('-convert', 'animlaunch.bmp', 'animlaunchbmp.mdl') 'animlaunchbmp.mdl'
-Invoke-Mdlc 'compress-anim'  @('-compressanim', '4', '4', 'animlaunchbmp', 'animlaunch.mdl') 'animlaunch.mdl'
+
+# The animation as Art.proj writes it: a text MDL that builds the frames from
+# the DDS strip when loaded. Compiling it to binary MDL loads it (FrameImage).
+@(
+    'use "model";'
+    'frame = ModifiableNumber(0);'
+    'image = FrameImage(ImportImage("animlaunchbmp", false), frame, 4, 4);'
+) | Set-Content (Join-Path $Out 'animlaunch.mdl') -Encoding ascii
+Invoke-Mdlc 'anim-from-dds'  @('animlaunch', 'animlaunchbin.mdl') 'animlaunchbin.mdl'
+
+# The DDS files: 32-bit BGRA, and the key rule (alpha 0 exactly where RGB is 0)
+function Test-Dds([string] $Name, [bool] $Mips) {
+    $path = Join-Path $Out $Name
+    if (-not (Test-Path $path)) { return }
+    $b = [IO.File]::ReadAllBytes($path)
+    $w = [BitConverter]::ToInt32($b, 16); $h = [BitConverter]::ToInt32($b, 12)
+    $levels = if ($Mips) { [BitConverter]::ToInt32($b, 28) } else { 1 }
+    $problems = @()
+    if ([Text.Encoding]::ASCII.GetString($b, 0, 4) -ne 'DDS ') { $problems += 'no DDS magic' }
+    if ([BitConverter]::ToInt32($b, 88) -ne 32) { $problems += 'not 32 bits per pixel' }
+    $expect = 128; for ($l = 0; $l -lt $levels; $l++) { $expect += [Math]::Max(1, $w -shr $l) * [Math]::Max(1, $h -shr $l) * 4 }
+    if ($b.Length -ne $expect) { $problems += "size $($b.Length), expected $expect for $levels level(s)" }
+    $keyed = 0; $bad = 0
+    for ($i = 128; $i -lt 128 + $w * $h * 4; $i += 4) {
+        $rgb0 = ($b[$i] -eq 0) -and ($b[$i + 1] -eq 0) -and ($b[$i + 2] -eq 0)
+        $a = $b[$i + 3]
+        if ($a -eq 0) { $keyed++ }
+        if (($a -ne 0 -and $a -ne 255) -or ($rgb0 -ne ($a -eq 0))) { $bad++ }
+    }
+    if ($bad) { $problems += "$bad pixels break the key rule" }
+    $script:results += [pscustomobject]@{ Step = "check $Name"; Result = $(if ($problems) { 'FAIL' } else { 'OK' }); Process = '-'; Output = "${w}x${h}, $levels level(s), $keyed keyed pixels"; Message = ($problems -join '; ') }
+}
+Test-Dds 'acbuild.dds'    $false
+Test-Dds 'acs01.dds'      $true      # a model texture, with mip levels
+Test-Dds 'animlaunch.dds' $false
 
 $results | Format-Table -AutoSize -Wrap | Out-String -Width 200 | Write-Host
 

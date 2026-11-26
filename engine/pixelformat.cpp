@@ -33,10 +33,18 @@ DWORD PixelFormat::AlphaShift() const { return GetShift(AlphaMask()); }
 
 Pixel PixelFormat::MakePixel(DWORD red, DWORD green, DWORD blue) const
 {
-    return Pixel::Create(
+    DWORD rgb =
           ((red   << RedShift()  ) & RedMask()  )
         | ((green << GreenShift()) & GreenMask())
-        | ((blue  << BlueShift() ) & BlueMask() ));
+        | ((blue  << BlueShift() ) & BlueMask() );
+
+    //
+    // In a format with alpha (the DDS images), black is the colour key, so it
+    // gets alpha 0 and everything else is opaque: the rule the art build
+    // bakes into the files, kept when code draws into such a surface.
+    //
+
+    return Pixel::Create(rgb == 0 ? 0 : rgb | AlphaMask());
 }
 
 Pixel PixelFormat::MakePixel(const Color& color) const

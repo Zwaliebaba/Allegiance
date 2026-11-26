@@ -111,8 +111,9 @@ jobs:
         shell: cmd
         run: |
           mkdir out\smoke-src
-          git cat-file blob HEAD:Artwork/256/acbuild.bmp > out\smoke-src\acbuild.bmp
-          git cat-file blob HEAD:Artwork/256/animlaunch.bmp > out\smoke-src\animlaunch.bmp
+          git cat-file blob HEAD:Artwork/256/acbuild.dds > out\smoke-src\acbuild.dds
+          git cat-file blob HEAD:Artwork/256/acs01.dds > out\smoke-src\acs01.dds
+          git cat-file blob HEAD:Artwork/256/animlaunch.dds > out\smoke-src\animlaunch.dds
           git cat-file blob HEAD:Artwork/256/fontsource.mdl > out\smoke-src\fontsource.mdl
 
       - name: mdlc smoke test

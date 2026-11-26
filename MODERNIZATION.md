@@ -10,7 +10,7 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Baseline | Strictly clean port of this repository. No code or fixes taken from community forks. |
 | Toolchain | Visual Studio 2026, platform toolset v145, `.slnx` solution, x64 only (Win32 was built alongside until x64 had been played, then dropped). |
 | Renderer | New Direct3D 11 backend behind the engine's existing `Engine` / `Surface` / rasterizer seam. DirectDraw 4, Direct3D 3 and the MMX software rasterizer are removed. |
-| Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project. Stage B: new MDL version with 32-bit / BC7 DDS textures generated from the 24-bit source BMPs. |
+| Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project (done). Stage B: images as uncompressed 32-bit BGRA DDS files, converted once from the 24-bit source BMPs, which they replace as the source art; the colour key baked into alpha, mip levels for model textures; no MDL wrapper per image. Fonts stay in `font.mdl`; BC7 compression is not used (lossy, and UI code reads pixels on the CPU). |
 | Level of detail | Reduced LOD meshes are dropped. They were a 1999 performance optimisation (the models are hundreds to a few thousand triangles). Every LOD slot uses the full-detail mesh, which removes `xmunge -reduce`, the MSR progressive-mesh binaries and meshoptimizer. |
 | Networking | MsQuic (Schannel build) behind the existing `FedMessaging` interface, replacing DirectPlay 4. This replaced the first plan of an own Winsock UDP layer; with QUIC providing reliability and loss recovery, no loopback / packet-loss harness was built, and LAN play is verified by hand. Windows 11 or Server 2022 and later. |
 | Settings | JSON files instead of the registry: `settings.json` per user for the client, `server.json` for all users for the server, or either next to the executable. A small built-in reader and writer (`zlib/zsettings.*`), no third-party JSON library. Registry values are not imported. The only registry use left is the Windows service entry, if the server is installed as one. |
@@ -511,8 +511,8 @@ model list. It builds incrementally through Inputs and Outputs.
 
 | Step | Original | Replacement |
 |---|---|---|
-| Images | `mdlc -convert` (24-bit BMP to 16-bit MDL) | Same, rebuilt |
-| Animations | `mdlc -compressanim` | Same |
+| Images | `mdlc -convert` (24-bit BMP to 16-bit MDL) | `mdlc -dds` / `-ddsmips` (32-bit BGRA DDS), see "Textures: 32-bit DDS" |
+| Animations | `mdlc -compressanim` (precompressed 16-bit frames in a binary MDL) | A generated text MDL that builds the animation from the strip's DDS when loaded |
 | Flatten / extract / bounds | `xmunge` on Direct3D Retained Mode | `xmunge` rewritten as portable C++17 on its own text `.x` reader (done) |
 | Levels of detail | MSR progressive-mesh binaries + `xmunge -reduce` | Dropped: every LOD slot uses the full-detail mesh |
 | Collision hulls | `cvh` + qhull | Same; qhull vendored and built in the solution |
@@ -595,15 +595,64 @@ A before-and-after check confirms that all 3,186 inputs the manifests need are s
 Kept on purpose:
 
 - `Artwork/redbook`: the soundtrack. The game plays music as audio-CD tracks through MCI (`soundengine/redbooksound.cpp`), so the port has no music without a CD. A Phase 3 follow-up replaces the CD player with file playback from these WAVs.
-- The 41 files below. They are referenced by name from code or a shipped MDL, but the original build never put them in the art output, so they were missing at runtime even in 2004. They are latent bugs to check when the client first runs: either the referencing code is dead, or the file should be added to a manifest. Also, `makegeo.mak` builds `fig02pit.mdl` from `fig02pit.x`, but no `fig02pit.x` source exists.
+- The files below. They are referenced by name from code or a shipped MDL, but the original build never put them in the art output, so they were missing at runtime even in 2004. They are latent bugs to check when the client first runs: either the referencing code is dead, or the file should be added to a manifest. Also, `makegeo.mak` builds `fig02pit.mdl` from `fig02pit.x`, but no `fig02pit.x` source exists. The 29 images among them (`BtnMissionDetails`, `hudgauge` and the rest) now ship, since the move to DDS sources ("Textures: 32-bit DDS"); these MDL files still don't:
 
-  `BtnMissionDetails.bmp`, `BtnMount.bmp`, `BtnReject.bmp`, `BtnReqPos.bmp`, `BtnSell.bmp`, `BtnTeamRoom.bmp`, `btnCharInfo2Zone.bmp`, `btncombo.bmp`, `btnmain.bmp`, `btnmaingames.bmp`, `btnpicksector.bmp`, `cmdformation.bmp`, `concmdbardisplay.bmp`, `conenergyweaponsdisplay.bmp`, `confabsel.bmp`, `conmissilesdisplay.bmp`, `conordersdisplay.bmp`, `conradarasteroids.bmp`, `conradarships.bmp`, `conradarstations.bmp`, `conradartarget.bmp`, `conradartreasures.bmp`, `conselectiondisplay.bmp`, `conshrunkcmdbardisplay.bmp`, `console.mdl`, `constationdisplay.bmp`, `conteambarsel.bmp`, `conweaponsdisplay.bmp`, `credits.bmp`, `hudgauge.bmp`, `loadout1.mdl`, `loadout11.mdl`, `loadout3.mdl`, `loadout4.mdl`, `loadout5.mdl`, `loadout9.mdl`, `loadoutbomber.mdl`, `loadouttacticalfighter.mdl`, `messageoftheday.mdl`, `techtree.mdl`, `temp.mdl`
+  `console.mdl`, `loadout1.mdl`, `loadout11.mdl`, `loadout3.mdl`, `loadout4.mdl`, `loadout5.mdl`, `loadout9.mdl`, `loadoutbomber.mdl`, `loadouttacticalfighter.mdl`, `messageoftheday.mdl`, `techtree.mdl`, `temp.mdl`
 
 #### Smoke test
 
-CI runs `tools/ci/mdlc-smoke.ps1` after the build. It converts one bitmap and one animation, and
-compiles `fontsource.mdl`. This establishes whether `mdlc`, which starts the engine with its software
+CI runs `tools/ci/mdlc-smoke.ps1` after the build. It writes two DDS images (one with mip levels) and an
+animation strip, checks the DDS files, compiles `fontsource.mdl`, and loads the animation through a
+text MDL. This establishes whether `mdlc`, which starts the engine with its software
 DirectDraw path, runs on a headless runner. The first run crashed during engine start-up: `FontImpl::GetSizes` asserted on a zero-width glyph, which current GDI reports for some characters. The assert is relaxed to reject only negative widths; the Debug client used the same path.
+
+#### Textures: 32-bit DDS
+
+The images are DDS files, uncompressed 32-bit BGRA (DDS `A8R8G8B8`), which any DDS reader opens. They
+are the source art in `Artwork/256`: the 1,413 BMP sources (146.7 MB) were converted once with
+`tools/art/bmp2dds.py` and deleted, as the movies were converted to MP4. The art build copies the
+images `bitmap.txt` lists. They keep the BMPs' full 24-bit depth; the image MDL files the build used to
+make (`mdlc -convert`) had cut them to RGB565.
+
+The conversion was checked: before the BMPs were deleted, a CI step compared every one of the 1,413 DDS
+files byte for byte with what `mdlc` (`-dds` / `-ddsmips`, removed since) wrote from the same BMP.
+
+| Topic | Decision |
+|---|---|
+| Format | Uncompressed BGRA8. BC7 was considered: a quarter of the size, but lossy, an extra tool (texconv) in the art build, and UI code reads pixels on the CPU (hit testing, CPU-composed panes), which would need a decoder |
+| Transparency | The game's only transparency was a colour key: pixels that are 0 in RGB565 (pure black, and near-black up to about RGB 8,4,8) are transparent where an MDL file asks for the key (`ImportImage("name", true)`). The conversion baked exactly that set into alpha: alpha 0 there, and RGB 0 too, so "alpha 0" and "black" stay the same pixels. 1.4 million near-black pixels in 635 bitmaps are transparent only because of the 565 rounding; keying on pure black instead would have made them visible |
+| When alpha applies | Only where the MDL file asks for the key, as before. An image loaded without it is drawn opaque, alpha ignored, so bitmaps used both ways (with and without the key) look as they did |
+| Model textures | The 230 images that a model's `.x` file names (`TextureFilename`) have a mip chain (2x2 box filter, down to 1x1) baked into the file. All are power-of-two sized. Distant models no longer shimmer; their textures are a third larger. The `.x` files still name them `<name>.bmp`, which the engine maps to `<name>.dds` |
+| Images never built | The 29 BMPs that `bitmap.txt` did not list (referenced by name from code or MDL, so missing at runtime since 2004; see "Art directory cleanup") were converted too and added to the list, so they now ship. Untested: they appear wherever the code asks for them |
+| Editing an image | Use any editor that writes uncompressed 32-bit DDS (Paint.NET, GIMP). Keep the rule: a pixel is opaque (alpha 255) or transparent with alpha 0 *and* RGB 0. For a model texture, rebuild its mip chain afterwards: `python tools/art/bmp2dds.py mips Artwork/256/<name>.dds` |
+| Animations | The six strips are DDS images too. Each gets a small text MDL (`use "model"; frame = ModifiableNumber(0); image = FrameImage(ImportImage("<name>bmp", false), frame, x, y);`) that compresses the frames when it loads, with the code `mdlc -compressanim` ran at build time |
+| Fonts | Stay in `font.mdl` (glyph bitmaps plus metrics, not textures) |
+
+How the engine reads them:
+
+- `Modeler::GetNameSpace` loads an image namespace `<name>bmp` from `<name>.dds` when there is one
+  (`engine/dds.*`), so every way an image is reached works unchanged: `ImportImage` in text MDL, model
+  textures, and the imports in binary model MDL files. An image MDL file from an older art build is
+  still read if there is no DDS file next to it.
+- The image is tagged with its namespace, so `mdlc -optimize` writes models that import their textures
+  by name. `INameSpace::AddMember` does that only in debug builds; a release `mdlc` would otherwise
+  embed the pixels in every model.
+- The surface points into the file mapping, like the image MDL files did. Its mip levels go to the
+  texture cache with it and are dropped on the first write to the pixels.
+- The texture cache takes alpha from the image when it is colour keyed, and makes it opaque otherwise.
+  In a pixel format with alpha, `PixelFormat::MakePixel` gives black alpha 0 and everything else alpha
+  255, so code that draws into such a surface keeps the rule. The CPU colour-key blit handles 32-bit
+  surfaces (it asserted 16-bit).
+- The engine's own CPU-side 2D surfaces are still RGB565 (`GetPrimaryPixelFormat`). Whatever is still
+  composed on the CPU converts down to 565 there; what the GPU samples gets the full 32 bits.
+
+Nothing reads BMP files any more: `mdlc -convert`, `-compressanim`, `-dds` and `-ddsmips` are removed,
+and so are `Modeler::LoadBitmap` and `Engine::CreateSurface(HBITMAP)`. The smoke test checks the format
+and the key rule in three of the DDS sources (one a model texture with mip levels) and loads an
+animation from a DDS strip.
+
+Not done: soft (partial) alpha edges. The alpha channel makes it possible, but it is a visible change,
+and the art has no partial alpha to start from.
 
 ### Phase 5: optional
 

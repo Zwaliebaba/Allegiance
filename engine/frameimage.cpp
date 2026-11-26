@@ -227,10 +227,23 @@ public:
     {
     }
 
+    //
+    // FrameImage(image, frame, xframes, yframes): an animation from a strip
+    // of xframes by yframes frames (a DDS image), compressed when it is
+    // loaded. The art build used to do that with mdlc -compressanim and keep
+    // the result in a binary MDL file (read by Read below).
+    //
+
     TRef<IObject> Apply(ObjectStack& stack)
     {
-        ZUnimplemented();
-        return NULL;
+        TRef<Image>  pimage   = Image::Cast((Value*)(IObject*)stack.Pop());
+        TRef<Number> pframe   = Number::Cast((IObject*)stack.Pop());
+        int          xframes  = (int)Number::Cast((IObject*)stack.Pop())->GetValue();
+        int          yframes  = (int)Number::Cast((IObject*)stack.Pop())->GetValue();
+
+        ZAssert(xframes > 0 && yframes > 0);
+
+        return (Value*)CreateFrameImage(pframe, pimage->GetSurface(), xframes, yframes);
     }
 
     TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
