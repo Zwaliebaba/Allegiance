@@ -709,7 +709,7 @@ Decided scope:
 |---|---|
 | `TVector` (value array with copy-on-write over file mappings) | `std::vector`. Done |
 | `TArray` | `std::array`. Done |
-| `TStack` | Its only use, the MDL evaluator's operand stack, is a small `ObjectStack` class over `std::vector` (`engine/mdl.h`): the factories use `Pop()`'s value in expressions about 300 times, and `std::stack::pop` returns nothing. Done |
+| `TStack` | Its only use, the MDL evaluator's operand stack, is a small `ObjectStack` class over `std::vector` (`engine/mdl.h`): the factories use `Pop()`'s value in expressions about 300 times, and `std::stack::pop` returns nothing. A popped object stays referenced by its slot until a later push reuses it, as with `TStack`: many factories keep a plain pointer to what they popped, and an unnamed object has no other reference. The first version released the slot on `Pop`, a use-after-free that surfaced as the smoke test's binary-MDL reload crashing in `FrameImage` once the heap layout changed. Done |
 | `TList`, `TMap` | Kept. They are reference-counted objects, and `TList`'s sink parameter is how UI list panes get change notifications; replacing them is a redesign, not a swap |
 | `Slist_utl` / `Slink_utl` (IGC) | Kept. Intrusive lists whose members unlink themselves on destruction; game-object lifetime depends on them |
 | `ZString` | To `std::string`, in steps: first its number constructors become explicit (done) (`"Score " + n` formats a number with `ZString` but appends one `char` with `std::string`), then one library group per PR, with explicit `.c_str()` where `ZString` converted to `const char*` silently |
