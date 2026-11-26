@@ -23,6 +23,9 @@
     <Project Path="xmunge/xmunge.vcxproj" Id="53945a79-12a3-5f2f-9aad-8b56c4d111f9" />
     <Project Path="qhull/qhull.vcxproj" Id="e2a5b571-a7e6-42d8-bac9-a222c711e632" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/UnitTests/UnitTests.vcxproj" Id="bd35be37-e50c-4059-b4f9-40ea8015712b" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
     <File Path="Directory.Build.targets" />
