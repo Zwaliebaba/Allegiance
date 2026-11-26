@@ -741,6 +741,22 @@ With the constructors explicit, `ZString + int` would compile as pointer arithme
 `const char*` conversion (before, it was ambiguous and never compiled), so `ZString`/`int` `operator+`
 is deleted.
 
+The move to `std::string` runs in four steps, so the two types are never mixed (a library-by-library
+switch would need conversions at every interface, since `ZString` is in all of them):
+
+1. `ZString` gets `std::string`'s names (`size()`, `empty()`, `c_str()`, `data()`, `clear()`), and its
+   own operations become free functions in `zlib/zstring.h` that keep their exact semantics: int
+   indices with -1 for not found, and the quirks (`StrReverseFind` of a string searches forwards, as
+   `ReverseFind` did; `StrLeftOf` with no match returns the delimiter set). Numbers format through
+   `StrFromInt` / `StrFromFloat` / `StrFromBool` (`"%g"` for floats, not `std::to_string`'s `"%f"`), and
+   `StrRepeat(ch, n)` replaces `ZString(ch, n)`, whose argument order `std::string` reverses.
+2. Call sites move to those names, one library group per PR, by a script driven by a clang sweep in
+   which the old members are marked deprecated (locally only). zlib, engine and mdlc: done (181 sites).
+3. The implicit conversion to `const char*` goes; every remaining use gets `.c_str()`.
+4. `ZString` becomes `std::string`. The members, the reference-counted data and the static
+   (file-mapping) strings go; constructing from a null pointer, which `ZString` made empty and
+   `std::string` doesn't allow, is checked first.
+
 ## Building
 
 Open `Allegiance.slnx` in Visual Studio 2026 (Desktop development with C++, plus the C++ ATL and MFC

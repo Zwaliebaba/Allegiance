@@ -139,24 +139,24 @@ int Geo::GetTriangleCount()
 ZString GetString(const Vertex& v)
 {
     return
-          ZString(v.x)  + ", "
-        + ZString(v.y)  + ", "
-        + ZString(v.z)  + ", "
-        + ZString(v.nx) + ", "
-        + ZString(v.ny) + ", "
-        + ZString(v.nz) + ", "
-        + ZString(v.u)  + ", "
-        + ZString(v.v);
+          StrFromFloat(v.x)  + ", "
+        + StrFromFloat(v.y)  + ", "
+        + StrFromFloat(v.z)  + ", "
+        + StrFromFloat(v.nx) + ", "
+        + StrFromFloat(v.ny) + ", "
+        + StrFromFloat(v.nz) + ", "
+        + StrFromFloat(v.u)  + ", "
+        + StrFromFloat(v.v);
 }
 
 ZString GetString(const VertexL& v)
 {
     return
-          ZString(v.x) + ", "
-        + ZString(v.y) + ", "
-        + ZString(v.z) + ", "
-        + ZString(v.u) + ", "
-        + ZString(v.v);
+          StrFromFloat(v.x) + ", "
+        + StrFromFloat(v.y) + ", "
+        + StrFromFloat(v.z) + ", "
+        + StrFromFloat(v.u) + ", "
+        + StrFromFloat(v.v);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -326,9 +326,9 @@ public:
         for(index = 0; index < count; index += 3) {
             str +=
                   Indent(indent + 1)
-                + ZString((int)m_indices[index]) + ", "
-                + ZString((int)m_indices[index + 1]) + ", "
-                + ZString((int)m_indices[index + 2]);
+                + StrFromInt((int)m_indices[index]) + ", "
+                + StrFromInt((int)m_indices[index + 1]) + ", "
+                + StrFromInt((int)m_indices[index + 2]);
 
             if (index + 3 == count) {
                 str += "\n";
@@ -1600,13 +1600,13 @@ public:
     ZString GetInfo()
     {
         int count = GetChildCount();
-        ZString str = "LODGeo with " + ZString(count) + " levels\n";
+        ZString str = "LODGeo with " + StrFromInt(count) + " levels\n";
         for (int index = 0; index < count; index++) {
             TRef<Geo> pgeo = Geo::Cast(GetChild(index));
 
             int ctriangle = pgeo->GetTriangleCount();
 
-            str += "level " + ZString(index) + " has " + ZString(ctriangle) + " triangles.\n";
+            str += "level " + StrFromInt(index) + " has " + StrFromInt(ctriangle) + " triangles.\n";
         }
 
         return str;
@@ -1803,7 +1803,7 @@ public:
 			Geo* pgeo = Geo::Cast(GetChild(index));
 
             str += Indent(indent + 2) + "(\n";
-            str += Indent(indent + 3) + ZString(m_radii[index - 1]) + ",\n";
+            str += Indent(indent + 3) + StrFromFloat(m_radii[index - 1]) + ",\n";
             str += Indent(indent + 3) + pgeo->GetString(indent + 3) + "\n";
 
             if (index == count - 1) {

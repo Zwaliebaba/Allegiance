@@ -164,7 +164,7 @@ public:
 
     bool Error()
     {
-        return !m_strError.IsEmpty();
+        return !m_strError.empty();
     }
 
     void SetError(const ZString& str)
@@ -566,7 +566,7 @@ public:
                             || strFilename.GetExtension() == "bmp"
                         );
 
-                        strFilename = strFilename.LeftOf(4).ToLower() + "bmp";
+                        strFilename = StrToLower(StrLeftOf(strFilename, 4)) + "bmp";
 
                         pimageTexture = m_pmodeler->LoadImage(strFilename, false);
                         m_ptoken->LeaveSection();

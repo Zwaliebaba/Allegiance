@@ -376,7 +376,7 @@ public:
             chShow = ' ';
         }
 
-        m_pstringPaneAccelerator->SetString(ZString(chShow, 1));
+        m_pstringPaneAccelerator->SetString(StrRepeat(chShow, 1));
     }
 };
 

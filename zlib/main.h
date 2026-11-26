@@ -32,7 +32,7 @@ int main( int argc, char *argv[ ])
     for(int index = 1; index < argc; index++) {
         ZString str = argv[index];
 
-        if (str.Find(' ') == -1) {
+        if (StrFind(str, ' ') == -1) {
             strCommandLine += ZString(argv[index]);
         } else {
             strCommandLine += "\"" + ZString(argv[index]) + "\"";

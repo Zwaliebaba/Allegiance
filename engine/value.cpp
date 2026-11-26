@@ -283,7 +283,7 @@ void Value::FillImportTable(IMDLBinaryFile* pfile)
 
     ZString str = GetFunctionName();
 
-    if (!str.IsEmpty()) {
+    if (!str.empty()) {
         pfile->AddImport(str);
     }
 
@@ -950,27 +950,27 @@ ZString GetString(int indent, const Color& color)
 {
     return
           "Color("
-        + ZString(color.GetRed()  ) + ", "
-        + ZString(color.GetGreen()) + ", "
-        + ZString(color.GetBlue() ) + ")";
+        + StrFromFloat(color.GetRed()  ) + ", "
+        + StrFromFloat(color.GetGreen()) + ", "
+        + StrFromFloat(color.GetBlue() ) + ")";
 }
 
 ZString GetString(int indent, const Point& point)
 {
     return
           "Point("
-        + ZString(point.X()) + ", "
-        + ZString(point.Y()) + ")";
+        + StrFromFloat(point.X()) + ", "
+        + StrFromFloat(point.Y()) + ")";
 }
 
 ZString GetString(int indent, const Rect& Rect)
 {
     return
           "Rect("
-        + ZString(Rect.XMin()) + ", "
-        + ZString(Rect.YMin()) + ", "
-        + ZString(Rect.XMax()) + ", "
-        + ZString(Rect.YMax()) + ")";
+        + StrFromFloat(Rect.XMin()) + ", "
+        + StrFromFloat(Rect.YMin()) + ", "
+        + StrFromFloat(Rect.XMax()) + ", "
+        + StrFromFloat(Rect.YMax()) + ")";
 }
 
 ZString GetString(int indent, const Orientation& orient)
@@ -985,14 +985,14 @@ ZString GetString(int indent, const Vector& vec)
 {
     return
           "Vector("
-        + ZString(vec.X()) + ", "
-        + ZString(vec.Y()) + ", "
-        + ZString(vec.Z()) + ")";
+        + StrFromFloat(vec.X()) + ", "
+        + StrFromFloat(vec.Y()) + ", "
+        + StrFromFloat(vec.Z()) + ")";
 }
 
 ZString GetString(int indent, float value)
 {
-    return ZString(value);
+    return StrFromFloat(value);
 }
 
 ZString GetString(int indent, bool value)
@@ -1005,10 +1005,10 @@ ZString GetString(int indent, const Matrix& mat)
     ZString str;
 
     str = "Matrix(\n";
-    str += Value::Indent(indent + 1) + ZString(mat[0][0]) + ", "+ ZString(mat[0][1]) + ", "+ ZString(mat[0][2]) + ", "+ ZString(mat[0][3]) + ",\n";
-    str += Value::Indent(indent + 1) + ZString(mat[1][0]) + ", "+ ZString(mat[1][1]) + ", "+ ZString(mat[1][2]) + ", "+ ZString(mat[1][3]) + ",\n";
-    str += Value::Indent(indent + 1) + ZString(mat[2][0]) + ", "+ ZString(mat[2][1]) + ", "+ ZString(mat[2][2]) + ", "+ ZString(mat[2][3]) + ",\n";
-    str += Value::Indent(indent + 1) + ZString(mat[3][0]) + ", "+ ZString(mat[3][1]) + ", "+ ZString(mat[3][2]) + ", "+ ZString(mat[3][3]) + "\n";
+    str += Value::Indent(indent + 1) + StrFromFloat(mat[0][0]) + ", "+ StrFromFloat(mat[0][1]) + ", "+ StrFromFloat(mat[0][2]) + ", "+ StrFromFloat(mat[0][3]) + ",\n";
+    str += Value::Indent(indent + 1) + StrFromFloat(mat[1][0]) + ", "+ StrFromFloat(mat[1][1]) + ", "+ StrFromFloat(mat[1][2]) + ", "+ StrFromFloat(mat[1][3]) + ",\n";
+    str += Value::Indent(indent + 1) + StrFromFloat(mat[2][0]) + ", "+ StrFromFloat(mat[2][1]) + ", "+ StrFromFloat(mat[2][2]) + ", "+ StrFromFloat(mat[2][3]) + ",\n";
+    str += Value::Indent(indent + 1) + StrFromFloat(mat[3][0]) + ", "+ StrFromFloat(mat[3][1]) + ", "+ StrFromFloat(mat[3][2]) + ", "+ StrFromFloat(mat[3][3]) + "\n";
     str += Value::Indent(indent) + ")";
 
     return str;
@@ -1018,9 +1018,9 @@ ZString GetString(int indent, const Matrix2& mat)
 {
     return
           "Matrix2(\n"
-        + Value::Indent(indent + 1) + ZString(mat[0][0]) + ", "+ ZString(mat[0][1]) + ", "+ ZString(mat[0][2]) + ",\n"
-        + Value::Indent(indent + 1) + ZString(mat[1][0]) + ", "+ ZString(mat[1][1]) + ", "+ ZString(mat[1][2]) + ",\n"
-        + Value::Indent(indent + 1) + ZString(mat[2][0]) + ", "+ ZString(mat[2][1]) + ", "+ ZString(mat[2][2]) + "\n"
+        + Value::Indent(indent + 1) + StrFromFloat(mat[0][0]) + ", "+ StrFromFloat(mat[0][1]) + ", "+ StrFromFloat(mat[0][2]) + ",\n"
+        + Value::Indent(indent + 1) + StrFromFloat(mat[1][0]) + ", "+ StrFromFloat(mat[1][1]) + ", "+ StrFromFloat(mat[1][2]) + ",\n"
+        + Value::Indent(indent + 1) + StrFromFloat(mat[2][0]) + ", "+ StrFromFloat(mat[2][1]) + ", "+ StrFromFloat(mat[2][2]) + "\n"
         + Value::Indent(indent) + ")";
 }
 

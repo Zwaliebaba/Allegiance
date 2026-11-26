@@ -139,7 +139,7 @@ typedef TPoint<WinPointCore> WinPoint;
 
 inline ZString GetString(const WinPoint& point)
 {
-    return "(" + ZString(point.X()) + ", " + ZString(point.Y()) + ")";
+    return "(" + StrFromInt(point.X()) + ", " + StrFromInt(point.Y()) + ")";
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -185,7 +185,7 @@ typedef TPoint<PointCore> Point;
 
 inline ZString GetString(const Point& point)
 {
-    return "(" + ZString(point.X()) + ", " + ZString(point.Y()) + ")";
+    return "(" + StrFromFloat(point.X()) + ", " + StrFromFloat(point.Y()) + ")";
 }
 
 #endif

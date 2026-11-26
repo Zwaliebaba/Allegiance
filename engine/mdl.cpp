@@ -335,7 +335,7 @@ public:
 
                 ZString strType   = data.m_ptype->GetCPPType();
                 ZString strMember = "m_" + data.m_str;
-                ZString strName   = data.m_str.Left(1).ToUpper() + data.m_str.RightOf(1);
+                ZString strName   = StrToUpper(StrLeft(data.m_str, 1)) + StrRightOf(data.m_str, 1);
 
                 strData += "        " + strType + " " + strMember + ";\n";
 

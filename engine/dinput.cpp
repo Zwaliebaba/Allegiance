@@ -1160,7 +1160,7 @@ public:
 
     ZString GetShortDescription(int index)
     {
-        return "Joy " + ZString(index);
+        return "Joy " + StrFromInt(index);
     }
 
     ZString GetDescription()

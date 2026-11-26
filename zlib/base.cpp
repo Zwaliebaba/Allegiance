@@ -76,19 +76,19 @@ DWORD ZFile::Write(void* p, DWORD length)
 
 bool ZFile::Write(const ZString& str)
 {
-    return (Write((void*)(PCC)str, str.GetLength()) != 0);
+    return (Write((void*)(PCC)str, (int)str.size()) != 0);
 }
 
 bool  ZFile::WriteString(const ZString& str)
 {
-    return (Write((void*)(PCC)str, str.GetLength() + 1) != 0);
+    return (Write((void*)(PCC)str, (int)str.size() + 1) != 0);
 }
 
 bool  ZFile::WriteAlignedString(const ZString& str)
 {
-    int length = str.GetLength() + 1;
+    int length = (int)str.size() + 1;
 
-    if (Write((void*)(PCC)str, str.GetLength() + 1) != 0) {
+    if (Write((void*)(PCC)str, (int)str.size() + 1) != 0) {
         return WritePad(length);
     }
 

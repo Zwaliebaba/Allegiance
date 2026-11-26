@@ -311,7 +311,7 @@ public:
 
     WinPoint GetTextExtent(const ZString& str)
     {
-        int count = str.GetLength();
+        int count = (int)str.size();
         int width = 0;
 
         for (int index = 0; index < count; index++) {
@@ -345,7 +345,7 @@ public:
 
     int GetMaxTextLength(const ZString& str, int maxWidth, bool bLeft)
     {
-        int count = str.GetLength();
+        int count = (int)str.size();
         int width = 0;
 
         for (int index = 0; index < count; index++) {
@@ -559,10 +559,10 @@ public:
         std::vector<D3D11Glyph> glyphs;
         std::vector<DWORD>      colors;
 
-        glyphs.reserve(str.GetLength());
+        glyphs.reserve((int)str.size());
 
         DWORD colorCurrent = D3D11MakeBGRA(color);
-        int   length       = str.GetLength();
+        int   length       = (int)str.size();
         int   ichar        = 0;
         int   x            = point.X();
 
@@ -619,7 +619,7 @@ public:
         const ZString&  str, 
         const Color&    color
     ) {
-        if (str.GetLength() == 0) {
+        if ((int)str.size() == 0) {
             return;
         }
 
@@ -764,7 +764,7 @@ public:
               int       ysize,
               int&      ichar
     ) {
-        int length = str.GetLength();
+        int length = (int)str.size();
 
         //
         // get all the surface info

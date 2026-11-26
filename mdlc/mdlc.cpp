@@ -208,7 +208,7 @@ public:
 
         {
             PCC pcc = strCommandLine;
-            CommandLineToken token(pcc, strCommandLine.GetLength());
+            CommandLineToken token(pcc, (int)strCommandLine.size());
             ZString str;
             ZString strFile;
 
@@ -252,7 +252,7 @@ public:
             //
 
             PCC pcc = strCommandLine;
-            CommandLineToken token(pcc, strCommandLine.GetLength());
+            CommandLineToken token(pcc, (int)strCommandLine.size());
 
             while (token.MoreTokens()) {
                 ZString str;

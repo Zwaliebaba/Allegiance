@@ -50,7 +50,7 @@ public:
 
     ZString GetString() const
     {
-        return ZString("(") + ZString(x) + ", " + ZString(y) + ", " + ZString(z) + ")";
+        return ZString("(") + StrFromFloat(x) + ", " + StrFromFloat(y) + ", " + StrFromFloat(z) + ")";
     }
 
     Vector& operator+=(const Vector& v)

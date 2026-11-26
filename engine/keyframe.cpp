@@ -102,10 +102,10 @@ public:
         for (int index = 0; index < count; index++) {
             str +=
                   Indent(indent + 2)
-                + ZString(m_keys[index].m_frame) + ", "
-                + ZString(m_keys[index].m_vec.X()) + ", "
-                + ZString(m_keys[index].m_vec.Y()) + ", "
-                + ZString(m_keys[index].m_vec.Z());
+                + StrFromFloat(m_keys[index].m_frame) + ", "
+                + StrFromFloat(m_keys[index].m_vec.X()) + ", "
+                + StrFromFloat(m_keys[index].m_vec.Y()) + ", "
+                + StrFromFloat(m_keys[index].m_vec.Z());
 
             if (index < count - 1) {
                 str += ",\n";
@@ -219,10 +219,10 @@ public:
         for (int index = 0; index < count; index++) {
             str +=
                   Indent(indent + 2)
-                + ZString(m_keys[index].m_frame) + ", "
-                + ZString(m_keys[index].m_vec.X()) + ", "
-                + ZString(m_keys[index].m_vec.Y()) + ", "
-                + ZString(m_keys[index].m_vec.Z());
+                + StrFromFloat(m_keys[index].m_frame) + ", "
+                + StrFromFloat(m_keys[index].m_vec.X()) + ", "
+                + StrFromFloat(m_keys[index].m_vec.Y()) + ", "
+                + StrFromFloat(m_keys[index].m_vec.Z());
 
             if (index < count - 1) {
                 str += ",\n";
@@ -344,11 +344,11 @@ public:
         for (int index = 0; index < count; index++) {
             str +=
                   Indent(indent + 2)
-                + ZString(m_keys[index].m_frame) + ", "
-                + ZString(m_keys[index].m_quat.GetA()) + ", "
-                + ZString(m_keys[index].m_quat.GetX()) + ", "
-                + ZString(m_keys[index].m_quat.GetY()) + ", "
-                + ZString(m_keys[index].m_quat.GetZ());
+                + StrFromFloat(m_keys[index].m_frame) + ", "
+                + StrFromFloat(m_keys[index].m_quat.GetA()) + ", "
+                + StrFromFloat(m_keys[index].m_quat.GetX()) + ", "
+                + StrFromFloat(m_keys[index].m_quat.GetY()) + ", "
+                + StrFromFloat(m_keys[index].m_quat.GetZ());
 
             if (index < count - 1) {
                 str += ",\n";

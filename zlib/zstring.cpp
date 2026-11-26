@@ -1015,3 +1015,40 @@ ZString ZString::Unscramble(const ZString& strKey) const
 
     return cbResult;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Free-function forms (zstring.h). For now they forward to the members.
+//
+//////////////////////////////////////////////////////////////////////////////
+
+ZString StrFromInt(int value)                                { return ZString(value); }
+ZString StrFromFloat(float value)                            { return ZString(value); }
+ZString StrFromFloat(float value, int total, int precision)  { return ZString(value, total, precision); }
+ZString StrFromBool(bool value)                              { return ZString(value); }
+ZString StrRepeat(char ch, int length)                       { return ZString(ch, length); }
+
+int StrFind(const ZString& str, char ch, int index)                        { return str.Find(ch, index); }
+int StrFind(const ZString& str, const ZString& strFind)                    { return str.Find(strFind); }
+int StrFindAny(const ZString& str, const ZString& strChars, int index)     { return str.FindAny(strChars, index); }
+int StrReverseFind(const ZString& str, char ch, int index)                 { return str.ReverseFind(ch, index); }
+int StrReverseFindAny(const ZString& str, const ZString& strChars, int index) { return str.ReverseFindAny(strChars, index); }
+int StrReverseFind(const ZString& str, const ZString& strFind)             { return str.ReverseFind(strFind); }
+
+ZString StrLeft(const ZString& str, int count)                     { return str.Left(count); }
+ZString StrRight(const ZString& str, int count)                    { return str.Right(count); }
+ZString StrMiddle(const ZString& str, int index, int count)        { return str.Middle(index, count); }
+ZString StrLeftOf(const ZString& str, int count)                   { return str.LeftOf(count); }
+ZString StrRightOf(const ZString& str, int count)                  { return str.RightOf(count); }
+ZString StrLeftOf(const ZString& str, const ZString& strChars)     { return str.LeftOf(strChars); }
+ZString StrRightOf(const ZString& str, const ZString& strChars)    { return str.RightOf(strChars); }
+
+ZString StrToLower(const ZString& str)                             { return str.ToLower(); }
+ZString StrToUpper(const ZString& str)                             { return str.ToUpper(); }
+ZString StrScramble(const ZString& str, const ZString& strKey)     { return str.Scramble(strKey); }
+ZString StrUnscramble(const ZString& str, const ZString& strKey)   { return str.Unscramble(strKey); }
+
+void    StrReplaceAll(ZString& str, const ZString& strChars, char ch) { str.ReplaceAll(strChars, ch); }
+void    StrRemoveAll(ZString& str, char ch)                        { str.RemoveAll(ch); }
+void    StrSetChar(ZString& str, int index, char ch)               { str.Set(index, ch); }
+ZString StrGetToken(ZString& str)                                  { return str.GetToken(); }
