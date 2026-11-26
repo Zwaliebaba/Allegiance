@@ -1299,7 +1299,7 @@ void EngineWindow::HandleMouseMessage(UINT message, const Point& point)
                 m_ppointMouse->SetValue(point);
 
                 if (m_pengine->IsFullscreen()) {
-                    m_ptransformImageCursor->SetImage(m_pimageCursor ? m_pimageCursor : Image::GetEmpty());
+                    m_ptransformImageCursor->SetImage(m_pimageCursor ? (Image*)m_pimageCursor : Image::GetEmpty());
                 }
                 break;
         }

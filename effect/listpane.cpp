@@ -116,11 +116,11 @@ public:
     {
         if (m_bHorizontal)
         {
-            return GetSize().X();
+            return this->GetSize().X();
         }
         else
         {
-            return GetSize().Y();
+            return this->GetSize().Y();
         }
     }
 
@@ -178,7 +178,7 @@ public:
             m_indexSelection++;
             m_pitemSelection  = m_plist->GetNext(m_pitemSelection);
 
-            NeedPaint();
+            this->NeedPaint();
             SelectionChanged();
             m_bNeedScrollUpdate      = true;
             m_bNeedSelectionOnScreen = true;
@@ -191,7 +191,7 @@ public:
             m_indexSelection--;
             m_pitemSelection  = m_plist->GetItem(m_indexSelection);
 
-            NeedPaint();
+            this->NeedPaint();
             SelectionChanged();
             m_bNeedScrollUpdate      = true;
             m_bNeedSelectionOnScreen = true;
@@ -243,15 +243,15 @@ public:
 
         UpdateScrollBar();
         UpdateScrollPos();
-        NeedLayout();
-        NeedPaint();
+        this->NeedLayout();
+        this->NeedPaint();
         SelectionChanged();
     }
 
     void ScrollBarChanged()
     {
         m_posScroll  = m_pscroll->GetPos()/* * GetSignificantSize(*m_ppainter)*/;
-        NeedPaint();
+        this->NeedPaint();
     }
 
     //
@@ -288,8 +288,8 @@ public:
 
         UpdateScrollBar();
         UpdateScrollPos();
-        NeedLayout();
-        NeedPaint();
+        this->NeedLayout();
+        this->NeedPaint();
     }
 
     void SetSelection(ItemID pitem)
@@ -315,7 +315,7 @@ public:
             else
                 m_iOldSelection = m_indexSelection;
             SelectionChanged();
-            NeedPaint();
+            this->NeedPaint();
         }
     }
 
@@ -357,7 +357,7 @@ public:
 
     void ForceRefresh()
     {
-        NeedPaint();
+        this->NeedPaint();
     }
 
     //
@@ -382,10 +382,10 @@ public:
 
     void UpdateLayout()
     {
-        InternalSetSize(
+        this->InternalSetSize(
             WinPoint(
                 max(m_ppainter->GetXSize(), m_sizeMin.X()),
-                max(       GetExpand().Y(), m_sizeMin.Y())
+                max(       this->GetExpand().Y(), m_sizeMin.Y())
             )
         );
 
@@ -588,7 +588,7 @@ public:
 
             SetSelection(m_plist->GetItem((nSignificantMouseDim + GetScrollPos()) / nSize));
 
-            NeedPaint();
+            this->NeedPaint();
 
             SelectionChanged();
             if (pprovider->IsDoubleClick()) {

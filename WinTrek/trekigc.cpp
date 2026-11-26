@@ -3260,7 +3260,7 @@ void WinTrekClient::Disconnect(void)
 }
 
 
-HRESULT WinTrekClient::OnSessionLost(char* szReason, FedMessaging * pthis)
+HRESULT WinTrekClient::OnSessionLost(const char* szReason, FedMessaging * pthis)
 {
     m_strDisconnectReason = "";
 

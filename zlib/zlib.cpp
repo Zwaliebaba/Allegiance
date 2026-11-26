@@ -12,7 +12,7 @@
 
     void* ZAlloc(
        size_t s,
-       char* pszFile,
+       const char* pszFile,
        int line
     ) {
         void* pv = ::operator new(s, _CLIENT_BLOCK, pszFile, line);

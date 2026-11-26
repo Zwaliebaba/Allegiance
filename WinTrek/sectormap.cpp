@@ -554,7 +554,7 @@ public:
     return m_pimageBkgnd->HitTest(pprovider, point, bCaptured);
   }
 
-  void OnSessionLost(char* szReason, Time lastUpdate, Time now)
+  void OnSessionLost(const char* szReason, Time lastUpdate, Time now)
   {
     SetVisible(false);
 

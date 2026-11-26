@@ -201,7 +201,7 @@ HRESULT TCUserAccount::ResolveAppID(LPWSTR pszAppID, HKEY* phKey, REGSAM samDesi
 }
 
 
-HRESULT TCUserAccount::HasRight(LPTSTR pszPrivilege) const
+HRESULT TCUserAccount::HasRight(LPCTSTR pszPrivilege) const
 {
   // Not supported under Windows9x
   if (IsWin9x())
@@ -235,7 +235,7 @@ HRESULT TCUserAccount::HasRight(LPTSTR pszPrivilege) const
 }
 
 
-HRESULT TCUserAccount::SetRight(LPTSTR pszPrivilege)
+HRESULT TCUserAccount::SetRight(LPCTSTR pszPrivilege)
 {
   // Not supported under Windows9x
   if (IsWin9x())

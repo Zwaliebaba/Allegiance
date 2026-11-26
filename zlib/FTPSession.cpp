@@ -580,7 +580,7 @@ protected:
      * DoError()
      *-------------------------------------------------------------------------
      */
-    void DoError(char * szFormat, ...) 
+    void DoError(const char * szFormat, ...) 
     {
         if (m_szLastError[0] != 0) // don't erase over first error which can cause other errors
             return;              
@@ -606,7 +606,7 @@ protected:
 
     }
 
-    void DoErrorInThread(char * szFormat, ...) 
+    void DoErrorInThread(const char * szFormat, ...) 
     {
         if (m_szErrorInThread[0] != 0) // don't erase over first error which can cause other errors
             return;              

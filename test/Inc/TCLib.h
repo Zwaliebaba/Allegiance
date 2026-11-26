@@ -639,7 +639,7 @@ inline HRESULT ThrowErrorFAILED(HRESULT hr)
 // Return Value: The HRESULT of the error that occurred.
 //
 // See Also: TCReportHR, _TRACE4
-inline HRESULT TCReportComErr(LPCSTR szFn, LPCSTR sz2, _com_error& e)
+inline HRESULT TCReportComErr(LPCSTR szFn, LPCSTR sz2, const _com_error& e)
 {
   _TRACE4("%hs: %hs 0x%08X - %s\n", szFn, sz2, e.Error(), e.ErrorMessage());
   IErrorInfoPtr pei(e.ErrorInfo());

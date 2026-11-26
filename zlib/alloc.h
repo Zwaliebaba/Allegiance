@@ -14,12 +14,12 @@
 
         #include "crtdbg.h"
 
-        void* ZAlloc(size_t s, char* pszFile, int line);
+        void* ZAlloc(size_t s, const char* pszFile, int line);
         void ZFree(void* pv);
 
         inline void* __cdecl operator new(
            size_t s,
-           char* pszFile,
+           const char* pszFile,
            int line
         ) {
             return ZAlloc(s, pszFile, line);

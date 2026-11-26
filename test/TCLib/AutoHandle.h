@@ -750,8 +750,8 @@ inline H* TCAutoHandle<H, FNCLOSE>::operator &()
   public:                                                                   \
     className(T p) : className##Base(p) {}                                  \
     className()                         {}                                  \
-    T GetPtr() const                    {return GetHandle();}               \
-    bool Delete()                       {return Close    ();}               \
+    T GetPtr() const                    {return this->GetHandle();}         \
+    bool Delete()                       {return this->Close();}             \
     T operator->()                      {return GetPtr   ();}               \
     className& operator=(T p)                                               \
     {                                                                       \

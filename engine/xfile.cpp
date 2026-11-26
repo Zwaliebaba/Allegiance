@@ -1122,17 +1122,17 @@ public:
 
             if (strType == "Frame") {
                 if (!ReadFrame(strName, pgeoChild)) {
-                    return false;
+                    return NULL;    // false is not a null pointer constant
                 }
             } else if (strType == "Mesh") {
                 if (!ReadMesh(strName, pgeoChild)) {
-                    return false;
+                    return NULL;    // false is not a null pointer constant
                 }
             } else if (strType == "AnimationSet") {
                 ZAssert(!bAnimation);
                 bAnimation = true;
                 if (!ReadAnimationSet(pnumberFrame)) {
-                    return false;
+                    return NULL;    // false is not a null pointer constant
                 }
             }
 

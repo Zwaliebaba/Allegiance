@@ -334,7 +334,7 @@ ZString Value::GetChildString(int indent)
 
 ZString Value::Indent(int indent)
 {
-    static char* pchSpaces = "                                                                ";
+    static const char* pchSpaces = "                                                                ";
 
     ZAssert(indent * 2 < 64);
 

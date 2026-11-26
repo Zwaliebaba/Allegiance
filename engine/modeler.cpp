@@ -1276,7 +1276,7 @@ protected:
     TRef<ValueType> m_pdefault;
     float           m_number;
 
-    TStaticValue<StaticType>* GetWrappedValue() { return TStaticValue<StaticType>::Cast(GetChild(0)); }
+    TStaticValue<StaticType>* GetWrappedValue() { return TStaticValue<StaticType>::Cast(this->GetChild(0)); }
 
 public:
     //////////////////////////////////////////////////////////////////////////////
@@ -1292,7 +1292,7 @@ public:
     {
     }
 
-    Number* GetNumber() { return Number::Cast(GetChild(1)); }
+    Number* GetNumber() { return Number::Cast(this->GetChild(1)); }
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -1308,7 +1308,7 @@ public:
 
         if (m_number == number) {
             pvalue->Update();
-            SetChild(0, pvalue);
+            this->SetChild(0, pvalue);
         }
     }
 
@@ -1324,19 +1324,19 @@ public:
 
         if (m_number != number) {
             m_number = number;
-            DataList::Iterator iter(m_list);
+            typename DataList::Iterator iter(m_list);
 
             while (true) {
                 if (iter.End()) {
                     m_pdefault->Update();
-                    SetChild(0, m_pdefault);
+                    this->SetChild(0, m_pdefault);
                     break;
                 }
                 const Data& data = iter.Value();
 
                 if (data.m_number == number) {
                     data.m_pvalue->Update();
-                    SetChild(0, data.m_pvalue);
+                    this->SetChild(0, data.m_pvalue);
                     break;
                 }
 
@@ -1344,7 +1344,7 @@ public:
             }
         }
 
-        GetValueInternal() = GetWrappedValue()->GetValue();
+        this->GetValueInternal() = GetWrappedValue()->GetValue();
     }
 };
 

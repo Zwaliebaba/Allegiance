@@ -16,6 +16,22 @@
 template<class RectType>
 class TRect : public RectType {
 public:
+    // The base's members, for two-phase lookup (/permissive-)
+    typedef typename RectType::Number    Number;
+    typedef typename RectType::PointType PointType;
+    using RectType::XMin;
+    using RectType::XMax;
+    using RectType::YMin;
+    using RectType::YMax;
+    using RectType::Min;
+    using RectType::Max;
+    using RectType::SetXMin;
+    using RectType::SetXMax;
+    using RectType::SetYMin;
+    using RectType::SetYMax;
+    using RectType::SetMin;
+    using RectType::SetMax;
+
     TRect() {}
 
     TRect(const VSNET_TNFIX RectType::PointType min, const VSNET_TNFIX RectType::PointType max) :
@@ -23,7 +39,7 @@ public:
     {}
 
     TRect(VSNET_TNFIX RectType::Number xmin, VSNET_TNFIX RectType::Number ymin, VSNET_TNFIX RectType::Number xmax, VSNET_TNFIX RectType::Number ymax) :
-        RectType(RectType::PointType(xmin, ymin), RectType::PointType(xmax, ymax))
+        RectType(PointType(xmin, ymin), PointType(xmax, ymax))
     {}
 
     template<class Type>
@@ -31,17 +47,17 @@ public:
     {
         return
             TRect(
-                (RectType::Number)rect.XMin(),
-                (RectType::Number)rect.YMin(),
-                (RectType::Number)rect.XMax(),
-                (RectType::Number)rect.YMax()
+                (Number)rect.XMin(),
+                (Number)rect.YMin(),
+                (Number)rect.XMax(),
+                (Number)rect.YMax()
             );
     }
 
     TRect(const RECT& rect) :
         RectType(
-            RectType::PointType((RectType::Number)rect.left,  (RectType::Number)rect.top   ),
-            RectType::PointType((RectType::Number)rect.right, (RectType::Number)rect.bottom)
+            PointType((Number)rect.left,  (Number)rect.top   ),
+            PointType((Number)rect.right, (Number)rect.bottom)
         )
     {}
 
@@ -122,7 +138,7 @@ public:
 
     VSNET_TNFIX RectType::PointType TransformNDCToImage(const VSNET_TNFIX RectType::PointType& point) const
     {
-        return Center() + point * (RectType::Number)((float)XSize() * 0.5f);
+        return Center() + point * (Number)((float)XSize() * 0.5f);
     }
 
     friend bool operator==(const TRect<RectType>& rect1, const TRect<RectType>& rect2)

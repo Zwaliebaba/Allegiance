@@ -1,6 +1,8 @@
 #ifndef _tref_H_
 #define _tref_H_
 
+#include <type_traits>
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Base class for reference counted objects
@@ -108,7 +110,22 @@ public:
         if (m_pt)
             m_pt->AddRef();
     }
-    
+
+    //
+    // A TRef to a derived type converts to a TRef to its base. Through Type*
+    // that took two user-defined conversions (TRef<Derived> -> Derived* and
+    // Base* -> TRef<Base>), which only permissive mode accepted.
+    //
+
+    template <class OtherType,
+              class = typename std::enable_if<std::is_convertible<OtherType*, Type*>::value>::type>
+    TRef(const TRef<OtherType>& tref) :
+        m_pt((OtherType*)tref)
+    {
+        if (m_pt)
+            m_pt->AddRef();
+    }
+
     //
     // assignment
     //
@@ -139,6 +156,15 @@ public:
             ptOld->Release();
 
         return *this;
+    }
+
+    // Assign from a TRef to a derived type (see the converting constructor):
+    // without this, both operator= overloads matched and the call was ambiguous.
+    template <class OtherType,
+              class = typename std::enable_if<std::is_convertible<OtherType*, Type*>::value>::type>
+    TRef& operator=(const TRef<OtherType>& tref)
+    {
+        return *this = (OtherType*)tref;
     }
 
     TRef& operator=(const Type* ptNew)

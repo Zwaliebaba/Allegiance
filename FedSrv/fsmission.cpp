@@ -640,7 +640,7 @@ void CFSMission::AddPlayerToSide(CFSPlayer * pfsPlayer, IsideIGC * pside)
     // tell them their starting sector so they can display the mission briefing
     bool bGenerateCivBriefing = m_strStoryText.IsEmpty();
     const char* szBriefingText =  bGenerateCivBriefing
-        ? GetBase(pside)->GetCluster()->GetName() : m_strStoryText;
+        ? GetBase(pside)->GetCluster()->GetName() : (const char*)m_strStoryText;
     BEGIN_PFM_CREATE(g.fm, pfmSetBriefingText, S, SET_BRIEFING_TEXT)
       FM_VAR_PARM(szBriefingText, CB_ZTS)
     END_PFM_CREATE    
@@ -1718,7 +1718,7 @@ void CFSMission::StartCountdown(float fCountdownLength)
         // tell them their starting sector so they can display the mission briefing
         bool bGenerateCivBriefing = m_strStoryText.IsEmpty();
         const char* szBriefingText =  bGenerateCivBriefing
-            ? GetBase(pside)->GetCluster()->GetName() : m_strStoryText;
+            ? GetBase(pside)->GetCluster()->GetName() : (const char*)m_strStoryText;
         BEGIN_PFM_CREATE(g.fm, pfmSetBriefingText, S, SET_BRIEFING_TEXT)
           FM_VAR_PARM(szBriefingText, CB_ZTS)
         END_PFM_CREATE    

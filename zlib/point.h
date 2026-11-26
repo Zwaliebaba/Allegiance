@@ -16,6 +16,13 @@
 template <class PointType>
 class TPoint : public PointType {
 public:
+    // The base's members, for two-phase lookup (/permissive-)
+    typedef typename PointType::Number Number;
+    using PointType::X;
+    using PointType::Y;
+    using PointType::SetX;
+    using PointType::SetY;
+
     TPoint() {}
 
     TPoint(VSNET_TNFIX PointType::Number x, VSNET_TNFIX PointType::Number y) :
@@ -29,8 +36,8 @@ public:
     {
         return
             TPoint(
-                (PointType::Number)point.X(),
-                (PointType::Number)point.Y()
+                (Number)point.X(),
+                (Number)point.Y()
             );
     }
 
@@ -52,7 +59,7 @@ public:
         if (LengthSquared() == 1) {
             return 1;
         } else {
-            return (PointType::Number)sqrt((float)LengthSquared());
+            return (Number)sqrt((float)LengthSquared());
         }
     }
 

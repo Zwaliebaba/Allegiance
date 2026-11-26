@@ -1251,7 +1251,7 @@ public:
     void UpdateTitleText()
     {   
         ZString str = ZString(m_pMission->Name()).ToUpper();
-        m_ptextTitle->SetString(((strcmp(str, "") != 0) ? CensorBadWords (m_pMission->Name()) : "THIS GAME"));
+        m_ptextTitle->SetString(((strcmp(str, "") != 0) ? CensorBadWords (m_pMission->Name()) : ZString("THIS GAME")));
     }
     
     void UpdatePromptText()

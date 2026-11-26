@@ -8,7 +8,7 @@
     - x64 only (Win32 was dropped once x64 had been played). The
       pointer-truncation warnings are errors (see below).
     - Static CRT, matching the original /MT /MTd builds.
-    - C++17 with permissive mode; /permissive- is switched on in Phase 2.
+    - C++17 with /permissive- (ConformanceMode).
     - /EHsc instead of the original /GX-: the modern STL and comdef require it.
 -->
 <Project>
@@ -26,7 +26,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <ConformanceMode>false</ConformanceMode>
+      <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ExceptionHandling>Sync</ExceptionHandling>

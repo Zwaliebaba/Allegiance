@@ -25,16 +25,16 @@ public:
     {
         ZAssert(pobject != NULL);
         ZAssert(pfn != NULL);
-        AddEventTarget(&TMemberSnapshotValue::OnEvent, peventSource);
+        this->AddEventTarget(&TMemberSnapshotValue::OnEvent, peventSource);
     }
 
     bool OnEvent()
     {
         StaticType value = (m_pobject->*m_pfn)();
-        if (GetValueInternal() != value)
+        if (this->GetValueInternal() != value)
             {
-            GetValueInternal() = value;
-            Changed();
+            this->GetValueInternal() = value;
+            this->Changed();
             }
         return true;
     }

@@ -95,7 +95,7 @@ public:
 
         void Trigger(Type value)
         {
-            TList<TRef<Sink> >::Iterator iter(m_listSinks);
+            typename TList<TRef<Sink> >::Iterator iter(m_listSinks);
 
             while (!iter.End()) {
                 if (!iter.Value()->OnEvent(this, value)) {
