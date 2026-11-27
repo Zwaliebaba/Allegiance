@@ -7,23 +7,24 @@
 // big to be managable.
 //
 
-#include "ds3dutil.h"
-#include "ds3dbuffer.h"
-#include "ds3dvirtualbuffer.h"
-#include "ds3dengine.h"
+#include "soundmath.h"
+#include "x3dpan.h"
+#include "xa2voice.h"
+#include "virtualbuffer.h"
+#include "xa2engine.h"
 
 
 namespace SoundEngine {
 
 
-// create a default sound engine
-HRESULT CreateSoundEngine(TRef<ISoundEngine>& psoundengine, HWND hwnd)
+// create a default sound engine; fails without an audio device
+HRESULT CreateSoundEngine(TRef<ISoundEngine>& psoundengine)
 {
-    TRef<DS3DSoundEngine> psoundengineimpl = new DS3DSoundEngine();
+    TRef<XA2SoundEngine> psoundengineimpl = new XA2SoundEngine();
 
-    HRESULT hr = psoundengineimpl->Init(hwnd);
+    HRESULT hr = psoundengineimpl->Init();
 
-    if (hr == DSERR_NODRIVER || hr == DSERR_ALLOCATED || ZFailed(hr))
+    if (FAILED(hr))
         return hr;
 
     psoundengine = psoundengineimpl;

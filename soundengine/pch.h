@@ -38,7 +38,8 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <windows.h>
-#include <dsound.h>
+#include <memory>
+#include <xaudio2.h>
 
 #include "zlib.h"
 

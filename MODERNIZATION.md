@@ -160,7 +160,7 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
 |---|---|---|
 | Rendering | DirectDraw 4 + Direct3D 3 (DirectX 6), software rasterizer | D3D11 backend. Stage 1 (below): a D3D11 rasterizer with the engine's CPU transform and lighting. Stage 2: transform and lighting in shaders |
 | Input | DirectInput 2/7 | DirectInput 8 |
-| Audio | DirectSound / DS3D | Unchanged at first; XAudio2 later |
+| Audio | DirectSound / DS3D | Done: XAudio2 2.9 (in Windows 10 and later) with X3DAudio for the pan and doppler (see "Sound" below) |
 | Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Done: the same `IDiskPlayer` interface plays the WAVs from `Artwork/redbook` (copied to `out\Artwork\redbook` by `Art.proj`; CD track n is line n - 1 of `tracks.lst`) through the Media Foundation Media Engine, audio only. The music gain sets the player's volume instead of the system mixer's CD line |
 | Networking | DirectPlay 4 inside `FedMessaging` | MsQuic: a reliable ordered stream and unreliable datagrams per connection, plus a UDP probe for LAN discovery (see "Networking" below) |
 | Settings | `HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.0` (and `...\Server`) | A JSON file per program (see "Settings" below) |
@@ -468,6 +468,43 @@ to fit the screen, keeping the aspect ratio; the sound plays through an audio-on
 position the frames follow. A key press still skips a movie. `intro.avi` was on the game CD and is not in
 the repository, so the intro is skipped unless an `intro.mp4` is put in the artwork folder.
 
+#### Sound: XAudio2 replaces DirectSound
+
+`soundengine` keeps its interfaces (`ISoundEngine`, `ISoundInstance`, the templates the game builds its
+sounds from) and its virtual sounds: every sound the game starts is a `VirtualSoundBuffer` (or
+`VirtualSoundBuffer3D`) that tracks its own position, loudness and priority, and each update the most
+important audible ones get a real voice, up to the quality setting's budget. What changed is the real
+voice: an XAudio2 source voice (`xa2voice.cpp`) where there was a DirectSound 3D buffer, and an
+`XA2Device` (XAudio2, its mastering voice, X3DAudio) where there was the DirectSound object and its
+primary buffer.
+
+| Piece | DirectSound | XAudio2 |
+|---|---|---|
+| Sound data | A buffer per sound, duplicated per instance; streamed through a worker thread above 1 MB | One copy of each sound's data, shared by its voices (gone with the last of them); no streaming |
+| Looping and attack-sustain-release | A streaming buffer refilled with the loop until a stop | Buffers over that one copy (`PlanVoiceRegions`): the rest of the pass, then the loop with `XAUDIO2_LOOP_INFINITE`; for ASR the attack, the sustain loop and the release. A soft stop calls `ExitLoop` in the sustain, or (in the attack) flushes the queued loop so the release follows the attack, as the position tracker has it |
+| Volume, pitch | `SetVolume` in hundredths of a dB, `SetFrequency` | `SetVolume` with the amplitude, `SetFrequencyRatio` (pitch times doppler, up to 8x) |
+| 3D | DS3D buffers and listener: position, velocity, cones, min and max distance, rolloff, doppler | X3DAudio for the pan and the doppler shift; the distance attenuation (inverse distance from the minimum distance, scaled by the rolloff, silent from 4000 times the minimum) and the cone (full cone angles, a linear fade in dB) computed as DirectSound 3D did (`soundmath.h`), so sounds fall off as before. Listener-relative sounds are panned from a listener at the origin |
+| Unpositioned sounds | Centre pan: a mono sound at full level on both sides | The same output matrix |
+| Device | `DirectSoundCreate`, cooperative level, primary buffer format by quality | `XAudio2Create`, a mastering voice at the device's format; no audio device fails the engine and the game uses the dummy one, as before |
+
+Settings: the quality setting keeps its voice budgets (8, 16 to 24, 24 to 32 sounds at once: the
+software-mixing numbers, which were what a player had unless they turned on hardware acceleration).
+Its other effects were DirectSound's (the primary buffer's format, mono 8-bit at the lowest, and the
+3D algorithm, HRTF at the highest) and are gone; 3D positioning is the same at every level, and Windows
+Sonic or a headset's own virtualisation can still render the surround output. The "Sound Card
+Acceleration" menu item and `ISoundEngine::EnableHardware` are gone (the saved preference is ignored),
+and so are the startup check for DirectX 7's `dsound.dll` and the unused `trekspeech.h`.
+
+Fixed on the way, in the position tracker (now in `soundmath.h`, with unit tests): stopping a sound set
+its position to the sustain loop's length, which a non-ASR sound never set, instead of the end; a
+stopped sound with no voice could get one, and be heard, after it was stopped, and a forced stop left an
+ASR sound playing. An ASR sound with an empty loop divided by zero.
+
+Things to listen for, as they can differ from DirectSound: X3DAudio's pan law (a sound straight ahead is
+about 3 dB softer on each side than an unpositioned one), and the voice of a sound that loses its voice
+and gets one again starting where the tracker estimates rather than where the old buffer was (the
+difference is the time between updates).
+
 #### Dead code cleanup
 
 Before the x64 and `/permissive-` work, so those ports only touch code that is used:
@@ -676,7 +713,7 @@ Visible differences, for 0/255 art:
 
 ### Phase 5: optional
 
-C++20, replacing `ZString` and the custom containers, unit tests, XAudio2, a D3D12 backend, a new lobby service.
+C++20, replacing `ZString` and the custom containers, unit tests, XAudio2 (done, in Phase 3's "Sound"), a D3D12 backend, a new lobby service.
 
 #### C++20 (done)
 
@@ -798,6 +835,8 @@ without the game noticing at once:
   pinned as quirks, not fixed, since nothing depends on the broken cases: a network path's
   `GetDrive` drops the share name's last letter (and is empty with nothing after the share), and
   joining a root-relative path gives `c://x`.
+- Sound (`soundengine/soundmath.h`): gains, the distance and cone attenuation, the XAudio2 buffers
+  for every kind of sound and starting point, and the position tracker (see "Sound").
 - `ObjectStack` (moved to `engine/objectstack.h` so it can be tested without the engine): order,
   growth, and that a popped object lives until its slot is reused, the use-after-free fixed above.
 - Networking (`_Utility`): how `PFedMsgCreate` lays out a message (the `ib`/`cb` pairs right after

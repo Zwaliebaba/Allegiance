@@ -1,155 +1,19 @@
 //
-// ds3dvirtualbuffer.h
+// virtualbuffer.h
 //
-// Classes representing virtual DirectSound3D buffers that may or may not have
-// a real DirectSoundBuffer associated with them at any given moment.
+// Classes representing virtual sounds that may or may not have a real
+// XAudio2 voice associated with them at any given moment (the engine gives
+// voices to the most important ones; see xa2engine.cpp).
 //
 
 namespace SoundEngine {
 
 //
-// Tracks a buffer position over the lifetime of a virtual sound.  This is 
-// designed to lighter-weight than an actual sound buffer, because the sound
-// it represents may never be played.  It's designed to be accurate, however,
-// so that a buffer created using this information can start at the appropriate
-// point.  
+// A sound instance implementation representing a single virtual sound. This
+// may or may not have an actual voice associated with it at any time - the
+// sound engine controls that aspect of things.
 //
-class BufferPositionTracker
-{
-    // the current position in the sound
-    DWORD m_dwPosition;
-
-    // the length of the buffer
-    DWORD m_dwLength;
-
-    // the sample rate of the sound, in bytes per second.
-    DWORD m_dwBytesPerSec;
-
-    // a mask of valid position bits (since a position must start on a sample 
-    // boundary)
-    DWORD m_dwPositionMask;
-
-    // true iff end has been called on this
-    bool m_bEnding;
-
-
-    //
-    // Non-ASR data
-    //
-
-    // true if this is looping
-    bool m_bLooping;
-
-
-    //
-    // ASR data
-    //
-
-    // true iff this is an ASR sound.
-    bool m_bASR;
-
-    // the starting position of the sustain loop.
-    DWORD m_dwLoopStart;
-
-    // the length of the sustain loop
-    DWORD m_dwLoopLength;
-
-
-public:
-    
-    // Create a position tracker for a sound which plays until it reaches the 
-    // end (for non-looping sounds) or has stop called upon it.  
-    BufferPositionTracker(ISoundPCMData* pdata, bool bLooping = false);
-
-    // Creates a position tracker for an ASR buffer.
-    BufferPositionTracker(ISoundPCMData* pdata, 
-            DWORD dwLoopStart, DWORD dwLoopLength);
-
-
-    //
-    // Events that the buffer tracker needs to know about
-    //
-
-    // the sound has been given a stop.  
-    void Stop(bool bForceNow = false);
-
-    // the given number of miliseconds have elapsed
-    void AddTime(DWORD dwElapsedTime);
-
-    // Resets the position to the given one, presumably retrieved from a 
-    // playing buffer.
-    void SetPosition(DWORD dwPosition);
-
-
-    //
-    // Info a SoundInstance may need.  
-    //
-
-    // true iff this has stopped playing.
-    bool IsStopped()
-    {
-        return m_dwPosition >= m_dwLength;
-    };
-
-    // is the sound in the process of stopping?
-    bool IsStopping()
-    {
-        return m_bASR && m_bEnding;
-    }
-
-    // what is the current offset in the source buffer?
-    DWORD GetPosition()
-    {
-        return m_dwPosition & m_dwPositionMask;
-    }
-
-
-    //
-    // ASR info
-    //
-
-    // is this tracking an ASR sound?
-    bool IsASR()
-    {
-        return m_bASR;
-    }
-
-    // get the loop offset in the ASR sound
-    DWORD GetLoopOffset()
-    {
-        ZAssert(m_bASR);
-        return m_dwLoopStart;
-    }
-
-    // get the loop length in an ASR sound
-    DWORD GetLoopLength()
-    {
-        ZAssert(m_bASR);
-        return m_dwLoopLength;
-    }
-
-
-    //
-    // non-ASR info
-    //
-
-    // true if this is a looping sound
-    bool IsLooping()
-    {
-        ZAssert(!m_bASR);
-        return m_bLooping;
-    }
-};
-
-
-
-//
-// A sound instance implementation representing a single virtual DirectSound3D
-// sound buffer.  This may or may not have an actual direct sound buffer 
-// associated with it at any time - the sound engine controls that aspect of 
-// things.
-//
-class DSVirtualSoundBuffer : public ISoundInstance, public ISoundTweakable  SoundDebugImpl
+class VirtualSoundBuffer : public ISoundInstance, public ISoundTweakable  SoundDebugImpl
 {
 protected:
 
@@ -162,8 +26,8 @@ protected:
     // The data source used to create this sound
     TRef<ISoundPCMData> m_pdata;
 
-    // The current sound buffer (possibly NULL)
-    TRef<DS3DSoundBuffer> m_pds3dbuffer;
+    // The current voice (possibly NULL)
+    TRef<XA2Voice> m_pvoice;
 
     // the aproximate age of this sound in seconds, used for priority purposes
     float m_fAge;
@@ -182,12 +46,6 @@ protected:
 
     // is the buffer currently audible?
     bool m_bAudible;
-
-    // what is the quality of the sound currently?
-    ISoundEngine::Quality m_quality;
-
-    // can the current buffer play in hardware, if available?
-    bool m_bAllowHardware;
 
     // the dynamic priority of the sound.  The only meaning this number has is
     // in relation to other priorities, where the higher number is the higher
@@ -209,18 +67,16 @@ protected:
     float m_fPitch;
 
 
-    // prepare a sound buffer with the given quality and 3D support using the
-    // direct sound object pointed to by pDirectSound.
-    virtual HRESULT PrepareBuffer(IDirectSound* pDirectSound, 
-        ISoundEngine::Quality quality, bool bAllowHardware, bool bSupport3D);
+    // prepare a voice with the given 3D support
+    virtual HRESULT PrepareBuffer(XA2Device* pdevice, bool bSupport3D);
 
 public:
 
     // Creates a virtual sound buffer for a normal sound, possibly looping
-    DSVirtualSoundBuffer(ISoundPCMData* pdata, bool bLooping);
+    VirtualSoundBuffer(ISoundPCMData* pdata, bool bLooping);
 
     // Creates a virtual sound buffer for an ASR sound
-    DSVirtualSoundBuffer(ISoundPCMData* pdata, DWORD dwLoopOffset, DWORD dwLoopLength);
+    VirtualSoundBuffer(ISoundPCMData* pdata, DWORD dwLoopOffset, DWORD dwLoopLength);
 
 
     //
@@ -259,11 +115,10 @@ public:
     virtual HRESULT Update(DWORD dwTimeElapsed, 
             const Vector& vectListenerPosition, float fRolloffFactor);
 
-    // Creates and starts a real dsound buffer for this sound
-    virtual HRESULT StartBuffer(IDirectSound* pDirectSound, 
-        ISoundEngine::Quality quality, bool bAllowHardware);
+    // Creates and starts a voice for this sound
+    virtual HRESULT StartBuffer(XA2Device* pdevice);
 
-    // forcibly stops the given buffer.
+    // forcibly stops the voice (and frees it).
     HRESULT StopBuffer();
 
 
@@ -318,7 +173,7 @@ public:
 };
 
 
-class DS3DVirtualSoundBuffer : public DSVirtualSoundBuffer, public ISoundTweakable3D
+class VirtualSoundBuffer3D : public VirtualSoundBuffer, public ISoundTweakable3D
 {
 private:
 
@@ -356,24 +211,22 @@ private:
 public:
 
     // constructs a simple 3D capable sound
-    DS3DVirtualSoundBuffer(ISoundPCMData* pdata, bool bLooping, 
+    VirtualSoundBuffer3D(ISoundPCMData* pdata, bool bLooping, 
             TRef<ISoundPositionSource> psource);
 
     // constructs an ASR 3D capable sound
-    DS3DVirtualSoundBuffer(ISoundPCMData* pdata, DWORD dwLoopOffset, 
+    VirtualSoundBuffer3D(ISoundPCMData* pdata, DWORD dwLoopOffset, 
             DWORD dwLoopLength, TRef<ISoundPositionSource> psource);
 
     //
-    // DSVirtualSoundBuffer overides
+    // VirtualSoundBuffer overides
     //
 
 
 protected:
 
-    // prepare a sound buffer with the given quality and 3D support using the
-    // direct sound object pointed to by pDirectSound.
-    virtual HRESULT PrepareBuffer(IDirectSound* pDirectSound, 
-        ISoundEngine::Quality quality, bool bAllowHardware, bool bSupport3D);
+    // prepare a voice with the given 3D support
+    virtual HRESULT PrepareBuffer(XA2Device* pdevice, bool bSupport3D);
 
 public:
 

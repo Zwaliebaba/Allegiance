@@ -221,12 +221,6 @@ public:
         return S_OK;
     };
 
-    // Allows/disallows hardware acceleration.
-    HRESULT EnableHardware(bool bEnable)
-    {
-        return S_OK;
-    }
-
     // Sets the conversion from game units to meters
     HRESULT SetDistanceFactor(float fMetersPerUnit)
     {

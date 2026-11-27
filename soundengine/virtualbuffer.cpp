@@ -1,200 +1,50 @@
 //
-// ds3dvirtualbuffer.cpp
+// virtualbuffer.cpp
 //
-// Classes representing virtual DirectSound3D buffers that may or may not have
-// a real DirectSoundBuffer associated with them at any given moment.
+// Classes representing virtual sounds that may or may not have a real
+// XAudio2 voice associated with them at any given moment.
 //
 
 #include "pch.h"
 #include "soundbase.h"
 
-#include "ds3dutil.h"
-#include "ds3dbuffer.h"
-#include "ds3dvirtualbuffer.h"
+#include "soundmath.h"
+#include "x3dpan.h"
+#include "xa2voice.h"
+#include "virtualbuffer.h"
 
 namespace SoundEngine {
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// DS3DBufferPositionTracker
-//
-/////////////////////////////////////////////////////////////////////////////
-
-// Create a position tracker for a sound which plays until it reaches the 
-// end (for non-looping sounds) or has stop called upon it.  
-BufferPositionTracker::BufferPositionTracker(ISoundPCMData* pdata, bool bLooping) :
-    m_dwBytesPerSec(pdata->GetBytesPerSec()), 
-    m_dwLength(pdata->GetSize()), 
-    m_dwPositionMask(~(pdata->GetBytesPerSample() - 1)),
-    m_dwPosition(0), 
-    m_bLooping(bLooping), 
-    m_bEnding(false), 
-    m_bASR(false)
-{
-};
-
-
-// Creates a position tracker for an ASR buffer.
-BufferPositionTracker::BufferPositionTracker(ISoundPCMData* pdata, 
-        DWORD dwLoopStart, DWORD dwLoopLength) :
-    m_dwBytesPerSec(pdata->GetBytesPerSec()), 
-    m_dwLength(pdata->GetSize()), 
-    m_dwPositionMask(~(pdata->GetBytesPerSample() - 1)),
-    m_dwPosition(0), 
-    m_bASR(true), 
-    m_bEnding(false), 
-    m_dwLoopStart(dwLoopStart), 
-    m_dwLoopLength(dwLoopLength) 
-{
-    // make sure the loop is contained in the buffer
-    ZAssert(m_dwLoopStart + m_dwLoopLength <= m_dwLength);
-};
-
-
-// the sound has been given a stop.  
-void BufferPositionTracker::Stop(bool bForceNow)
-{
-    if (!m_bASR || bForceNow)
-    {
-        // stop it now.  
-        m_dwPosition = m_dwLoopLength;
-    }
-
-    m_bEnding = true;
-};
-
-
-// the given number of miliseconds have elapsed
-void BufferPositionTracker::AddTime(DWORD dwElapsedTime)
-{
-    DWORD dwElapsedBytes = 
-        (DWORD)(dwElapsedTime * (__int64)m_dwBytesPerSec / 1000);
-
-    if (!m_bASR)
-    {
-        m_dwPosition += dwElapsedBytes;
-        
-        // if we've passed the end...
-        if (m_dwPosition > m_dwLength)
-        {
-            // loop for a looping sound
-            if (m_bLooping && !m_bEnding)
-            {
-                m_dwPosition %= m_dwLength;
-            }
-            else
-            {
-                // stop the position at the end of the sound.
-                m_dwPosition = m_dwLength;
-            }
-        }
-    }
-    else // m_bASR
-    {
-        if (m_bEnding)
-        {
-            bool bWasInAttack = m_dwPosition < m_dwLoopStart;
-
-            m_dwPosition += dwElapsedBytes;
-
-            // if we were in the attack portion, make sure we jump
-            // directly to the release portion of the wave.  
-            if (bWasInAttack && (m_dwPosition > m_dwLoopStart))
-            {
-                m_dwPosition += m_dwLoopLength;
-            }
-
-            // stop the position at the end of the sound.
-            if (m_dwPosition > m_dwLength)
-            {
-                m_dwPosition = m_dwLength;
-            }
-        }
-        else
-        {
-            m_dwPosition += dwElapsedBytes;
-
-            // loop if appropriate
-            if (m_dwPosition >= m_dwLoopStart + m_dwLoopLength)
-            {
-                m_dwPosition = 
-                    ((m_dwPosition - m_dwLoopStart) % m_dwLoopLength) 
-                        + m_dwLoopStart;
-            }
-        }
-    }
-};
-
-
-// Resets the position to the given one, presumably retrieved from a 
-// playing buffer.
-void BufferPositionTracker::SetPosition(DWORD dwPosition)
-{
-    m_dwPosition = min(dwPosition, m_dwLength);
-};
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DSVirtualSoundBuffer
+// VirtualSoundBuffer
 //
 /////////////////////////////////////////////////////////////////////////////
 
 
-// prepare a sound buffer with the given quality and 3D support using the
-// direct sound object pointed to by pDirectSound.
-HRESULT DSVirtualSoundBuffer::PrepareBuffer(IDirectSound* pDirectSound, 
-    ISoundEngine::Quality quality, bool bAllowHardware, bool bSupport3D)
+// prepare a voice with the given 3D support
+HRESULT VirtualSoundBuffer::PrepareBuffer(XA2Device* pdevice, bool bSupport3D)
 {
     HRESULT hr;
 
-    if (m_pds3dbuffer == NULL)
+    if (m_pvoice == NULL)
     {
-        if (m_bufferPositionTracker.IsASR())
-        {
-            DS3DASRSoundBuffer* pds3dASRBuffer = new DS3DASRSoundBuffer();
+        TRef<XA2Voice> pvoice = new XA2Voice();
 
-            // initialize the buffer.
-            hr = pds3dASRBuffer->Init(pDirectSound, m_pdata, 
-                m_bufferPositionTracker.GetLoopOffset(), 
-                m_bufferPositionTracker.GetLoopLength(),
-                bSupport3D, quality, bAllowHardware);
-            if (ZFailed(hr)) return hr;
+        hr = pvoice->Init(pdevice, m_pdata, 
+            !m_bufferPositionTracker.IsASR() && m_bufferPositionTracker.IsLooping(),
+            m_bufferPositionTracker.IsASR(),
+            m_bufferPositionTracker.GetLoopOffset(), 
+            m_bufferPositionTracker.GetLoopLength(),
+            bSupport3D);
+        if (FAILED(hr)) return hr;
 
-            m_pds3dbuffer = pds3dASRBuffer;
-        }
-        // stream sounds that are larger than 1 MB or so.
-        else if (m_pdata->GetSize() > 1000000)
-        {
-            DS3DStreamingSoundBuffer* pds3DStreamingBuffer = new DS3DStreamingSoundBuffer();
-
-            // initialize the buffer.
-            hr = pds3DStreamingBuffer->Init(pDirectSound, m_pdata, 
-                m_bufferPositionTracker.IsLooping(), bSupport3D, quality, bAllowHardware);
-            if (ZFailed(hr)) return hr;
-
-            m_pds3dbuffer = pds3DStreamingBuffer;
-        }
-        else
-        {
-            DS3DStaticSoundBuffer* pds3DStaticBuffer = new DS3DStaticSoundBuffer();
-
-            // initialize the buffer.
-            hr = pds3DStaticBuffer->Init(pDirectSound, m_pdata, 
-                m_bufferPositionTracker.IsLooping(), bSupport3D, quality, bAllowHardware);
-            if (FAILED(hr)) return hr;
-
-            m_pds3dbuffer = pds3DStaticBuffer;
-        }
+        m_pvoice = pvoice;
     }
 
-    m_quality = quality;
-    m_bAllowHardware = bAllowHardware;
-
-    // update the buffers's volume and pitch as needed.
-    hr = m_pds3dbuffer->UpdateState(m_fGain, m_fPitch, false);
+    // update the voice's volume and pitch as needed.
+    hr = m_pvoice->UpdateState(m_fGain, m_fPitch);
     if (ZFailed(hr)) return hr;
 
     return S_OK;
@@ -202,8 +52,8 @@ HRESULT DSVirtualSoundBuffer::PrepareBuffer(IDirectSound* pDirectSound,
 
 
 // Creates a virtual sound buffer for a normal sound, possibly looping
-DSVirtualSoundBuffer::DSVirtualSoundBuffer(ISoundPCMData* pdata, bool bLooping) : 
-    m_bufferPositionTracker(pdata, bLooping),
+VirtualSoundBuffer::VirtualSoundBuffer(ISoundPCMData* pdata, bool bLooping) : 
+    m_bufferPositionTracker(pdata->GetSize(), pdata->GetBytesPerSec(), pdata->GetBytesPerSample(), bLooping),
     m_pdata(pdata),
 
     m_bStarted(false),
@@ -221,8 +71,8 @@ DSVirtualSoundBuffer::DSVirtualSoundBuffer(ISoundPCMData* pdata, bool bLooping) 
 
 
 // Creates a virtual sound buffer for an ASR sound
-DSVirtualSoundBuffer::DSVirtualSoundBuffer(ISoundPCMData* pdata, DWORD dwLoopOffset, DWORD dwLoopLength) : 
-    m_bufferPositionTracker(pdata, dwLoopOffset, dwLoopLength),
+VirtualSoundBuffer::VirtualSoundBuffer(ISoundPCMData* pdata, DWORD dwLoopOffset, DWORD dwLoopLength) : 
+    m_bufferPositionTracker(pdata->GetSize(), pdata->GetBytesPerSec(), pdata->GetBytesPerSample(), dwLoopOffset, dwLoopLength),
     m_pdata(pdata),
 
     m_bStarted(false),
@@ -240,7 +90,7 @@ DSVirtualSoundBuffer::DSVirtualSoundBuffer(ISoundPCMData* pdata, DWORD dwLoopOff
 
 
 // Recalculates the sounds position, loudness, whether it's playing, etc..
-HRESULT DSVirtualSoundBuffer::Update(DWORD dwTimeElapsed, 
+HRESULT VirtualSoundBuffer::Update(DWORD dwTimeElapsed, 
         const Vector& vectListenerPosition, float fRolloffFactor)
 {
     HRESULT hr;
@@ -248,7 +98,7 @@ HRESULT DSVirtualSoundBuffer::Update(DWORD dwTimeElapsed,
 
     // if we tried to stop the sound and failed, try again now
     if (m_bRetryStop && m_bBufferPlaying)
-        m_pds3dbuffer->Stop(true);
+        m_pvoice->Stop(true);
     
     // Start the sound and calculate the end time, if we have not done so 
     // yet.
@@ -263,24 +113,11 @@ HRESULT DSVirtualSoundBuffer::Update(DWORD dwTimeElapsed,
         m_fAge += dwTimeElapsed/1000.0f;
     }
 
-    // if the buffer is playing, try to figure out its state.
+    // if the voice is playing, it knows if we are still playing (voices,
+    // unlike DirectSound buffers, are never lost)
     if (m_bBufferPlaying)
     {
-        bool bPlaying, bBufferLost;
-
-        hr = m_pds3dbuffer->GetStatus(bPlaying, bBufferLost);
-        if (ZFailed(hr)) return hr;
-
-        if (bBufferLost)
-        {
-            // we are obviously no longer playing
-            m_bBufferPlaying = false;
-        }
-        else
-        {
-            // otherwise, the buffer knows if we are still playing
-            m_bStopped = !bPlaying;
-        }
+        m_bStopped = !m_pvoice->IsPlaying();
     }
 
     // if we don't have a buffer playing, try to calculate if this sound 
@@ -292,15 +129,15 @@ HRESULT DSVirtualSoundBuffer::Update(DWORD dwTimeElapsed,
     else
     {
         // update the playing sound's volume and pitch, as needed.
-        hr = m_pds3dbuffer->UpdateState(m_fGain, m_fPitch);
+        hr = m_pvoice->UpdateState(m_fGain, m_fPitch);
         if (ZFailed(hr)) return hr;
     }
 
     // if this has just stopped
     if (m_bStopped && !bWasStopped)
     {
-        // free the sound buffer to conserve resources
-        m_pds3dbuffer = NULL;
+        // free the voice to conserve resources
+        m_pvoice = NULL;
         m_bBufferPlaying = FALSE;
 
         // if there is an event source for the sound finishing, trigger it.
@@ -331,26 +168,27 @@ HRESULT DSVirtualSoundBuffer::Update(DWORD dwTimeElapsed,
 };
 
 
-// Creates and starts a real dsound buffer for this sound
-HRESULT DSVirtualSoundBuffer::StartBuffer(IDirectSound* pDirectSound, 
-    ISoundEngine::Quality quality, bool bAllowHardware)
+// Creates and starts a voice for this sound
+HRESULT VirtualSoundBuffer::StartBuffer(XA2Device* pdevice)
 {
     HRESULT hr;
 
-    // if we have a buffer playing, we have nothing more to do
+    // if we have a voice playing, we have nothing more to do
     if (m_bBufferPlaying)
     {
         ZAssert(false);  // I want to know about this
         return S_FALSE;
     }
 
-    // Create a sound buffer with the given quality (or reuse the one we 
-    // have, if appropriate).
-    hr = PrepareBuffer(pDirectSound, quality, bAllowHardware, false);
+    // A voice starts once, so a sound that is given a voice again gets a new
+    // one, at the position the tracker has reached
+    m_pvoice = NULL;
+
+    hr = PrepareBuffer(pdevice, false);
     if (FAILED(hr)) return hr;
 
     // start the sound.
-    hr = m_pds3dbuffer->Start(m_bufferPositionTracker.GetPosition(), 
+    hr = m_pvoice->Start(m_bufferPositionTracker.GetPosition(), 
         m_bufferPositionTracker.IsStopping());
     if (FAILED(hr)) return hr;
 
@@ -360,29 +198,24 @@ HRESULT DSVirtualSoundBuffer::StartBuffer(IDirectSound* pDirectSound,
 };
 
 
-// forcibly stops the given buffer.
-HRESULT DSVirtualSoundBuffer::StopBuffer()
+// forcibly stops the voice, and frees it. The tracker keeps the position
+// (DirectSound's buffers reported theirs; the tracker's own differs only by
+// the timing of the updates).
+HRESULT VirtualSoundBuffer::StopBuffer()
 {
     HRESULT hr;
 
-    // if we don't have a buffer playing, we have nothing to do
+    // if we don't have a voice playing, we have nothing to do
     if (!m_bBufferPlaying)
     {
         ZAssert(false);  // I want to know about this
         return S_FALSE;
     }
     
-    // try to stop the sound...
-    hr = m_pds3dbuffer->Stop(true);
+    hr = m_pvoice->Stop(true);
     if (ZFailed(hr)) return hr;
 
-    // syncronize our buffer tracker with the final position of the buffer.
-    DWORD dwPosition;
-    hr = m_pds3dbuffer->GetPosition(dwPosition);
-    if (ZFailed(hr)) return hr;
-    if (dwPosition != 0) // 0 could be a wraparound for a static buffer
-        m_bufferPositionTracker.SetPosition(dwPosition);
-
+    m_pvoice = NULL;
     m_bBufferPlaying = false;
 
     return S_OK;
@@ -390,7 +223,7 @@ HRESULT DSVirtualSoundBuffer::StopBuffer()
 
 
 // Sets the gain, from 0 to -100 dB
-HRESULT DSVirtualSoundBuffer::SetGain(float fGain)
+HRESULT VirtualSoundBuffer::SetGain(float fGain)
 {
     if (fGain > 0)
     {
@@ -406,10 +239,10 @@ HRESULT DSVirtualSoundBuffer::SetGain(float fGain)
 
 // Sets the pitch shift, where 1.0 is normal, 0.5 is half of normal speed, 
 // and 2.0 is twice normal speed.  
-HRESULT DSVirtualSoundBuffer::SetPitch(float fPitch)
+HRESULT VirtualSoundBuffer::SetPitch(float fPitch)
 {
-    fPitch = max(fPitch, DSBFREQUENCY_MIN / m_pdata->GetSampleRate());
-    fPitch = min(fPitch, DSBFREQUENCY_MAX / m_pdata->GetSampleRate());
+    fPitch = max(fPitch, c_fMinFrequency / m_pdata->GetSampleRate());
+    fPitch = min(fPitch, c_fMaxFrequency / m_pdata->GetSampleRate());
 
     m_fPitch = fPitch;
 
@@ -418,7 +251,7 @@ HRESULT DSVirtualSoundBuffer::SetPitch(float fPitch)
 
 // sets the priority - used as a addition to volume when choosing which 
 // sounds are most important to play.
-HRESULT DSVirtualSoundBuffer::SetPriority(float fPriority) 
+HRESULT VirtualSoundBuffer::SetPriority(float fPriority) 
 {
     m_fPriority = fPriority;
     return S_OK;
@@ -428,14 +261,14 @@ HRESULT DSVirtualSoundBuffer::SetPriority(float fPriority)
 // Stops the sound.  If bForceNow is true the sound will stop ASAP, 
 // possibly popping.  If it is false some sounds may play a trail-off 
 // sound or fade away.  
-HRESULT DSVirtualSoundBuffer::Stop(bool bForceNow)
+HRESULT VirtualSoundBuffer::Stop(bool bForceNow)
 {
     HRESULT hr;
 
     if (m_bBufferPlaying)
     {
         // REVIEW: fade out at higher quality settings?
-        hr = m_pds3dbuffer->Stop(bForceNow);
+        hr = m_pvoice->Stop(bForceNow);
         if (ZFailed(hr)) 
         {
             m_bRetryStop = true;
@@ -450,7 +283,7 @@ HRESULT DSVirtualSoundBuffer::Stop(bool bForceNow)
 
 
 // returns S_OK if the sound is currently playing, S_FALSE otherwise.
-HRESULT DSVirtualSoundBuffer::IsPlaying()
+HRESULT VirtualSoundBuffer::IsPlaying()
 {
     return m_bStopped ? S_FALSE : S_OK;
 };
@@ -458,7 +291,7 @@ HRESULT DSVirtualSoundBuffer::IsPlaying()
 
 // Gets an event which fires when the sound finishes playing (for any 
 // reason)
-IEventSource* DSVirtualSoundBuffer::GetFinishEventSource()
+IEventSource* VirtualSoundBuffer::GetFinishEventSource()
 {
     // if we don't have an event source, create one.
     if (m_peventsourceFinished == NULL)
@@ -471,14 +304,14 @@ IEventSource* DSVirtualSoundBuffer::GetFinishEventSource()
 
 
 // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-TRef<ISoundTweakable> DSVirtualSoundBuffer::GetISoundTweakable()
+TRef<ISoundTweakable> VirtualSoundBuffer::GetISoundTweakable()
 {
     return this;
 };
 
 
 // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-TRef<ISoundTweakable3D> DSVirtualSoundBuffer::GetISoundTweakable3D()
+TRef<ISoundTweakable3D> VirtualSoundBuffer::GetISoundTweakable3D()
 {
     return NULL;
 };
@@ -487,14 +320,14 @@ TRef<ISoundTweakable3D> DSVirtualSoundBuffer::GetISoundTweakable3D()
 #ifdef _DEBUG
 // return a human-readable description of the object, prepending
 // strIndent to the beginning of each line.  
-ZString DSVirtualSoundBuffer::DebugDump(const ZString& strIndent)
+ZString VirtualSoundBuffer::DebugDump(const ZString& strIndent)
 {
-    return strIndent + "DSVirtualSoundBuffer: Priority " + StrFromFloat(m_fDynamicPriority)
+    return strIndent + "VirtualSoundBuffer: Priority " + StrFromFloat(m_fDynamicPriority)
         + ", Age " + StrFromFloat(m_fAge) 
         + ", gain " + StrFromFloat(m_fGain) 
         + ", pitch " + StrFromFloat(m_fPitch) + "\n"
         + SoundDebugDump(m_pdata, strIndent + "  ")
-        + ((m_pds3dbuffer) ? SoundDebugDump(m_pds3dbuffer, strIndent + "  ") : ZString());
+        + ((m_pvoice) ? SoundDebugDump(m_pvoice, strIndent + "  ") : ZString());
 }
 #endif
 
@@ -502,14 +335,14 @@ ZString DSVirtualSoundBuffer::DebugDump(const ZString& strIndent)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// DS3DVirtualSoundBuffer
+// VirtualSoundBuffer3D
 //
 /////////////////////////////////////////////////////////////////////////////
 
 // constructs a simple 3D capable sound
-DS3DVirtualSoundBuffer::DS3DVirtualSoundBuffer(ISoundPCMData* pdata, bool bLooping, 
+VirtualSoundBuffer3D::VirtualSoundBuffer3D(ISoundPCMData* pdata, bool bLooping, 
         TRef<ISoundPositionSource> psource) :
-    DSVirtualSoundBuffer(pdata, bLooping),
+    VirtualSoundBuffer(pdata, bLooping),
     m_pposSource(psource),
 
     m_b3D(false),
@@ -527,9 +360,9 @@ DS3DVirtualSoundBuffer::DS3DVirtualSoundBuffer(ISoundPCMData* pdata, bool bLoopi
 
 
 // constructs an ASR 3D capable sound
-DS3DVirtualSoundBuffer::DS3DVirtualSoundBuffer(ISoundPCMData* pdata, DWORD dwLoopOffset, 
+VirtualSoundBuffer3D::VirtualSoundBuffer3D(ISoundPCMData* pdata, DWORD dwLoopOffset, 
         DWORD dwLoopLength, TRef<ISoundPositionSource> psource) :
-    DSVirtualSoundBuffer(pdata, dwLoopOffset, dwLoopLength),
+    VirtualSoundBuffer(pdata, dwLoopOffset, dwLoopLength),
     m_pposSource(psource),
 
     m_b3D(false),
@@ -546,30 +379,22 @@ DS3DVirtualSoundBuffer::DS3DVirtualSoundBuffer(ISoundPCMData* pdata, DWORD dwLoo
 };
 
 
-// prepare a sound buffer with the given quality and 3D support using the
-// direct sound object pointed to by pDirectSound.
-HRESULT DS3DVirtualSoundBuffer::PrepareBuffer(IDirectSound* pDirectSound, 
-    ISoundEngine::Quality quality, bool bAllowHardware, bool bSupport3D)
+// prepare a voice with 3D support
+HRESULT VirtualSoundBuffer3D::PrepareBuffer(XA2Device* pdevice, bool bSupport3D)
 {
     HRESULT hr;
 
-    // If the old and new quality are not the same, we need a new buffer
-    // because the 3D quality is set on a per-buffer basis.
-    if (quality != m_quality || m_bAllowHardware != bAllowHardware)
-        m_pds3dbuffer = NULL;
-
-    // do all of the 2D buffer creation stuff.
-    hr = DSVirtualSoundBuffer::PrepareBuffer(pDirectSound, quality, bAllowHardware, true);
+    // do all of the 2D voice creation stuff.
+    hr = VirtualSoundBuffer::PrepareBuffer(pdevice, true);
     if (FAILED(hr)) return hr;
 
-    // update the playing sound's 3D state, as needed.
-    hr = m_pds3dbuffer->UpdateState3D(
+    // update the voice's 3D state
+    hr = m_pvoice->UpdateState3D(
         m_vectPosition, m_vectVelocity, m_vectOrientation, 
         m_fMinimumDistance, 
         m_fInnerAngle, m_fOuterAngle, m_fOutsideGain,
         m_bPlayingIn3D,
-        m_bListenerRelative,
-        false
+        m_bListenerRelative
         );
     if (ZFailed(hr)) return hr;
 
@@ -578,7 +403,7 @@ HRESULT DS3DVirtualSoundBuffer::PrepareBuffer(IDirectSound* pDirectSound,
 
 
 // Recalculates the sounds position, loudness, whether it's playing, etc..
-HRESULT DS3DVirtualSoundBuffer::Update(DWORD dwTimeElapsed, 
+HRESULT VirtualSoundBuffer3D::Update(DWORD dwTimeElapsed, 
         const Vector& vectListenerPosition, float fRolloffFactor)
 {
     HRESULT hr;
@@ -593,8 +418,8 @@ HRESULT DS3DVirtualSoundBuffer::Update(DWORD dwTimeElapsed,
         Stop(true);
     }
 
-    // most of what DSVirtualSoundBuffer does is perfectly fine
-    hr = DSVirtualSoundBuffer::Update(dwTimeElapsed, vectListenerPosition,
+    // most of what VirtualSoundBuffer does is perfectly fine
+    hr = VirtualSoundBuffer::Update(dwTimeElapsed, vectListenerPosition,
         fRolloffFactor);
     if (ZFailed(hr)) return hr;
 
@@ -699,7 +524,7 @@ HRESULT DS3DVirtualSoundBuffer::Update(DWORD dwTimeElapsed,
     if (m_bBufferPlaying)
     {
         // update the playing sound's 3D state, as needed.
-        hr = m_pds3dbuffer->UpdateState3D(
+        hr = m_pvoice->UpdateState3D(
             m_vectPosition, m_vectVelocity, m_vectOrientation, 
             m_fMinimumDistance, 
             m_fInnerAngle, m_fOuterAngle, m_fOutsideGain,
@@ -714,7 +539,7 @@ HRESULT DS3DVirtualSoundBuffer::Update(DWORD dwTimeElapsed,
 
 
 // toggles 3D Positioning on and off for the given sound.
-HRESULT DS3DVirtualSoundBuffer::Set3D(bool b3D)
+HRESULT VirtualSoundBuffer3D::Set3D(bool b3D)
 {
     m_b3D = b3D;
 
@@ -724,7 +549,7 @@ HRESULT DS3DVirtualSoundBuffer::Set3D(bool b3D)
 
 // Sets the distance at which the sound will be at max volume.  This
 // effects how quickly the sound drops off with distance.  
-HRESULT DS3DVirtualSoundBuffer::SetMinimumDistance(float fMinimumDistance)
+HRESULT VirtualSoundBuffer3D::SetMinimumDistance(float fMinimumDistance)
 {
     // Any distance greater than 0 is OK.
     if (fMinimumDistance <= 0)
@@ -742,7 +567,7 @@ HRESULT DS3DVirtualSoundBuffer::SetMinimumDistance(float fMinimumDistance)
 // Sets a sound cone of size fInnerAngle (in degrees) where the volume is at 
 // normal levels, outside of which it fades down by fOutsideGain 
 // (range of 0 to -100 db) at fOuterAngle (degrees) and beyond.  
-HRESULT DS3DVirtualSoundBuffer::SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain)
+HRESULT VirtualSoundBuffer3D::SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain)
 {
     // check the parameters
     if ((fInnerAngle < 0 || fInnerAngle > 360)
@@ -764,36 +589,36 @@ HRESULT DS3DVirtualSoundBuffer::SetCone(float fInnerAngle, float fOuterAngle, fl
 
 
 // Sets the gain, from 0 to -100 dB
-HRESULT DS3DVirtualSoundBuffer::SetGain(float fGain)
+HRESULT VirtualSoundBuffer3D::SetGain(float fGain)
 {
-    return DSVirtualSoundBuffer::SetGain(fGain);
+    return VirtualSoundBuffer::SetGain(fGain);
 };
 
 
 // Sets the pitch shift, where 1.0 is normal, 0.5 is half of normal speed, 
 // and 2.0 is twice normal speed.  
-HRESULT DS3DVirtualSoundBuffer::SetPitch(float fPitch)
+HRESULT VirtualSoundBuffer3D::SetPitch(float fPitch)
 {
-    return DSVirtualSoundBuffer::SetPitch(fPitch);
+    return VirtualSoundBuffer::SetPitch(fPitch);
 };
 
 
 // sets the priority - used as a addition to volume when choosing which 
 // sounds are most important to play.
-HRESULT DS3DVirtualSoundBuffer::SetPriority(float fPriority) 
+HRESULT VirtualSoundBuffer3D::SetPriority(float fPriority) 
 {
-    return DSVirtualSoundBuffer::SetPriority(fPriority);
+    return VirtualSoundBuffer::SetPriority(fPriority);
 };
 
 
 // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-TRef<ISoundTweakable> DS3DVirtualSoundBuffer::GetISoundTweakable()
+TRef<ISoundTweakable> VirtualSoundBuffer3D::GetISoundTweakable()
 {
-    return DSVirtualSoundBuffer::GetISoundTweakable();
+    return VirtualSoundBuffer::GetISoundTweakable();
 };
 
 // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-TRef<ISoundTweakable3D> DS3DVirtualSoundBuffer::GetISoundTweakable3D()
+TRef<ISoundTweakable3D> VirtualSoundBuffer3D::GetISoundTweakable3D()
 {
     return this;
 };

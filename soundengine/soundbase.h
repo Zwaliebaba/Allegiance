@@ -202,9 +202,6 @@ public:
     enum Quality { minQuality, midQuality, maxQuality };
     virtual HRESULT SetQuality(Quality quality) = 0;
 
-    // Allows/disallows hardware acceleration.
-    virtual HRESULT EnableHardware(bool bEnable) = 0;
-
     // Sets the listener to use for the current sounds
     virtual HRESULT SetListener(ISoundListener* plistener) = 0;
 
@@ -236,8 +233,9 @@ public:
 // Helper functions
 //
 
-// create a sound engine for the default sound device
-HRESULT CreateSoundEngine(TRef<ISoundEngine>& psoundengine, HWND hwnd);
+// create a sound engine for the default sound device (XAudio2); fails
+// without one
+HRESULT CreateSoundEngine(TRef<ISoundEngine>& psoundengine);
 
 // create a dummy sound engine
 HRESULT CreateDummySoundEngine(TRef<ISoundEngine>& psoundengine);

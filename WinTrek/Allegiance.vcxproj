@@ -119,7 +119,6 @@
     <ClInclude Include="trekinput.h" />
     <ClInclude Include="trekmdl.h" />
     <ClInclude Include="treksound.h" />
-    <ClInclude Include="trekspeech.h" />
     <ClInclude Include="wintrekp.h" />
   </ItemGroup>
   <ItemGroup>
