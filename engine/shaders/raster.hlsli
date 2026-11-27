@@ -12,7 +12,8 @@ cbuffer RasterConstants : register(b0)
     float4 g_screen;    // x: 2 / width, y: 2 / height
     uint4  g_flags;     // x: bit 0 textured, bit 1 decal, bit 2 colour key, bit 3 key by black,
                         //    bit 4 blended (BlendModeAdd or BlendModeSourceAlpha),
-                        //    bit 5 linear light (drawing into a 3D layer's HDR scene)
+                        //    bit 5 linear light (drawing into a 3D layer's HDR scene),
+                        //    bit 6 reversed depth (the scene's float depth buffer)
 };
 
 //
@@ -68,7 +69,15 @@ float4 ScreenToClip(float4 p)
     float x = (p.x + 0.5) * g_screen.x - 1.0;
     float y = 1.0 - (p.y + 0.5) * g_screen.y;
 
-    return float4(x * w, y * w, p.z * w, w);
+    //
+    // Screen vertices come with conventional depth from the CPU; the
+    // scene's depth buffer is reversed (1 near, 0 far). The CPU's z already
+    // carries its own rounding, so these keep their precision, not more.
+    //
+
+    float z = (g_flags.x & 64) ? 1.0 - p.z : p.z;
+
+    return float4(x * w, y * w, z * w, w);
 }
 
 #endif

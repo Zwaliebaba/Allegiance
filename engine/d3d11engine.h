@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <d3d11.h>
-#include <dxgi1_2.h>
+#include <dxgi1_3.h>      // IDXGISwapChain2 (frame latency waitable object)
 
 #include <vector>
 

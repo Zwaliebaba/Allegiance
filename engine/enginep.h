@@ -120,6 +120,7 @@ struct TransformAndLight {
     int   m_countPlanes;    // extra clip planes beyond the frustum
     float m_planes[c_maxTLClipPlanes][4];
     float m_eye[4];         // model-space eye position (per-pixel specular)
+    float m_zrev[4];        // model -> reversed clip-space z (1 at the near plane, 0 at the far), for float depth
 };
 
 //////////////////////////////////////////////////////////////////////////////

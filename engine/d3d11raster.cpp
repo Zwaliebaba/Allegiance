@@ -132,6 +132,7 @@ struct Pipeline {
     TRef<ID3D11BlendState>         m_pblend[3];         // BlendMode
     TRef<ID3D11BlendState>         m_pblendNoColor;
     TRef<ID3D11DepthStencilState>  m_pdepth[2][2];      // [test][write]
+    TRef<ID3D11DepthStencilState>  m_pdepthScene[2][2]; // the same, reversed (greater-equal), for scene targets
     TRef<ID3D11DepthStencilState>  m_pdepthAlways;
     TRef<ID3D11RasterizerState>    m_praster[3];        // none, cw, ccw
     TRef<ID3D11RasterizerState>    m_prasterTL[3];      // the same, clipping to near and far
@@ -234,7 +235,7 @@ bool CreatePipeline(D3D11Device* pdevice)
     bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     if (FAILED(pd3d->CreateBuffer(&bd, NULL, &p.m_pcb))) return false;
 
-    bd.ByteWidth = 17 * 4 * sizeof(float);   // TLConstants
+    bd.ByteWidth = 18 * 4 * sizeof(float);   // TLConstants
     if (FAILED(pd3d->CreateBuffer(&bd, NULL, &p.m_pcbTL))) return false;
 
     //
@@ -380,6 +381,9 @@ bool CreatePipeline(D3D11Device* pdevice)
             desc.DepthFunc      = D3D11_COMPARISON_LESS_EQUAL;
 
             if (FAILED(pd3d->CreateDepthStencilState(&desc, &p.m_pdepth[test][write]))) return false;
+
+            desc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
+            if (FAILED(pd3d->CreateDepthStencilState(&desc, &p.m_pdepthScene[test][write]))) return false;
         }
     }
 
@@ -817,7 +821,7 @@ public:
             | (m_bColorKey        ? 4 : 0)
             | (bKeyBlack          ? 8 : 0)
             | (bBlend             ? 16 : 0)
-            | (m_pscene != NULL   ? 32 : 0);
+            | (m_pscene != NULL   ? 32 | 64 : 0);
 
         if (flags != m_flagsBound) {
             D3D11_MAPPED_SUBRESOURCE mapped;
@@ -856,7 +860,10 @@ public:
             pcontext->RSSetState(p.m_praster[0]);
         } else {
             pcontext->OMSetBlendState(pblend[m_blendMode], NULL, 0xffffffff);
-            pcontext->OMSetDepthStencilState(p.m_pdepth[m_bZTest ? 1 : 0][m_bZWrite ? 1 : 0], 0);
+            pcontext->OMSetDepthStencilState(
+                (m_pscene != NULL ? p.m_pdepthScene : p.m_pdepth)[m_bZTest ? 1 : 0][m_bZWrite ? 1 : 0],
+                0
+            );
 
             int cull = m_cullMode == CullModeCW ? 1 : (m_cullMode == CullModeCCW ? 2 : 0);
             pcontext->RSSetState(p.m_praster[cull]);
@@ -973,7 +980,7 @@ public:
 
         ID3D11DeviceContext* pcontext = pdevice->GetContext();
         pcontext->ClearRenderTargetView(m_pscene->m_prtv, transparent);
-        pcontext->ClearDepthStencilView(m_pscene->m_pdsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
+        pcontext->ClearDepthStencilView(m_pscene->m_pdsv, D3D11_CLEAR_DEPTH, 0.0f, 0);   // reversed: far is 0
 
         m_bSceneDrawn   = false;
         m_bStateChanged = true;
@@ -1207,7 +1214,16 @@ public:
                m_rectClip.XMin() <= 0 && m_rectClip.YMin() <= 0
             && m_rectClip.XMax() >= size.X() && m_rectClip.YMax() >= size.Y()
         ) {
-            pcontext->ClearDepthStencilView(m_pscene != NULL ? m_pscene->m_pdsv : m_ptarget->m_pdsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
+            //
+            // Far is 0 in a scene's reversed depth; the partial clear below
+            // needs nothing special, as its z of 1 is flipped to 0 there
+            //
+
+            if (m_pscene != NULL) {
+                pcontext->ClearDepthStencilView(m_pscene->m_pdsv, D3D11_CLEAR_DEPTH, 0.0f, 0);
+            } else {
+                pcontext->ClearDepthStencilView(m_ptarget->m_pdsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
+            }
             return;
         }
 
@@ -1369,9 +1385,10 @@ public:
         UINT  m_mode[4];
         float m_planes[c_maxTLClipPlanes][4];
         float m_eye[4];
+        float m_zrev[4];
     };
 
-    static_assert(sizeof(TLConstants) == 17 * 4 * sizeof(float), "TLConstants must match tl.hlsli and the buffer size");
+    static_assert(sizeof(TLConstants) == 18 * 4 * sizeof(float), "TLConstants must match tl.hlsli and the buffer size");
 
     void DrawModel(
         D3D11_PRIMITIVE_TOPOLOGY  topology,
@@ -1414,6 +1431,7 @@ public:
         memcpy(pc->m_global,   tl.m_global,   sizeof(pc->m_global));
         memcpy(pc->m_planes,   tl.m_planes,   sizeof(pc->m_planes));
         memcpy(pc->m_eye,      tl.m_eye,      sizeof(pc->m_eye));
+        memcpy(pc->m_zrev,     tl.m_zrev,     sizeof(pc->m_zrev));
 
         pc->m_params[0] = tl.m_ambient;
         pc->m_params[1] = 0;
@@ -1422,7 +1440,7 @@ public:
         pc->m_mode[0]   = tl.m_mode;
         pc->m_mode[1]   = MinOf(tl.m_countPlanes, c_maxTLClipPlanes);
         pc->m_mode[2]   = m_pscene != NULL ? 1 : 0;   // linear light
-        pc->m_mode[3]   = 0;
+        pc->m_mode[3]   = m_pscene != NULL ? 1 : 0;   // reversed depth
 
         pcontext->Unmap(p.m_pcbTL, 0);
 

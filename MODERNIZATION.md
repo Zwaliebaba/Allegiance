@@ -285,6 +285,7 @@ Decisions:
 | Presentation | Bilinear scaling to fit, vsync, DXGI's default frame queue | Sharp bilinear: whole-number scaling with square pixels, filtering only the rest, so 800x600 screens stay crisp when pillarboxed. A frame-latency waitable swap chain with a maximum latency of 1; the presenter waits on it after each present |
 | Texture filtering | Bilinear with the baked mip chains | 16x anisotropic |
 | 3D layers | Drawn straight into the surface's BGRA8 GPU copy, in gamma space | A 3D layer with a z-buffer (`Context::Begin3DLayer`/`End3DLayer`, passed down through `Device3D` to the rasterizer) draws into a scene target: RGBA16F in linear light with a D32F depth buffer, 4x MSAA on hardware with at least 1 GB of video memory (one sample otherwise, and on WARP). At the end of the layer the scene is resolved, bloomed, tonemapped, gamma-encoded and blended over the surface (premultiplied, through the clip rects the layer drew in). Scene targets are pooled by size. Layers without a z-buffer still draw directly |
+| Depth | D24S8, conventional (0 near, 1 far), less-equal | In a scene, D32F with reversed depth (1 near, 0 far), greater-equal, cleared to 0, which spreads the float's precision evenly over distance instead of spending it near the camera. Model-space geometry gets its reversed z straight from the model-space position: `Device3D` builds that row (`m_zrev`) in double from the perspective's constants and the full matrix's w row, because computing w - z per vertex would cancel at the far plane and lose the gain. Screen vertices, whose depth the CPU computes conventionally, are flipped (1 - z) in the vertex shader and keep their own precision. Layers without a scene keep D24S8 and conventional depth |
 | Colour space | Art and colours used as they are | In a scene, textures, vertex colours and authored colours (global colour, material diffuse, light colours) are decoded from gamma 2.2; light intensities (the directional term, ambient) are linear. The composite encodes with 1/2.2 |
 | Coverage | Additive draws accumulated alpha | In a scene, `BlendModeAdd` leaves alpha alone: light in front of nothing stays see-through and is added to what is behind, as when it was drawn straight into the frame |
 | Tonemap | None (values clipped at 1) | Unchanged up to a knee of 0.9, then a smooth roll-off towards white. White art under full light comes out at 0.95 in linear light (249 of 255 encoded) |
@@ -310,12 +311,14 @@ To check when testing:
 - MSAA edges on hulls and on colour-keyed cut-outs. Alpha-to-coverage is not used, so cut-outs stay aliased.
 - Frame pacing: input lag and smoothness, and that vsync still holds the frame rate.
 - Device reset (for example a driver update or switching GPU) during combat.
+- Depth: distant stations, asteroids and ships against each other (no z-fighting), and decals, particles
+  and engine trails (screen vertices, flipped depth) against hulls; nothing should disappear or draw through.
 
 Known gaps:
 
 - **HUD scale.** The HUD and fonts are drawn at their pixel size, so at 4K they are small. Scaling the UI is a separate change.
 - **Competitive balance.** Hor+ shows 21:9 players more of the sector than 4:3 players.
-- **Not done.** Reversed-Z depth, tearing and VRR without vsync, and specular or emissive maps (the art has none).
+- **Not done.** Tearing and VRR without vsync, and specular or emissive maps (the art has none).
 
 #### Networking: MsQuic replaces DirectPlay
 

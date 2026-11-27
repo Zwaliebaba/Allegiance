@@ -30,9 +30,11 @@ cbuffer TLConstants : register(b1)
     float4 g_colorAlt;  // bidirectional: colour of the other side
     float4 g_global;    // global colour, or material diffuse
     float4 g_params;    // x: ambient level
-    uint4  g_tlmode;    // x: TLMode, y: number of extra clip planes, z: linear light (see raster.hlsli)
+    uint4  g_tlmode;    // x: TLMode, y: number of extra clip planes, z: linear light (see raster.hlsli),
+                        // w: reversed depth (a scene target's float depth buffer)
     float4 g_planes[2];
     float4 g_eye;       // xyz: model-space eye position
+    float4 g_zrev;      // model -> reversed clip-space z (w at the near plane, 0 at the far)
 };
 
 #define TLModeWhite         0
@@ -133,6 +135,16 @@ VertexOut main(VertexIn input)
     VertexOut output;
     output.position = float4(dot(g_post[0], pf), dot(g_post[1], pf), dot(g_post[2], pf), dot(g_post[3], pf));
     output.uv       = input.uv;
+
+    //
+    // Reversed depth straight from the model-space position (not as w - z,
+    // which cancels at the far plane); the clip planes keep using pf
+    //
+
+    if (g_tlmode.w != 0) {
+        output.position.z = dot(g_zrev, p);
+    }
+
 #ifdef TL_NORMAL
     output.color    = float4(1, 1, 1, 1);
     output.normal   = input.normal;
