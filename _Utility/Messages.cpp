@@ -212,7 +212,9 @@ void * FedMessaging::PFedMsgCreate(bool fQueueMsg, BYTE * pbFMBuff, FEDMSGID fmi
   BYTE * pBlobSrc, * pBlobDst; 
   BYTE * pbFM;
 
-  assert (IsConnected());
+  // Queueing needs the session (a full outbox is flushed to the default
+  // recipient); building a message into a buffer doesn't
+  assert (!fQueueMsg || IsConnected());
 
 StartOver: // if we overrun our buffer, need to start over after flushing it
   va_start(vl, cbfm); // make sure we have the last required parm

@@ -800,11 +800,26 @@ without the game noticing at once:
   joining a root-relative path gives `c://x`.
 - `ObjectStack` (moved to `engine/objectstack.h` so it can be tested without the engine): order,
   growth, and that a popped object lives until its slot is reused, the use-after-free fixed above.
+- Networking (`_Utility`): how `PFedMsgCreate` lays out a message (the `ib`/`cb` pairs right after
+  the header, the variable data after the fixed part, trailing spaces trimmed, an empty string left
+  out so `FM_VAR_REF` gives null; a string of only spaces is sent as an empty one, pinned as a
+  quirk), `FedParseHostPort`, and the session details `FMSessionDesc` reads. And a loopback session
+  over real QUIC: `HostSession`, `JoinSession` to `127.0.0.1:47700`, a message with variable fields
+  from client to server, two messages in one packet from the server to `Everyone`, no bad CRCs, and
+  the server dropping the connection when the client shuts down; plus a join with nobody listening,
+  which must fail with a message. The loopback test uses the game server's port, so it fails while
+  a server runs on the same machine (and Windows may ask whether the test host may use the network
+  the first time). For these tests `PFedMsgCreate` asserts a session only when it queues the
+  message: building one into a buffer never needed it, as the macros' comment says.
+
+Not covered here: loading MDL needs an initialised engine (`EffectApp`), so the text-to-binary MDL
+round trip stays in the mdlc smoke test, which runs under ASan too.
 
 The project defines `ZLIB_SKIP_NEW_REDEF`, so the debug `#define new` stays out of the framework's
-headers.
+headers. It links ZLib, Guids and Utility; `msquic.dll`, which the Utility build copies to the output
+directory, is loaded at run time.
 
-The `asan` CI job builds zlib, engine, effect, mdlc and the tests in Release with
+The `asan` CI job builds zlib, guids, `_Utility`, engine, effect, mdlc and the tests in Release with
 `/fsanitize=address` (`-p:EnableASAN=true`; Debug's `/RTC` checks don't combine with it) and runs the
 unit tests and the mdlc smoke test, which loads text and binary MDL (the code that had the
 use-after-free). Before that it checks that `mdlc.exe` and the test DLL import the ASan runtime, so a clean
