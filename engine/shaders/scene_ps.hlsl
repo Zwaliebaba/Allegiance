@@ -11,16 +11,20 @@
 //
 // Alpha is coverage. Additive draws leave it alone (they add light, they
 // don't hide what is behind), so where the scene has light but no coverage
-// it is added to the frame.
+// it is added to the frame. Bloom (bloom.hlsli) is light too: it is added
+// to the colour, not the coverage.
 //
 //////////////////////////////////////////////////////////////////////////////
 
 cbuffer SceneConstants : register(b0)
 {
-    float4 g_tonemap;   // x: knee, y: exposure
+    float4 g_tonemap;   // x: knee, y: exposure, z: bloom strength
+    float4 g_size;      // xy: 1 / scene size
 };
 
-Texture2D<float4> g_scene : register(t0);
+Texture2D<float4> g_scene   : register(t0);
+Texture2D<float4> g_bloom   : register(t1);
+SamplerState      g_sampler : register(s0);
 
 float3 Tonemap(float3 x)
 {
@@ -39,6 +43,8 @@ float3 ToGamma(float3 c)
 float4 main(float4 position : SV_Position) : SV_Target
 {
     float4 s = g_scene.Load(int3(position.xy, 0));
+
+    s.rgb += g_bloom.SampleLevel(g_sampler, position.xy * g_size.xy, 0).rgb * g_tonemap.z;
 
     //
     // Tonemap and encode the colour without its coverage, then apply the

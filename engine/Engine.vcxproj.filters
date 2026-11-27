@@ -43,6 +43,12 @@
     <FxCompile Include="shaders\scene_ps.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\bloom_down_ps.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\bloom_up_ps.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dderror.cpp" />
@@ -136,6 +142,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\tl.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\bloom.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -132,6 +132,13 @@
     <FxCompile Include="shaders\scene_ps.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="shaders\bloom_down_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\bloom_up_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <None Include="shaders\bloom.hlsli" />
     <None Include="shaders\draw2d.hlsli" />
     <None Include="shaders\tl.hlsli" />
   </ItemGroup>

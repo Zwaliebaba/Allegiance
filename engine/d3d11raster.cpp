@@ -11,6 +11,8 @@
 #include "tl_vs_l_flat.h"
 #include "scene_vs.h"
 #include "scene_ps.h"
+#include "bloom_down_ps.h"
+#include "bloom_up_ps.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -53,10 +55,23 @@ public:
     TRef<ID3D11Texture2D>           m_presolve;     // RGBA16F, one sample
     TRef<ID3D11ShaderResourceView>  m_psrv;
 
+    //
+    // Bloom levels: half the scene's size, then half again each
+    //
+
+    static const int                c_maxBloomLevels = 6;
+
+    int                             m_bloomLevels;
+    WinPoint                        m_sizeBloom[c_maxBloomLevels];
+    TRef<ID3D11Texture2D>           m_pbloom[c_maxBloomLevels];
+    TRef<ID3D11RenderTargetView>    m_prtvBloom[c_maxBloomLevels];
+    TRef<ID3D11ShaderResourceView>  m_psrvBloom[c_maxBloomLevels];
+
     SceneTarget() :
         m_size(0, 0),
         m_samples(1),
-        m_bInUse(false)
+        m_bInUse(false),
+        m_bloomLevels(0)
     {
     }
 };
@@ -70,6 +85,15 @@ const DXGI_FORMAT c_formatSceneDepth = DXGI_FORMAT_D32_FLOAT;
 
 const float c_sceneKnee     = 0.8f;
 const float c_sceneExposure = 1.0f;
+
+//
+// Bloom: what is brighter than the threshold (with a soft knee below it)
+// glows, at this strength
+//
+
+const float c_bloomThreshold = 0.9f;
+const float c_bloomKnee      = 0.5f;
+const float c_bloomStrength  = 0.35f;
 
 //
 // Pipeline objects shared by every rasterizer, re-created with the device
@@ -115,6 +139,11 @@ struct Pipeline {
     TRef<ID3D11VertexShader>       m_pvsScene;
     TRef<ID3D11PixelShader>        m_ppsScene;
     TRef<ID3D11Buffer>             m_pcbScene;
+    TRef<ID3D11PixelShader>        m_ppsBloomDown;
+    TRef<ID3D11PixelShader>        m_ppsBloomUp;
+    TRef<ID3D11Buffer>             m_pcbBloom;
+    TRef<ID3D11BlendState>         m_pblendBloomAdd;
+    TRef<ID3D11SamplerState>       m_psamplerClamp;     // linear, clamped: bloom
     int                            m_samplesScene;
     std::vector<TRef<SceneTarget>> m_vscenes;
 
@@ -266,13 +295,45 @@ bool CreatePipeline(D3D11Device* pdevice)
     if (FAILED(pd3d->CreateVertexShader(g_scene_vs, sizeof(g_scene_vs), NULL, &p.m_pvsScene))) return false;
     if (FAILED(pd3d->CreatePixelShader (g_scene_ps, sizeof(g_scene_ps), NULL, &p.m_ppsScene))) return false;
 
+    if (FAILED(pd3d->CreatePixelShader(g_bloom_down_ps, sizeof(g_bloom_down_ps), NULL, &p.m_ppsBloomDown))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_bloom_up_ps,   sizeof(g_bloom_up_ps),   NULL, &p.m_ppsBloomUp  ))) return false;
+
     {
         D3D11_BUFFER_DESC desc = {};
-        desc.ByteWidth      = 4 * sizeof(float);
+        desc.ByteWidth      = 8 * sizeof(float);
         desc.Usage          = D3D11_USAGE_DYNAMIC;
         desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
         if (FAILED(pd3d->CreateBuffer(&desc, NULL, &p.m_pcbScene))) return false;
+        if (FAILED(pd3d->CreateBuffer(&desc, NULL, &p.m_pcbBloom))) return false;
+    }
+
+    {
+        D3D11_BLEND_DESC desc = {};
+        D3D11_RENDER_TARGET_BLEND_DESC& rt = desc.RenderTarget[0];
+
+        rt.BlendEnable           = TRUE;
+        rt.SrcBlend              = D3D11_BLEND_ONE;
+        rt.DestBlend             = D3D11_BLEND_ONE;
+        rt.BlendOp               = D3D11_BLEND_OP_ADD;
+        rt.SrcBlendAlpha         = D3D11_BLEND_ONE;
+        rt.DestBlendAlpha        = D3D11_BLEND_ZERO;
+        rt.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+        rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+        if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendBloomAdd))) return false;
+    }
+
+    {
+        D3D11_SAMPLER_DESC desc = {};
+        desc.Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        desc.AddressU       = D3D11_TEXTURE_ADDRESS_CLAMP;
+        desc.AddressV       = D3D11_TEXTURE_ADDRESS_CLAMP;
+        desc.AddressW       = D3D11_TEXTURE_ADDRESS_CLAMP;
+        desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        desc.MaxLOD         = D3D11_FLOAT32_MAX;
+
+        if (FAILED(pd3d->CreateSamplerState(&desc, &p.m_psamplerClamp))) return false;
     }
 
     //
@@ -453,6 +514,37 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
         hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_presolve);
     }
     if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_presolve, NULL, &pscene->m_psrv);
+
+    //
+    // Bloom levels, down to about 16 pixels
+    //
+
+    WinPoint sizeLevel = size;
+
+    while (SUCCEEDED(hr) && pscene->m_bloomLevels < SceneTarget::c_maxBloomLevels) {
+        sizeLevel = WinPoint((sizeLevel.X() + 1) / 2, (sizeLevel.Y() + 1) / 2);
+
+        if (pscene->m_bloomLevels > 0 && (sizeLevel.X() < 16 || sizeLevel.Y() < 16)) {
+            break;
+        }
+
+        int level = pscene->m_bloomLevels;
+
+        td.Width            = sizeLevel.X();
+        td.Height           = sizeLevel.Y();
+        td.Format           = c_formatScene;
+        td.SampleDesc.Count = 1;
+        td.BindFlags        = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+        hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_pbloom[level]);
+        if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_pbloom[level], NULL, &pscene->m_prtvBloom[level]);
+        if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_pbloom[level], NULL, &pscene->m_psrvBloom[level]);
+
+        if (SUCCEEDED(hr)) {
+            pscene->m_sizeBloom[level] = sizeLevel;
+            pscene->m_bloomLevels++;
+        }
+    }
 
     if (FAILED(hr)) {
         pdevice->CheckDeviceLost(hr);
@@ -909,6 +1001,8 @@ public:
             pcontext->CopyResource(pscene->m_presolve, pscene->m_pcolor);
         }
 
+        DrawBloom(pcontext, pscene);
+
         //
         // Composite over the surface, through the clip rects the layer drew in
         //
@@ -919,8 +1013,12 @@ public:
             float* pf = (float*)mapped.pData;
             pf[0] = c_sceneKnee;
             pf[1] = c_sceneExposure;
-            pf[2] = 0;
+            pf[2] = pscene->m_bloomLevels > 0 ? c_bloomStrength : 0.0f;
             pf[3] = 0;
+            pf[4] = 1.0f / pscene->m_size.X();
+            pf[5] = 1.0f / pscene->m_size.Y();
+            pf[6] = 0;
+            pf[7] = 0;
             pcontext->Unmap(p.m_pcbScene, 0);
         }
 
@@ -943,8 +1041,12 @@ public:
         scissor.bottom = MinOf((LONG)ptarget->m_size.Y(), (LONG)ceilf(m_rectSceneDrawn.YMax()));
         pcontext->RSSetScissorRects(1, &scissor);
 
-        ID3D11Buffer*             pcb  = p.m_pcbScene;
-        ID3D11ShaderResourceView* psrv = pscene->m_psrv;
+        ID3D11Buffer*             pcb      = p.m_pcbScene;
+        ID3D11SamplerState*       psampler = p.m_psamplerClamp;
+        ID3D11ShaderResourceView* psrvs[2] = {
+            pscene->m_psrv,
+            pscene->m_bloomLevels > 0 ? (ID3D11ShaderResourceView*)pscene->m_psrvBloom[0] : NULL
+        };
 
         pcontext->OMSetBlendState(p.m_pblendComposite, NULL, 0xffffffff);
         pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
@@ -954,13 +1056,116 @@ public:
         pcontext->VSSetShader(p.m_pvsScene, NULL, 0);
         pcontext->PSSetShader(p.m_ppsScene, NULL, 0);
         pcontext->PSSetConstantBuffers(0, 1, &pcb);
-        pcontext->PSSetShaderResources(0, 1, &psrv);
+        pcontext->PSSetShaderResources(0, 2, psrvs);
+        pcontext->PSSetSamplers(0, 1, &psampler);
+        pcontext->Draw(3, 0);
+
+        ID3D11ShaderResourceView* pnull[2] = { NULL, NULL };
+        pcontext->PSSetShaderResources(0, 2, pnull);
+
+        g_d3d11Stats.m_scenes++;
+    }
+
+    //
+    // Bloom: filter the resolved scene down the levels (the first pass keeps
+    // only the bright part), then add each level into the one above it
+    //
+
+    void DrawBloomPass(
+        ID3D11DeviceContext*      pcontext,
+        ID3D11ShaderResourceView* psource,
+        ID3D11RenderTargetView*   pdest,
+        const WinPoint&           sizeDest,
+        ID3D11PixelShader*        pps,
+        ID3D11BlendState*         pblend,
+        bool                      bFirst
+    ) {
+        Pipeline& p = g_pipeline;
+
+        D3D11_MAPPED_SUBRESOURCE mapped;
+
+        if (SUCCEEDED(pcontext->Map(p.m_pcbBloom, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) {
+            float* pf = (float*)mapped.pData;
+            pf[0] = 0.5f / sizeDest.X();    // tap spacing: half a destination pixel
+            pf[1] = 0.5f / sizeDest.Y();
+            pf[2] = 1.0f / sizeDest.X();
+            pf[3] = 1.0f / sizeDest.Y();
+            pf[4] = c_bloomThreshold;
+            pf[5] = c_bloomKnee;
+            pf[6] = bFirst ? 1.0f : 0.0f;
+            pf[7] = 0;
+            pcontext->Unmap(p.m_pcbBloom, 0);
+        }
+
+        pcontext->OMSetRenderTargets(1, &pdest, NULL);
+
+        D3D11_VIEWPORT vp;
+        vp.TopLeftX = 0;
+        vp.TopLeftY = 0;
+        vp.Width    = (float)sizeDest.X();
+        vp.Height   = (float)sizeDest.Y();
+        vp.MinDepth = 0;
+        vp.MaxDepth = 1;
+        pcontext->RSSetViewports(1, &vp);
+
+        D3D11_RECT scissor = { 0, 0, sizeDest.X(), sizeDest.Y() };
+        pcontext->RSSetScissorRects(1, &scissor);
+
+        ID3D11Buffer* pcb = p.m_pcbBloom;
+
+        pcontext->OMSetBlendState(pblend, NULL, 0xffffffff);
+        pcontext->PSSetShader(pps, NULL, 0);
+        pcontext->PSSetConstantBuffers(0, 1, &pcb);
+        pcontext->PSSetShaderResources(0, 1, &psource);
         pcontext->Draw(3, 0);
 
         ID3D11ShaderResourceView* pnull = NULL;
         pcontext->PSSetShaderResources(0, 1, &pnull);
+    }
 
-        g_d3d11Stats.m_scenes++;
+    void DrawBloom(ID3D11DeviceContext* pcontext, SceneTarget* pscene)
+    {
+        Pipeline& p = g_pipeline;
+        int       levels = pscene->m_bloomLevels;
+
+        if (levels == 0) {
+            return;
+        }
+
+        ID3D11SamplerState* psampler = p.m_psamplerClamp;
+
+        pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
+        pcontext->RSSetState(p.m_praster[0]);
+        pcontext->IASetInputLayout(NULL);
+        pcontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        pcontext->VSSetShader(p.m_pvsScene, NULL, 0);
+        pcontext->PSSetSamplers(0, 1, &psampler);
+
+        for (int level = 0; level < levels; level++) {
+            DrawBloomPass(
+                pcontext,
+                level == 0 ? (ID3D11ShaderResourceView*)pscene->m_psrv : (ID3D11ShaderResourceView*)pscene->m_psrvBloom[level - 1],
+                pscene->m_prtvBloom[level],
+                pscene->m_sizeBloom[level],
+                p.m_ppsBloomDown,
+                p.m_pblend[BlendModeSource],
+                level == 0
+            );
+        }
+
+        for (int level = levels - 2; level >= 0; level--) {
+            DrawBloomPass(
+                pcontext,
+                pscene->m_psrvBloom[level + 1],
+                pscene->m_prtvBloom[level],
+                pscene->m_sizeBloom[level],
+                p.m_ppsBloomUp,
+                p.m_pblendBloomAdd,
+                false
+            );
+        }
+
+        pcontext->OMSetRenderTargets(0, NULL, NULL);
     }
 
     void ClearZBuffer()
