@@ -2087,6 +2087,19 @@ public:
 
         tl.m_ambient = m_brightAmbient;
 
+        //
+        // The eye is the origin of the space m_mat maps into
+        //
+
+        {
+            Vector eye = GetInverseModelMatrix().Transform(Vector(0, 0, 0));
+
+            tl.m_eye[0] = eye.X();
+            tl.m_eye[1] = eye.Y();
+            tl.m_eye[2] = eye.Z();
+            tl.m_eye[3] = 1;
+        }
+
         if (!bNormal) {
             tl.m_mode = TLModeVertexColor;
             return;

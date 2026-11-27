@@ -10,9 +10,14 @@
 // scissor keeps drawing inside the clip rect. Extra clip planes are applied
 // in the full matrix's space, where Device3D keeps them.
 //
-// Define TL_NORMAL for Vertex input (position, uv, normal: lit here), leave
-// it undefined for VertexL (position, uv, colour). Define TL_FLAT for flat
-// shading (the first vertex's colour, as D3DSHADE_FLAT).
+// Define TL_NORMAL for Vertex input (position, uv, normal), leave it
+// undefined for VertexL (position, uv, colour). Define TL_FLAT for flat
+// shading (the first vertex's values, as D3DSHADE_FLAT).
+//
+// Vertex input is lit per pixel (tl_ps.hlsl): the vertex shader passes the
+// model-space normal and the direction to the eye, and the pixel shader
+// evaluates the same lighting formulas there, with a specular highlight in
+// linear light. Define TL_PIXEL to include only what the pixel shader needs.
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -27,6 +32,7 @@ cbuffer TLConstants : register(b1)
     float4 g_params;    // x: ambient level
     uint4  g_tlmode;    // x: TLMode, y: number of extra clip planes, z: linear light (see raster.hlsli)
     float4 g_planes[2];
+    float4 g_eye;       // xyz: model-space eye position
 };
 
 #define TLModeWhite         0
@@ -36,26 +42,28 @@ cbuffer TLConstants : register(b1)
 #define TLModeMaterial      4
 #define TLModeVertexColor   5
 
-struct VertexIn
-{
-    float3 position : POSITION;
-    float2 uv       : TEXCOORD0;
-#ifdef TL_NORMAL
-    float3 normal   : NORMAL;
+#ifdef TL_FLAT
+#define TL_INTERPOLATION nointerpolation
 #else
-    float4 color    : COLOR0;
+#define TL_INTERPOLATION
 #endif
-};
+
+//
+// The pixel shader's input is the first part of this, in the same order
+//
 
 struct VertexOut
 {
-    float4 position : SV_Position;
-#ifdef TL_FLAT
-    nointerpolation
+    float4                  position : SV_Position;
+    TL_INTERPOLATION float4 color    : COLOR0;
+    float2                  uv       : TEXCOORD0;
+#ifdef TL_NORMAL
+    TL_INTERPOLATION float3 normal   : TEXCOORD1;
+    float3                  eye      : TEXCOORD2;
 #endif
-    float4 color    : COLOR0;
-    float2 uv       : TEXCOORD0;
-    float2 clip     : SV_ClipDistance0;
+#ifndef TL_PIXEL
+    float2                  clip     : SV_ClipDistance0;
+#endif
 };
 
 //
@@ -69,15 +77,18 @@ float3 AuthoredColor(float3 c)
     return g_tlmode.z != 0 ? pow(abs(c), 2.2) : c;
 }
 
+#ifdef TL_NORMAL
+
 //
-// One exit point: FXC warns (X4000) about early returns from branches on
-// constant-buffer values
+// The lighting formulas of device3d.cpp's LightVertex,
+// BidirectionalLightVertex and MaterialLightVertex, for one normal. One
+// exit point: FXC warns (X4000) about early returns from branches on
+// constant-buffer values.
 //
 
-float4 Light(VertexIn input)
+float4 Light(float3 normal)
 {
-#ifdef TL_NORMAL
-    float  bright  = dot(input.normal, g_light.xyz);
+    float  bright  = dot(normal, g_light.xyz);
     float  ambient = g_params.x;
     float  b       = saturate(bright + ambient);
     float4 result  = float4(1, 1, 1, 1);
@@ -97,10 +108,22 @@ float4 Light(VertexIn input)
     }
 
     return result;
-#else
-    return float4(AuthoredColor(input.color.rgb), input.color.a);
-#endif
 }
+
+#endif
+
+#ifndef TL_PIXEL
+
+struct VertexIn
+{
+    float3 position : POSITION;
+    float2 uv       : TEXCOORD0;
+#ifdef TL_NORMAL
+    float3 normal   : NORMAL;
+#else
+    float4 color    : COLOR0;
+#endif
+};
 
 VertexOut main(VertexIn input)
 {
@@ -109,9 +132,17 @@ VertexOut main(VertexIn input)
 
     VertexOut output;
     output.position = float4(dot(g_post[0], pf), dot(g_post[1], pf), dot(g_post[2], pf), dot(g_post[3], pf));
-    output.color    = Light(input);
     output.uv       = input.uv;
+#ifdef TL_NORMAL
+    output.color    = float4(1, 1, 1, 1);
+    output.normal   = input.normal;
+    output.eye      = g_eye.xyz - input.position;
+#else
+    output.color    = float4(AuthoredColor(input.color.rgb), input.color.a);
+#endif
     output.clip.x   = g_tlmode.y > 0 ? dot(g_planes[0], pf) : 1;
     output.clip.y   = g_tlmode.y > 1 ? dot(g_planes[1], pf) : 1;
     return output;
 }
+
+#endif

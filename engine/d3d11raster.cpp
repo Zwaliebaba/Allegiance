@@ -9,6 +9,8 @@
 #include "tl_vs_flat.h"
 #include "tl_vs_l.h"
 #include "tl_vs_l_flat.h"
+#include "tl_ps.h"
+#include "tl_ps_flat.h"
 #include "scene_vs.h"
 #include "scene_ps.h"
 #include "bloom_down_ps.h"
@@ -111,6 +113,8 @@ struct Pipeline {
     TRef<ID3D11VertexShader>       m_pvsTLLFlat;
     TRef<ID3D11PixelShader>        m_pps;
     TRef<ID3D11PixelShader>        m_ppsFlat;
+    TRef<ID3D11PixelShader>        m_ppsTL;             // Vertex: lit per pixel
+    TRef<ID3D11PixelShader>        m_ppsTLFlat;
     TRef<ID3D11InputLayout>        m_playout;
     TRef<ID3D11InputLayout>        m_playoutTL;
     TRef<ID3D11InputLayout>        m_playoutTLL;
@@ -185,6 +189,8 @@ bool CreatePipeline(D3D11Device* pdevice)
     if (FAILED(pd3d->CreateVertexShader(g_tl_vs_l_flat,   sizeof(g_tl_vs_l_flat),   NULL, &p.m_pvsTLLFlat))) return false;
     if (FAILED(pd3d->CreatePixelShader (g_raster_ps,      sizeof(g_raster_ps),      NULL, &p.m_pps    ))) return false;
     if (FAILED(pd3d->CreatePixelShader (g_raster_ps_flat, sizeof(g_raster_ps_flat), NULL, &p.m_ppsFlat))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_tl_ps,          sizeof(g_tl_ps),          NULL, &p.m_ppsTL    ))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_tl_ps_flat,     sizeof(g_tl_ps_flat),     NULL, &p.m_ppsTLFlat))) return false;
 
     //
     // VertexScreen: x y z rhw, color, specular (unused), u v
@@ -224,7 +230,7 @@ bool CreatePipeline(D3D11Device* pdevice)
     bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     if (FAILED(pd3d->CreateBuffer(&bd, NULL, &p.m_pcb))) return false;
 
-    bd.ByteWidth = 16 * 4 * sizeof(float);
+    bd.ByteWidth = 17 * 4 * sizeof(float);   // TLConstants
     if (FAILED(pd3d->CreateBuffer(&bd, NULL, &p.m_pcbTL))) return false;
 
     //
@@ -1344,7 +1350,10 @@ public:
         float m_params[4];
         UINT  m_mode[4];
         float m_planes[c_maxTLClipPlanes][4];
+        float m_eye[4];
     };
+
+    static_assert(sizeof(TLConstants) == 17 * 4 * sizeof(float), "TLConstants must match tl.hlsli and the buffer size");
 
     void DrawModel(
         D3D11_PRIMITIVE_TOPOLOGY  topology,
@@ -1386,6 +1395,7 @@ public:
         memcpy(pc->m_colorAlt, tl.m_colorAlt, sizeof(pc->m_colorAlt));
         memcpy(pc->m_global,   tl.m_global,   sizeof(pc->m_global));
         memcpy(pc->m_planes,   tl.m_planes,   sizeof(pc->m_planes));
+        memcpy(pc->m_eye,      tl.m_eye,      sizeof(pc->m_eye));
 
         pc->m_params[0] = tl.m_ambient;
         pc->m_params[1] = 0;
@@ -1410,6 +1420,16 @@ public:
             NULL,
             0
         );
+
+        //
+        // Vertex geometry is lit per pixel (ApplyState sets the pixel
+        // shader again for the next draw)
+        //
+
+        if (bNormal) {
+            pcontext->PSSetConstantBuffers(1, 1, &pcb);
+            pcontext->PSSetShader(bFlat ? p.m_ppsTLFlat : p.m_ppsTL, NULL, 0);
+        }
         pcontext->IASetInputLayout(bNormal ? p.m_playoutTL : p.m_playoutTLL);
         pcontext->RSSetState(p.m_prasterTL[cull]);
 

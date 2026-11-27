@@ -40,6 +40,13 @@ float4 VertexColor(float4 color)
 Texture2D    g_texture : register(t0);
 SamplerState g_sampler : register(s0);
 
+//
+// RASTER_PIXEL: included by another stage's pixel shader (tl_ps.hlsl) for
+// Shade only
+//
+
+#ifndef RASTER_PIXEL
+
 struct VertexIn
 {
     float4 position : POSITION;     // x, y in pixels; z in [0, 1]; w = 1 / w
@@ -63,6 +70,8 @@ float4 ScreenToClip(float4 p)
 
     return float4(x * w, y * w, p.z * w, w);
 }
+
+#endif
 
 float4 Shade(float4 color, float2 uv)
 {

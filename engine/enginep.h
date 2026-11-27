@@ -119,6 +119,7 @@ struct TransformAndLight {
     int   m_mode;           // TLMode
     int   m_countPlanes;    // extra clip planes beyond the frustum
     float m_planes[c_maxTLClipPlanes][4];
+    float m_eye[4];         // model-space eye position (per-pixel specular)
 };
 
 //////////////////////////////////////////////////////////////////////////////
