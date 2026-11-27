@@ -671,6 +671,20 @@ type without an investment-screen image, the Bios "Platform" (`biosplat`), is th
 (`c_sabmPedestal`): the server places it in a capture-the-flag game and it is never offered, so
 the check skips pedestals.
 
+`tools/ci/art-unused.py` lists the art files nothing uses; it only reports, and the art job puts the
+list in its summary. It starts from the game code (client and server: every string literal, the used
+`artwork.h` constants, and the names the code builds, such as a random map's `globe1`–`globe8` and
+`invEmpty` + an equipment type) and follows what is named: the core files and maps the code names
+(every name in them, plus the `i`/`l`/`icon` images and civilization suffixes the code derives),
+MDL files, help-page tags, a used model's `.x` files and template from `Models.props`, the textures
+a used `.x` file names, the animation strips, and `Music\tracks.lst`. A name counts for every file
+of that name, so the list errs toward keeping a file; a name the code assembles some other way is
+not seen, so a listed file is to be checked before it is deleted. About a fifth of the files (660 of
+3,135, 58 MB) are listed: models and their textures that no core file names (among them weapons
+`wep01`, `wep03`, `wep05`, `wep08`, `wep10`, `wep11`, `wep13`, `wep17`), investment and loadout
+images of those, help pages no page links to, Zone-era images, and sounds no sound definition
+imports.
+
 Changed with the move:
 
 - The `SoundPack` override (a folder next to `Artwork` that replaced sounds file by file) is gone;
