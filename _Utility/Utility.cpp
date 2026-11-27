@@ -11,6 +11,7 @@
 **  History:
 */
 #include    "pch.h"
+#include    "artfolders.h"
 
 const Rotation      c_rotationZero(0.0f, 0.0f, 1.0f, 0.0f);
 
@@ -47,23 +48,52 @@ HRESULT UTL::getFile(    const char*    name,
     HRESULT rc = E_FAIL;
     assert (name && extension && artwork && *s_artworkPath);
     
-    strcpy(artwork, s_artworkPath);
+    //
+    // The file name: the name up to the first space, and the extension
+    //
+
+    char        szFile[MAX_PATH];
     {
-        char*       pArtwork = artwork + strlen(artwork);
+        char*       pFile = szFile;
         const char* pName = name;
 
-        while ((*pName != '\0') && (*pName != ' '))
-            *(pArtwork++) = *(pName++);
+        while ((*pName != '\0') && (*pName != ' ') && (pFile < szFile + MAX_PATH - 8))
+            *(pFile++) = *(pName++);
 
-        strcpy(pArtwork, extension);
+        *pFile = '\0';
+        strcat(szFile, extension);
     }
 
-    OFSTRUCT filedata;
-    filedata.cBytes = sizeof(filedata);
-    if (OpenFile(artwork, &filedata, OF_EXIST) != HFILE_ERROR)
-        rc = S_OK;
-    else
-        debugf("Unable to open %s%s\n", name, extension);
+    //
+    // In the art folder for its type (artfolders.h), else in the art root.
+    // A file that is in neither gets the path in its folder, so one that is
+    // written (DumpIGCFile) goes there.
+    //
+
+    const char* const* pszFolders = ArtFolders(extension);
+
+    for (const char* const* pszFolder = pszFolders; *pszFolder; pszFolder++)
+    {
+        _snprintf(artwork, MAX_PATH, "%s%s\\%s", s_artworkPath, *pszFolder, szFile);
+        artwork[MAX_PATH - 1] = '\0';
+
+        if (ArtFileExists(artwork))
+            return S_OK;
+    }
+
+    _snprintf(artwork, MAX_PATH, "%s%s", s_artworkPath, szFile);
+    artwork[MAX_PATH - 1] = '\0';
+
+    if (ArtFileExists(artwork))
+        return S_OK;
+
+    if (*pszFolders)
+    {
+        _snprintf(artwork, MAX_PATH, "%s%s\\%s", s_artworkPath, *pszFolders, szFile);
+        artwork[MAX_PATH - 1] = '\0';
+    }
+
+    debugf("Unable to open %s%s\n", name, extension);
 
     return rc;
 }

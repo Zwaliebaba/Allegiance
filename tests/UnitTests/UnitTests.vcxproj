@@ -53,6 +53,7 @@
     <ClCompile Include="ObjectStackTests.cpp" />
     <ClCompile Include="NetworkTests.cpp" />
     <ClCompile Include="SoundTests.cpp" />
+    <ClCompile Include="ArtFolderTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

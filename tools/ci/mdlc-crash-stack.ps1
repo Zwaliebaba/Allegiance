@@ -11,8 +11,8 @@ param(
 $m = Select-String -Path $Log -Pattern '-batch "([^"]+\.batch)"' | Select-Object -Last 1
 if (-not $m) { Write-Host "No failed mdlc batch found in $Log"; exit 0 }
 $batch = $m.Matches[0].Groups[1].Value
-# Bitmaps run in the source directory; everything else in the output directory.
-$work = if ((Split-Path $batch -Leaf) -eq 'bitmaps.batch') { $ArtSource } else { $ArtOut }
+# The model batches run in the output's Models folder (Art.proj).
+$work = if ((Split-Path $batch -Leaf) -in 'models.batch', 'textmodels.batch') { Join-Path $ArtOut 'Models' } else { $ArtOut }
 
 $cdb = @(
     "${env:ProgramFiles(x86)}\Windows Kits\10\Debuggers\x64\cdb.exe",

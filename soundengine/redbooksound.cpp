@@ -23,7 +23,7 @@ namespace SoundEngine {
 //////////////////////////////////////////////////////////////////////////////
 //
 // The music player: the game's soundtrack, which shipped as Audio-CD tracks
-// played through MCI, now comes from the WAVs in Artwork/redbook, played by
+// played through MCI, now comes from the WAVs in Artwork/Music, played by
 // the Media Foundation Media Engine (audio only). Track n (the CD's track
 // numbering; track 1 was the data track) is line n - 1 of tracks.lst.
 //
@@ -246,7 +246,7 @@ public:
 };
 
 // Creates the music player, reading tracks.lst in strFolder (normally the
-// artwork's redbook folder)
+// artwork's Music folder)
 HRESULT CreateDiskPlayer(TRef<IDiskPlayer>& pdiskplayer, const ZString& strFolder)
 {
     TRef<DiskPlayerImpl> pdiskplayerimpl = new DiskPlayerImpl();

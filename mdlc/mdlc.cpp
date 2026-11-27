@@ -239,7 +239,7 @@ public:
         }
 
         if (FAILED(RunCommand(strCommandLine)))
-            Fail("usage: mdlc [-fontdir dir] [-optimize | -info | -genheader | -batch] input [output]");
+            Fail("usage: mdlc [-fontdir dir] [-artpath dir] [-optimize | -info | -genheader | -batch] input [output]");
 
         return S_FALSE;
     }
@@ -263,6 +263,15 @@ public:
                         if (!token.IsString(strDir))
                             return E_FAIL;
                         LoadFonts(strDir);
+                        continue;   // the command itself follows
+                    } else if (str == "artpath") {
+                        // -artpath <dir>: look art up in <dir>'s folders
+                        // (artfolders.h) instead of the working directory's;
+                        // outputs are still written to the working directory
+                        ZString strDir;
+                        if (!token.IsString(strDir))
+                            return E_FAIL;
+                        GetModeler()->SetArtPath(PathString(strDir));
                         continue;   // the command itself follows
                     } else if (str == "optimize") {
                         ZString strInput;

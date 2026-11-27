@@ -35,7 +35,7 @@ public:
 //
 
 // Creates the music player. It plays the WAVs listed in strFolder\tracks.lst
-// (the artwork's redbook folder): track n of the original Audio CD is line
+// (the artwork's Music folder): track n of the original Audio CD is line
 // n - 1 (track 1 was the data track). Fails if there is no track list.
 HRESULT CreateDiskPlayer(TRef<IDiskPlayer>& pdiskplayer, const ZString& strFolder);
 

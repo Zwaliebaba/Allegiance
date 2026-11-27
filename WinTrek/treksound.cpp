@@ -10,22 +10,6 @@ public:
     {
     }
 
-    bool FileExists(const ZString& strFilename)
-    {
-        HANDLE hFile;
-
-        hFile = CreateFile(strFilename.c_str(), 0, FILE_SHARE_READ, NULL, 
-            OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL);
-
-        if (INVALID_HANDLE_VALUE == hFile)
-            return false;
-        else
-        {
-            CloseHandle(hFile);
-            return true;
-        }
-    }
-
 public:
 
     TRef<IObject> Apply(ObjectStack& stack)
@@ -33,13 +17,8 @@ public:
         TRef<StringValue> pstring; CastTo(pstring, (IObject*)stack.Pop());
         TRef<ISoundTemplate> pTemplate;
 
-        ZString strFilename = m_pmodeler->GetArtPath() + "\\..\\SoundPack\\" + pstring->GetValue() + ".wav";
-
-        // if it's not in the soundpac1, look in the artwork directory 
-        if (!FileExists(strFilename))
-        {
-            strFilename = m_pmodeler->GetArtPath() + "\\" + pstring->GetValue() + ".wav";
-        }
+        // Artwork\Audio (artfolders.h)
+        ZString strFilename = m_pmodeler->GetArtFile(pstring->GetValue(), "wav");
 
         if (FAILED(CreateWaveFileSoundTemplate(pTemplate, strFilename)))
         {

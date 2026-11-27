@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "dds.h"
+#include "artfolders.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2226,19 +2227,44 @@ public:
         return m_pengine;
     }
 
+    //
+    // Where an art file is: a bare name is looked for in the art folders for
+    // its type, then in the art root (artfolders.h); a name with a folder in
+    // it, or an absolute path, is taken as it is. The path of the root (or as
+    // given) if the file is nowhere.
+    //
+
+    ZString FindFile(const PathString& pathStr, const ZString& strExtension)
+    {
+        ZString strFile = pathStr.GetExtension().empty() ? ZString(ZString(pathStr) + "." + strExtension) : ZString(pathStr);
+
+        if (StrFindAny(pathStr, "/\\:") == -1) {
+            for (const char* const* pszFolder = ArtFolders(strExtension.c_str()); *pszFolder; pszFolder++) {
+                ZString strPath = (m_pathStr + *pszFolder) + strFile.c_str();
+
+                if (ArtFileExists(strPath.c_str())) {
+                    return strPath;
+                }
+            }
+        }
+
+        return m_pathStr + strFile.c_str();
+    }
+
+    ZString GetArtFile(const ZString& strName, const ZString& strExtension)
+    {
+        return FindFile(strName, strExtension);
+    }
+
     TRef<ZFile> GetFile(const PathString& pathStr, const ZString& strExtensionArg, bool bError)
     {
         ZString strExtension = pathStr.GetExtension();
-        ZString strToOpen;
 
-        if (!strExtension.empty()) {
-            if (strExtension != strExtensionArg) {
-                return NULL;
-            }
-            strToOpen = m_pathStr + pathStr;
-        } else {
-            strToOpen = ZString(m_pathStr + pathStr) + ("." + strExtensionArg);
+        if (!strExtension.empty() && strExtension != strExtensionArg) {
+            return NULL;
         }
+
+        ZString strToOpen = FindFile(pathStr, strExtensionArg);
 
         TRef<ZFile> pfile= new ZFile(strToOpen, OF_READ | OF_SHARE_DENY_WRITE);
 

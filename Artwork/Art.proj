@@ -1,27 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Art build: turns the sources in Artwork/256 into the flat directory the client
-  and server read. Replaces Artwork/256/makefile, makegeo.mak and the
-  Artwork/tools batch/awk/sed chain.
+  Art build: turns the sources in Artwork\<folder> into out\Artwork\<folder>,
+  which the client and server read. Replaces the original makefile,
+  makegeo.mak and the Artwork/tools batch/awk/sed chain.
 
     msbuild Artwork\Art.proj -p:Configuration=Debug
 
   The tools (mdlc, xmunge, cvh, qhull) must already be built for the same
   configuration; this project does not build C++.
 
-  Inputs are the original manifests, unchanged:
-    256\bitmap.txt   the images to ship: 256\<name>.dds, copied (32-bit BGRA,
-                     the colour key in alpha, model textures with mip levels;
-                     see tools\art\bmp2dds.py)
-    256\copymdl.txt  text MDL files copied as-is
-    256\*.wav *.rtf *.mp4 *.igc *.mml   copied as-is
-    redbook\*.wav, tracks.lst          the music, copied to redbook\
-    256\fontsource.mdl                  compiled to font.mdl, with the fonts in
-                                        $(ArtFontDir) (default bin\, not in git:
-                                        Eurostile is not freely licensed) loaded
-                                        for mdlc only, so they need not be installed
-    256\Models.props    models (converted from makegeo.mak): template MDL +
-                        mdlc -optimize, collision hull via xmunge + cvh + qhull
+  The folders (see MODERNIZATION.md, "Art folders"); each is copied as it is
+  unless noted:
+    Audio\*.wav       sound effects and voices
+    Music\*.wav, tracks.lst   the soundtrack (the original Audio CD's tracks)
+    Textures\*.dds    images that are not model textures: UI, HUD, icons,
+                      effects, planets, backgrounds (32-bit BGRA, the colour
+                      key in alpha; see tools\art\bmp2dds.py). The six
+                      animation strips also get a text MDL each, in Interface
+    Models\           the models' .x sources and textures (.dds), and the
+                      hand-written text models (Models.props). The output gets
+                      each model's .mdl (mdlc -optimize) and .cvh (xmunge +
+                      cvh + qhull), the textures, and the text models' .x files
+    Fonts\fontsource.mdl   compiled to font.mdl, with the fonts in $(ArtFontDir)
+                      (default Artwork\Fonts: *.ttf are not in git, since
+                      Eurostile is not freely licensed) loaded for mdlc only, so
+                      they need not be installed
+    Interface\*.mdl *.mml   the UI: screens, panes, cursors, sound definitions;
+                      help pages
+    Movies\*.mp4      the opening movies
+    Data\*.igc *.rtf  the core files and the EULA
+
+  The client and server find a file by its bare name in the folders for its
+  type (ModelerImpl::GetFile, UTL::getFile), so nothing names a folder.
 
   Each step is incremental (Inputs/Outputs). mdlc runs in -batch mode so a step
   starts the engine once, not once per file.
@@ -36,13 +46,14 @@
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <AllegianceRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..'))</AllegianceRoot>
-    <ArtSource Condition="'$(ArtSource)' == ''">$(MSBuildThisFileDirectory)256\</ArtSource>
+    <ArtSource Condition="'$(ArtSource)' == ''">$(MSBuildThisFileDirectory)</ArtSource>
+    <ArtSource>$([MSBuild]::EnsureTrailingSlash('$(ArtSource)'))</ArtSource>
     <ArtToolDir Condition="'$(ArtToolDir)' == ''">$(AllegianceRoot)out\bin\x64\$(Configuration)\</ArtToolDir>
     <ArtOutDir Condition="'$(ArtOutDir)' == ''">$(AllegianceRoot)out\Artwork\</ArtOutDir>
     <ArtLink Condition="'$(ArtLink)' == ''">true</ArtLink>
     <ArtLinkDir Condition="'$(ArtLinkDir)' == ''">$(ArtToolDir)Artwork</ArtLinkDir>
     <ArtIntDir Condition="'$(ArtIntDir)' == ''">$(AllegianceRoot)out\obj\Artwork\</ArtIntDir>
-    <ArtFontDir Condition="'$(ArtFontDir)' == ''">$(AllegianceRoot)bin\</ArtFontDir>
+    <ArtFontDir Condition="'$(ArtFontDir)' == ''">$(ArtSource)Fonts\</ArtFontDir>
     <ArtFontDir>$([MSBuild]::EnsureTrailingSlash('$(ArtFontDir)'))</ArtFontDir>
     <ArtTemplateDir Condition="'$(ArtTemplateDir)' == ''">$(MSBuildThisFileDirectory)tools\</ArtTemplateDir>
     <ArtModelDir>$(ArtIntDir)models\</ArtModelDir>
@@ -50,56 +61,80 @@
     <Xmunge>$(ArtToolDir)xmunge.exe</Xmunge>
     <Cvh>$(ArtToolDir)cvh.exe</Cvh>
     <Qhull>$(ArtToolDir)qhull.exe</Qhull>
+
+    <!-- Source folders -->
+    <ArtAudio>$(ArtSource)Audio\</ArtAudio>
+    <ArtMusicSource>$(ArtSource)Music\</ArtMusicSource>
+    <ArtTextures>$(ArtSource)Textures\</ArtTextures>
+    <ArtModels>$(ArtSource)Models\</ArtModels>
+    <ArtFonts>$(ArtSource)Fonts\</ArtFonts>
+    <ArtInterface>$(ArtSource)Interface\</ArtInterface>
+    <ArtMovies>$(ArtSource)Movies\</ArtMovies>
+    <ArtData>$(ArtSource)Data\</ArtData>
+
+    <!-- Output folders -->
+    <ArtOutAudio>$(ArtOutDir)Audio\</ArtOutAudio>
+    <ArtOutMusic>$(ArtOutDir)Music\</ArtOutMusic>
+    <ArtOutTextures>$(ArtOutDir)Textures\</ArtOutTextures>
+    <ArtOutModels>$(ArtOutDir)Models\</ArtOutModels>
+    <ArtOutFonts>$(ArtOutDir)Fonts\</ArtOutFonts>
+    <ArtOutInterface>$(ArtOutDir)Interface\</ArtOutInterface>
+    <ArtOutMovies>$(ArtOutDir)Movies\</ArtOutMovies>
+    <ArtOutData>$(ArtOutDir)Data\</ArtOutData>
+
+    <!-- mdlc -artpath for the model batches (no trailing backslash before the quote;
+         a property, since a property function can't go inside an item transform) -->
+    <_ArtPathArg>$(ArtOutDir.TrimEnd('\'))</_ArtPathArg>
   </PropertyGroup>
 
   <Import Project="$(ArtSource)Models.props" />
 
-  <!-- Manifests -->
+  <!-- The folders are the manifests -->
+
+  <ItemGroup>
+    <ArtTexture Include="$(ArtTextures)*.dds" />
+    <ArtModelTexture Include="$(ArtModels)*.dds" />
+    <ArtCopy Include="$(ArtAudio)*.wav" Dest="$(ArtOutAudio)" />
+    <ArtCopy Include="$(ArtInterface)*.mdl;$(ArtInterface)*.mml" Dest="$(ArtOutInterface)" />
+    <ArtCopy Include="$(ArtMovies)*.mp4" Dest="$(ArtOutMovies)" />
+    <ArtCopy Include="$(ArtData)*.igc;$(ArtData)*.rtf" Dest="$(ArtOutData)" />
+
+    <!-- Animation strips: frames across, frames down (from the original makefile). -->
+    <ArtAnimation Include="animlaunch"  X="4" Y="4" />
+    <ArtAnimation Include="animloadout" X="4" Y="4" />
+    <ArtAnimation Include="animinvest"  X="4" Y="4" />
+    <ArtAnimation Include="animradar"   X="4" Y="4" />
+    <ArtAnimation Include="animsector"  X="2" Y="4" />
+    <ArtAnimation Include="animteam"    X="1" Y="3" />
+  </ItemGroup>
 
   <Target Name="ReadManifests">
-    <ReadLinesFromFile File="$(ArtSource)bitmap.txt">
-      <Output TaskParameter="Lines" ItemName="_BitmapName" />
-    </ReadLinesFromFile>
-    <ReadLinesFromFile File="$(ArtSource)copymdl.txt">
-      <Output TaskParameter="Lines" ItemName="_CopyMdlName" />
-    </ReadLinesFromFile>
-
     <ItemGroup>
-      <ArtBitmap Include="@(_BitmapName->'$(ArtSource)%(Identity).dds')" Condition="'%(Identity)' != ''" />
-      <ArtCopy Include="@(_CopyMdlName->'$(ArtSource)%(Identity).mdl')" Condition="'%(Identity)' != ''" />
-      <ArtCopy Include="$(ArtSource)*.wav;$(ArtSource)*.rtf;$(ArtSource)*.mp4;$(ArtSource)*.igc;$(ArtSource)*.mml" />
-
-      <!-- Animation strips: frames across, frames down (from Artwork/256/makefile). -->
-      <ArtAnimation Include="animlaunch"  X="4" Y="4" />
-      <ArtAnimation Include="animloadout" X="4" Y="4" />
-      <ArtAnimation Include="animinvest"  X="4" Y="4" />
-      <ArtAnimation Include="animradar"   X="4" Y="4" />
-      <ArtAnimation Include="animsector"  X="2" Y="4" />
-      <ArtAnimation Include="animteam"    X="1" Y="3" />
-      <_ArtAnimationSource Include="@(ArtAnimation->'$(ArtOutDir)%(Identity).dds')" />
+      <_ArtAnimationSource Include="@(ArtAnimation->'$(ArtTextures)%(Identity).dds')" />
     </ItemGroup>
 
     <!-- Optional per-model sources, as makemdl.bat looked for them -->
     <ItemGroup>
       <ArtModel>
-        <Source>$(ArtSource)%(Identity).x</Source>
-        <Static Condition="Exists('$(ArtSource)%(Identity)_static.x')">$(ArtSource)%(Identity)_static.x</Static>
-        <Static Condition="!Exists('$(ArtSource)%(Identity)_static.x')">$(ArtSource)%(Identity).x</Static>
-        <Low Condition="Exists('$(ArtSource)%(Identity)-low.x')">$(ArtSource)%(Identity)-low.x</Low>
-        <Bound Condition="Exists('$(ArtSource)%(Identity)_bound.x')">$(ArtSource)%(Identity)_bound.x</Bound>
+        <Source>$(ArtModels)%(Identity).x</Source>
+        <Static Condition="Exists('$(ArtModels)%(Identity)_static.x')">$(ArtModels)%(Identity)_static.x</Static>
+        <Static Condition="!Exists('$(ArtModels)%(Identity)_static.x')">$(ArtModels)%(Identity).x</Static>
+        <Low Condition="Exists('$(ArtModels)%(Identity)-low.x')">$(ArtModels)%(Identity)-low.x</Low>
+        <Bound Condition="Exists('$(ArtModels)%(Identity)_bound.x')">$(ArtModels)%(Identity)_bound.x</Bound>
       </ArtModel>
     </ItemGroup>
 
     <ItemGroup>
       <_TextModelXName Include="%(ArtTextModel.XFiles)" />
-      <_TextModelX Include="@(_TextModelXName->'$(ArtSource)%(Identity)')" />
+      <_TextModelX Include="@(_TextModelXName->'$(ArtModels)%(Identity)')" />
+      <_TextModelSource Include="@(ArtTextModel->'$(ArtModels)%(Text).mdl')" />
     </ItemGroup>
 
-    <Error Condition="!Exists('%(_TextModelX.FullPath)')" Text="Models.props: a text model imports %(_TextModelX.Filename)%(_TextModelX.Extension), which does not exist." />
+    <Error Condition="!Exists('%(_TextModelX.FullPath)')" Text="Models.props: a text model imports %(_TextModelX.Filename)%(_TextModelX.Extension), which is not in $(ArtModels)." />
+    <Error Condition="!Exists('%(_TextModelSource.FullPath)')" Text="Models.props: the text model %(_TextModelSource.Filename) is not in $(ArtModels)." />
     <Error Condition="!Exists('%(ArtModel.Source)')" Text="Models.props lists %(ArtModel.Identity), but %(ArtModel.Source) does not exist." />
-    <Error Condition="'%(ArtModel.Template)' == 'templatelow' and '%(ArtModel.Low)' == ''" Text="%(ArtModel.Identity) uses templatelow, but $(ArtSource)%(ArtModel.Identity)-low.x does not exist." />
-    <Error Condition="!Exists('%(ArtBitmap.FullPath)')" Text="bitmap.txt names %(ArtBitmap.Filename), but %(ArtBitmap.FullPath) does not exist." />
-    <Error Condition="!Exists('%(ArtCopy.FullPath)')" Text="copymdl.txt names %(ArtCopy.Filename), but %(ArtCopy.FullPath) does not exist." />
+    <Error Condition="'%(ArtModel.Template)' == 'templatelow' and '%(ArtModel.Low)' == ''" Text="%(ArtModel.Identity) uses templatelow, but $(ArtModels)%(ArtModel.Identity)-low.x does not exist." />
+    <Error Condition="!Exists('%(_ArtAnimationSource.FullPath)')" Text="The animation strip %(_ArtAnimationSource.Filename) is not in $(ArtTextures)." />
   </Target>
 
   <ItemGroup>
@@ -108,32 +143,34 @@
 
   <Target Name="CheckTools">
     <Error Condition="!Exists('%(_ArtTool.Identity)')" Text="%(_ArtTool.Identity) not found. Build the art tools ($(Configuration)|x64) first, or set ArtToolDir." />
-    <MakeDir Directories="$(ArtOutDir);$(ArtIntDir);$(ArtModelDir)" />
+    <MakeDir Directories="$(ArtOutDir);$(ArtIntDir);$(ArtModelDir);$(ArtOutAudio);$(ArtOutMusic);$(ArtOutTextures);$(ArtOutModels);$(ArtOutFonts);$(ArtOutInterface);$(ArtOutMovies);$(ArtOutData)" />
   </Target>
 
   <!--
-    Images: the DDS files in Artwork\256 are the source art (engine/dds.h,
-    tools\art\bmp2dds.py), copied as they are.
+    Images: the DDS files are the source art (engine/dds.h, tools\art\bmp2dds.py),
+    copied as they are: Textures\ to Textures\, the model textures to Models\.
   -->
 
   <Target Name="Bitmaps"
           DependsOnTargets="ReadManifests;CheckTools"
-          Inputs="@(ArtBitmap)"
-          Outputs="@(ArtBitmap->'$(ArtOutDir)%(Filename).dds')">
-    <Copy SourceFiles="@(ArtBitmap)" DestinationFolder="$(ArtOutDir)" SkipUnchangedFiles="true" />
+          Inputs="@(ArtTexture);@(ArtModelTexture)"
+          Outputs="@(ArtTexture->'$(ArtOutTextures)%(Filename).dds');@(ArtModelTexture->'$(ArtOutModels)%(Filename).dds')">
+    <Copy SourceFiles="@(ArtTexture)" DestinationFolder="$(ArtOutTextures)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ArtModelTexture)" DestinationFolder="$(ArtOutModels)" SkipUnchangedFiles="true" />
   </Target>
 
   <!--
-    Animations: a small text MDL per strip, which builds the frame animation
-    from the strip's DDS when it is loaded (FrameImage). mdlc -compressanim
-    used to precompute it into a binary MDL with 16-bit frames.
+    Animations: a small text MDL per strip, in Interface\, which builds the
+    frame animation from the strip's DDS when it is loaded (FrameImage).
+    mdlc -compressanim used to precompute it into a binary MDL with 16-bit
+    frames.
   -->
 
   <Target Name="Animations"
-          DependsOnTargets="Bitmaps"
+          DependsOnTargets="ReadManifests;CheckTools"
           Inputs="@(_ArtAnimationSource)"
-          Outputs="@(ArtAnimation->'$(ArtOutDir)%(Identity).mdl')">
-    <WriteLinesToFile File="$(ArtOutDir)%(ArtAnimation.Identity).mdl"
+          Outputs="@(ArtAnimation->'$(ArtOutInterface)%(Identity).mdl')">
+    <WriteLinesToFile File="$(ArtOutInterface)%(ArtAnimation.Identity).mdl"
                       Lines="// Generated by Artwork\Art.proj: %(ArtAnimation.Identity).dds as %(ArtAnimation.X) x %(ArtAnimation.Y) frames;use &quot;model&quot;%3B;frame = ModifiableNumber(0)%3B;image = FrameImage(ImportImage(&quot;%(ArtAnimation.Identity)bmp&quot;, false), frame, %(ArtAnimation.X), %(ArtAnimation.Y))%3B"
                       Overwrite="true" />
   </Target>
@@ -146,14 +183,14 @@
 
   <Target Name="Fonts"
           DependsOnTargets="CheckTools"
-          Inputs="$(ArtSource)fontsource.mdl;$(Mdlc);@(ArtFont)"
-          Outputs="$(ArtOutDir)font.mdl">
+          Inputs="$(ArtFonts)fontsource.mdl;$(Mdlc);@(ArtFont)"
+          Outputs="$(ArtOutFonts)font.mdl">
     <PropertyGroup>
       <_ArtFontArg Condition="'@(ArtFont)' != ''">-fontdir &quot;$(ArtFontDir.TrimEnd('\'))&quot;</_ArtFontArg>
     </PropertyGroup>
     <Warning Condition="'@(ArtFont)' == ''"
-             Text="No fonts in $(ArtFontDir). font.mdl gets whatever Windows substitutes for fonts that are not installed (Eurostile). Set ArtFontDir to a folder with eurosti.ttf and eurostib.ttf." />
-    <Exec Command="&quot;$(Mdlc)&quot; $(_ArtFontArg) fontsource &quot;$(ArtOutDir)font.mdl&quot;" WorkingDirectory="$(ArtSource)" />
+             Text="No fonts in $(ArtFontDir). font.mdl gets whatever Windows substitutes for fonts that are not installed (Eurostile). Put eurosti.ttf and eurostib.ttf there, or set ArtFontDir to a folder with them." />
+    <Exec Command="&quot;$(Mdlc)&quot; $(_ArtFontArg) fontsource &quot;$(ArtOutFonts)font.mdl&quot;" WorkingDirectory="$(ArtFonts)" />
   </Target>
 
   <!--
@@ -164,14 +201,14 @@
       cvh               hull(s) via qhull + the points       -> <name>.cvh
     and the template with "name" and "initialFrame" filled in -> <name>source.mdl.
     The template refers to the .x files by absolute path, so mdlc can run in
-    $(ArtOutDir), where it finds the converted textures, while the
-    intermediates stay out of it.
+    $(ArtOutModels), where it finds the textures, while the intermediates stay
+    out of it.
   -->
 
   <Target Name="PrepareModels"
           DependsOnTargets="ReadManifests;CheckTools"
           Inputs="%(ArtModel.Source);%(ArtModel.Static);%(ArtModel.Low);%(ArtModel.Bound);$(ArtTemplateDir)%(ArtModel.Template).mdl;$(Xmunge);$(Cvh);$(Qhull)"
-          Outputs="$(ArtModelDir)%(ArtModel.Identity)source.mdl;$(ArtOutDir)%(ArtModel.Identity).cvh">
+          Outputs="$(ArtModelDir)%(ArtModel.Identity)source.mdl;$(ArtOutModels)%(ArtModel.Identity).cvh">
     <PropertyGroup>
       <_Name>%(ArtModel.Identity)</_Name>
       <_None>false</_None>
@@ -200,60 +237,66 @@
     <Exec Condition="!$(_None) and $(_Bound)" WorkingDirectory="$(ArtModelDir)" Command="&quot;$(Cvh)&quot; -bound $(_Name)" />
     <Exec Condition="!$(_None) and !$(_Bound)" WorkingDirectory="$(ArtModelDir)" Command="&quot;$(Cvh)&quot; -extract $(_Name)" />
 
-    <Copy SourceFiles="$(ArtModelDir)$(_Name).cvh" DestinationFolder="$(ArtOutDir)" />
+    <Copy SourceFiles="$(ArtModelDir)$(_Name).cvh" DestinationFolder="$(ArtOutModels)" />
     <WriteLinesToFile File="$(ArtModelDir)$(_Name)source.mdl" Lines="$([MSBuild]::Escape($(_Template)))" Overwrite="true" />
   </Target>
 
-  <!-- Models, step 2: mdlc -optimize for all models in one process, in $(ArtOutDir) -->
+  <!--
+    Models, step 2: mdlc -optimize for all models in one process, in
+    $(ArtOutModels), where the outputs go. -artpath points the lookup at
+    $(ArtOutDir), so mdlc finds the models' textures in Models\ and the effect
+    images the optimizer adds (the strobe of the lights) in Textures\.
+  -->
 
   <Target Name="Models"
           DependsOnTargets="Bitmaps;PrepareModels"
           Inputs="@(ArtModel->'$(ArtModelDir)%(Identity)source.mdl');$(Mdlc)"
-          Outputs="@(ArtModel->'$(ArtOutDir)%(Identity).mdl')">
+          Outputs="@(ArtModel->'$(ArtOutModels)%(Identity).mdl')">
     <WriteLinesToFile File="$(ArtIntDir)models.batch"
-                      Lines="@(ArtModel->'-optimize &quot;$(ArtModelDir)%(Identity)source&quot; %(Identity)')"
+                      Lines="@(ArtModel->'-artpath &quot;$(_ArtPathArg)&quot; -optimize &quot;$(ArtModelDir)%(Identity)source&quot; %(Identity)')"
                       Overwrite="true" />
-    <Exec Command="&quot;$(Mdlc)&quot; -batch &quot;$(ArtIntDir)models.batch&quot;" WorkingDirectory="$(ArtOutDir)" />
+    <Exec Command="&quot;$(Mdlc)&quot; -batch &quot;$(ArtIntDir)models.batch&quot;" WorkingDirectory="$(ArtOutModels)" />
   </Target>
 
   <!--
     Models from hand-written text MDLs (Models.props ArtTextModel). As in
-    makegeo.mak, the .x files they import are copied next to them in
-    $(ArtOutDir), and mdlc runs there.
+    makegeo.mak, the text MDL and the .x files it imports are copied to
+    $(ArtOutModels), and mdlc runs there, with -artpath as for the models.
   -->
 
   <Target Name="TextModels"
-          DependsOnTargets="ReadManifests;Bitmaps;Copies"
-          Inputs="@(ArtTextModel->'$(ArtSource)%(Text).mdl');@(_TextModelX);$(Mdlc)"
-          Outputs="@(ArtTextModel->'$(ArtOutDir)%(Identity).mdl')">
+          DependsOnTargets="ReadManifests;Bitmaps"
+          Inputs="@(_TextModelSource);@(_TextModelX);$(Mdlc)"
+          Outputs="@(ArtTextModel->'$(ArtOutModels)%(Identity).mdl')">
     <ItemGroup>
-      <_TextModelLine Include="-optimize %(ArtTextModel.Text) %(ArtTextModel.Identity)" Condition="'%(ArtTextModel.Mode)' == 'optimize'" />
-      <_TextModelLine Include="%(ArtTextModel.Text) %(ArtTextModel.Identity).mdl" Condition="'%(ArtTextModel.Mode)' == 'compile'" />
+      <_TextModelLine Include="-artpath &quot;$(_ArtPathArg)&quot; -optimize %(ArtTextModel.Text) %(ArtTextModel.Identity)" Condition="'%(ArtTextModel.Mode)' == 'optimize'" />
+      <_TextModelLine Include="-artpath &quot;$(_ArtPathArg)&quot; %(ArtTextModel.Text) %(ArtTextModel.Identity).mdl" Condition="'%(ArtTextModel.Mode)' == 'compile'" />
     </ItemGroup>
-    <Copy SourceFiles="@(_TextModelX)" DestinationFolder="$(ArtOutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_TextModelSource);@(_TextModelX)" DestinationFolder="$(ArtOutModels)" SkipUnchangedFiles="true" />
     <WriteLinesToFile File="$(ArtIntDir)textmodels.batch" Lines="@(_TextModelLine)" Overwrite="true" />
-    <Exec Command="&quot;$(Mdlc)&quot; -batch &quot;$(ArtIntDir)textmodels.batch&quot;" WorkingDirectory="$(ArtOutDir)" />
+    <Exec Command="&quot;$(Mdlc)&quot; -batch &quot;$(ArtIntDir)textmodels.batch&quot;" WorkingDirectory="$(ArtOutModels)" />
   </Target>
 
   <!-- Files used as-is -->
 
-  <Target Name="Copies" DependsOnTargets="ReadManifests;CheckTools">
-    <Copy SourceFiles="@(ArtCopy)" DestinationFolder="$(ArtOutDir)" SkipUnchangedFiles="true" />
+  <Target Name="Copies" DependsOnTargets="CheckTools">
+    <Copy SourceFiles="@(ArtCopy)" DestinationFolder="%(ArtCopy.Dest)" SkipUnchangedFiles="true" />
   </Target>
 
   <!--
-    The soundtrack: redbook\*.wav and tracks.lst, played by the client's music
+    The soundtrack: Music\*.wav and tracks.lst, played by the client's music
     player (they were the Audio CD's tracks). Hard links where the volume
     allows, since the WAVs are about 260 MB. A checkout without them (CI's art
     job) copies nothing: both are wildcards, because an item with a plain path
     is kept, and copied, even when the file does not exist.
   -->
+
   <ItemGroup>
-    <ArtMusic Include="$(MSBuildThisFileDirectory)redbook\*.wav;$(MSBuildThisFileDirectory)redbook\*.lst" />
+    <ArtMusic Include="$(ArtMusicSource)*.wav;$(ArtMusicSource)*.lst" />
   </ItemGroup>
 
-  <Target Name="Music">
-    <Copy SourceFiles="@(ArtMusic)" DestinationFolder="$(ArtOutDir)redbook" SkipUnchangedFiles="true"
+  <Target Name="Music" DependsOnTargets="CheckTools">
+    <Copy SourceFiles="@(ArtMusic)" DestinationFolder="$(ArtOutMusic)" SkipUnchangedFiles="true"
           UseHardlinksIfPossible="true" />
   </Target>
 
