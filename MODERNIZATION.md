@@ -159,7 +159,7 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
 
 | Subsystem | Today | Target |
 |---|---|---|
-| Rendering | DirectDraw 4 + Direct3D 3 (DirectX 6), software rasterizer | D3D11 backend. Stage 1 (below): a D3D11 rasterizer with the engine's CPU transform and lighting. Stage 2: transform and lighting in shaders |
+| Rendering | DirectDraw 4 + Direct3D 3 (DirectX 6), software rasterizer | D3D11 backend. Stage 1 (below): a D3D11 rasterizer with the engine's CPU transform and lighting. Stage 2: transform and lighting in shaders. Stage 3: HDR, MSAA, bloom, per-pixel lighting and native widescreen |
 | Input | DirectInput 2/7 | DirectInput 8 |
 | Audio | DirectSound / DS3D | Done: XAudio2 2.9 (in Windows 10 and later) with X3DAudio for the pan and doppler (see "Sound" below) |
 | Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Done: the same `IDiskPlayer` interface plays the WAVs from `Artwork/Music` (copied to `out\Artwork\Music` by `Art.proj`; CD track n is line n - 1 of `tracks.lst`) through the Media Foundation Media Engine, audio only. The music gain sets the player's volume instead of the system mixer's CD line |
@@ -269,6 +269,53 @@ Differences to look for when testing:
   precedence slip); the GPU draws the whole glyph up to the clip edge.
 - Stretch blits sample at pixel centres, which can pick a neighbouring source pixel compared with the
   integer CPU loop. Only the (stubbed) movie image uses them.
+
+#### Rendering, stage 3: modern look and native widescreen
+
+Decisions:
+
+- **Direction.** A visibly modernised look, not a faithful one, and one code path: no switches and no "classic" preset.
+- **Widescreen.** The combat view renders at the monitor's native size. The camera is Hor+, widening horizontally up to 21:9 and pillarboxed beyond that. The 800x600 menu screens are scaled to the screen height and pillarboxed.
+- **Verification.** CI builds. The visual changes were tested together, by hand, at the end.
+
+| Piece | Stage 2 | Stage 3 |
+|---|---|---|
+| Fullscreen size | The 4:3 mode list (640x480 to 1600x1200) that fits the monitor; 800x600 by default | The same list plus the monitor's native size, cut to 21:9 if it is wider (the presenter pillarboxes it); with no saved preference the combat view uses the native size (`CombatFullscreenXSize`/`YSize` 0) |
+| Field of view | Horizontal FOV, so a wider view cut the top and bottom | The game's FOV values stay those of a 4:3 view. A wider view keeps that view's vertical field and widens horizontally up to 21:9 (`HorPlusFOV` in `WinTrek.cpp`); the blip angle-to-pixel factor uses the widened field. The HUD needs no change: `dialog.mdl` anchors its dialogs to the screen sides |
+| Presentation | Bilinear scaling to fit, vsync, DXGI's default frame queue | Sharp bilinear: whole-number scaling with square pixels, filtering only the rest, so 800x600 screens stay crisp when pillarboxed. A frame-latency waitable swap chain with a maximum latency of 1; the presenter waits on it after each present |
+| Texture filtering | Bilinear with the baked mip chains | 16x anisotropic |
+| 3D layers | Drawn straight into the surface's BGRA8 GPU copy, in gamma space | A 3D layer with a z-buffer (`Context::Begin3DLayer`/`End3DLayer`, passed down through `Device3D` to the rasterizer) draws into a scene target: RGBA16F in linear light with a D32F depth buffer, 4x MSAA on hardware with at least 1 GB of video memory (one sample otherwise, and on WARP). At the end of the layer the scene is resolved, bloomed, tonemapped, gamma-encoded and blended over the surface (premultiplied, through the clip rects the layer drew in). Scene targets are pooled by size. Layers without a z-buffer still draw directly |
+| Colour space | Art and colours used as they are | In a scene, textures, vertex colours and authored colours (global colour, material diffuse, light colours) are decoded from gamma 2.2; light intensities (the directional term, ambient) are linear. The composite encodes with 1/2.2 |
+| Coverage | Additive draws accumulated alpha | In a scene, `BlendModeAdd` leaves alpha alone: light in front of nothing stays see-through and is added to what is behind, as when it was drawn straight into the frame |
+| Tonemap | None (values clipped at 1) | Unchanged up to a knee of 0.9, then a smooth roll-off towards white. White art under full light comes out at 0.95 in linear light (249 of 255 encoded) |
+| Bloom | None | A dual-filter chain of half-size levels (down to about 16 pixels) on the resolved scene: the first downsample keeps what is over 0.9 (soft knee 0.5), the upsamples add each level into the one above, and the composite adds the top level at a strength of 0.35. Lit hulls stay under the threshold; stacked additive light (engines, weapons, explosions, alephs) glows |
+| Lighting | Per vertex (Gouraud), in `tl.hlsli` | Per pixel for `Vertex` geometry (`tl_ps.hlsl`): the same directional, bidirectional and material formulas for the interpolated normal, plus, in a scene, a Blinn-Phong highlight (power 24, strength 0.35) in the light's colour, faded out towards the terminator. `Device3D` adds the model-space eye position to the transform-and-light constants. Flat shading uses the first vertex's normal. `VertexL` geometry keeps its vertex colours |
+| Overlay | Uploads, readbacks, texture refreshes, 2D and 3D draws | Also the scene targets composited per frame |
+
+The constants (knee, bloom threshold and strength, specular power and strength, the MSAA memory floor) are
+at the top of `engine/d3d11raster.cpp` and `engine/shaders/tl_ps.hlsl`, chosen without seeing the result,
+and are the first thing to tune.
+
+How it was checked: CI builds it and runs the unit tests and the art build, which exercise none of it. Locally, clang
+syntax-checked the engine against the mingw-w64 Direct3D 11 headers, and glslang parsed every shader as HLSL;
+neither is FXC or MSVC.
+
+To check when testing:
+
+- Combat at native size on 16:9 and 21:9 (and 32:9, which should be pillarboxed to 21:9): the HUD at the
+  screen edges, the target blips and the round radar, mouse picking, zoom (the FOV keys), the command view.
+- Menu screens: pillarboxed and sharp at 1080p, 1440p and 4K.
+- The look: hull shading and highlights, engine and weapon glow, explosions, alephs, cloaked ships
+  (blended draws), the loadout and hangar ship previews (panes keyed on black), the target display.
+- MSAA edges on hulls and on colour-keyed cut-outs. Alpha-to-coverage is not used, so cut-outs stay aliased.
+- Frame pacing: input lag and smoothness, and that vsync still holds the frame rate.
+- Device reset (for example a driver update or switching GPU) during combat.
+
+Known gaps:
+
+- **HUD scale.** The HUD and fonts are drawn at their pixel size, so at 4K they are small. Scaling the UI is a separate change.
+- **Competitive balance.** Hor+ shows 21:9 players more of the sector than 4:3 players.
+- **Not done.** Reversed-Z depth, tearing and VRR without vsync, and specular or emissive maps (the art has none).
 
 #### Networking: MsQuic replaces DirectPlay
 
