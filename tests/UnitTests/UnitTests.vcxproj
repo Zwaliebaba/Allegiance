@@ -36,7 +36,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(UnitTestDir)include;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(UnitTestDir)include;$(AllegianceRoot)engine;$(AllegianceRoot)_Utility;$(AllegianceRoot)zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ZLIB_SKIP_NEW_REDEF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -51,11 +51,18 @@
     <ClCompile Include="ZStringTests.cpp" />
     <ClCompile Include="PathStringTests.cpp" />
     <ClCompile Include="ObjectStackTests.cpp" />
+    <ClCompile Include="NetworkTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\_Utility\Utility.vcxproj">
+      <Project>{B7B60918-2EC7-4B11-98E6-15EE459965E1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\guids\Guids.vcxproj">
+      <Project>{CB4A5507-7890-4D3E-ACAB-CD2B1E126D40}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\zlib\ZLib.vcxproj">
       <Project>{34F19E78-C3AD-4EEC-8F42-C823D58200C8}</Project>
     </ProjectReference>

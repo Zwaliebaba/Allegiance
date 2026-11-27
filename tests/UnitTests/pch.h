@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// Unit tests: zlib (and the engine headers that need only zlib), run with
+// Unit tests: zlib (and the engine headers that need only zlib) and the
+// networking in _Utility (FedMessaging, FedTransport), run with
 // Microsoft's CppUnitTest framework. See MODERNIZATION.md, "Unit tests".
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -16,9 +17,20 @@
 #include "CppUnitTest.h"
 
 #include "windows.h"
+#include "windowsx.h"
+#include "mmsystem.h"
+
+#include "guids.h"
 #include "zlib.h"
+#include "utility.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+
+// For assertion messages
+inline std::wstring Wide(const std::string& str)
+{
+    return std::wstring(str.begin(), str.end());
+}
 
 // Strings compare as char*, so a failure prints both values
 inline void AreEqualStr(const char* expected, const std::string& actual, const wchar_t* message = nullptr)

@@ -183,8 +183,9 @@ jobs:
         run: exit 1
 
   # AddressSanitizer: the libraries the unit tests and mdlc need, built with
-  # /fsanitize=address, then the unit tests and the mdlc smoke test (which
-  # loads MDL, the code path of the ObjectStack use-after-free). Release, since
+  # /fsanitize=address, then the unit tests (which include a loopback QUIC
+  # session) and the mdlc smoke test (which loads MDL, the code path of the
+  # ObjectStack use-after-free). Release, since
   # ASan does not combine with the Debug configuration's /RTC checks.
   asan:
     runs-on: windows-2025
@@ -193,6 +194,8 @@ jobs:
       CONFIGURATION: Release
       PROJECTS: >-
         zlib/ZLib.vcxproj
+        guids/Guids.vcxproj
+        _Utility/Utility.vcxproj
         engine/Engine.vcxproj
         effect/Effect.vcxproj
         mdlc/mdlc.vcxproj
@@ -220,6 +223,12 @@ jobs:
           "ASan runtime: $($dll.FullName)"
           # The instrumented exes and the test DLL load the runtime from PATH
           $dll.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+      - name: Restore NuGet packages (MsQuic)
+        shell: pwsh
+        run: |
+          & $env:MSBUILD _Utility/Utility.vcxproj -nologo -t:restore -p:RestorePackagesConfig=true "-p:SolutionDir=$pwd\" -p:Platform=x64
+          if (-not (Test-Path packages/Microsoft.Native.Quic.MsQuic.Schannel.*/build/native/include/msquic.h)) { throw "MsQuic was not restored" }
 
       - name: Build with AddressSanitizer
         id: build
