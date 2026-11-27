@@ -118,9 +118,8 @@ public:
     {
         IPopup::SetContainer(pcontainer);
 
-        if (g_bQuickstart || g_bReloaded)
+        if (g_bQuickstart)
         {
-            g_bReloaded = false; // we do this just once
             OnButtonLogon();
         }
     }

@@ -3829,14 +3829,11 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
         if (pfmLogon->fedsrvVer < MSGVER)
           wsprintf(szVerError, "The server you are trying to play on has a newer version than you.  "
-            "Please go play online to get the latest auto-update.  If this doesn't work, try deleting "
-            "the file 'filelist.txt' from the install directory and restarting the application.");
+            "Update your game to play on it.");
         else /* if (pfmLogon->fedsrvVer > MSGVER) */
         {
           wsprintf(szVerError, "The server you are trying to play on is out-of-date.  Find another server "
-            "or contact the server's owner and tell them to auto-update by connecting to the zone match-making "
-            "service.  If that doesn't work, have the server's owner try deleting "
-            "the file 'filelist.txt' from the install directory and restarting the server.");
+            "or ask the server's owner to update it.");
         }
         assert(lstrlen(szVerError) < sizeof(szVerError));
         g_events.TriggerEvent(NULL, AllsrvEventID_BadClientVersion, "", -1, -1, -1, 2,
@@ -5502,22 +5499,6 @@ void UpdateMissions(Time timeStart, Time timePrevious)
 }
 
 
-void GetExePath(char * szEXEPath)
-{
-    ::GetModuleFileName(NULL, szEXEPath, MAX_PATH);
-    char*   p = strrchr(szEXEPath, '\\');
-    if (p)
-    {
-        p++;
-        *p = 0; // erase filename
-    }
-    else
-    {
-        szEXEPath[0] = '\\';
-        szEXEPath[1] = '\0';
-    }
-}
-
 bool IsCFGFileValid(const char * szFileName)
 {
     const char * c_szValidCfg  = "THIS IS A VALID CONFIG FILE";
@@ -5584,122 +5565,7 @@ IHTTPSession * BeginConfigDownload()
 
 
 
-// returns true only if up-to-date
-bool OnAutoUpdateEXEDownloadDone(const char * szFilelistCRC, int nFilelistCRC, int nFilelistSize, const char * szSite, const char * szDirectory, int nAutoUpdateCRC, const char * szEXEPath)
-{
-    char szPath[MAX_PATH + 16];
-    strcpy(szPath, szEXEPath);
-    strcat(szPath, "AutoUpdate.exe");
-
-    if (nAutoUpdateCRC != FileCRC(szPath, NULL))
-    {
-        // report CRC mismatch error for AutoUpdate.EXE
-        // todo fire event
-        const char * szMsg = "ERROR: AutoUpdate was aborted.  CRC for AutoUpdate.exe downloaded did not match CRC found in cfg file.  You will not be able to host a public game.\n";
-        printf(szMsg);
-        MessageBox(NULL, szMsg, "Allegiance Server", MB_SERVICE_NOTIFICATION);
-        debugf("AutoUpdate.exe CRC mismatch\n");
-        return false;
-    }
-
-    //
-    // Decide what will be launched after the update (AllSrv32 or UI), and how it will be launched (as service or EXE)
-    //
-    const char * szLaunchPostUpdate;
-    
-    szLaunchPostUpdate = g.fService ? "S:AllSrv32" : "AllSrv32.exe";  // S: is short for "Start as Service"
-
-    char szCommandLine[MAX_PATH * 10];
-    _snprintf (szCommandLine, sizeof(szCommandLine)-1, "%s %s %d \"%s\" \"%s\" \"%s\"", szLaunchPostUpdate, szFilelistCRC, nFilelistSize, szSite, szDirectory, g.strArtPath.c_str());
-
-    printf("Launching AutoUpdate.exe ... ");
-    // Start the AutoUpdate utility
-    int nErr;
-    if((nErr = (int)(INT_PTR)ShellExecute(0, 
-                         "Open", 
-                         szPath,
-                         szCommandLine, 
-                         NULL,
-                         SW_SHOWNORMAL)
-                         ) <= 32)
-    {
-        // report launch error
-        // todo fire event
-        printf("failed.\nError launching AutoUpdate.exe (Code = %d).  You will not be able to host a public game.\n", nErr);
-        MessageBox(NULL, "Error launching AutoUpdate.exe.  You will not be able to host a public game.", "Allegiance Server", MB_SERVICE_NOTIFICATION);
-        debugf("Couldn't launch AutoUpdate.exe (Code = %d)\n", nErr);
-        return false;
-    }
-    printf("succeeded.\n");
-
-    // Exit the application
-    PostQuitMessage(0);    // allow proper shutdown to occur so Shutdown event gets fired to AllSRvUI32
-    //SetEvent(g.hKillReceiveEvent);
-    return false;
-}
-
-
-
-bool DownloadAutoUpdateEXE(const char * szFilelistCRC, int nFilelistCRC, int nFilelistSize, const char * szSite, const char * szDirectory, int nAutoUpdateCRC, const char * szAutoUpdateURL)
-{
-    char szEXEPath[MAX_PATH];
-    GetExePath(szEXEPath);
-
-    char szPath[MAX_PATH];
-    strcpy(szPath, szEXEPath);
-    strcat(szPath, "AutoUpdate.exe");
-
-    printf("Server is out-of-date.\n");
-
-    if (nAutoUpdateCRC != FileCRC(szPath, NULL))
-    {
-      // Start the download of AutoUpdate.exe file 
-      IHTTPSession * pHTTPSession = CreateHTTPSession(NULL);
-
-      const char * szFileList[] = { szAutoUpdateURL, "AutoUpdate.exe", NULL };
-      pHTTPSession->InitiateDownload(szFileList, szEXEPath); 
-
-      debugf("Downloading AutoUpdate.exe file...");
-      printf("Downloading AutoUpdate.exe file ... ");
-
-      // we block as we download the AutoUpdate.exe file; should be okay since we are not connected to the zone.
-      while(pHTTPSession->ContinueDownload())
-      {
-        Sleep(100);
-      }
-
-      debugf("Done\n");
-
-      //
-      // At this point we are done downloading AutoUpdate.exe file
-      //
-
-      bool bErrorOccurred = pHTTPSession->GetLastErrorMessage() ? true : false;
-
-      char szErrorMsg[512];
-      if (bErrorOccurred)
-        _snprintf(szErrorMsg, sizeof(szErrorMsg), "\nError Connecting to Zone.  You will not be able to host a public game. AutoUpdate.exe download failed. \r\n%s", pHTTPSession->GetLastErrorMessage());
-
-      delete pHTTPSession;
-
-      if (bErrorOccurred)
-      {
-          // report AutoUpdate.exe download error
-          // TODO: fire event
-          printf("failed: %s\n", szErrorMsg);
-          MessageBox(NULL, szErrorMsg, "Allegiance Server", MB_SERVICE_NOTIFICATION);
-          debugf("%s\n", szErrorMsg);
-          return false;
-      }
-      else
-      printf("succeeded.\n");
-    }
-
-    return OnAutoUpdateEXEDownloadDone(szFilelistCRC, nFilelistCRC, nFilelistSize, szSite, szDirectory, nAutoUpdateCRC, szEXEPath);
-}
-
-
-bool OnCFGDownloadDone(const char * szConfig) // returns true iff up-to-date
+bool OnCFGDownloadDone(const char * szConfig) // returns true iff the cfg names a lobby
 {
     // Read the PublicLobby value
     char szLobby[_MAX_PATH * 2];
@@ -5710,87 +5576,7 @@ bool OnCFGDownloadDone(const char * szConfig) // returns true iff up-to-date
     if (*szLobby == '\0')
       return false;
     g.strLobbyServer = szLobby;
-
-    char szFilelistCRC[50];
-
-    GetPrivateProfileString("AllSrvUI", "FilelistCRC", "0", 
-                            szFilelistCRC, sizeof(szFilelistCRC), szConfig);
-
-    _strupr(szFilelistCRC);
-
-    int nFilelistCRC = UTL::hextoi(szFilelistCRC);
-
-    // If the CRC is zero (or doesn't exist) just accept it
-    if (nFilelistCRC == 0)
-      return true;
-
-    char szEXEPath[MAX_PATH + 16];
-    GetExePath(szEXEPath);
-
-    char szPath[MAX_PATH + 16];
-    strcpy(szPath, szEXEPath);
-    strcat(szPath, "Filelist.txt");
-
-    // Ask if they want to auto update, if determined necessary
-    if (FileCRC(szPath, NULL) != nFilelistCRC)
-    {
-      char szStr[100];
-
-      GetPrivateProfileString("AllSrvUI", "FilelistSize", "0", 
-                              szStr, sizeof(szStr), szConfig);
-
-      int nFilelistSize = atoi(szStr);
-
-      // If the filelist size is zero (or doesn't exist) just accept it
-      if (nFilelistSize == 0)
-        return true;
-
-      char szSite[512];
-
-      GetPrivateProfileString("AllSrvUI", "Site", "", 
-                              szSite, sizeof(szSite), szConfig);
-
-      // If the site value is empty (or doesn't exist) just accept it
-      if (szSite[0] == '\0')
-        return true;
-
-      char szDirectory[512];
-
-      GetPrivateProfileString("AllSrvUI", "Directory", "", 
-                              szDirectory, sizeof(szDirectory), szConfig);
-
-      // If the directory value is empty (or doesn't exist) just accept it
-      if (szDirectory[0] == '\0')
-        return true;
-
-      char szAutoUpdateURL[512];
-
-      GetPrivateProfileString("AllSrvUI", "AutoUpdateURL", "", 
-                              szAutoUpdateURL, sizeof(szAutoUpdateURL), szConfig);
-
-      // If the URL value is empty (or doesn't exist) just accept it
-      if (szAutoUpdateURL[0] == '\0')
-        return true;
-
-      char szAutoUpdateCRC[30];
-
-      GetPrivateProfileString("AllSrvUI", "AutoUpdateCRC", "", 
-                              szAutoUpdateCRC, sizeof(szAutoUpdateCRC), szConfig);
-
-      _strupr(szAutoUpdateCRC);
- 
-      int nAutoUpdateCRC = UTL::hextoi(szAutoUpdateCRC);
-
-      // If the AutoUpdate values are empty (or don't exist) just accept them
-      if (szAutoUpdateCRC[0] == '\0' || nAutoUpdateCRC == 0)
-        return true;
-
-      return DownloadAutoUpdateEXE(szFilelistCRC, nFilelistCRC, nFilelistSize, szSite, szDirectory, nAutoUpdateCRC, szAutoUpdateURL);
-    }
-    else
-    {
-      return true;
-    }
+    return true;
 }
 
 
@@ -5904,7 +5690,7 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
   DisconnectFromLobby();
   assert(!g.fmLobby.IsConnected());
 
-  // find out what lobby to use and/or autoupdate info
+  // find out what lobby to use
   if (!RetrieveCFGFile())
     return HRESULT_FROM_WIN32(ERROR_CRC);
 

@@ -5,14 +5,13 @@
 //
 // Lobby Screen
 //
-// Entry point for Internet play: downloads the config file, runs the
-// auto-updater and the message of the day, then logs on to the free lobby.
+// Entry point for Internet play: downloads the config file and the message
+// of the day, then logs on to the free lobby.
 //
 //////////////////////////////////////////////////////////////////////////////
 
 extern bool    g_bDownloadMessageOfDay;
 extern bool    g_bDownloadNewConfig;
-extern bool    g_bSkipAutoUpdate;
 
 const char * szValidCfg  = "THIS IS A VALID CONFIG FILE";
 const char * szValidMotd = "THIS IS A VALID MESSAGE OF THE DAY FILE";
@@ -22,7 +21,7 @@ class LobbyScreen :
     public LogonSite,
     public TrekClientEventSink,
     public IIntegerEventSink,
-    public IAutoUpdateSink,
+    public IHTTPSessionSink,
     public EventTargetContainer<LobbyScreen>
 {
 private:
@@ -352,48 +351,9 @@ public:
             return;
         }
 
-        if (!g_bSkipAutoUpdate
-            && trekClient.GetCfgInfo().crcFileList != 0
-            && trekClient.GetCfgInfo().nFilelistSize != 0
-            && trekClient.GetCfgInfo().strFilelistSite != ""
-            && trekClient.GetCfgInfo().strFilelistDirectory != "")
-        {
-            bool bForceFileCheck = trekClient.ShouldCheckFiles();
-
-            if (bForceFileCheck || trekClient.GetCfgInfo().crcFileList != FileCRC("Filelist.txt", NULL))
-            {
-                if (trekClient.m_pAutoDownload == NULL)
-                    trekClient.m_pAutoDownload = CreateAutoDownload();
-
-                IAutoUpdateSink * pAutoUpdateSink = trekClient.OnBeginAutoUpdate(this, false);
-                assert(pAutoUpdateSink);
-
-                trekClient.m_pAutoDownload->SetFTPSite(trekClient.GetCfgInfo().strFilelistSite.c_str(),
-                                                       trekClient.GetCfgInfo().strFilelistDirectory.c_str(),
-                                                       "blah", // account
-                                                       "blah"); // pw
-
-                trekClient.m_pAutoDownload->SetOfficialFileListAttributes(trekClient.GetCfgInfo().crcFileList,
-                                                                          trekClient.GetCfgInfo().nFilelistSize);
-
-                trekClient.m_pAutoDownload->SetArtPath(trekClient.GetArtPath());
-
-                // m_pAutoDownload can be NULL after this if the updater decided not to
-                // download after all (an error, or the client is already up to date).
-                trekClient.m_pAutoDownload->BeginUpdate(pAutoUpdateSink, bForceFileCheck, false);
-            }
-            else
-            {
-                OnAutoUpdateSystemTermination(false, false); // already up to date
-            }
-        }
-        else
-        {
-            if (!g_bSkipAutoUpdate)
-                debugf("Your cfg file is missing one or more of the following:\nFilelistCRC, FilelistSize, FilelistSite, FilelistDirectory\nSkipping AutoUpdate.\n");
-
-            OnAutoUpdateSystemTermination(false, false);
-        }
+        m_pbuttonMainMenu->SetEnabled(true);
+        m_pbuttonGames->SetEnabled(true);
+        m_pbuttonGamesBig->SetEnabled(true);
 
         BeginMessageOfDayDownload();
     }
@@ -416,23 +376,6 @@ public:
         else
         {
             debugf("Errors detected while downloading message of the day.  Skipping load.\n");
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    //
-    // IAutoUpdateSink
-    //
-    ////////////////////////////////////////////////////////////////////
-
-    virtual void OnAutoUpdateSystemTermination(bool bErrorOccurred, bool bRestarting)
-    {
-        m_pbuttonMainMenu->SetEnabled(true);
-
-        if (!bErrorOccurred && !bRestarting)
-        {
-            m_pbuttonGames->SetEnabled(true);
-            m_pbuttonGamesBig->SetEnabled(true);
         }
     }
 

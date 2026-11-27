@@ -54,7 +54,6 @@ enum ServerEventIDs
     AllsrvEventID_NoLobby = 2018,
     AllsrvEventID_HostSession = 2019,
     AllsrvEventID_CantHostSession = 2020,
-    AllsrvEventID_CantWatchArt = 2021,
     AllsrvEventID_StartingService = 2022,
     AllsrvEventID_Assert = 2024,
     AllsrvEventID_ArtChangedInInit = 2025,
@@ -123,7 +122,6 @@ enum ServerEventIDs
     { AllsrvEventID_NoLobby, "NoLobby", EventSeverity_Error, true, "No lobby server specified.  Run SrvConfig.\nOnly lobby mode is currently supported." }, \
     { AllsrvEventID_HostSession, "HostSession", EventSeverity_Info, true, "Preparing session for clients." }, \
     { AllsrvEventID_CantHostSession, "CantHostSession", EventSeverity_Error, true, "Cannot host session. Check for correct dplay installation." }, \
-    { AllsrvEventID_CantWatchArt, "CantWatchArt", EventSeverity_Error, true, "Registry Key for FTP auto-update is invalid or missing.\nAutoUpdate may be disabled." }, \
     { AllsrvEventID_StartingService, "StartingService", EventSeverity_Info, true, "Game server starting as an NT service." }, \
     { AllsrvEventID_Assert, "Assert", EventSeverity_Error, true, "ASSERTION FAILED!!!\n%File%(%Line%)\n%Error%" }, \
     { AllsrvEventID_ArtChangedInInit, "ArtChangedInInit", EventSeverity_Warning, true, "Art Directory's contents changed during AllSrv's initialization.\nPlease restart the server." }, \
