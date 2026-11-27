@@ -195,6 +195,26 @@ int   GetSimilarTargetMask(ImodelIGC* pmodel)
     return tt;
 }
 
+//
+// Hor+ widescreen: the game's field of view is the horizontal one of a 4:3
+// view. A wider view keeps that view's vertical field and shows more at the
+// sides, up to 21:9; past 21:9 the horizontal field stops growing.
+//
+
+const float c_aspectFOV    = 4.0f / 3.0f;
+const float c_aspectMaxFOV = 21.0f / 9.0f;
+
+float HorPlusFOV(float fov, float aspect)
+{
+    if (aspect <= c_aspectFOV) {
+        return fov;
+    }
+
+    float a = aspect < c_aspectMaxFOV ? aspect : c_aspectMaxFOV;
+
+    return 2.0f * atanf(tanf(0.5f * fov) * a / c_aspectFOV);
+}
+
 //This class wraps all the functionality for controlling a camera'a position, orientation, field of view & orientation
 class   CameraControl
 {
@@ -204,6 +224,7 @@ class   CameraControl
             m_dtAnimate(0.0f),
             m_jiggle(0.0f),
             m_fov(s_fDefaultFOV),
+            m_aspect(c_aspectFOV),
             m_oldHeadYaw(0.0f)
         {
             m_orientationHead.Reset();
@@ -363,8 +384,8 @@ class   CameraControl
                 }
             }
 
-            m_pcamera->SetFOV(fov);
-            m_pcameraPosters->SetFOV(fov);
+            m_pcamera->SetFOV(HorPlusFOV(fov, m_aspect));
+            m_pcameraPosters->SetFOV(HorPlusFOV(fov, m_aspect));
             //m_pcameraTurret->SetFOV(m_fov);
 
             m_pcamera->Update();
@@ -423,6 +444,12 @@ class   CameraControl
             assert (pmodel);
             SetPosition(pmodel->GetPosition());
             SetOrientation(pmodel->GetOrientation());
+        }
+
+        // width / height of the view the cameras render into
+        void    SetAspect(float aspect)
+        {
+            m_aspect = aspect;
         }
 
         void    SetFOV(float   fov)
@@ -520,6 +547,7 @@ class   CameraControl
         Orientation     m_orientation;
         Quaternion      m_quaternion;
         float           m_fov;
+        float           m_aspect;
 
         float           m_dtAnimate;
         float           m_tnowAnimate;
@@ -2599,8 +2627,8 @@ public:
 
         m_sizeCombatFullscreen = 
             WinPoint(
-                int(LoadPreference("CombatFullscreenXSize", 800)),
-                int(LoadPreference("CombatFullscreenYSize", 600))
+                int(LoadPreference("CombatFullscreenXSize", 0)), // 0: the monitor's native size
+                int(LoadPreference("CombatFullscreenYSize", 0))
             );
 
         //
@@ -5418,6 +5446,14 @@ public:
                 }
             }
 
+            {
+                Rect rectView = GetRenderRectValue()->GetValue();
+
+                if (rectView.YSize() > 0) {
+                    m_cameraControl.SetAspect(rectView.XSize() / rectView.YSize());
+                }
+            }
+
             bool    bAnimating = m_cameraControl.Apply(dt, bJiggle, m_pboolTargetHUD->GetValue());
 
             m_pCommandVisibleGeo->SetVisible(m_bCommandGrid || CommandCamera(m_cm) ||
@@ -5827,7 +5863,7 @@ public:
             const ModelListIGC* models = pcluster->GetPickableModels();
             assert (models);
 
-            double   angleToPixels = double(rectImage.Size().X()) / double(m_cameraControl.GetFOV());
+            double   angleToPixels = double(rectImage.Size().X()) / double(m_pcamera->GetFOV()); // the camera's widened (Hor+) field
 
             {
                 Point pointCenter = rectImage.Center();

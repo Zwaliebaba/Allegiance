@@ -194,8 +194,14 @@ public:
         }
     }
 
-    void SetFullscreenSize(const WinPoint& point)
+    void SetFullscreenSize(const WinPoint& pointIn)
     {
+        //
+        // A size of zero (no saved preference) means the native one
+        //
+
+        WinPoint point = pointIn.X() <= 0 || pointIn.Y() <= 0 ? GetNativeSize() : pointIn;
+
         if (g_bWindowLog) {
             ZDebugOutput(("Engine::SetFullscreenSize(" + GetString(point) + ")\n").c_str());
         }
@@ -208,10 +214,46 @@ public:
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // Fullscreen sizes: the original 16-bit mode list, limited to what fits
-    // on the monitor the game window is on.
+    // Fullscreen sizes: the original 4:3 mode list, limited to what fits on
+    // the monitor the game window is on, plus the monitor's native size.
+    // A native size wider than 21:9 is cut to 21:9 (the presenter
+    // pillarboxes it), the widest view the camera widens for (Hor+).
     //
     //////////////////////////////////////////////////////////////////////////////
+
+    WinPoint GetMonitorSize()
+    {
+        MONITORINFO mi;
+        mi.cbSize = sizeof(mi);
+
+        HMONITOR hmonitor =
+            m_hwndFocus != NULL
+                ? ::MonitorFromWindow(m_hwndFocus, MONITOR_DEFAULTTONEAREST)
+                : ::MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+
+        if (::GetMonitorInfo(hmonitor, &mi)) {
+            return
+                WinPoint(
+                    mi.rcMonitor.right  - mi.rcMonitor.left,
+                    mi.rcMonitor.bottom - mi.rcMonitor.top
+                );
+        }
+
+        return WinPoint(1600, 1200);
+    }
+
+    WinPoint GetNativeSize()
+    {
+        WinPoint size = GetMonitorSize();
+
+        //
+        // Even widths, so the pillarboxed frame centres on whole pixels
+        //
+
+        int widthMax = (size.Y() * 21 / 9) & ~1;
+
+        return WinPoint(size.X() < widthMax ? size.X() : widthMax, size.Y());
+    }
 
     void GetModes(std::vector<WinPoint>& modes)
     {
@@ -223,19 +265,8 @@ public:
             WinPoint(1600, 1200)
         };
 
-        WinPoint sizeMonitor(1600, 1200);
-
-        if (m_hwndFocus != NULL) {
-            MONITORINFO mi;
-            mi.cbSize = sizeof(mi);
-            if (::GetMonitorInfo(::MonitorFromWindow(m_hwndFocus, MONITOR_DEFAULTTONEAREST), &mi)) {
-                sizeMonitor =
-                    WinPoint(
-                        mi.rcMonitor.right  - mi.rcMonitor.left,
-                        mi.rcMonitor.bottom - mi.rcMonitor.top
-                    );
-            }
-        }
+        WinPoint sizeMonitor = GetMonitorSize();
+        WinPoint sizeNative  = GetNativeSize();
 
         for (int index = 0; index < ArrayCount(s_modes); index++) {
             if (
@@ -245,6 +276,25 @@ public:
             ) {
                 modes.push_back(s_modes[index]);
             }
+        }
+
+        //
+        // The native size goes where it sorts by width, then height, as
+        // ChangeFullscreenSize steps through the list in order
+        //
+
+        auto iter = modes.begin();
+
+        while (
+               iter != modes.end()
+            && (   iter->X() < sizeNative.X()
+                || (iter->X() == sizeNative.X() && iter->Y() < sizeNative.Y()))
+        ) {
+            ++iter;
+        }
+
+        if (iter == modes.end() || *iter != sizeNative) {
+            modes.insert(iter, sizeNative);
         }
     }
 
