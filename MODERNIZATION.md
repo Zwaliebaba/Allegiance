@@ -635,7 +635,7 @@ The art is in folders by kind, in the sources and in `out\Artwork` alike:
 | `Fonts` | `fontsource.mdl`, compiled to `font.mdl`; the TTFs it needs (not in git) | `mdlc` |
 | `Interface` | The UI: screens, panes, cursors, sound definitions (72 MDL files), the six animation MDLs the build writes, and the 254 help pages (`.mml`) | copied |
 | `Movies` | The opening movies | copied |
-| `Data` | The core files (`.igc`) and the EULA | copied |
+| `Data` | The core files and training maps (`.igc`) | copied |
 
 The folders are the manifests: `bitmap.txt` and `copymdl.txt` listed exactly what the folders hold, so
 they are gone. `Models.props` (at `Artwork/`) still lists the models, since each has a template and a
@@ -655,7 +655,7 @@ art root, so a file put there by hand still works:
 | `.mml` | `Interface` |
 | `.wav` | `Audio` (music is read from `Music` by path) |
 | `.mp4` | `Movies` |
-| `.igc`, `.rtf` | `Data` |
+| `.igc` | `Data` |
 
 A name with a folder in it, or an absolute path, is taken as it is. `mdlc` looks art up from its
 working directory unless given `-artpath <dir>`; the model batches run in `out\Artwork\Models`, where
@@ -666,8 +666,31 @@ The art CI job runs `tools/ci/art-check.py` first. It resolves every reference t
 against the source folders plus what the build generates: the MDL files' sounds, images and `use`
 imports (namespaces the code creates count), the core files' models, icons, textures and investment
 images, and the images, namespaces and models the code names; and it fails when a name is in two
-folders searched for one type, where one would hide the other. One gap is known and only reported: the
-Bios "Platform" station has no investment-screen image (`ibiosplat`), as in 2004.
+folders searched for one type, where one would hide the other. Every reference resolves. The one station
+type without an investment-screen image, the Bios "Platform" (`biosplat`), is the flag pedestal
+(`c_sabmPedestal`): the server places it in a capture-the-flag game and it is never offered, so
+the check skips pedestals.
+
+`tools/ci/art-unused.py` lists the art files nothing uses; it only reports, and the art job puts the
+list in its summary. It starts from the code (client, server, `mdlc`, `xmunge`: every string literal
+outside comments, the used `artwork.h` constants, and the names the code builds, such as a random
+map's `globe1`–`globe8` and `invEmpty` + an equipment type) and follows what is named: the core
+files and maps the code names (every name in them, plus the `i`/`l`/`icon` images and civilization
+suffixes the code derives), MDL files, help-page tags, a used model's `.x` files and template from
+`Models.props`, the textures a used `.x` file names (`.ppm` or `.bmp`, which `engine/xfile.cpp`
+maps to the image), the animation strips, and `Music\tracks.lst`. A name counts for every file of
+that name, so the list errs toward keeping a file; a name the code assembles some other way is not
+seen, so a listed file is to be checked before it is deleted. It also lists the `Models.props`
+entries no one uses.
+
+The first report listed 637 of 3,135 files (50 MB), checked by hand against every mention of each
+name, and they were removed: 56 models no core file, map or code names (among them the weapons
+`wep01`, `wep03`, `wep05`, `wep08`, `wep10`, `wep11`, `wep13`, `wep17`, the civilizations' flag
+platforms and the `*ops1` fighters) with their `.x` files, textures, investment and loadout images
+and `Models.props` entries; Zone-era and commented-out interface images; 71 help pages no page links
+to, `splashscreen.mdl` and `stndialog.mdl`; 40 sounds no sound definition imports; and `eula.rtf`,
+which nothing shows (so `.rtf` is no longer an art type). A core file or map from elsewhere that
+names one of these models would no longer load.
 
 Changed with the move:
 
