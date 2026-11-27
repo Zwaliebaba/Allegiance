@@ -361,6 +361,16 @@ public:
         m_prasterizer->ClearZBuffer();
     }
 
+    void Begin3DLayer(bool bZBuffer)
+    {
+        m_prasterizer->Begin3DLayer(bZBuffer);
+    }
+
+    void End3DLayer()
+    {
+        m_prasterizer->End3DLayer();
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //
     // View Rect

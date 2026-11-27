@@ -153,6 +153,15 @@ public:
     virtual void  SetClipRect(const Rect& rectClip)                     = 0;
 
     //
+    // A 3D layer (Context::Begin3DLayer / End3DLayer), inside a scene. One
+    // with a z-buffer is drawn into an HDR scene target and composited over
+    // the surface when it ends.
+    //
+
+    virtual void  Begin3DLayer(bool bZBuffer)                           = 0;
+    virtual void  End3DLayer()                                          = 0;
+
+    //
     // Attributes
     //
 
@@ -235,6 +244,8 @@ public:
     virtual void BeginScene()                                          = 0;
     virtual void EndScene()                                            = 0;
     virtual void ClearZBuffer()                                        = 0;
+    virtual void Begin3DLayer(bool bZBuffer)                           = 0;
+    virtual void End3DLayer()                                          = 0;
 
     //
     // VertexBuffer

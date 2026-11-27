@@ -25,7 +25,7 @@ cbuffer TLConstants : register(b1)
     float4 g_colorAlt;  // bidirectional: colour of the other side
     float4 g_global;    // global colour, or material diffuse
     float4 g_params;    // x: ambient level
-    uint4  g_tlmode;    // x: TLMode, y: number of extra clip planes
+    uint4  g_tlmode;    // x: TLMode, y: number of extra clip planes, z: linear light (see raster.hlsli)
     float4 g_planes[2];
 };
 
@@ -59,6 +59,17 @@ struct VertexOut
 };
 
 //
+// Authored colours (the global colour, material diffuse, light colours and
+// vertex colours) are gamma-encoded; in linear light they are decoded. Light
+// intensities (the directional term and ambient) are linear already.
+//
+
+float3 AuthoredColor(float3 c)
+{
+    return g_tlmode.z != 0 ? pow(abs(c), 2.2) : c;
+}
+
+//
 // One exit point: FXC warns (X4000) about early returns from branches on
 // constant-buffer values
 //
@@ -72,22 +83,22 @@ float4 Light(VertexIn input)
     float4 result  = float4(1, 1, 1, 1);
 
     if (g_tlmode.x == TLModeGlobalColor) {
-        result = g_global;
+        result = float4(AuthoredColor(g_global.rgb), g_global.a);
     } else if (g_tlmode.x == TLModeDirectional) {
         result = float4(b, b, b, 1);
     } else if (g_tlmode.x == TLModeBidirectional) {
         float3 rgb =
             bright >= 0
-                ? saturate( bright * g_color.rgb    + ambient)
-                : saturate(-bright * g_colorAlt.rgb + ambient);
+                ? saturate( bright * AuthoredColor(g_color.rgb)    + ambient)
+                : saturate(-bright * AuthoredColor(g_colorAlt.rgb) + ambient);
         result = float4(rgb, 1);
     } else if (g_tlmode.x == TLModeMaterial) {
-        result = float4(g_global.rgb * b, g_global.a);
+        result = float4(AuthoredColor(g_global.rgb) * b, g_global.a);
     }
 
     return result;
 #else
-    return input.color;
+    return float4(AuthoredColor(input.color.rgb), input.color.a);
 #endif
 }
 

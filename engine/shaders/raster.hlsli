@@ -11,8 +11,31 @@ cbuffer RasterConstants : register(b0)
 {
     float4 g_screen;    // x: 2 / width, y: 2 / height
     uint4  g_flags;     // x: bit 0 textured, bit 1 decal, bit 2 colour key, bit 3 key by black,
-                        //    bit 4 blended (BlendModeAdd or BlendModeSourceAlpha)
+                        //    bit 4 blended (BlendModeAdd or BlendModeSourceAlpha),
+                        //    bit 5 linear light (drawing into a 3D layer's HDR scene)
 };
+
+//
+// The art and the vertex colours are gamma-encoded (authored for a gamma
+// display). A 3D layer is drawn in linear light into its HDR scene target,
+// so they are decoded first; the scene composite encodes the result again.
+//
+
+float3 ToLinear(float3 c)
+{
+    return pow(abs(c), 2.2);
+}
+
+float4 VertexColor(float4 color)
+{
+    float4 result = color;
+
+    if (g_flags.x & 32) {
+        result.rgb = ToLinear(color.rgb);
+    }
+
+    return result;
+}
 
 Texture2D    g_texture : register(t0);
 SamplerState g_sampler : register(s0);
@@ -59,6 +82,10 @@ float4 Shade(float4 color, float2 uv)
 
         if ((g_flags.x & 12) == 12 && texel.a >= 1.0 && texel.r < 8.0 / 255.0 && texel.g < 4.0 / 255.0 && texel.b < 8.0 / 255.0) {
             texel = float4(0, 0, 0, 0);
+        }
+
+        if (g_flags.x & 32) {
+            texel.rgb = ToLinear(texel.rgb);
         }
 
         //

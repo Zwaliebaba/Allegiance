@@ -9,6 +9,8 @@
 #include "tl_vs_flat.h"
 #include "tl_vs_l.h"
 #include "tl_vs_l_flat.h"
+#include "scene_vs.h"
+#include "scene_ps.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -24,9 +26,50 @@
 // on the GPU too, so nothing is copied back to system memory unless
 // something reads the pixels.
 //
+// A 3D layer with a z-buffer (Context::Begin3DLayer) is drawn into a scene
+// target instead: RGBA16F in linear light, 4x MSAA where the GPU has the
+// memory, with its own depth buffer. At the end of the layer it is resolved,
+// tonemapped and blended over the surface's GPU copy (scene_ps.hlsl).
+//
 //////////////////////////////////////////////////////////////////////////////
 
 namespace {
+
+//
+// A 3D layer's HDR scene. Shared by size between rasterizers, one user at a
+// time (a pane can render its own 3D layer while the frame's is open).
+//
+
+class SceneTarget : public IObject {
+public:
+    WinPoint                        m_size;
+    int                             m_samples;
+    bool                            m_bInUse;
+
+    TRef<ID3D11Texture2D>           m_pcolor;       // RGBA16F, m_samples
+    TRef<ID3D11RenderTargetView>    m_prtv;
+    TRef<ID3D11Texture2D>           m_pdepth;       // D32F, m_samples
+    TRef<ID3D11DepthStencilView>    m_pdsv;
+    TRef<ID3D11Texture2D>           m_presolve;     // RGBA16F, one sample
+    TRef<ID3D11ShaderResourceView>  m_psrv;
+
+    SceneTarget() :
+        m_size(0, 0),
+        m_samples(1),
+        m_bInUse(false)
+    {
+    }
+};
+
+const DXGI_FORMAT c_formatScene      = DXGI_FORMAT_R16G16B16A16_FLOAT;
+const DXGI_FORMAT c_formatSceneDepth = DXGI_FORMAT_D32_FLOAT;
+
+//
+// The tonemap's knee: scene values up to it are shown as they are
+//
+
+const float c_sceneKnee     = 0.8f;
+const float c_sceneExposure = 1.0f;
 
 //
 // Pipeline objects shared by every rasterizer, re-created with the device
@@ -62,11 +105,25 @@ struct Pipeline {
     TRef<ID3D11RasterizerState>    m_prasterTL[3];      // the same, clipping to near and far
     TRef<ID3D11SamplerState>       m_psampler[2];       // point, linear
 
+    //
+    // 3D layers: blend states for the scene target (additive draws leave
+    // its coverage alone), the composite, and the scene targets
+    //
+
+    TRef<ID3D11BlendState>         m_pblendScene[3];    // BlendMode
+    TRef<ID3D11BlendState>         m_pblendComposite;
+    TRef<ID3D11VertexShader>       m_pvsScene;
+    TRef<ID3D11PixelShader>        m_ppsScene;
+    TRef<ID3D11Buffer>             m_pcbScene;
+    int                            m_samplesScene;
+    std::vector<TRef<SceneTarget>> m_vscenes;
+
     Pipeline() :
         m_pdevice(NULL),
         m_generation(-1),
         m_vbCapacity(0),
-        m_ibCapacity(0)
+        m_ibCapacity(0),
+        m_samplesScene(1)
     {
     }
 };
@@ -166,6 +223,78 @@ bool CreatePipeline(D3D11Device* pdevice)
         D3D11_BLEND_DESC desc = {};
         desc.RenderTarget[0].RenderTargetWriteMask = 0;
         if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendNoColor))) return false;
+    }
+
+    //
+    // Scene target blending: the same colour blends; alpha is coverage, so
+    // BlendModeAdd keeps it (light added in front of nothing stays see-through,
+    // and the composite adds it to what is behind)
+    //
+
+    for (int mode = 0; mode < 3; mode++) {
+        D3D11_BLEND_DESC desc = {};
+        D3D11_RENDER_TARGET_BLEND_DESC& rt = desc.RenderTarget[0];
+
+        rt.BlendEnable           = mode != BlendModeSource;
+        rt.SrcBlend              = D3D11_BLEND_ONE;
+        rt.DestBlend             = mode == BlendModeAdd ? D3D11_BLEND_ONE : D3D11_BLEND_INV_SRC_ALPHA;
+        rt.BlendOp               = D3D11_BLEND_OP_ADD;
+        rt.SrcBlendAlpha         = mode == BlendModeAdd ? D3D11_BLEND_ZERO : D3D11_BLEND_ONE;
+        rt.DestBlendAlpha        = mode == BlendModeAdd ? D3D11_BLEND_ONE  : D3D11_BLEND_INV_SRC_ALPHA;
+        rt.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+        rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+        if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendScene[mode]))) return false;
+    }
+
+    {
+        D3D11_BLEND_DESC desc = {};
+        D3D11_RENDER_TARGET_BLEND_DESC& rt = desc.RenderTarget[0];
+
+        rt.BlendEnable           = TRUE;
+        rt.SrcBlend              = D3D11_BLEND_ONE;
+        rt.DestBlend             = D3D11_BLEND_INV_SRC_ALPHA;
+        rt.BlendOp               = D3D11_BLEND_OP_ADD;
+        rt.SrcBlendAlpha         = D3D11_BLEND_ONE;
+        rt.DestBlendAlpha        = D3D11_BLEND_INV_SRC_ALPHA;
+        rt.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+        rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+        if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendComposite))) return false;
+    }
+
+    if (FAILED(pd3d->CreateVertexShader(g_scene_vs, sizeof(g_scene_vs), NULL, &p.m_pvsScene))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_scene_ps, sizeof(g_scene_ps), NULL, &p.m_ppsScene))) return false;
+
+    {
+        D3D11_BUFFER_DESC desc = {};
+        desc.ByteWidth      = 4 * sizeof(float);
+        desc.Usage          = D3D11_USAGE_DYNAMIC;
+        desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        if (FAILED(pd3d->CreateBuffer(&desc, NULL, &p.m_pcbScene))) return false;
+    }
+
+    //
+    // 4x MSAA for the scene where both formats support it and the GPU is a
+    // real one with the memory for it (at 2560x1440 the scene's colour and
+    // depth take about 180 MB)
+    //
+
+    {
+        UINT qualityColor = 0;
+        UINT qualityDepth = 0;
+
+        if (
+               pdevice->IsHardware()
+            && pdevice->GetTotalVideoMemory() >= 1024 * 1024 * 1024
+            && SUCCEEDED(pd3d->CheckMultisampleQualityLevels(c_formatScene,      4, &qualityColor))
+            && SUCCEEDED(pd3d->CheckMultisampleQualityLevels(c_formatSceneDepth, 4, &qualityDepth))
+            && qualityColor > 0
+            && qualityDepth > 0
+        ) {
+            p.m_samplesScene = 4;
+        }
     }
 
     //
@@ -273,6 +402,68 @@ bool EnsureBuffer(TRef<ID3D11Buffer>& pbuffer, int& capacity, int bytes, UINT bi
     return true;
 }
 
+//
+// A free scene target of the size, made if there is none
+//
+
+TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
+{
+    Pipeline& p = g_pipeline;
+
+    for (int index = 0; index < (int)p.m_vscenes.size(); index++) {
+        SceneTarget* pscene = p.m_vscenes[index];
+
+        if (!pscene->m_bInUse && pscene->m_size == size) {
+            pscene->m_bInUse = true;
+            return pscene;
+        }
+    }
+
+    ID3D11Device*     pd3d   = pdevice->GetDevice();
+    TRef<SceneTarget> pscene = new SceneTarget();
+
+    pscene->m_size    = size;
+    pscene->m_samples = p.m_samplesScene;
+
+    D3D11_TEXTURE2D_DESC td = {};
+    td.Width              = size.X();
+    td.Height             = size.Y();
+    td.MipLevels          = 1;
+    td.ArraySize          = 1;
+    td.Format             = c_formatScene;
+    td.SampleDesc.Count   = pscene->m_samples;
+    td.SampleDesc.Quality = 0;
+    td.Usage              = D3D11_USAGE_DEFAULT;
+    td.BindFlags          = D3D11_BIND_RENDER_TARGET;
+
+    HRESULT hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_pcolor);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_pcolor, NULL, &pscene->m_prtv);
+
+    if (SUCCEEDED(hr)) {
+        td.Format    = c_formatSceneDepth;
+        td.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_pdepth);
+    }
+    if (SUCCEEDED(hr)) hr = pd3d->CreateDepthStencilView(pscene->m_pdepth, NULL, &pscene->m_pdsv);
+
+    if (SUCCEEDED(hr)) {
+        td.Format           = c_formatScene;
+        td.SampleDesc.Count = 1;
+        td.BindFlags        = D3D11_BIND_SHADER_RESOURCE;
+        hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_presolve);
+    }
+    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_presolve, NULL, &pscene->m_psrv);
+
+    if (FAILED(hr)) {
+        pdevice->CheckDeviceLost(hr);
+        return NULL;
+    }
+
+    pscene->m_bInUse = true;
+    p.m_vscenes.push_back(pscene);
+    return pscene;
+}
+
 } // namespace
 
 void D3D11BoundRasterizerChanged()
@@ -306,6 +497,15 @@ private:
     bool                           m_bInScene;
 
     //
+    // While a 3D layer with a z-buffer is open: its scene target, and the
+    // clip rects drawn through (what the composite covers)
+    //
+
+    TRef<SceneTarget>              m_pscene;
+    Rect                           m_rectSceneDrawn;
+    bool                           m_bSceneDrawn;
+
+    //
     // State
     //
 
@@ -328,6 +528,7 @@ public:
         m_prtvBound(NULL),
         m_sizeTarget(0, 0),
         m_bInScene(false),
+        m_bSceneDrawn(false),
         m_shadeMode(ShadeModeGouraud),
         m_blendMode(BlendModeSource),
         m_cullMode(CullModeNone),
@@ -359,6 +560,11 @@ public:
     {
         if (g_pboundRasterizer == this) {
             g_pboundRasterizer = NULL;
+        }
+
+        if (m_pscene != NULL) {
+            m_pscene->m_bInUse = false;
+            m_pscene = NULL;
         }
 
         m_ptarget   = NULL;
@@ -401,23 +607,38 @@ public:
 
         D3D11Target* ptarget = m_psurface->BeginGpuDraw();
 
-        if (ptarget == NULL || !D3D11EnsureDepth(pdevice, ptarget)) {
+        if (ptarget == NULL) {
             return false;
         }
+
+        //
+        // A 3D layer draws into its scene target, which has its own depth
+        //
+
+        if (m_pscene != NULL && m_pscene->m_size != ptarget->m_size) {
+            m_pscene->m_bInUse = false;
+            m_pscene = NULL;
+        }
+
+        if (m_pscene == NULL && !D3D11EnsureDepth(pdevice, ptarget)) {
+            return false;
+        }
+
+        ID3D11RenderTargetView* prtv = m_pscene != NULL ? m_pscene->m_prtv : ptarget->m_prtv;
+        ID3D11DepthStencilView* pdsv = m_pscene != NULL ? m_pscene->m_pdsv : ptarget->m_pdsv;
 
         ID3D11DeviceContext* pcontext = pdevice->GetContext();
         Pipeline&            p        = g_pipeline;
 
-        if (g_pboundRasterizer != this || m_prtvBound != ptarget->m_prtv) {
+        if (g_pboundRasterizer != this || m_prtvBound != prtv) {
             g_pboundRasterizer = this;
             m_ptarget          = ptarget;
-            m_prtvBound        = ptarget->m_prtv;
+            m_prtvBound        = prtv;
             m_sizeTarget       = ptarget->m_size;
             m_bStateChanged    = true;
             m_flagsBound       = 0xffffffff;
 
-            ID3D11RenderTargetView* prtv = ptarget->m_prtv;
-            pcontext->OMSetRenderTargets(1, &prtv, ptarget->m_pdsv);
+            pcontext->OMSetRenderTargets(1, &prtv, pdsv);
 
             D3D11_VIEWPORT vp;
             vp.TopLeftX = 0;
@@ -479,11 +700,12 @@ public:
         bool  bDecal  = m_shadeMode == ShadeModeNone || m_shadeMode == ShadeModeCopy;
         bool  bBlend  = !bPoints && m_blendMode != BlendModeSource;
         DWORD flags   =
-              (psrv != NULL ? 1 : 0)
-            | (bDecal       ? 2 : 0)
-            | (m_bColorKey  ? 4 : 0)
-            | (bKeyBlack    ? 8 : 0)
-            | (bBlend       ? 16 : 0);
+              (psrv != NULL       ? 1 : 0)
+            | (bDecal             ? 2 : 0)
+            | (m_bColorKey        ? 4 : 0)
+            | (bKeyBlack          ? 8 : 0)
+            | (bBlend             ? 16 : 0)
+            | (m_pscene != NULL   ? 32 : 0);
 
         if (flags != m_flagsBound) {
             D3D11_MAPPED_SUBRESOURCE mapped;
@@ -514,12 +736,14 @@ public:
         ID3D11SamplerState* psampler = p.m_psampler[m_bLinearFilter ? 1 : 0];
         pcontext->PSSetSamplers(0, 1, &psampler);
 
+        TRef<ID3D11BlendState>* pblend = m_pscene != NULL ? p.m_pblendScene : p.m_pblend;
+
         if (bPoints) {
-            pcontext->OMSetBlendState(p.m_pblend[BlendModeSource], NULL, 0xffffffff);
+            pcontext->OMSetBlendState(pblend[BlendModeSource], NULL, 0xffffffff);
             pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
             pcontext->RSSetState(p.m_praster[0]);
         } else {
-            pcontext->OMSetBlendState(p.m_pblend[m_blendMode], NULL, 0xffffffff);
+            pcontext->OMSetBlendState(pblend[m_blendMode], NULL, 0xffffffff);
             pcontext->OMSetDepthStencilState(p.m_pdepth[m_bZTest ? 1 : 0][m_bZWrite ? 1 : 0], 0);
 
             int cull = m_cullMode == CullModeCW ? 1 : (m_cullMode == CullModeCCW ? 2 : 0);
@@ -532,6 +756,15 @@ public:
         scissor.right  = MinOf((LONG)m_sizeTarget.X(), (LONG)ceilf(m_rectClip.XMax()));
         scissor.bottom = MinOf((LONG)m_sizeTarget.Y(), (LONG)ceilf(m_rectClip.YMax()));
         pcontext->RSSetScissorRects(1, &scissor);
+
+        if (m_pscene != NULL) {
+            if (m_bSceneDrawn) {
+                m_rectSceneDrawn.Accumulate(m_rectClip);
+            } else {
+                m_rectSceneDrawn = m_rectClip;
+                m_bSceneDrawn    = true;
+            }
+        }
 
         m_bStateChanged = false;
     }
@@ -598,6 +831,138 @@ public:
         m_bInScene = false;
     }
 
+    //////////////////////////////////////////////////////////////////////////////
+    //
+    // 3D layers: a layer with a z-buffer draws into a cleared scene target,
+    // which is composited over the surface when the layer ends. Layers
+    // without one (overlays drawn over what is there) draw directly.
+    //
+    //////////////////////////////////////////////////////////////////////////////
+
+    void Begin3DLayer(bool bZBuffer)
+    {
+        if (!bZBuffer || m_pscene != NULL) {
+            return;
+        }
+
+        D3D11Device* pdevice = GetDevice();
+
+        if (pdevice == NULL) {
+            return;
+        }
+
+        m_pscene = AcquireSceneTarget(pdevice, m_psurface->GetSize());
+
+        if (m_pscene == NULL) {
+            return;
+        }
+
+        static const float transparent[4] = { 0, 0, 0, 0 };
+
+        ID3D11DeviceContext* pcontext = pdevice->GetContext();
+        pcontext->ClearRenderTargetView(m_pscene->m_prtv, transparent);
+        pcontext->ClearDepthStencilView(m_pscene->m_pdsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+        m_bSceneDrawn   = false;
+        m_bStateChanged = true;
+        m_prtvBound     = NULL;   // rebind to the scene
+    }
+
+    void End3DLayer()
+    {
+        if (m_pscene == NULL) {
+            return;
+        }
+
+        TRef<SceneTarget> pscene = m_pscene;
+
+        m_pscene->m_bInUse = false;
+        m_pscene           = NULL;
+        m_bStateChanged    = true;
+        m_prtvBound        = NULL;   // rebind to the surface
+        g_pboundRasterizer = NULL;
+
+        D3D11Device* pdevice = GetDevice();
+
+        if (pdevice == NULL || !m_bSceneDrawn) {
+            return;
+        }
+
+        D3D11Target* ptarget = m_psurface->BeginGpuDraw();
+
+        if (ptarget == NULL || ptarget->m_size != pscene->m_size) {
+            return;
+        }
+
+        ID3D11DeviceContext* pcontext = pdevice->GetContext();
+        Pipeline&            p        = g_pipeline;
+
+        //
+        // Resolve the samples
+        //
+
+        pcontext->OMSetRenderTargets(0, NULL, NULL);
+
+        if (pscene->m_samples > 1) {
+            pcontext->ResolveSubresource(pscene->m_presolve, 0, pscene->m_pcolor, 0, c_formatScene);
+        } else {
+            pcontext->CopyResource(pscene->m_presolve, pscene->m_pcolor);
+        }
+
+        //
+        // Composite over the surface, through the clip rects the layer drew in
+        //
+
+        D3D11_MAPPED_SUBRESOURCE mapped;
+
+        if (SUCCEEDED(pcontext->Map(p.m_pcbScene, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) {
+            float* pf = (float*)mapped.pData;
+            pf[0] = c_sceneKnee;
+            pf[1] = c_sceneExposure;
+            pf[2] = 0;
+            pf[3] = 0;
+            pcontext->Unmap(p.m_pcbScene, 0);
+        }
+
+        ID3D11RenderTargetView* prtv = ptarget->m_prtv;
+        pcontext->OMSetRenderTargets(1, &prtv, NULL);
+
+        D3D11_VIEWPORT vp;
+        vp.TopLeftX = 0;
+        vp.TopLeftY = 0;
+        vp.Width    = (float)ptarget->m_size.X();
+        vp.Height   = (float)ptarget->m_size.Y();
+        vp.MinDepth = 0;
+        vp.MaxDepth = 1;
+        pcontext->RSSetViewports(1, &vp);
+
+        D3D11_RECT scissor;
+        scissor.left   = MaxOf<LONG>(0, (LONG)floorf(m_rectSceneDrawn.XMin()));
+        scissor.top    = MaxOf<LONG>(0, (LONG)floorf(m_rectSceneDrawn.YMin()));
+        scissor.right  = MinOf((LONG)ptarget->m_size.X(), (LONG)ceilf(m_rectSceneDrawn.XMax()));
+        scissor.bottom = MinOf((LONG)ptarget->m_size.Y(), (LONG)ceilf(m_rectSceneDrawn.YMax()));
+        pcontext->RSSetScissorRects(1, &scissor);
+
+        ID3D11Buffer*             pcb  = p.m_pcbScene;
+        ID3D11ShaderResourceView* psrv = pscene->m_psrv;
+
+        pcontext->OMSetBlendState(p.m_pblendComposite, NULL, 0xffffffff);
+        pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
+        pcontext->RSSetState(p.m_praster[0]);
+        pcontext->IASetInputLayout(NULL);
+        pcontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        pcontext->VSSetShader(p.m_pvsScene, NULL, 0);
+        pcontext->PSSetShader(p.m_ppsScene, NULL, 0);
+        pcontext->PSSetConstantBuffers(0, 1, &pcb);
+        pcontext->PSSetShaderResources(0, 1, &psrv);
+        pcontext->Draw(3, 0);
+
+        ID3D11ShaderResourceView* pnull = NULL;
+        pcontext->PSSetShaderResources(0, 1, &pnull);
+
+        g_d3d11Stats.m_scenes++;
+    }
+
     void ClearZBuffer()
     {
         D3D11Device* pdevice;
@@ -613,7 +978,7 @@ public:
                m_rectClip.XMin() <= 0 && m_rectClip.YMin() <= 0
             && m_rectClip.XMax() >= size.X() && m_rectClip.YMax() >= size.Y()
         ) {
-            pcontext->ClearDepthStencilView(m_ptarget->m_pdsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
+            pcontext->ClearDepthStencilView(m_pscene != NULL ? m_pscene->m_pdsv : m_ptarget->m_pdsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
             return;
         }
 
@@ -823,7 +1188,7 @@ public:
         pc->m_params[3] = 0;
         pc->m_mode[0]   = tl.m_mode;
         pc->m_mode[1]   = MinOf(tl.m_countPlanes, c_maxTLClipPlanes);
-        pc->m_mode[2]   = 0;
+        pc->m_mode[2]   = m_pscene != NULL ? 1 : 0;   // linear light
         pc->m_mode[3]   = 0;
 
         pcontext->Unmap(p.m_pcbTL, 0);
