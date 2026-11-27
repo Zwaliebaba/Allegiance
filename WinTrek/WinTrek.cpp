@@ -2189,10 +2189,6 @@ public:
                     SetScreen(CreateLobbyScreen(GetModeler(), GetTime()));
                     break;
 
-                case ScreenIDGameStarting:
-                    SetScreen(CreateGameStartingScreen(GetModeler()));
-                    break;
-
                 case ScreenIDTrainSlideshow:
                 {
                     extern  TRef<ModifiableNumber>  g_pnumberMissionNumber;

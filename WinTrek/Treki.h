@@ -25,7 +25,7 @@ enum ScreenID {
     ScreenIDGameOverScreen      =   5,
     ScreenIDTrainScreen         =   6,
     ScreenIDLobbyScreen         =   7,
-    ScreenIDGameStarting        =   9,
+    ScreenIDGameStarting        =   9,   // unused (the screen is gone); kept so the IDs keep their values
     ScreenIDTrainSlideshow      =   11,
     ScreenIDPostTrainSlideshow  =   12
 };

@@ -31,7 +31,6 @@ TRef<Screen> CreateHangarScreen(Modeler* pmodeler, const ZString& strNamespace);
 TRef<Screen> CreateTrainingScreen(Modeler* pmodeler);
 TRef<Screen> CreateTrainingSlideshow (Modeler* pmodeler, const ZString& strNamespace, int iMissionIndex);
 TRef<Screen> CreatePostTrainingSlideshow (Modeler* pmodeler, const ZString& strNamespace);
-TRef<Screen> CreateGameStartingScreen(Modeler* pmodeler);
 TRef<Screen> CreateVideoScreen(Modeler* pmodeler);
 
 TRef<IPopup> CreateMissionParametersPopup(Modeler* pmodeler);

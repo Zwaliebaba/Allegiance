@@ -612,6 +612,12 @@ Kept on purpose:
     pre-core-file tech tree; it uses functions that no longer exist), `temp` (a scratch copy of
     `quickchat.mdl`'s structures).
 
+  Also removed: the "game starting" screen (`gamestartingscreen.cpp` and `.mdl`). Nothing switched to
+  `ScreenIDGameStarting`, the code looked up a `quitButtonPane` the MDL never defined, and its
+  background image never existed. And the loadout screen without a team asked for `loadoutpanemp` and
+  `hullinfomp`, which lacked the `bmp` that image names end in; they are the generic `loadoutpane` and
+  `hullinfo` images now.
+
   The 29 images the original build also never shipped (`BtnMissionDetails`, `hudgauge` and the rest) do
   ship since the move to DDS sources ("Textures: 32-bit DDS").
 

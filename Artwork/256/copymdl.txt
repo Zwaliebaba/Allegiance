@@ -24,7 +24,6 @@ introscreen
 messageofthedaydefault
 newgamescreen
 gameoverscreen
-gamestartingscreen
 hangar
 teampane
 teleportpane
