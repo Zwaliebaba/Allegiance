@@ -4,7 +4,7 @@
 // alpha, resolved from MSAA) is tonemapped, gamma-encoded and blended over
 // the frame (one, inverse source alpha).
 //
-// The tonemap leaves values up to the knee unchanged, so the art keeps its
+// The tonemap leaves values up to the knee (0.9) unchanged, so the art keeps its
 // authored colours, and rolls everything brighter (stacked additive effects:
 // engines, explosions, alephs) off smoothly towards white instead of
 // clipping each channel.

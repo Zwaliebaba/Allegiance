@@ -48,6 +48,7 @@ class SceneTarget : public IObject {
 public:
     WinPoint                        m_size;
     int                             m_samples;
+    int                             m_generation;   // the device's, when made
     bool                            m_bInUse;
 
     TRef<ID3D11Texture2D>           m_pcolor;       // RGBA16F, m_samples
@@ -72,6 +73,7 @@ public:
     SceneTarget() :
         m_size(0, 0),
         m_samples(1),
+        m_generation(-1),
         m_bInUse(false),
         m_bloomLevels(0)
     {
@@ -82,10 +84,12 @@ const DXGI_FORMAT c_formatScene      = DXGI_FORMAT_R16G16B16A16_FLOAT;
 const DXGI_FORMAT c_formatSceneDepth = DXGI_FORMAT_D32_FLOAT;
 
 //
-// The tonemap's knee: scene values up to it are shown as they are
+// The tonemap's knee: scene values up to it are shown as they are. Above it
+// they roll off towards white; 1.0 (white art, fully lit) comes out at 0.95
+// in linear light, 249 of 255 once encoded.
 //
 
-const float c_sceneKnee     = 0.8f;
+const float c_sceneKnee     = 0.9f;
 const float c_sceneExposure = 1.0f;
 
 //
@@ -489,8 +493,9 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
     ID3D11Device*     pd3d   = pdevice->GetDevice();
     TRef<SceneTarget> pscene = new SceneTarget();
 
-    pscene->m_size    = size;
-    pscene->m_samples = p.m_samplesScene;
+    pscene->m_size       = size;
+    pscene->m_samples    = p.m_samplesScene;
+    pscene->m_generation = pdevice->GetGeneration();
 
     D3D11_TEXTURE2D_DESC td = {};
     td.Width              = size.X();
@@ -713,7 +718,16 @@ public:
         // A 3D layer draws into its scene target, which has its own depth
         //
 
-        if (m_pscene != NULL && m_pscene->m_size != ptarget->m_size) {
+        //
+        // (A device reset or a resize during the layer drops the scene; the
+        // rest of the layer draws directly)
+        //
+
+        if (
+               m_pscene != NULL
+            && (   m_pscene->m_size       != ptarget->m_size
+                || m_pscene->m_generation != pdevice->GetGeneration())
+        ) {
             m_pscene->m_bInUse = false;
             m_pscene = NULL;
         }
@@ -988,7 +1002,11 @@ public:
 
         D3D11Target* ptarget = m_psurface->BeginGpuDraw();
 
-        if (ptarget == NULL || ptarget->m_size != pscene->m_size) {
+        if (
+               ptarget == NULL
+            || ptarget->m_size       != pscene->m_size
+            || pscene->m_generation  != pdevice->GetGeneration()
+        ) {
             return;
         }
 
