@@ -657,9 +657,10 @@ art root, so a file put there by hand still works:
 | `.mp4` | `Movies` |
 | `.igc`, `.rtf` | `Data` |
 
-A name with a folder in it, or an absolute path, is taken as it is. `mdlc` runs the model batches in
-`out\Artwork\Models`: its art path is its working directory, and the root fallback finds the textures
-next to the models.
+A name with a folder in it, or an absolute path, is taken as it is. `mdlc` looks art up from its
+working directory unless given `-artpath <dir>`; the model batches run in `out\Artwork\Models`, where
+the outputs go, with `-artpath out\Artwork`, since optimizing a model also loads effect images (the
+lights' strobe) from `Textures`.
 
 The art CI job runs `tools/ci/art-check.py` first. It resolves every reference the way the client does,
 against the source folders plus what the build generates: the MDL files' sounds, images and `use`

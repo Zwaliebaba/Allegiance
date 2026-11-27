@@ -239,8 +239,9 @@
 
   <!--
     Models, step 2: mdlc -optimize for all models in one process, in
-    $(ArtOutModels): mdlc's art path is its working directory, and a model's
-    textures are next to it there.
+    $(ArtOutModels), where the outputs go. -artpath points the lookup at
+    $(ArtOutDir), so mdlc finds the models' textures in Models\ and the effect
+    images the optimizer adds (the strobe of the lights) in Textures\.
   -->
 
   <Target Name="Models"
@@ -248,7 +249,7 @@
           Inputs="@(ArtModel->'$(ArtModelDir)%(Identity)source.mdl');$(Mdlc)"
           Outputs="@(ArtModel->'$(ArtOutModels)%(Identity).mdl')">
     <WriteLinesToFile File="$(ArtIntDir)models.batch"
-                      Lines="@(ArtModel->'-optimize &quot;$(ArtModelDir)%(Identity)source&quot; %(Identity)')"
+                      Lines="@(ArtModel->'-artpath &quot;$(ArtOutDir.TrimEnd('\'))&quot; -optimize &quot;$(ArtModelDir)%(Identity)source&quot; %(Identity)')"
                       Overwrite="true" />
     <Exec Command="&quot;$(Mdlc)&quot; -batch &quot;$(ArtIntDir)models.batch&quot;" WorkingDirectory="$(ArtOutModels)" />
   </Target>
@@ -256,7 +257,7 @@
   <!--
     Models from hand-written text MDLs (Models.props ArtTextModel). As in
     makegeo.mak, the text MDL and the .x files it imports are copied to
-    $(ArtOutModels), and mdlc runs there.
+    $(ArtOutModels), and mdlc runs there, with -artpath as for the models.
   -->
 
   <Target Name="TextModels"
@@ -264,8 +265,8 @@
           Inputs="@(_TextModelSource);@(_TextModelX);$(Mdlc)"
           Outputs="@(ArtTextModel->'$(ArtOutModels)%(Identity).mdl')">
     <ItemGroup>
-      <_TextModelLine Include="-optimize %(ArtTextModel.Text) %(ArtTextModel.Identity)" Condition="'%(ArtTextModel.Mode)' == 'optimize'" />
-      <_TextModelLine Include="%(ArtTextModel.Text) %(ArtTextModel.Identity).mdl" Condition="'%(ArtTextModel.Mode)' == 'compile'" />
+      <_TextModelLine Include="-artpath &quot;$(ArtOutDir.TrimEnd('\'))&quot; -optimize %(ArtTextModel.Text) %(ArtTextModel.Identity)" Condition="'%(ArtTextModel.Mode)' == 'optimize'" />
+      <_TextModelLine Include="-artpath &quot;$(ArtOutDir.TrimEnd('\'))&quot; %(ArtTextModel.Text) %(ArtTextModel.Identity).mdl" Condition="'%(ArtTextModel.Mode)' == 'compile'" />
     </ItemGroup>
     <Copy SourceFiles="@(_TextModelSource);@(_TextModelX)" DestinationFolder="$(ArtOutModels)" SkipUnchangedFiles="true" />
     <WriteLinesToFile File="$(ArtIntDir)textmodels.batch" Lines="@(_TextModelLine)" Overwrite="true" />
