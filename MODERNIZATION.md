@@ -676,7 +676,7 @@ Visible differences, for 0/255 art:
 
 ### Phase 5: optional
 
-C++20, replacing `ZString` and the custom containers, XAudio2, a D3D12 backend, a new lobby service.
+C++20, replacing `ZString` and the custom containers, unit tests, XAudio2, a D3D12 backend, a new lobby service.
 
 #### C++20 (done)
 
@@ -709,7 +709,7 @@ Decided scope:
 |---|---|
 | `TVector` (value array with copy-on-write over file mappings) | `std::vector`. Done |
 | `TArray` | `std::array`. Done |
-| `TStack` | Its only use, the MDL evaluator's operand stack, is a small `ObjectStack` class over `std::vector` (`engine/mdl.h`): the factories use `Pop()`'s value in expressions about 300 times, and `std::stack::pop` returns nothing. A popped object stays referenced by its slot until a later push reuses it, as with `TStack`: many factories keep a plain pointer to what they popped, and an unnamed object has no other reference. The first version released the slot on `Pop`, a use-after-free that surfaced as the smoke test's binary-MDL reload crashing in `FrameImage` once the heap layout changed. Done |
+| `TStack` | Its only use, the MDL evaluator's operand stack, is a small `ObjectStack` class over `std::vector` (`engine/objectstack.h`): the factories use `Pop()`'s value in expressions about 300 times, and `std::stack::pop` returns nothing. A popped object stays referenced by its slot until a later push reuses it, as with `TStack`: many factories keep a plain pointer to what they popped, and an unnamed object has no other reference. The first version released the slot on `Pop`, a use-after-free that surfaced as the smoke test's binary-MDL reload crashing in `FrameImage` once the heap layout changed. Done |
 | `TList`, `TMap` | Kept. They are reference-counted objects, and `TList`'s sink parameter is how UI list panes get change notifications; replacing them is a redesign, not a swap |
 | `Slist_utl` / `Slink_utl` (IGC) | Kept. Intrusive lists whose members unlink themselves on destruction; game-object lifetime depends on them |
 | `ZString` | To `std::string`, in steps: first its number constructors become explicit (done) (`"Score " + n` formats a number with `ZString` but appends one `char` with `std::string`), then one library group per PR, with explicit `.c_str()` where `ZString` converted to `const char*` silently |
@@ -779,6 +779,39 @@ switch would need conversions at every interface, since `ZString` is in all of t
    - Two `_TRACE`-only uses of the old constructors (`zlib/Win32app.cpp`) that no build compiles were
      converted too.
 
+#### Unit tests and AddressSanitizer
+
+`tests/UnitTests` is a Microsoft CppUnitTest project (a DLL that links ZLib; Test Explorer in Visual
+Studio runs it, CI runs it with `vstest.console`). It covers what the library cleanup could break
+without the game noticing at once:
+
+- `ZString`: null `const char*` gives the empty string; `ZString + int`, `int + ZString`, `+= int` and
+  the conversion to `const char*` don't compile (checked with `static_assert`s on concepts, so a
+  regression fails the build).
+- The `Str*` helpers: indices, not-found, out-of-range counts, `"%g"` number formatting, tokens. The
+  inherited quirks have tests named `Quirk*`, so changing one is deliberate: `StrReverseFind` of a
+  string searches forwards, `StrLeftOf` without a match gives the delimiters, and the reverse char
+  search at index 0 starts at the terminator.
+- The scrambler, with a known vector: the scrambled form is stored and sent, so its tables must not
+  change.
+- `PathString` joins (`..`, `.`, backslashes, drive letters, network paths). Two original bugs are
+  pinned as quirks, not fixed, since nothing depends on the broken cases: a network path's
+  `GetDrive` drops the share name's last letter (and is empty with nothing after the share), and
+  joining a root-relative path gives `c://x`.
+- `ObjectStack` (moved to `engine/objectstack.h` so it can be tested without the engine): order,
+  growth, and that a popped object lives until its slot is reused, the use-after-free fixed above.
+
+The project defines `ZLIB_SKIP_NEW_REDEF`, so the debug `#define new` stays out of the framework's
+headers.
+
+The `asan` CI job builds zlib, engine, effect, mdlc and the tests in Release with
+`/fsanitize=address` (`-p:EnableASAN=true`; Debug's `/RTC` checks don't combine with it) and runs the
+unit tests and the mdlc smoke test, which loads text and binary MDL (the code that had the
+use-after-free). Before that it checks that `mdlc.exe` and the test DLL import the ASan runtime, so a clean
+run can't come from uninstrumented binaries. First run: 41 tests and the smoke test clean. The ASan runtime DLL comes from the Visual Studio installation and is put on `PATH`;
+a report goes to stderr, which the smoke script keeps in `out/art-smoke/<step>.log.err` (attached to
+the run as `asan-logs`).
+
 ## Building
 
 Open `Allegiance.slnx` in Visual Studio 2026 (Desktop development with C++, plus the C++ ATL and MFC
@@ -793,6 +826,12 @@ The output goes to `out\bin\x64\<Configuration>\`.
 CI builds each library on its own (`-p:BuildProjectReferences=false`), so one failure doesn't hide the
 errors of the others. The error summary is on the workflow run page, and the full logs are attached to
 the run.
+
+The unit tests (`tests/UnitTests`) run from Test Explorer, or from a Developer Command Prompt:
+
+```
+vstest.console out\bin\x64\Debug\UnitTests.dll /Platform:x64
+```
 
 MsQuic comes from NuGet (`_Utility/packages.config`, into `packages\`). Visual Studio restores it on
 build; from the command line, restore first:

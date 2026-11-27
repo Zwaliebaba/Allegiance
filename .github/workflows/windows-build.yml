@@ -45,6 +45,7 @@ jobs:
         cvh/cvh.vcxproj
         xmunge/xmunge.vcxproj
         qhull/qhull.vcxproj
+        tests/UnitTests/UnitTests.vcxproj
 
     steps:
       - name: Checkout (code only, Artwork excluded)
@@ -102,6 +103,14 @@ jobs:
             Write-Host "::endgroup::"
           }
           if ($failed.Count) { Write-Host "Failed: $($failed -join ', ')"; exit 1 }
+
+      - name: Unit tests
+        id: tests
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 10
+        shell: pwsh
+        run: ./tools/ci/unit-tests.ps1 -Dll out/bin/x64/${{ matrix.configuration }}/UnitTests.dll -Out out/logs -Label ${{ matrix.configuration }}
 
       # Art toolchain smoke test (Phase 4): mdlc starts the engine with its software
       # DirectDraw path. This tells us whether art can be converted on a headless
@@ -169,7 +178,119 @@ jobs:
           if-no-files-found: error
 
       - name: Fail if any project failed
-        if: steps.build.outcome == 'failure' || steps.smoke.outcome == 'failure'
+        if: steps.build.outcome == 'failure' || steps.tests.outcome == 'failure' || steps.smoke.outcome == 'failure'
+        shell: pwsh
+        run: exit 1
+
+  # AddressSanitizer: the libraries the unit tests and mdlc need, built with
+  # /fsanitize=address, then the unit tests and the mdlc smoke test (which
+  # loads MDL, the code path of the ObjectStack use-after-free). Release, since
+  # ASan does not combine with the Debug configuration's /RTC checks.
+  asan:
+    runs-on: windows-2025
+    timeout-minutes: 60
+    env:
+      CONFIGURATION: Release
+      PROJECTS: >-
+        zlib/ZLib.vcxproj
+        engine/Engine.vcxproj
+        effect/Effect.vcxproj
+        mdlc/mdlc.vcxproj
+        tests/UnitTests/UnitTests.vcxproj
+    steps:
+      - name: Checkout (code only, Artwork excluded)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/Artwork/
+
+      - name: Locate MSBuild and the ASan runtime
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
+          if (-not $msbuild) { throw "MSBuild not found" }
+          "MSBUILD=$msbuild" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $vsPath = & $vswhere -latest -products * -property installationPath
+          $dll = Get-ChildItem "$vsPath\VC\Tools\MSVC\*\bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" | Sort-Object FullName | Select-Object -Last 1
+          if (-not $dll) { throw "The AddressSanitizer runtime is not installed on this image" }
+          "ASan runtime: $($dll.FullName)"
+          # The instrumented exes and the test DLL load the runtime from PATH
+          $dll.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+      - name: Build with AddressSanitizer
+        id: build
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          New-Item -ItemType Directory -Force out/logs | Out-Null
+          $failed = @()
+          foreach ($p in $env:PROJECTS -split '\s+' | Where-Object { $_ }) {
+            $name = [IO.Path]::GetFileNameWithoutExtension($p)
+            Write-Host "::group::$name"
+            & $env:MSBUILD $p -nologo -m -p:Configuration=$env:CONFIGURATION -p:Platform=x64 `
+              -p:BuildProjectReferences=false -p:EnableASAN=true `
+              -fl "-flp:logfile=out/logs/$name.log;verbosity=normal" `
+              -fl1 "-flp1:logfile=out/logs/$name.errors.log;errorsonly" `
+              -clp:ErrorsOnly
+            if ($LASTEXITCODE -ne 0) { $failed += $name }
+            Write-Host "::endgroup::"
+          }
+          if ($failed.Count) { Write-Host "Failed: $($failed -join ', ')"; exit 1 }
+
+      # A clean run only means something if the binaries are instrumented
+      - name: Check the binaries use the ASan runtime
+        if: steps.build.outcome == 'success'
+        shell: pwsh
+        run: |
+          foreach ($f in 'mdlc.exe', 'UnitTests.dll') {
+            $deps = dumpbin /nologo /dependents "out/bin/x64/$env:CONFIGURATION/$f" | Out-String
+            if ($deps -notmatch 'clang_rt\.asan_dynamic-x86_64\.dll') { Write-Host $deps; throw "$f is not built with AddressSanitizer" }
+            "$f links clang_rt.asan_dynamic-x86_64.dll"
+          }
+
+      - name: Unit tests under ASan
+        id: tests
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 10
+        shell: pwsh
+        run: ./tools/ci/unit-tests.ps1 -Dll out/bin/x64/$env:CONFIGURATION/UnitTests.dll -Out out/logs -Label asan
+
+      - name: Fetch smoke-test art
+        if: always()
+        shell: cmd
+        run: |
+          mkdir out\smoke-src
+          git cat-file blob HEAD:Artwork/256/acbuild.dds > out\smoke-src\acbuild.dds
+          git cat-file blob HEAD:Artwork/256/acs01.dds > out\smoke-src\acs01.dds
+          git cat-file blob HEAD:Artwork/256/animlaunch.dds > out\smoke-src\animlaunch.dds
+          git cat-file blob HEAD:Artwork/256/fontsource.mdl > out\smoke-src\fontsource.mdl
+
+      # An ASan report goes to stderr, which the script keeps in <step>.log.err
+      - name: mdlc smoke test under ASan
+        id: smoke
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 10
+        shell: pwsh
+        run: ./tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/$env:CONFIGURATION/mdlc.exe -Art out/smoke-src -Out out/art-smoke
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: asan-logs
+          path: |
+            out/logs/
+            out/art-smoke/*.log*
+          if-no-files-found: warn
+
+      - name: Fail if anything failed
+        if: steps.build.outcome == 'failure' || steps.tests.outcome == 'failure' || steps.smoke.outcome == 'failure'
         shell: pwsh
         run: exit 1
 
