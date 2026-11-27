@@ -41,13 +41,11 @@
     <ClCompile Include="appmsg.cpp" />
     <ClCompile Include="clintlib.cpp" />
     <ClCompile Include="badwords.cpp" />
-    <ClCompile Include="AutoDownload.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AutoDownload.h" />
     <ClInclude Include="badwords.h" />
     <ClInclude Include="clintlib.h" />
     <ClInclude Include="pch.h" />

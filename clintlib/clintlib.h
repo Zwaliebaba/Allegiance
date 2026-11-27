@@ -8,8 +8,6 @@ class ChatInfo;
 
 class IClientEventSink;
 class IClientEventSource;
-class IAutoDownload;
-class IAutoUpdateSink;
 
 struct CachedPart
 {
@@ -568,10 +566,6 @@ public:
   ZString strPublicLobby;
   ZString strPublicMessageURL;
   ZString strTrainingURL;
-  int     crcFileList;
-  int     nFilelistSize;
-  ZString strFilelistSite;
-  ZString strFilelistDirectory;
   int     crcPublicMessageFile;
 };
 
@@ -720,8 +714,6 @@ public: //todo: make protected
 
     CachedLoadoutList               m_loadouts;
 
-    IAutoDownload *                 m_pAutoDownload;
-
     TList<TRef<LANServerInfo> >*    m_plistFindServerResults;
 
 public:
@@ -734,11 +726,6 @@ public:
     virtual void FlushGameState();
     virtual void CreateMissionReq();
     virtual void JoinMission(MissionInfo * pMission, const char* szMissionPassword);
-
-    // AutoDownload functions
-    virtual IAutoUpdateSink * OnBeginAutoUpdate(IAutoUpdateSink * pSink, bool bConnectToLobby) { return NULL; }  
-    virtual bool ShouldCheckFiles() { return false; }
-    void         HandleAutoDownload(DWORD dwTimeAlloted); 
 
     virtual const char* GetArtPath() { return NULL; } // This should be overridden in Wintrek/PIGS
     virtual bool ResetStaticData(const char * szIGCStaticFile, ImissionIGC** ppStaticIGC, Time tNow, bool bEncrypt);

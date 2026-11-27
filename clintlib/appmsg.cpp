@@ -2104,8 +2104,8 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 delete m_pMissionInfo;
                 m_pMissionInfo = NULL;
 
-                OnLogonAck(false, false, "The client and server data files are out of sync. Please restart and go to a games list to auto-update "
-                  "the latest files. If this doesn't work, try deleting the file 'filelist.txt' from the install directory and restarting the application.");
+                OnLogonAck(false, false, "The client and server data files are out of sync. "
+                  "Both need the same version of the game.");
             }
             else
             {
@@ -3208,39 +3208,6 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
         break;
 
         // ************ Lobby Messages *************
-
-        case FM_L_AUTO_UPDATE_INFO: 
-        {
-            if (m_pAutoDownload == NULL)
-                m_pAutoDownload = CreateAutoDownload();
-
-            IAutoUpdateSink * pAutoUpdateSink = OnBeginAutoUpdate(NULL, true);
-            assert(pAutoUpdateSink);
-
-            CASTPFM(pfmServerInfo, L, AUTO_UPDATE_INFO, pfm);
-
-            m_pAutoDownload->SetFTPSite(FM_VAR_REF(pfmServerInfo, FTPSite), 
-                                        FM_VAR_REF(pfmServerInfo, FTPInitialDirectory), 
-                                        FM_VAR_REF(pfmServerInfo, FTPAccount), 
-                                        FM_VAR_REF(pfmServerInfo, FTPPassword));
-
-            m_pAutoDownload->SetOfficialFileListAttributes(pfmServerInfo->crcFileList, 
-                                                           pfmServerInfo->nFileListSize);
-
-            // Disconnect during download
-            DisconnectLobby(); 
-
-            m_pAutoDownload->SetArtPath(GetArtPath());
-
-            //
-            // Let's do it!
-            //
-            m_pAutoDownload->BeginUpdate(pAutoUpdateSink, ShouldCheckFiles(), false);
-            // m_pAutoDownload could be NULL at this point, if the autodownload system decided
-            // not to do a download after all.  This can happen if there is an error or if
-            // the client was already up-to-date.
-        }
-        break;
 
         case FM_L_CREATE_MISSION_ACK:
         {

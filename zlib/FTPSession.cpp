@@ -1,10 +1,11 @@
 
 /*-------------------------------------------------------------------------
- * clintlib\FTPSession.cpp
+ * zlib\FTPSession.cpp
  * 
- * The implementation of IFTPSession
+ * The implementation of IHTTPSession (the FTP session went with the
+ * auto-updater; the shared base still carries its FTP file transfer)
  *
- * See clintlib\FTPSession.h for descriptions of all public functions.
+ * See zlib\FTPSession.h for descriptions of all public functions.
  *
  * Owner: 
  * 
@@ -679,84 +680,6 @@ protected:
 };
 
 
-class CFTPSessionImpl:
-    public CInternetSessionImpl<IFTPSession>
-{
-public:
-
-    CFTPSessionImpl(IFTPSessionUpdateSink * pSink) :
-        CInternetSessionImpl<IFTPSession>(pSink) 
-    {
-    }
-        
-    virtual ~CFTPSessionImpl()
-    {
-    }
-
-    virtual bool ConnectToSite(const char * szFTPSite, const char * szDirectory, const char * szUsername, const char * szPassword) 
-    {
-       m_szLastError[0] = '\0';
-
-       m_hInternetSession = ::InternetOpen(
-                           "Microsoft Internet Explorer",   // agent
-                            INTERNET_OPEN_TYPE_PROXY,       // access
-                            "ftp-gw",                       // proxy server
-                            NULL,                           // defaults
-                            0);                             // synchronous
-
-       //
-       // Connect to remote FTP server.
-       //
-       m_hFTPSession = ::InternetConnect(
-           m_hInternetSession,              // Handle from a previous
-           // call to InternetOpen.
-           szFTPSite,                       // Server we want to connect to
-           INTERNET_INVALID_PORT_NUMBER,    // Use appropriate port
-           szUsername,                      // Username, can be NULL
-           szPassword,                      // Password, can be NULL
-           INTERNET_SERVICE_FTP,            // Flag to use FTP services
-           0,                               // Flags (see SDK docs)
-           (DWORD_PTR) this);               // Context for this connection
-
-        if(m_hFTPSession== NULL)
-        {
-            DoError("Failed to log onto FTP site (%s) : ", szFTPSite);
-            return false;
-        }
-
-        if (!FtpSetCurrentDirectory(m_hFTPSession, szDirectory))
-        {
-            DoError("Failed to enter the proper FTP directory (%s) : ", szDirectory);
-            return false;
-        }
-
-        return true;
-    }
-
-    virtual int GetFileListIncrement()
-    {
-        return 1;
-    }
-
-    virtual bool  InitiateDownload(const char * const * pszFileList, 
-                                   const char * szDestFolder, 
-                                   bool bDisconnectWhenDone = true,
-                                   int nMaxBufferSize = 1024*1024)
-    {
-        bool bRet = CInternetSessionImpl<IFTPSession>::InitiateDownload(pszFileList, szDestFolder, false, nMaxBufferSize);
-
-        // If progress updates are wanted
-        if(m_pUpdateSink && *pszFileList != NULL)
-            // Fire starting point
-                m_pUpdateSink->OnProgress(0, *(m_pszFileList+1), 0);
-
-        SetEvent(m_eventResumeDownload);  // startup the download thread
-
-        return bRet;
-    }
-
-};
-
 class CHTTPSessionImpl :
  public CInternetSessionImpl<IHTTPSession>
 {
@@ -867,10 +790,3 @@ IHTTPSession * CreateHTTPSession(IHTTPSessionSink * pUpdateSink /*= NULL*/)
     else
         return NULL;
 }
-
-IFTPSession * CreateFTPSession(IFTPSessionUpdateSink * pUpdateSink /*= NULL*/)
-{
-    CFTPSessionImpl * pNew = new CFTPSessionImpl(pUpdateSink);
-
-    return pNew; 
-}                                                         

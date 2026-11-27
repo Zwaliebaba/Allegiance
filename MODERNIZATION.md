@@ -44,7 +44,7 @@ interfaces that are gone, so they could not be revived without a rewrite, and th
 | `MSRGuard`, `SymGuard`, `patch`, `fsmon`, `dreamcast` | Deleted. |
 | `Zone`, `Club` | Deleted in Phase 2 with the Zone and Club code paths (see Phase 2). |
 | `sentinal`, `fedperf` | Deleted. Only the VS.NET 2003 `Server.vcproj` compiled them into the server; the original nmake build never did. |
-| `AutoUpdate` | Deleted in the dead code cleanup, with `lobby`. |
+| `AutoUpdate` | Deleted in the dead code cleanup, with `lobby`. The code that drove it went later (see "Dead code cleanup"). |
 | `test` | Kept: `FedSrv` builds on `test/TCLib`, `test/TCAtl` and `test/Inc` (as `AGC` did), so these are effectively Tier 1 support code rather than tests. |
 
 ### FedSrv and AGC
@@ -129,7 +129,8 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
     `PassportUpdateURL`, `ZoneAuthGUID`, `ClubMessageCRC`, `UsePassport`).
 
   The Internet button now opens a plain lobby screen (`WinTrek/LobbyScreen.cpp`, formerly
-  `ZoneClubScreen.cpp`): config download, auto-update and message of the day, then the free lobby. The
+  `ZoneClubScreen.cpp`): config download and message of the day, then the free lobby (the auto-update step
+  it also ran was removed later, see "Dead code cleanup"). The
   logon popup asks only for a call sign. Main menu: LAN, Internet and Training.
 
   Protocol: `MSGVER` is 199 (Zone ticket out of `FM_C_LOGONREQ`, `bClubGame` out of `MissionParams`) and
@@ -137,7 +138,7 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
   interoperate, and an old client can't even reach a new lobby's auto-update: it sends the old
   `FM_C_LOGON_LOBBY` layout, which a new lobby misreads (`FM_C_LOGON_LOBBY_OLD` covers only much older
   clients). That is acceptable because nothing speaking the 2004 protocol is left to stay compatible with:
-  the Zone lobbies are gone.
+  the Zone lobbies are gone. (Removing auto-update later took `MSGVER` to 200 and `LOBBYVER` to 10.)
 
   If characters and persistent multiplayer come back, the removed screens are a starting point: the last
   commit that has them is `84f18ae` (`git checkout 84f18ae -- WinTrek/CharInfoScreen.cpp ...`, plus their
@@ -480,6 +481,7 @@ Before the x64 and `/permissive-` work, so those ports only touch code that is u
 | Source files in built directories that no project compiles and nothing includes (63), e.g. most of `test/TCAtl`, the client's old offline mode, Dreamcast's `zlib/dcbase.cpp` | Deleted |
 | The database-backed Zone server compiled out of `AllSrv32` (`!ALLSRV_STANDALONE`: ODBC queries, DB logging, lobby-created games, IGC files built from the database) | Removed with `unifdef -DALLSRV_STANDALONE`; the define is gone. The AllegDB query classes stay, as data holders the standalone server uses |
 | `#if 0` blocks and the Dreamcast port's branches in built code | Removed with `unifdef -k -UDREAMCAST`; the vendored qhull is left as it is |
+| The auto-update system, which needed the deleted `AutoUpdate.exe` and `Reloader.exe` and a lobby that sends `FM_L_AUTO_UPDATE_INFO`: the client's FTP art downloader (`clintlib/AutoDownload.*`), its progress popup and dialog art (`AutoDownloadDialog.mdl` and three textures), the lobby screen's `FilelistCRC`/`FilelistSize`/`FilelistSite`/`FilelistDirectory` check, the start-up `MoveInProgress` check and the `-checkfiles`, `-noautoupdate` and `-reloaded` switches; the server's `AutoUpdate.exe` download and launch from the lobby config (`FedSrv.CPP`) and the never-raised `CantWatchArt` event; the FTP session in `zlib/FTPSession.*` (the HTTP session stays, for the config file and the message of the day) | Deleted. `crcFileList` left `FM_C_LOGONREQ` (`MSGVER` 200) and `FM_C_LOGON_LOBBY`, and `FM_L_AUTO_UPDATE_INFO` and `FM_C_LOGON_LOBBY_OLD` were deleted (`LOBBYVER` 10). The version-mismatch messages no longer tell players to auto-update or delete `filelist.txt` |
 | Leftover non-source files nothing builds, includes or reads (a second pass, resolving `#include`s and `.rc` file references per project as above): the nmake `makeexes`; `zlib/doit.bat` (a hand-run `cl` line list) and `zlib/float/math.asm` (x86 assembly no project assembles); `Inc/Utility.hxx` (a forwarder `_Utility/Utility.h` never reaches, since it finds its own copy first); the old client resource script `Lang/Usa/WinTrek/WinTrek.rc` and its icon (the client builds `Lang/Usa/allegiance/allegiance.rc`); `FedSrv/Status.htm` (a FrontPage status page scripting the removed DCOM admin objects) and `FedSrv/regini.txt` (registry keys for the 1999 server setup); `WinTrek/offline.map` and `offline.sql` (data for the deleted offline mode); the Source Insight project files `training/training.CF/PI/PR/PS/WK` | Deleted |
 
 `database/` and `databasepcg/` stayed at first, as the game-balance data (ships, parts, civilisations)
@@ -1050,7 +1052,7 @@ Fixes are made per CI round, and each change keeps the original runtime behaviou
 | `/permissive-`: a template's base-class members used unqualified, in classes that use many of them | Using-declarations and typedefs for the base's members | `zlib/point.h` (`TPoint`), `zlib/rect.h` (`TRect`), `_Utility/listwrappers.h` (`TListListWrapper`, `TMapListWrapper`) |
 | `/permissive-`: the same, a few calls each | `this->` | `effect/listpane.cpp`, `engine/modeler.cpp`, `engine/value.h` (`TWrapValue`), `WinTrek/consoledata.h` |
 | `TRef<Derived>` returned or passed as `TRef<Base>`: two user-defined conversions (`TRef<Derived>` → `Derived*` → `TRef<Base>`), which only permissive mode allowed | A converting constructor and `operator=` on `TRef`, constrained to pointer-convertible types | `zlib/tref.h` |
-| String literals are `const` (`/Zc:strictStrings`) | The pointers, tables and parameters that hold literals are `const char*` (found with clang's `-Wwritable-strings`); OLE DB literals passed as `BSTR` are cast, as permissive mode did implicitly | `zlib/alloc.h` (debug `new` takes `__FILE__`), `Inc/messagecore.h`, `Inc/allegdb.h`, `zlib/FTPSession.cpp`, `clintlib/AutoDownload.*`, `clintlib/clintlib.*`, `clintlib/badwords.cpp`, `FedSrv/FedSrv.CPP`, `WinTrek/WinTrek.cpp`, `WinTrek/Treki.h`, `engine/dderror.cpp`, `test/TCAtl/UserAcct.*`, and a few more |
+| String literals are `const` (`/Zc:strictStrings`) | The pointers, tables and parameters that hold literals are `const char*` (found with clang's `-Wwritable-strings`); OLE DB literals passed as `BSTR` are cast, as permissive mode did implicitly | `zlib/alloc.h` (debug `new` takes `__FILE__`), `Inc/messagecore.h`, `Inc/allegdb.h`, `zlib/FTPSession.cpp`, `clintlib/AutoDownload.*` (since deleted), `clintlib/clintlib.*`, `clintlib/badwords.cpp`, `FedSrv/FedSrv.CPP`, `WinTrek/WinTrek.cpp`, `WinTrek/Treki.h`, `engine/dderror.cpp`, `test/TCAtl/UserAcct.*`, and a few more |
 | A temporary bound to a non-const reference | A named local (or a `const&` parameter) | `engine/bspgeo.cpp`, `effect/efpane.cpp`, `test/Inc/TCLib.h` |
 | Address of a temporary (`&(RECT)rect`) | A named local | `zlib/window.h`, `engine/font.cpp` |
 | `?:` with a `ZString` on one side and a `const char*` on the other: ambiguous | The other side made explicit; in `fsmission.cpp` it stays a pointer to the member string, not to a temporary | `FedSrv/fsmission.cpp`, `WinTrek/WinTrek.cpp`, `WinTrek/teamscreen.cpp`, `soundengine/ds3dvirtualbuffer.cpp`, `engine/enginewindow.cpp` |

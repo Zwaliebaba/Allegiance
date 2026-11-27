@@ -2888,7 +2888,7 @@ public:
         // Show the intro videos
         //
 
-        if (!g_bQuickstart && bMovies  && !g_bReloaded) {
+        if (!g_bQuickstart && bMovies) {
             SetScreen(CreateVideoScreen(GetModeler()));
         } else {
             SetScreen(CreateIntroScreen(GetModeler()));
@@ -5771,15 +5771,6 @@ public:
             m_pscreenBackdrop->OnFrame();
         }
         CheckCountdownSound();
-
-        // Handle AutoDownload as needed, if we're not downloading, do nothing
-        if (trekClient.m_pAutoDownload)
-        {
-            if(GetWindow()->GetFullscreen())
-                trekClient.HandleAutoDownload(50); // give smaller time slice to allow for mouse to update
-            else
-                trekClient.HandleAutoDownload(500); // since the mouse is hardware in not full screen, the graphics engine doesn't need much CPU 
-        }
 
         // receive network messages
         trekClient.m_lastUpdate  = m_timeLastFrame;
