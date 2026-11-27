@@ -36,7 +36,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(UnitTestDir)include;$(AllegianceRoot)engine;$(AllegianceRoot)_Utility;$(AllegianceRoot)zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(UnitTestDir)include;$(AllegianceRoot)engine;$(AllegianceRoot)_Utility;$(AllegianceRoot)soundengine;$(AllegianceRoot)zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ZLIB_SKIP_NEW_REDEF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -52,6 +52,7 @@
     <ClCompile Include="PathStringTests.cpp" />
     <ClCompile Include="ObjectStackTests.cpp" />
     <ClCompile Include="NetworkTests.cpp" />
+    <ClCompile Include="SoundTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

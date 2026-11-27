@@ -1244,7 +1244,6 @@ public:
     TRef<IMenuItem>            m_pitemFilterQuickComms;
     TRef<IMenuItem>            m_pitemFilterLobbyChats;
     TRef<IMenuItem>            m_pitemSoundQuality;
-    TRef<IMenuItem>            m_pitemToggleSoundHardware;
     TRef<IMenuItem>            m_pitemToggleMusic;
     TRef<IMenuItem>            m_pitemMusicVolumeUp;
     TRef<IMenuItem>            m_pitemMusicVolumeDown;
@@ -1287,7 +1286,6 @@ public:
     TRef<ISoundEngine>              m_pSoundEngine;
     std::vector<TRef<ISoundTemplate>>   m_vSoundMap;
     ISoundEngine::Quality           m_soundquality;
-    bool                            m_bEnableSoundHardware;
     TRef<IDiskPlayer>               m_pDiskPlayer;
     TRef<ISoundMutex>               m_psoundmutexSal;
     TRef<ISoundMutex>               m_psoundmutexVO;
@@ -2558,7 +2556,7 @@ public:
 
         if (g_bEnableSound) {
             assert (m_pSoundEngine == NULL);
-            hr = CreateSoundEngine(m_pSoundEngine, GetHWND());
+            hr = CreateSoundEngine(m_pSoundEngine);
         }
 
         if (FAILED(hr) || !g_bEnableSound)
@@ -2570,8 +2568,6 @@ public:
             ISoundEngine::midQuality); 
         ZSucceeded(m_pSoundEngine->SetQuality(m_soundquality));
 
-        m_bEnableSoundHardware = LoadPreference("SoundHardwareAcceleration", false) != FALSE; 
-        ZSucceeded(m_pSoundEngine->EnableHardware(m_bEnableSoundHardware));
 
         ZSucceeded(m_pSoundEngine->SetListener(new CameraListener(m_cameraControl)));
 
@@ -3407,7 +3403,6 @@ public:
 
     #define idmResetSound           701
     #define idmSoundQuality         702
-    #define idmSoundHardware        703
     #define idmToggleMusic          704
     #define idmMusicVolumeUp        705
     #define idmMusicVolumeDown      706
@@ -3508,7 +3503,6 @@ public:
                 pmenu->AddMenuItem(idmResetSound, "Reset Sound", 'R');
                 #endif
                 m_pitemSoundQuality         = pmenu->AddMenuItem(idmSoundQuality, GetSoundQualityMenuString());
-                m_pitemToggleSoundHardware  = pmenu->AddMenuItem(idmSoundHardware, GetSoundHardwareMenuString());
                 m_pitemToggleMusic          = pmenu->AddMenuItem(idmToggleMusic, GetMusicMenuString());
                 m_pitemMusicVolumeUp        = pmenu->AddMenuItem(idmMusicVolumeUp,
                     GetGainMenuString("Music", m_pnumMusicGain->GetValue(), c_fVolumeDelta), 'M');
@@ -4108,18 +4102,6 @@ public:
             m_pitemSoundQuality->SetString(GetSoundQualityMenuString());
     };
 
-    void ToggleSoundHardware()
-    {
-        m_bEnableSoundHardware = !m_bEnableSoundHardware;
-
-        SavePreference("SoundHardwareAcceleration", (DWORD)m_bEnableSoundHardware);
-
-        ZSucceeded(m_pSoundEngine->EnableHardware(m_bEnableSoundHardware));
-
-        if (m_pitemToggleSoundHardware != NULL)
-            m_pitemToggleSoundHardware->SetString(GetSoundHardwareMenuString());
-    }
-
     void ToggleMusic()
     {
         m_bMusic = !m_bMusic;
@@ -4306,11 +4288,6 @@ public:
             ZAssert(false);
             return "<bug>";
         }
-    }
-
-    ZString GetSoundHardwareMenuString()
-    {
-        return m_bEnableSoundHardware ? "Sound Card Acceleration On" : "Sound Card Acceleration Off";
     }
 
     ZString GetMusicMenuString()
@@ -4552,10 +4529,6 @@ public:
 
             case idmSoundQuality:
                 SwitchSoundQuality();
-                break;
-
-            case idmSoundHardware:
-                ToggleSoundHardware();
                 break;
 
             case idmToggleMusic:

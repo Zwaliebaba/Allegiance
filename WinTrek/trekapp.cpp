@@ -28,58 +28,7 @@ bool    g_bAskForCDKey = false;
 //////////////////////////////////////////////////////////////////////////////
 
 //
-// Check to make sure that they are running DX 7 Dsound or better
-//
-bool CheckDSoundVersion()
-{
-    // Get version information from the application 
-    
-    HMODULE hmodDSound = GetModuleHandle("dsound");
-    if (NULL == hmodDSound) // why isn't the dll loaded???
-      return false;
-
-    char  szDSoundPath[MAX_PATH];
-    GetModuleFileName(hmodDSound, szDSoundPath, sizeof(szDSoundPath)); 
-
-    DWORD dwTemp;
-    DWORD dwVerInfoSize = GetFileVersionInfoSize(szDSoundPath, &dwTemp);
-    if (0 == dwVerInfoSize)
-      return false;
-
-    void *pvVerInfo = _alloca(dwVerInfoSize);
-    GetFileVersionInfo(szDSoundPath, NULL, dwVerInfoSize, pvVerInfo);
-
-    VS_FIXEDFILEINFO *lpvsFixedFileInfo = NULL;
-    unsigned uTemp;
-    if (!VerQueryValue(pvVerInfo, "\\", (LPVOID*) &lpvsFixedFileInfo, &uTemp))
-      return false;
-
-
-    // check the version info
-
-    WORD ver1 = HIWORD(lpvsFixedFileInfo->dwFileVersionMS);
-    WORD ver2 = LOWORD(lpvsFixedFileInfo->dwFileVersionMS);
-    WORD ver3 = HIWORD(lpvsFixedFileInfo->dwFileVersionLS);
-    WORD ver4 = LOWORD(lpvsFixedFileInfo->dwFileVersionLS);
-
-    if (ver1 > 5) // assume all major new versions work
-      return true;
-
-    if (ver1 == 5) // NT -- WARNING -- if future versions of DX go outside 4.??? and spill into NT versions, we're in trouble
-      return ver2 > 0 || ver3 >= 2113; // ver3 == NT build #
-    else if (ver1 == 4) // Stand-alone DX runtimes
-    {
-      if (ver2 > 7) // new major dx versions (DX8+)
-        return true;
-      else if (ver2 == 7) // DX7
-        return ver3 > 0 || ver4 >= 700;
-    }
-
-    return false;
-}
-
-//
-// Check to make sure that they are running DX 7 Dsound or better
+// Check that there is enough memory
 //
 bool CheckFreeMemory()
 {
@@ -179,23 +128,6 @@ public:
                return S_FALSE;
             }
         }
-
-        //
-        // Check the DSound version
-        //
-
-        if (!CheckDSoundVersion())
-        {
-            MessageBox(NULL, 
-                "Allegiance requires DirectX 7 or higher, which was not detected.  "
-                    "Please re-run setup and choose to install DirectX 7.", 
-                "Allegiance",
-                MB_ICONERROR | MB_OK
-                );
-
-            return E_FAIL;
-        }
-
 
         HRESULT hr = CoInitialize(NULL);
 

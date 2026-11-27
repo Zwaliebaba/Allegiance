@@ -38,10 +38,13 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ds3dutil.cpp" />
-    <ClCompile Include="ds3dbuffer.cpp" />
-    <ClCompile Include="ds3dvirtualbuffer.cpp" />
-    <ClCompile Include="ds3dengine.cpp" />
+    <ClCompile Include="xa2voice.cpp" />
+    <ClCompile Include="x3dpan.cpp">
+      <!-- x3daudio.h's Direct3D types must not meet zlib.h's DirectX 7 ones -->
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="virtualbuffer.cpp" />
+    <ClCompile Include="xa2engine.cpp" />
     <ClCompile Include="soundbase.cpp" />
     <ClCompile Include="soundutil.cpp" />
     <ClCompile Include="soundtemplates.cpp" />
@@ -52,10 +55,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ds3dbuffer.h" />
-    <ClInclude Include="ds3dengine.h" />
-    <ClInclude Include="ds3dutil.h" />
-    <ClInclude Include="ds3dvirtualbuffer.h" />
+    <ClInclude Include="soundmath.h" />
+    <ClInclude Include="virtualbuffer.h" />
+    <ClInclude Include="xa2engine.h" />
+    <ClInclude Include="x3dpan.h" />
+    <ClInclude Include="xa2voice.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="redbooksound.h" />
     <ClInclude Include="soundbase.h" />

@@ -7,7 +7,6 @@
 #include "pch.h"
 #include "soundbase.h"
 #include "redbooksound.h"
-#include "ds3dutil.h"
 
 #include <math.h>
 #include <mfapi.h>

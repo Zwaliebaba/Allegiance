@@ -1,33 +1,24 @@
 //
-// ds3dengine.h
+// xa2engine.h
 //
-// Classes representing a DirectSound3D implementation of a sound engine
+// The XAudio2 implementation of the sound engine
 //
 
 namespace SoundEngine {
 
 //
-// A sound engine implementation using direct sound 3D that handles basic
-// resource management.  
+// A sound engine implementation using XAudio2 that handles basic resource
+// management: of the sounds playing, the most important ones (by
+// VirtualSoundBuffer::GetDynamicPriority) get a voice.
 //
-class DS3DSoundEngine : public ISoundEngine, public ISoundBufferSource  SoundDebugImpl
+class XA2SoundEngine : public ISoundEngine, public ISoundBufferSource  SoundDebugImpl
 {
 
-    // the currently chosen DirectSound implementation
-    TRef<IDirectSound> m_pDirectSound;
-
-    // the primary buffer of this DirectSound instance
-    TRef<IDirectSoundBuffer> m_pPrimaryBuffer;
-
-    // the capabilities of the chosen DirectSound implementation
-    DSCAPS m_dscaps;
-
+    // XAudio2, its mastering voice and X3DAudio
+    TRef<XA2Device> m_pdevice;
 
     // the listener used to render sound
     TRef<ISoundListener> m_plistener;
-
-    // the coresponding DirectSound3D listener for this instance.
-    TRef<IDirectSound3DListener> m_pDSListener;
 
     // the rolloff factor, where 1.0f is the real-world rolloff
     float m_fRolloffFactor;
@@ -46,7 +37,7 @@ class DS3DSoundEngine : public ISoundEngine, public ISoundBufferSource  SoundDeb
     TRef<ISoundBufferSource> m_pBufferSourceDelegate;
 
     // a list of currently playing virtual sounds
-    typedef std::list<ZAdapt<TRef<DSVirtualSoundBuffer> > > VirtualSoundList;
+    typedef std::list<ZAdapt<TRef<VirtualSoundBuffer> > > VirtualSoundList;
     VirtualSoundList m_listActiveSounds;
 
     // the time of the last call to update
@@ -54,9 +45,6 @@ class DS3DSoundEngine : public ISoundEngine, public ISoundBufferSource  SoundDeb
 
     // the sound quality to use
     Quality m_quality;
-
-    // whether to allow hardware acceleration
-    bool m_bAllowHardware;
 
     // the desired number of sounds to play at once.  This number may reserve 
     // a few voices for fading sounds out.
@@ -66,27 +54,13 @@ class DS3DSoundEngine : public ISoundEngine, public ISoundBufferSource  SoundDeb
     // are fading in or out.
     int m_nNumBuffersMax;
 
-    // dumps the capablilites of this DirectSound implementation to the 
-    // debug output.
-    void DumpCaps();
-
-    // Sets the format of the primary buffer to the given sample rate, number 
-    // of bits, and number of channels
-    HRESULT SetPrimaryBufferFormat(int nSampleRate, int nNumberOfBits, int nChannels);
-
-    // updates the listener position, orientation, etc. for direct sound 3D.
+    // gives the device the listener's position, velocity and orientation
     HRESULT UpdateListener();
-
-    // Is this an error worth killing a virtual sound for, or just something 
-    // transitory?  For example, we may lose a sound buffer when being swapped 
-    // to the background, but we want the sound to continue playing when we 
-    // are swapped back in.  
-    static bool IsSeriousError(HRESULT hr);
 
     // provides a complete ordering of virtual sound buffers by priority.
     struct SoundPriorityCompare
     {
-        bool operator () (DSVirtualSoundBuffer* psound1, DSVirtualSoundBuffer* psound2) const
+        bool operator () (VirtualSoundBuffer* psound1, VirtualSoundBuffer* psound2) const
         {
             return psound1->GetDynamicPriority() > psound2->GetDynamicPriority()
                 || (psound1->GetDynamicPriority() == psound2->GetDynamicPriority()
@@ -98,7 +72,7 @@ class DS3DSoundEngine : public ISoundEngine, public ISoundBufferSource  SoundDeb
     // in C++20)
     struct SoundPriorityCompareReversed
     {
-        bool operator () (DSVirtualSoundBuffer* psound1, DSVirtualSoundBuffer* psound2) const
+        bool operator () (VirtualSoundBuffer* psound1, VirtualSoundBuffer* psound2) const
         {
             return !SoundPriorityCompare()(psound1, psound2);
         }
@@ -116,14 +90,14 @@ class DS3DSoundEngine : public ISoundEngine, public ISoundBufferSource  SoundDeb
 public:
 
     // Constructor - the real initialization is done in init.
-    DS3DSoundEngine();
+    XA2SoundEngine();
 
-    ~DS3DSoundEngine();
+    ~XA2SoundEngine();
 
 
     // Basic initialization.  This was pulled out of the constructor so that we
-    // can return error values.
-    HRESULT Init(HWND hwnd);
+    // can return error values. Fails without an audio device.
+    HRESULT Init();
 
 
     //
@@ -145,9 +119,6 @@ public:
 
     // Sets a general quality of playback (CPU time vs. fidelity)
     HRESULT SetQuality(Quality quality);
-
-    // Allows/disallows hardware acceleration.
-    HRESULT EnableHardware(bool bEnable);
 
     // Sets the listener to use for the current sounds
     virtual HRESULT SetListener(ISoundListener* plistener);
