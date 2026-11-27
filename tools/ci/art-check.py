@@ -40,7 +40,6 @@ FOLDERS = {
     'wav': ['Audio'],
     'mp4': ['Movies'],
     'igc': ['Data'],
-    'rtf': ['Data'],
 }
 
 problems = []
@@ -177,7 +176,7 @@ for f in sorted(contents['Data']['igc']):
 
 artwork_h = code.get(os.path.join(ROOT, 'WinTrek', 'artwork.h'), '')
 constants = dict(re.findall(r'#define\s+(AWF_\w+)\s+"([^"]+)"', artwork_h))
-all_code = '\n'.join(t for f, t in code.items() if not f.endswith('artwork.h'))
+all_code = '\n'.join(strip_comments(t) for f, t in code.items() if not f.endswith('artwork.h'))
 used = {c: v for c, v in constants.items() if re.search(r'\b' + c + r'\b', all_code)}
 
 for f, text in code.items():

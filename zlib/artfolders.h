@@ -38,7 +38,6 @@ inline const char* const* ArtFolders(const char* szExtension)
         { "wav", s_audio     },     // sound effects (music is in Music\, by path)
         { "mp4", s_movies    },
         { "igc", s_data      },     // core files
-        { "rtf", s_data      },
     };
 
     if (szExtension && *szExtension == '.') {

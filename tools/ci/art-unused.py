@@ -6,7 +6,7 @@
 # It starts from what the game names directly and follows references,
 # counting a file as used when a used thing names it:
 #
-#   - the game code (client and server): every string literal, outside
+#   - the code (client, server, mdlc, xmunge): every string literal, outside
 #     comments; "<name>bmp" names an image. Of WinTrek\artwork.h, only the
 #     constants that are used. And the names it builds (CODE_BUILT);
 #   - core files and maps (Data\*.igc) the code names: every name in them, as
@@ -17,7 +17,7 @@
 #   - help pages (.mml): the pages and images their tags name (one-word fields);
 #   - models (Artwork\Models.props): a used model's .x files (<name>.x,
 #     _static, -low, _bound) and template, or its text MDL and .x files; the
-#     textures a used .x file names;
+#     textures a used .x file names (.ppm or .bmp: engine/xfile.cpp);
 #   - animations (Art.proj): the strip image; font.mdl: fontsource.mdl;
 #     Music: tracks.lst and the tracks it lists.
 #
@@ -35,7 +35,7 @@ from collections import defaultdict
 ROOT = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), '..', '..'))
 ART = os.path.join(ROOT, 'Artwork')
 FOLDERS = ['Audio', 'Data', 'Fonts', 'Interface', 'Models', 'Movies', 'Music', 'Textures', 'tools']
-CODE_DIRS = ['FedSrv', 'Igc', 'Inc', 'WinTrek', '_Utility', 'clintlib', 'effect', 'engine', 'soundengine', 'training', 'zlib']
+CODE_DIRS = ['FedSrv', 'Igc', 'Inc', 'Lang', 'WinTrek', '_Utility', 'clintlib', 'effect', 'engine', 'mdlc', 'soundengine', 'training', 'xmunge', 'zlib']
 
 IGC_PREFIXES = ['i', 'l', 'icon']                     # loadout.cpp, load.cpp, teampane.cpp
 IGC_SUFFIXES = ['loadoutpane', 'hullinfo', 'lobby']   # load.cpp, teamscreen.cpp (civilization icon names)
@@ -183,7 +183,7 @@ while queue:
                     if TOKEN.fullmatch(field.strip()):
                         name_any(field.strip())
         elif ext == 'x':
-            for t in re.findall(r'([A-Za-z0-9_\-]+)\.(?:bmp|dds|png|tga)\b', read(path), flags=re.I):
+            for t in re.findall(r'([A-Za-z0-9_\-]+)\.(?:ppm|bmp|dds)\b', read(path), flags=re.I):
                 name_image(t)
         elif ext == 'lst':
             for line in read(path).splitlines():
@@ -197,12 +197,17 @@ while queue:
 #
 
 unused = sorted(k for k in files if k not in used)
+unbuilt = sorted(n for n in generated if ('gen', n) not in used and re.search(r'Include="' + re.escape(n) + '"', props, re.I))
 total = sum(os.path.getsize(files[k]) for k in unused)
 by_folder = defaultdict(list)
 for k in unused:
     by_folder[k[0]].append(k)
 
 print(f'{len(unused)} of {len(files)} art files are not used ({total / 1048576:.1f} MB):')
+if unbuilt:
+    print(f'\nModels.props builds {len(unbuilt)} model(s) nothing uses:')
+    for n in unbuilt:
+        print(f'  {n}')
 for folder in sorted(by_folder):
     ks = by_folder[folder]
     size = sum(os.path.getsize(files[k]) for k in ks)

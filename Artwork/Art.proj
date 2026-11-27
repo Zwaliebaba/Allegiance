@@ -28,7 +28,7 @@
     Interface\*.mdl *.mml   the UI: screens, panes, cursors, sound definitions;
                       help pages
     Movies\*.mp4      the opening movies
-    Data\*.igc *.rtf  the core files and the EULA
+    Data\*.igc       the core files and training maps
 
   The client and server find a file by its bare name in the folders for its
   type (ModelerImpl::GetFile, UTL::getFile), so nothing names a folder.
@@ -97,7 +97,7 @@
     <ArtCopy Include="$(ArtAudio)*.wav" Dest="$(ArtOutAudio)" />
     <ArtCopy Include="$(ArtInterface)*.mdl;$(ArtInterface)*.mml" Dest="$(ArtOutInterface)" />
     <ArtCopy Include="$(ArtMovies)*.mp4" Dest="$(ArtOutMovies)" />
-    <ArtCopy Include="$(ArtData)*.igc;$(ArtData)*.rtf" Dest="$(ArtOutData)" />
+    <ArtCopy Include="$(ArtData)*.igc" Dest="$(ArtOutData)" />
 
     <!-- Animation strips: frames across, frames down (from the original makefile). -->
     <ArtAnimation Include="animlaunch"  X="4" Y="4" />
