@@ -666,8 +666,10 @@ The art CI job runs `tools/ci/art-check.py` first. It resolves every reference t
 against the source folders plus what the build generates: the MDL files' sounds, images and `use`
 imports (namespaces the code creates count), the core files' models, icons, textures and investment
 images, and the images, namespaces and models the code names; and it fails when a name is in two
-folders searched for one type, where one would hide the other. One gap is known and only reported: the
-Bios "Platform" station has no investment-screen image (`ibiosplat`), as in 2004.
+folders searched for one type, where one would hide the other. Every reference resolves. The one station
+type without an investment-screen image, the Bios "Platform" (`biosplat`), is the flag pedestal
+(`c_sabmPedestal`): the server places it in a capture-the-flag game and it is never offered, so
+the check skips pedestals.
 
 Changed with the move:
 

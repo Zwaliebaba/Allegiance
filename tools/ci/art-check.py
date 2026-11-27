@@ -9,7 +9,8 @@
 #   - the MDL files: ImportWave sounds, images ("<name>bmp"), "use" imports;
 #   - the core files (Data\*.igc): ship, station, drone, missile, probe, mine,
 #     chaff and projectile models, icons, textures, and the investment-screen
-#     images ("i" + the model name) of stations, drones and research;
+#     images ("i" + the model name) of stations (but the flag pedestal, which
+#     is never offered), drones and research;
 #   - the code: images, namespaces and models named by a string literal, and
 #     the artwork.h constants that are used.
 #
@@ -43,19 +44,9 @@ FOLDERS = {
 }
 
 problems = []
-known = []
 
-# Gaps the original art has too, reported but not failed: what is missing and
-# what the player sees
-KNOWN_MISSING = {
-    'ibiosplat.dds': 'the Bios "Platform" station has no investment-screen image (since 2004); it is listed without a picture',
-}
-
-def problem(text, missing=None):
-    if missing and missing.lower() in KNOWN_MISSING:
-        known.append(f'{text}: {KNOWN_MISSING[missing.lower()]}')
-    else:
-        problems.append(text)
+def problem(text):
+    problems.append(text)
 
 #
 # What each folder will hold: its files, and what the art build adds
@@ -143,6 +134,12 @@ def cstr(data, offset, size):
 BUYABLE = {29: 'hull type', 30: 'part type', 31: 'station type', 32: 'development', 33: 'drone type'}
 OBJECT = {22: 'projectile type', 23: 'missile type', 24: 'mine type', 25: 'probe type', 26: 'chaff type'}
 
+# DataStationTypeIGC.sabmCapabilities, and c_sabmPedestal: the flag pedestal,
+# which the server places itself in a capture-the-flag game; it is never
+# offered on the investment screen (it requires a tech nothing grants)
+STATION_ABILITIES = 452
+PEDESTAL = 0x400
+
 for f in sorted(contents['Data']['igc']):
     data = open(os.path.join(ART, 'Data', f + '.igc'), 'rb').read()
     if len(data) < 8:
@@ -163,8 +160,9 @@ for f in sorted(contents['Data']['igc']):
                 problem(f'{where}: {kind} icon {icon}.dds not found')
             if otype in (29, 31) and model and not resolves(model, 'mdl'):
                 problem(f'{where}: {kind} model {model}.mdl not found')
-            if otype in (31, 32, 33) and model and model.isalnum() and not resolves('i' + model, 'dds'):
-                problem(f'{where}: {kind} {model}: investment image i{model}.dds not found', f'i{model}.dds')
+            pedestal = otype == 31 and struct.unpack_from('<H', rec, STATION_ABILITIES)[0] & PEDESTAL
+            if otype in (31, 32, 33) and not pedestal and model and model.isalnum() and not resolves('i' + model, 'dds'):
+                problem(f'{where}: {kind} {model}: investment image i{model}.dds not found')
         elif otype in OBJECT:                      # DataObjectIGC: modelName[13] at 24, textureName[13] at 37
             kind = OBJECT[otype]
             model, texture = cstr(rec, 24, 13), cstr(rec, 37, 13)
@@ -202,9 +200,6 @@ for c, v in sorted(used.items()):
 
 counts = ', '.join(f'{folder} {sum(len(n) for n in contents[folder].values())}' for folder in sorted(contents))
 print(f'Art folders: {counts}')
-
-for k in sorted(set(known)):
-    print('Known gap: ' + k)
 
 if problems:
     print(f'{len(problems)} problem(s):')
