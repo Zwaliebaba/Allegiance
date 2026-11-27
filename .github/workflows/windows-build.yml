@@ -331,6 +331,15 @@ jobs:
         shell: pwsh
         run: python tools/ci/art-check.py
 
+      # The art files nothing uses (report only; Music is not checked out)
+      - name: Report unused art
+        shell: pwsh
+        run: |
+          $report = python tools/ci/art-unused.py
+          $report
+          $summary = @("<details><summary>$($report[0])</summary>", '', '```') + $report + @('```', '</details>')
+          $summary >> $env:GITHUB_STEP_SUMMARY
+
       - name: Fetch art tools
         uses: actions/download-artifact@v5
         with:
