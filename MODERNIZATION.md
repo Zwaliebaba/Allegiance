@@ -161,7 +161,7 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
 | Rendering | DirectDraw 4 + Direct3D 3 (DirectX 6), software rasterizer | D3D11 backend. Stage 1 (below): a D3D11 rasterizer with the engine's CPU transform and lighting. Stage 2: transform and lighting in shaders |
 | Input | DirectInput 2/7 | DirectInput 8 |
 | Audio | DirectSound / DS3D | Done: XAudio2 2.9 (in Windows 10 and later) with X3DAudio for the pan and doppler (see "Sound" below) |
-| Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Done: the same `IDiskPlayer` interface plays the WAVs from `Artwork/redbook` (copied to `out\Artwork\redbook` by `Art.proj`; CD track n is line n - 1 of `tracks.lst`) through the Media Foundation Media Engine, audio only. The music gain sets the player's volume instead of the system mixer's CD line |
+| Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Done: the same `IDiskPlayer` interface plays the WAVs from `Artwork/Music` (copied to `out\Artwork\Music` by `Art.proj`; CD track n is line n - 1 of `tracks.lst`) through the Media Foundation Media Engine, audio only. The music gain sets the player's volume instead of the system mixer's CD line |
 | Networking | DirectPlay 4 inside `FedMessaging` | MsQuic: a reliable ordered stream and unreliable datagrams per connection, plus a UDP probe for LAN discovery (see "Networking" below) |
 | Settings | `HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.0` (and `...\Server`) | A JSON file per program (see "Settings" below) |
 
@@ -508,9 +508,10 @@ that start it keep working.
 ### Phase 4: art pipeline
 
 `Artwork/Art.proj` replaces the nmake/awk/sed/batch chain (`Artwork/256/makefile`, `makegeo.mak`,
-`Artwork/tools/*.bat`, `*.awk`, `sed.exe`), which has been deleted. It reads `bitmap.txt` and
-`copymdl.txt` unchanged, and `Artwork/256/Models.props`, a mechanical conversion of `makegeo.mak`'s
-model list. It builds incrementally through Inputs and Outputs.
+`Artwork/tools/*.bat`, `*.awk`, `sed.exe`), which has been deleted. It read `bitmap.txt` and
+`copymdl.txt` unchanged, and `Models.props`, a mechanical conversion of `makegeo.mak`'s
+model list. It builds incrementally through Inputs and Outputs. (The art was one flat `Artwork/256`
+folder until "Art folders" below; the sections up to there describe it as it was then.)
 
 | Step | Original | Replacement |
 |---|---|---|
@@ -598,7 +599,7 @@ A before-and-after check confirms that all 3,186 inputs the manifests need are s
 
 Kept on purpose:
 
-- `Artwork/redbook`: the soundtrack. The game plays music as audio-CD tracks through MCI (`soundengine/redbooksound.cpp`), so the port has no music without a CD. A Phase 3 follow-up replaces the CD player with file playback from these WAVs.
+- `Artwork/redbook` (now `Artwork/Music`): the soundtrack. The game plays music as audio-CD tracks through MCI (`soundengine/redbooksound.cpp`), so the port has no music without a CD. A Phase 3 follow-up replaces the CD player with file playback from these WAVs.
 - `Artwork/256` held twelve MDL files that `copymdl.txt` never listed (`console`, `loadout1`, `3`, `4`,
   `5`, `9`, `11`, `loadoutbomber`, `loadouttacticalfighter`, `messageoftheday`, `techtree`, `temp`).
   An earlier note here called them missing at runtime; none is used, and they are deleted, with 25 that
@@ -620,6 +621,62 @@ Kept on purpose:
 
   The 29 images the original build also never shipped (`BtnMissionDetails`, `hudgauge` and the rest) do
   ship since the move to DDS sources ("Textures: 32-bit DDS").
+
+#### Art folders
+
+The art is in folders by kind, in the sources and in `out\Artwork` alike:
+
+| Folder | Holds | Source |
+|---|---|---|
+| `Audio` | Sound effects and voices (878 WAVs) | copied |
+| `Music` | The soundtrack (13 WAVs, `tracks.lst`) | copied (hard links) |
+| `Textures` | Images that are not model textures: UI, HUD, icons, effects, decals, planets, backgrounds (1,182 DDS) | copied |
+| `Models` | The 223 template models' and 16 text models' `.x` sources and the 230 textures their `.x` files name; the output adds each model's `.mdl` and `.cvh` | `mdlc -optimize`, `xmunge` + `cvh` + qhull |
+| `Fonts` | `fontsource.mdl`, compiled to `font.mdl`; the TTFs it needs (not in git) | `mdlc` |
+| `Interface` | The UI: screens, panes, cursors, sound definitions (72 MDL files), the six animation MDLs the build writes, and the 254 help pages (`.mml`) | copied |
+| `Movies` | The opening movies | copied |
+| `Data` | The core files (`.igc`) and the EULA | copied |
+
+The folders are the manifests: `bitmap.txt` and `copymdl.txt` listed exactly what the folders hold, so
+they are gone. `Models.props` (at `Artwork/`) still lists the models, since each has a template and a
+frame.
+
+Nothing names a folder. MDL files, the core files and the code still say `"fig02"`, `"ires01bmp"`,
+`"newtarget"`; `zlib/artfolders.h` lists the folders a file of each type is looked for in, and
+`ModelerImpl::GetFile` (MDL, images, `.x`, help pages; `Modeler::GetArtFile` for sounds and movies)
+and `UTL::getFile` (core files and hulls, for the client and the server) look in those, then in the
+art root, so a file put there by hand still works:
+
+| Type | Folders |
+|---|---|
+| `.dds` | `Textures`, `Models` |
+| `.mdl` | `Interface`, `Models`, `Fonts` |
+| `.x`, `.cvh` | `Models` |
+| `.mml` | `Interface` |
+| `.wav` | `Audio` (music is read from `Music` by path) |
+| `.mp4` | `Movies` |
+| `.igc`, `.rtf` | `Data` |
+
+A name with a folder in it, or an absolute path, is taken as it is. `mdlc` runs the model batches in
+`out\Artwork\Models`: its art path is its working directory, and the root fallback finds the textures
+next to the models.
+
+The art CI job runs `tools/ci/art-check.py` first. It resolves every reference the way the client does,
+against the source folders plus what the build generates: the MDL files' sounds, images and `use`
+imports (namespaces the code creates count), the core files' models, icons, textures and investment
+images, and the images, namespaces and models the code names; and it fails when a name is in two
+folders searched for one type, where one would hide the other. One gap is known and only reported: the
+Bios "Platform" station has no investment-screen image (`ibiosplat`), as in 2004.
+
+Changed with the move:
+
+- The `SoundPack` override (a folder next to `Artwork` that replaced sounds file by file) is gone;
+  nothing ships one, and replacing a file in `Audio` does the same.
+- The player's key bindings (`inputmap1.mdl`) are player data: they are saved next to `settings.json`
+  and read from there. Until they are first saved there, the copy in the art folder, where the client
+  used to save them, is read, so existing bindings carry over. `defaultinputmap.mdl` stays with the art.
+- `selected.mdl` is deleted: nothing loaded it, and the `selection` namespace it imported exists
+  nowhere.
 
 #### Smoke test
 
@@ -646,7 +703,7 @@ files byte for byte with what `mdlc` (`-dds` / `-ddsmips`, removed since) wrote 
 | When alpha applies | Only where the MDL file asks for the key, as before. An image loaded without it is drawn opaque, alpha ignored, so bitmaps used both ways (with and without the key) look as they did |
 | Model textures | The 230 images that a model's `.x` file names (`TextureFilename`) have a mip chain (2x2 box filter, down to 1x1) baked into the file. All are power-of-two sized. Distant models no longer shimmer; their textures are a third larger. The `.x` files still name them `<name>.bmp`, which the engine maps to `<name>.dds` |
 | Images never built | The 29 BMPs that `bitmap.txt` did not list (referenced by name from code or MDL, so missing at runtime since 2004; see "Art directory cleanup") were converted too and added to the list, so they now ship. Untested: they appear wherever the code asks for them |
-| Editing an image | Use any editor that writes uncompressed 32-bit DDS (Paint.NET, GIMP). Alpha is premultiplied ("Soft alpha" below); editors save straight alpha, so run `python tools/art/bmp2dds.py premultiply Artwork/256/<name>.dds` after saving (it also rebuilds an existing mip chain). For a model texture saved without its mips, rebuild them: `python tools/art/bmp2dds.py mips Artwork/256/<name>.dds` |
+| Editing an image | Use any editor that writes uncompressed 32-bit DDS (Paint.NET, GIMP). Alpha is premultiplied ("Soft alpha" below); editors save straight alpha, so run `python tools/art/bmp2dds.py premultiply Artwork/Textures/<name>.dds` (or `Artwork/Models/` for a model texture) after saving (it also rebuilds an existing mip chain). For a model texture saved without its mips, rebuild them: `python tools/art/bmp2dds.py mips Artwork/Models/<name>.dds` |
 | Animations | The six strips are DDS images too. Each gets a small text MDL (`use "model"; frame = ModifiableNumber(0); image = FrameImage(ImportImage("<name>bmp", false), frame, x, y);`) that compresses the frames when it loads, with the code `mdlc -compressanim` ran at build time |
 | Fonts | Stay in `font.mdl` (glyph bitmaps plus metrics, not textures) |
 
@@ -887,7 +944,7 @@ Then build the art with the tools from that build:
 msbuild Artwork\Art.proj -p:Configuration=Debug
 ```
 
-The art goes to `out\Artwork\`, and `out\bin\x64\<Configuration>\Artwork` is made a directory
+The art goes to `out\Artwork\`, in the folders "Art folders" describes, and `out\bin\x64\<Configuration>\Artwork` is made a directory
 junction to it, because that is where `Allegiance.exe` and `AllSrv32.exe` look for their art
 (`-p:ArtLink=false` skips the junction). Building `Allegiance.exe` or `AllSrv32.exe` also makes that
 junction in its own output directory if it is missing and `out\Artwork` exists (`Directory.Build.targets`),
@@ -898,7 +955,7 @@ the `art-Debug` artifact.
 `font.mdl` holds pre-rendered glyphs, so the fonts `fontsource.mdl` names must be available when it
 is built. Verdana and Tahoma come with Windows, but Eurostile does not, and Windows quietly
 substitutes Courier New for it (the menu titles then look garbled). `Art.proj` passes the fonts in
-`$(ArtFontDir)` (default `bin\`, which is gitignored: Eurostile is not freely licensed) to
+`$(ArtFontDir)` (default `Artwork\Fonts\`, where `*.ttf` are gitignored: Eurostile is not freely licensed) to
 `mdlc -fontdir`, which loads them for that process only, so nothing has to be installed. Put
 `eurosti.ttf` and `eurostib.ttf` there, or set `-p:ArtFontDir=<folder>`. When a font is still
 missing, the build prints `mdlc : warning : font '...' is not installed, Windows substituted '...'`.

@@ -223,6 +223,10 @@ public:
     virtual Engine*         GetEngine() = 0;
     virtual ZString         GetArtPath() = 0;
 
+    // The path of an art file, by bare name: in the art folder for its type
+    // (artfolders.h), or the art root
+    virtual ZString         GetArtFile(const ZString& strName, const ZString& strExtension) = 0;
+
     virtual INameSpace*     CreateNameSpace(const ZString& str)                        = 0;
     virtual INameSpace*     CreateNameSpace(const ZString& str, INameSpace* pnsParent) = 0;
     virtual INameSpace*     GetNameSpace(const ZString& str, bool bError = true)       = 0;

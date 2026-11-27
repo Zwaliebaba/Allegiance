@@ -1,4 +1,38 @@
 #include "pch.h"
+#include "artfolders.h"
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// The player's key map (INPUTMAP_FILE) is player data, kept next to
+// settings.json; until it is saved there, the one in the art folder (where
+// the client used to save it) is read. The default map is art.
+//
+//////////////////////////////////////////////////////////////////////////////
+
+static ZString PlayerInputMapPath() // without ".mdl"
+{
+    std::wstring wstrSettings = ZSettings::PathFor("settings.json", ZSettings::PerUser);
+    char         szSettings[MAX_PATH * 2];
+
+    if (WideCharToMultiByte(CP_ACP, 0, wstrSettings.c_str(), -1, szSettings, sizeof(szSettings), NULL, NULL) == 0) {
+        return ZString();
+    }
+
+    return ZString(PathString(szSettings).GetDirectory()) + "/" + INPUTMAP_FILE;
+}
+
+static ZString InputMapToLoad(const ZString& str)
+{
+    if (str == INPUTMAP_FILE) {
+        ZString strPlayer = PlayerInputMapPath();
+
+        if (!strPlayer.empty() && ArtFileExists((strPlayer + ".mdl").c_str())) {
+            return strPlayer;
+        }
+    }
+
+    return str;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -401,7 +435,7 @@ public:
         // load the input map
         //
 
-        TRef<INameSpace> pns = GetModeler()->GetNameSpace(str, false);
+        TRef<INameSpace> pns = GetModeler()->GetNameSpace(InputMapToLoad(str), false);
 
         if (pns == NULL) {
             return false;
@@ -2053,7 +2087,7 @@ public:
         // load the input map
         //
 
-        TRef<INameSpace> pns = GetModeler()->GetNameSpace(str, false);
+        TRef<INameSpace> pns = GetModeler()->GetNameSpace(InputMapToLoad(str), false);
 
         if (pns == NULL) {
             return false;
@@ -2186,7 +2220,19 @@ public:
 
     void SaveMap(const ZString& str)
     {
-        TRef<ZFile> pfile = new ZWriteFile(m_pmodeler->GetArtPath() + "/" + str + ".mdl");
+        // the player's map goes next to settings.json (see PlayerInputMapPath)
+        ZString strPath = m_pmodeler->GetArtPath() + "/" + str;
+
+        if (str == INPUTMAP_FILE) {
+            ZString strPlayer = PlayerInputMapPath();
+
+            if (!strPlayer.empty()) {
+                CreateDirectoryA(PathString(strPlayer).GetDirectory().c_str(), NULL);
+                strPath = strPlayer;
+            }
+        }
+
+        TRef<ZFile> pfile = new ZWriteFile(strPath + ".mdl");
 
         pfile->Write(ZString("use \"commands\";\n"));
         pfile->Write(ZString("use \"keycode\";\n" ));

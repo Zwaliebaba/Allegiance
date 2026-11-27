@@ -365,3 +365,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Fonts for the art build (Artwork\Fonts, see Artwork\Art.proj): Eurostile is
+# not freely licensed, so the TTFs are not committed
+Artwork/Fonts/*.ttf
+Artwork/Fonts/*.otf
+Artwork/Fonts/*.fon

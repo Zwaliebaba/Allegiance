@@ -115,9 +115,9 @@ public:
             // H.264/AAC MP4, converted once from the original Indeo AVIs.
             // (The intro movie that followed them was on the game CD, which
             // the repository doesn't have; it is no longer looked for.)
-            case 0: str = "msr_games.mp4"; break;
-            case 1: str = "logo1.mp4";     break;
-            case 2: str = "logo2.mp4";     break;
+            case 0: str = "msr_games"; break;
+            case 1: str = "logo1";     break;
+            case 2: str = "logo2";     break;
             default: 
                 return;
         };
@@ -126,7 +126,7 @@ public:
             CreateVideoImage(
                 m_pengine,
                 GetWindow()->GetScreenRectValue(), 
-                GetModeler()->GetArtPath() + "/" + str
+                GetModeler()->GetArtFile(str, "mp4")
             );
 
         if (!m_pvideoImage->IsValid()) {

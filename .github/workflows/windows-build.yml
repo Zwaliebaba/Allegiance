@@ -120,10 +120,10 @@ jobs:
         shell: cmd
         run: |
           mkdir out\smoke-src
-          git cat-file blob HEAD:Artwork/256/acbuild.dds > out\smoke-src\acbuild.dds
-          git cat-file blob HEAD:Artwork/256/acs01.dds > out\smoke-src\acs01.dds
-          git cat-file blob HEAD:Artwork/256/animlaunch.dds > out\smoke-src\animlaunch.dds
-          git cat-file blob HEAD:Artwork/256/fontsource.mdl > out\smoke-src\fontsource.mdl
+          git cat-file blob HEAD:Artwork/Textures/acbuild.dds > out\smoke-src\acbuild.dds
+          git cat-file blob HEAD:Artwork/Models/acs01.dds > out\smoke-src\acs01.dds
+          git cat-file blob HEAD:Artwork/Textures/animlaunch.dds > out\smoke-src\animlaunch.dds
+          git cat-file blob HEAD:Artwork/Fonts/fontsource.mdl > out\smoke-src\fontsource.mdl
 
       - name: mdlc smoke test
         id: smoke
@@ -274,10 +274,10 @@ jobs:
         shell: cmd
         run: |
           mkdir out\smoke-src
-          git cat-file blob HEAD:Artwork/256/acbuild.dds > out\smoke-src\acbuild.dds
-          git cat-file blob HEAD:Artwork/256/acs01.dds > out\smoke-src\acs01.dds
-          git cat-file blob HEAD:Artwork/256/animlaunch.dds > out\smoke-src\animlaunch.dds
-          git cat-file blob HEAD:Artwork/256/fontsource.mdl > out\smoke-src\fontsource.mdl
+          git cat-file blob HEAD:Artwork/Textures/acbuild.dds > out\smoke-src\acbuild.dds
+          git cat-file blob HEAD:Artwork/Models/acs01.dds > out\smoke-src\acs01.dds
+          git cat-file blob HEAD:Artwork/Textures/animlaunch.dds > out\smoke-src\animlaunch.dds
+          git cat-file blob HEAD:Artwork/Fonts/fontsource.mdl > out\smoke-src\fontsource.mdl
 
       # An ASan report goes to stderr, which the script keeps in <step>.log.err
       - name: mdlc smoke test under ASan
@@ -316,16 +316,20 @@ jobs:
       matrix:
         configuration: [ Debug ]
     steps:
-      - name: Checkout (Art.proj, Artwork/256, Artwork/tools, tools/ci)
+      # Everything but the soundtrack (260 MB): the art check reads the code too
+      - name: Checkout (Music excluded)
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
           sparse-checkout-cone-mode: false
           sparse-checkout: |
-            /Artwork/Art.proj
-            /Artwork/256/
-            /Artwork/tools/
-            /tools/ci/
+            /*
+            !/Artwork/Music/
+
+      # Every art reference (MDL, core files, code) resolves in the art folders
+      - name: Check art references
+        shell: pwsh
+        run: python tools/ci/art-check.py
 
       - name: Fetch art tools
         uses: actions/download-artifact@v5
@@ -343,10 +347,11 @@ jobs:
           & $msbuild Artwork/Art.proj -nologo -p:Configuration=${{ matrix.configuration }} `
             -fl "-flp:logfile=out/logs/art.log;verbosity=normal" -clp:Summary
           $code = $LASTEXITCODE
-          $files = Get-ChildItem out/Artwork -File -ErrorAction SilentlyContinue
+          $files = Get-ChildItem out/Artwork -File -Recurse -ErrorAction SilentlyContinue
           $mb = [math]::Round((($files | Measure-Object Length -Sum).Sum) / 1MB, 1)
           $byExt = $files | Group-Object Extension | Sort-Object Count -Descending | ForEach-Object { "$($_.Name) $($_.Count)" }
-          "## Art (${{ matrix.configuration }})", "", "$(@($files).Count) files, $mb MB: $($byExt -join ', ')" -join "`n" |
+          $byDir = $files | Group-Object { $_.Directory.Name } | Sort-Object Name | ForEach-Object { "$($_.Name) $($_.Count)" }
+          "## Art (${{ matrix.configuration }})", "", "$(@($files).Count) files, $mb MB: $($byExt -join ', ')", "", "By folder: $($byDir -join ', ')" -join "`n" |
             Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           exit $code
 
@@ -356,7 +361,7 @@ jobs:
         shell: pwsh
         run: |
           ./tools/ci/mdlc-crash-stack.ps1 -Mdlc out/bin/x64/${{ matrix.configuration }}/mdlc.exe `
-            -Log out/logs/art.log -ArtSource Artwork/256 -ArtOut out/Artwork -Out out/logs
+            -Log out/logs/art.log -ArtSource Artwork -ArtOut out/Artwork -Out out/logs
 
       - name: Upload art
         uses: actions/upload-artifact@v5
