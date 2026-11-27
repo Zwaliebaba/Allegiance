@@ -482,8 +482,12 @@ Before the x64 and `/permissive-` work, so those ports only touch code that is u
 | `#if 0` blocks and the Dreamcast port's branches in built code | Removed with `unifdef -k -UDREAMCAST`; the vendored qhull is left as it is |
 | Leftover non-source files nothing builds, includes or reads (a second pass, resolving `#include`s and `.rc` file references per project as above): the nmake `makeexes`; `zlib/doit.bat` (a hand-run `cl` line list) and `zlib/float/math.asm` (x86 assembly no project assembles); `Inc/Utility.hxx` (a forwarder `_Utility/Utility.h` never reaches, since it finds its own copy first); the old client resource script `Lang/Usa/WinTrek/WinTrek.rc` and its icon (the client builds `Lang/Usa/allegiance/allegiance.rc`); `FedSrv/Status.htm` (a FrontPage status page scripting the removed DCOM admin objects) and `FedSrv/regini.txt` (registry keys for the 1999 server setup); `WinTrek/offline.map` and `offline.sql` (data for the deleted offline mode); the Source Insight project files `training/training.CF/PI/PR/PS/WK` | Deleted |
 
-`database/` and `databasepcg/` stay: they are the game-balance data (ships, parts, civilisations) the
-static core `.igc` files were generated from, not code.
+`database/` and `databasepcg/` stayed at first, as the game-balance data (ships, parts, civilisations)
+the static core `.igc` files were generated from. They were deleted later with the 1999 training
+mission specifications (`training/specification`, `training/spec.html`): nothing builds or reads any
+of them, the `.igc` files in `Artwork` are the game's source of truth, and the data was a SQL Server
+bulk-copy export (with `bcp.exe` and `osql.exe` bundled) for the Zone database the server no longer has.
+They remain in the git history.
 
 #### x64
 
