@@ -465,45 +465,10 @@ from Windows). They were converted once, with ffmpeg 6.1 (`libx264 -profile:v ma
 to MP4 files that Media Foundation plays, about a third of the size; the AVIs were deleted.
 `engine/videoimage.cpp` decodes the video with a source reader into an engine surface and draws it scaled
 to fit the screen, keeping the aspect ratio; the sound plays through an audio-only Media Engine whose
-position the frames follow. A key press still skips a movie. `intro.avi` was on the game CD and is not in
-the repository, so the intro is skipped unless an `intro.mp4` is put in the artwork folder.
-
-#### Sound: XAudio2 replaces DirectSound
-
-`soundengine` keeps its interfaces (`ISoundEngine`, `ISoundInstance`, the templates the game builds its
-sounds from) and its virtual sounds: every sound the game starts is a `VirtualSoundBuffer` (or
-`VirtualSoundBuffer3D`) that tracks its own position, loudness and priority, and each update the most
-important audible ones get a real voice, up to the quality setting's budget. What changed is the real
-voice: an XAudio2 source voice (`xa2voice.cpp`) where there was a DirectSound 3D buffer, and an
-`XA2Device` (XAudio2, its mastering voice, X3DAudio) where there was the DirectSound object and its
-primary buffer.
-
-| Piece | DirectSound | XAudio2 |
-|---|---|---|
-| Sound data | A buffer per sound, duplicated per instance; streamed through a worker thread above 1 MB | One copy of each sound's data, shared by its voices (gone with the last of them); no streaming |
-| Looping and attack-sustain-release | A streaming buffer refilled with the loop until a stop | Buffers over that one copy (`PlanVoiceRegions`): the rest of the pass, then the loop with `XAUDIO2_LOOP_INFINITE`; for ASR the attack, the sustain loop and the release. A soft stop calls `ExitLoop` in the sustain, or (in the attack) flushes the queued loop so the release follows the attack, as the position tracker has it |
-| Volume, pitch | `SetVolume` in hundredths of a dB, `SetFrequency` | `SetVolume` with the amplitude, `SetFrequencyRatio` (pitch times doppler, up to 8x) |
-| 3D | DS3D buffers and listener: position, velocity, cones, min and max distance, rolloff, doppler | X3DAudio for the pan and the doppler shift; the distance attenuation (inverse distance from the minimum distance, scaled by the rolloff, silent from 4000 times the minimum) and the cone (full cone angles, a linear fade in dB) computed as DirectSound 3D did (`soundmath.h`), so sounds fall off as before. Listener-relative sounds are panned from a listener at the origin |
-| Unpositioned sounds | Centre pan: a mono sound at full level on both sides | The same output matrix |
-| Device | `DirectSoundCreate`, cooperative level, primary buffer format by quality | `XAudio2Create`, a mastering voice at the device's format; no audio device fails the engine and the game uses the dummy one, as before |
-
-Settings: the quality setting keeps its voice budgets (8, 16 to 24, 24 to 32 sounds at once: the
-software-mixing numbers, which were what a player had unless they turned on hardware acceleration).
-Its other effects were DirectSound's (the primary buffer's format, mono 8-bit at the lowest, and the
-3D algorithm, HRTF at the highest) and are gone; 3D positioning is the same at every level, and Windows
-Sonic or a headset's own virtualisation can still render the surround output. The "Sound Card
-Acceleration" menu item and `ISoundEngine::EnableHardware` are gone (the saved preference is ignored),
-and so are the startup check for DirectX 7's `dsound.dll` and the unused `trekspeech.h`.
-
-Fixed on the way, in the position tracker (now in `soundmath.h`, with unit tests): stopping a sound set
-its position to the sustain loop's length, which a non-ASR sound never set, instead of the end; a
-stopped sound with no voice could get one, and be heard, after it was stopped, and a forced stop left an
-ASR sound playing. An ASR sound with an empty loop divided by zero.
-
-Things to listen for, as they can differ from DirectSound: X3DAudio's pan law (a sound straight ahead is
-about 3 dB softer on each side than an unpositioned one), and the voice of a sound that loses its voice
-and gets one again starting where the tracker estimates rather than where the old buffer was (the
-difference is the time between updates).
+position the frames follow. A key press still skips a movie. `intro.avi`, the intro movie that played
+after them, was on the game CD and is not in the repository; the client no longer looks for it (nor for
+a CD: the `CDPath` setting is gone), and the intro screen's "Intro" button, which replayed it, is
+removed, with its image.
 
 #### Dead code cleanup
 
@@ -590,7 +555,8 @@ How it was checked:
 
 - Locally, `xmunge`, `cvh` and qhull are built natively and run for real; `mdlc` is replaced by a stand-in that only creates the output files.
 - The real `mdlc` conversion runs only in CI.
-- `fig02pit` is left out because its source is missing.
+- `fig02pit` is left out: `makegeo.mak` had a rule for it, but its source never existed (the 2004 drop had
+  only `fig02pit.old.x`, an abandoned 3D cockpit for `fig02`), and no code or MDL ever loaded it.
 
 Each model's template refers to its `.x` files by absolute path in `out\obj\Artwork\models\`. That lets `mdlc` run in `out\Artwork\` without the intermediates. It has to run there because textures are looked up on the art path, and a missing texture is a fatal error (`ModelerImpl::GetFile` asserts).
 
@@ -633,9 +599,21 @@ A before-and-after check confirms that all 3,186 inputs the manifests need are s
 Kept on purpose:
 
 - `Artwork/redbook`: the soundtrack. The game plays music as audio-CD tracks through MCI (`soundengine/redbooksound.cpp`), so the port has no music without a CD. A Phase 3 follow-up replaces the CD player with file playback from these WAVs.
-- The files below. They are referenced by name from code or a shipped MDL, but the original build never put them in the art output, so they were missing at runtime even in 2004. They are latent bugs to check when the client first runs: either the referencing code is dead, or the file should be added to a manifest. Also, `makegeo.mak` builds `fig02pit.mdl` from `fig02pit.x`, but no `fig02pit.x` source exists. The 29 images among them (`BtnMissionDetails`, `hudgauge` and the rest) now ship, since the move to DDS sources ("Textures: 32-bit DDS"); these MDL files still don't:
+- `Artwork/256` held twelve MDL files that `copymdl.txt` never listed (`console`, `loadout1`, `3`, `4`,
+  `5`, `9`, `11`, `loadoutbomber`, `loadouttacticalfighter`, `messageoftheday`, `techtree`, `temp`).
+  An earlier note here called them missing at runtime; none is used, and they are deleted, with 25 that
+  did ship and were never loaded either:
+  - `console`: the seven UI files that `use "console"` get the namespace `console.cpp` builds in code;
+    the file is an older UI definition.
+  - The per-hull loadout layouts (`loadout<hull id>`) and per-class ones (`loadoutbomber`,
+    `loadoutscout`, …): the loadout screen reads the members `loadout<hull id>` of `loadout.mdl`, which
+    all are `loadoutDefault`, and never loads these files.
+  - `messageoftheday` (the lobby screen loads a downloaded `publicmessageoftheday`), `techtree` (the
+    pre-core-file tech tree; it uses functions that no longer exist), `temp` (a scratch copy of
+    `quickchat.mdl`'s structures).
 
-  `console.mdl`, `loadout1.mdl`, `loadout11.mdl`, `loadout3.mdl`, `loadout4.mdl`, `loadout5.mdl`, `loadout9.mdl`, `loadoutbomber.mdl`, `loadouttacticalfighter.mdl`, `messageoftheday.mdl`, `techtree.mdl`, `temp.mdl`
+  The 29 images the original build also never shipped (`BtnMissionDetails`, `hudgauge` and the rest) do
+  ship since the move to DDS sources ("Textures: 32-bit DDS").
 
 #### Smoke test
 

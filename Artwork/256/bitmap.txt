@@ -177,7 +177,6 @@ btnlocksides
 btnlogon
 btnmaincredits
 btnmainexit
-btnmainintro
 btnmainkeycon
 btnmainplayint
 btnmainplaylan

@@ -2177,7 +2177,7 @@ public:
                     break;
 
                 case ScreenIDSplashScreen:
-                    SetScreen(CreateVideoScreen(GetModeler(), true));
+                    SetScreen(CreateVideoScreen(GetModeler()));
                     SetCursorImage(Image::GetEmpty());
                     break;
 
@@ -2893,7 +2893,7 @@ public:
         //
 
         if (!g_bQuickstart && bMovies  && !g_bReloaded) {
-            SetScreen(CreateVideoScreen(GetModeler(), false));
+            SetScreen(CreateVideoScreen(GetModeler()));
         } else {
             SetScreen(CreateIntroScreen(GetModeler()));
             m_screen = ScreenIDIntroScreen;
