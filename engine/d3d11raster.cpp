@@ -223,12 +223,16 @@ bool CreatePipeline(D3D11Device* pdevice)
     }
 
     //
-    // Samplers: default (wrap) addressing, no mip maps, as before
+    // Samplers: wrap addressing. The filtered one is anisotropic (16x), so
+    // model textures stay sharp at grazing angles; their baked mip chains
+    // keep distant ones from shimmering. Screen-aligned images look the
+    // same as with plain bilinear.
     //
 
     for (int linear = 0; linear < 2; linear++) {
         D3D11_SAMPLER_DESC desc = {};
-        desc.Filter         = linear ? D3D11_FILTER_MIN_MAG_MIP_LINEAR : D3D11_FILTER_MIN_MAG_MIP_POINT;
+        desc.Filter         = linear ? D3D11_FILTER_ANISOTROPIC : D3D11_FILTER_MIN_MAG_MIP_POINT;
+        desc.MaxAnisotropy  = linear ? 16 : 1;
         desc.AddressU       = D3D11_TEXTURE_ADDRESS_WRAP;
         desc.AddressV       = D3D11_TEXTURE_ADDRESS_WRAP;
         desc.AddressW       = D3D11_TEXTURE_ADDRESS_WRAP;

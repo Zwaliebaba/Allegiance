@@ -67,7 +67,7 @@ public:
     //
 
     virtual int                  GetGeneration()    = 0;
-    virtual void                 CheckDeviceLost(long hr) = 0;
+    virtual bool                 CheckDeviceLost(long hr) = 0; // true if lost (and re-created)
 
     //
     // Textures: a GPU copy of a surface, refreshed when the surface changes

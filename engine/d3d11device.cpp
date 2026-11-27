@@ -200,6 +200,24 @@ private:
         TRef<IDXGISwapChain1>          m_pswapChain;
         TRef<ID3D11RenderTargetView>   m_prtv;
         WinPoint                       m_size;
+        UINT                           m_flags;
+        HANDLE                         m_hlatency; // frame latency waitable object, owned by the swap chain
+
+        SwapChainEntry() :
+            m_flags(0),
+            m_hlatency(NULL)
+        {
+        }
+
+        ~SwapChainEntry()
+        {
+            if (m_hlatency != NULL) {
+                ::CloseHandle(m_hlatency);
+            }
+        }
+
+        SwapChainEntry(const SwapChainEntry&) = delete;
+        SwapChainEntry& operator=(const SwapChainEntry&) = delete;
     };
 
     TRef<ID3D11Device>               m_pdevice;
@@ -321,7 +339,7 @@ public:
         if (FAILED(m_pdevice->CreatePixelShader (g_present_ps, sizeof(g_present_ps), NULL, &m_ppsPresent))) return false;
 
         D3D11_BUFFER_DESC bd = {};
-        bd.ByteWidth      = 2 * 4 * sizeof(float);
+        bd.ByteWidth      = 3 * 4 * sizeof(float);
         bd.Usage          = D3D11_USAGE_DYNAMIC;
         bd.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
         bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -360,7 +378,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void CheckDeviceLost(long hr)
+    bool CheckDeviceLost(long hr) // true if the device was lost and re-created
     {
         if (
                hr == DXGI_ERROR_DEVICE_REMOVED
@@ -386,7 +404,10 @@ public:
 
             m_generation++;
             CreateDeviceObjects();
+            return true;
         }
+
+        return false;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -550,18 +571,38 @@ public:
             desc.SwapEffect       = DXGI_SWAP_EFFECT_FLIP_DISCARD;
             desc.AlphaMode        = DXGI_ALPHA_MODE_IGNORE;
 
+            //
+            // A frame latency of one: the game waits after each present until
+            // that frame is on its way to the screen, so input is read at most
+            // one frame before it is shown (the default queue is three)
+            //
+
+            desc.Flags            = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+
             HRESULT hr = m_pfactory->CreateSwapChainForHwnd(m_pdevice, hwnd, &desc, NULL, NULL, &entry.m_pswapChain);
 
             if (FAILED(hr)) {
                 //
                 // Flip-model swap chains need Windows 10; fall back to the
-                // blt model.
+                // blt model, which has no waitable object.
                 //
 
-                desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+                desc.SwapEffect  = DXGI_SWAP_EFFECT_DISCARD;
                 desc.BufferCount = 1;
+                desc.Flags       = 0;
                 hr = m_pfactory->CreateSwapChainForHwnd(m_pdevice, hwnd, &desc, NULL, NULL, &entry.m_pswapChain);
             }
+
+            if (SUCCEEDED(hr) && desc.Flags != 0) {
+                TRef<IDXGISwapChain2> pswapChain2;
+
+                if (SUCCEEDED(entry.m_pswapChain->QueryInterface(__uuidof(IDXGISwapChain2), (void**)&pswapChain2))) {
+                    pswapChain2->SetMaximumFrameLatency(1);
+                    entry.m_hlatency = pswapChain2->GetFrameLatencyWaitableObject();
+                }
+            }
+
+            entry.m_flags = SUCCEEDED(hr) ? desc.Flags : 0;
 
             if (FAILED(hr)) {
                 CheckDeviceLost(hr);
@@ -579,7 +620,7 @@ public:
             entry.m_prtv = NULL;
             m_pcontext->OMSetRenderTargets(0, NULL, NULL);
 
-            HRESULT hr = entry.m_pswapChain->ResizeBuffers(0, size.X(), size.Y(), DXGI_FORMAT_UNKNOWN, 0);
+            HRESULT hr = entry.m_pswapChain->ResizeBuffers(0, size.X(), size.Y(), DXGI_FORMAT_UNKNOWN, entry.m_flags);
 
             if (FAILED(hr)) {
                 CheckDeviceLost(hr);
@@ -689,6 +730,17 @@ public:
             pf[5] = 0;
             pf[6] = 0;
             pf[7] = 0;
+
+            //
+            // Sharp scaling: the frame is scaled up by the largest whole
+            // factor with square pixels, and only the rest is filtered,
+            // so pillarboxed 800x600 screens stay crisp at any size
+            //
+
+            pf[8]  = (float)sizeSurface.X();
+            pf[9]  = (float)sizeSurface.Y();
+            pf[10] = MaxOf(1.0f, floorf(scale));
+            pf[11] = 0;
             m_pcontext->Unmap(m_pcbPresent, 0);
         }
 
@@ -733,7 +785,19 @@ public:
         HRESULT hr = pentry->m_pswapChain->Present(1, 0);
 
         D3D11BoundRasterizerChanged();
-        CheckDeviceLost(hr);
+
+        if (CheckDeviceLost(hr)) {
+            return;
+        }
+
+        //
+        // Wait until the queue has room for the next frame (at most a
+        // refresh), so the next frame starts from fresh input
+        //
+
+        if (pentry->m_hlatency != NULL) {
+            ::WaitForSingleObjectEx(pentry->m_hlatency, 100, TRUE);
+        }
     }
 };
 
