@@ -61,7 +61,6 @@ public:
     TRef<IKeyboardInput> m_pkeyboardInputOldFocus;
     int                  m_indexVideo;
     bool                 m_bNextVideo;
-    ZString              m_strCD;
 
     /////////////////////////////////////////////////////////////////////////////
     //
@@ -69,25 +68,11 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    VideoScreen(Modeler* pmodeler, bool bIntroOnly) :
+    VideoScreen(Modeler* pmodeler) :
         m_pengine(pmodeler->GetEngine()),
-        m_indexVideo(bIntroOnly ? 2 : -1),
+        m_indexVideo(-1),
         m_bNextVideo(false)
     {
-        //
-        // Load the location of the cd drive
-        //
-
-        m_strCD = ZString(ZSettings::GetString("CDPath", "").c_str());
-
-        if (!m_strCD.empty()) {
-            StrReplaceAll(m_strCD, "\\", '/');
-
-            if (m_strCD[(int)m_strCD.size() - 1] != '/') {
-                m_strCD += "/";
-            }
-        }
-
         //
         // Create the image hierarchy
         //
@@ -127,20 +112,15 @@ public:
 
         m_indexVideo++;
         switch (m_indexVideo) {
-            // H.264/AAC MP4, converted once from the original Indeo AVIs;
-            // the intro movie was on the CD and is not in the repository,
-            // so it is skipped unless an intro.mp4 is provided
+            // H.264/AAC MP4, converted once from the original Indeo AVIs.
+            // (The intro movie that followed them was on the game CD, which
+            // the repository doesn't have; it is no longer looked for.)
             case 0: str = "msr_games.mp4"; break;
             case 1: str = "logo1.mp4";     break;
             case 2: str = "logo2.mp4";     break;
-            case 3: str = "intro.mp4";     break;
             default: 
                 return;
         };
-
-        //
-        // Load from the artpath first
-        //
 
         m_pvideoImage = 
             CreateVideoImage(
@@ -148,18 +128,6 @@ public:
                 GetWindow()->GetScreenRectValue(), 
                 GetModeler()->GetArtPath() + "/" + str
             );
-
-        if (
-               (m_pvideoImage == NULL || (!m_pvideoImage->IsValid()))
-            && (!m_strCD.empty())
-        ) {
-            m_pvideoImage = 
-                CreateVideoImage(
-                    m_pengine,
-                    GetWindow()->GetScreenRectValue(), 
-                    m_strCD + str
-                );
-        }
 
         if (!m_pvideoImage->IsValid()) {
             NextVideo();
@@ -216,7 +184,7 @@ public:
             m_bNextVideo = false;
             NextVideo();
         }
-        if (m_indexVideo > 3) {
+        if (m_indexVideo > 2) {
             Dismiss();
         }
     }
@@ -228,7 +196,7 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 
-TRef<Screen> CreateVideoScreen(Modeler* pmodeler, bool bIntroOnly)
+TRef<Screen> CreateVideoScreen(Modeler* pmodeler)
 {
-    return new VideoScreen(pmodeler, bIntroOnly);
+    return new VideoScreen(pmodeler);
 }

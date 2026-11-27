@@ -23,7 +23,6 @@ playIntButtonPane       = ButtonPane(ImportImage("btnmainplayintbmp", true),    
 //trainButtonPane           = ButtonPane(ImportImage("btnmaintrainbmp", true),      ButtonNormal, false);
 zoneWebButtonPane       = ButtonPane(ImportImage("btnmainzonewebbmp", true),    ButtonNormal, false);
 optionsButtonPane       = ButtonPane(ImportImage("btnmainkeyconbmp", true),     ButtonNormal, false);
-introButtonPane         = ButtonPane(ImportImage("btnmainintrobmp", true),      ButtonNormal, false);
 creditsButtonPane       = ButtonPane(ImportImage("btnmaincreditsbmp", true),    ButtonNormal, false);
 //quickstartButtonPane  = ButtonPane(ImportImage("btnmainquickstartbmp", true), ButtonNormal, false);
 
@@ -45,7 +44,6 @@ hoverInfoString =
             ( hoverTrain     , "Play a training mission."         ),
             ( hoverZoneWeb   , "Connect to the Allegiance Web page for the latest Allegiance information, including event schedules, strategies, and help."        ),
             ( hoverOptions   , "Customize the graphics, sound, and controls in Allegiance." ),
-            ( hoverIntro     , "Replay the Allegiance introductory video."),
             ( hoverCredits   , "View the names of those who created Allegiance."  ),
             ( hoverQuickstart, "Immediately connect to a game."   ),
             ( hoverHelp      , "View the in-game Help display."                  ),
@@ -74,7 +72,6 @@ screen =
             (playIntButtonPane,     Point(151, 535)),
             (playLanButtonPane,     Point(217, 535)),
             
-            (introButtonPane,       Point(290, 553)),
             (zoneWebButtonPane,     Point(290, 568)),
             
             (creditsButtonPane,     Point(355, 553)),

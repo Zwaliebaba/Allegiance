@@ -61,7 +61,6 @@
     <ClCompile Include="introscreen.cpp" />
     <ClCompile Include="newgamescreen.cpp" />
     <ClCompile Include="gameoverscreen.cpp" />
-    <ClCompile Include="gamestartingscreen.cpp" />
     <ClCompile Include="LobbyScreen.cpp" />
     <ClCompile Include="trekctrls.cpp" />
     <ClCompile Include="loadout.cpp" />

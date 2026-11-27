@@ -834,8 +834,8 @@ public:
             ZString str2 = StrToLower(ZString(pside->GetCivilization()->GetIconName())) + "hullinfobmp";
             m_pwrapImageHullCiv->SetImage(GetModeler()->LoadImage(str2, false));
         } else {
-            m_pwrapImageCiv->SetImage(GetModeler()->LoadImage("loadoutpanemp", false));
-            m_pwrapImageHullCiv->SetImage(GetModeler()->LoadImage("hullinfomp", false));
+            m_pwrapImageCiv->SetImage(GetModeler()->LoadImage("loadoutpanebmp", false));
+            m_pwrapImageHullCiv->SetImage(GetModeler()->LoadImage("hullinfobmp", false));
         }
     }
 

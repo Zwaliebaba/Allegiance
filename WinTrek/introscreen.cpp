@@ -21,7 +21,6 @@ class IntroScreen
   TRef<ButtonPane> m_pbuttonTrainingBig;
   TRef<ButtonPane> m_pbuttonZoneWeb;
   TRef<ButtonPane> m_pbuttonOptions;
-  TRef<ButtonPane> m_pbuttonIntro;
   TRef<ButtonPane> m_pbuttonCredits;
   //TRef<ButtonPane> m_pbuttonQuickstart;
   TRef<ButtonPane> m_pbuttonExit;
@@ -40,7 +39,6 @@ class IntroScreen
     hoverTrain,
     hoverZoneWeb,
     hoverOptions,
-    hoverIntro,
     hoverCredits,
     hoverQuickstart,
     hoverExit,
@@ -467,7 +465,6 @@ public:
     pnsIntroScreen->AddMember("hoverZoneWeb", new Number(hoverZoneWeb));
     pnsIntroScreen->AddMember("hoverTrain", new Number(hoverTrain));
     pnsIntroScreen->AddMember("hoverOptions", new Number(hoverOptions));
-    pnsIntroScreen->AddMember("hoverIntro", new Number(hoverIntro));
     pnsIntroScreen->AddMember("hoverCredits", new Number(hoverCredits));
     pnsIntroScreen->AddMember("hoverQuickstart", new Number(hoverQuickstart));
     pnsIntroScreen->AddMember("hoverExit", new Number(hoverExit));
@@ -483,7 +480,6 @@ public:
     CastTo(m_pbuttonTrainingBig, pns->FindMember("trainBigButtonPane"));
     CastTo(m_pbuttonZoneWeb, pns->FindMember("zoneWebButtonPane"));
     CastTo(m_pbuttonOptions, pns->FindMember("optionsButtonPane"));
-    CastTo(m_pbuttonIntro, pns->FindMember("introButtonPane"));
     CastTo(m_pbuttonCredits, pns->FindMember("creditsButtonPane"));
     //CastTo(m_pbuttonQuickstart, pns->FindMember("quickstartButtonPane"));
     CastTo(m_pbuttonExit, pns->FindMember("exitButtonPane"));
@@ -499,7 +495,6 @@ public:
     AddEventTarget(&IntroScreen::OnButtonZoneWeb, m_pbuttonZoneWeb->GetEventSource());
     AddEventTarget(&IntroScreen::OnButtonOptions, m_pbuttonOptions->GetEventSource());
     AddEventTarget(&IntroScreen::OnButtonCredits, m_pbuttonCredits->GetEventSource());
-    AddEventTarget(&IntroScreen::OnButtonIntro, m_pbuttonIntro->GetEventSource());
 
     AddEventTarget(&IntroScreen::OnHoverPlayLan, m_pbuttonPlayLan->GetMouseEnterEventSource());
     AddEventTarget(&IntroScreen::OnHoverPlayInt, m_pbuttonPlayInt->GetMouseEnterEventSource());
@@ -507,7 +502,6 @@ public:
     AddEventTarget(&IntroScreen::OnHoverTrain, m_pbuttonTrainingBig->GetMouseEnterEventSource());
     AddEventTarget(&IntroScreen::OnHoverZoneWeb, m_pbuttonZoneWeb->GetMouseEnterEventSource());
     AddEventTarget(&IntroScreen::OnHoverOptions, m_pbuttonOptions->GetMouseEnterEventSource());
-    AddEventTarget(&IntroScreen::OnHoverIntro, m_pbuttonIntro->GetMouseEnterEventSource());
     AddEventTarget(&IntroScreen::OnHoverCredits, m_pbuttonCredits->GetMouseEnterEventSource());
     //AddEventTarget(OnHoverQuickstart,   m_pbuttonQuickstart->GetMouseEnterEventSource());
     AddEventTarget(&IntroScreen::OnHoverExit, m_pbuttonExit->GetMouseEnterEventSource());
@@ -519,7 +513,6 @@ public:
     AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonTrainingBig->GetMouseLeaveEventSource());
     AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonZoneWeb->GetMouseLeaveEventSource());
     AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonOptions->GetMouseLeaveEventSource());
-    AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonIntro->GetMouseLeaveEventSource());
     AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonCredits->GetMouseLeaveEventSource());
     //AddEventTarget(OnHoverNone,     m_pbuttonQuickstart->GetMouseLeaveEventSource());
     AddEventTarget(&IntroScreen::OnHoverNone, m_pbuttonHelp->GetMouseLeaveEventSource());
@@ -895,12 +888,6 @@ public:
     return true;
   }
 
-  bool OnButtonIntro()
-  {
-    GetWindow()->screen(ScreenIDSplashScreen);
-    return true;
-  }
-
   bool OnHoverPlayLan()
   {
     m_pnumberCurrentHover->SetValue(hoverPlayLan);
@@ -928,12 +915,6 @@ public:
   bool OnHoverOptions()
   {
     m_pnumberCurrentHover->SetValue(hoverOptions);
-    return true;
-  }
-
-  bool OnHoverIntro()
-  {
-    m_pnumberCurrentHover->SetValue(hoverIntro);
     return true;
   }
 

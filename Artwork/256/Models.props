@@ -64,7 +64,6 @@
     <ArtModel Include="fig02"            Template="templatelow"  Frame="76" />
     <ArtModel Include="fig03"            Template="templatelow"  Frame="30" />
     <ArtModel Include="fig04"            Template="templatelow"  Frame="57" />
-    <!-- fig02pit (templatenone, frame 57): makegeo.mak lists it, but fig02pit.x is not in the source drop. -->
     <ArtModel Include="fig05"            Template="templatelow"  Frame="61" />
     <ArtModel Include="fig07"            Template="template"     Frame="58" />
     <ArtModel Include="fig08"            Template="template"     Frame="59" />
