@@ -81,6 +81,10 @@
     <ArtOutInterface>$(ArtOutDir)Interface\</ArtOutInterface>
     <ArtOutMovies>$(ArtOutDir)Movies\</ArtOutMovies>
     <ArtOutData>$(ArtOutDir)Data\</ArtOutData>
+
+    <!-- mdlc -artpath for the model batches (no trailing backslash before the quote;
+         a property, since a property function can't go inside an item transform) -->
+    <_ArtPathArg>$(ArtOutDir.TrimEnd('\'))</_ArtPathArg>
   </PropertyGroup>
 
   <Import Project="$(ArtSource)Models.props" />
@@ -249,7 +253,7 @@
           Inputs="@(ArtModel->'$(ArtModelDir)%(Identity)source.mdl');$(Mdlc)"
           Outputs="@(ArtModel->'$(ArtOutModels)%(Identity).mdl')">
     <WriteLinesToFile File="$(ArtIntDir)models.batch"
-                      Lines="@(ArtModel->'-artpath &quot;$(ArtOutDir.TrimEnd('\'))&quot; -optimize &quot;$(ArtModelDir)%(Identity)source&quot; %(Identity)')"
+                      Lines="@(ArtModel->'-artpath &quot;$(_ArtPathArg)&quot; -optimize &quot;$(ArtModelDir)%(Identity)source&quot; %(Identity)')"
                       Overwrite="true" />
     <Exec Command="&quot;$(Mdlc)&quot; -batch &quot;$(ArtIntDir)models.batch&quot;" WorkingDirectory="$(ArtOutModels)" />
   </Target>
@@ -265,8 +269,8 @@
           Inputs="@(_TextModelSource);@(_TextModelX);$(Mdlc)"
           Outputs="@(ArtTextModel->'$(ArtOutModels)%(Identity).mdl')">
     <ItemGroup>
-      <_TextModelLine Include="-artpath &quot;$(ArtOutDir.TrimEnd('\'))&quot; -optimize %(ArtTextModel.Text) %(ArtTextModel.Identity)" Condition="'%(ArtTextModel.Mode)' == 'optimize'" />
-      <_TextModelLine Include="-artpath &quot;$(ArtOutDir.TrimEnd('\'))&quot; %(ArtTextModel.Text) %(ArtTextModel.Identity).mdl" Condition="'%(ArtTextModel.Mode)' == 'compile'" />
+      <_TextModelLine Include="-artpath &quot;$(_ArtPathArg)&quot; -optimize %(ArtTextModel.Text) %(ArtTextModel.Identity)" Condition="'%(ArtTextModel.Mode)' == 'optimize'" />
+      <_TextModelLine Include="-artpath &quot;$(_ArtPathArg)&quot; %(ArtTextModel.Text) %(ArtTextModel.Identity).mdl" Condition="'%(ArtTextModel.Mode)' == 'compile'" />
     </ItemGroup>
     <Copy SourceFiles="@(_TextModelSource);@(_TextModelX)" DestinationFolder="$(ArtOutModels)" SkipUnchangedFiles="true" />
     <WriteLinesToFile File="$(ArtIntDir)textmodels.batch" Lines="@(_TextModelLine)" Overwrite="true" />
