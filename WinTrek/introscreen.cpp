@@ -527,7 +527,7 @@ public:
 
     trekClient.Disconnect();
     trekClient.DisconnectLobby();
-    if (g_bQuickstart || g_bReloaded)
+    if (g_bQuickstart)
       AddEventTarget(&IntroScreen::OnQuickstart, GetWindow(), 0.01f);
 
     // we only do this once per execution, and only if training is installed

@@ -25,7 +25,6 @@ const float s_fDefaultFOV = RadiansFromDegrees(50.0f);
 const float s_fMinFOV = RadiansFromDegrees(5.0f);
 
 class TrekWindowImpl;
-class AutoDownloadProgressDialogPopup; // MGC: move
 
 /*!!!
 class BillboardType {
@@ -226,9 +225,6 @@ class  WinTrekClient :
         virtual void      SetCDKey(const ZString& strCDKey);
         virtual void      ChangeGameState(void) { GetWindow()->UpdateGameStateContainer(); }
 
-        virtual IAutoUpdateSink * OnBeginAutoUpdate(IAutoUpdateSink * pSink, bool bConnectToLobby);
-        virtual bool ShouldCheckFiles();
-
         virtual const char* GetArtPath()  { return GetModeler()->GetArtPath().c_str(); }
 
 
@@ -279,8 +275,6 @@ class  WinTrekClient :
 
     friend class ClusterSiteImpl;
     friend class ThingSiteImpl;
-
-    AutoDownloadProgressDialogPopup * m_pAutoDownloadProgressDialogPopup; 
 };
 
 const int c_PopupX = 150;

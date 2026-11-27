@@ -2,8 +2,6 @@
 
 ALLOC_MSG_LIST;
 
-bool g_bCheckFiles = false;
-
 /////////////////////////////////////////////////////////////////////////////
 // ClientEventSource
 
@@ -1034,7 +1032,6 @@ BaseClient::BaseClient(void)
     m_sync(1.0f),
     m_viewCluster(NULL),
     m_cUnansweredPings(0),
-    m_pAutoDownload(NULL),
     m_fIsLobbied(false),
     m_dwCookieToJoin(NA),    
     m_bInGame(false),
@@ -1073,9 +1070,6 @@ BaseClient::~BaseClient(void)
         delete m_pMissionInfo;
 
     m_fm.Shutdown();
-
-    if (m_pAutoDownload)
-        delete m_pAutoDownload;
 
     if (m_vRankInfo)
         delete [] m_vRankInfo;
@@ -1267,7 +1261,6 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
     if (m_fmLobby.IsConnected())
     {
         DWORD dwTime = Time::Now().clock();
-        int crcFileList = (g_bCheckFiles ? 0 : FileCRC("FileList.txt", NULL));
         char * szEncryptionKey = (char *)_alloca(strlen(CL_LOGON_KEY) + 30);
         wsprintf(szEncryptionKey, CL_LOGON_KEY, dwTime, m_ci.szName);
 
@@ -1276,11 +1269,9 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
             FM_VAR_PARM(StrScramble(m_strCDKey, szEncryptionKey).c_str(), CB_ZTS)
         END_PFM_CREATE
         pfmLogon->verLobby = LOBBYVER;
-        pfmLogon->crcFileList = crcFileList;
         pfmLogon->dwTime = dwTime;
         lstrcpy(pfmLogon->szName, m_ci.szName);
 
-        // do art update--see ConnectToServer
         debugf("Logging on to lobby \"%s\"...\n",
           m_ci.strServer.empty() ? "" : m_ci.strServer.c_str());
         lstrcpy(m_szLobbyCharName, m_ci.szName);
@@ -1307,15 +1298,6 @@ void BaseClient::SetCDKey(const ZString& strCDKey)
 {
     m_strCDKey = StrToUpper(strCDKey);
 }
-
-void BaseClient::HandleAutoDownload(DWORD dwTimeAlloted)
-{
-    if (m_pAutoDownload)
-    {
-       m_pAutoDownload->HandleAutoDownload(dwTimeAlloted);
-    }
-}
-
 
 IweaponIGC* BaseClient::GetWeapon(void)
 {
@@ -3873,30 +3855,6 @@ void CfgInfo::Load(const char * szConfig)
     GetPrivateProfileString(c_szCfgApp, "TrainingURL", "http://www.zone.com/allegiance/downloads.asp", 
                                    szStr, sizeof(szStr), szConfig);
     strTrainingURL = szStr;
-
-    GetPrivateProfileString(c_szCfgApp, "FilelistCRC", "0", 
-                                   szStr, sizeof(szStr), szConfig);
-    _strupr(szStr);
-    crcFileList = UTL::hextoi(szStr);
-
-    if (crcFileList == 0)
-        debugf("FilelistCRC is missing or invalid from %s.\n", szConfig);
-
-    GetPrivateProfileString(c_szCfgApp, "FilelistSize", "0", 
-                                   szStr, sizeof(szStr), szConfig);
-
-    nFilelistSize = atoi(szStr);
-
-    if (nFilelistSize == 0)
-        debugf("FilelistSize is missing or invalid from %s.\n", szConfig);
-
-    GetPrivateProfileString(c_szCfgApp, "FilelistSite", "", 
-                                   szStr, sizeof(szStr), szConfig);
-    strFilelistSite = szStr;
-    
-    GetPrivateProfileString(c_szCfgApp, "FilelistDirectory", "", 
-                                   szStr, sizeof(szStr), szConfig);
-    strFilelistDirectory = szStr;
 
     GetPrivateProfileString(c_szCfgApp, "PublicMessageCRC", "0", 
                                     szStr, sizeof(szStr), szConfig);

@@ -11,12 +11,9 @@
 #include "main.h"
 
 extern bool g_bEnableSound = true;
-extern bool g_bCheckFiles;
-bool    g_bSkipAutoUpdate = false;
 bool    g_bDownloadMessageOfDay = true;
 bool    g_bDisableNewCivs = true;
 bool    g_bQuickstart = false;
-bool    g_bReloaded = false;
 int     g_civStart    = -1;
 bool    g_bDownloadNewConfig = true;
 bool    g_bAskForCDKey = false;
@@ -69,14 +66,10 @@ public:
     HRESULT Initialize(const ZString& strCommandLine)
     {
         //
-        // Make sure reloader finished correctly--this must be first before any other files are opened
-        //
+        // Run from the directory Allegiance.exe is in: the lobby config file
+        // downloads there, and relative paths start there.
         //
         {
-          // Make sure the current path is where Allegiance.exe is for the AutoUpdate: 
-          // For Download -AND- for Reloader.exe -AND- Loading FileList which happens 
-          // when client logs onto lobby
-          //
           char    path[MAX_PATH + 16];
           ::GetModuleFileName(NULL, path, MAX_PATH);
           char*   p = strrchr(path, '\\');
@@ -87,27 +80,6 @@ public:
 
           *p = 0; // erase filename
           ::SetCurrentDirectory(path);
-
-          // MoveInProgress: an auto-update was still moving files when it stopped
-          {
-              if (ZSettings::GetDWORD("MoveInProgress", 0) == 1)
-              {
-                  if (::MessageBox(NULL, "The AutoUpdate process failed to finish.  Try again to finish?  (YES is recommended)", "Error", MB_ICONERROR | MB_YESNO) == IDYES)
-                  {
-                      if (!LaunchReloaderAndExit(false))
-                      {
-                          ::MessageBox(NULL, "Couldn't launch Reloader.exe", "Fatal Error", MB_ICONERROR);
-                          ::ExitProcess(0);
-                          return S_FALSE;
-                      }
-                  }
-                  else
-                  {
-                      ::ExitProcess(0);
-                      return S_FALSE;
-                  }
-              }
-          }
         }
 
 
@@ -262,10 +234,6 @@ public:
                         g_civStart = (int)civStart;
                 } else if (str == "nocfgdl")  {
                     g_bDownloadNewConfig = false;
-                } else if (str == "checkfiles") {
-                    g_bCheckFiles = true;
-                } else if (str == "noautoupdate") {
-                    g_bSkipAutoUpdate = true;
                 } else if (str == "nosound") {
                     g_bEnableSound = false;
                 } else if (str == "nomessage")  {
@@ -280,15 +248,6 @@ public:
                         bStartOffline = true;
                         bLogonDialog = false;
                     }
-                } else if(str == "reloaded") {
-                    //
-                    // reloaded after an auto-update
-                    // 
-                    //g_bReloaded = true;
-
-                    // TODO: make two types of reloaded: one for internet, one for zone
-                    // that way we know how to log on.  Right now there it just relogs on
-                    // using internet connect
                 } else if (str == "multi") { 
                     bSingleInstance = false;
                 } else if (str == "cdkey") {

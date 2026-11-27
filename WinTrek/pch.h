@@ -62,7 +62,6 @@
 #include "messages.h"
 #include "messagesLC.h"
 #include "clintlib.h"
-#include "AutoDownload.h"
 
 #include "soundengine.h"
 

@@ -12,7 +12,7 @@
 #define _MESSAGES_LC_H_ 
 
 #include "MessageCore.h"
-#define LOBBYVER 9 // 9: Zone ticket removed from LOGON_LOBBY
+#define LOBBYVER 10 // 9: Zone ticket removed from LOGON_LOBBY; 10: auto-update removed (crcFileList, AUTO_UPDATE_INFO)
 
  /*
   *************************************************
@@ -28,26 +28,7 @@
     LC_ both ways
 */
 
-// We've changed the logon message but need to let older clients connect and 
-// auto-update.  We should remove this post-beta.  
-DEFINE_FEDMSG(C, LOGON_LOBBY_OLD, 251) // if the lobby is in club mode, everyone has to have a valid ticket, otherwise the ticket is ignored
-  FM_VAR_ITEM(ZoneTicket);    // Encrypted
-  short verLobby;    
-  int   crcFileList; 
-  DWORD dwTime;
-END_FEDMSG
-
 DEFINE_FEDMSG(C, LOGOFF_LOBBY, 252) // note: we don't care whether they joined a game or quit altogether
-END_FEDMSG
-
-// When a client receives ART_SERVER_INFO, it logs off
-DEFINE_FEDMSG(L, AUTO_UPDATE_INFO, 253)
-  FM_VAR_ITEM(FTPSite); // FTP Server
-  FM_VAR_ITEM(FTPInitialDirectory);
-  FM_VAR_ITEM(FTPAccount); 
-  FM_VAR_ITEM(FTPPassword); 
-  int         crcFileList; // correct version of server's filelist
-  unsigned    nFileListSize;
 END_FEDMSG
 
 DEFINE_FEDMSG(C, CREATE_MISSION_REQ, 254) // client should lock ui until it gets back an ack or nack
@@ -90,18 +71,11 @@ DEFINE_FEDMSG(L, FOUND_PLAYER, 264)
   DWORD         dwCookie;
 END_FEDMSG
 
-//
-// If LOGON_LOBBY ever changes, existing clients will not be able to AutoUpdate to this lobby's version.
-// unless we pull another LOGON_LOBBY_OLD trick.  
-// LOBBYVER 9 changed it without one (see MODERNIZATION.md, Phase 2): no 2004-protocol lobby is left.
-//
-
 #define CL_LOGON_KEY ("%x:%s: Corrupt artwork file ") // just to confuse a hacker
 
 DEFINE_FEDMSG(C, LOGON_LOBBY, 265)
   FM_VAR_ITEM(CDKey);         // Scrambled with the key CL_LOGON_KEY, dwTime, CharacterName
   short verLobby;    
-  int   crcFileList; 
   DWORD dwTime;
   char  szName[c_cbName];
 END_FEDMSG

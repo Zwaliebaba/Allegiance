@@ -21,7 +21,7 @@
    one server, and many clients, the server is always up to date by definition.
    ***Also gets incremented for changes to parts.h***
 */
-const int MSGVER = 199; // 199: Zone ticket removed from LOGONREQ, bClubGame from MissionParams
+const int MSGVER = 200; // 199: Zone ticket removed from LOGONREQ, bClubGame from MissionParams; 200: crcFileList removed from LOGONREQ
  
 
 /*
@@ -45,7 +45,6 @@ DEFINE_FEDMSG(C, LOGONREQ, 1)   // First message the client sends to the server.
   USHORT    fedsrvVer;
   Time      time;
   DWORD     dwCookie;
-  int       crcFileList; 
 END_FEDMSG
 
 DEFINE_FEDMSG(S, LOGONACK, 2) // sent when the server recives FM_C_LOGONREQ
