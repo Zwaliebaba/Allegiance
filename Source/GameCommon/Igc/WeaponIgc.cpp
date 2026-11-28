@@ -172,7 +172,6 @@ void        CweaponIGC::FireWeapon(Time now)
             {
                 // we are firing at least once this frame
                 fFiredShot = true;
-                m_pMission->GetIgcSite()->PlayFFEffect(effectFire, m_pshipGunner ? m_pshipGunner : m_ship);
 
                 //Get the stuff that won't change between shots
                 IclusterIGC*    cluster = m_ship->GetCluster();

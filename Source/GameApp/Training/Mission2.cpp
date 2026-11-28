@@ -302,30 +302,14 @@ namespace Training
             pGoalList->AddGoal (pGoal);
         }
 
-        if (GetWindow ()->GetInputEngine ()->GetJoystickCount () > 0)
-        {
-		    // tm_2_09
-		    // With your joystick, pushing the stick forward will tip your 
-		    // ship?s nose down, and pulling the stick back will tip its 
-		    // nose up. Pushing the stick to the right or left will turn 
-		    // the nose to the right or left, respectively. If your 
-		    // joystick has rudder controls, you can use these to roll 
-		    // your craft as well. Otherwise, you can hold down the SHIFT 
-		    // key while pressing the RIGHT and LEFT ARROW keys to roll 
-		    // your craft.
-            pGoalList->AddGoal (CreatePlaySoundGoal (tm_2_09Sound));
-        }
-        else
-        {
-		    // tm_2_10
-		    // On the keyboard, the UP ARROW key will tip your ship?s nose 
-		    // down, and the DOWN ARROW key will tip its nose up. The 
-		    // RIGHT and LEFT ARROW keys work as you might expect, facing 
-		    // the ship nose to the right and left, respectively. You can 
-		    // hold down the SHIFT key while pressing the RIGHT and LEFT 
-		    // ARROW keys to roll your craft.
-            pGoalList->AddGoal (CreatePlaySoundGoal (tm_2_10Sound));
-        }
+	    // tm_2_10
+	    // On the keyboard, the UP ARROW key will tip your ship?s nose 
+	    // down, and the DOWN ARROW key will tip its nose up. The 
+	    // RIGHT and LEFT ARROW keys work as you might expect, facing 
+	    // the ship nose to the right and left, respectively. You can 
+	    // hold down the SHIFT key while pressing the RIGHT and LEFT 
+	    // ARROW keys to roll your craft.
+        pGoalList->AddGoal (CreatePlaySoundGoal (tm_2_10Sound));
 
         // wait half second
         pGoalList->AddGoal (new Goal (new ElapsedTimeCondition (0.5f)));
@@ -387,22 +371,12 @@ namespace Training
 
         // XXX hope ship faces empty space
 
-        if (GetWindow ()->GetInputEngine ()->GetJoystickCount () > 0)
-        {
-		    // tm_2_14
-		    // If your joystick has a throttle control, you can use that 
-		    // to finely adjust your throttle.
-            pGoalList->AddGoal (CreatePlaySoundGoal (tm_2_14Sound));
-        }
-        else
-        {
-		    // tm_2_15
-		    // You can use the keyboard to set the throttle. The BACKSLASH 
-		    // key is full throttle, and BACKSPACE is stop. You can use 
-		    // the RIGHT BRACKET key for 66% throttle and the LEFT BRACKET 
-		    // key for 33% throttle. 
-            pGoalList->AddGoal (CreatePlaySoundGoal (tm_2_15Sound));
-        }
+	    // tm_2_15
+	    // You can use the keyboard to set the throttle. The BACKSLASH 
+	    // key is full throttle, and BACKSPACE is stop. You can use 
+	    // the RIGHT BRACKET key for 66% throttle and the LEFT BRACKET 
+	    // key for 33% throttle. 
+        pGoalList->AddGoal (CreatePlaySoundGoal (tm_2_15Sound));
 
         // wait half second
         pGoalList->AddGoal (new Goal (new ElapsedTimeCondition (0.5f)));
@@ -420,7 +394,7 @@ namespace Training
         {
             TRef<ImodelIGC>     pShip = static_cast<ImodelIGC*> (trekClient.GetShip());
             Goal*               pGoal = new Goal (new GetControlActiveCondition (trekClient.GetShip(), c_axisThrottle, 1.0f));
-            pGoal->AddStartAction (new MessageAction ("Press BACKSLASH (\\) or set your joystick throttle to maximum for full thrust."));
+            pGoal->AddStartAction (new MessageAction ("Press BACKSLASH (\\) for full thrust."));
             pGoal->AddStartAction (new PlaySoundAction (tm_2_16rSound));
             pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_2_16rSound));
             pGoalList->AddGoal (pGoal);
@@ -461,7 +435,7 @@ namespace Training
         {
             TRef<ImodelIGC>     pShip = static_cast<ImodelIGC*> (trekClient.GetShip());
             Goal*               pGoal = new Goal (new NotCondition (new GetControlActiveCondition (trekClient.GetShip(), c_axisThrottle, 1.0f)));
-            pGoal->AddStartAction (new MessageAction ("Press [, ], or use your joystick throttle to adjust thrust."));
+            pGoal->AddStartAction (new MessageAction ("Press [ or ] to adjust thrust."));
             pGoal->AddStartAction (new PlaySoundAction (tm_2_18rSound));
             pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_2_18rSound));
             pGoalList->AddGoal (pGoal);
@@ -711,24 +685,12 @@ namespace Training
             TRef<ImodelIGC> ship = static_cast<ImodelIGC*> (trekClient.GetShip());
             Condition*      pGetStateBitsCondition = new GetStateBitsCondition (trekClient.GetShip(), afterburnerButtonIGC);
             Goal*           pGoal = new Goal (pGetStateBitsCondition);
-            if (GetWindow ()->GetInputEngine ()->GetJoystickCount () > 0)
-            {
-		        // tm_2_32
-		        // Activate the booster with your joystick by pressing and 
-		        // holding button 3.
-                pGoal->AddStartAction (new PlaySoundAction (tm_2_32Sound));
-                pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_2_32Sound));
-                pGoal->AddStartAction (new MessageAction ("Press and hold button #3 on your joystick to fire the booster."));
-            }
-            else
-            {
-		        // tm_2_33
-		        // On the keyboard, press and hold the TAB key to fire your 
-		        // boosters.
-                pGoal->AddStartAction (new PlaySoundAction (tm_2_33Sound));
-                pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_2_33Sound));
-                pGoal->AddStartAction (new MessageAction ("Press and hold the TAB key to fire the booster."));
-            }
+	        // tm_2_33
+	        // On the keyboard, press and hold the TAB key to fire your 
+	        // boosters.
+            pGoal->AddStartAction (new PlaySoundAction (tm_2_33Sound));
+            pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_2_33Sound));
+            pGoal->AddStartAction (new MessageAction ("Press and hold the TAB key to fire the booster."));
             SetControlConstraintsAction*    pSetControlConstraintsAction = new SetControlConstraintsAction;
             pSetControlConstraintsAction->EnableInputAction (afterburnerButtonIGC);
             pGoal->AddStartAction (pSetControlConstraintsAction);

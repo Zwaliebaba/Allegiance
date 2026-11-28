@@ -79,12 +79,9 @@ class  WinTrekClient :
         void Terminate() override;
         ImissionIGC*    ResetStaticData (void);
 
-        bool                    bInitTrekThrottle;
         //bool                    bInitTrekJoyStick; moved to baseclient
-        bool                    joyThrottle;
         float                   trekThrottle;
         float                   trekJoyStick[3];
-        float                   fOldJoyThrottle;
         virtual void            OverrideThrottle (float fDesiredThrottle);
 
         // igc site implementation
@@ -143,7 +140,6 @@ class  WinTrekClient :
         void      PlaySoundEffect(SoundID soundID, ImodelIGC* model = nullptr) override;
         void      PlaySoundEffect(SoundID soundID, ImodelIGC* model, const Vector& vectOffset) override;
         void      PlayNotificationSound(SoundID soundID, ImodelIGC* model) override;
-        void      PlayFFEffect(ForceEffectID effectID, ImodelIGC* model = nullptr, LONG lDirection = 0) override;
         void      PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model = nullptr, float fIntensity = 1.0f) override;
         void      TerminateModelEvent(ImodelIGC*    pmodel) override;
         bool      DockWithStationEvent(IshipIGC* ship, IstationIGC* station) override;

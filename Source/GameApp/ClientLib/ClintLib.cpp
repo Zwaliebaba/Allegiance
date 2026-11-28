@@ -2737,7 +2737,6 @@ void BaseClient::FireMissile(IshipIGC* pShip,
         pTarget = nullptr;
 
     this->PlaySoundEffect(pMagazine->GetMissileType()->GetLaunchSound(), pShip);
-    this->PlayFFEffect(effectFire);
 
     IclusterIGC*    pCluster = pShip->GetCluster();
     assert (pCluster);
@@ -2866,8 +2865,6 @@ void BaseClient::FireExpendable(IshipIGC* pShip,
                                 Time timeFired)
 {
     assert (pShip == m_ship);
-
-    this->PlayFFEffect(effectFire, pShip);
 
     IclusterIGC*    pCluster = pShip->GetCluster();
     assert (pCluster);

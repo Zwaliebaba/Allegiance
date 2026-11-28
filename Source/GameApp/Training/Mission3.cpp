@@ -625,23 +625,11 @@ namespace Training
         // wait for weapons to fire
         {
             Goal*   pGoal = new Goal (new GetStateBitsCondition (trekClient.GetShip(), weaponsMaskIGC));
-            if (GetWindow ()->GetInputEngine ()->GetJoystickCount () > 0)
-            {
-		        // tm_3_18
-		        // Press the trigger button on your joystick to fire your main 
-		        // weapon.
-                pGoal->AddStartAction (new PlaySoundAction (tm_3_18Sound));
-                pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_3_18Sound));
-                pGoal->AddStartAction (new MessageAction ("Fire the main weapon by pressing the trigger button on your joystick."));
-            }
-            else
-            {
-		        // tm_3_19
-		        // Press the SPACEBAR on the keyboard to fire your main weapon.
-                pGoal->AddStartAction (new PlaySoundAction (tm_3_19Sound));
-                pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_3_19Sound));
-                pGoal->AddStartAction (new MessageAction ("Fire the main weapon by pressing the SPACEBAR."));
-            }
+	        // tm_3_19
+	        // Press the SPACEBAR on the keyboard to fire your main weapon.
+            pGoal->AddStartAction (new PlaySoundAction (tm_3_19Sound));
+            pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_3_19Sound));
+            pGoal->AddStartAction (new MessageAction ("Fire the main weapon by pressing the SPACEBAR."));
             pGoalList->AddGoal (pGoal);
         }
 
@@ -830,10 +818,7 @@ namespace Training
 		// Go ahead and fire.
         {
             Goal*   pGoal = new Goal (new GetStateBitsCondition (trekClient.GetShip(), weaponsMaskIGC));
-            if (GetWindow ()->GetInputEngine ()->GetJoystickCount () > 0)
-                pGoal->AddStartAction (new MessageAction ("Fire the main weapon by pressing the trigger button on your joystick."));
-            else
-                pGoal->AddStartAction (new MessageAction ("Fire the main weapon by pressing the SPACEBAR."));
+            pGoal->AddStartAction (new MessageAction ("Fire the main weapon by pressing the SPACEBAR."));
             pGoal->AddStartAction (new PlaySoundAction (tm_3_31rSound));
             pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_3_31rSound));
             pGoalList->AddGoal (pGoal);
@@ -917,23 +902,12 @@ namespace Training
         // wait for missilies to fire
         {
             Goal*   pGoal = new Goal (new GetStateBitsCondition (trekClient.GetShip(), missileFireIGC));
-            if (GetWindow ()->GetInputEngine ()->GetJoystickCount () > 0)
-            {
-		        // tm_3_37
-		        // Fire your missiles by pressing button 2 on your joystick.
-                pGoalList->AddGoal (CreatePlaySoundGoal (tm_3_37Sound));
-                pGoal->AddStartAction (new MessageAction ("Fire missiles by pressing the #2 button on your joystick."));
-                pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_3_37Sound));
-            }
-            else
-            {
-		        // tm_3_38
-		        // Fire your missiles by pressing CONTROL plus SPACEBAR on the 
-		        // keyboard.
-                pGoalList->AddGoal (CreatePlaySoundGoal (tm_3_38Sound));
-                pGoal->AddStartAction (new MessageAction ("Fire missiles by pressing CTRL+SPACEBAR."));
-                pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_3_38Sound));
-            }
+	        // tm_3_38
+	        // Fire your missiles by pressing CONTROL plus SPACEBAR on the 
+	        // keyboard.
+            pGoalList->AddGoal (CreatePlaySoundGoal (tm_3_38Sound));
+            pGoal->AddStartAction (new MessageAction ("Fire missiles by pressing CTRL+SPACEBAR."));
+            pGoal->AddConstraintCondition (CreateTooLongCondition (30.0f, tm_3_38Sound));
             SetControlConstraintsAction*    pSetControlConstraintsAction = new SetControlConstraintsAction;
             pSetControlConstraintsAction->EnableInputAction (missileFireIGC);
             pGoal->AddStartAction (pSetControlConstraintsAction);

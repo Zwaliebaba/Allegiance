@@ -217,7 +217,6 @@ public:
     virtual bool GetMusicIsOn (void) = 0;
     virtual void SetMusicOn (bool bMusicOn) = 0;
 
-    virtual void PlayFFEffect(ForceEffectID effectID, LONG lDirection = 0) = 0;
     virtual void SetChatListPane(ChatListPane* pchatListPane) = 0;
     virtual void SetLobbyChatTarget(ChatTarget ct) = 0;
     virtual ChatTarget GetLobbyChatTarget() = 0;

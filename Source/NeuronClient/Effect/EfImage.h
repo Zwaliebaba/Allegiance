@@ -15,7 +15,9 @@ TRef<Image> CreateBlendColorImage(Image* pimage, ColorValue* pcolor);
 //
 //////////////////////////////////////////////////////////////////////////////
 
-class JoystickImage : public Image, public JoystickInputStream {
+// Mouse flight: an input stream whose values are the mouse's offset from the
+// centre of the screen, and whose buttons are the mouse's
+class JoystickImage : public Image, public InputStream {
 public:
     virtual void        SetEnabled(bool bJoystickEnabled, bool bButtonsEnabled) = 0;
     virtual void        SetSensitivity(float sensitivity)                       = 0;

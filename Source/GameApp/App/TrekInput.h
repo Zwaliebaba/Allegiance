@@ -16,9 +16,6 @@ class TrekInput : public IObject {
 public:
     virtual bool         LoadMap(const ZString& str)                                               = 0;
     virtual void         SetFocus(bool bFocus)                                                     = 0;
-    virtual void         PlayFFEffect(ForceEffectID effectID, LONG lDirection = 0)                 = 0;
-    virtual float        GetAxis(int index)                                                        = 0;
-    virtual bool         IsAxisValid(int index)                                                    = 0;
     virtual bool         IsTrekKeyDown(TrekKey trekkey, bool bCheckKeyboard)                       = 0;
     virtual TrekKey      TranslateKeyMessage(const KeyState& ks)                                   = 0;
     virtual TrekKey      HandleKeyMessage(const KeyState& ks)                                      = 0;
@@ -27,7 +24,7 @@ public:
     virtual TRef<IPopup> CreateInputMapPopup(Modeler* pmodeler, IEngineFont* pfont, Number* ptime) = 0;
 };
 
-TRef<TrekInput> CreateTrekInput(HINSTANCE hInst, HWND hwnd, InputEngine* pinputEngine, JoystickImage* pjoystickImage);
+TRef<TrekInput> CreateTrekInput(HINSTANCE _instance, HWND _window, JoystickImage* _virtualJoystick);
 
 #define INPUTMAP_FILE         "inputmap1"
 #define DEFAULTINPUTMAP_FILE  "defaultinputmap"

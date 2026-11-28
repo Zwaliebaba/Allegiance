@@ -77,46 +77,6 @@ public:
 
     //////////////////////////////////////////////////////////////////////////////
     //
-    // JoystickInputStream members
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    bool HasForceFeedback() override
-    {
-        return false;
-    }
-
-    void CreateEffects() override
-    {
-    }
-
-    void PlayFFEffect(short effectID, LONG lDirection) override
-    {
-    }
-
-    ZString GetShortDescription(int index) override
-    {
-        return "Mouse";
-    }
-
-    ZString GetDescription() override
-    {
-        return "Mouse";
-    }
-
-    ZString GetValueDescription(int id) override
-    {
-        switch(id) {
-            case 0: return "Left";
-            case 1: return "Right";
-            case 2: return "Middle";
-        }
-
-        return ZString();
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
     // InputStream members
     //
     //////////////////////////////////////////////////////////////////////////////

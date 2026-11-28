@@ -58,29 +58,12 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 
-class JoystickInputStream : public InputStream {
-public:
-    virtual bool    HasForceFeedback()                            = 0;
-    virtual void    CreateEffects()                               = 0;
-    virtual void    PlayFFEffect(short effectID, LONG lDirection) = 0;
-    virtual ZString GetShortDescription(int index)                = 0;
-    virtual ZString GetDescription()                              = 0;
-    virtual ZString GetValueDescription(int id)                   = 0;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////////
-
+// The mouse, through DirectInput. (Physical joysticks and force feedback were
+// removed; mouse flight's "virtual joystick" is JoystickImage, an InputStream.)
 class InputEngine : public IObject {
 public:
-    virtual void                 EnumerateJoysticks()   = 0;
     virtual void                 Update()               = 0;
     virtual void                 SetFocus(bool bFocus)  = 0;
-    virtual int                  GetJoystickCount()     = 0;
-    virtual JoystickInputStream* GetJoystick(int index) = 0;
     virtual MouseInputStream*    GetMouse()             = 0;
 };
 

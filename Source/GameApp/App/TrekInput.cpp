@@ -42,7 +42,6 @@ static ZString InputMapToLoad(const ZString& str)
 
 TRef<IPopup> CreateInputMapPopup(
     Modeler*       pmodeler,
-    InputEngine*   pinputEngine,
     TrekInput*     ptrekInput,
     IEngineFont*   pfont,
     Number*        ptime
@@ -54,7 +53,6 @@ TRef<IPopup> CreateInputMapPopup(
 //
 //////////////////////////////////////////////////////////////////////////////
 
-const int countAxis       = 6;
 const int keyMax          = 256;
 const int ModifierNone    = 0;
 const int ModifierShift   = 1;
@@ -68,18 +66,14 @@ public:
     // Input Engine
     //
 
-    TRef<InputEngine>                       m_pinputEngine;
     TRef<JoystickImage>                     m_pjoystickImage;
-    std::array<TRef<Number>, countAxis>         m_ppnumberAxis;
 
     //
-    // Joystick mapping
+    // Mouse button mapping (through the virtual joystick)
     //
 
     std::array<TRef<Boolean>, TK_Max>           m_ppboolTrekKeyButtonDown;
     std::array<bool         , TK_Max>           m_boolTrekKeyButtonDown;
-
-    std::array<TRef<ModifiableBoolean>, 4>      m_ppboolHatButton;
 
     //
     // Keyboard mapping
@@ -117,21 +111,11 @@ public:
     TrekInputImpl(
         HINSTANCE    hInst,
         HWND         hWnd,
-        InputEngine* pinputEngine,
         JoystickImage* pjoystickImage
     ) :
-        m_pinputEngine(pinputEngine),
         m_pjoystickImage(pjoystickImage)
     {
         InitializeCommandsMDL();
-
-        //
-        // Create the virtual hat buttons
-        //
-
-        for (int index = 0; index < 4; index++) {
-            m_ppboolHatButton[index] = new ModifiableBoolean(false);
-        }
 
         //
         // All the button states start up
@@ -442,23 +426,6 @@ public:
         }
 
         //
-        // Redetect the joysticks
-        //
-
-        m_pinputEngine->EnumerateJoysticks();
-
-        //
-        // Initialize Joystick
-        //
-
-        if (
-               m_pinputEngine->GetJoystick(0) 
-            && m_pinputEngine->GetJoystick(0)->HasForceFeedback()
-        ) {
-            m_pinputEngine->GetJoystick(0)->CreateEffects();
-        }
-
-        //
         // Clear out the old input map
         //
 
@@ -478,10 +445,6 @@ public:
         for (index = 0; index < TK_Max; index++) {
             m_pboolTrekKeyDown[index]       = nullptr;
             m_ppboolTrekKeyButtonDown[index] = nullptr;
-        }
-
-        for (index = 0; index < (int)m_ppnumberAxis.size(); index++) {
-            m_ppnumberAxis[index] = nullptr;
         }
 
         //
@@ -645,111 +608,6 @@ public:
         }
 
         //
-        // joystick button mapping
-        //
-
-        {
-            TRef<IObjectList> plist = pns->FindList("buttonCommandMap");
-
-            plist->GetFirst();
-            while (plist->GetCurrent() != nullptr) {
-                TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
-
-                int indexJoystick = (int)GetNumber(ppair->GetNth(0)    );
-                int indexButton   = (int)GetNumber(ppair->GetNth(1)    );
-                int tk            = (int)GetNumber(ppair->GetLastNth(2));
-
-                //
-                // Get the button
-                //
-
-                TRef<JoystickInputStream> pjoystick = m_pinputEngine->GetJoystick(indexJoystick);
-                TRef<Boolean>             pboolButton;
-
-                if (indexButton < 0) {
-                    //
-                    // It's a virtual hat button
-                    //
-
-                    pboolButton = m_ppboolHatButton[-indexButton - 1];
-                } else {
-                    //
-                    // A joystick button
-                    //
-
-                    if (pjoystick) {
-                        pboolButton = pjoystick->IsDown(indexButton);
-                    }
-                }
-
-                if (pboolButton) {
-                    //
-                    // Or all of the key combinations together
-                    //
-
-                    if (m_ppboolTrekKeyButtonDown[tk] == nullptr) {
-                        m_ppboolTrekKeyButtonDown[tk] = pboolButton;
-                    } else {
-                        m_ppboolTrekKeyButtonDown[tk] =
-                            Or(
-                                pboolButton,
-                                m_ppboolTrekKeyButtonDown[tk]
-                            );
-                    }
-                }
-
-                plist->GetNext();
-            }
-        }
-
-        //
-        // joystick value mapping
-        //
-
-        {
-            TRef<IObjectList> plist = pns->FindList("numericValuesNew");
-
-            bool bNew = (plist != nullptr);
-
-            if (!bNew) {
-                plist = pns->FindList("numericValues");
-            }
-        
-            plist->GetFirst();
-            for (int indexValueOutput = 0; indexValueOutput < (int)m_ppnumberAxis.size(); indexValueOutput++) {
-                TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
-
-                if (ppair) {
-                    int indexJoystick   = (int)GetNumber(ppair->GetFirst() );
-                    int indexValueInput = (int)GetNumber(ppair->GetSecond());
-
-                    if (!bNew) {
-                        if (indexValueInput == 2) {
-                            indexValueInput = 3;
-                        } else if (indexValueInput == 3) {
-                            indexValueInput = 2;
-                        }
-                    }
-
-                    TRef<JoystickInputStream> pjoystick = m_pinputEngine->GetJoystick(indexJoystick);
-                    TRef<Number>              pvalueInput;
-
-                    if (pjoystick) {
-                        pvalueInput = pjoystick->GetValue(indexValueInput);
-                    }
-
-                    if (pvalueInput) {
-                        m_ppnumberAxis[indexValueOutput] = pvalueInput;    
-                    } else {
-                        m_ppnumberAxis[indexValueOutput] = nullptr;
-                    }
-                }
-
-                plist->GetNext();
-            }
-        }
-
-        //
         // Unload the map
         //
 
@@ -776,7 +634,7 @@ public:
         bool bDown = false;
 
         //
-        // check joystick buttons
+        // check mouse buttons
         //
 
         Boolean* pbool = m_ppboolTrekKeyButtonDown[tk];
@@ -890,64 +748,8 @@ public:
         return TK_NoKeyMapping;
     }
 
-    void PlayFFEffect(ForceEffectID effectID, LONG lDirection) override
-    {
-        if (
-               m_pinputEngine->GetJoystick(0) 
-            && m_pinputEngine->GetJoystick(0)->HasForceFeedback()
-        ) {
-            m_pinputEngine->GetJoystick(0)->PlayFFEffect(effectID, lDirection);
-        }
-    }
-
-    float GetAxis(int index) override
-    {
-        if (m_ppnumberAxis[index] != nullptr) {
-            return m_ppnumberAxis[index]->GetValue();
-        } else {
-            return 0;
-        }
-    }
-
-    bool IsAxisValid(int index) override
-    {
-        return m_ppnumberAxis[index] != nullptr;
-    }
-
     void GetButtonTrekKeys(TrekInputSite* psite) override
     {
-        //
-        // Update hat buttons
-        //
-
-        if (m_ppnumberAxis[5] != nullptr) {
-            float value = m_ppnumberAxis[5]->GetValue();
-
-            //ZDebugOutput("hat: " + ZString(value) + "\n");
-
-            // 0 up     =  0
-            // 1 right  =  0.5
-            // 2 down   =  1
-            // 3 left   = -0.5
-            //   center = -2.0
-
-            for (int index = 0; index < 4; index++) {
-                m_ppboolHatButton[index]->SetValue(0);
-            } 
-
-            if (value > 0.75f) {
-                m_ppboolHatButton[2]->SetValue(1);
-            } else if (value > 0.25f) {
-                m_ppboolHatButton[1]->SetValue(1);
-            } else if (value > -0.25f) {
-                m_ppboolHatButton[0]->SetValue(1);
-            } else if (value > -0.75f) {
-                m_ppboolHatButton[3]->SetValue(1);
-            } else if (value > -1.25f) {
-                m_ppboolHatButton[2]->SetValue(1);
-            }
-        }
-
         //
         // If any of the button states changes send a trek key
         //
@@ -971,7 +773,6 @@ public:
         return 
             ::CreateInputMapPopup(
                 pmodeler,
-                m_pinputEngine,
                 this,
                 pfont,
                 ptime
@@ -985,9 +786,9 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 
-TRef<TrekInput> CreateTrekInput(HINSTANCE hInst, HWND hwnd, InputEngine* pinputEngine, JoystickImage* pjoystickImage)
+TRef<TrekInput> CreateTrekInput(HINSTANCE _instance, HWND _window, JoystickImage* _virtualJoystick)
 {
-    return new TrekInputImpl(hInst, hwnd, pinputEngine, pjoystickImage);
+    return new TrekInputImpl(_instance, _window, _virtualJoystick);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -995,16 +796,6 @@ TRef<TrekInput> CreateTrekInput(HINSTANCE hInst, HWND hwnd, InputEngine* pinputE
 // 
 //
 //////////////////////////////////////////////////////////////////////////////
-
-PCC g_ppccAxisDescription[] =
-{
-    "Yaw",
-    "Pitch",
-    "Roll",
-    "Throttle",
-    "Hat",
-    "Hat as Buttons"
-};
 
 class KeyInfo {
 public:
@@ -1514,10 +1305,6 @@ CommandInfo g_pCommandInfo[] =
     { TK_PauseTM                         , "Pause (training mission only)"         },
     { TK_CommandFinishTM                 , "Finish goal (training mission only)"   },
     { TK_TrackCommandView                , "Toggle command view target tracking"   },
-
-    { TK_NoKeyMapping                    , ""                                      },
-    { TK_NoKeyMapping                    , "Joystick"                              },
-    { TK_NoKeyMapping                    , ""                                      },
 };
 
 const int g_nCommandInfo = ArrayCount(g_pCommandInfo);
@@ -1547,9 +1334,8 @@ private:
         int m_modifiers;
     };
 
-    class ButtonMapping {
+    class ButtonMapping {      // a mouse button
     public:
-        int m_indexJoystick;
         int m_indexButton  ;
     };
 
@@ -1576,11 +1362,10 @@ private:
             }
         }
 
-        void AddButtonMapping(int indexJoystick, int indexButton)
+        void AddButtonMapping(int _button)
         {
             m_listButtonMapping.PushFront();
-            m_listButtonMapping.GetFront().m_indexJoystick = indexJoystick;
-            m_listButtonMapping.GetFront().m_indexButton   = indexButton;
+            m_listButtonMapping.GetFront().m_indexButton   = _button;
         }
 
         bool HasKeyMapping(int vk, int modifiers)
@@ -1621,17 +1406,14 @@ private:
             }
         }
 
-        bool HasButtonMapping(int indexJoystick, int indexButton)
+        bool HasButtonMapping(int _button)
         {
             TList<ButtonMapping>::Iterator iter(m_listButtonMapping);
 
             while (!iter.End()) {
                 ButtonMapping& map = iter.Value();
 
-                if (
-                       map.m_indexJoystick == indexJoystick
-                    && map.m_indexButton   == indexButton
-                ) {
+                if (map.m_indexButton == _button) {
                     return true;
                 }
 
@@ -1641,17 +1423,14 @@ private:
             return false;
         }
 
-        void RemoveButtonMapping(int indexJoystick, int indexButton)
+        void RemoveButtonMapping(int _button)
         {
             TList<ButtonMapping>::Iterator iter(m_listButtonMapping);
 
             while (!iter.End()) {
                 ButtonMapping& map = iter.Value();
 
-                if (
-                       map.m_indexJoystick == indexJoystick
-                    && map.m_indexButton   == indexButton
-                ) {
+                if (map.m_indexButton == _button) {
                     iter.Remove();
                 } else {
                     iter.Next();
@@ -1659,7 +1438,7 @@ private:
             }
         }
 
-        ZString GetString(InputEngine* pinputEngine, bool bInternational)
+        ZString GetString(bool _international)
         {
             ZString str;
             bool bFirst = true;
@@ -1703,7 +1482,7 @@ private:
 
                     int length = 0;
 
-                    if (bInternational) {
+                    if (_international) {
                         length = ::GetKeyNameText(scan, buf, 128);
                     }
 
@@ -1733,19 +1512,7 @@ private:
                         str += ", ";
                     }
 
-                    if (map.m_indexJoystick == -1) {
-                        str += "Mouse Btn " + StrFromInt(map.m_indexButton + 1);
-                    } else {
-                        str += "Joy " + StrFromInt(map.m_indexJoystick);
-
-                        switch(map.m_indexButton) {
-                            case -1: str += " Hat Forward"                          ; break;
-                            case -2: str += " Hat Right"                            ; break;
-                            case -3: str += " Hat Backward"                         ; break;
-                            case -4: str += " Hat Left    "                         ; break;
-                            default: str += " Btn " + StrFromInt(map.m_indexButton + 1); break;
-                        }
-                    }
+                    str += "Mouse Btn " + StrFromInt(map.m_indexButton + 1);
 
                     iter.Next();
                 }
@@ -1818,60 +1585,23 @@ private:
             while (!iter.End()) {
                 ButtonMapping& map = iter.Value();
 
-                if (map.m_indexJoystick == -1) {
-                    if (bFirst) {
-                        bFirst = false;
-                    } else {
-                        pfile->Write(ZString(",\n"));
-                    }
-
-                    pfile->Write(
-                          "        (" 
-                        + StrFromInt(map.m_indexButton)
-                        + ", "
-                        + StrFromInt(cmd)
-                        + ")"
-                    );
+                if (bFirst) {
+                    bFirst = false;
+                } else {
+                    pfile->Write(ZString(",\n"));
                 }
+
+                pfile->Write(
+                      "        ("
+                    + StrFromInt(map.m_indexButton)
+                    + ", "
+                    + StrFromInt(cmd)
+                    + ")"
+                );
 
                 iter.Next();
             }
         }
-
-        void WriteButtonMapping(ZFile* pfile, int cmd, bool& bFirst)
-        {
-            TList<ButtonMapping>::Iterator iter(m_listButtonMapping);
-
-            while (!iter.End()) {
-                ButtonMapping& map = iter.Value();
-
-                if (map.m_indexJoystick != -1) {
-                    if (bFirst) {
-                        bFirst = false;
-                    } else {
-                        pfile->Write(ZString(",\n"));
-                    }
-
-                    pfile->Write(
-                          "        (" 
-                        + StrFromInt(map.m_indexJoystick) 
-                        + ", " 
-                        + StrFromInt(map.m_indexButton)
-                        + ", "
-                        + StrFromInt(cmd)
-                        + ")"
-                    );
-                }
-
-                iter.Next();
-            }
-        }
-    };
-
-    class Axis {
-    public:
-        int   m_indexJoystick;
-        int   m_indexValue;
     };
 
     class EvaluateImage : public WrapImage {
@@ -1885,9 +1615,11 @@ private:
         {
         }
 
+        // Nothing to poll since the joysticks went (mouse buttons arrive
+        // through Button below). An override all the same, as it was, so
+        // that WrapImage::Evaluate does not start running here.
         void Evaluate() override
         {
-            m_ppopup->Evaluate();
         }
 
         //////////////////////////////////////////////////////////////////////////////
@@ -1926,12 +1658,9 @@ private:
     //////////////////////////////////////////////////////////////////////////////
 
     CommandMap                  m_pcommandMap[TK_Max];
-    std::array<Axis, countAxis>     m_paxis;
-    std::vector<float>              m_vvalue;
     std::array<bool, 256>           m_pbNoModifiers;
 
     TRef<Modeler>               m_pmodeler;
-    TRef<InputEngine>           m_pinputEngine;
     TRef<TrekInput>             m_ptrekInput;
     TRef<IEngineFont>           m_pfont;
     TRef<Number>                m_ptime;
@@ -1955,12 +1684,9 @@ private:
     bool                        m_bEditing;
     bool                        m_bQuestion;
     bool                        m_bButton;
-    bool                        m_bAxis;
     int                         m_vkQuestion;
     int                         m_modifiersQuestion;
-    int                         m_indexJoystickQuestion;
     int                         m_indexButtonQuestion;
-    int                         m_indexAxisQuestion;
 
 public:
     //////////////////////////////////////////////////////////////////////////////
@@ -1978,21 +1704,18 @@ public:
 
     InputMapPopup(
         Modeler*     pmodeler,
-        InputEngine* pinputEngine,
         TrekInput*   ptrekInput,
         IEngineFont* pfont,
         Number*      ptime
     ) :
         m_pmodeler(pmodeler),
-        m_pinputEngine(pinputEngine),
         m_ptrekInput(ptrekInput),
         m_pfont(pfont),
         m_ptime(ptime),
         m_peventSource(new EventSourceImpl()),
         m_bEditing(false),
         m_bQuestion(false),
-        m_bButton(false),
-        m_bAxis(false)
+        m_bButton(false)
     {
         m_bInternational = IsInternationalKeyboard();
 
@@ -2094,12 +1817,6 @@ public:
         }
 
         //
-        // Redetect the joysticks
-        //
-
-        m_pinputEngine->EnumerateJoysticks();
-
-        //
         // clear the old input map
         //
 
@@ -2144,68 +1861,10 @@ public:
                     int index = (int)GetNumber(ppair->GetFirst() );
                     int tk    = (int)GetNumber(ppair->GetSecond());
 
-                    m_pcommandMap[tk].AddButtonMapping(-1, index);
+                    m_pcommandMap[tk].AddButtonMapping(index);
 
                     plist->GetNext();
                 }
-            }
-        }
-
-        //
-        // joystick button mapping
-        //
-
-        {
-            TRef<IObjectList> plist = pns->FindList("buttonCommandMap");
-
-            plist->GetFirst();
-            while (plist->GetCurrent() != nullptr) {
-                TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
-
-                int indexJoystick = (int)GetNumber(ppair->GetNth(0)    );
-                int indexButton   = (int)GetNumber(ppair->GetNth(1)    );
-                int tk            = (int)GetNumber(ppair->GetLastNth(2));
-
-                m_pcommandMap[tk].AddButtonMapping(indexJoystick, indexButton);
-
-                plist->GetNext();
-            }
-        }
-
-        //
-        // joystick value mapping
-        //
-
-        {
-            TRef<IObjectList> plist = pns->FindList("numericValuesNew");
-
-            bool bNew = (plist != nullptr);
-
-            if (!bNew) {
-                plist = pns->FindList("numericValues");
-            }
-        
-            plist->GetFirst();
-            for (int indexValueOutput = 0; indexValueOutput < (int)m_paxis.size(); indexValueOutput++) {
-                TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
-
-                if (ppair) {
-                    m_paxis[indexValueOutput].m_indexJoystick = (int)GetNumber(ppair->GetFirst() );
-                    m_paxis[indexValueOutput].m_indexValue    = (int)GetNumber(ppair->GetSecond());
-
-                    if (!bNew) {
-                        if (m_paxis[indexValueOutput].m_indexValue == 2) {
-                            m_paxis[indexValueOutput].m_indexValue = 3;
-                        } else if (m_paxis[indexValueOutput].m_indexValue == 3) {
-                            m_paxis[indexValueOutput].m_indexValue = 2;
-                        }
-                    } 
-                } else {
-                    m_paxis[indexValueOutput].m_indexJoystick = -1;
-                    m_paxis[indexValueOutput].m_indexValue    =  0;
-                }
-
-                plist->GetNext();
             }
         }
 
@@ -2288,48 +1947,6 @@ public:
 
         pfile->Write(ZString("    ];\n"         ));
 
-        //
-        // buttonCommandMap
-        //
-
-        pfile->Write(ZString("buttonCommandMap =\n"));
-        pfile->Write(ZString("    [\n"             ));
-
-        bFirst = true;
-        for (index = 0; index < TK_Max; index++) {
-            m_pcommandMap[index].WriteButtonMapping(pfile, index, bFirst);
-        }
-
-        if (!bFirst) {
-            pfile->Write(ZString("\n"));
-        }
-
-        pfile->Write(ZString("    ];\n"         ));
-
-        //
-        // numericValues
-        //
-
-        pfile->Write(ZString("numericValuesNew =\n"));
-        pfile->Write(ZString("    [\n"          ));
-
-        for (index = 0; index < (int)m_paxis.size(); index++) {
-            pfile->Write(
-                   "        ("
-                + StrFromInt(m_paxis[index].m_indexJoystick)
-                + ", "
-                + StrFromInt(m_paxis[index].m_indexValue)
-                + ")"
-            );
-
-            if (index != (int)m_paxis.size() - 1) {
-                pfile->Write(ZString(","));
-            }
-
-            pfile->Write(ZString("\n"));
-        }
-
-        pfile->Write(ZString("    ];\n"         ));
     }
 
     void Close()
@@ -2373,32 +1990,17 @@ public:
         return GetIndex(m_plistPane->GetSelection());
     }
 
-    bool IsAxisSelection()
-    {
-        return GetSelectionIndex() >= g_nCommandInfo;
-    }
-
     int GetCommandMapIndex()
     {
         return g_pCommandInfo[GetSelectionIndex()].m_tk;
     }
 
-    int GetAxisIndex()
-    {
-        return GetSelectionIndex() - g_nCommandInfo;
-    }
-
     void DeleteMapping()
     {
-        if (IsAxisSelection()) {
-            m_paxis[GetAxisIndex()].m_indexJoystick = -1;
-            m_paxis[GetAxisIndex()].m_indexValue    =  0;
-        } else {
-            TrekKey tk = GetCommandMapIndex();
+        TrekKey tk = GetCommandMapIndex();
 
-            if (tk != TK_NoKeyMapping) {
-                m_pcommandMap[GetCommandMapIndex()].Clear();
-            }
+        if (tk != TK_NoKeyMapping) {
+            m_pcommandMap[GetCommandMapIndex()].Clear();
         }
 
         Changed();
@@ -2411,33 +2013,11 @@ public:
 
     void EditSelection()
     {
-        if (IsAxisSelection()) {
-            //
-            // Record the initial values of all the joystick axis
-            //
+        TrekKey tk = GetCommandMapIndex();
+        m_bEditing = (tk != TK_NoKeyMapping);
 
-            m_vvalue.resize(0);
-
-            int countJoystick = m_pinputEngine->GetJoystickCount();
-            for (int indexJoystick = 0; indexJoystick < countJoystick; indexJoystick++) {
-                JoystickInputStream* pjoystick = m_pinputEngine->GetJoystick(indexJoystick);
-
-                int count = pjoystick->GetValueCount();
-
-                for (int index = 0; index < count; index++) {
-                    m_vvalue.push_back(pjoystick->GetValue(index)->GetValue());
-                }
-            }
-            m_bEditing = true;
-
-            SetMessage("Move desired joystick axis.");
-        } else {
-            TrekKey tk = GetCommandMapIndex();
-            m_bEditing = (tk != TK_NoKeyMapping);
-
-            if (m_bEditing) {
-                SetMessage("Type desired key sequence or button.  Escape cancels.");
-            }
+        if (m_bEditing) {
+            SetMessage("Type desired key sequence or mouse button.  Escape cancels.");
         }
 
         Changed();
@@ -2479,7 +2059,6 @@ public:
                 m_modifiersQuestion = modifiers;
                 m_bQuestion         = true;
                 m_bButton           = false;
-                m_bAxis             = false;
 
                 SetMessage("Key in use. Press Enter to lose old mapping.  Escape cancels");
 
@@ -2496,21 +2075,21 @@ public:
         return true;
     }
 
-    void RemoveButtonMappings(int indexJoystick, int indexButton)
+    void RemoveButtonMappings(int _button)
     {
         for (int index = 0; index < TK_Max; index++) {
-            m_pcommandMap[index].RemoveButtonMapping(indexJoystick, indexButton);
+            m_pcommandMap[index].RemoveButtonMapping(_button);
         }
     }
 
-    bool AddButtonMapping(int indexJoystick, int indexButton)
+    bool AddButtonMapping(int _button)
     {
         //
         // See if the button is already being used
         //
 
         for (int index = 0; index < TK_Max; index++) {
-            if (m_pcommandMap[index].HasButtonMapping(indexJoystick, indexButton)) {
+            if (m_pcommandMap[index].HasButtonMapping(_button)) {
                 if (index == GetCommandMapIndex()) {
                     return true;
                 }
@@ -2519,11 +2098,9 @@ public:
                 // Button is being used
                 //
 
-                m_indexJoystickQuestion = indexJoystick;
-                m_indexButtonQuestion   = indexButton;
+                m_indexButtonQuestion   = _button;
                 m_bQuestion             = true;
                 m_bButton               = true;
-                m_bAxis                 = false;
 
                 SetMessage("Button in use.  Press Enter to lose old mapping.  Escape cancels");
 
@@ -2535,174 +2112,15 @@ public:
         // Not being used add the mapping
         //
 
-        m_pcommandMap[GetCommandMapIndex()].AddButtonMapping(indexJoystick, indexButton);
-
-        return true;
-    }
-
-    void RemoveAxisMapping(int indexJoystick, int indexValue)
-    {
-        for (int index = 0; index < (int)m_paxis.size(); index++) {
-            if (
-                   m_paxis[index].m_indexJoystick == indexJoystick
-                && m_paxis[index].m_indexValue    == indexValue
-            ) {
-                m_paxis[index].m_indexJoystick = -1;
-                m_paxis[index].m_indexValue    =  0;
-            }
-        }
-    }
-
-    bool AddAxisMapping(int indexJoystick, int indexValue)
-    {
-        //
-        // See if the axis is already being used
-        //
-
-        for (int index = 0; index < (int)m_paxis.size(); index++) {
-            if (
-                   (m_paxis[index].m_indexJoystick == indexJoystick)
-                && (m_paxis[index].m_indexValue    == indexValue)
-            ) {
-                if (index == GetAxisIndex()) {
-                    return true;
-                }
-
-                //
-                // Axis is being used
-                //
-
-                m_indexJoystickQuestion = indexJoystick;
-                m_indexAxisQuestion     = indexValue;
-                m_bQuestion             = true;
-                m_bButton               = false;
-                m_bAxis                 = true;
-
-                SetMessage("Axis in use.  Press Enter to lose old mapping.  Escape cancels");
-
-                return false;
-            }
-        }
-
-        //
-        // Not being used add the mapping
-        //
-
-        m_paxis[GetAxisIndex()].m_indexJoystick = indexJoystick;
-        m_paxis[GetAxisIndex()].m_indexValue    = indexValue;
+        m_pcommandMap[GetCommandMapIndex()].AddButtonMapping(_button);
 
         return true;
     }
 
     void Button(int index) 
     {
-        if (!IsAxisSelection()) {
-            if (AddButtonMapping(-1, index)) {
-                StopEditing();
-            }
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Value methods
-    //
-    //////////////////////////////////////////////////////////////////////////////
-
-    void Evaluate()
-    {
-        if (m_bEditing) {
-            int countJoystick = m_pinputEngine->GetJoystickCount();
-            int vindex        = 0;
-
-            int indexJoystick;
-            for (indexJoystick = 0; indexJoystick < countJoystick; indexJoystick++) {
-                JoystickInputStream* pjoystick = m_pinputEngine->GetJoystick(indexJoystick);
-
-                if (IsAxisSelection()) {
-                    //
-                    // axis: check the axis
-                    //
-
-                    int count = pjoystick->GetValueCount();
-
-                    for (int index = 0; index < count; index++) {
-                        float dvalue = m_vvalue[vindex] - pjoystick->GetValue(index)->GetValue();
-                        vindex++;
-
-                        if (dvalue < -0.9 || dvalue > 0.9) {
-                            if (AddAxisMapping(indexJoystick, index)) {
-                                StopEditing();
-                            }
-                            return;
-                        }
-                    }
-                } else {
-                    //
-                    // command: check the buttons
-                    //
-
-                    int count = pjoystick->GetButtonCount();
-
-                    for (int index = 0; index < count; index++) {
-                        if (pjoystick->IsDown(index)->GetValue()) {
-                            if (AddButtonMapping(indexJoystick, index)) {
-                                StopEditing();
-                            }
-                            return;
-                        }
-                    }
-                }
-            }
-
-            //
-            // Check the virtual buttons
-            //
-
-            // The virtual buttons are positions of axis 5, so they belong to the
-            // joystick that axis 5 is mapped to. (The original passed the loop
-            // counter left over from the scan above, which by now equals the
-            // joystick count: an index past the last joystick.)
-            //
-
-            if (!IsAxisSelection()) {
-                JoystickInputStream* pjoystick = m_pinputEngine->GetJoystick(m_paxis[5].m_indexJoystick);
-
-                if (pjoystick) {
-                    Number* pvalue = pjoystick->GetValue(m_paxis[5].m_indexValue);
-
-                    if (pvalue) {
-                        float value = pvalue->GetValue();
-
-                        if (value > 0.75f) {
-                            if (AddButtonMapping(m_paxis[5].m_indexJoystick, -3)) {
-                                StopEditing();
-                            }
-                            return;
-                        } else if (value > 0.25f) {
-                            if (AddButtonMapping(m_paxis[5].m_indexJoystick, -2)) {
-                                StopEditing();
-                            }
-                            return;
-                        } else if (value > -0.25f) {
-                            if (AddButtonMapping(m_paxis[5].m_indexJoystick, -1)) {
-                                StopEditing();
-                            }
-                            return;
-                        } else if (value > -0.75f) {
-                            if (AddButtonMapping(m_paxis[5].m_indexJoystick, -4)) {
-                                StopEditing();
-                            }
-                            return;
-                        } else if (value > -1.25f) {
-                            if (AddButtonMapping(m_paxis[5].m_indexJoystick, -3)) {
-                                StopEditing();
-                            }
-                            return;
-                        }
-                    }
-                }
-            }
+        if (AddButtonMapping(index)) {
+            StopEditing();
         }
     }
 
@@ -2714,7 +2132,7 @@ public:
 
     int GetCount() override
     {
-        return g_nCommandInfo + (int)m_paxis.size();
+        return g_nCommandInfo;
     }
 
     ItemID GetItem(int index) override
@@ -2766,40 +2184,13 @@ public:
         int index = GetIndex(itemID);
         bool bNoMapping = false;
 
-        if (index >= g_nCommandInfo) {
-            int indexAxis = index - g_nCommandInfo;
+        strCommand = g_pCommandInfo[index].m_pcc;
+        TrekKey tk = g_pCommandInfo[index].m_tk;
 
-            strCommand = g_ppccAxisDescription[indexAxis];
-
-            if (m_paxis[indexAxis].m_indexJoystick != -1) {
-                JoystickInputStream* pjoystick = m_pinputEngine->GetJoystick(m_paxis[indexAxis].m_indexJoystick);
-                TRef<Number>         pvalueInput;
-
-                if (pjoystick) {
-                    pvalueInput = pjoystick->GetValue(m_paxis[indexAxis].m_indexValue);
-                }
-
-                if (pvalueInput) {
-                    strMapping = 
-                          pjoystick->GetShortDescription(m_paxis[indexAxis].m_indexJoystick)
-                        + " "
-                        + pjoystick->GetValueDescription(m_paxis[indexAxis].m_indexValue);
-                } else {
-                    strMapping = 
-                          "Joy " + StrFromInt(m_paxis[indexAxis].m_indexJoystick)
-                        + " Value "
-                        + StrFromInt(m_paxis[indexAxis].m_indexValue);
-                }
-            }
+        if (tk != TK_NoKeyMapping) {
+            strMapping = m_pcommandMap[tk].GetString(m_bInternational);
         } else {
-            strCommand = g_pCommandInfo[index].m_pcc;
-            TrekKey tk = g_pCommandInfo[index].m_tk;
-
-            if (tk != TK_NoKeyMapping) {
-                strMapping = m_pcommandMap[tk].GetString(m_pinputEngine, m_bInternational);
-            } else {
-                bNoMapping = true;
-            }
+            bNoMapping = true;
         }
 
         if (m_bEditing && index == GetSelectionIndex()) {
@@ -2861,11 +2252,8 @@ public:
                     StopEditing();
                 } else if (ks.vk == VK_RETURN) {
                     if (m_bButton) {
-                        RemoveButtonMappings(m_indexJoystickQuestion, m_indexButtonQuestion);
-                        AddButtonMapping(m_indexJoystickQuestion, m_indexButtonQuestion);
-                    } else if (m_bAxis) {
-                        RemoveAxisMapping(m_indexJoystickQuestion, m_indexAxisQuestion);
-                        AddAxisMapping(m_indexJoystickQuestion, m_indexAxisQuestion);
+                        RemoveButtonMappings(m_indexButtonQuestion);
+                        AddButtonMapping(m_indexButtonQuestion);
                     } else {
                         RemoveKeyMappings(m_vkQuestion, m_modifiersQuestion);
                         AddKeyMapping(m_vkQuestion, m_modifiersQuestion);
@@ -2881,28 +2269,26 @@ public:
                     && ks.vk != VK_CONTROL
                     && ks.vk != VK_SHIFT
                 ) {
-                    if (!IsAxisSelection()) {
-                        //
-                        // Calculate the modifiers
-                        //
+                    //
+                    // Calculate the modifiers
+                    //
 
-                        int modifiers = 0;
+                    int modifiers = 0;
 
-                        if (ks.bAlt) {
-                            modifiers |= ModifierAlt;
-                        }
+                    if (ks.bAlt) {
+                        modifiers |= ModifierAlt;
+                    }
 
-                        if (ks.bShift) {
-                            modifiers |= ModifierShift;
-                        }
+                    if (ks.bShift) {
+                        modifiers |= ModifierShift;
+                    }
 
-                        if (ks.bControl) {
-                            modifiers |= ModifierControl;
-                        }
+                    if (ks.bControl) {
+                        modifiers |= ModifierControl;
+                    }
 
-                        if (AddKeyMapping(ks.vk, modifiers)) {
-                            StopEditing();
-                        }
+                    if (AddKeyMapping(ks.vk, modifiers)) {
+                        StopEditing();
                     }
                 }
             } else {
@@ -2936,7 +2322,6 @@ public:
 
 TRef<IPopup> CreateInputMapPopup(
     Modeler*     pmodeler,
-    InputEngine* pinputEngine,
     TrekInput*   ptrekInput,
     IEngineFont* pfont,
     Number*      ptime
@@ -2944,7 +2329,6 @@ TRef<IPopup> CreateInputMapPopup(
     return 
         new InputMapPopup(
             pmodeler,
-            pinputEngine,
             ptrekInput,
             pfont,
             ptime

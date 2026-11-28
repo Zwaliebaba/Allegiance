@@ -66,12 +66,6 @@ const float c_fVolumeDelta = 1;
 
 const float g_hudBright = 0.85f;
 
-const float g_fJoystickDeadZoneSmall = 0.1f;
-const float g_fJoystickDeadZoneLarge = 0.3f;
-
-float g_fJoystickDeadZone = g_fJoystickDeadZoneSmall;
-float g_fInverseJoystickDeadZone = g_fJoystickDeadZone - 1.0f;
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Joystick Helpers
@@ -90,7 +84,6 @@ struct  JoystickResults
     unsigned char   button4;
     unsigned char   button5;
     unsigned char   button6;
-    float           hat;  // low 7 bits: 0=center, 1-8=direction, high bit: 1=hat position changed
 };
 
 float   GetThrottle(ImodelIGC*  pmodel)
@@ -1248,11 +1241,8 @@ public:
     TRef<IMenuItem>            m_pitemToggleStars;
     TRef<IMenuItem>            m_pitemToggleEnvironment;
     TRef<IMenuItem>            m_pitemToggleRoundRadar;
-    TRef<IMenuItem>            m_pitemToggleLinearControls;
-    TRef<IMenuItem>            m_pitemToggleLargeDeadZone;
     TRef<IMenuItem>            m_pitemToggleVirtualJoystick;
     TRef<IMenuItem>            m_pitemToggleFlipY;
-    TRef<IMenuItem>            m_pitemToggleEnableFeedback;
     TRef<IMenuItem>            m_pitemToggleStrobes;
     TRef<IMenuItem>            m_pitemToggleTrails;
     TRef<IMenuItem>            m_pitemToggleBounds;
@@ -1281,7 +1271,6 @@ public:
     bool                       m_bLensFlare;
     bool                       m_bMusic;
     bool                       m_bRoundRadar;
-    bool                       m_bLinearControls;
 
     //
     // CommandView
@@ -1330,7 +1319,6 @@ public:
     TRef<TrekInput> m_ptrekInput;
     bool            m_bEnableVirtualJoystick;
     bool            m_bFlipY;
-    bool            m_bEnableFeedback;
 
     AsteroidAbilityBitMask          m_aabmInvest;
     AsteroidAbilityBitMask          m_aabmCommand;
@@ -2389,7 +2377,6 @@ public:
         m_suicideCount(0),
         m_bLensFlare(true),
         m_bRoundRadar(false),
-        m_bLinearControls (true),
         m_bMusic(false),
         m_bCommandGrid(false),
         m_radarCockpit(RadarImage::c_rlDefault),
@@ -2404,7 +2391,6 @@ public:
         m_bQuitComposing(true),
         m_bEnableVirtualJoystick(false),
         m_bFlipY(false),
-        m_bEnableFeedback(true),
         m_aabmInvest(0),
         m_aabmCommand(0)
     {
@@ -2609,7 +2595,6 @@ public:
 
         m_bEnableVirtualJoystick = (LoadPreference("EnableVirtualJoystick", 0) != 0);
         m_bFlipY                 = (LoadPreference("FlipY",                 0) != 0);
-        m_bEnableFeedback        = (LoadPreference("EnableFeedback",        1) != 0);
 
         //
         // Initial screen size
@@ -2808,7 +2793,7 @@ public:
         // Load the sounds
         //
 
-        m_ptrekInput = CreateTrekInput(GetModuleHandle(NULL), GetHWND(), GetInputEngine(), m_pjoystickImage);
+        m_ptrekInput = CreateTrekInput(GetModuleHandle(NULL), GetHWND(), m_pjoystickImage);
 
         //
         // Initialize VT.
@@ -2843,8 +2828,6 @@ public:
             ToggleFilterQuickComms();
         if (!LoadPreference("FilterLobbyChats", TRUE))
             ToggleFilterLobbyChats();
-        if (!LoadPreference("LinearControlResponse", TRUE))
-            ToggleLinearControls();
         if (!LoadPreference("Environment", TRUE))
             ToggleEnvironment();
         if (!LoadPreference("Posters", TRUE))
@@ -2874,8 +2857,6 @@ public:
             ToggleTargetHUD();
         if (LoadPreference("SoftwareHUD", FALSE))  //All we need with two styles
             CycleStyleHUD();
-        if (LoadPreference("LargeDeadZone", FALSE))
-            ToggleLargeDeadZone();
 
         bool bAllow3DAcceleration;
 
@@ -3409,18 +3390,15 @@ public:
     #define idmToggleRoundRadar            617
     #define idmStyleHUD                    618
     #define idmToggleCensorChats           619
-    #define idmToggleLinearControls        620
     #define idmToggleSmoke                 621
     #define idmToggleBounds                622
     #define idmToggleTransparentObjects    623
     #define idmFilterChatsToAll            624
     #define idmFilterQuickComms            625
     #define idmFilterLobbyChats            626
-    #define idmToggleLargeDeadZone         627
     #define idmToggleVirtualJoystick       628
     #define idmToggleFlipY                 629
     #define idmToggleStickyChase           630
-    #define idmToggleEnableFeedback        631
 
 
     #define idmResetSound           701
@@ -3512,11 +3490,8 @@ public:
                 m_pitemFilterChatsToAll            = pmenu->AddMenuItem(idmFilterChatsToAll,            GetFilterChatsToAllMenuString(),    'A');
                 m_pitemFilterQuickComms            = pmenu->AddMenuItem(idmFilterQuickComms,            GetFilterQuickCommsMenuString(),    'Q');
                 m_pitemFilterLobbyChats            = pmenu->AddMenuItem(idmFilterLobbyChats,            GetFilterLobbyChatsMenuString(),    'F');
-                m_pitemToggleLinearControls        = pmenu->AddMenuItem(idmToggleLinearControls,        GetLinearControlsMenuString(),      'L');
-                m_pitemToggleLargeDeadZone         = pmenu->AddMenuItem(idmToggleLargeDeadZone,         GetLargeDeadZoneMenuString(),       'Z');
                 m_pitemToggleVirtualJoystick       = pmenu->AddMenuItem(idmToggleVirtualJoystick,       GetVirtualJoystickMenuString(),     'J');
                 m_pitemToggleFlipY                 = pmenu->AddMenuItem(idmToggleFlipY,                 GetFlipYMenuString(),               'Y');
-                m_pitemToggleEnableFeedback        = pmenu->AddMenuItem(idmToggleEnableFeedback,        GetEnableFeedbackMenuString(),      'E');
                                                      pmenu->AddMenuItem(idmConfigure           ,        "Map Keys and Controls"      ,      'C');
                 break;
 
@@ -3674,24 +3649,6 @@ public:
 
         if (m_pitemFilterLobbyChats != nullptr) {
             m_pitemFilterLobbyChats->SetString(GetFilterLobbyChatsMenuString());
-        }
-    }
-
-    void ToggleLinearControls()
-    {
-        if (m_bLinearControls)
-        {
-            m_bLinearControls = false;
-            SavePreference("LinearControlResponse", FALSE);
-        }
-        else
-        {
-            m_bLinearControls = true;
-            SavePreference("LinearControlResponse", TRUE);
-        }
-
-        if (m_pitemToggleLinearControls != nullptr) {
-            m_pitemToggleLinearControls->SetString(GetLinearControlsMenuString());
         }
     }
 
@@ -4025,17 +3982,6 @@ public:
             m_pitemStyleHUD->SetString(GetStyleHUDMenuString());
     }
 
-    void ToggleLargeDeadZone(void)
-    {
-        g_fJoystickDeadZone = g_fJoystickDeadZoneSmall + g_fJoystickDeadZoneLarge - g_fJoystickDeadZone;
-        g_fInverseJoystickDeadZone = g_fJoystickDeadZone - 1.0f;
-
-        SavePreference("LargeDeadZone", g_fJoystickDeadZone > (g_fJoystickDeadZoneSmall + g_fJoystickDeadZoneLarge)/2.0f);
-
-        if (m_pitemToggleLargeDeadZone != nullptr)
-            m_pitemToggleLargeDeadZone->SetString(GetLargeDeadZoneMenuString());
-    }
-
     void ToggleVirtualJoystick()
     {
         m_bEnableVirtualJoystick = !m_bEnableVirtualJoystick;
@@ -4055,17 +4001,6 @@ public:
 
         if (m_pitemToggleFlipY != nullptr) {
             m_pitemToggleFlipY->SetString(GetFlipYMenuString());
-        }
-    }
-
-    void ToggleEnableFeedback()
-    {
-        m_bEnableFeedback = !m_bEnableFeedback;
-
-        SavePreference("EnableFeedback", m_bEnableFeedback);
-
-        if (m_pitemToggleEnableFeedback != nullptr) {
-            m_pitemToggleEnableFeedback->SetString(GetEnableFeedbackMenuString());
         }
     }
 
@@ -4239,11 +4174,6 @@ public:
         return trekClient.FilterLobbyChats() ? "Filter Chats Sent From Lobby" : "Don't Filter Chats Sent From Lobby";
     }
 
-    ZString GetLinearControlsMenuString()
-    {
-        return (m_bLinearControls) ? "Linear Control Response" : "Quadratic Control Response";
-    }
-
     ZString GetStarsMenuString()
     {
         return (m_pwrapImageStars->GetImage() != Image::GetEmpty()) ? "Stars On " : "Stars Off ";
@@ -4345,14 +4275,6 @@ public:
         return (m_pnumberStyleHUD->GetValue()) ? c_strSoftware : c_strNormal;
     }
 
-    const ZString& GetLargeDeadZoneMenuString()
-    {
-        static const ZString    c_strNormal("Normal dead zone");
-        static const ZString    c_strLarge("Large dead zone");
-
-        return (g_fJoystickDeadZone > (g_fJoystickDeadZoneSmall + g_fJoystickDeadZoneLarge)/2.0f) ? c_strLarge : c_strNormal;
-    }
-
     ZString GetVirtualJoystickMenuString()
     {
         return (m_bEnableVirtualJoystick ? "Virtual Joystick On " : "Virtual Joystick Off ");
@@ -4361,11 +4283,6 @@ public:
     ZString GetFlipYMenuString()
     {
         return (m_bFlipY ? "Y Axis Flipped " : "Y Axis Not Flipped ");
-    }
-
-    ZString GetEnableFeedbackMenuString()
-    {
-        return (m_bEnableFeedback ? "Force Feedback Enabled " : "Force Feedback Disabled ");
     }
 
     ZString GetGainMenuString(const ZString& strSoundType, float fCurrentGain, float fDelta)
@@ -4481,24 +4398,12 @@ public:
                 ToggleFilterLobbyChats();
                 break;
 
-            case idmToggleLinearControls:
-                ToggleLinearControls ();
-                break;
-
-            case idmToggleLargeDeadZone:
-                ToggleLargeDeadZone();
-                break;
-
             case idmToggleVirtualJoystick:
                 ToggleVirtualJoystick();
                 break;
 
             case idmToggleFlipY:
                 ToggleFlipY();
-                break;
-
-            case idmToggleEnableFeedback:
-                ToggleEnableFeedback();
                 break;
 
             case idmToggleStrobes:
@@ -5122,7 +5027,7 @@ public:
         float   fCurrentOrientationOffset = offset * 0.5f;                                  // range 0 .. 50
         float   fOldOrientationOffset = (offset + 100.0f) * 0.5f;                           // range 50 .. 100
 
-        // compute orientations taking into account the POV (the joystick hat control)
+        // compute orientations taking into account the head orientation
         const Orientation&  headOrientation = m_cameraControl.GetHeadOrientation();
         Orientation         currentLookOrientation = headOrientation * shipOrientation;
         Orientation         oldLookOrientation = headOrientation * orientationBfr;
@@ -6317,13 +6222,6 @@ public:
         }
     }
 
-    void PlayFFEffect(ForceEffectID effectID, LONG lDirection = 0) override
-    {
-        if (m_bEnableFeedback) {
-            m_ptrekInput->PlayFFEffect(effectID, lDirection);
-        }
-    }
-
     void DoTrekUpdate(Time  lastUpdate,
                       Time  now,
                       float dt,
@@ -6395,14 +6293,14 @@ public:
                             }
                             else
                             {
-                                const float c_fAutopilotDisengage = g_fJoystickDeadZone * 2.0f;
+                                const float autopilotDisengage = 0.2f;   // what twice the joystick's dead zone was
                                 bControlsInUse = bControlsInUse ||
-                                                 (js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] < -c_fAutopilotDisengage) ||
-                                                 (js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] >  c_fAutopilotDisengage) ||
-                                                 (js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] < -c_fAutopilotDisengage) ||
-                                                 (js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] >  c_fAutopilotDisengage) ||
-                                                 (js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] < -c_fAutopilotDisengage) ||
-                                                 (js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] >  c_fAutopilotDisengage);
+                                                 (js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] < -autopilotDisengage) ||
+                                                 (js.controls.jsValues[c_axisYaw] - trekClient.trekJoyStick[c_axisYaw] >  autopilotDisengage) ||
+                                                 (js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] < -autopilotDisengage) ||
+                                                 (js.controls.jsValues[c_axisPitch] - trekClient.trekJoyStick[c_axisPitch] >  autopilotDisengage) ||
+                                                 (js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] < -autopilotDisengage) ||
+                                                 (js.controls.jsValues[c_axisRoll] - trekClient.trekJoyStick[c_axisRoll] >  autopilotDisengage);
                             }
 
                             if (bControlsInUse)
@@ -6416,7 +6314,7 @@ public:
                                 */
 
                                 trekClient.SetAutoPilot(false);
-                                SwitchToJoyThrottle();
+                                trekClient.trekThrottle = GetThrottle(trekClient.GetShip());
                                 fAutoPilot = false;
                                 trekClient.PlaySoundEffect(salAutopilotDisengageSound);
                             }
@@ -6425,7 +6323,6 @@ public:
                     else
                     {
                         js.controls.Reset();
-                        js.hat = 0;
                         js.button1 = js.button2 = js.button3 = js.button4 = js.button5 = js.button6 = 0x00;
                     }
 
@@ -6435,8 +6332,6 @@ public:
                         js.controls = trekClient.GetShip()->GetControls();
                         // use the controls decided by autoPilot.Update()
                         buttonsM = trekClient.GetShip()->GetStateM();
-
-                        // we want to poll the joystick, and ignore everything but the hat.
                     }
                     else // autoPilot doesn't need these
                     {
@@ -6527,10 +6422,7 @@ public:
                     trekClient.GetShip()->SetStateBits(buttonsMaskIGC | weaponsMaskIGC | selectedWeaponMaskIGC |
                                                        missileFireIGC | mineFireIGC | chaffFireIGC, buttonsM);
 
-                    if ((m_cm == cmCockpit) || (m_cm == cmExternalChase))
-                        m_cameraControl.SetHeadOrientation(js.hat);
-                    else
-                        m_cameraControl.SetHeadOrientation(0.0f);
+                    m_cameraControl.SetHeadOrientation(0.0f);   // the joystick's hat turned the head
 
 
                     m_pplayerThrottle->SetValue(pshipParent
@@ -6942,7 +6834,7 @@ public:
             else
             {
                 trekClient.SetAutoPilot(false);
-                SwitchToJoyThrottle();
+                trekClient.trekThrottle = GetThrottle(trekClient.GetShip());
                 trekClient.PlaySoundEffect(salAutopilotDisengageSound);
             }
         }
@@ -8329,7 +8221,7 @@ public:
                 if (trekClient.autoPilot())
                 {
                     trekClient.SetAutoPilot(false);
-                    SwitchToJoyThrottle();
+                    trekClient.trekThrottle = GetThrottle(trekClient.GetShip());
                     trekClient.PlaySoundEffect(salAutopilotDisengageSound);
                 }
                 else if ((trekClient.GetShip()->GetParentShip() == nullptr) && (trekClient.GetShip()->GetStation() == nullptr))
@@ -8672,59 +8564,25 @@ public:
     }
 
 
-    float MapJoystick(float value)
-    {
-        if (value > g_fJoystickDeadZone)
-            value = (value - g_fJoystickDeadZone) / g_fInverseJoystickDeadZone;
-        else if (value < -g_fJoystickDeadZone)
-            value = (value + g_fJoystickDeadZone) / g_fInverseJoystickDeadZone;
-        else
-            value = 0.0f;
-
-        if (!m_bLinearControls)
-            value *= fabsf (value);
-
-        return value;
-    }
-
-    void SwitchToJoyThrottle(void)
-    {
-        if (m_ptrekInput->IsAxisValid(3))
-        {
-            trekClient.joyThrottle = true;
-        }
-        else
-        {
-            trekClient.trekThrottle = GetThrottle(trekClient.GetShip());
-        }
-    }
-
     bool SenseJoystick(JoystickResults* js, bool bInternalCamera, bool bReadKeyboard)
     {
         bool bThrottleChange = false;
 
         //
-        // Read the joystick
+        // Mouse flight (the virtual joystick); the keyboard is read below, and
+        // the throttle is the keyboard's
         //
 
         if (m_pjoystickImage->GetJoystickEnabled()) {
             js->controls.jsValues[c_axisYaw  ] = m_pjoystickImage->GetValue(0)->GetValue();
             js->controls.jsValues[c_axisPitch] = m_pjoystickImage->GetValue(1)->GetValue();
-            js->controls.jsValues[c_axisRoll ] = 0;
         } else {
-            if (m_ptrekInput->IsTrekKeyDown(TK_RollModifier, bReadKeyboard)) {
-                js->controls.jsValues[c_axisYaw ] = 0;
-                js->controls.jsValues[c_axisRoll] = MapJoystick(m_ptrekInput->GetAxis(0));
-            } else {
-                js->controls.jsValues[c_axisYaw ] = MapJoystick(m_ptrekInput->GetAxis(0));
-                js->controls.jsValues[c_axisRoll] = MapJoystick(m_ptrekInput->GetAxis(2));
-            }
-
-            js->controls.jsValues[c_axisPitch   ] =  MapJoystick(m_ptrekInput->GetAxis(1));
+            js->controls.jsValues[c_axisYaw  ] = 0;
+            js->controls.jsValues[c_axisPitch] = 0;
         }
 
-        js->controls.jsValues[c_axisThrottle] = -m_ptrekInput->GetAxis(3);
-        js->hat                               =  m_ptrekInput->GetAxis(4) * pi;
+        js->controls.jsValues[c_axisRoll    ] = 0;
+        js->controls.jsValues[c_axisThrottle] = 0;
 
         //
         // Flip the y axis if requested
@@ -8733,25 +8591,6 @@ public:
         if (m_bFlipY) {
             js->controls.jsValues[c_axisPitch] = -js->controls.jsValues[c_axisPitch];
         }                                                       
-
-        //
-        // If the throttle system needs to be initialized, we do that. Otherwise, if the joystick 
-        // throttle has changed significantly, then we start using the joystick throttle.
-        //
-        
-        if (trekClient.bInitTrekThrottle)
-        {
-            // see Training::StartMission for initialization of trekClient.trekThrottle
-            // it is 1.0f for on-line play, and -1.0f for off-line.
-            trekClient.joyThrottle = false;
-            trekClient.fOldJoyThrottle = js->controls.jsValues[c_axisThrottle];
-            trekClient.bInitTrekThrottle = false;
-        }
-        else if (fabs(js->controls.jsValues[c_axisThrottle] - trekClient.fOldJoyThrottle) > g_fJoystickDeadZone)
-        {
-            bThrottleChange = true;
-            trekClient.joyThrottle = true;
-        }
 
         //
         // Read buttons and keyboard
@@ -8804,7 +8643,6 @@ public:
                       (trekClient.trekThrottle < 0.8f)
                     ? (trekClient.trekThrottle + 0.2f)
                     : 1.0f;
-                trekClient.joyThrottle = false;
                 bThrottleChange = true;
             }
             else if (m_ptrekInput->IsTrekKeyDown(TK_ThrottleDown, bReadKeyboard))
@@ -8813,7 +8651,6 @@ public:
                       (trekClient.trekThrottle > -0.8f) 
                     ? (trekClient.trekThrottle - 0.2f) 
                     : -1.0f;
-                trekClient.joyThrottle = false;
                 bThrottleChange = true;
             }
         }
@@ -8821,25 +8658,21 @@ public:
         if (m_ptrekInput->IsTrekKeyDown(TK_ThrottleZero, bReadKeyboard))
         {
             trekClient.trekThrottle = -1.0f; 
-            trekClient.joyThrottle = false;
             bThrottleChange = true;
         }
         else if (m_ptrekInput->IsTrekKeyDown(TK_Throttle33, bReadKeyboard))
         {
             trekClient.trekThrottle = -0.3f; 
-            trekClient.joyThrottle = false;
             bThrottleChange = true;
         }
         else if (m_ptrekInput->IsTrekKeyDown(TK_Throttle66, bReadKeyboard))
         {
             trekClient.trekThrottle = 0.3f; 
-            trekClient.joyThrottle = false;
             bThrottleChange = true;
         }
         else if (m_ptrekInput->IsTrekKeyDown(TK_ThrottleFull, bReadKeyboard))
         {
             trekClient.trekThrottle = 1.0f; 
-            trekClient.joyThrottle = false;
             bThrottleChange = true;
         }
 
@@ -8853,19 +8686,11 @@ public:
             if (pmodel)
             {
                 trekClient.trekThrottle = GetThrottle(pmodel);
-                trekClient.joyThrottle = false;
                 bThrottleChange = true;
             }
         }
 
-        if (trekClient.joyThrottle)
-        {
-            trekClient.fOldJoyThrottle = js->controls.jsValues[c_axisThrottle];
-        }
-        else
-        {
-            js->controls.jsValues[c_axisThrottle] = trekClient.trekThrottle;
-        }
+        js->controls.jsValues[c_axisThrottle] = trekClient.trekThrottle;
 
         // Process joystick buttons, keeping track of whether the button has changed
         // since the last poll.

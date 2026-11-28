@@ -236,7 +236,7 @@ namespace Training
         inputControls.jsValues[c_axisPitch] *= g_allowableControlScalars.jsValues[c_axisPitch];
         inputControls.jsValues[c_axisRoll] *= g_allowableControlScalars.jsValues[c_axisRoll];
 
-        // the throttle is mapping the range -1.0f to 1.0f from the joystick to the 
+        // the throttle is mapping the range -1.0f to 1.0f of the controls to the 
         // more useful range 0.0f to 1.0f, as a result we have to translate the value 
         // before scaling, then translate it back
         inputControls.jsValues[c_axisThrottle] = ((inputControls.jsValues[c_axisThrottle] + 1.0f) * g_allowableControlScalars.jsValues[c_axisThrottle]) - 1.0f;

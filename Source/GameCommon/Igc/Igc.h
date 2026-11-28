@@ -197,17 +197,9 @@ class DamageBucket;
 typedef Slist_utl<DamageBucket*> DamageBucketList;
 typedef Slink_utl<DamageBucket*> DamageBucketLink;
 
-typedef short  ForceEffectID;
-
-const ForceEffectID c_maxEffect  = 10;
-
-const ForceEffectID effectFire = 0;
-const ForceEffectID effectBounce = 1;
-const ForceEffectID effectExplode = 2;
-
 typedef short VisualEffectID;
 
-const ForceEffectID effectJiggle = 0;
+const VisualEffectID effectJiggle = 0;
 
 typedef short  TrekKey;
 
@@ -4583,7 +4575,6 @@ class IIgcSite : public IObject
         virtual void PlaySoundEffect(SoundID soundID, ImodelIGC* model = nullptr){}
         virtual void PlaySoundEffect(SoundID soundID, ImodelIGC* model, const Vector& vectOffset) {}
         virtual void PlayNotificationSound(SoundID soundID, ImodelIGC* model){}
-        virtual void PlayFFEffect(ForceEffectID effectID, ImodelIGC* model = nullptr, LONG lDirection = 0){}
         virtual void PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model = nullptr, float fIntensity = 1.0f){};
         virtual int  MessageBox(const ZString& strText, const ZString& strCaption, UINT nType){return 0;}
         virtual void TerminateModelEvent(ImodelIGC* model){}

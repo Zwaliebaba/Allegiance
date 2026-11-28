@@ -2258,10 +2258,7 @@ WinTrekClient::WinTrekClient(void)
     mountSelected(-1),
     fGroupFire(true),
     wmOld(0),
-    bInitTrekThrottle (true),
-    joyThrottle(true),
     trekThrottle(-1.0f),
-    fOldJoyThrottle (-1.0f),
     m_sideidLastWinner(NA),
     m_bWonLastGame(false),
     m_bLostLastGame(false),
@@ -2671,8 +2668,6 @@ void WinTrekClient::ChangeStation(IshipIGC*  pship, IstationIGC* pstationOld, Is
             RequestViewCluster(nullptr);
             GetWindow()->OverrideCamera(trekClient.m_now, pstationOld, false);
 
-            //joyThrottle = true;
-            //trekThrottle = -1.0f;
             OverrideThrottle (1.0f);
 
             trekClient.GetShip()->SetStateBits(coastButtonIGC, 0);
@@ -3092,7 +3087,6 @@ HRESULT WinTrekClient::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnFr
 
 void    WinTrekClient::OverrideThrottle (float fDesiredThrottle)
 {
-    bInitTrekThrottle = true;
     trekThrottle = fDesiredThrottle;
 }
 
@@ -3453,15 +3447,6 @@ void WinTrekClient::DamageShipEvent(Time now,
                     m_vtimeGrooveDrops[2] = Time::Now() + c_fGrooveLevelDuration;
                 }
             }
-
-            const Vector& vRight = pShip->GetOrientation().GetRight();
-            const Vector& vBackward = pShip->GetOrientation().GetBackward();
-            Vector  vDeltaP = p2 - p1;
-            float dotBackward = vBackward*vDeltaP;
-            float dotRight = vRight*vDeltaP;
-            long direction = ((long)DegreesFromRadians(atan2(dotBackward, dotRight)) + 90);
-//            debugf("Impact @ %d degrees.", direction);
-            GetWindow()->PlayFFEffect(effectBounce, direction);
         }
 
         // if we might hear it, queue up the sound effect
@@ -4044,13 +4029,6 @@ void WinTrekClient::PlayNotificationSound(SoundID soundID, ImodelIGC* model)
         TRef<ISoundPositionSource> psource = model ? 
             ((ThingSiteImpl*)model->GetThingSite())->GetSoundSource() : nullptr;
         StartSound(soundID, psource);
-    }
-}
-
-void WinTrekClient::PlayFFEffect(ForceEffectID effectID, ImodelIGC* model, LONG lDirection)
-{
-    if ((model == nullptr) || (model == GetShip())) {
-        GetWindow()->PlayFFEffect(effectID, lDirection);
     }
 }
 
