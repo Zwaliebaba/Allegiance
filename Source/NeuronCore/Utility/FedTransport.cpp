@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "BoundedString.h"
 #include "FedTransport.h"
 
 #pragma comment(lib, "ws2_32.lib")
