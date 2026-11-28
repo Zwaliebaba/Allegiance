@@ -20,6 +20,7 @@
 #include <windows.h>
 #include <tchar.h>
 #include <process.h> // for _beginthreadex and _endthreadex
+#include <mmsystem.h>  // timeGetTime, for zlib.h (WIN32_LEAN_AND_MEAN leaves it out)
 
 #include "zlib.h"
 
