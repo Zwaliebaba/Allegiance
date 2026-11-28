@@ -262,8 +262,13 @@ OitOut Oit(float4 c, float4 position)
     // to 5 units away, falling to 0.01 by a few hundred
     //
 
-    float d = ViewDistance(position.z);
-    float w = c.a * clamp(10.0 / (1e-5 + pow(d / 5.0, 2.0) + pow(d / 200.0, 6.0)), 1e-2, 3e3);
+    // (Multiplied out: FXC's pow folding fails internally here)
+
+    float d    = ViewDistance(position.z);
+    float near = d / 5.0;
+    float far  = d / 200.0;
+    float far3 = far * far * far;
+    float w    = c.a * clamp(10.0 / (1e-5 + near * near + far3 * far3), 1e-2, 3e3);
 
     OitOut output;
     output.accum  = c * w;
