@@ -3,6 +3,7 @@
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AlphaCoverageTests.cpp" />
     <ClCompile Include="HeadModelTests.cpp" />
     <ClCompile Include="ObjectStackTests.cpp" />
     <ClCompile Include="pch.cpp" />

@@ -13,6 +13,7 @@
 #include "tl_ps_flat.h"
 #include "scene_vs.h"
 #include "scene_ps.h"
+#include "scene_ps_ms.h"
 #include "bloom_down_ps.h"
 #include "bloom_up_ps.h"
 
@@ -53,6 +54,7 @@ public:
 
     TRef<ID3D11Texture2D>           m_pcolor;       // RGBA16F, m_samples
     TRef<ID3D11RenderTargetView>    m_prtv;
+    TRef<ID3D11ShaderResourceView>  m_psrvSamples;  // m_pcolor's samples, for the composite (if multisampled)
     TRef<ID3D11Texture2D>           m_pdepth;       // D32F, m_samples
     TRef<ID3D11DepthStencilView>    m_pdsv;
     TRef<ID3D11Texture2D>           m_presolve;     // RGBA16F, one sample
@@ -144,9 +146,11 @@ struct Pipeline {
     //
 
     TRef<ID3D11BlendState>         m_pblendScene[3];    // BlendMode
+    TRef<ID3D11BlendState>         m_pblendSceneCoverage; // opaque cut-outs: alpha to coverage
     TRef<ID3D11BlendState>         m_pblendComposite;
     TRef<ID3D11VertexShader>       m_pvsScene;
     TRef<ID3D11PixelShader>        m_ppsScene;
+    TRef<ID3D11PixelShader>        m_ppsSceneMS;        // 4 samples, tonemapped one by one
     TRef<ID3D11Buffer>             m_pcbScene;
     TRef<ID3D11PixelShader>        m_ppsBloomDown;
     TRef<ID3D11PixelShader>        m_ppsBloomUp;
@@ -287,6 +291,31 @@ bool CreatePipeline(D3D11Device* pdevice)
         if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendScene[mode]))) return false;
     }
 
+    //
+    // Opaque cut-outs (colour-keyed model textures) in a multisampled scene:
+    // the shader's alpha says how many of a pixel's samples the surface
+    // covers, so a cut-out's edge is antialiased like a triangle's. The
+    // samples it covers are opaque: colour as it is, alpha from the blend
+    // factor (the default, 1), not from the shader.
+    //
+
+    {
+        D3D11_BLEND_DESC desc = {};
+        desc.AlphaToCoverageEnable = TRUE;
+
+        D3D11_RENDER_TARGET_BLEND_DESC& rt = desc.RenderTarget[0];
+        rt.BlendEnable           = TRUE;
+        rt.SrcBlend              = D3D11_BLEND_ONE;
+        rt.DestBlend             = D3D11_BLEND_ZERO;
+        rt.BlendOp               = D3D11_BLEND_OP_ADD;
+        rt.SrcBlendAlpha         = D3D11_BLEND_BLEND_FACTOR;
+        rt.DestBlendAlpha        = D3D11_BLEND_ZERO;
+        rt.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+        rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+        if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendSceneCoverage))) return false;
+    }
+
     {
         D3D11_BLEND_DESC desc = {};
         D3D11_RENDER_TARGET_BLEND_DESC& rt = desc.RenderTarget[0];
@@ -305,6 +334,7 @@ bool CreatePipeline(D3D11Device* pdevice)
 
     if (FAILED(pd3d->CreateVertexShader(g_scene_vs, sizeof(g_scene_vs), NULL, &p.m_pvsScene))) return false;
     if (FAILED(pd3d->CreatePixelShader (g_scene_ps, sizeof(g_scene_ps), NULL, &p.m_ppsScene))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_scene_ps_ms, sizeof(g_scene_ps_ms), NULL, &p.m_ppsSceneMS))) return false;
 
     if (FAILED(pd3d->CreatePixelShader(g_bloom_down_ps, sizeof(g_bloom_down_ps), NULL, &p.m_ppsBloomDown))) return false;
     if (FAILED(pd3d->CreatePixelShader(g_bloom_up_ps,   sizeof(g_bloom_up_ps),   NULL, &p.m_ppsBloomUp  ))) return false;
@@ -510,10 +540,11 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
     td.SampleDesc.Count   = pscene->m_samples;
     td.SampleDesc.Quality = 0;
     td.Usage              = D3D11_USAGE_DEFAULT;
-    td.BindFlags          = D3D11_BIND_RENDER_TARGET;
+    td.BindFlags          = D3D11_BIND_RENDER_TARGET | (pscene->m_samples > 1 ? D3D11_BIND_SHADER_RESOURCE : 0);
 
     HRESULT hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_pcolor);
     if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_pcolor, NULL, &pscene->m_prtv);
+    if (SUCCEEDED(hr) && pscene->m_samples > 1) hr = pd3d->CreateShaderResourceView(pscene->m_pcolor, NULL, &pscene->m_psrvSamples);
 
     if (SUCCEEDED(hr)) {
         td.Format    = c_formatSceneDepth;
@@ -815,13 +846,27 @@ public:
         bool  bFlat   = !bPoints && m_shadeMode == ShadeModeFlat;
         bool  bDecal  = m_shadeMode == ShadeModeNone || m_shadeMode == ShadeModeCopy;
         bool  bBlend  = !bPoints && m_blendMode != BlendModeSource;
+
+        //
+        // An opaque cut-out in a multisampled scene: alpha to coverage
+        //
+
+        bool  bCoverage =
+               !bPoints
+            && !bBlend
+            && m_bColorKey
+            && psrv != NULL
+            && m_pscene != NULL
+            && m_pscene->m_samples > 1;
+
         DWORD flags   =
               (psrv != NULL       ? 1 : 0)
             | (bDecal             ? 2 : 0)
             | (m_bColorKey        ? 4 : 0)
             | (bKeyBlack          ? 8 : 0)
             | (bBlend             ? 16 : 0)
-            | (m_pscene != NULL   ? 32 | 64 : 0);
+            | (m_pscene != NULL   ? 32 | 64 : 0)
+            | (bCoverage          ? 128 : 0);
 
         if (flags != m_flagsBound) {
             D3D11_MAPPED_SUBRESOURCE mapped;
@@ -859,7 +904,7 @@ public:
             pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
             pcontext->RSSetState(p.m_praster[0]);
         } else {
-            pcontext->OMSetBlendState(pblend[m_blendMode], NULL, 0xffffffff);
+            pcontext->OMSetBlendState(bCoverage ? (ID3D11BlendState*)p.m_pblendSceneCoverage : (ID3D11BlendState*)pblend[m_blendMode], NULL, 0xffffffff);
             pcontext->OMSetDepthStencilState(
                 (m_pscene != NULL ? p.m_pdepthScene : p.m_pdepth)[m_bZTest ? 1 : 0][m_bZWrite ? 1 : 0],
                 0
@@ -1074,8 +1119,16 @@ public:
 
         ID3D11Buffer*             pcb      = p.m_pcbScene;
         ID3D11SamplerState*       psampler = p.m_psamplerClamp;
+        //
+        // A multisampled scene is composited from its samples, each
+        // tonemapped on its own (scene.hlsli); the resolve above is for the
+        // bloom
+        //
+
+        bool bSamples = pscene->m_samples > 1;
+
         ID3D11ShaderResourceView* psrvs[2] = {
-            pscene->m_psrv,
+            bSamples ? (ID3D11ShaderResourceView*)pscene->m_psrvSamples : (ID3D11ShaderResourceView*)pscene->m_psrv,
             pscene->m_bloomLevels > 0 ? (ID3D11ShaderResourceView*)pscene->m_psrvBloom[0] : NULL
         };
 
@@ -1085,7 +1138,7 @@ public:
         pcontext->IASetInputLayout(NULL);
         pcontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         pcontext->VSSetShader(p.m_pvsScene, NULL, 0);
-        pcontext->PSSetShader(p.m_ppsScene, NULL, 0);
+        pcontext->PSSetShader(bSamples ? p.m_ppsSceneMS : p.m_ppsScene, NULL, 0);
         pcontext->PSSetConstantBuffers(0, 1, &pcb);
         pcontext->PSSetShaderResources(0, 2, psrvs);
         pcontext->PSSetSamplers(0, 1, &psampler);

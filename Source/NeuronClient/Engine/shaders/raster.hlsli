@@ -13,7 +13,8 @@ cbuffer RasterConstants : register(b0)
     uint4  g_flags;     // x: bit 0 textured, bit 1 decal, bit 2 colour key, bit 3 key by black,
                         //    bit 4 blended (BlendModeAdd or BlendModeSourceAlpha),
                         //    bit 5 linear light (drawing into a 3D layer's HDR scene),
-                        //    bit 6 reversed depth (the scene's float depth buffer)
+                        //    bit 6 reversed depth (the scene's float depth buffer),
+                        //    bit 7 alpha to coverage (an opaque cut-out in a multisampled scene)
 };
 
 //
@@ -84,8 +85,9 @@ float4 ScreenToClip(float4 p)
 
 float4 Shade(float4 color, float2 uv)
 {
-    float4 result  = color;
-    bool   bBlend  = (g_flags.x & 16) != 0;
+    float4 result   = color;
+    bool   bBlend   = (g_flags.x & 16) != 0;
+    float  coverage = 1.0;
 
     if (g_flags.x & 1) {
         float4 texel = g_texture.Sample(g_sampler, uv);
@@ -102,8 +104,31 @@ float4 Shade(float4 color, float2 uv)
             texel = float4(0, 0, 0, 0);
         }
 
+        //
+        // An opaque draw shows a cut-out's colour, not its premultiplied
+        // colour: a filtered edge texel at alpha 0.6 holds 60% of its
+        // colour, which drawn opaque was a dark fringe around every cut-out
+        //
+
+        if ((g_flags.x & 4) && !bBlend && texel.a > 0.0) {
+            texel.rgb = saturate(texel.rgb / texel.a);
+        }
+
         if (g_flags.x & 32) {
             texel.rgb = ToLinear(texel.rgb);
+        }
+
+        //
+        // Alpha to coverage: the filtered alpha, sharpened to a ramp about
+        // a pixel wide around 0.5, is the share of the pixel's samples the
+        // cut-out covers. The edge stays where the 50% cut put it, at any
+        // distance, but antialiased. (fwidth here is in uniform control
+        // flow: the branches above and around depend on constants only.)
+        //
+
+        if (g_flags.x & 128) {
+            float ramp = max(fwidth(texel.a), 1.0 / 255.0);
+            coverage   = saturate((texel.a - 0.5) / ramp + 0.5);
         }
 
         //
@@ -118,7 +143,11 @@ float4 Shade(float4 color, float2 uv)
         float alpha = 1.0;
 
         if (g_flags.x & 4) {
-            if (texel.a <= 0.0 || (!bBlend && texel.a < 0.5)) {
+            if (g_flags.x & 128) {
+                if (coverage <= 0.0) {
+                    discard;
+                }
+            } else if (texel.a <= 0.0 || (!bBlend && texel.a < 0.5)) {
                 discard;
             }
 
@@ -143,11 +172,12 @@ float4 Shade(float4 color, float2 uv)
 
     //
     // The target's alpha is coverage (premultiplied): what an opaque draw
-    // covers is opaque
+    // covers is opaque. With alpha to coverage the alpha here is how many
+    // samples are covered; the blend state stores 1 in each of them.
     //
 
     if (!bBlend) {
-        result.a = 1.0;
+        result.a = coverage;
     }
 
     return result;

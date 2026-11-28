@@ -146,6 +146,7 @@
     <ClInclude Include="Effect\particlegeo.h" />
     <ClInclude Include="Effect\starimage.h" />
     <ClInclude Include="Effect\thinggeo.h" />
+    <ClInclude Include="Engine\alphacoverage.h" />
     <ClInclude Include="Engine\bounds.h" />
     <ClInclude Include="Engine\bspgeo.h" />
     <ClInclude Include="Engine\button.h" />
@@ -232,6 +233,9 @@
     <FxCompile Include="Engine\shaders\scene_ps.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="Engine\shaders\scene_ps_ms.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="Engine\shaders\scene_vs.hlsl">
       <ShaderType>Vertex</ShaderType>
     </FxCompile>
@@ -258,6 +262,7 @@
     <None Include="Engine\shaders\bloom.hlsli" />
     <None Include="Engine\shaders\draw2d.hlsli" />
     <None Include="Engine\shaders\raster.hlsli" />
+    <None Include="Engine\shaders\scene.hlsli" />
     <None Include="Engine\shaders\tl.hlsli" />
   </ItemGroup>
   <ItemGroup>

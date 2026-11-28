@@ -44,7 +44,7 @@ float4 main(VertexOut input) : SV_Target
             * c_specularIntensity
             * saturate(bright * 4.0);
 
-        result.rgb += spec * colorLight * result.a;
+        result.rgb += spec * colorLight;   // opaque: alpha is coverage here, not opacity
     }
 
     return result;
