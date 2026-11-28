@@ -1,0 +1,244 @@
+#ifndef _Model_h_
+#define _Model_h_
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// 3D Hit Data
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class HitData3D {
+public:
+    float  m_distance;
+    Vector m_vecHit;
+    class Geo* m_pgeo;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Forward declarations
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class TextureGeo;
+class GroupGeo;
+class MeshGeo;
+class Image;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Group Geo
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class GroupGeoCallback : public IObject {
+public:
+    virtual TRef<Geo> Execute(const Matrix& mat, GroupGeo* pgroup) = 0;
+    virtual void ReportTriangles(const Matrix& mat, const std::vector<Vertex>&  vertices, const std::vector<MeshIndex>& indices) = 0;
+    virtual void ReportTriangles(const Matrix& mat, const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices) = 0;
+    virtual void ReportTriangles(const Matrix& mat, const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices) = 0;
+    virtual void ReportTriangles(const Matrix& mat, const std::vector<D3DLVertex>& vertices, const std::vector<MeshIndex>& indices) = 0;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Geometry
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class Geo : public Value {
+protected:
+    Geo() : Value() {}
+    DefineSubclassMembers(Geo);
+
+public:
+    //
+    // Constructors
+    //
+
+    DefineCastMember(Geo);
+
+    static Geo* GetSquare();
+    static Geo* GetIcosahedron();
+    static Geo* GetEmpty();
+    static Geo* GetWhiteEmissiveSquare();
+
+    static TRef<Geo> CreateMesh(
+        Vertex* pvertices,
+        int vcount,
+        MeshIndex* pindices,
+        int icount,
+        IObject* pobjectMemory
+    );
+
+    static TRef<Geo> CreateMesh(
+        D3DVertex* pvertices,
+        int vcount,
+        MeshIndex* pindices,
+        int icount,
+        IObject* pobjectMemory
+    );
+
+    static TRef<Geo> CreateMesh(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices);
+    static TRef<Geo> CreateMesh(const std::vector<Vertex>& vertices, const std::vector<MeshIndex>& indices);
+    static TRef<Geo> CreateMesh(const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices);
+
+    //
+    // Geo members
+    //
+
+    void SetEmpty();
+    virtual void Render(Context* pcontext);
+
+    //
+    // Hit Testing
+    //
+
+    virtual void RemoveCapture();
+    virtual bool HitTest(const Vector& vecOrigin, const Vector& vecRay, HitData3D& hitData, bool bCaptured);
+    virtual void MouseMove(const Vector& vec, bool bCaptured, bool bInside);
+    virtual void MouseEnter(const Vector& vec);
+    virtual void MouseLeave();
+    virtual MouseResult Button(const Vector& vec, int button, bool bCaptured, bool bInside, bool bDown);
+
+    //
+    // attributes
+    //
+
+    virtual Image*      FindTexture();
+    virtual float       GetRadius(const Matrix& mat);
+
+    //
+    // Optimization
+    //
+
+    virtual int         GetTriangleCount();
+    virtual TextureGeo* GetTextureGeo();
+    virtual MeshGeo*    GetMeshGeo();
+    virtual GroupGeo*   GetGroupGeo();
+    virtual bool        AnyChildGroups(bool bHead = true);
+
+    virtual TRef<Geo>   FoldTexture();
+    virtual TRef<Geo>   RemoveMaterial();
+    virtual TRef<Geo>   ApplyTransform(Transform* ptrans);
+
+    virtual void        CallGroupGeoCallback(const Matrix& mat, GroupGeoCallback* pcallback);
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Image
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class Image : public Value, public IMouseInput {
+protected:
+    Bounds2 m_bounds;
+
+    Image() : Value() {};
+    DefineSubclassMembers(Image);
+
+public:
+    //
+    // Constructors
+    //
+
+    DefineCastMember(Image);
+
+    static Image* GetEmpty();
+
+    //
+    // Image members
+    //
+
+    void SetEmpty();
+
+    virtual const Bounds2& GetBounds();
+    virtual void CalcBounds();
+    virtual void Render(Context* pcontext);
+    virtual TRef<Surface> GetSurface();
+
+    //
+    // IMouseInput methods
+    //
+
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
+
+    //
+    // Value members
+    //
+
+    virtual void Evaluate();
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Animation Set
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class AnimationSet : public IObject {
+public:
+    virtual void SetTime(float time) = 0;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Modeler
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class ModelerSite : public IObject {
+public:
+    virtual void Error(const ZString& str) = 0;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Modeler
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class Modeler : public IObject {
+public:
+    //
+    // Constructor
+    //
+
+    static TRef<Modeler> Create(Engine* pengine);
+
+    //
+    // Termination
+    //
+
+    virtual void Terminate() = 0;
+
+    //
+    // Modeler members
+    //
+
+    virtual void            SetSite(ModelerSite* psite) = 0;
+    virtual void            SetArtPath(const PathString& pathStr) = 0;
+
+    virtual Engine*         GetEngine() = 0;
+    virtual ZString         GetArtPath() = 0;
+
+    // The path of an art file, by bare name: in the art folder for its type
+    // (ArtFolders.h), or the art root
+    virtual ZString         GetArtFile(const ZString& strName, const ZString& strExtension) = 0;
+
+    virtual INameSpace*     CreateNameSpace(const ZString& str)                        = 0;
+    virtual INameSpace*     CreateNameSpace(const ZString& str, INameSpace* pnsParent) = 0;
+    virtual INameSpace*     GetNameSpace(const ZString& str, bool bError = true)       = 0;
+    virtual void            UnloadNameSpace(const ZString& str)                        = 0;
+    virtual void            UnloadNameSpace(INameSpace* pns)                           = 0;
+
+    virtual TRef<ZFile>     LoadFile(const PathString& pathStr, const ZString& strExtensionArg, bool bError = true)                 = 0;
+    virtual TRef<Image>     LoadImage(const ZString& pathStr, bool bColorKey, bool bError = true)   = 0;
+    virtual TRef<Surface>   LoadSurface(const ZString& pathStr, bool bColorKey, bool bError = true) = 0;
+    virtual TRef<Geo>       LoadGeo(const ZString& pathStr, bool bError = true)                     = 0;
+
+    virtual TRef<Geo>       LoadXFile(const PathString& pathStr, Number* pnumberFrame, bool& bAnimation, bool bError = true) = 0;
+};
+
+#endif

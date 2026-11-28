@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "alphacoverage.h"
+#include "AlphaCoverage.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Mip levels that keep a cut-out's coverage (Engine/alphacoverage.h): a thin
+// Mip levels that keep a cut-out's coverage (Engine/AlphaCoverage.h): a thin
 // strut that box filtering averages below alpha 0.5 must still be drawn at a
 // distance, and the texels' colour must not change.
 //

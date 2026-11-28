@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "artfolders.h"
+#include "ArtFolders.h"
 
 #include <filesystem>
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// The art folders (zlib/artfolders.h) and UTL::getFile, which the core files
+// The art folders (zlib/ArtFolders.h) and UTL::getFile, which the core files
 // and collision hulls are opened with, on a temporary art folder. See
 // MODERNIZATION.md, "Art folders".
 //

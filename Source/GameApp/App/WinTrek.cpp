@@ -1,12 +1,12 @@
 #include "pch.h"
 
 #include <shellapi.h>
-//#include "console.h"
+//#include "Console.h"
 
-#include "gamesite.h"
+#include "GameSite.h"
 
-#include "badwords.h"
-#include "slideshow.h"
+#include "BadWords.h"
+#include "Slideshow.h"
 #include "Training.h"
 #include "CommandAcknowledgedCondition.h"
 
@@ -14,7 +14,7 @@
 
 class QuickChatNode : public IMDLObject {};
 
-#include "quickchat.h"
+#include "QuickChat.h"
 
 
 const float AnyViewMinRenderScreenSize = 1.0f;
@@ -2965,7 +2965,7 @@ public:
     }
 
     //
-    // Preferences live in the settings file (zsettings.h)
+    // Preferences live in the settings file (ZSettings.h)
     //
 
     void SavePreference(const ZString& szName, DWORD dwValue)
@@ -5893,7 +5893,7 @@ public:
             IshipIGC*   pshipSource = pshipParent ? pshipParent : trekClient.GetShip();
 
             // store the screen size for later use
-            float           fScreenSize = (rectImage.YMax() - rectImage.YMin()) * 0.48f;    //NYI same constant as in radarimage.cpp
+            float           fScreenSize = (rectImage.YMax() - rectImage.YMin()) * 0.48f;    //NYI same constant as in RadarImage.cpp
 
             ImodelIGC*  pmodelTarget = trekClient.GetShip()->GetCommandTarget(c_cmdCurrent);
 

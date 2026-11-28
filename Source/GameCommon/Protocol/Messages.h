@@ -224,7 +224,7 @@ DEFINE_FEDMSG(C, SHIP_UPDATE, 24)
 END_FEDMSG
 
 // ***PARTS***
-#include "parts.h"
+#include "Parts.h"
 
 // All part definition messages must start with Part, and have a single struct (in parts.h) after that
 // In order to be able to just copy structs without allocating them, all parts are two structs only.

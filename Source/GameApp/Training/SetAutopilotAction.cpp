@@ -12,7 +12,7 @@
 */
 #include    "pch.h"
 #include    "SetAutopilotAction.h"
-#include    "TypeIDTarget.h"
+#include    "TypeIdTarget.h"
 
 namespace Training
 {

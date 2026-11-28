@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "servicehost.h"
+#include "ServiceHost.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// The server's service switches (Service/servicehost.h): AllSrv32
+// The server's service switches (Service/ServiceHost.h): AllSrv32
 // [-install [user password] | -remove | -service]; anything else is the
 // program's own.
 //

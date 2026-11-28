@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "messagecore.h"
-#include "fedtransport.h"
+#include "MessageCore.h"
+#include "FedTransport.h"
 
 #include <functional>
 #include <memory>

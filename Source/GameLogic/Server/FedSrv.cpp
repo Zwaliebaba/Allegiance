@@ -1611,20 +1611,20 @@ void HandleCOMChatEvents(const char *szMessage, const char *szDest, ShipID shipi
   //
   static const char* s_szChatTypes[CHAT_MAX] =
   {
-    "EVERYONE",              // CHAT_EVERYONE            in igc.h
-    "LEADERS",               // CHAT_LEADERS             in igc.h
-    "ADMIN",                 // CHAT_ADMIN               in igc.h
-    "SHIP",                  // CHAT_SHIP                in igc.h
-    "TEAM",                  // CHAT_TEAM                in igc.h
-    "INDIVIDUAL",            // CHAT_INDIVIDUAL          in igc.h
-    "INDIVIDUAL_NOFILTER"    // CHAT_INDIVIDUAL_NOFILTER in igc.h
-    "WING",                  // CHAT_WING                in igc.h
-    "INDIVIDUAL_ECHO",       // CHAT_INDIVIDUAL_ECHO     in igc.h
-    "ALL_SECTOR",            // CHAT_ALL_SECTOR          in igc.h
-    "FRIENDLY_SECTOR",       // CHAT_FRIENDLY_SECTOR     in igc.h
-    "GROUP",                 // CHAT_GROUP               in igc.h
-    "GROUP_NOECHO",          // CHAT_GROUP_NOECHO        in igc.h
-    "NOSELECTION",           // CHAT_NOSELECTION         in igc.h
+    "EVERYONE",              // CHAT_EVERYONE            in Igc.h
+    "LEADERS",               // CHAT_LEADERS             in Igc.h
+    "ADMIN",                 // CHAT_ADMIN               in Igc.h
+    "SHIP",                  // CHAT_SHIP                in Igc.h
+    "TEAM",                  // CHAT_TEAM                in Igc.h
+    "INDIVIDUAL",            // CHAT_INDIVIDUAL          in Igc.h
+    "INDIVIDUAL_NOFILTER"    // CHAT_INDIVIDUAL_NOFILTER in Igc.h
+    "WING",                  // CHAT_WING                in Igc.h
+    "INDIVIDUAL_ECHO",       // CHAT_INDIVIDUAL_ECHO     in Igc.h
+    "ALL_SECTOR",            // CHAT_ALL_SECTOR          in Igc.h
+    "FRIENDLY_SECTOR",       // CHAT_FRIENDLY_SECTOR     in Igc.h
+    "GROUP",                 // CHAT_GROUP               in Igc.h
+    "GROUP_NOECHO",          // CHAT_GROUP_NOECHO        in Igc.h
+    "NOSELECTION",           // CHAT_NOSELECTION         in Igc.h
   };
 
   // Ensure that addition/deletions to igc's enum ChatTarget are reflected here
@@ -5844,7 +5844,7 @@ HRESULT HostSession(bool fPublic)
  * Training mission 7
  *-------------------------------------------------------------------------
  * The client's live training mission runs this server as a child process
- * (AllSrv32 -training <civ> -stopevent <handle>, see trainingscreen.cpp).
+ * (AllSrv32 -training <civ> -stopevent <handle>, see TrainingScreen.cpp).
  * The server creates the one training game, starts it as soon as the
  * player has joined, and stops when the client sets the stop event. This
  * replaced the client driving the server through the DCOM admin objects.

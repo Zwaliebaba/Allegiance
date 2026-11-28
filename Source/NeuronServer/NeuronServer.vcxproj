@@ -37,18 +37,18 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Base\SWMRG.cpp" />
+    <ClCompile Include="Base\Swmrg.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Service\accountrights.cpp" />
-    <ClCompile Include="Service\servicehost.cpp" />
+    <ClCompile Include="Service\AccountRights.cpp" />
+    <ClCompile Include="Service\ServiceHost.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Base\SWMRG.h" />
+    <ClInclude Include="Base\Swmrg.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Service\accountrights.h" />
-    <ClInclude Include="Service\servicehost.h" />
+    <ClInclude Include="Service\AccountRights.h" />
+    <ClInclude Include="Service\ServiceHost.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NeuronCore\NeuronCore.vcxproj">

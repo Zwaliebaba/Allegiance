@@ -35,8 +35,8 @@
 #include "stdio.h"
 #include "windows.h"
 
-#include "zlib.h"
-#include "engine.h"
-#include "effect.h"
+#include "ZLib.h"
+#include "Engine.h"
+#include "Effect.h"
 
 #endif

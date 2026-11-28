@@ -12,7 +12,7 @@
 */
 #include    "pch.h"
 #include    "GetPickedCondition.h"
-#include    "TypeIDTarget.h"
+#include    "TypeIdTarget.h"
 
 namespace Training
 {

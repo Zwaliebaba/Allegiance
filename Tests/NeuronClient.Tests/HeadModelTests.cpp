@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "spatializer.h"
+#include "Spatializer.h"
 
 #include <vector>
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// The headphone spatializer (soundengine/spatializer.h): the parametric head
+// The headphone spatializer (soundengine/Spatializer.h): the parametric head
 // model's time and level differences between the ears, its front-back and
 // elevation cues, and the renderer's stability. See MODERNIZATION.md,
 // "Sound: 3D audio for headphones".

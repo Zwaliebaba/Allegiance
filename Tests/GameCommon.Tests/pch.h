@@ -11,16 +11,16 @@
 // __MODULE__ is used by ZAssert
 #define __MODULE__ "GameCommon.Tests"
 
-// The framework before zlib.h, whose assert and min/max macros it must not
+// The framework before ZLib.h, whose assert and min/max macros it must not
 // see. (The project also defines ZLIB_SKIP_NEW_REDEF: no debug new macro.)
 #include "CppUnitTest.h"
 
 #include <windows.h>
 #include <mmsystem.h>
 
-#include "zlib.h"
-#include "utility.h"
-#include "igc.h"
+#include "ZLib.h"
+#include "Utility.h"
+#include "Igc.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

@@ -30,41 +30,41 @@
 #include <commctrl.h>
 
 // NeuronCore
-#include <zlib.h>
-#include <utility.h>
+#include <ZLib.h>
+#include <Utility.h>
 #include "AutoCriticalSection.h"   // ZAutoCriticalSection
 
 // GameCommon
-#include <igc.h>
+#include <Igc.h>
 
 #include "resource.h"
-#include "gameparamdata.h"
-#include "serverevents.h"
+#include "GameParamData.h"
+#include "ServerEvents.h"
 
 // NeuronServer
-#include "servicehost.h"
-#include "SWMRG.h"
+#include "ServiceHost.h"
+#include "Swmrg.h"
 
-#include "allsrvmodule.h"
+#include "AllSrvModule.h"
 
 // GameCommon: the protocol
-#include <messagesAll.h>
+#include <MessagesAll.h>
 #include <Messages.h>
-#include <messagesLS.h>
-#include <trainingserver.h>
+#include <MessagesLs.h>
+#include <TrainingServer.h>
 
-#include "point.h"
-#include "counters.h"
-#include "fsside.h"
-#include "fscluster.h"
-#include "fsmission.h"
+#include "Point.h"
+#include "Counters.h"
+#include "FsSide.h"
+#include "FsCluster.h"
+#include "FsMission.h"
 #include "FedSrv.h"
 
 extern Global g;
 
-#include "fsship.h"
-#include "dbgutil.h"
-#include "serversettings.h"
+#include "FsShip.h"
+#include "DbgUtil.h"
+#include "ServerSettings.h"
 
 #include <windowsx.h> // For GlobalAllocPtr and GlobalFreePtr
 

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "spatialstream.h"
+#include "SpatialStream.h"
 
 #include <thread>
 #include <vector>
@@ -7,7 +7,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 // The hand-over from XAudio2 to a Windows Spatial Sound audio object
-// (soundengine/spatialstream.h): the margin the reader builds up, running
+// (soundengine/SpatialStream.h): the margin the reader builds up, running
 // dry, falling behind, the mono mix, and a writer and reader on two threads.
 // See MODERNIZATION.md, "Sound: 3D audio for headphones".
 //

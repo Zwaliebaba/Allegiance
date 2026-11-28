@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "badwords.h"
+#include "BadWords.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// The client's chat and name censor (ClientLib/badwords.cpp). The word list
+// The client's chat and name censor (ClientLib/BadWords.cpp). The word list
 // comes from allbad.dll; BuildFilterAutomata takes its decoded form: a
 // header, then each word ended by "\r\n", then a space.
 //

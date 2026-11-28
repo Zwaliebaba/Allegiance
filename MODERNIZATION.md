@@ -56,8 +56,8 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
 ## Source layout
 
 Since the restructure the code is six static libraries, two executables and a test DLL per library.
-The phase notes below keep the module names of their time (`zlib`, `_Utility`, `WinTrek`, ...); this
-table says where each went.
+The phase notes below keep the module and file names of their time (`zlib`, `_Utility`, `WinTrek`,
+`d3d11raster.cpp`, ...); this table says where each module went, and "Conventions" how the files were renamed.
 
 | Library | Used by | Folders | Was |
 |---|---|---|---|
@@ -1232,6 +1232,16 @@ repositories with one exception (constants are `UPPER_CASE`). The legacy tree is
 or reformatted. CI's `naming` job runs clang-tidy's identifier-naming check on the lines a change adds,
 through `Tools/ci/check-naming.py`. The four files with upper-case extensions (`FedSrv.CPP/.H`,
 `SWMRG.CPP/.H`) were renamed to `.cpp`/`.h`, because a case-sensitive `*.cpp` glob missed them.
+
+The source files are the exception to "not renamed": all of them were then renamed to `PascalCase` (R7),
+acronyms as words, 468 files: `afterburnerIGC.cpp` is `AfterburnerIgc.cpp`, `CRC.h` is `Crc.h`, `d3d11raster.cpp`
+is `D3D11Raster.cpp`, `raster_ps.hlsl` is `RasterPs.hlsl` (and its byte array `g_RasterPs`). The casing came from
+the type a file declares where one matches its name, and from its words otherwise. `pch.*`, `resource.h` and the
+vendored Qhull keep their names. **The notes in this document keep the file names of their time**, as they keep
+the module names: a name here matches today's file case-insensitively, without its underscores. MSVC opens an
+`#include` whatever its case, so 259 includes and project entries were spelled wrongly before the rename and still
+built; `Tools/ci/check-case.py`, in the same CI job, now holds every file name and every spelling of it to the
+file on disk.
 
 ## Conformance fix log
 

@@ -7,7 +7,7 @@
 # counting a file as used when a used thing names it:
 #
 #   - the code (client, server, mdlc, xmunge): every string literal, outside
-#     comments; "<name>bmp" names an image. Of Source\GameApp\App\artwork.h, only the
+#     comments; "<name>bmp" names an image. Of Source\GameApp\App\Artwork.h, only the
 #     constants that are used. And the names it builds (CODE_BUILT);
 #   - core files and maps (Data\*.igc) the code names: every name in them, as
 #     a file of any type, and the images the code derives from one ("i", "l"
@@ -17,7 +17,7 @@
 #   - help pages (.mml): the pages and images their tags name (one-word fields);
 #   - models (Artwork\Models.props): a used model's .x files (<name>.x,
 #     _static, -low, _bound) and template, or its text MDL and .x files; the
-#     textures a used .x file names (.ppm or .bmp: Source/NeuronClient/Engine/xfile.cpp);
+#     textures a used .x file names (.ppm or .bmp: Source/NeuronClient/Engine/XFile.cpp);
 #   - animations (Art.proj): the strip image; font.mdl: fontsource.mdl;
 #     Music: tracks.lst and the tracks it lists.
 #
@@ -37,14 +37,14 @@ ART = os.path.join(ROOT, 'Artwork')
 FOLDERS = ['Audio', 'Data', 'Fonts', 'Interface', 'Models', 'Movies', 'Music', 'Textures', 'tools']
 CODE_DIRS = ['Source', 'Tools/mdlc', 'Tools/xmunge']
 
-IGC_PREFIXES = ['i', 'l', 'icon']                     # loadout.cpp, load.cpp, teampane.cpp
-IGC_SUFFIXES = ['loadoutpane', 'hullinfo', 'lobby']   # load.cpp, teamscreen.cpp (civilization icon names)
+IGC_PREFIXES = ['i', 'l', 'icon']                     # Loadout.cpp, Load.cpp, TeamPane.cpp
+IGC_SUFFIXES = ['loadoutpane', 'hullinfo', 'lobby']   # Load.cpp, TeamScreen.cpp (civilization icon names)
 
 # Names the code builds from pieces that are not a whole literal
 CODE_BUILT = (
-    ['globe%d' % n for n in range(1, 9)] +            # mapmakerigc.cpp: a random map's backdrop, "globe" + 1..8
+    ['globe%d' % n for n in range(1, 9)] +            # MapMakerIgc.cpp: a random map's backdrop, "globe" + 1..8
     ['invempty' + et for et in ('chaff', 'weapon', 'missile', 'mine', 'shield', 'cloak', 'ammo', 'afterburner')]
-                                                      # inventoryimage.cpp: "invEmpty" + GetEquipmentTypeName
+                                                      # InventoryImage.cpp: "invEmpty" + GetEquipmentTypeName
 )
 
 TOKEN = re.compile(r'[A-Za-z0-9_\-]+')
@@ -130,7 +130,7 @@ def resolve():
             use(('gen', n))
 
 # Roots: the code
-artwork_h = os.path.join(ROOT, 'Source', 'GameApp', 'App', 'artwork.h')
+artwork_h = os.path.join(ROOT, 'Source', 'GameApp', 'App', 'Artwork.h')
 code = {}
 for d in CODE_DIRS:
     for dirpath, _, fs in os.walk(os.path.join(ROOT, d)):
@@ -151,7 +151,7 @@ for f, text in code.items():
 for n in CODE_BUILT:
     name_any(n)
 
-# Music: the player reads Music\tracks.lst (Source/NeuronClient/Sound/redbooksound.cpp)
+# Music: the player reads Music\tracks.lst (Source/NeuronClient/Sound/RedbookSound.cpp)
 use(('Music', 'tracks', 'lst'))
 
 resolve()

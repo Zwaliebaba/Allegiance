@@ -31,9 +31,9 @@ The naming and layout rules are carried over from the sibling repositories Outpo
 | Enumerator | `PascalCase` | `ServiceCommand::Install` |
 | Macro | `UPPER_CASE` | `DEFINE_FEDMSG` |
 | Namespace | `PascalCase` | `AlphaCoverage`, `ServiceHost` |
-| File (new) | `PascalCase.cpp` / `.h` | `ServiceHost.cpp` |
+| File | `PascalCase.cpp` / `.h`, shaders `PascalCase.hlsl` | `ServiceHost.cpp`, `RasterPs.hlsl` |
 
-**This table governs code you write.** The legacy tree does not follow it. `m_pmodel`, `c_cMaxPlayers`, `s_szService`, `fHas`, `szName`, `ImodelIGC` and the lowercase file names are grandfathered, not exemplars. Do not extend those patterns into new code. Do not mass-rename them either, and do not rename one as a side effect of another change: a rename is its own commit, with its own reason.
+**This table governs code you write.** The legacy tree does not follow it. `m_pmodel`, `c_cMaxPlayers`, `s_szService`, `fHas`, `szName`, and `ImodelIGC` are grandfathered, not exemplars. Do not extend those patterns into new code. Do not mass-rename them either, and do not rename one as a side effect of another change: a rename is its own commit, with its own reason.
 
 ### The rules behind the table
 
@@ -49,7 +49,7 @@ The naming and layout rules are carried over from the sibling repositories Outpo
 
 **R6: Units belong in names; types do not.** `distanceMeters`, `durationMs`, `angleRadians` and `sizeBytes` are encouraged. Never encode the type: no `pDevice`, `szName`, `cItems`, `dwFlags`, `iCount`. That includes booleans: no `bVisible`, `fVisible`, `m_bEnabled`. A boolean reads as a predicate (`m_visible`, `m_deviceLost`, `isOpen`, `hasTarget`). The legacy Hungarian is exactly what this rule bans; it stays where it is and spreads nowhere.
 
-**R7: A new file is named for its primary type**, in `PascalCase`, `.h` / `.cpp` only: no `.hpp`, `.cc`, `.inl`, and no upper-case extensions (`.CPP`, `.H`). Template implementations live in the header. The per-project `pch.h` / `pch.cpp` keep the name MSBuild expects. Existing files keep their names, lowercase ones included. The source layout in MODERNIZATION.md says which library and folder a file belongs in.
+**R7: A file is named for its primary type**, in `PascalCase` with acronyms as words (R4), `.h` / `.cpp` only: no `.hpp`, `.cc`, `.inl`, and no upper-case extensions (`.CPP`, `.H`). Template implementations live in the header. This holds for the whole tree: every source file was renamed to it (`afterburnerIGC.cpp` became `AfterburnerIgc.cpp`, `CRC.h` became `Crc.h`). Shaders are `PascalCase` too, with the stage as the last word but any variant (`RasterPs.hlsl`, `RasterPsFlatOit.hlsl`, `SceneVs.hlsl`; includes are `.hlsli`), and FXC names a shader's byte array after its file (`g_RasterPs`). Three exceptions keep their names: the per-project `pch.h` / `pch.cpp` (MSBuild's), `resource.h` (the resource editor's), and the vendored Qhull sources in `Tools/qhull`. Spell an `#include` as the file is spelled, folders included: MSVC opens it whatever its case, so a wrong one builds here and breaks elsewhere. The source layout in MODERNIZATION.md says which library and folder a file belongs in.
 
 **R8: `m_` marks encapsulated state, not every field.** A class with invariants prefixes its private members `m_`. A public aggregate, such as a `Desc` config struct, a constant buffer or a vertex, uses plain `camelCase` fields so that brace initialisation reads naturally. The wire records (`FM_*`, declared through `DEFINE_FEDMSG`) are legacy and keep their spelling.
 
@@ -107,11 +107,16 @@ Run it before you push, from a Developer PowerShell (it needs clang-tidy 19 or n
 python Tools/ci/check-naming.py --base origin/main --clang-tidy "<VS>\VC\Tools\Llvm\x64\bin\clang-tidy.exe"
 ```
 
-Three rules the config cannot express, and that review therefore has to carry:
+Two rules the config cannot express, and that review therefore has to carry:
 
 - **R2 (type prefixes)**: clang-tidy cannot ban a present prefix or suffix. Grep your declarations for `\b(class|struct|using)\s+[ICSE][A-Z]` and for a trailing `Base`, `Abstract` or `Impl`.
 - **R6 (Hungarian)**: `camelBack` accepts `pDevice`, `szName` and `fVisible`, and `m_camelBack` accepts `m_pDevice`. Read your new names.
-- **R7 (file names)**: nothing checks that a new file is `PascalCase`. Look at the name when you add one.
+
+**File names and their spelling are checked over the whole tree** (R7), by [`Tools/ci/check-case.py`](Tools/ci/check-case.py) in the same CI job: every source file is `PascalCase`, no two files differ only in case, and every `#include` and every `.vcxproj` / `.filters` entry spells its file exactly as it is on disk. It needs only Python:
+
+```
+python Tools/ci/check-case.py
+```
 
 ---
 
@@ -162,7 +167,7 @@ CI (`.github/workflows/windows-build.yml`) is the authority:
 
 ## 5. Before you hand work back
 
-- [ ] Naming conforms to section 1: `_` on parameters, `m_` on class state, no Hungarian, no `I`/`C`/`Base` affixes, no Win32 macro names among the `UPPER_CASE` constants. `Tools/ci/check-naming.py` passes.
+- [ ] Naming conforms to section 1: `_` on parameters, `m_` on class state, no Hungarian, no `I`/`C`/`Base` affixes, no Win32 macro names among the `UPPER_CASE` constants. `Tools/ci/check-naming.py` and `Tools/ci/check-case.py` pass.
 - [ ] Only the lines the task required were changed: no reformatting, no drive-by renames.
 - [ ] New, removed or moved files are in the `.vcxproj` **and** `.filters` of every project involved.
 - [ ] It builds in CI: say which jobs you saw green.

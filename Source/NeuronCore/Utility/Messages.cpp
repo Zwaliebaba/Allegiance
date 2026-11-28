@@ -2,13 +2,13 @@
    Interface between WinTrek and FedSrv
    Owner: 
 
-   FedMessaging runs on FedTransport (MsQuic, fedtransport.cpp); see
+   FedMessaging runs on FedTransport (MsQuic, FedTransport.cpp); see
    MODERNIZATION.md, "Networking". The message packing below is unchanged.
 */
 
 #include "pch.h"
 #include "MessageCore.h"
-#include "fedtransport.h"
+#include "FedTransport.h"
 
 const MsgClsPrio FedMessaging::c_mcpDefault = 1000;
 

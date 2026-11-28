@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # Checks that every art reference resolves in the art folders (MODERNIZATION.md,
-# "Art folders"), the way the client and server look files up (Source/NeuronCore/Base/artfolders.h:
+# "Art folders"), the way the client and server look files up (Source/NeuronCore/Base/ArtFolders.h:
 # a bare name, in the folders for its type, then the art root):
 #
 #   - no file name is in two folders that are searched for the same type
@@ -12,7 +12,7 @@
 #     images ("i" + the model name) of stations (but the flag pedestal, which
 #     is never offered), drones and research;
 #   - the code: images, namespaces and models named by a string literal, and
-#     the artwork.h constants that are used.
+#     the Artwork.h constants that are used.
 #
 # It reads the sources (Artwork\<folder>) plus what Artwork\Art.proj generates
 # (the models of Models.props, the animation MDLs, font.mdl).
@@ -30,7 +30,7 @@ from collections import defaultdict
 ROOT = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), '..', '..'))
 ART = os.path.join(ROOT, 'Artwork')
 
-# Source/NeuronCore/Base/artfolders.h
+# Source/NeuronCore/Base/ArtFolders.h
 FOLDERS = {
     'dds': ['Textures', 'Models'],
     'mdl': ['Interface', 'Models', 'Fonts'],
@@ -172,12 +172,12 @@ for f in sorted(contents['Data']['igc']):
                 problem(f'{where}: {kind} texture {texture}.dds not found')
 
 #
-# Code: literal names, and the artwork.h constants in use
+# Code: literal names, and the Artwork.h constants in use
 #
 
-artwork_h = code.get(os.path.join(ROOT, 'Source', 'GameApp', 'App', 'artwork.h'), '')
+artwork_h = code.get(os.path.join(ROOT, 'Source', 'GameApp', 'App', 'Artwork.h'), '')
 constants = dict(re.findall(r'#define\s+(AWF_\w+)\s+"([^"]+)"', artwork_h))
-all_code = '\n'.join(strip_comments(t) for f, t in code.items() if not f.endswith('artwork.h'))
+all_code = '\n'.join(strip_comments(t) for f, t in code.items() if not f.endswith('Artwork.h'))
 used = {c: v for c, v in constants.items() if re.search(r'\b' + c + r'\b', all_code)}
 
 for f, text in code.items():
@@ -192,7 +192,7 @@ for f, text in code.items():
 
 for c, v in sorted(used.items()):
     if v.endswith('bmp') and not resolves(v[:-3], 'dds'):
-        problem(f'Source/GameApp/App/artwork.h: {c} names {v[:-3]}.dds, which is not found')
+        problem(f'Source/GameApp/App/Artwork.h: {c} names {v[:-3]}.dds, which is not found')
 
 #
 # Report

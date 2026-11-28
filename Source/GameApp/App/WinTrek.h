@@ -18,7 +18,7 @@
 #ifndef _WINTREK_
 #define _WINTREK_
 
-#include "treki.h"
+#include "Treki.h"
 
 const float s_fMaxFOV = RadiansFromDegrees(50.0f);
 const float s_fDefaultFOV = RadiansFromDegrees(50.0f);

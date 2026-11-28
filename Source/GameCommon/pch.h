@@ -15,9 +15,9 @@
 #include <windows.h>
 #include <mmsystem.h>
 
-#include "zlib.h"
-#include "utility.h"
-#include "igc.h"
-#include "private.h"
+#include "ZLib.h"
+#include "Utility.h"
+#include "Igc.h"
+#include "Private.h"
 
 #endif
