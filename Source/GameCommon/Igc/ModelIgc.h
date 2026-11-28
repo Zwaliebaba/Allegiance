@@ -147,11 +147,11 @@ class   CmodelIGC
                 }
 
                 m_pHitTest->Release();
-                m_pHitTest = NULL;
+                m_pHitTest = nullptr;
 
                 assert (m_pThingSite);
                 m_pThingSite->Terminate();
-                m_pThingSite = NULL;
+                m_pThingSite = nullptr;
             }
             else
                 assert (!m_pThingSite);

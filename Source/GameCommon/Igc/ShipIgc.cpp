@@ -27,13 +27,13 @@ CshipIGC::CshipIGC(void)
 :
     m_fuel(0.0f),
     m_stateM(0),
-    m_station(NULL),
-    m_pmissileLast(NULL),
-    m_damageTrack(NULL),
+    m_station(nullptr),
+    m_pmissileLast(nullptr),
+    m_damageTrack(nullptr),
     m_dwPrivate(0),
     m_myHullType(this),
     m_cloaking(1.0f),
-    m_pshipParent(NULL),
+    m_pshipParent(nullptr),
     m_turretID(NA),
     m_bAutopilot(false),
     m_gotoplan(this),
@@ -54,21 +54,21 @@ CshipIGC::CshipIGC(void)
     {
         for (Command i = 0; (i < c_cmdMax); i++)
         {
-            m_commandTargets[i] = NULL;
+            m_commandTargets[i] = nullptr;
             m_commandIDs[i] = c_cidNone;
         }
     }
     {
         for (Mount i = 0; (i < c_maxMountedWeapons); i++)
-            m_mountedWeapons[i] = NULL;
+            m_mountedWeapons[i] = nullptr;
     }
     {
         for (Mount i = 0; (i < ET_MAX); i++)
-            m_mountedOthers[i] = NULL;
+            m_mountedOthers[i] = nullptr;
     }
     {
         for (Mount i = 0; (i < c_maxCargo); i++)
-            m_mountedCargos[i] = NULL;
+            m_mountedCargos[i] = nullptr;
     }
 }
 
@@ -89,7 +89,7 @@ void    CshipIGC::ReInitialize(DataShipIGC * dataShip, Time now)
         while (ppartlink = GetParts()->first()) //Not ==
             ppartlink->data()->Terminate();
     }
-    m_myHullType.SetHullType(NULL);
+    m_myHullType.SetHullType(nullptr);
     SetMass(0.0f);
 
     SetLastUpdate(now);
@@ -99,7 +99,7 @@ void    CshipIGC::ReInitialize(DataShipIGC * dataShip, Time now)
     m_pilotType = dataShip->pilotType;
     m_abmOrders = dataShip->abmOrders;
     if (dataShip->baseObjectID == NA)
-        m_pbaseData = NULL;
+        m_pbaseData = nullptr;
     else if (m_pilotType == c_ptBuilder)
     {
         m_pbaseData = pmission->GetStationType(dataShip->baseObjectID);
@@ -117,7 +117,7 @@ void    CshipIGC::ReInitialize(DataShipIGC * dataShip, Time now)
                              m_controls.jsValues[c_axisYaw] = m_controls.jsValues[c_axisPitch] = m_controls.jsValues[c_axisRoll] = 0.0f;
     m_controls.jsValues[c_axisThrottle] = -1.0f;
 
-    IsideIGC * pside = pmission ? pmission->GetSide(dataShip->sideID) : NULL;
+    IsideIGC * pside = pmission ? pmission->GetSide(dataShip->sideID) : nullptr;
     SetSide(pside);
 
     m_shipID = dataShip->shipID;
@@ -210,30 +210,30 @@ void        CshipIGC::Terminate(void)
     if (m_damageTrack)
     {
         delete m_damageTrack;
-        m_damageTrack = NULL;
+        m_damageTrack = nullptr;
     }
 
     //Make the ship look very dead
     m_fraction = 0.0f;
 
-    m_pbaseData = NULL;
+    m_pbaseData = nullptr;
 
     if (m_pmissileLast)
     {
         m_pmissileLast->Release();
-        m_pmissileLast = NULL;
+        m_pmissileLast = nullptr;
     }
 
-    SetRipcordModel(NULL);
+    SetRipcordModel(nullptr);
 
-    SetParentShip(NULL);
+    SetParentShip(nullptr);
 
     {
         //Blow away the children
         ShipLinkIGC*    psl;
         while (psl = m_shipsChildren.first())   //intentional assignment
         {
-            psl->data()->SetParentShip(NULL);
+            psl->data()->SetParentShip(nullptr);
         }
     }
 
@@ -256,7 +256,7 @@ void    CshipIGC::Update(Time now)
     //Don't bother doing updates for times before the ship is created.
     Time    lastUpdate = GetMyLastUpdate();
 
-    if ((now > lastUpdate) && (m_pshipParent == NULL))
+    if ((now > lastUpdate) && (m_pshipParent == nullptr))
     {
         m_warningMask = 0;
 
@@ -272,13 +272,13 @@ void    CshipIGC::Update(Time now)
                 if (m_dtRipcordCountdown <= 0.0f)
                 {
                     if (pigc->UseRipcord(this, m_pmodelRipcord))
-                        SetRipcordModel(NULL);
+                        SetRipcordModel(nullptr);
                     else
                         m_dtRipcordCountdown = 0.0f;
                 }
             }
             else
-                SetRipcordModel(NULL);
+                SetRipcordModel(nullptr);
         }
 
         m_energy += m_myHullType.GetRechargeRate() * dt;
@@ -346,7 +346,7 @@ void    CshipIGC::Update(Time now)
         if (m_myHullType.GetHullType()->HasCapability(c_habmLifepod) &&
             (now > m_timeToDie))
         {
-            GetMyMission()->GetIgcSite()->KillShipEvent(now, this, NULL, 1.0f, GetPosition(), Vector::GetZero());
+            GetMyMission()->GetIgcSite()->KillShipEvent(now, this, nullptr, 1.0f, GetPosition(), Vector::GetZero());
         }
         else
         {
@@ -375,12 +375,12 @@ void    CshipIGC::Update(Time now)
                 assert (m_fraction <= 1.0f);
 
                 if (m_fraction > 0.0f)
-                    GetMyMission()->GetIgcSite()->DamageShipEvent(now, this, NULL, c_dmgidCollision, d, d, position, position * 2.0f);
+                    GetMyMission()->GetIgcSite()->DamageShipEvent(now, this, nullptr, c_dmgidCollision, d, d, position, position * 2.0f);
                 else
                 {
                     m_fraction = 0.0f;
                     if (oldFraction > 0.0f)  //Only send the death message once.
-                        GetMyMission()->GetIgcSite()->KillShipEvent(now, this, NULL, d, position, position * 2.0f);
+                        GetMyMission()->GetIgcSite()->KillShipEvent(now, this, nullptr, d, position, position * 2.0f);
                 }
                 assert (m_fraction >= 0.0f);
             }
@@ -388,7 +388,7 @@ void    CshipIGC::Update(Time now)
             if (m_pilotType >= c_ptPlayer)
             {
                 IclusterIGC*    pcluster = GetCluster();
-                if (pcluster != NULL)   //Might have died
+                if (pcluster != nullptr)   //Might have died
                 {
                     float   cost = pcluster->GetCost();
                     if (cost > 0.0f)
@@ -400,7 +400,7 @@ void    CshipIGC::Update(Time now)
                             maxDamage += ((IshieldIGC*)m_mountedOthers[ET_Shield])->GetMaxStrength();
 
                         float   d = cost * maxDamage;
-                        ReceiveDamage(c_dmgidCollision, d, now, position, Vector::GetZero(), NULL);
+                        ReceiveDamage(c_dmgidCollision, d, now, position, Vector::GetZero(), nullptr);
                     }
                 }
             }
@@ -436,7 +436,7 @@ int         CshipIGC::Export(void* data) const
         {
             PartData*   pd = (PartData*)(((char*)dataShip) + dataShip->partsOffset);
             for (PartLinkIGC*   l = m_parts.first();
-                 (l != NULL);
+                 (l != nullptr);
                  l = l->next())
             {
                 IpartIGC*   part = l->data();
@@ -736,7 +736,7 @@ void    CshipIGC::HandleCollision(Time                   timeCollision,
                      pst->HasCapability(c_sabmRescue) &&
                      (GetSide() == pModel->GetSide()))
             {
-                if (GetMyMission()->GetIgcSite()->RescueShipEvent(this, NULL))
+                if (GetMyMission()->GetIgcSite()->RescueShipEvent(this, nullptr))
                     break;
             }
         }
@@ -752,7 +752,7 @@ void    CshipIGC::HandleCollision(Time                   timeCollision,
                 if (type == OT_asteroid)
                 {
                     //We're a builder and we've collided with an asteroid
-                    if (m_bAutopilot && (((IasteroidIGC*)pModel)->GetBuildingEffect() == NULL))
+                    if (m_bAutopilot && (((IasteroidIGC*)pModel)->GetBuildingEffect() == nullptr))
                     {
                         //And we are in control and haven't created a building effect yet: create one
                         GetMyMission()->GetIgcSite()->CreateBuildingEffect(timeCollision, (IasteroidIGC*)pModel, this);
@@ -778,7 +778,7 @@ void    CshipIGC::HandleCollision(Time                   timeCollision,
                 if ((eabm & c_eabmRescueAny) ||
                     ((eabm & c_eabmRescue) && (GetSide() == pModel->GetSide())))
                 {
-                    if (GetMyMission()->GetIgcSite()->RescueShipEvent(this, NULL))
+                    if (GetMyMission()->GetIgcSite()->RescueShipEvent(this, nullptr))
                         break;
                 }
             }
@@ -1176,7 +1176,7 @@ void CshipIGC::SetBaseHullType(IhullTypeIGC* newVal)
         positionOld = GetPosition();
 
         pclusterOld->DeleteModel(this);
-        GetThingSite()->SetCluster(this, NULL);
+        GetThingSite()->SetCluster(this, nullptr);
     }
 
     assert (m_parts.n() == 0);
@@ -1187,7 +1187,7 @@ void CshipIGC::SetBaseHullType(IhullTypeIGC* newVal)
         Mount   oldFixed = m_myHullType.GetHullType()->GetMaxFixedWeapons();
         Mount   newFixed = newVal->GetMaxFixedWeapons();
         Mount   maxTurrets = newVal->GetMaxWeapons() - newFixed;
-        for (ShipLinkIGC*   psl = m_shipsChildren.first(); (psl != NULL); psl = psl->next())
+        for (ShipLinkIGC*   psl = m_shipsChildren.first(); (psl != nullptr); psl = psl->next())
         {
             IshipIGC*   pship = psl->data();
 
@@ -1206,7 +1206,7 @@ void CshipIGC::SetBaseHullType(IhullTypeIGC* newVal)
     m_myHullType.SetHullType(newVal);
     SetMass(m_myHullType.GetMass());
 
-    SetRipcordModel(NULL);
+    SetRipcordModel(nullptr);
     m_ripcordCost = newVal->GetRipcordCost();
 
     if (newVal->HasCapability(c_habmLifepod))
@@ -1257,7 +1257,7 @@ void CshipIGC::SetBaseHullType(IhullTypeIGC* newVal)
         GetThingSite()->SetCluster(this, pclusterOld);
     }
 
-    GetMyMission()->GetIgcSite()->LoadoutChangeEvent(this, NULL, c_lcHullChange);
+    GetMyMission()->GetIgcSite()->LoadoutChangeEvent(this, nullptr, c_lcHullChange);
 
     ResetWaypoint();
 }
@@ -1290,7 +1290,7 @@ void    CshipIGC::DeletePart(IpartIGC* part)
     int iPart = 0;      //NYI debug
 
     part->AddRef();
-    for (PartLinkIGC*   l = m_parts.first(); (l != NULL); l = l->next())
+    for (PartLinkIGC*   l = m_parts.first(); (l != nullptr); l = l->next())
     {
         iPart++;    //NYI debug
 
@@ -1380,7 +1380,7 @@ void    CshipIGC::MountPart(IpartIGC*    part,
         IpartIGC**      plOld = (IpartIGC**)PartLocation(et, *pmountOld);
 
         assert (*plOld == part);
-        *plOld = NULL;
+        *plOld = nullptr;
     }
 
     if (mountNew >= -c_maxCargo)
@@ -1399,9 +1399,9 @@ void    CshipIGC::MountPart(IpartIGC*    part,
 
 void    CshipIGC::SetStateM(int newVal)
 {
-    if (m_pshipParent == NULL)
+    if (m_pshipParent == nullptr)
     {
-        if ((m_station == NULL) && (m_mountedOthers[ET_Cloak] != NULL))
+        if ((m_station == nullptr) && (m_mountedOthers[ET_Cloak] != nullptr))
         {
             if (m_pmodelRipcord)
                 newVal &= ~cloakActiveIGC;
@@ -1511,7 +1511,7 @@ void    CshipIGC::PreplotShipMove(Time          timeStop)
     IclusterIGC*    pcluster = GetCluster();
     const Vector&   positionMe = GetPosition();
 
-    if (m_bAutopilot && (m_pshipParent == NULL) && ((m_stateM & buildingMaskIGC) == 0))
+    if (m_bAutopilot && (m_pshipParent == nullptr) && ((m_stateM & buildingMaskIGC) == 0))
     {
         //debugf("%-20s %x %f %f %f\n", GetName(), timeStop.clock(), GetPosition().x, GetPosition().y, GetPosition().z);
 
@@ -1538,7 +1538,7 @@ void    CshipIGC::PreplotShipMove(Time          timeStop)
                             //but a station or a target in another cluster is always considered infinitely far away
                             assert (m_commandTargets[c_cmdAccepted]);
                             ImodelIGC*  pmodel = FindTarget(this, c_ttFriendly | c_ttStation | c_ttNearest,
-                                                            NULL, NULL, NULL, NULL, c_sabmRepair);
+                                                            nullptr, nullptr, nullptr, nullptr, c_sabmRepair);
                             if (pmodel)
                             {
                                 if (m_commandTargets[c_cmdAccepted]->GetCluster() == GetCluster())
@@ -1565,7 +1565,7 @@ void    CshipIGC::PreplotShipMove(Time          timeStop)
                     if (m_fraction == 1.0f)
                     {
                         IshieldIGC* pshield = (IshieldIGC*)(m_mountedOthers[ET_Shield]);
-                        if ((pshield == NULL) || (pshield->GetFraction() >= 0.75f))
+                        if ((pshield == nullptr) || (pshield->GetFraction() >= 0.75f))
                         {
                             bDamage = false;
 
@@ -1578,11 +1578,11 @@ void    CshipIGC::PreplotShipMove(Time          timeStop)
                             float   d2Enemy = FLT_MAX;
                             float   d2Friend = FLT_MAX;
 
-                            for (ShipLinkIGC*   psl = pcluster->GetShips()->first(); (psl != NULL); psl = psl->next())
+                            for (ShipLinkIGC*   psl = pcluster->GetShips()->first(); (psl != nullptr); psl = psl->next())
                             {
                                 IshipIGC*   pship = psl->data();
                                 if ((pship->GetPilotType() >= c_ptPlayer) &&
-                                    (pship->GetParentShip() == NULL) &&
+                                    (pship->GetParentShip() == nullptr) &&
                                     !pship->GetBaseHullType()->HasCapability(c_habmLifepod))
                                 {
                                     IsideIGC*   pside = pship->GetSide();
@@ -1623,7 +1623,7 @@ void    CshipIGC::PreplotShipMove(Time          timeStop)
                     {
                         //Not running ... we should be
                         ImodelIGC*  pmodel = FindTarget(this, c_ttFriendly | c_ttStation | c_ttNearest | c_ttAnyCluster,
-                                                        NULL, NULL, NULL, NULL, c_sabmRepair);
+                                                        nullptr, nullptr, nullptr, nullptr, c_sabmRepair);
 
                         //but only if we can find some place to run to
                         if (pmodel)
@@ -1649,7 +1649,7 @@ void    CshipIGC::PreplotShipMove(Time          timeStop)
                 else if (m_bRunningAway)
                 {
                     //We want to stop running
-                    SetCommand(c_cmdPlan, NULL, c_cidNone);
+                    SetCommand(c_cmdPlan, nullptr, c_cidNone);
 
                     assert (m_bRunningAway == false);   //Set by SetCommand
                     m_timeRanAway = timeStop;
@@ -1727,7 +1727,7 @@ void    CshipIGC::PreplotShipMove(Time          timeStop)
 
 void    CshipIGC::PlotShipMove(Time          timeStop)
 {
-    if (m_bAutopilot && (m_pshipParent == NULL))
+    if (m_bAutopilot && (m_pshipParent == nullptr))
     {
         Time    timeStart = GetMyLastUpdate();
 
@@ -1737,7 +1737,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
                 if (IsSafeToRipcord())
                 {
                     GetMyMission()->GetIgcSite()->RequestRipcord(this, m_pclusterRequestRipcord);
-                    m_pclusterRequestRipcord = NULL;
+                    m_pclusterRequestRipcord = nullptr;
                 }
                 else
                 {
@@ -1764,12 +1764,12 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
                 short   nFriendly = 0;
                 short   nEnemy = 0;
 
-                IshipIGC*   pshipMin = NULL;
+                IshipIGC*   pshipMin = nullptr;
 
                 {
                     float       fOreMin = FLT_MAX;
                     for (ShipLinkIGC*   psl = pcluster->GetShips()->first();
-                         (psl != NULL);
+                         (psl != nullptr);
                          psl = psl->next())
                     {
                         IshipIGC*   pship = psl->data();
@@ -1806,7 +1806,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
                         {
                             //Tell all the unlucky sods where to go to unload
                             for (ShipLinkIGC*   psl = pcluster->GetShips()->first();
-                                 (psl != NULL);
+                                 (psl != nullptr);
                                  psl = psl->next())
                             {
                                 IshipIGC*   pship = psl->data();
@@ -1822,7 +1822,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
 
                                     {
                                         ImodelIGC*  pmodel = FindTarget(pship, c_ttFriendly | c_ttStation | c_ttNearest | c_ttAnyCluster,
-                                                                        NULL, NULL, NULL, NULL, c_sabmUnload | c_sabmLand);
+                                                                        nullptr, nullptr, nullptr, nullptr, c_sabmUnload | c_sabmLand);
 
                                         //If we can't find a place to unload ... stick around here for lack of a better place to go
                                         if (pmodel)
@@ -1837,7 +1837,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
                                                                                        droneComingHomeEmptySound, "Coming home empty");
                                         }
                                         else
-                                            pship->SetCommand(c_cmdAccepted, NULL, c_cidNone);
+                                            pship->SetCommand(c_cmdAccepted, nullptr, c_cidNone);
                                     }
                                 }
                             }
@@ -1850,7 +1850,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
                 {
                     //Enemy ships present: no one can mine and everyone is unhappy
                     for (ShipLinkIGC*   psl = GetCluster()->GetShips()->first();
-                         (psl != NULL);
+                         (psl != nullptr);
                          psl = psl->next())
                     {
                         IshipIGC*   pship = psl->data();
@@ -1879,7 +1879,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
                     minedOre = capacity - m_fOre;
                     {
                         ImodelIGC*  pmodel = FindTarget(this, c_ttFriendly | c_ttStation | c_ttNearest | c_ttAnyCluster,
-                                                        NULL, NULL, NULL, NULL, c_sabmUnload);
+                                                        nullptr, nullptr, nullptr, nullptr, c_sabmUnload);
 
                         //If we can't find a place to unload ... stick around here for lack of a better place to go
                         if (pmodel)
@@ -1955,7 +1955,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
             }
         }
 
-        if (m_commandTargets[c_cmdPlan] == NULL)
+        if (m_commandTargets[c_cmdPlan] == nullptr)
         {
             if ((m_pilotType < c_ptCarrier) && (m_commandIDs[c_cmdPlan] != c_cidDoNothing))
             {
@@ -1981,7 +1981,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
             }
 
             int state = 0;
-            Dodge(this, NULL, &state);
+            Dodge(this, nullptr, &state);
 
             SetStateBits(backwardButtonIGC |
                          forwardButtonIGC |
@@ -2009,7 +2009,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
                     float   fShootSkill = 0.75f;
                     float   fTurnSkill = 0.75f;
                     int     state = 0;
-                    bool    bDodge = Dodge(this, NULL, &state);
+                    bool    bDodge = Dodge(this, nullptr, &state);
 
                     Vector  direction;
                     float   t = solveForLead(this,
@@ -2073,7 +2073,7 @@ void    CshipIGC::PlotShipMove(Time          timeStop)
                         for (Command i = 0; (i < c_cmdMax); i++)
                         {
                             if (m_commandTargets[i] == pmodelPlan)
-                                SetCommand(i, NULL, c_cidNone);
+                                SetCommand(i, nullptr, c_cidNone);
                         }
                     }
                 }
@@ -2640,24 +2640,24 @@ void CshipIGC::SetSide(IsideIGC* pside)  //override the default SetSide method
         {
             //Was anyone on my old side donating to me ... if so ... stop them from donating
             for (ShipLinkIGC*   psl = psideOld->GetShips()->first();
-                 (psl != NULL);
+                 (psl != nullptr);
                  psl = psl->next())
             {
                 if (psl->data()->GetAutoDonate() == this)
-                    psl->data()->SetAutoDonate(NULL);
+                    psl->data()->SetAutoDonate(nullptr);
             }
         }
-        m_pshipAutoDonate = NULL;
+        m_pshipAutoDonate = nullptr;
 
         //You can only change sides from inside the neutral zone
-        SetCluster(NULL);
-        SetParentShip(NULL);
+        SetCluster(nullptr);
+        SetParentShip(nullptr);
         
         //Blow away the children
         ShipLinkIGC*    psl;
         while (psl = m_shipsChildren.first())   //intentional assignment
         {
-            psl->data()->SetParentShip(NULL);
+            psl->data()->SetParentShip(nullptr);
         }
 
         if (m_station)
@@ -2666,7 +2666,7 @@ void CshipIGC::SetSide(IsideIGC* pside)  //override the default SetSide method
             //change station event
             m_station->DeleteShip(this);
             m_station->Release();
-            m_station = NULL;
+            m_station = nullptr;
         }
         assert (m_station == NULL);
 
@@ -2687,7 +2687,7 @@ void CshipIGC::SetMission(ImissionIGC* pMission)
     {
         AddRef();
 
-        SetSide(NULL);
+        SetSide(nullptr);
 
         //Blow away all of the ships parts ... essentially re-initialize it with no parts and no hull
         {
@@ -2706,13 +2706,13 @@ void CshipIGC::SetMission(ImissionIGC* pMission)
                 if (m_commandTargets[i])
                 {
                     m_commandTargets[i]->Release();
-                    m_commandTargets[i] = NULL;
+                    m_commandTargets[i] = nullptr;
                 }
                 m_commandIDs[i] = c_cidNone;
             }
         }
 
-        m_myHullType.SetHullType(NULL);
+        m_myHullType.SetHullType(nullptr);
 
         //Force the mass to zero since that is what it should be
         SetMass(0.0f);
@@ -2723,7 +2723,7 @@ void CshipIGC::SetMission(ImissionIGC* pMission)
             if (pmisionOld)
             {
                 pmisionOld->DeleteShip(this);
-                SetMyMission(NULL);
+                SetMyMission(nullptr);
             }
         }
 
@@ -2754,14 +2754,14 @@ void    CshipIGC::Promote(void)
     Mount       turretid    = m_turretID;
 
     //Leave the parent
-    SetParentShip(NULL);
+    SetParentShip(nullptr);
 
     //Give the same ship the parent had
     SetBaseHullType(pshipParent->GetBaseHullType());
 
     //Copy over all of the inventory from the parent
     {
-        for (PartLinkIGC*   ppl = pshipParent->GetParts()->first(); (ppl != NULL); ppl = ppl->next())
+        for (PartLinkIGC*   ppl = pshipParent->GetParts()->first(); (ppl != nullptr); ppl = ppl->next())
         {
             IpartIGC*   ppart = ppl->data();
             IpartIGC*   ppartNew = CreateAndAddPart(ppart->GetPartType(), ppart->GetMountID(), ppart->GetAmount());
@@ -2840,13 +2840,13 @@ void    CshipIGC::SetParentShip(IshipIGC*   pshipParent)
                 while (psl = m_shipsChildren.first())       //Intentional
                 {
                     debugf("%s <- %s \n", this->GetName(), psl->data()->GetName());
-                    psl->data()->SetParentShip(NULL);
+                    psl->data()->SetParentShip(nullptr);
                 }
             }
             assert (m_shipsChildren.n() == 0);
             assert (pshipParent->GetParentShip() == NULL);
 
-            if (pshipOldParent == NULL)
+            if (pshipOldParent == nullptr)
             {
                 //No pre-existing parent
                 {
@@ -2859,10 +2859,10 @@ void    CshipIGC::SetParentShip(IshipIGC*   pshipParent)
                 m_ammo = 0;
                 m_energy = 0.0f;
 
-                m_myHullType.SetHullType(NULL);
+                m_myHullType.SetHullType(nullptr);
                 SetMass(0.0f);
 
-                HRESULT hr = Load(0, NULL, NULL, NULL, c_mtNotPickable);
+                HRESULT hr = Load(0, nullptr, nullptr, nullptr, c_mtNotPickable);
                 ZSucceeded(hr);
 
                 SetVisibleF(false);
@@ -2882,7 +2882,7 @@ void    CshipIGC::SetParentShip(IshipIGC*   pshipParent)
                 {
                     IweaponIGC* pw = (IweaponIGC*)(pshipOldParent->GetMountedPart(ET_Weapon, m_turretID));
                     if (pw)
-                        pw->SetGunner(NULL);
+                        pw->SetGunner(nullptr);
 
                     m_turretID = NA;
                 }
@@ -2897,9 +2897,9 @@ void    CshipIGC::SetParentShip(IshipIGC*   pshipParent)
             pshipParent->AddChildShip(this);
 
             if (pshipOldParent)
-                GetMyMission()->GetIgcSite()->LoadoutChangeEvent(pshipOldParent, NULL, c_lcRemovePassenger);
-            GetMyMission()->GetIgcSite()->LoadoutChangeEvent(pshipParent, NULL, c_lcAddPassenger);
-            GetMyMission()->GetIgcSite()->LoadoutChangeEvent(this, NULL, c_lcTurretChange);
+                GetMyMission()->GetIgcSite()->LoadoutChangeEvent(pshipOldParent, nullptr, c_lcRemovePassenger);
+            GetMyMission()->GetIgcSite()->LoadoutChangeEvent(pshipParent, nullptr, c_lcAddPassenger);
+            GetMyMission()->GetIgcSite()->LoadoutChangeEvent(this, nullptr, c_lcTurretChange);
         }
         else
         {
@@ -2911,7 +2911,7 @@ void    CshipIGC::SetParentShip(IshipIGC*   pshipParent)
             {
                 IweaponIGC* pw = (IweaponIGC*)(pshipOldParent->GetMountedPart(ET_Weapon, m_turretID));
                 if (pw)
-                    pw->SetGunner(NULL);
+                    pw->SetGunner(nullptr);
 
                 m_turretID = NA;
             }
@@ -2919,7 +2919,7 @@ void    CshipIGC::SetParentShip(IshipIGC*   pshipParent)
             pshipOldParent->DeleteChildShip(this);
 
             pshipOldParent->Release();
-            m_pshipParent = NULL;
+            m_pshipParent = nullptr;
 
             //Put us in an eject pod
             //The caller of SetParentShip() must give us a hull
@@ -2933,8 +2933,8 @@ void    CshipIGC::SetParentShip(IshipIGC*   pshipParent)
                 pcluster->GetClusterSite()->AddScanner(GetSide()->GetObjectID(), this);
             }
 
-            GetMyMission()->GetIgcSite()->LoadoutChangeEvent(pshipOldParent, NULL, c_lcRemovePassenger);
-            GetMyMission()->GetIgcSite()->LoadoutChangeEvent(this, NULL, c_lcDisembark);
+            GetMyMission()->GetIgcSite()->LoadoutChangeEvent(pshipOldParent, nullptr, c_lcRemovePassenger);
+            GetMyMission()->GetIgcSite()->LoadoutChangeEvent(this, nullptr, c_lcDisembark);
         }
     }
 }
@@ -2962,7 +2962,7 @@ ImodelIGC*    CshipIGC::FindRipcordModel(IclusterIGC*   pcluster)
                                    : c_habmIsRipcordTarget;
 
         //Make a list of undocked ships that are ripcord targets as well
-        for (ShipLinkIGC*  psl = pside->GetShips()->first(); (psl != NULL); psl = psl->next())
+        for (ShipLinkIGC*  psl = pside->GetShips()->first(); (psl != nullptr); psl = psl->next())
         {
             IshipIGC*       pship = psl->data();
             if (pship != GetSourceShip())
@@ -2981,7 +2981,7 @@ ImodelIGC*    CshipIGC::FindRipcordModel(IclusterIGC*   pcluster)
         }
     }
 
-    const Vector*   positionGoal = NULL;
+    const Vector*   positionGoal = nullptr;
     {
         ImodelIGC*      pmodelGoal = m_commandTargets[c_cmdCurrent];
         if (!pmodelGoal)
@@ -3008,10 +3008,10 @@ ImodelIGC*    CshipIGC::FindRipcordModel(IclusterIGC*   pcluster)
         assert (pcluster);
 
         ImodelIGC*  pmodelRipcord = FindTarget(this, positionGoal ? (c_ttFriendly | c_ttStation | c_ttNearest) : (c_ttFriendly | c_ttStation),
-                                               NULL, pcluster, positionGoal, NULL,
+                                               nullptr, pcluster, positionGoal, nullptr,
                                                c_sabmRipcord);
 
-        if ((pmodelRipcord == NULL) && (m_pilotType >= c_ptPlayer))
+        if ((pmodelRipcord == nullptr) && (m_pilotType >= c_ptPlayer))
         {
             float   d2Goal = FLT_MAX;
 
@@ -3019,7 +3019,7 @@ ImodelIGC*    CshipIGC::FindRipcordModel(IclusterIGC*   pcluster)
                 //No station in the cluster to ripcord to ... try probes
                 //Search backwords so that we'll get the most recently dropped probe
                 //if multiple probes without a target
-                for (ProbeLinkIGC*  ppl = pcluster->GetProbes()->last(); (ppl != NULL); ppl = ppl->txen())
+                for (ProbeLinkIGC*  ppl = pcluster->GetProbes()->last(); (ppl != nullptr); ppl = ppl->txen())
                 {
                     IprobeIGC*  pprobe = ppl->data();
                     if ((pprobe->GetSide() == pside) && pprobe->GetCanRipcord(ripcordSpeed))
@@ -3042,18 +3042,18 @@ ImodelIGC*    CshipIGC::FindRipcordModel(IclusterIGC*   pcluster)
                 }
             }
 
-            if (pmodelRipcord == NULL)
+            if (pmodelRipcord == nullptr)
             {
                 float   debtMin = FLT_MAX;
 
                 //No station or probe in the cluster to ripcord to ... try ships
-                for (ShipPairLink*   psl = pairs.first(); (psl != NULL); psl = psl->next())
+                for (ShipPairLink*   psl = pairs.first(); (psl != nullptr); psl = psl->next())
                 {
                     if (psl->data().pcluster == pcluster)
                     {
                         float   debt = psl->data().pship->GetRipcordDebt();
 
-                        if (positionGoal == NULL)
+                        if (positionGoal == nullptr)
                         {
                             if (debt < debtMin)
                             {
@@ -3085,7 +3085,7 @@ ImodelIGC*    CshipIGC::FindRipcordModel(IclusterIGC*   pcluster)
         //Push the destinations of the warps in pcluster onto the end the list of 
         //warps that are an extra jump away
         {
-            for (WarpLinkIGC*   l = pcluster->GetWarps()->first(); (l != NULL); l = l->next())
+            for (WarpLinkIGC*   l = pcluster->GetWarps()->first(); (l != nullptr); l = l->next())
             {
                 IwarpIGC*   w = l->data();
                 if (CanSee(w))
@@ -3096,7 +3096,7 @@ ImodelIGC*    CshipIGC::FindRipcordModel(IclusterIGC*   pcluster)
                         IclusterIGC*    pclusterOther = pwarpDestination->GetCluster();
 
                         //Have we visited pclusterOther?
-                        if (clustersVisited.find(pclusterOther) == NULL)
+                        if (clustersVisited.find(pclusterOther) == nullptr)
                         {
                             //No
                             warps.last(pwarpDestination);
@@ -3107,8 +3107,8 @@ ImodelIGC*    CshipIGC::FindRipcordModel(IclusterIGC*   pcluster)
         }
 
         WarpLinkIGC*    plink = warps.first();
-        if (plink == NULL)
-            return NULL;
+        if (plink == nullptr)
+            return nullptr;
 
         IwarpIGC*       pwarp = plink->data();
 
@@ -3125,14 +3125,14 @@ void    CshipIGC::SetAutopilot(bool bAutopilot)
     if (bAutopilot)
         SetCommand(c_cmdPlan, m_commandTargets[c_cmdCurrent], m_commandIDs[c_cmdCurrent]);
     else
-        SetCommand(c_cmdPlan, NULL, c_cidNone);
+        SetCommand(c_cmdPlan, nullptr, c_cidNone);
 }
 
 void    CshipIGC::ResetWaypoint(void)
 {
-    m_pclusterRequestRipcord = NULL;
+    m_pclusterRequestRipcord = nullptr;
 
-    if (GetCluster() != NULL)
+    if (GetCluster() != nullptr)
     {
         if (m_commandTargets[c_cmdPlan])
         {
@@ -3288,7 +3288,7 @@ void    CshipIGC::ResetWaypoint(void)
                     }
                 }
                 else if (m_pmodelRipcord)
-                    pigc->RequestRipcord(this, NULL);
+                    pigc->RequestRipcord(this, nullptr);
             }
         }
         else
@@ -3296,12 +3296,12 @@ void    CshipIGC::ResetWaypoint(void)
             m_gotoplan.Reset();
 
             if (m_pmodelRipcord)
-                GetMyMission()->GetIgcSite()->RequestRipcord(this, NULL);
+                GetMyMission()->GetIgcSite()->RequestRipcord(this, nullptr);
         }
     }
     else
     {
-        if (m_commandTargets[c_cmdPlan] == NULL)
+        if (m_commandTargets[c_cmdPlan] == nullptr)
             m_gotoplan.Reset();
     }
 }
@@ -3332,14 +3332,14 @@ bool    CshipIGC::IsSafeToRipcord(void)
     //"effective" time till we ripcord is s / current velocity
 
     int state = 0;
-    Dodge(this, NULL, &state, false, 1.0f + s / v0);   //Add a bit of a fudge
+    Dodge(this, nullptr, &state, false, 1.0f + s / v0);   //Add a bit of a fudge
 
     return (state == 0);
 }
 
 bool    CshipIGC::bShouldUseRipcord(IclusterIGC*  pcluster)
 {
-    if ((m_myHullType.GetHullType() == NULL) || m_myHullType.HasCapability(c_habmNoRipcord))
+    if ((m_myHullType.GetHullType() == nullptr) || m_myHullType.HasCapability(c_habmNoRipcord))
         return false;
 
     IclusterIGC*    pclusterShip = GetCluster();
@@ -3360,7 +3360,7 @@ bool    CshipIGC::bShouldUseRipcord(IclusterIGC*  pcluster)
                                    : c_habmIsRipcordTarget;
 
         //Make a list of undocked ships that are ripcord targets as well
-        for (ShipLinkIGC*  psl = pside->GetShips()->first(); (psl != NULL); psl = psl->next())
+        for (ShipLinkIGC*  psl = pside->GetShips()->first(); (psl != nullptr); psl = psl->next())
         {
             IshipIGC*       ps = psl->data();
             if (ps != this)
@@ -3371,7 +3371,7 @@ bool    CshipIGC::bShouldUseRipcord(IclusterIGC*  pcluster)
                     if (pcluster == pc)
                         return true;
 
-                    if (shipRipcords.find(pc) == NULL)
+                    if (shipRipcords.find(pc) == nullptr)
                         shipRipcords.last(pc);
                 }
             }
@@ -3392,7 +3392,7 @@ bool    CshipIGC::bShouldUseRipcord(IclusterIGC*  pcluster)
     {
         assert (pcluster);
         ImodelIGC*  pmodelRipcord = FindTarget(this, c_ttFriendly | c_ttStation,
-                                               NULL, pcluster, NULL, NULL,
+                                               nullptr, pcluster, nullptr, nullptr,
                                                c_sabmRipcord);
 
         if (pmodelRipcord)
@@ -3405,7 +3405,7 @@ bool    CshipIGC::bShouldUseRipcord(IclusterIGC*  pcluster)
                 return true;
 
             //No station in the cluster to ripcord to ... try probes
-            for (ProbeLinkIGC*  ppl = pcluster->GetProbes()->first(); (ppl != NULL); ppl = ppl->next())
+            for (ProbeLinkIGC*  ppl = pcluster->GetProbes()->first(); (ppl != nullptr); ppl = ppl->next())
             {
                 IprobeIGC*  pprobe = ppl->data();
                 if ((pprobe->GetSide() == pside) && pprobe->GetCanRipcord(ripcordSpeed))
@@ -3417,7 +3417,7 @@ bool    CshipIGC::bShouldUseRipcord(IclusterIGC*  pcluster)
         //Push the destinations of the warps in pcluster onto the end the list of 
         //warps that are an extra jump away
         {
-            for (WarpLinkIGC*   l = pcluster->GetWarps()->first(); (l != NULL); l = l->next())
+            for (WarpLinkIGC*   l = pcluster->GetWarps()->first(); (l != nullptr); l = l->next())
             {
                 IwarpIGC*   w = l->data();
                 if (CanSee(w))
@@ -3428,7 +3428,7 @@ bool    CshipIGC::bShouldUseRipcord(IclusterIGC*  pcluster)
                         IclusterIGC*    pclusterOther = pwarpDestination->GetCluster();
 
                         //Have we visited pclusterOther?
-                        if (clustersVisited.find(pclusterOther) == NULL)
+                        if (clustersVisited.find(pclusterOther) == nullptr)
                         {
                             //No
                             pwlTwoAway->last(pwarpDestination);

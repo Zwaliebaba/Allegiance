@@ -167,7 +167,7 @@ class CmissileIGC : public TmodelIGC<ImissileIGC>
         {
             m_bDisarmed = true;
             if (m_launcher->GetLastMissileFired() == this)
-                m_launcher->SetLastMissileFired(NULL);
+                m_launcher->SetLastMissileFired(nullptr);
         }
 
     private:

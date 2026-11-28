@@ -46,7 +46,7 @@ HRESULT         CbucketIGC::Initialize(ImissionIGC* pMission,
             const GlobalAttributeSet&   gas = pdevelopment->GetGlobalAttributeSet();
 
             //Go backwards to get the last possible development
-            for (BucketLinkIGC* pbl = m_data.side->GetBuckets()->last(); (pbl != NULL); pbl = pbl->txen())
+            for (BucketLinkIGC* pbl = m_data.side->GetBuckets()->last(); (pbl != nullptr); pbl = pbl->txen())
             {
                 IbucketIGC*     pbucket = pbl->data();
                 IbuyableIGC*    pbuyable = pbucket->GetBuyable();
@@ -94,18 +94,18 @@ void            CbucketIGC::Terminate(void)
     if (m_pbucketPredecessor)
     {
         m_pbucketPredecessor->Release();
-        m_pbucketPredecessor = NULL;
+        m_pbucketPredecessor = nullptr;
     }
     m_pMission->GetIgcSite()->BucketChangeEvent(c_bcTerminated, this);
 
     assert (m_data.side);
     m_data.side->DeleteBucket(this);
     m_data.side->Release();
-    m_data.side = NULL;
+    m_data.side = nullptr;
 
     assert (m_data.buyable);
     m_data.buyable->Release();
-    m_data.buyable = NULL;
+    m_data.buyable = nullptr;
 
     Release();
 }

@@ -19,8 +19,8 @@
 // CcloakIGC
 CcloakIGC::CcloakIGC(void)
 :
-    m_partType(NULL),
-    m_ship(NULL),
+    m_partType(nullptr),
+    m_ship(nullptr),
     m_mountID(c_mountNA),
     m_fActive(false)
 {
@@ -46,12 +46,12 @@ void        CcloakIGC::Terminate(void)
 {
     AddRef();
 
-    SetShip(NULL, NA);
+    SetShip(nullptr, NA);
 
     if (m_partType)
     {
         m_partType->Release();
-        m_partType = NULL;
+        m_partType = nullptr;
     }
 
     Release();

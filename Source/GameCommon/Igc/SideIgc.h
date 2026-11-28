@@ -41,7 +41,7 @@ class       CsideIGC : public IsideIGC
         {
             //Update the buckets attached to the station.
             for (BucketLinkIGC* l = m_buckets.first();
-                 (l != NULL);
+                 (l != nullptr);
                  l = l->next())
             {
                 l->data()->Update(now);
@@ -90,7 +90,7 @@ class       CsideIGC : public IsideIGC
 
                 //Turn all space stations into the base space station for the new civ
                 {
-                    for (StationLinkIGC*    psl = m_stations.first(); (psl != NULL); psl = psl->next())
+                    for (StationLinkIGC*    psl = m_stations.first(); (psl != nullptr); psl = psl->next())
                     {
                         IstationIGC*    pstation = psl->data();
 
@@ -140,7 +140,7 @@ class       CsideIGC : public IsideIGC
 
             {
                 for (StationLinkIGC*    l = m_stations.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     ttbm |= l->data()->GetStationType()->GetEffectTechs();
@@ -240,7 +240,7 @@ class       CsideIGC : public IsideIGC
                 //Station type or drone type: these are built at stations so see if any station
                 //can build them.
                 bAvailable = false;
-                for (StationLinkIGC*    psl = m_stations.first(); (psl != NULL); psl = psl->next())
+                for (StationLinkIGC*    psl = m_stations.first(); (psl != nullptr); psl = psl->next())
                 {
                     TechTreeBitMask  ttbmStation = psl->data()->GetStationType()->GetLocalTechs() |
                                                    ttbmSide;
@@ -549,7 +549,7 @@ class       CsideIGC : public IsideIGC
         {
             //Empty the side buckets we can no longer build
             for (BucketLinkIGC* l = m_buckets.first();
-                 (l != NULL);
+                 (l != nullptr);
                  l = l->next())
             {
                 IbucketIGC* b = l->data();
@@ -584,7 +584,7 @@ class       CsideIGC : public IsideIGC
                                 {
                                     //Find the bucket that corresponds to the successor station
                                     for (BucketLinkIGC* l2 = m_buckets.first();
-                                         (l2 != NULL);
+                                         (l2 != nullptr);
                                          l2 = l2->next())
                                     {
                                         IbucketIGC* b2 = l2->data();

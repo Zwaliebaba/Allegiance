@@ -29,7 +29,7 @@ HRESULT     CprobeTypeIGC::Initialize(ImissionIGC* pMission, Time now, const voi
         assert (iswalpha(m_data.modelName[0]));
         pMission->GetIgcSite()->Preload(m_data.modelName, iswalpha(m_data.textureName[0])
                                                           ? m_data.textureName
-                                                          : NULL);
+                                                          : nullptr);
 
         MultiHullBase*  pmhb = HitTest::Load(m_data.modelName);
         if (m_data.projectileTypeID != NA)

@@ -19,10 +19,10 @@
 // CweaponIGC
 CweaponIGC::CweaponIGC(void)
 :
-    m_partType(NULL),
-    m_projectileType(NULL),
-    m_ship(NULL),
-    m_pshipGunner(NULL),
+    m_partType(nullptr),
+    m_projectileType(nullptr),
+    m_ship(nullptr),
+    m_pshipGunner(nullptr),
     m_fActive(false),
     m_fFiringShot(false),
     m_fFiringBurst(false),
@@ -57,21 +57,21 @@ void        CweaponIGC::Terminate(void)
 
     if (m_pshipGunner)
     {
-        SetGunner(NULL);
+        SetGunner(nullptr);
     }
 
-    SetShip(NULL, NA);
+    SetShip(nullptr, NA);
 
     if (m_partType)
     {
         m_partType->Release();
-        m_partType = NULL;
+        m_partType = nullptr;
     }
 
     if (m_projectileType)
     {
         m_projectileType->Release();
-        m_projectileType = NULL;
+        m_projectileType = nullptr;
     }
 
     Release();
@@ -110,7 +110,7 @@ void    CweaponIGC::SetMountID(Mount newVal)
     {
         Deactivate();
         if (m_pshipGunner)
-            SetGunner(NULL);
+            SetGunner(nullptr);
 
         m_ship->MountPart(this, newVal, &m_mountID);
 
@@ -126,7 +126,7 @@ void    CweaponIGC::SetMountID(Mount newVal)
 
             //Is there a turret gunner in this position (who does not have a gun)
             {
-                for (ShipLinkIGC*   psl = m_ship->GetChildShips()->first(); (psl != NULL); psl = psl->next())
+                for (ShipLinkIGC*   psl = m_ship->GetChildShips()->first(); (psl != nullptr); psl = psl->next())
                 {
                     IshipIGC*   pship = psl->data();
                     if (pship->GetTurretID() == newVal)
@@ -221,9 +221,9 @@ void        CweaponIGC::FireWeapon(Time now)
                     speed *= m_ship->GetSide()->GetGlobalAttributeSet().GetAttribute(c_gaSpeedAmmo);
                 bool    absoluteF = m_projectileType->GetAbsoluteF();
 
-                const Vector*   ppositionTarget = NULL;
-                const Vector*   pvelocityTarget = NULL;
-                ImodelIGC*  ptarget = NULL;
+                const Vector*   ppositionTarget = nullptr;
+                const Vector*   pvelocityTarget = nullptr;
+                ImodelIGC*  ptarget = nullptr;
                 if (m_projectileType->GetBlastPower() != 0.0f)
                 {
                     if (m_pshipGunner)
@@ -239,7 +239,7 @@ void        CweaponIGC::FireWeapon(Time now)
                             pvelocityTarget = &(ptarget->GetVelocity());
                         }
                         else
-                            ptarget = NULL;
+                            ptarget = nullptr;
                     }
                 }
 

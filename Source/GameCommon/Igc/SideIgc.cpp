@@ -59,7 +59,7 @@ void            CsideIGC::Terminate(void)
         //Set all of the side's ships to the neutral side
         ShipLinkIGC*  l;
         while (l = m_ships.first())       //intentional assignment
-            l->data()->SetSide(NULL);
+            l->data()->SetSide(nullptr);
     }
 
     {
@@ -72,7 +72,7 @@ void            CsideIGC::Terminate(void)
     m_pMission->DeleteSide(this);
 
     m_pCivilization->Release();
-    m_pCivilization = NULL;
+    m_pCivilization = nullptr;
 
     Release();
 }
@@ -115,7 +115,7 @@ void            CsideIGC::CreateBuckets(void)
             {
                 //Start with their initial techs and add anything they could capture.
                 for (PartTypeLinkIGC*   l = m_pMission->GetPartTypes()->first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     m_ttbmUltimateTechs |= l->data()->GetEffectTechs();
@@ -125,7 +125,7 @@ void            CsideIGC::CreateBuckets(void)
             {
                 //Do the building techs ... assume they capture every type of building
                 for (StationTypeLinkIGC*    l = m_pMission->GetStationTypes()->first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     m_ttbmUltimateTechs |= l->data()->GetEffectTechs();
@@ -143,7 +143,7 @@ void            CsideIGC::CreateBuckets(void)
                     {
                         //Do the same for developments
                         for (DevelopmentLinkIGC*    l = m_pMission->GetDevelopments()->first();
-                             (l != NULL);
+                             (l != nullptr);
                              l = l->next())
                         {
                             //Can we buy it?
@@ -167,7 +167,7 @@ void            CsideIGC::CreateBuckets(void)
         {
             //Add all developments that the side could, potentially, produce
             for (DevelopmentLinkIGC*    l = m_pMission->GetDevelopments()->first();
-                 (l != NULL);
+                 (l != nullptr);
                  l = l->next())
             {
                 IdevelopmentIGC*    d = l->data();
@@ -198,7 +198,7 @@ void            CsideIGC::CreateBuckets(void)
             {
                 //Add all developments that the side could, potentially, produce
                 for (DroneTypeLinkIGC*    l = m_pMission->GetDroneTypes()->first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     IdroneTypeIGC*    d = l->data();
@@ -221,7 +221,7 @@ void            CsideIGC::CreateBuckets(void)
             {
                 //Add all developments that the side could, potentially, produce
                 for (StationTypeLinkIGC*    l = m_pMission->GetStationTypes()->first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     IstationTypeIGC*    s = l->data();

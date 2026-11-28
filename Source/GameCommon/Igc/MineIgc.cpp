@@ -19,8 +19,8 @@
 // CmineIGC
 CmineIGC::CmineIGC(void)
 :
-    m_launcher(NULL),
-    m_mineType(NULL),
+    m_launcher(nullptr),
+    m_mineType(nullptr),
     m_bCreateNow (false)
 {
 }
@@ -137,13 +137,13 @@ void    CmineIGC::Terminate(void)
     if (m_launcher)
     {
         m_launcher->Release();
-        m_launcher = NULL;
+        m_launcher = nullptr;
     }
 
     if (m_mineType)
     {
         m_mineType->Release();
-        m_mineType = NULL;
+        m_mineType = nullptr;
     }
     Release();
 }

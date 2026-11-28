@@ -46,11 +46,11 @@ void            CcivilizationIGC::Terminate(void)
 {
     assert (m_pstInitial);
     m_pstInitial->Release();
-    m_pstInitial = NULL;
+    m_pstInitial = nullptr;
 
     assert (m_phtLifepod);
     m_phtLifepod->Release();
-    m_phtLifepod = NULL;
+    m_phtLifepod = nullptr;
 
     m_pMission->DeleteCivilization(this);
 }

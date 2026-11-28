@@ -40,7 +40,7 @@ class CprobeTypeIGC : public IprobeTypeIGC
     public:
         CprobeTypeIGC(void)
         :
-            m_projectileType(NULL)
+            m_projectileType(nullptr)
         {
         }
 
@@ -56,7 +56,7 @@ class CprobeTypeIGC : public IprobeTypeIGC
             if (m_projectileType)
             {
                 m_projectileType->Release();
-                m_projectileType = NULL;
+                m_projectileType = nullptr;
             }
 
             m_pMission->DeleteExpendableType(this);

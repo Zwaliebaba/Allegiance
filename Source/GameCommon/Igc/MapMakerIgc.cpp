@@ -76,8 +76,8 @@ CMapData::CMapData()
 {
     SectorID sID;
 
-    mpMission = NULL;
-    mpMissionParams = NULL;
+    mpMission = nullptr;
+    mpMissionParams = nullptr;
 
     ZeroMemory(mpCluster, sizeof(mpCluster));
     for(sID = 0; sID < c_NumClusterNames; sID++)
@@ -98,7 +98,7 @@ CMapData::~CMapData()
 
     for(sID = 0; sID < c_MaxClustersPerMap; sID++)
     {
-        if (NULL != mpCluster[sID])
+        if (nullptr != mpCluster[sID])
             mpCluster[sID]->Release();  
     }
 }
@@ -106,9 +106,9 @@ CMapData::~CMapData()
 
 VOID CMapData::SetCluster(SectorID sID, IclusterIGC * pCluster, SideID sideID)
 {
-    if (NULL != pCluster)
+    if (nullptr != pCluster)
         pCluster->AddRef();
-    if (NULL != mpCluster[sID])
+    if (nullptr != mpCluster[sID])
         mpCluster[sID]->Release();
     mpCluster[sID] = pCluster;
     msideIDCluster[sID] = sideID;
@@ -233,12 +233,12 @@ static bool    FindPath(IclusterIGC*    p2,
 
     (*pStart)++;
 
-    for (WarpLinkIGC*   pwl = p1->GetWarps()->first(); (pwl != NULL); pwl = pwl->next())
+    for (WarpLinkIGC*   pwl = p1->GetWarps()->first(); (pwl != nullptr); pwl = pwl->next())
     {
         IclusterIGC*    p = pwl->data()->GetDestination()->GetCluster();
         SectorID        id = p->GetObjectID();
 
-        if ((pclusterBackTrack[id] == NULL) && !bVisited[id])
+        if ((pclusterBackTrack[id] == nullptr) && !bVisited[id])
         {
             pclusterBackTrack[id] = p1;
             pclustersAdjacent[*pStop] = p;
@@ -264,13 +264,13 @@ static bool    EnoughPaths(IclusterIGC**            pclusterBackTrack,
 
     for (int i = pclusters->n() - 1; (i >= 0); i--)
     {
-        pclusterBackTrack[i] = NULL;
+        pclusterBackTrack[i] = nullptr;
     }
 
     IclusterIGC**   pclustersAdjacent = (IclusterIGC**)alloca(pclusters->n() * pclusters->n() * sizeof(IclusterIGC*));
     int         nStart = 0;
     int         nStop = 0;
-    for (WarpLinkIGC*   pwl = pcluster1->GetWarps()->first(); (pwl != NULL); pwl = pwl->next())
+    for (WarpLinkIGC*   pwl = pcluster1->GetWarps()->first(); (pwl != nullptr); pwl = pwl->next())
     {
         IwarpIGC*   pw = pwl->data();
         if (pw != pwarp)
@@ -361,7 +361,7 @@ VOID CmapMakerIGC::GenerateMission(Time now,
     {
         //Adjust the position of all alephs in all clusters
         float   majorRadius = pMission->GetFloatConstant(c_fcidRadiusUniverse);
-        for (ClusterLinkIGC*    pcl = pMission->GetClusters()->first(); (pcl != NULL); pcl = pcl->next())
+        for (ClusterLinkIGC*    pcl = pMission->GetClusters()->first(); (pcl != nullptr); pcl = pcl->next())
         {
             IclusterIGC*    pcluster = pcl->data();
 
@@ -396,7 +396,7 @@ VOID CmapMakerIGC::GenerateMission(Time now,
                     float   bias = random(0.0f, 2.0f * pi);
                     int     index = 0;
 
-                    for (WarpLinkIGC*   pwl = pwarps->first(); (pwl != NULL); pwl = pwl->next())
+                    for (WarpLinkIGC*   pwl = pwarps->first(); (pwl != nullptr); pwl = pwl->next())
                     {
                         IwarpIGC*   pwarp = pwl->data();
 
@@ -432,7 +432,7 @@ VOID CmapMakerIGC::GenerateMission(Time now,
         //both sides of the aleph
         int nWarps = 0;
         {
-            for (WarpLinkIGC*   pwl = pwarpList->first(); (pwl != NULL); pwl = pwl->next())
+            for (WarpLinkIGC*   pwl = pwarpList->first(); (pwl != nullptr); pwl = pwl->next())
             {
                 IwarpIGC*   pwarp = pwl->data();
                 if ((pwarp->GetObjectID() < pwarp->GetDestination()->GetObjectID()) &&
@@ -746,11 +746,11 @@ VOID CmapMakerIGC::LinkClusters(CMapData* pMapData,
         }
     }
 
-    const char* pszTexture1 = NULL;
-    const char* pszTexture2 = NULL;
+    const char* pszTexture1 = nullptr;
+    const char* pszTexture2 = nullptr;
 
-    const char* pszIcon1 = NULL;
-    const char* pszIcon2 = NULL;
+    const char* pszIcon1 = nullptr;
+    const char* pszIcon2 = nullptr;
     switch (alephType)
     {
         case c_FriendlyAleph:
@@ -950,7 +950,7 @@ VOID CmapMakerIGC::PopulateClusters(CMapData* pMapData)
                         float(pMapData->GetTeams()) / float(pMapData->GetMinableAsteroids());
 
 
-    for (ClusterLinkIGC*    pcl = pMapData->GetMission()->GetClusters()->first(); (pcl != NULL); pcl = pcl->next())
+    for (ClusterLinkIGC*    pcl = pMapData->GetMission()->GetClusters()->first(); (pcl != nullptr); pcl = pcl->next())
     {
         IclusterIGC*    pcluster = pcl->data();
         if (pcluster->GetHomeSector())
@@ -966,13 +966,13 @@ VOID CmapMakerIGC::RevealHomeClusters(ImissionIGC * pMission)
     // Show every side everything about its home
     //
     for (SideLinkIGC * psl = pMission->GetSides()->first();
-        (psl != NULL);
+        (psl != nullptr);
         psl = psl->next())
     {
         IsideIGC*   pside = psl->data();
 
         for (StationLinkIGC * pstnl = pside->GetStations()->first();
-            (pstnl != NULL);
+            (pstnl != nullptr);
             pstnl = pstnl->next())
         {
             //
@@ -980,7 +980,7 @@ VOID CmapMakerIGC::RevealHomeClusters(ImissionIGC * pMission)
             //
             for (ModelLinkIGC * pml =
                     pstnl->data()->GetCluster()->GetModels()->first();
-                (pml != NULL);
+                (pml != nullptr);
                 pml = pml->next())
             {
                 pml->data()->SetSideVisibility(pside, true);
@@ -995,13 +995,13 @@ VOID CmapMakerIGC::RevealMap(ImissionIGC * pMission)
     // Show every side every warp
     //
     for (WarpLinkIGC * pwl = pMission->GetWarps()->first();
-        (pwl != NULL);
+        (pwl != nullptr);
         pwl = pwl->next())
     {
         IwarpIGC*   pwarp = pwl->data();
 
         for (SideLinkIGC * psl = pMission->GetSides()->first();
-            (psl != NULL);
+            (psl != nullptr);
             psl = psl->next())
         {
             pwarp->SetSideVisibility(psl->data(), true);
@@ -1014,7 +1014,7 @@ VOID CmapMakerIGC::ActivateSides(ImissionIGC * pMission)
     const SideListIGC * psideList = pMission->GetSides();
 
     for (SideLinkIGC * psidelink = psideList->first();
-        NULL != psidelink;
+        nullptr != psidelink;
         psidelink = psidelink->next())
     {
         psidelink->data()->SetActiveF(true);
@@ -1643,7 +1643,7 @@ const char* CmapMakerBrawlIGC::IsValid(const MissionParams * pmp)
                 "please change the map type, number of players per team, "
                 "or number of teams.");
 
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -1756,7 +1756,7 @@ const char* CmapMakerPinWheelIGC::IsValid(const MissionParams * pmp)
         return("Pinwheel maps must have less than 16 player per team; "
                "please change the map type, or number of players per team.");
 
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -1873,7 +1873,7 @@ const char* CmapMakerDiamondRingIGC::IsValid(const MissionParams * pmp)
         return("Diamond ring maps must have more than 2 teams; "
                "please change the map type, or number of teams.");
 
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -2182,7 +2182,7 @@ const char* CmapMakerLargeSplitIGC::IsValid(const MissionParams * pmp)
         return("Large split maps must have at least 10 players per team; "
                 "please change the map type, or number of players per team.");
 
-    return(NULL);
+    return(nullptr);
 }
 
 CmapMakerLargeSplitIGC::CmapMakerLargeSplitIGC()
@@ -2355,7 +2355,7 @@ const char* CmapMakerEastWestIGC::IsValid(const MissionParams * pmp)
         return("East West maps must have at least 10 players per team; "
                 "please change the map type, or the number or players per team.");
 
-    return(NULL);
+    return(nullptr);
 }
 
 CmapMakerEastWestIGC::CmapMakerEastWestIGC()
@@ -2490,7 +2490,7 @@ const char* CmapMakerSplitBaseIGC::IsValid(const MissionParams * pmp)
         return("Split base maps must have at least 30 players; "
                "please change the map type, the number of teams, or number of players per team.");
 
-    return(NULL);
+    return(nullptr);
 }
 CmapMakerSplitBaseIGC::CmapMakerSplitBaseIGC()
 {

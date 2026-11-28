@@ -1335,19 +1335,19 @@ struct MissionParams
         {
             return "StartingMoney must be between 0 and 9.";
         }
-        else if (NULL == memchr(strGameName, 0, c_cbGameName))
+        else if (nullptr == memchr(strGameName, 0, c_cbGameName))
         {
             return "invalid game name";
         }
-        else if (NULL == memchr(szIGCStaticFile, 0, c_cbFileName))
+        else if (nullptr == memchr(szIGCStaticFile, 0, c_cbFileName))
         {
             return "invalid IGC static file name";
         }
-        else if (NULL == memchr(szCustomMapFile, 0, c_cbFileName))
+        else if (nullptr == memchr(szCustomMapFile, 0, c_cbFileName))
         {
             return "invalid IGC static file name";
         }
-        else if (NULL == memchr(strGamePassword, 0, c_cbGamePassword))
+        else if (nullptr == memchr(strGamePassword, 0, c_cbGamePassword))
         {
             return "invalid IGC static file name";
         }
@@ -2835,7 +2835,7 @@ class IbaseIGC : public IObject
 
         //Calling either of these methods on something that doesn't have either an object ID or a mission is bad.
         virtual ObjectID        GetObjectID(void) const     { assert (false); return NA;}
-        virtual ImissionIGC*    GetMission(void) const      { assert (false); return NULL; }
+        virtual ImissionIGC*    GetMission(void) const      { assert (false); return nullptr; }
 };
 
 class ItypeIGC : public IbaseIGC
@@ -2887,8 +2887,8 @@ class ThingSite : public AttachSite
         virtual float           GetScreenRadius(void) {return 1.0f; }
         virtual unsigned char   GetRadarState(void) { return c_ucRadarOnScreenLarge; }
 
-        virtual ThingGeo*   GetThingGeo(void) { return NULL; }
-        virtual Geo*        GetGeo(void) { return NULL; }
+        virtual ThingGeo*   GetThingGeo(void) { return nullptr; }
+        virtual Geo*        GetGeo(void) { return nullptr; }
 
         virtual void        SetPosition(const Vector& position)  {}
         virtual float       GetRadius(void) { return 1.0f; }
@@ -4288,9 +4288,9 @@ class ClusterSite : public AttachSite
 
         virtual HRESULT         GetEnvironmentGeo(const char* pszName) { return S_OK; }
 
-        virtual Geo*            GetEnvironmentGeo() { return NULL; }
-        virtual GroupGeo*       GetGroupScene()     { return NULL; }
-        virtual PosterImage*    GetPosterImage()    { return NULL; }
+        virtual Geo*            GetEnvironmentGeo() { return nullptr; }
+        virtual GroupGeo*       GetGroupScene()     { return nullptr; }
+        virtual PosterImage*    GetPosterImage()    { return nullptr; }
         virtual void            SetEnvironmentGeo(const char* pszName) {}
 
         virtual float           GetRotation(void) const { return 0.0f; }
@@ -4298,7 +4298,7 @@ class ClusterSite : public AttachSite
 
         virtual void                    AddScanner(SideID   sid, IscannerIGC* scannerNew) {}
         virtual void                    DeleteScanner(SideID   sid, IscannerIGC* scannerOld) {}
-        virtual const ScannerListIGC*   GetScanners(SideID   sid) const { return NULL; }
+        virtual const ScannerListIGC*   GetScanners(SideID   sid) const { return nullptr; }
 
         virtual AssetMask               GetClusterAssetMask(void) { return 0; }
         virtual void                    SetClusterAssetMask(AssetMask am) {}
@@ -4403,10 +4403,10 @@ bool  FindableModel(ImodelIGC*    m,
 
 ImodelIGC*  FindTarget(IshipIGC*            pShip,
                        int                  ttMask,
-                       ImodelIGC*           pmodelCurrent = NULL,
-                       IclusterIGC*         pcluster = NULL,
-                       const Vector*        pposition = NULL,
-                       const Orientation*   porientation = NULL,
+                       ImodelIGC*           pmodelCurrent = nullptr,
+                       IclusterIGC*         pcluster = nullptr,
+                       const Vector*        pposition = nullptr,
+                       const Orientation*   porientation = nullptr,
                        AbilityBitMask       abmAbilities = 0,                   //e.g. anything
                        int                  maxDistance = 0x7fffffff);          //e.g. anywhere
 
@@ -4436,7 +4436,7 @@ class   SideVisibility
         SideVisibility(void)
         :
             m_fVisible(false),
-            m_pLastSpotter(NULL)
+            m_pLastSpotter(nullptr)
         {
         }
 
@@ -4550,7 +4550,7 @@ class IIgcSite : public IObject
                                  CommandID      cid,
                                  ObjectType     otTarget,
                                  ObjectID       oidTarget,
-                                 ImodelIGC*     pmodelTarget = NULL) {}
+                                 ImodelIGC*     pmodelTarget = nullptr) {}
         virtual void SendChat(IshipIGC*         pshipSender,
                               ChatTarget        chatTarget,
                               ObjectID          oidRecipient,
@@ -4559,7 +4559,7 @@ class IIgcSite : public IObject
                               CommandID         cid           = c_cidNone,
                               ObjectType        otTarget      = NA,
                               ObjectID          oidTarget     = NA,
-                              ImodelIGC*        pmodelTarget  = NULL,
+                              ImodelIGC*        pmodelTarget  = nullptr,
                               bool              bObjectModel  = false) {}
 
         void SendChatf(IshipIGC*   pshipSender,
@@ -4580,11 +4580,11 @@ class IIgcSite : public IObject
 
         virtual void GetMoneyRequest(IshipIGC*  pshipSender, Money amount, HullID hidFor) {}
 
-        virtual void PlaySoundEffect(SoundID soundID, ImodelIGC* model = NULL){}
+        virtual void PlaySoundEffect(SoundID soundID, ImodelIGC* model = nullptr){}
         virtual void PlaySoundEffect(SoundID soundID, ImodelIGC* model, const Vector& vectOffset) {}
         virtual void PlayNotificationSound(SoundID soundID, ImodelIGC* model){}
-        virtual void PlayFFEffect(ForceEffectID effectID, ImodelIGC* model = NULL, LONG lDirection = 0){}
-        virtual void PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model = NULL, float fIntensity = 1.0f){};
+        virtual void PlayFFEffect(ForceEffectID effectID, ImodelIGC* model = nullptr, LONG lDirection = 0){}
+        virtual void PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model = nullptr, float fIntensity = 1.0f){};
         virtual int  MessageBox(const ZString& strText, const ZString& strCaption, UINT nType){return 0;}
         virtual void TerminateModelEvent(ImodelIGC* model){}
         virtual void TerminateMissionEvent(ImissionIGC* pMission){}
@@ -4619,7 +4619,7 @@ class IIgcSite : public IObject
                                  Time timeFired, ImodelIGC* pTarget, float lock){}
         virtual void FireExpendable(IshipIGC* pship, IdispenserIGC* pdispenser,
                                     Time timeFired){}
-        virtual void *GetDroneFromShip(IshipIGC * pship){return NULL;} // return value is really a Drone*
+        virtual void *GetDroneFromShip(IshipIGC * pship){return nullptr;} // return value is really a Drone*
         virtual void CreateSideEvent(IsideIGC * pIsideIGC) {};
         virtual void DestroySideEvent(IsideIGC * pIsideIGC) {};
 
@@ -4642,7 +4642,7 @@ class IIgcSite : public IObject
 
         virtual IObject*    LoadRadarIcon(const char* szName)
         {
-            return NULL;
+            return nullptr;
         }
 
         virtual void        ChangeGameState(void) {}
@@ -4658,7 +4658,7 @@ class IIgcSite : public IObject
         virtual IclusterIGC*    GetCluster(IshipIGC* pship,
                                            ImodelIGC*   pmodel)
         {
-            return pship->CanSee(pmodel) ? pmodel->GetCluster() : NULL;
+            return pship->CanSee(pmodel) ? pmodel->GetCluster() : nullptr;
         }
 
         virtual IclusterIGC*    GetRipcordCluster(IshipIGC* pship, HullAbilityBitMask habm = c_habmIsRipcordTarget)
@@ -4666,7 +4666,7 @@ class IIgcSite : public IObject
             IhullTypeIGC*   pht = pship->GetBaseHullType();
             return (pht && pht->HasCapability(habm))
                    ? pship->GetCluster()
-                   : NULL;
+                   : nullptr;
         }
 
         virtual bool        Reload(IshipIGC* pship, IlauncherIGC* plauncher, EquipmentType type) { return false; }
@@ -4834,7 +4834,7 @@ class   DamageTrackSet
                 m_idSlot = (m_idSlot + 1) % c_iDamageSlotCount;
                 m_timeSlotChange = Time(m_timeSlotChange.clock() + c_dwDamageSlotInterval);
 
-                for (DamageTrackLink*   pdtl = m_tracks.first(); (pdtl != NULL); pdtl = pdtl->next())
+                for (DamageTrackLink*   pdtl = m_tracks.first(); (pdtl != nullptr); pdtl = pdtl->next())
                     pdtl->data()->SwitchSlots();
             }
         }
@@ -4890,7 +4890,7 @@ inline void        DeleteIbaseIGC(BaseListIGC*     list, IbaseIGC* base)
     assert (base);
 
     for (BaseLinkIGC*   l = list->first();
-         (l != NULL);
+         (l != nullptr);
          l = l->next())
     {
         if (l->data() == base)
@@ -4906,7 +4906,7 @@ inline IbaseIGC*   GetIbaseIGC(const BaseListIGC*  list, ObjectID    id)
     assert (list);
 
     for (BaseLinkIGC*   l = list->first();
-         (l != NULL);
+         (l != nullptr);
          l = l->next())
     {
         IbaseIGC*   b = l->data();
@@ -4915,7 +4915,7 @@ inline IbaseIGC*   GetIbaseIGC(const BaseListIGC*  list, ObjectID    id)
             return b;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool    Dodge(IshipIGC* pship, ImodelIGC* pmodelIgnore, int* pstate, bool bShipsOnly = false, float dtDodge = -1.0f);
@@ -4932,7 +4932,7 @@ class   Waypoint
 
         Waypoint(void)
         :
-            m_pmodelTarget(NULL),
+            m_pmodelTarget(nullptr),
             m_objective(c_oNothing)
         {
         }
@@ -4948,7 +4948,7 @@ class   Waypoint
             if (m_pmodelTarget)
             {
                 m_pmodelTarget->Release();
-                m_pmodelTarget = NULL;
+                m_pmodelTarget = nullptr;
             }
 
             m_objective = c_oNothing;
@@ -5864,8 +5864,8 @@ class GameOverScoreObject
 // functions. They return true if successful.
 //------------------------------------------------------------------------------
 bool    DumpIGCFile (const char* name, ImissionIGC* pMission, __int64 iMaskExportTypes, 
-                     void (*munge)(int size, char* data) = NULL);
-bool    LoadIGCFile (const char* name, ImissionIGC* pMission, void (*munge)(int size, char* data) = NULL);
+                     void (*munge)(int size, char* data) = nullptr);
+bool    LoadIGCFile (const char* name, ImissionIGC* pMission, void (*munge)(int size, char* data) = nullptr);
 
 //------------------------------------------------------------------------------
 // static data core files are dealt with by these functions. They are
@@ -5873,8 +5873,8 @@ bool    LoadIGCFile (const char* name, ImissionIGC* pMission, void (*munge)(int 
 // number in the file, and it is returned by the LoadIGCStaticCore function.
 // if the load function fails, it returns NA.
 //------------------------------------------------------------------------------
-bool    DumpIGCStaticCore (const char* name, ImissionIGC* pMission, __int64 iMaskExportTypes, void (*munge)(int size, char* data) = NULL);
-int     LoadIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVersionOnly, void (*munge)(int size, char* data) = NULL);
-int     CacheIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVersionOnly, void (*munge)(int size, char* data) = NULL);
+bool    DumpIGCStaticCore (const char* name, ImissionIGC* pMission, __int64 iMaskExportTypes, void (*munge)(int size, char* data) = nullptr);
+int     LoadIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVersionOnly, void (*munge)(int size, char* data) = nullptr);
+int     CacheIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVersionOnly, void (*munge)(int size, char* data) = nullptr);
 
 #endif

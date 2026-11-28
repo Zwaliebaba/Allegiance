@@ -26,7 +26,7 @@ class       CbucketIGC : public IbucketIGC
             m_investedMilliseconds(0),
             m_investedMoney(0),
             m_lastPercentCompleteNotified(0),
-            m_pbucketPredecessor(NULL)
+            m_pbucketPredecessor(nullptr)
         {
         }
 

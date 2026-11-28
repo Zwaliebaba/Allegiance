@@ -24,7 +24,7 @@ class   ClauncherTypeIGC : public IlauncherTypeIGC
     public:
         ClauncherTypeIGC(void)
         :
-            m_pexpendabletype(NULL)
+            m_pexpendabletype(nullptr)
         {
         }
 
