@@ -105,7 +105,7 @@ int FedSrvLobbySite::OnMessageBox(FedMessaging * pthis, const char * strText, co
 
 HRESULT FedSrvLobbySite::OnSessionLost(FedMessaging * pthis)
 {
-  g_events.TriggerEvent(NULL, AllsrvEventID_LostLobby, "", -1, -1, -1, 0);
+  g_events.TriggerEvent(nullptr, AllsrvEventID_LostLobby, "", -1, -1, -1, 0);
   return S_OK;
 }
 

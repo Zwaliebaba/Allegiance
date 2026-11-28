@@ -54,7 +54,7 @@ class OldPlayerInfo
         :
             pso(true),
             sideID(NA),
-            pclusterLifepod(NULL)
+            pclusterLifepod(nullptr)
         {
         }
 
@@ -237,16 +237,16 @@ public:
   CFSPlayer *           GetOwner()        
   {
     if (m_misdef.iSideMissionOwner == NA)
-      return NULL;
+      return nullptr;
     else 
       return GetLeader(m_misdef.iSideMissionOwner);
   }
   void                  AddPlayerToMission(CFSPlayer * pfsPlayer);
-  void                  RemovePlayerFromMission(CFSPlayer * pfsPlayer, QuitSideReason reason, const char* szMessageParam = NULL);
+  void                  RemovePlayerFromMission(CFSPlayer * pfsPlayer, QuitSideReason reason, const char* szMessageParam = nullptr);
   void                  AddPlayerToSide(CFSPlayer * pfsPlayer, IsideIGC * pside);
-  void                  RemovePlayerFromSide(CFSPlayer * pfsPlayer, QuitSideReason reason, const char* szMessageParam = NULL);
-  bool                  RemovePlayerByName(const char* szCharacterName, QuitSideReason reason, const char* szMessageParam = NULL);
-  bool                  RemovePlayerByCDKey(const char* szCDKey, QuitSideReason reason, const char* szMessageParam = NULL);
+  void                  RemovePlayerFromSide(CFSPlayer * pfsPlayer, QuitSideReason reason, const char* szMessageParam = nullptr);
+  bool                  RemovePlayerByName(const char* szCharacterName, QuitSideReason reason, const char* szMessageParam = nullptr);
+  bool                  RemovePlayerByCDKey(const char* szCDKey, QuitSideReason reason, const char* szMessageParam = nullptr);
   int                   GetCountOfPlayers(IsideIGC * pside, bool bCountGhosts);
   bool                  HasPlayers(IsideIGC * pside, bool bCountGhosts);
   IstationIGC *         GetBase(IsideIGC * pside);
@@ -326,7 +326,7 @@ public:
   CFMGroup *            GetGroupLobbySide() 
   {
     CFSSide * pfsside = CFSSide::FromIGC(m_pMission->GetSide(SIDE_TEAMLOBBY));
-    return pfsside ? pfsside->GetGroup() : NULL;
+    return pfsside ? pfsside->GetGroup() : nullptr;
   }
   CFMGroup *            GetGroupMission() 
   {
@@ -350,12 +350,12 @@ public:
 
   OldPlayerLink*    GetOldPlayerLink(const char* name)
   {
-    for (OldPlayerLink* popl = m_oldPlayers.first(); (popl != NULL); popl = popl->next())
+    for (OldPlayerLink* popl = m_oldPlayers.first(); (popl != nullptr); popl = popl->next())
     {
         if (_stricmp(popl->data().name, name) == 0)
             return popl;
     }
-    return NULL;
+    return nullptr;
   }
 
   bool                  ShouldDelete() { return m_bShouldDelete; }

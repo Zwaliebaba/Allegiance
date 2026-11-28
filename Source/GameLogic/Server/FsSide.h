@@ -14,7 +14,7 @@ public:
   CFMGroup *          GetGroup() {return m_pgrpSide;}
   static CFSSide *    FromIGC(IsideIGC * pside) 
   { 
-    return pside ? (CFSSide *) pside->GetPrivateData() : NULL;
+    return pside ? (CFSSide *) pside->GetPrivateData() : nullptr;
   }
 
   bool         IsInvited(CFSPlayer * pfsPlayer);

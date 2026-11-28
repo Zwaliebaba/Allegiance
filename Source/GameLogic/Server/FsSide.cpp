@@ -85,6 +85,6 @@ void CFSSide::AddInvitation(const char * szSubjectName)
 const char*  CFSSide::GetInvitedSquadName()
 {
   if (m_Invitations.size() == 0)
-    return NULL;
+    return nullptr;
   return (*(m_Invitations.begin())).c_str();
 }
