@@ -20,3 +20,5 @@ Example:		CRC = FileCRC("autoexec.bat", 0, 0);
 ****************************************************************************/
 int FileCRC(const char *szFilename, char * szErrorMsg);
 int FileCRC(HANDLE hFile,           char * szErrorMsg);
+
+class bad_class { int m_ok; int notPrefixed; };
