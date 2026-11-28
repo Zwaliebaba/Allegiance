@@ -37,7 +37,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(UnitTestDir)include;$(AllegianceRoot)Tests\GameLogic.Tests;$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(UnitTestDir)include;$(AllegianceRoot)Tests\GameLogic.Tests;$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ZLIB_SKIP_NEW_REDEF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

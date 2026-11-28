@@ -17,7 +17,6 @@
 
 #include <windows.h>
 
-#include "guids.h"
 #include "zlib.h"
 #include "utility.h"
 

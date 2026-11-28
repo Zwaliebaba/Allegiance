@@ -1191,9 +1191,9 @@ HRESULT BaseClient::ConnectToServer(ConnectInfo & ci, DWORD dwCookie, Time now, 
     else
     {
         if (bStandalonePrivate)
-          hr = m_fm.JoinSession(FEDSRV_STANDALONE_PRIVATE_GUID, ci.strServer.c_str(), ci.szName);
+          hr = m_fm.JoinSession(c_appGameServerPrivate, ci.strServer.c_str(), ci.szName);
         else
-          hr = m_fm.JoinSession(FEDSRV_GUID, ci.strServer.c_str(), ci.szName);
+          hr = m_fm.JoinSession(c_appGameServer, ci.strServer.c_str(), ci.szName);
     }
 
     // TODO: Remove this when we are ready to enforce CD Keys
@@ -1256,7 +1256,7 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
         iterMissions.Next();
     }
     m_mapMissions.SetEmpty();
-    hr = m_fmLobby.JoinSession(FEDFREELOBBYCLIENTS_GUID, m_ci.strServer.c_str(), m_ci.szName);
+    hr = m_fmLobby.JoinSession(c_appLobbyClients, m_ci.strServer.c_str(), m_ci.szName);
     assert(IFF(m_fmLobby.IsConnected(), SUCCEEDED(hr)));
     if (m_fmLobby.IsConnected())
     {
@@ -1289,7 +1289,7 @@ void BaseClient::FindStandaloneServersByName(const char* szName, TList<TRef<LANS
     listResults.SetEmpty();
     m_plistFindServerResults = &listResults;
 
-    m_fm.EnumSessions(FEDSRV_STANDALONE_PRIVATE_GUID, szName);
+    m_fm.EnumSessions(c_appGameServerPrivate, szName);
 
     m_plistFindServerResults = NULL;
 };

@@ -22,7 +22,6 @@
 #include <mmsystem.h>
 #include <urlmon.h>
 
-#include "guids.h"
 #include "zlib.h"
 #include "utility.h"
 

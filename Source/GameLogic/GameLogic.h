@@ -30,10 +30,8 @@
 // Windows Includes
 #include <windows.h>
 #include <commctrl.h>
-#include <sqlext.h>
 
 // NeuronCore
-#include <guids.h>
 #include <zlib.h>
 #include <utility.h>
 
@@ -64,7 +62,6 @@
 
 #include "point.h"
 #include "counters.h"
-#include "srvqueries.h" // and allegdb.h
 #include "fsside.h"
 #include "fscluster.h"
 #include "fsmission.h"

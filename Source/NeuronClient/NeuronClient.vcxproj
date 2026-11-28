@@ -33,7 +33,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <!-- Its own folders, then those of the libraries it may use (the layering) -->
-      <AdditionalIncludeDirectories>$(IntDir);$(AllegianceRoot)Source\NeuronClient;$(AllegianceRoot)Source\NeuronClient\Engine;$(AllegianceRoot)Source\NeuronClient\Effect;$(AllegianceRoot)Source\NeuronClient\Sound;$(AllegianceRoot)Source\NeuronClient\App;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);$(AllegianceRoot)Source\NeuronClient;$(AllegianceRoot)Source\NeuronClient\Engine;$(AllegianceRoot)Source\NeuronClient\Effect;$(AllegianceRoot)Source\NeuronClient\Sound;$(AllegianceRoot)Source\NeuronClient\App;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <FxCompile>
       <ShaderModel>4.0</ShaderModel>

@@ -237,7 +237,7 @@ void JoinMission(CFSPlayer * pfsPlayer, DWORD dwCookie, const char * szPW)
 
   ImissionIGC * pMission = pfsMission->GetIGCMission();
   
-  if (g.fm.GetHostApplicationGuid() == FEDSRV_STANDALONE_PRIVATE_GUID)
+  if (g.fm.GetHostApplication() == c_appGameServerPrivate.m_id)
   {
       //Disallow if the name is already in use
       ShipLinkIGC* psl;
@@ -407,97 +407,13 @@ void JoinMission(CFSPlayer * pfsPlayer, DWORD dwCookie, const char * szPW)
 
 
 /*-------------------------------------------------------------------------
- * GotInvitationList
- *-------------------------------------------------------------------------
-  Purpose:
-      Callback from completion of CQGetInvitationList query.
-
-  Side Effects:
-      Players/teams added to list
- */
-void GotInvitationList(CQGetInvitationList * pquery)
-{
-  CQGetInvitationListData * pqd = pquery->GetData();
-  CFSMission * pfsMission = CFSMission::GetMissionFromIGCMissionID(pqd->missionID);
-  int cRows = 0;
-
-  if (pfsMission) // if the mission is gone, forget about it
-  {
-    CQGetInvitationListData * pRows = pquery->GetOutputRows(&cRows); // all the rows are here
-    while (cRows--)
-    {
-      pfsMission->AddInvitation(SideID(pRows->iTeam), pRows->szSubject);
-    }
-  }
-}
-
-
-/*-------------------------------------------------------------------------
- * GotCharSquads
- *-------------------------------------------------------------------------
-  Purpose:
-      Callback from completion of CQCharSquads query. 
-
-  Side Effects:
-      Tell the players what squads they're in. 
- */
-void GotCharSquads(CQCharSquads * pquery)
-{
-  CQCharSquadsData * pqd = pquery->GetData();
-  CFMConnection * pcnxn = g.fm.GetConnectionFromId(pqd->dwConnectionID);
-  if (!pcnxn)
-    return; // nothing we do for someone who's gone
-
-  CFSPlayer * pfsPlayer = CFSPlayer::GetPlayerFromConnection(*pcnxn);
-  if (!pfsPlayer)
-    return; // nothing we do for someone who's going away
-
-  int cRows;
-  CQCharSquadsData * pRows = pquery->GetOutputRows(&cRows); // all the rows are here
-  while (cRows--)
-  {
-    pfsPlayer->GetSquadMembershipList()->last(
-      new SquadMembership(
-        pRows->squadID,
-        (const char*)pRows->szSquadName,
-        0 == pRows->status,
-        1 == pRows->status && 1 == pRows->detailedStatus
-      ));
-    pRows++;
-  }
-
-  // tell them which squads they are on
-  int nNumSquads = pfsPlayer->GetSquadMembershipList()->n();
-
-  SquadMembership* vsquadmembership = 
-      (SquadMembership*)_alloca(sizeof(SquadMembership) * nNumSquads + 1);
-
-  SquadMembershipLink* pSquadLink = pfsPlayer->GetSquadMembershipList()->first();
-  for (int iSquad = 0; iSquad < nNumSquads; ++iSquad, pSquadLink = pSquadLink->next())
-  {
-    vsquadmembership[iSquad] = *(pSquadLink->data());            
-  }
-
-  BEGIN_PFM_CREATE(g.fm, pfmSquadMemberships, LS, SQUAD_MEMBERSHIPS)
-      FM_VAR_PARM(nNumSquads ? vsquadmembership : NULL, sizeof(SquadMembership) * nNumSquads)
-  END_PFM_CREATE
-  pfmSquadMemberships->cSquadMemberships = nNumSquads;          
-  g.fm.SendMessages(pcnxn, FM_GUARANTEED, FM_FLUSH);
-
-  if (pqd->fJoin) // we waited for the squads because it's a squad game
-    JoinMission(pfsPlayer, pqd->dwCookie, pqd->szPassword);
-}
-
-
-/*-------------------------------------------------------------------------
  * GotLogonDetails
  *-------------------------------------------------------------------------
   Purpose:
-      Callback from GetLogonStats query. Logon finishes here
+      Logon finishes here (FM_C_LOGONREQ fills in the details)
  */
-void GotLogonDetails(CQLogonStats * pquery)
+static void GotLogonDetails(LogonDetails * pqd)
 {
-  CQLogonStatsData * pqd = pquery->GetData();
   CFMConnection * pcnxn = g.fm.GetConnectionFromId(pqd->dwConnectionID);
   bool fJoinNow = true; // only false if it's a squad game
   if (!pcnxn)
@@ -2887,36 +2803,6 @@ HRESULT FedSrvSiteBase::OnSysMessage(FedMessaging * pthis)
   return S_OK;
 }
 
-void FedSrvSiteBase::OnSQLErrorRecord(SSERRORINFO * perror, OLECHAR * postrError) 
-{
-  // don't make the event an error event, because this may or may not be fatal. 
-  // But we certainly want to see them all in any case.
-  g_events.TriggerEvent(NULL, AllsrvEventID_DatabaseErrorSQL, "", -1, -1, -1, 5,
-    "Message"      , VT_LPWSTR, perror->pwszMessage,
-    "Procedure"    , VT_LPWSTR, perror->pwszProcedure,
-    "Native"       , VT_I4,     perror->lNative,
-    "Line"         , VT_I2,     perror->wLineNumber,
-    "OleDB"        , VT_LPWSTR, postrError);
-}
-
-
-void FedSrvSiteBase::OnOLEDBErrorRecord(BSTR bstrDescription, GUID guid, DWORD dwHelpContext, 
-                                  BSTR bstrHelpFile,    BSTR bstrSource)
-{
-  // Convert the GUID to a string for the event parameter
-  OLECHAR szGUID[48];
-  StringFromGUID2(guid, szGUID, sizeofArray(szGUID));
-
-  // These are always fatal, because we have no idea what we can do about it.
-  g_events.TriggerEvent(NULL, AllsrvEventID_DatabaseErrorOLEDB, "", -1, -1, -1, 5,
-    "Desc",     VT_BSTR,  bstrDescription,
-    "Guid",     VT_LPWSTR,szGUID,
-    "HelpID",   VT_I4,    dwHelpContext,
-    "HelpFile", VT_BSTR,  bstrHelpFile,
-    "Source",   VT_BSTR,  bstrSource);
-}
-
-
 HRESULT FedSrvSiteBase::OnNewConnection(FedMessaging * pthis, CFMConnection & cnxn) 
 {
   // we don't do anything until they login
@@ -3771,8 +3657,8 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
     case FM_C_LOGONREQ:
     {
-      CQLogonStats * pquery = new CQLogonStats(GotLogonDetails);
-      CQLogonStatsData * pqd = pquery->GetData();
+      LogonDetails details = {};
+      LogonDetails * pqd = &details;
       if (NULL != g.pServerCounters)
         g.pServerCounters->cLoginAttempts++;
 
@@ -3817,7 +3703,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         lstrcpy(pqd->szCDKey, FM_VAR_REF(pfmLogon, CDKey));
         pqd->fValid = fValid;
         pqd->dwConnectionID = cnxnFrom.GetID();
-          pquery->DataReady();
+        GotLogonDetails(pqd);
         
       } // if correct messaging version
       else
@@ -5309,7 +5195,7 @@ void ProcessNetworkMessages()
     // if started by command-line, then always try to connect to lobby
     // if not started by command-line (started by UI) then connect to lobby only for public games
 
-  bSupposedToConnectToLobby = !(FEDSRV_GUID != g.fm.GetHostApplicationGuid());  // public games
+  bSupposedToConnectToLobby = g.fm.GetHostApplication() == c_appGameServer.m_id;  // public games
 
   if (bSupposedToConnectToLobby) // are we supposed to be connected to a lobby?
   {
@@ -5700,7 +5586,7 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
   g_events.TriggerEvent(NULL, AllsrvEventID_Connecting, "", -1, -1, -1, 1,
     "LobbyServer", VT_LPSTR, g.strLobbyServer.c_str());
   HRESULT hr = g.fmLobby.JoinSession(
-        FEDFREELOBBYSERVERS_GUID, 
+        c_appLobbyServers,
         g.strLobbyServer.c_str(), g.strLocalAddress.c_str());
   if (FAILED(hr))
   {
@@ -5801,13 +5687,6 @@ DWORD ProcessMsgPump(int dwSleep, DWORD nCount, LPHANDLE pHandles)
         TranslateMessage(&msg);
         switch (msg.message)
         {
-          case wm_sql_querydone:
-          {
-            CSQLQuery * pQuery = (CSQLQuery *) msg.lParam;
-            pQuery->DataReady();
-            break;
-          }
-
           case wm_fs_pause:
             AnnouncePause();
             if (!g.fPaused)
@@ -5931,11 +5810,11 @@ void StartDefaultGames()
  */
 HRESULT HostSession(bool fPublic)
 {
-  const GUID& guidSession = fPublic ? FEDSRV_GUID : FEDSRV_STANDALONE_PRIVATE_GUID;
+  const FedApplication & app = fPublic ? c_appGameServer : c_appGameServerPrivate;
 
   printf(fPublic ? "Preparing public session for clients ... " : "Preparing LAN session for clients ... ");
 
-  HRESULT hr = g.fm.HostSession(guidSession, false, 0 /*g.hPlayerEvent*/, g.fProtocol);
+  HRESULT hr = g.fm.HostSession(app, false, 0 /*g.hPlayerEvent*/, g.fProtocol);
   if (FAILED(hr))
   {
     printf("failed.\n");

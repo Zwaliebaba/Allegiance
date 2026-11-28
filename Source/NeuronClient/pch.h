@@ -25,7 +25,6 @@
 #include <windows.h>
 #include <xaudio2.h>
 
-#include "guids.h"
 #include "zlib.h"
 #include "engine.h"
 #include "enginep.h"

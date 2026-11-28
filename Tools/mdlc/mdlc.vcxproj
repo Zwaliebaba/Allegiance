@@ -31,13 +31,13 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Source\NeuronClient;$(AllegianceRoot)Source\NeuronClient\Engine;$(AllegianceRoot)Source\NeuronClient\Effect;$(AllegianceRoot)Source\NeuronClient\Sound;$(AllegianceRoot)Source\NeuronClient\App;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Source\NeuronClient;$(AllegianceRoot)Source\NeuronClient\Engine;$(AllegianceRoot)Source\NeuronClient\Effect;$(AllegianceRoot)Source\NeuronClient\Sound;$(AllegianceRoot)Source\NeuronClient\App;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Source\NeuronClient;$(AllegianceRoot)Source\NeuronClient\Engine;$(AllegianceRoot)Source\NeuronClient\Effect;$(AllegianceRoot)Source\NeuronClient\Sound;$(AllegianceRoot)Source\NeuronClient\App;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Source\NeuronClient;$(AllegianceRoot)Source\NeuronClient\Engine;$(AllegianceRoot)Source\NeuronClient\Effect;$(AllegianceRoot)Source\NeuronClient\Sound;$(AllegianceRoot)Source\NeuronClient\App;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

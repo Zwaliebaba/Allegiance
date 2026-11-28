@@ -33,14 +33,13 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <!-- Its own folders, then those of the libraries it may use (the layering) -->
-      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Server\allegdb.cpp" />
     <ClCompile Include="Server\allsrvmodule.cpp" />
     <ClCompile Include="Server\FedSrv.CPP" />
     <ClCompile Include="Server\fscluster.cpp" />
@@ -49,12 +48,10 @@
     <ClCompile Include="Server\fsship.cpp" />
     <ClCompile Include="Server\fsside.cpp" />
     <ClCompile Include="Server\serverevents.cpp" />
-    <ClCompile Include="Server\srvqguids.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameLogic.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Server\allegdb.h" />
     <ClInclude Include="Server\allsrvmodule.h" />
     <ClInclude Include="Server\counters.h" />
     <ClInclude Include="Server\dbgutil.h" />
@@ -71,7 +68,6 @@
     <ClInclude Include="Server\serverevents.h" />
     <ClInclude Include="Server\serverevents_defs.h" />
     <ClInclude Include="Server\serversettings.h" />
-    <ClInclude Include="Server\srvqueries.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GameCommon\GameCommon.vcxproj">

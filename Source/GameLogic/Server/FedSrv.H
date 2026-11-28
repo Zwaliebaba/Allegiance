@@ -161,13 +161,7 @@ public:
   virtual void    OnBadCRC(FedMessaging * pthis, CFMConnection & cnxn, BYTE * pMsg, DWORD cbMsg);
 #endif
 
-// Also for ISQLSite
   virtual int  OnMessageBox(const char * strText, const char * strCaption, UINT nType);
-
-// ISQLSite2
-  virtual void OnSQLErrorRecord(SSERRORINFO * perror, OLECHAR * postrError);
-  virtual void OnOLEDBErrorRecord(BSTR bstrDescription, GUID guid, DWORD dwHelpContext, 
-                                  BSTR bstrHelpFile,    BSTR bstrSource );
 
 //Not part of IIgcSite
   void UpgradeShip(IshipIGC*  pship, const IstationIGC* pstation);
@@ -203,6 +197,23 @@ public:
   FedTechBit() {ZeroMemory(this, sizeof(*this));}
   char szName[CbTechBitName];
   int bitnum;
+};
+
+//
+// A logon request, as FM_C_LOGONREQ checked it, for GotLogonDetails
+//
+struct LogonDetails
+{
+  DWORD dwConnectionID;                 // who is logging on
+  DWORD dwCookie;                       // what mission they want to join
+  bool  fValid;                         // if false, the logon fails with szReason
+  bool  fRetry;                         // whether the client should retry the logon
+  char  szReason[256];                  // if !fValid (if fValid, the ship's name)
+  char  szPassword[c_cbGamePassword];   // password entered by user
+  char  szCDKey[c_cbCDKey];             // the CD key they entered
+  char  szCharacterName[c_cbName];
+  int   characterID;
+  bool  fCanCheat;
 };
 
 struct Global

@@ -22,7 +22,6 @@
     <ClCompile Include="Base\zsettings.cpp" />
     <ClCompile Include="Base\zstring.cpp" />
     <ClCompile Include="Base\ztime.cpp" />
-    <ClCompile Include="Guids\guids.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Utility\CollisionEntry.cpp" />
     <ClCompile Include="Utility\CollisionQueue.cpp" />
@@ -72,7 +71,6 @@
     <ClInclude Include="Base\zsettings.h" />
     <ClInclude Include="Base\zstring.h" />
     <ClInclude Include="Base\ztime.h" />
-    <ClInclude Include="Guids\guids.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Utility\CRC.h" />
     <ClInclude Include="Utility\fedtransport.h" />

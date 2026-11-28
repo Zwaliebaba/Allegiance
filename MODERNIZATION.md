@@ -61,11 +61,11 @@ table says where each went.
 
 | Library | Used by | Folders | Was |
 |---|---|---|---|
-| `NeuronCore` | everything | `Base`, `Utility`, `Guids` | `zlib` (but `main.h`), `_Utility` (but `allegdb.cpp`), `guids`, `Inc/messagecore.h` |
+| `NeuronCore` | everything | `Base`, `Utility` | `zlib` (but `main.h`), `_Utility` (but `allegdb.cpp`), `Inc/messagecore.h` (and `guids`, since deleted) |
 | `NeuronClient` | client, mdlc | `Engine` (with `shaders`), `Effect`, `Sound`, `App` | `engine`, `effect`, `soundengine`, `zlib/main.h` |
 | `NeuronServer` | server | `TCLib`, `TCAtl`, `Base` | `test/TCLib`, `test/TCAtl`, `test/Inc`, `FedSrv/SWMRG.*` |
-| `GameCommon` | client, server | `Igc`, `Protocol`, `Version` | `Igc`, `Inc/Messages.h`, `messagesAll.h`, `Parts.h`, `trainingserver.h`, `VerRes.rc`, `SlmVer.h` |
-| `GameLogic` | server | `Server` | `FedSrv` (but its resources and `main()`), `Inc/allegdb.h`, `messagesLS.h`, `_Utility/allegdb.cpp` |
+| `GameCommon` | client, server | `Igc`, `Protocol`, `Version` | `Igc`, the session kinds (were `guids`), `Inc/Messages.h`, `messagesAll.h`, `Parts.h`, `trainingserver.h`, `VerRes.rc`, `SlmVer.h` |
+| `GameLogic` | server | `Server` | `FedSrv` (but its resources and `main()`), `Inc/messagesLS.h` (and the SQL layer, since deleted) |
 | `GameApp` | client | `App`, `ClientLib`, `Training` | `WinTrek` (but its resources and `main()`), `clintlib`, `training`, `Inc/messagesLC.h`, `quickchat.h` |
 
 Everything is under `Source/<Library>/`; the executables are `Source/Client` (`Allegiance.exe`: `main.cpp`,
@@ -77,16 +77,25 @@ tests are `Tests/<Library>.Tests`, the art tools and CI scripts `Tools/` (`mdlc`
 NeuronCore; GameApp on GameCommon and NeuronClient; GameLogic on GameCommon and NeuronServer. It is
 enforced by the include directories: a project lists its own folders, then those of the libraries it
 may use, and nothing else (`msbuild/Allegiance.Cpp.props` has no shared include directories), so a
-library cannot include a header above its layer. Three compromises remain. NeuronCore's
-`PortForApplication` (`Utility/messages.cpp`) knows the game's lobby GUIDs, so `guids` sits in NeuronCore.
-`Utility/utility.h` carries some game constants. Effect, the game's visual effects, depends only on the
-engine and is part of NeuronClient, because mdlc needs it to compile the art.
+library cannot include a header above its layer. Two compromises remain. `Utility/utility.h` carries
+some game constants. Effect, the game's visual effects, depends only on the engine and is part of
+NeuronClient, because mdlc needs it to compile the art.
+
+**Session kinds.** The DirectPlay application GUIDs (`guids.h`) named the kind of session a host offers,
+and NeuronCore mapped them to ports. They are now `FedApplication`s, a 32-bit ID and a port, which the
+game defines in `GameCommon/Protocol/sessions.h` (`c_appGameServer`, `c_appGameServerPrivate`,
+`c_appLobbyClients`, `c_appLobbyServers`) and passes to `HostSession`, `JoinSession` and `EnumSessions`.
+The hello and discovery frames carry the ID, so the transport's protocol version is 2: a build from before
+is refused with "The server runs a different version of Allegiance". Four of the GUIDs had no users. The
+rest of `guids.cpp` instantiated OLE DB's GUIDs for the server's SQL layer (`allegdb`, `srvqueries.h`),
+which no longer reached a database: the logon used one query class as a data holder, now the plain
+`LogonDetails` (`FedSrv.H`), and the rest went with it, with the two database error events.
 
 **Precompiled headers.** One per library, `Source/<Library>/pch.h`, the union of what its sources'
 precompiled headers held before (GameApp's is WinTrek's plus what ClientLib and Training added).
 GameLogic's is `GameLogic.h`, which the server's `main.cpp` includes too. Compiled without it:
 `fedtransport.cpp` (msquic.h wants Winsock 2 before `windows.h`), `x3dpan.cpp` (X3DAudio's Direct3D
-types), `guids.cpp` (it defines the GUIDs) and the executables' `main.cpp`.
+types) and the executables' `main.cpp`.
 
 **Linking.** The client's application object (`g_trekImpl`, `GameApp/App/trekapp.cpp`) registers
 itself when it is constructed and nothing refers to it, so the linker would leave it out of a static
@@ -445,7 +454,7 @@ What FedMessaging used DirectPlay for, and what replaces it:
 | DirectPlay | Replacement |
 |---|---|
 | `Open(DPOPEN_CREATE)`, server player | `HostSession`: a MsQuic listener on the session's port, plus the discovery socket |
-| `Open(DPOPEN_JOIN)`, `CreatePlayer` | `JoinSession`: connect, open the stream, send a hello (application GUID, protocol version, player name); the server answers with a welcome (session instance) or a refusal. The call waits for that, as the DirectPlay join did |
+| `Open(DPOPEN_JOIN)`, `CreatePlayer` | `JoinSession`: connect, open the stream, send a hello (application ID, protocol version, player name); the server answers with a welcome (session instance) or a refusal. The call waits for that, as the DirectPlay join did |
 | `DPSYS_CREATEPLAYERORGROUP` / `DESTROYPLAYERORGROUP` | A hello creates the `CFMConnection` (`OnNewConnection`); connection shutdown deletes it, or ends the session on a client |
 | `SendEx` guaranteed / unguaranteed | A length-prefixed frame on the stream / a datagram. An unguaranteed packet bigger than the connection's datagram limit goes on the stream |
 | Groups (`CreateGroup`, `AddPlayerToGroup`, group sends) | Membership lists kept by FedMessaging; a group send goes to each member. A deleted connection leaves every group, as with DirectPlay |
@@ -459,7 +468,7 @@ peer gone, send failed); `FedMessaging::ReceiveMessages` drains the queue on the
 `IFedMessagingSite` callbacks run where they always did.
 
 Ports (UDP): game servers 47700 (QUIC) and 47701 (discovery); the lobby's client side 47710/47711 and its
-server side 47720/47721. A server address may name another port as `host:port`.
+server side 47720/47721 (`GameCommon/Protocol/sessions.h`). A server address may name another port as `host:port`.
 
 The LAN dialog's server box (in the original, commented out) is back: type a host, `host:port` or an
 address and press Find or Enter, and the dialog asks that server instead of broadcasting, which reaches
@@ -557,7 +566,7 @@ How the server runs now:
 
 Hosting changed with it, because games used to come from the admin objects. Without an admin tool
 the console server hosted the public session and tried the long-dead Zone lobby, the client's LAN
-browser looks only for the LAN session (`FEDSRV_STANDALONE_PRIVATE_GUID`), and the `Game1`, `Game2`, ...
+browser looks only for the LAN session (`FEDSRV_STANDALONE_PRIVATE_GUID`, now `c_appGameServerPrivate`), and the `Game1`, `Game2`, ...
 games from `server.json` were only created after a lobby connection succeeded. Now the server hosts the
 LAN session and creates the `server.json` games at startup; `"PublicLobby": 1` restores the public
 session and lobby. Games from `server.json` are never deleted: after a round they go back to "not
@@ -631,7 +640,7 @@ Before the x64 and `/permissive-` work, so those ports only touch code that is u
 |---|---|
 | Directories no project builds and nothing in the build includes (about 100,000 lines): the Tier 2 tools and `lobby`; `cadet`, `drones`, `edit`, `engineapp`, `engineapptemplate`, `fedsrvdll`, `jpeg`, `mdl`, `mdledit`, `me`, `mesh2pl`, `offline`, `qh2mesh`, `shadowswitcher`, `soundtest`, `techtree`, `AutoUpdate`, `Reloader`, `test/TCDeploy`, `test/TCObj`, `test/TCGuid`; `SrvHost` (a VB6 front end for the DCOM server), `Setup` (1999 redistributables and Zone DLLs), `AllGuard` | Deleted. What "included" means was worked out by resolving every `#include` through each project's own include directories, not by file name: the build reads only `lobby`'s three message headers (moved to `Inc/`) and `offline/mission.h`, which was entirely `#if 0` |
 | Source files in built directories that no project compiles and nothing includes (63), e.g. most of `test/TCAtl`, the client's old offline mode, Dreamcast's `zlib/dcbase.cpp` | Deleted |
-| The database-backed Zone server compiled out of `AllSrv32` (`!ALLSRV_STANDALONE`: ODBC queries, DB logging, lobby-created games, IGC files built from the database) | Removed with `unifdef -DALLSRV_STANDALONE`; the define is gone. The AllegDB query classes stay, as data holders the standalone server uses |
+| The database-backed Zone server compiled out of `AllSrv32` (`!ALLSRV_STANDALONE`: ODBC queries, DB logging, lobby-created games, IGC files built from the database) | Removed with `unifdef -DALLSRV_STANDALONE`; the define is gone. The AllegDB query classes stay, as data holders the standalone server uses (later replaced by `LogonDetails` and deleted; see "Source layout") |
 | `#if 0` blocks and the Dreamcast port's branches in built code | Removed with `unifdef -k -UDREAMCAST`; the vendored qhull is left as it is |
 | The auto-update system, which needed the deleted `AutoUpdate.exe` and `Reloader.exe` and a lobby that sends `FM_L_AUTO_UPDATE_INFO`: the client's FTP art downloader (`clintlib/AutoDownload.*`), its progress popup and dialog art (`AutoDownloadDialog.mdl` and three textures), the lobby screen's `FilelistCRC`/`FilelistSize`/`FilelistSite`/`FilelistDirectory` check, the start-up `MoveInProgress` check and the `-checkfiles`, `-noautoupdate` and `-reloaded` switches; the server's `AutoUpdate.exe` download and launch from the lobby config (`FedSrv.CPP`) and the never-raised `CantWatchArt` event; the FTP session in `zlib/FTPSession.*` (the HTTP session stays, for the config file and the message of the day) | Deleted. `crcFileList` left `FM_C_LOGONREQ` (`MSGVER` 200) and `FM_C_LOGON_LOBBY`, and `FM_L_AUTO_UPDATE_INFO` and `FM_C_LOGON_LOBBY_OLD` were deleted (`LOBBYVER` 10). The version-mismatch messages no longer tell players to auto-update or delete `filelist.txt` |
 | Leftover non-source files nothing builds, includes or reads (a second pass, resolving `#include`s and `.rc` file references per project as above): the nmake `makeexes`; `zlib/doit.bat` (a hand-run `cl` line list) and `zlib/float/math.asm` (x86 assembly no project assembles); `Inc/Utility.hxx` (a forwarder `_Utility/Utility.h` never reaches, since it finds its own copy first); the old client resource script `Lang/Usa/WinTrek/WinTrek.rc` and its icon (the client builds `Lang/Usa/allegiance/allegiance.rc`); `FedSrv/Status.htm` (a FrontPage status page scripting the removed DCOM admin objects) and `FedSrv/regini.txt` (registry keys for the 1999 server setup); `WinTrek/offline.map` and `offline.sql` (data for the deleted offline mode); the Source Insight project files `training/training.CF/PI/PR/PS/WK` | Deleted |

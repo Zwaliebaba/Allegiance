@@ -53,11 +53,11 @@ public:
     virtual ~FedTransport() {}
 
     //
-    // Server: accept connections for guidApplication on the UDP port, and
+    // Server: accept connections for idApplication on the UDP port, and
     // answer discovery probes on port + 1 with the instance and details.
     //
 
-    virtual HRESULT Listen(REFGUID guidApplication, REFGUID guidInstance, unsigned short port) = 0;
+    virtual HRESULT Listen(DWORD idApplication, REFGUID guidInstance, unsigned short port) = 0;
     virtual void    SetSessionDetails(const char* szDetails) = 0;
     virtual void    Poll() = 0;     // answers discovery probes; call regularly
 
@@ -66,7 +66,7 @@ public:
     // JoinRefused; the connection's peer ID is returned now.
     //
 
-    virtual HRESULT Connect(REFGUID guidApplication, const char* szHost, unsigned short port, const char* szName, DWORD* pidPeer) = 0;
+    virtual HRESULT Connect(DWORD idApplication, const char* szHost, unsigned short port, const char* szName, DWORD* pidPeer) = 0;
 
     //
     // Both
@@ -111,10 +111,10 @@ public:
 
     //
     // Probe szHost (NULL or empty: broadcast on the LAN) on the discovery
-    // port for sessions of guidApplication. Replaces any earlier search.
+    // port for sessions of idApplication. Replaces any earlier search.
     //
 
-    virtual void Start(REFGUID guidApplication, const char* szHost, unsigned short portDiscovery) = 0;
+    virtual void Start(DWORD idApplication, const char* szHost, unsigned short portDiscovery) = 0;
 
     //
     // Collect replies, re-probe now and then, and return the sessions that

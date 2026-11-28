@@ -15,7 +15,6 @@
 #include <windows.h>
 #include <mmsystem.h>
 
-#include "guids.h"
 #include "zlib.h"
 #include "utility.h"
 #include "igc.h"
