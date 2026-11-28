@@ -3,13 +3,13 @@
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Base\SWMRG.CPP" />
+    <ClCompile Include="Base\SWMRG.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Service\accountrights.cpp" />
     <ClCompile Include="Service\servicehost.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Base\SWMRG.H" />
+    <ClInclude Include="Base\SWMRG.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Service\accountrights.h" />
     <ClInclude Include="Service\servicehost.h" />

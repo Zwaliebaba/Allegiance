@@ -10,7 +10,7 @@
 
 
 #include "pch.h"
-#include "SWMRG.H"
+#include "SWMRG.h"
 
 /*-------------------------------------------------------------------------
  * ConstructObjName

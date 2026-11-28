@@ -185,6 +185,54 @@ jobs:
         shell: pwsh
         run: exit 1
 
+  # The naming gate (AGENTS.md section 1): clang-tidy's readability-identifier-naming
+  # on the lines a change adds, through Tools/ci/check-naming.py. The legacy tree is
+  # exempt, so the gate measures the change against its base: for a pull request the
+  # base branch, for a push the previous head, for a manual run main. It needs no
+  # build: the shader headers FXC would write are stubbed.
+  naming:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - name: Checkout (history without blobs, Artwork excluded)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/Artwork/
+
+      - name: Restore NuGet packages (MsQuic)
+        shell: pwsh
+        run: |
+          # NeuronCore's headers include msquic.h
+          nuget restore Source\NeuronCore\packages.config -PackagesDirectory packages -NonInteractive
+
+      - name: Naming on added lines
+        shell: pwsh
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsPath = & $vswhere -latest -products * -property installationPath
+          $tidy = "$vsPath\VC\Tools\Llvm\x64\bin\clang-tidy.exe"
+          if (-not (Test-Path $tidy)) { throw "clang-tidy not found at $tidy (the C++ Clang tools component)" }
+          & $tidy --version
+
+          switch ($env:EVENT) {
+            # The merge commit's first parent is the base branch: HEAD^1..HEAD is the PR
+            'pull_request' { $base = 'HEAD^1' }
+            'push'         { $base = if ($env:BEFORE -and $env:BEFORE -notmatch '^0+$') { $env:BEFORE } else { 'HEAD^1' } }
+            default        { $base = (git merge-base HEAD origin/main) }
+          }
+          "Base: $base ($(git log -1 --format='%h %s' $base))"
+
+          python Tools/ci/check-naming.py --base $base --clang-tidy $tidy `
+            --unit-test-dir "$vsPath\VC\Auxiliary\VS\UnitTest"
+
   # AddressSanitizer: the libraries, their tests and mdlc, built with
   # /fsanitize=address, then the unit tests (which include a loopback QUIC
   # session) and the mdlc smoke test (which loads MDL, the code path of the
