@@ -8,6 +8,7 @@
 #include "x3dpan.h"
 #include "xa2voice.h"
 #include "spatializer.h"
+#include "xa2objects.h"
 #include "xa2spatial.h"
 
 #include <memory>
@@ -46,6 +47,9 @@ XA2Device::XA2Device() :
 
 XA2Device::~XA2Device()
 {
+    // the render thread stops (the voices, holding the device, are gone)
+    m_pobjects = NULL;
+
     if (m_preverb) {
         m_preverb->DestroyVoice();
     }
@@ -68,8 +72,20 @@ HRESULT XA2Device::Init()
         return hr;
     }
 
+    //
+    // Windows Spatial Sound, if the player has turned it on (Windows Sonic
+    // for Headphones, Dolby Atmos, DTS:X): positioned sounds become its
+    // audio objects. The mastering voice then runs at the objects' rate, so
+    // the voices' effects hand over samples at that rate.
+    //
+
+    if (ZSettings::GetDWORD("WindowsSpatialSound", 1) != 0) {
+        m_pobjects = SpatialObjects::Create();
+    }
+
     // fails without an audio device; the game then uses the dummy engine
-    hr = m_pxaudio2->CreateMasteringVoice(&m_pmaster);
+    hr = m_pxaudio2->CreateMasteringVoice(&m_pmaster, XAUDIO2_DEFAULT_CHANNELS,
+        m_pobjects ? m_pobjects->GetSampleRate() : XAUDIO2_DEFAULT_SAMPLERATE);
     if (FAILED(hr)) {
         debugf("No audio output (CreateMasteringVoice: %X)\n", hr);
         return hr;
@@ -90,6 +106,11 @@ HRESULT XA2Device::Init()
 
     m_bHeadphones = m_nChannels == 2 && ZSettings::GetDWORD("HeadphoneSpatialization", 1) != 0;
 
+    if (m_pobjects && m_nSampleRate != m_pobjects->GetSampleRate()) {
+        debugf("Windows Spatial Sound not used: XAudio2 runs at %u Hz\n", m_nSampleRate);
+        m_pobjects = NULL;
+    }
+
     m_preverb = CreateReverbVoice(m_pxaudio2, m_nSampleRate, m_nChannels);
 
     m_pmaster->GetChannelMask(&m_dwChannelMask);
@@ -100,8 +121,8 @@ HRESULT XA2Device::Init()
 
     SetDistanceFactor(m_fDistanceFactor);
 
-    debugf("XAudio2: %u output channels (mask %X) at %u Hz%s\n", m_nChannels, m_dwChannelMask, details.InputSampleRate,
-        m_bHeadphones ? ", head model" : "");
+    debugf("XAudio2: %u output channels (mask %X) at %u Hz%s%s\n", m_nChannels, m_dwChannelMask, details.InputSampleRate,
+        m_bHeadphones ? ", head model" : "", m_pobjects ? ", Windows Spatial Sound" : "");
     return S_OK;
 }
 
@@ -165,6 +186,8 @@ XA2Voice::XA2Voice() :
     m_nChannels(1),
     m_nOutChannels(1),
     m_bSpatial(false),
+    m_nSlot(-1),
+    m_bSlotTried(false),
     m_fFilter(-1),
     m_nBlockAlign(1),
     m_nLength(0),
@@ -193,6 +216,11 @@ XA2Voice::~XA2Voice()
     // synchronous: the audio thread is done with the data afterwards
     if (m_pvoice) {
         m_pvoice->DestroyVoice();
+    }
+
+    // and with the spatial sound slot: no effect writes to it any more
+    if (m_nSlot >= 0 && m_pdevice && m_pdevice->m_pobjects) {
+        m_pdevice->m_pobjects->ReleaseSlot(m_nSlot);
     }
 }
 
@@ -245,7 +273,9 @@ HRESULT XA2Voice::Init(XA2Device* pdevice, ISoundPCMData* pdata, bool bLooping,
 
     IUnknown* peffect = NULL;
 
-    if (bSupport3D && pdevice->m_bHeadphones && FAILED(CreateSpatialEffect(&peffect))) {
+    if (bSupport3D && (pdevice->m_bHeadphones || pdevice->m_pobjects)
+        && FAILED(CreateSpatialEffect(&peffect, pdevice->m_pobjects))
+    ) {
         peffect = NULL;
     }
 
@@ -455,8 +485,8 @@ void XA2Voice::ApplyOutput()
 
     if (!(m_bSupport3D && m_b3D)) {
         if (m_bSpatial) {
-            // the head model passes it through: mono to both ears, stereo as it is
-            SpatialEffectParameters params = { 0, 0, 1, FALSE };
+            // the effect passes it through: mono to both ears, stereo as it is
+            SpatialEffectParameters params = { 0, 0, 1, FALSE, -1, 0 };
             m_pvoice->SetEffectParameters(0, &params, sizeof(params));
         }
 
@@ -502,19 +532,57 @@ void XA2Voice::ApplyOutput()
         float fAttenuation = DistanceAttenuation(fDistance, m_fMinimumDistance, pdevice->m_fRolloffFactor)
             * DbToAmplitude(fCone);
 
-        if (m_bSpatial) {
+        //
+        // Windows Spatial Sound: the sound gets an audio object the first
+        // time it is positioned, if Windows has one to give; it keeps it
+        // while it plays. One that is denied, or a renderer that has
+        // stopped, plays the other ways.
+        //
+
+        SpatialObjects* pobjects = pdevice->m_pobjects;
+        bool            bObject  = false;
+
+        if (m_bSpatial && pobjects && !pobjects->IsFailed()) {
+            if (!m_bSlotTried) {
+                m_bSlotTried = true;
+                m_nSlot      = pobjects->AcquireSlot();
+            }
+
+            bObject = m_nSlot >= 0 && !pobjects->IsSlotDenied(m_nSlot);
+        }
+
+        HeadDirection direction = ListenerDirection(listener, position);
+
+        if (bObject) {
+            //
+            // Windows renders it: the effect hands it over at the voice's
+            // volume and attenuation, and the master gets nothing from the
+            // voice (the matrix stays zero); the reverb send stays
+            //
+
+            SpatialEffectParameters params = {
+                direction.x, direction.y, direction.z, FALSE,
+                m_nSlot, DbToAmplitude(m_fGain) * fAttenuation
+            };
+            m_pvoice->SetEffectParameters(0, &params, sizeof(params));
+        } else if (m_bSpatial && pdevice->m_bHeadphones) {
             //
             // Headphones: the head model gives each ear its sound; the matrix
             // only attenuates (the output is stereo)
             //
 
-            HeadDirection           direction = ListenerDirection(listener, position);
-            SpatialEffectParameters params    = { direction.x, direction.y, direction.z, TRUE };
+            SpatialEffectParameters params = { direction.x, direction.y, direction.z, TRUE, -1, 0 };
             m_pvoice->SetEffectParameters(0, &params, sizeof(params));
 
             matrix[0 * 2 + 0] = fAttenuation;
             matrix[1 * 2 + 1] = fAttenuation;
         } else {
+            if (m_bSpatial) {
+                // the effect passes it through, two equal channels for the pan
+                SpatialEffectParameters params = { 0, 0, 1, FALSE, -1, 0 };
+                m_pvoice->SetEffectParameters(0, &params, sizeof(params));
+            }
+
             for (UINT32 out = 0; out < nOut; out++) {
                 if (nIn == 1) {
                     matrix[out] = pan[out] * fAttenuation;

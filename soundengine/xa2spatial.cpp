@@ -7,6 +7,7 @@
 
 #include "pch.h"
 #include "spatializer.h"
+#include "xa2objects.h"
 #include "xa2spatial.h"
 
 #include <xapo.h>
@@ -58,6 +59,9 @@ class SpatialEffect : public IXAPO, public IXAPOParameters
     SRWLOCK                 m_lock;
     SpatialEffectParameters m_params;
     bool                    m_bParamsChanged;
+    SpatialEffectParameters m_current;          // audio thread: as last read
+
+    SpatialObjects*         m_pobjects;
 
     // fixed by LockForProcess
     UINT32                  m_nInChannels;
@@ -67,15 +71,17 @@ class SpatialEffect : public IXAPO, public IXAPOParameters
     Spatializer             m_spatializer;
 
 public:
-    SpatialEffect() :
+    SpatialEffect(SpatialObjects* pobjects) :
         m_cRef(1),
         m_bParamsChanged(false),
+        m_pobjects(pobjects),
         m_nInChannels(1),
         m_nSampleRate(48000),
         m_bLocked(false)
     {
         ::InitializeSRWLock(&m_lock);
-        m_params = SpatialEffectParameters{ 0, 0, 1, 0 };
+        m_params  = SpatialEffectParameters{ 0, 0, 1, 0, -1, 0 };
+        m_current = m_params;
     }
 
     //
@@ -239,11 +245,13 @@ public:
 
         if (::TryAcquireSRWLockShared(&m_lock)) {
             if (m_bParamsChanged) {
-                m_spatializer.SetDirection(
-                    HeadDirection{ m_params.x, m_params.y, m_params.z },
-                    m_params.bSpatial != 0 && bEnabled
-                );
+                m_current        = m_params;
                 m_bParamsChanged = false;
+
+                m_spatializer.SetDirection(
+                    HeadDirection{ m_current.x, m_current.y, m_current.z },
+                    m_current.bSpatial != 0 && m_current.nSlot < 0 && bEnabled
+                );
             }
 
             ::ReleaseSRWLockShared(&m_lock);
@@ -252,6 +260,19 @@ public:
         UINT32       nFrames = pinput->ValidFrameCount;
         const float* pin     = pinput->BufferFlags == XAPO_BUFFER_VALID ? (const float*)pinput->pBuffer : NULL;
         float*       pout    = (float*)poutput->pBuffer;
+
+        //
+        // A Windows Spatial Sound object: hand the sound over, with its
+        // direction in Windows' frame (+z behind) at a meter, and its gain
+        // (the voice's volume and attenuation; Windows doesn't attenuate)
+        //
+
+        ObjectStream* pstream = m_pobjects && m_current.nSlot >= 0 ? m_pobjects->GetStream(m_current.nSlot) : NULL;
+
+        if (pstream) {
+            HeadDirection d = HeadModel::Normalize(HeadDirection{ m_current.x, m_current.y, m_current.z });
+            pstream->Write(pin, m_nInChannels, nFrames, ObjectPose{ d.x, d.y, -d.z, m_current.fGain });
+        }
 
         //
         // Silence in: the filters ring out, then the output is silent too
@@ -307,13 +328,13 @@ public:
     }
 };
 
-HRESULT CreateSpatialEffect(IUnknown** ppeffect)
+HRESULT CreateSpatialEffect(IUnknown** ppeffect, SpatialObjects* pobjects)
 {
     if (ppeffect == NULL) {
         return E_POINTER;
     }
 
-    *ppeffect = static_cast<IXAPO*>(new SpatialEffect());
+    *ppeffect = static_cast<IXAPO*>(new SpatialEffect(pobjects));
     return S_OK;
 }
 
