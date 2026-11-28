@@ -98,7 +98,7 @@ public:
                     m_pSubTabCurrent->ShowSelPane(false);
                 }
 
-                m_pSubTabCurrent = NULL;
+                m_pSubTabCurrent = nullptr;
 
                 if (m_mapSubTabs.Find(value, m_pSubTabCurrent)) {
                     m_pSubTabCurrent->ShowSelPane(true);
@@ -245,7 +245,7 @@ public:
             m_pScrollPane =
                 CreateScrollPane(
                     new ColumnPane(),//new BorderPane(0, MakeColorFromCOLORREF(TrekResources::BlackColor())),
-                    ThumbPane::Create(pModeler, false, NULL),
+                    ThumbPane::Create(pModeler, false, nullptr),
                     pbuttonUp, pbuttonUp->GetEventSource(),
                     pbuttonDown, pbuttonDown->GetEventSource(),
                     false, 0.25f, 1, 1, 1, 1
@@ -268,7 +268,7 @@ public:
             }
 
             pcol->InsertAtBottom(m_pScrollBar);
-            pcol->InsertAtBottom(new Pane(NULL, WinPoint(0, 8)));
+            pcol->InsertAtBottom(new Pane(nullptr, WinPoint(0, 8)));
 
             pRowPane->InsertAtBottom(pcol);
         }
@@ -482,7 +482,7 @@ public:
     TRef<ListItem>  GetItemByIdx(long iItem) override
     {
         if ((-1 >= iItem) || (iItem >= (int)m_vItems.size()))
-            return NULL;
+            return nullptr;
         else
             return m_vItems[iItem];
     }

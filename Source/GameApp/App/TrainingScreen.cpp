@@ -394,7 +394,7 @@ public:
     static
     void    ShowError (const ZString& strError)
     {
-        TRef<IMessageBox>   pMsgBox = CreateMessageBox (strError, NULL, true);
+        TRef<IMessageBox>   pMsgBox = CreateMessageBox (strError, nullptr, true);
         GetWindow()->GetPopupContainer()->OpenPopup (pMsgBox, false);
     }
 
@@ -421,7 +421,7 @@ public:
     {
         // pop up the "creating game..." dialog.   
         GetWindow()->SetWaitCursor ();
-        TRef<IMessageBox> pMsgBox = CreateMessageBox ("Creating game...", NULL, false);
+        TRef<IMessageBox> pMsgBox = CreateMessageBox ("Creating game...", nullptr, false);
         GetWindow ()->GetPopupContainer ()->OpenPopup (pMsgBox, false);
 
         // pause to let the "creating game..." box draw itself
@@ -438,7 +438,7 @@ public:
     {
         // close the "creating game..." popup (it won't really close until after we get through this function)
         while (!GetWindow()->GetPopupContainer()->IsEmpty())
-            GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+            GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
         GetWindow()->RestoreCursor();
 
         // create the game, and logon to it if successful
@@ -465,8 +465,8 @@ public:
 
         // AllSrv32.exe sits next to Allegiance.exe
         char    szServer[MAX_PATH + 16];
-        DWORD   cch = GetModuleFileName (NULL, szServer, MAX_PATH);
-        char*   pchName = (cch > 0 && cch < MAX_PATH) ? strrchr (szServer, '\\') : NULL;
+        DWORD   cch = GetModuleFileName (nullptr, szServer, MAX_PATH);
+        char*   pchName = (cch > 0 && cch < MAX_PATH) ? strrchr (szServer, '\\') : nullptr;
         if (!pchName)
         {
             ShowError ("Unable to create a game: cannot find the folder Allegiance runs from.");
@@ -478,11 +478,11 @@ public:
         strcpy (pchName + 1, "AllSrv32.exe");
 
         // the stop event, inherited by the server
-        SECURITY_ATTRIBUTES sa = { sizeof (sa), NULL, TRUE };
-        m_hServerStop = CreateEvent (&sa, TRUE, FALSE, NULL);
+        SECURITY_ATTRIBUTES sa = { sizeof (sa), nullptr, TRUE };
+        m_hServerStop = CreateEvent (&sa, TRUE, FALSE, nullptr);
 
         // the job that ties the server's lifetime to ours
-        m_hServerJob = CreateJobObject (NULL, NULL);
+        m_hServerJob = CreateJobObject (nullptr, nullptr);
         if (m_hServerJob)
         {
             JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli;
@@ -493,11 +493,11 @@ public:
 
         // inherit only the stop event
         SIZE_T  cbAttributes = 0;
-        InitializeProcThreadAttributeList (NULL, 1, 0, &cbAttributes);
+        InitializeProcThreadAttributeList (nullptr, 1, 0, &cbAttributes);
         LPPROC_THREAD_ATTRIBUTE_LIST    pattributes = (LPPROC_THREAD_ATTRIBUTE_LIST) _alloca (cbAttributes);
         bool    bAttributes = m_hServerStop
             && InitializeProcThreadAttributeList (pattributes, 1, 0, &cbAttributes)
-            && UpdateProcThreadAttribute (pattributes, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, &m_hServerStop, sizeof (HANDLE), NULL, NULL);
+            && UpdateProcThreadAttribute (pattributes, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, &m_hServerStop, sizeof (HANDLE), nullptr, nullptr);
 
         char    szCommandLine[MAX_PATH + 96];
         sprintf (szCommandLine, "\"%s\" -training %d -stopevent %llu", szServer, m_civID, (unsigned long long) (UINT_PTR) m_hServerStop);
@@ -509,9 +509,9 @@ public:
         si.lpAttributeList = pattributes;
 
         BOOL    bCreated = bAttributes
-            && CreateProcess (NULL, szCommandLine, NULL, NULL, TRUE,
+            && CreateProcess (nullptr, szCommandLine, nullptr, nullptr, TRUE,
                               CREATE_SUSPENDED | CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT,
-                              NULL, szFolder, &si.StartupInfo, &pi);
+                              nullptr, szFolder, &si.StartupInfo, &pi);
         DWORD   dwError = GetLastError ();
 
         if (bAttributes)
@@ -535,7 +535,7 @@ public:
 
         // pop up the Connecting... dialog.   
         GetWindow()->SetWaitCursor ();
-        TRef<IMessageBox> pMsgBox = CreateMessageBox ("Connecting...", NULL, false);
+        TRef<IMessageBox> pMsgBox = CreateMessageBox ("Connecting...", nullptr, false);
         GetWindow ()->GetPopupContainer ()->OpenPopup (pMsgBox, false);
 
         // pause to let the "connecting..." box draw itself
@@ -565,20 +565,20 @@ public:
             if (WaitForSingleObject (m_hServerProcess, 3000) != WAIT_OBJECT_0)
                 TerminateProcess (m_hServerProcess, 1);
             CloseHandle (m_hServerProcess);
-            m_hServerProcess = NULL;
+            m_hServerProcess = nullptr;
         }
 
         // closing the job ends anything left in it
         if (m_hServerJob)
         {
             CloseHandle (m_hServerJob);
-            m_hServerJob = NULL;
+            m_hServerJob = nullptr;
         }
 
         if (m_hServerStop)
         {
             CloseHandle (m_hServerStop);
-            m_hServerStop = NULL;
+            m_hServerStop = nullptr;
         }
 
         return S_OK;
@@ -600,7 +600,7 @@ public:
             for (int i = 0; (i < 12) && (listResults.GetCount () == 0) && !HasServerExited (); i++)
             {
                 Sleep (500);
-                trekClient.FindStandaloneServersByName (NULL, listResults);
+                trekClient.FindStandaloneServersByName (nullptr, listResults);
             }
         }
 
@@ -625,7 +625,7 @@ public:
                 {
                     // close any popups
                     while (!GetWindow()->GetPopupContainer()->IsEmpty())
-                        GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+                        GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
                     GetWindow()->RestoreCursor();
                     
                     // connect to the server
@@ -639,7 +639,7 @@ public:
         {
             // close any popups
             while (!GetWindow()->GetPopupContainer()->IsEmpty())
-                GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+                GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
             GetWindow()->RestoreCursor();
 
             // give some indication of what happened
@@ -673,7 +673,7 @@ public:
         // wait for a join message.
         GetWindow()->SetWaitCursor();
         TRef<IMessageBox> pmsgBox = 
-            CreateMessageBox("Joining mission....", NULL, false, false);
+            CreateMessageBox("Joining mission....", nullptr, false, false);
         GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
     }
 
@@ -723,9 +723,9 @@ public:
 //
 //////////////////////////////////////////////////////////////////////////////
 int             TrainingScreen::m_iMissionNext = Training::c_TM_1_Introduction;
-HANDLE          TrainingScreen::m_hServerProcess = NULL;
-HANDLE          TrainingScreen::m_hServerJob = NULL;
-HANDLE          TrainingScreen::m_hServerStop = NULL;
+HANDLE          TrainingScreen::m_hServerProcess = nullptr;
+HANDLE          TrainingScreen::m_hServerJob = nullptr;
+HANDLE          TrainingScreen::m_hServerStop = nullptr;
 
 //////////////////////////////////////////////////////////////////////////////
 //

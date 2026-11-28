@@ -14,6 +14,6 @@ public:
     virtual void OnPassword(ZString strPassword) = 0;
 };
 
-TRef<IPopup> CreatePasswordPopup(PasswordDialogSink* psink, const ZString& strPassword, MissionInfo* pmission = NULL);
+TRef<IPopup> CreatePasswordPopup(PasswordDialogSink* psink, const ZString& strPassword, MissionInfo* pmission = nullptr);
 
 #endif _passworddialog_h_

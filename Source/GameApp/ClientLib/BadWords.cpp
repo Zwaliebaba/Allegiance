@@ -142,7 +142,7 @@ bool    g_bCensor = true;
 //------------------------------------------------------------------------------
 // bad word storage
 //------------------------------------------------------------------------------
-char**  g_pBadWordList = 0;         // this has a memory leak, but it is only one per app, so it shouldn't be a real problem
+char**  g_pBadWordList = nullptr;         // this has a memory leak, but it is only one per app, so it shouldn't be a real problem
 int     g_iBadWordListSize = 0;
 int     g_iBadWordListMaxSize = 0;
 
@@ -246,7 +246,7 @@ void    LoadBadWords (void)
     // load the bad words resource dll from the artwork directory
     char        szFilename[MAX_PATH + 1];
     HRESULT     hr = UTL::getFile (BADWORDS_DLL_NAME, DLL_SUFFIX, szFilename, false, false);
-    HMODULE     hModule = 0;
+    HMODULE     hModule = nullptr;
     if (hr == S_OK)
     {
         debugf ("Attempting to load %s\n", szFilename);

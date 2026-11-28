@@ -453,7 +453,7 @@ public:
         plist->GetFirst();
 
         int index = 0;
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             pcombo->AddItem(GetString(plist->GetCurrent()), index);
             plist->GetNext();
             ++index;
@@ -474,7 +474,7 @@ public:
         bool bEliminatedItem = false;
 
         int index = 0;
-        while (plist->GetCurrent() != NULL) 
+        while (plist->GetCurrent() != nullptr) 
         {
             float fValue = GetNumber(plistValue->GetCurrent());
 
@@ -521,7 +521,7 @@ public:
         float fDistanceClosest = 1e10f;
 
         int index = 0;
-        while (plist->GetCurrent() != NULL) 
+        while (plist->GetCurrent() != nullptr) 
         {
             float fDistance = fabs(fValue - GetNumber(plist->GetCurrent()));
 
@@ -561,7 +561,7 @@ public:
         float fDistanceClosest = 1e10f;
 
         int index = 0;
-        while (plists[0]->GetCurrent() != NULL) {
+        while (plists[0]->GetCurrent() != nullptr) {
 
             float fDistance = 0;
 
@@ -848,7 +848,7 @@ public:
 
         if (pszReason)
         {
-            GetWindow()->GetPopupContainer()->OpenPopup(CreateMessageBox(pszReason, NULL),
+            GetWindow()->GetPopupContainer()->OpenPopup(CreateMessageBox(pszReason, nullptr),
                                                         false);
         }
         else
@@ -857,7 +857,7 @@ public:
             trekClient.m_fm.QueueExistingMsg((FEDMESSAGE *)pfmMissionParams);
             GetWindow()->SetWaitCursor();
             GetWindow()->GetPopupContainer()->OpenPopup(
-                CreateMessageBox("Changing mission parameters...", NULL, false, false, 1.0f),
+                CreateMessageBox("Changing mission parameters...", nullptr, false, false, 1.0f),
                 false
             );
             m_fQuitting = true;
@@ -999,7 +999,7 @@ public:
             GetWindow()->screen(ScreenIDTeamScreen);
 
             GetWindow()->SetWaitCursor();
-            TRef<IMessageBox> pmsgBox = CreateMessageBox("The game is starting...", NULL, false, false, 1.0f);
+            TRef<IMessageBox> pmsgBox = CreateMessageBox("The game is starting...", nullptr, false, false, 1.0f);
             GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
         }
     }

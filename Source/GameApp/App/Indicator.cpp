@@ -181,7 +181,7 @@ public:
                     pship = pshipParent;
 
                     Mount   turretID = trekClient.GetShip()->GetTurretID();
-                    w = (turretID != NA) ? ((IweaponIGC*)(pship->GetMountedPart(ET_Weapon, turretID))) : NULL;
+                    w = (turretID != NA) ? ((IweaponIGC*)(pship->GetMountedPart(ET_Weapon, turretID))) : nullptr;
                 }
                 else
                 {
@@ -286,11 +286,11 @@ public:
 
                                 if (!bLeadIndicator)
                                 {
-                                    for (ShipLinkIGC*   psl = pcluster->GetShips()->first(); (psl != NULL); psl = psl->next())
+                                    for (ShipLinkIGC*   psl = pcluster->GetShips()->first(); (psl != nullptr); psl = psl->next())
                                     {
                                         IshipIGC*   ps = psl->data();
                                         if ((ps->GetSide() == pside) &&
-                                            (ps->GetParentShip() == NULL) &&
+                                            (ps->GetParentShip() == nullptr) &&
                                             ps->GetBaseHullType()->HasCapability(c_habmRemoteLeadIndicator) &&
                                             ps->InScannerRange(targetModel))
                                         {

@@ -440,13 +440,13 @@ public:
                 EquipmentType       et  = ppt->GetEquipmentType();
                 if (et == ET_Pack)
                 {
-                    if (pship->GetCluster() != NULL)
+                    if (pship->GetCluster() != nullptr)
                     {
                         const DataPackTypeIGC*  pdata = (const DataPackTypeIGC*)(ppt->GetData());
                         if (pdata->packType == c_packFuel)
                         {
                             //Fuel is useful only if we have an afterburner
-                            return (pship->GetMountedPart(ET_Afterburner, 0) != NULL)
+                            return (pship->GetMountedPart(ET_Afterburner, 0) != nullptr)
                                    ? c_iUsefulPart
                                    : c_iNotUseful;
                         }
@@ -485,7 +485,7 @@ public:
     void RenderBlips(Context* pcontext, const Rect& rectImage)
     {
         IclusterIGC*    pcluster = trekClient.GetCluster();
-        if (pcluster == NULL)
+        if (pcluster == nullptr)
             return;
 
         const ModelListIGC* models = pcluster->GetPickableModels();
@@ -517,12 +517,12 @@ public:
                     if (pmodelOrders[i]->GetObjectType() == OT_ship)
                     {
                         pmodelOrders[i] = ((IshipIGC*)pmodelOrders[i])->GetSourceShip();
-                        if (c == NULL)
+                        if (c == nullptr)
                             c = trekClient.GetCluster(trekClient.GetShip(), pmodelOrders[i]);
                     }
 
-                    if (c == NULL)
-                        pmodelOrders[i] = NULL;
+                    if (c == nullptr)
+                        pmodelOrders[i] = nullptr;
                     else
                     {
                         IclusterIGC*    pcluster = trekClient.GetShip()->GetCluster();
@@ -539,7 +539,7 @@ public:
 
         const ShipListIGC*  psubjects;
         if (bRangeLabels)
-            psubjects = NULL;
+            psubjects = nullptr;
         else
             psubjects = GetWindow()->GetConsoleImage()->GetSubjects();
 
@@ -551,9 +551,9 @@ public:
 
         ImodelIGC*  pmodelEnemy = bRangeLabels
                                      ? FindTarget(pshipSource, c_ttShip | c_ttEnemy | c_ttNearest)
-                                     : NULL;
+                                     : nullptr;
         for (ModelLinkIGC* l = models->first();
-             (l != NULL); l = l->next())
+             (l != nullptr); l = l->next())
         {
             ImodelIGC* pmodel = l->data();
 
@@ -784,7 +784,7 @@ public:
                                     {
                                         ImodelIGC*  pmodelTarget = ((ImissileIGC*)pmodel)->GetTarget();
 
-                                        if ((pmodelTarget == NULL) || (pmodelTarget->GetSide() != psideMine))
+                                        if ((pmodelTarget == nullptr) || (pmodelTarget->GetSide() != psideMine))
                                         {
                                             bIcon = false;
                                             range = 0;
@@ -1135,7 +1135,7 @@ public:
                     lines += 0.5f;
                 }
 
-                Surface*    psurfaceIcon = NULL;
+                Surface*    psurfaceIcon = nullptr;
                 float       xshift{};
 
                 if (data.m_cid != c_cidNone)

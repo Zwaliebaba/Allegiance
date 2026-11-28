@@ -28,7 +28,7 @@ namespace Training
     ControlData         g_setInputControls;         // yaw, pitch, roll, throttle - the ones we are forcing on the player
     int                 g_iAllowableActionMask;
     int                 g_iSetInputAction;          // fire, afterburners, ... - the ones we force on the player
-    TrainingMission*    g_pMission = 0;
+    TrainingMission*    g_pMission = nullptr;
     bool                g_bIsMission7;
 
     //------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ namespace Training
         if (g_pMission and g_pMission->Frame ())
         {
             TrainingMission*    pMission = g_pMission;
-            g_pMission = 0;
+            g_pMission = nullptr;
             delete pMission;
         }
         return false;
@@ -127,7 +127,7 @@ namespace Training
         if (g_pMission)
         {
             TrainingMission*    pMission = g_pMission;
-            g_pMission = 0;
+            g_pMission = nullptr;
             pMission->SetShuttingDown ();
             delete pMission;
         }

@@ -101,7 +101,7 @@ namespace Training
         // set up the camera
         TrekWindow*     pWindow = GetWindow ();
         pWindow->SetViewMode (TrekWindow::vmCommand);
-        pWindow->PositionCommandView (NULL, 0.0);
+        pWindow->PositionCommandView (nullptr, 0.0);
         pWindow->SetRadarMode (RadarImage::c_rlAll);
         pWindow->EnableDisplacementCommandView (true);
     }
@@ -140,8 +140,8 @@ namespace Training
         ImodelIGC*      pStation = pCore->GetModel (OT_station, 1050);
         IshipIGC*       pCommander = pCore->GetShip (m_commanderID);
         pCommander->SetStation (static_cast<IstationIGC*> (pStation));
-        pCommander->SetCommand (c_cmdAccepted, NULL, c_cidDoNothing);
-        pCommander->SetCommand (c_cmdCurrent, NULL, c_cidDoNothing);
+        pCommander->SetCommand (c_cmdAccepted, nullptr, c_cidDoNothing);
+        pCommander->SetCommand (c_cmdCurrent, nullptr, c_cidDoNothing);
         pCommander->SetAutopilot (false);
     }
 
@@ -221,26 +221,26 @@ namespace Training
         pGoal->AddStartAction (pCreateDroneAction);
 
         // tell all of these guys to do nothing
-        pGoal->AddStartAction (new SetCommandAction (m_scoutID, c_cmdAccepted, NULL, c_cidDoNothing));
-        pGoal->AddStartAction (new SetCommandAction (m_scoutID, c_cmdCurrent, NULL, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_scoutID, c_cmdAccepted, nullptr, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_scoutID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
-        pGoal->AddStartAction (new SetCommandAction (m_miner2ID, c_cmdAccepted, NULL, c_cidDoNothing));
-        pGoal->AddStartAction (new SetCommandAction (m_miner2ID, c_cmdCurrent, NULL, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_miner2ID, c_cmdAccepted, nullptr, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_miner2ID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
-        pGoal->AddStartAction (new SetCommandAction (m_miner3ID, c_cmdAccepted, NULL, c_cidDoNothing));
-        pGoal->AddStartAction (new SetCommandAction (m_miner3ID, c_cmdCurrent, NULL, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_miner3ID, c_cmdAccepted, nullptr, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_miner3ID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
-        pGoal->AddStartAction (new SetCommandAction (m_miner4ID, c_cmdAccepted, NULL, c_cidDoNothing));
-        pGoal->AddStartAction (new SetCommandAction (m_miner4ID, c_cmdCurrent, NULL, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_miner4ID, c_cmdAccepted, nullptr, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_miner4ID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
-        pGoal->AddStartAction (new SetCommandAction (m_builder1ID, c_cmdAccepted, NULL, c_cidDoNothing));
-        pGoal->AddStartAction (new SetCommandAction (m_builder1ID, c_cmdCurrent, NULL, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_builder1ID, c_cmdAccepted, nullptr, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_builder1ID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
-        pGoal->AddStartAction (new SetCommandAction (m_builder2ID, c_cmdAccepted, NULL, c_cidDoNothing));
-        pGoal->AddStartAction (new SetCommandAction (m_builder2ID, c_cmdCurrent, NULL, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_builder2ID, c_cmdAccepted, nullptr, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_builder2ID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
-        pGoal->AddStartAction (new SetCommandAction (m_builder3ID, c_cmdAccepted, NULL, c_cidDoNothing));
-        pGoal->AddStartAction (new SetCommandAction (m_builder3ID, c_cmdCurrent, NULL, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_builder3ID, c_cmdAccepted, nullptr, c_cidDoNothing));
+        pGoal->AddStartAction (new SetCommandAction (m_builder3ID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
         return pGoal;
     }
@@ -485,8 +485,8 @@ namespace Training
             pGoal->AddStartAction (pCreateDroneAction);
 
             // tell the enemy scout of these guys to do nothing
-            pGoal->AddStartAction (new SetCommandAction (m_enemyScoutID, c_cmdAccepted, NULL, c_cidDoNothing));
-            pGoal->AddStartAction (new SetCommandAction (m_enemyScoutID, c_cmdCurrent, NULL, c_cidDoNothing));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyScoutID, c_cmdAccepted, nullptr, c_cidDoNothing));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyScoutID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
             // set its signature to infinity
             pGoal->AddStartAction (new SetSignatureAction (OT_ship, m_enemyScoutID, 1.0e6f));

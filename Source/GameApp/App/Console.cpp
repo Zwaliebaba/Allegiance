@@ -69,7 +69,7 @@ struct ChatSubject
     :
         m_ctRecipient(ct),
         m_oidRecipient(NA),
-        m_pbaseRecipient(NULL)
+        m_pbaseRecipient(nullptr)
     {
     }
 
@@ -145,7 +145,7 @@ struct ChatSubject
             assert (m_shipsSubject.n() != 0);
 
             m_ctRecipient = CHAT_GROUP;
-            m_pbaseRecipient = NULL;
+            m_pbaseRecipient = nullptr;
             m_oidRecipient = NA;
         }
     }
@@ -156,11 +156,11 @@ struct ChatSubject
         ShipLinkIGC*    psl;
 
         for (psl = m_shipsSubject.first(); 
-             ((psl != NULL) && !psl->data()->LegalCommand(cid)); psl = psl->next())
+             ((psl != nullptr) && !psl->data()->LegalCommand(cid)); psl = psl->next())
         {
         }
 
-        bLegal = psl != NULL;
+        bLegal = psl != nullptr;
 
         return bLegal;
     }
@@ -172,11 +172,11 @@ struct ChatSubject
         ShipLinkIGC*    psl;
 
         for (psl = m_shipsSubject.first(); 
-             ((psl != NULL) && !psl->data()->LegalCommand(cid, pmodelTarget)); psl = psl->next())
+             ((psl != nullptr) && !psl->data()->LegalCommand(cid, pmodelTarget)); psl = psl->next())
         {
         }
 
-        bLegal = psl != NULL;
+        bLegal = psl != nullptr;
 
         return bLegal;
     }
@@ -188,11 +188,11 @@ struct ChatSubject
         ShipLinkIGC*    psl;
 
         for (psl = m_shipsSubject.first(); 
-             ((psl != NULL) && (psl->data()->GetPilotType() != c_ptLayer)); psl = psl->next())
+             ((psl != nullptr) && (psl->data()->GetPilotType() != c_ptLayer)); psl = psl->next())
         {
         }
 
-        bLegal = psl != NULL;
+        bLegal = psl != nullptr;
 
         return bLegal;
     }
@@ -204,15 +204,15 @@ struct ChatSubject
 
         psl = m_shipsSubject.first();
 
-        if (psl == NULL)
+        if (psl == nullptr)
             return false;
 
-        while ((psl != NULL) && (psl->data()->GetPilotType() == c_ptBuilder))
+        while ((psl != nullptr) && (psl->data()->GetPilotType() == c_ptBuilder))
         {
             psl = psl->next();
         }
 
-        bLegal = psl == NULL;
+        bLegal = psl == nullptr;
 
         return bLegal;
     }
@@ -222,10 +222,10 @@ struct ChatSubject
         if (m_ctRecipient == CHAT_GROUP)
         {
             ShipLinkIGC*    pslNext;
-            for (ShipLinkIGC*   psl = m_shipsSubject.first(); (psl != NULL); psl = pslNext)
+            for (ShipLinkIGC*   psl = m_shipsSubject.first(); (psl != nullptr); psl = pslNext)
             {
                 pslNext = psl->next();
-                if (psl->data()->GetMission() == NULL)
+                if (psl->data()->GetMission() == nullptr)
                     delete psl;
             }
 
@@ -238,7 +238,7 @@ struct ChatSubject
             else if (m_shipsSubject.n() == 0)
             {
                 m_ctRecipient = CHAT_TEAM;
-                m_pbaseRecipient = NULL;
+                m_pbaseRecipient = nullptr;
                 m_oidRecipient = NA;
             }
         }
@@ -254,7 +254,7 @@ struct ChatSubject
                 (pship->GetPilotType() < c_ptPlayer))
             {
                 //Chats to a drone or myself convert to the team
-                SetRecipient(CHAT_TEAM, NA, NULL);
+                SetRecipient(CHAT_TEAM, NA, nullptr);
             }
         }
     }
@@ -262,7 +262,7 @@ struct ChatSubject
     void SetRecipient(ChatTarget            ct,
                       ObjectID              oidRecipient,
                       IbaseIGC*             pbaseRecipient,
-                      const ShipListIGC*    pships = NULL)
+                      const ShipListIGC*    pships = nullptr)
     {
         PurgeSubjects();
 
@@ -270,7 +270,7 @@ struct ChatSubject
         {
             if (ct == CHAT_GROUP)
             {
-                for (ShipLinkIGC*   psl = pships->first(); (psl != NULL); psl = psl->next())
+                for (ShipLinkIGC*   psl = pships->first(); (psl != nullptr); psl = psl->next())
                 {
                     if (psl->data()->GetMission())
                         AddSubject(psl->data());
@@ -285,24 +285,24 @@ struct ChatSubject
                 else if (m_shipsSubject.n() == 0)
                 {
                     ct = CHAT_TEAM;
-                    pbaseRecipient = NULL;
+                    pbaseRecipient = nullptr;
                     oidRecipient = NA;
                 }
             }
             else if (ct == CHAT_INDIVIDUAL)
             {
-                if (pbaseRecipient->GetMission() != NULL)
+                if (pbaseRecipient->GetMission() != nullptr)
                     AddSubject((IshipIGC*)pbaseRecipient);
                 else
                 {
                     ct = CHAT_TEAM;
-                    pbaseRecipient = NULL;
+                    pbaseRecipient = nullptr;
                     oidRecipient = NA;
                 }
             }
             else if (ct == CHAT_SHIP)
             {
-                pbaseRecipient = NULL;
+                pbaseRecipient = nullptr;
                 oidRecipient = NA;
 
                 IshipIGC*   pship = trekClient.GetShip()->GetSourceShip();
@@ -314,7 +314,7 @@ struct ChatSubject
                 else
                 {
                     AddSubject(pship);
-                    for (ShipLinkIGC*   psl = pships->first(); (psl != NULL); psl = psl->next())
+                    for (ShipLinkIGC*   psl = pships->first(); (psl != nullptr); psl = psl->next())
                         AddSubject(psl->data());
                 }
             }
@@ -376,7 +376,7 @@ struct ChatSubject
                         assert (false);
                 }
 
-                for (ShipLinkIGC*   psl = pships->first(); (psl != NULL); psl = psl->next())
+                for (ShipLinkIGC*   psl = pships->first(); (psl != nullptr); psl = psl->next())
                 {
                     IshipIGC*   pship = psl->data();
                     bool    bSubject = false;
@@ -652,7 +652,7 @@ public:
         m_pns->AddMember("MyStation", m_pmodelDataMyStation = new ModelData());
 
         // data for my current target
-        m_pns->AddMember("Target", m_pmodelDataTarget = new ModelData(NULL));
+        m_pns->AddMember("Target", m_pmodelDataTarget = new ModelData(nullptr));
         m_pns->AddMember("OnTargetChange", m_pmodelDataTarget->GetOnChangeEventSource());
         m_pns->AddMember("targetSideColor", m_pcolorTargetSide = new ModifiableColorValue(Color::White()));
 
@@ -1051,7 +1051,7 @@ public:
             if (pcluster)
             {
                 //Clear subject masks for all ships and legal objects
-                for (ModelLinkIGC*   pml = pcluster->GetPickableModels()->first(); (pml != NULL); pml = pml->next())
+                for (ModelLinkIGC*   pml = pcluster->GetPickableModels()->first(); (pml != nullptr); pml = pml->next())
                 {
                     ImodelIGC*   pmodel = pml->data();
                     ThingSite*  pts = pmodel->GetThingSite();
@@ -1124,25 +1124,25 @@ public:
 
                 case c_iRecipientTeam:
                     ct = CHAT_TEAM;
-                    pbase = NULL;
+                    pbase = nullptr;
                     oid = NA;
                 break;
 
                 case c_iRecipientSector:
                     ct = CHAT_FRIENDLY_SECTOR;
-                    pbase = NULL;
+                    pbase = nullptr;
                     oid = NA;
                 break;
 
                 case c_iRecipientAll:
                     ct = CHAT_EVERYONE;
-                    pbase = NULL;
+                    pbase = nullptr;
                     oid = NA;
                 break;
 
                 default:
                     ct = CHAT_WING;
-                    pbase = NULL;
+                    pbase = nullptr;
                     oid = nColumn - c_iRecipientWing0;
             }
 
@@ -1295,7 +1295,7 @@ public:
                 static const char*  pszAdmin = "Admin";
                 static const char*  pszNone = "None";
 
-                const char* pszRecipient = NULL;
+                const char* pszRecipient = nullptr;
                 switch (m_pchsCurrent->m_ctRecipient)
                 {
                     case CHAT_NOSELECTION:
@@ -1311,7 +1311,7 @@ public:
 
                         {
                             AsteroidAbilityBitMask  aabm = c_aabmBuildable;
-                            for (ShipLinkIGC*   psl = m_pchsCurrent->m_shipsSubject.first(); (psl != NULL); psl = psl->next())
+                            for (ShipLinkIGC*   psl = m_pchsCurrent->m_shipsSubject.first(); (psl != nullptr); psl = psl->next())
                             {
                                 IshipIGC*   pship = psl->data();
                                 if (pship->GetPilotType() == c_ptBuilder)
@@ -1333,7 +1333,7 @@ public:
 
                     case CHAT_TEAM:
                     {
-                        IsideIGC*   pside = m_pchsCurrent->m_pbaseRecipient == NULL
+                        IsideIGC*   pside = m_pchsCurrent->m_pbaseRecipient == nullptr
                                             ? trekClient.GetShip()->GetSide()
                                             : (IsideIGC*)((IbaseIGC*)m_pchsCurrent->m_pbaseRecipient);
 
@@ -1377,7 +1377,7 @@ public:
                     case CHAT_FRIENDLY_SECTOR:
                     {
                         IclusterIGC*    pcluster;
-                        if (m_pchsCurrent->m_pbaseRecipient == NULL)
+                        if (m_pchsCurrent->m_pbaseRecipient == nullptr)
                         {
                             pcluster = trekClient.GetChatCluster();
                             assert (pcluster != NULL);
@@ -1419,13 +1419,13 @@ public:
                     oidTarget = pmodel->GetObjectID();
                 }
                 else
-                    pmodel = NULL;      //Model has been terminated
+                    pmodel = nullptr;      //Model has been terminated
             }
 
             if (m_pchsCurrent->m_ctRecipient == CHAT_GROUP)
             {
                 ChatTarget ct = CHAT_GROUP;
-                for (ShipLinkIGC*   psl = m_pchsCurrent->m_shipsSubject.first(); (psl != NULL); psl = psl->next())
+                for (ShipLinkIGC*   psl = m_pchsCurrent->m_shipsSubject.first(); (psl != nullptr); psl = psl->next())
                 {
                     IshipIGC* pship = psl->data();
 
@@ -1518,7 +1518,7 @@ public:
                     DamageTrack*        pdt = trekClient.GetShip()->GetDamageTrack();
                     assert (pdt);
                     DamageBucketLink* pdbl = pdt->GetDamageBuckets()->first();
-                    pmodel = pdbl ? pdbl->data()->model() : NULL;
+                    pmodel = pdbl ? pdbl->data()->model() : nullptr;
                 }
                 break;
 
@@ -1534,18 +1534,18 @@ public:
                         (!FindableModel(pmodel, trekClient.GetShip()->GetSide(), ttMask, aabm)) ||
                         (!trekClient.GetShip()->CanSee(pmodel)))
                     {
-                        pmodel = FindTarget(trekClient.GetShip(), ttMask, NULL, NULL, NULL, NULL, aabm);
+                        pmodel = FindTarget(trekClient.GetShip(), ttMask, nullptr, nullptr, nullptr, nullptr, aabm);
                     }
             }
 
-            if (pmodel == NULL)
+            if (pmodel == nullptr)
                 cid = c_cidNone;
         }
         else
-            pmodel = NULL;
+            pmodel = nullptr;
 
         //Send the chat
-        SendChatInternal(NULL,
+        SendChatInternal(nullptr,
                          idSonicChat,
                          cid,
                          pmodel);
@@ -1562,7 +1562,7 @@ public:
             SendChatInternal(m_strTypedText.c_str(),
                              NA,
                              c_cidNone,
-                             NULL);
+                             nullptr);
         }
         else if (m_csComposeState == c_csComposeShell)
         {
@@ -1571,7 +1571,7 @@ public:
         else
         {
             SendChatInternal(
-                NULL,
+                nullptr,
                 NA,
                 m_cidVerb,
                 m_pmodelTarget
@@ -1593,7 +1593,7 @@ public:
     {
         // clean up the composing process        
         SetComposeState(c_csNotComposing);
-        SetChatObject(NULL);
+        SetChatObject(nullptr);
 
         // default to the command target
         m_pchsCurrent = &m_chsCommand;
@@ -1611,7 +1611,7 @@ public:
         pchsTarget->Reset(cs == c_csComposeChat);
         m_pchsCurrent = pchsTarget;
 
-        SetChatObject(NULL);
+        SetChatObject(nullptr);
         m_strTypedText.clear();
 
         // set the compose state
@@ -1620,13 +1620,13 @@ public:
 
     IshipIGC*   PickShip(IclusterIGC*   pcluster, const Point&   pointPick)
     {
-        IshipIGC*   pshipMin = NULL;
+        IshipIGC*   pshipMin = nullptr;
         float       distanceMin = FLT_MAX;
 
         Rect    rectImage = GetWindow()->GetViewport()->GetViewRect()->GetValue();
         Point   point = pointPick - rectImage.Center();
 
-        for (ShipLinkIGC*   psl = pcluster->GetShips()->first(); (psl != NULL); psl = psl->next())
+        for (ShipLinkIGC*   psl = pcluster->GetShips()->first(); (psl != nullptr); psl = psl->next())
         {
             IshipIGC*   pship = psl->data();
             if (pship->GetVisibleF())
@@ -1718,7 +1718,7 @@ public:
                     {
                         ImodelIGC*  pmodel = FindTarget(pship,
                                                         c_ttNeutral | c_ttAsteroid | c_ttLeastTargeted,
-                                                        NULL, pcluster, &(Vector::GetZero()), NULL,
+                                                        nullptr, pcluster, &(Vector::GetZero()), nullptr,
                                                         abmOrders);
 
                         if (pmodel)
@@ -1819,10 +1819,10 @@ public:
         Point   point = pointPick - rectImage.Center();
 
         //Loop over all pickable objects in the sector
-        ImodelIGC*  pmodelMin = NULL;
+        ImodelIGC*  pmodelMin = nullptr;
         float       distanceMin = FLT_MAX;
 
-        for (ModelLinkIGC*   pml = pcluster->GetPickableModels()->first(); (pml != NULL); pml = pml->next())
+        for (ModelLinkIGC*   pml = pcluster->GetPickableModels()->first(); (pml != nullptr); pml = pml->next())
         {
             ImodelIGC*   pmodel = pml->data();
             if (pmodel->GetVisibleF())
@@ -2014,7 +2014,7 @@ public:
 
                         //Find all friendly ships in the selection rectangle
                         IsideIGC*   pside = trekClient.GetShip()->GetSide();
-                        for (ShipLinkIGC*   psl = pcluster->GetShips()->first(); (psl != NULL); psl = psl->next())
+                        for (ShipLinkIGC*   psl = pcluster->GetShips()->first(); (psl != nullptr); psl = psl->next())
                         {
                             IshipIGC*   pship = psl->data();
                             if ((pship->GetSide() == pside) && pship->GetVisibleF())
@@ -2039,12 +2039,12 @@ public:
                             if (m_csComposeState == c_csNotComposing)
                                 StartComposing(c_csComposeMouseCommand, &m_chsCommand);
 
-                            m_pchsCurrent->SetRecipient(CHAT_GROUP, NA, NULL, &ships);
+                            m_pchsCurrent->SetRecipient(CHAT_GROUP, NA, nullptr, &ships);
                             UpdateComposedChat();
                         }
                         else
                         {
-                            m_pchsCurrent->SetRecipient(CHAT_NOSELECTION, NA, NULL);
+                            m_pchsCurrent->SetRecipient(CHAT_NOSELECTION, NA, nullptr);
                             QuitComposing();
                         }
                     }
@@ -2219,7 +2219,7 @@ public:
         return (m_csComposeState != c_csNotComposing) &&
                (m_csComposeState != c_csComposeShell)
                ? &(m_pchsCurrent->m_shipsSubject)
-               : NULL;
+               : nullptr;
     }
 
     bool OnChar(const KeyState& ks)
@@ -2238,7 +2238,7 @@ public:
                         SetComposeState(c_csComposeCommand);
                         SetVerb(cid);
 
-                        SetChatObject(NULL);
+                        SetChatObject(nullptr);
 
                         UpdateComposedChat();
 
@@ -2356,20 +2356,20 @@ public:
 
     void MatchTarget(void)
     {
-        SetChatObject(NULL);
+        SetChatObject(nullptr);
 
         const char* pszText = m_strTypedText.c_str();
         if (*pszText == '\0')
             return;
 
-        ImodelIGC*  pmodelBest = NULL;
+        ImodelIGC*  pmodelBest = nullptr;
         int         scoreBest = c_badMatch;  //Any nice big number
 
         //Find an acceptable thing to target
         //First ... try all ships in the universe
         {
             for (ShipLinkIGC*   psl = trekClient.m_pCoreIGC->GetShips()->first();
-                 (psl != NULL);
+                 (psl != nullptr);
                  psl = psl->next())
             {
                 IshipIGC*   pship = psl->data();
@@ -2389,7 +2389,7 @@ public:
         if (scoreBest > 0)
         {
             for (StationLinkIGC*   psl = trekClient.m_pCoreIGC->GetStations()->first();
-                 (psl != NULL);
+                 (psl != nullptr);
                  psl = psl->next())
             {
                 IstationIGC*   pstation = psl->data();
@@ -2411,7 +2411,7 @@ public:
                 if (pcluster)
                 {
                     for (ModelLinkIGC*   pml = pcluster->GetPickableModels()->first();
-                         (pml != NULL);
+                         (pml != nullptr);
                          pml = pml->next())
                     {
                         ImodelIGC*   pmodel = pml->data();
@@ -2443,9 +2443,9 @@ public:
                     if (scoreBest > 0)
                     {
                         //Fifth ... try all clusters
-                        IclusterIGC*    pcluster = NULL;
+                        IclusterIGC*    pcluster = nullptr;
                         for (ClusterLinkIGC*   pcl = trekClient.m_pCoreIGC->GetClusters()->first();
-                             (pcl != NULL);
+                             (pcl != nullptr);
                              pcl = pcl->next())
                         {
                             IclusterIGC*   pc = pcl->data();
@@ -2502,7 +2502,7 @@ public:
         else if (m_csComposeState == c_csComposeCommand)
         {
             SetComposeState(c_csComposeChat);
-            SetChatObject(NULL);
+            SetChatObject(nullptr);
         }
     }
 
@@ -2526,7 +2526,7 @@ public:
                 {
                     if (trekClient.GetShip()->GetSourceShip()->GetChildShips()->n() != 0)
                     {
-                        m_pchsCurrent->SetRecipient(CHAT_SHIP, NA, NULL);
+                        m_pchsCurrent->SetRecipient(CHAT_SHIP, NA, nullptr);
                         break;
                     }
                 }
@@ -2534,7 +2534,7 @@ public:
 
                 case CHAT_SHIP:
                 {
-                    m_pchsCurrent->SetRecipient(CHAT_FRIENDLY_SECTOR, NA, NULL);
+                    m_pchsCurrent->SetRecipient(CHAT_FRIENDLY_SECTOR, NA, nullptr);
                     if (m_pchsCurrent->m_shipsSubject.n() != 0)
                         break;
                 }
@@ -2542,19 +2542,19 @@ public:
 
                 case CHAT_FRIENDLY_SECTOR:
                 {
-                    m_pchsCurrent->SetRecipient(CHAT_TEAM, NA, NULL);
+                    m_pchsCurrent->SetRecipient(CHAT_TEAM, NA, nullptr);
                 }
                 break;
 
                 case CHAT_TEAM:
                 {
-                    m_pchsCurrent->SetRecipient(CHAT_EVERYONE, NA, NULL);
+                    m_pchsCurrent->SetRecipient(CHAT_EVERYONE, NA, nullptr);
                 }
                 break;           
 
                 default:
                 {
-                    m_pchsCurrent->SetRecipient(CHAT_WING, NA, NULL);
+                    m_pchsCurrent->SetRecipient(CHAT_WING, NA, nullptr);
                 }
             }
         }
@@ -2574,9 +2574,9 @@ public:
             //Try to match the typed text against a recipient
             if (MatchName(pcc, "admin") == 0)
             {
-                SetChatObject(NULL);
+                SetChatObject(nullptr);
                 m_strTypedText.clear();
-                m_pchsCurrent->SetRecipient(CHAT_ADMIN, NA, NULL);
+                m_pchsCurrent->SetRecipient(CHAT_ADMIN, NA, nullptr);
             }
             else
             {
@@ -2584,7 +2584,7 @@ public:
 
                 ChatTarget    ct = CHAT_NOSELECTION;
                 ObjectID      oidRecipient{};
-                IbaseIGC*     pbaseRecipient = NULL;
+                IbaseIGC*     pbaseRecipient = nullptr;
 
                 //Try to match against a wing
                 {
@@ -2599,7 +2599,7 @@ public:
 
                             ct = CHAT_WING;
                             oidRecipient = i;
-                            pbaseRecipient = NULL;
+                            pbaseRecipient = nullptr;
                         }
                     }
                 }
@@ -2607,7 +2607,7 @@ public:
                 if (scoreBest > 0)
                 {
                     for (ClusterLinkIGC*   pcl = trekClient.m_pCoreIGC->GetClusters()->first();
-                         (pcl != NULL);
+                         (pcl != nullptr);
                          pcl = pcl->next())
                     {
                         IclusterIGC*   pcluster = pcl->data();
@@ -2659,7 +2659,7 @@ public:
 
                                     ct = CHAT_EVERYONE;
                                     oidRecipient = NA;
-                                    pbaseRecipient = NULL;
+                                    pbaseRecipient = nullptr;
                                 }
 
                                 if (scoreBest > 0)
@@ -2673,7 +2673,7 @@ public:
 
                                             ct = CHAT_SHIP;
                                             oidRecipient = NA;
-                                            pbaseRecipient = NULL;
+                                            pbaseRecipient = nullptr;
                                         }
                                     }
 
@@ -2683,7 +2683,7 @@ public:
                                         IsideIGC*   pside = trekClient.GetSide();
 
                                         for (ShipLinkIGC*   psl = pside->GetShips()->first();
-                                             (psl != NULL);
+                                             (psl != nullptr);
                                              psl = psl->next())
                                         {
                                             IshipIGC*   pship = psl->data();
@@ -2705,7 +2705,7 @@ public:
                                             IsideIGC* psideMine = trekClient.GetSide();
 
                                             for (ShipLinkIGC*   psl = trekClient.m_pCoreIGC->GetShips()->first();
-                                                 (psl != NULL);
+                                                 (psl != nullptr);
                                                  psl = psl->next())
                                             {
                                                 IshipIGC*   pship = psl->data();
@@ -2737,7 +2737,7 @@ public:
                                                     SetComposeState(c_csComposeCommand);
                                                     SetVerb(cid);
 
-                                                    SetChatObject(NULL);
+                                                    SetChatObject(nullptr);
                                                     m_strTypedText.clear();
                                                     UpdateComposedChat();
 
@@ -2754,7 +2754,7 @@ public:
 
                 if (scoreBest != c_badMatch)
                 {
-                    SetChatObject(NULL);
+                    SetChatObject(nullptr);
                     m_strTypedText.clear();
                     m_pchsCurrent->SetRecipient(ct, oidRecipient, pbaseRecipient);
                 }
@@ -2983,7 +2983,7 @@ public:
 
     ~ConsoleImageImpl(void)
     {
-        GetWindow()->SetChatListPane(NULL);
+        GetWindow()->SetChatListPane(nullptr);
     }
 
     void StartChat() override
@@ -3107,15 +3107,15 @@ public:
 
         OverlayMask om = GetOverlayFlags();
 
-        m_pconsoleData            = NULL;
+        m_pconsoleData            = nullptr;
         m_vpdisplayImages.clear();
-        m_pgroupDisplays          = NULL;
-        m_pobjectTeamPane         = NULL;
-        m_pobjectExpandedTeamPane = NULL;
-        m_pobjectTeleportPane     = NULL;
-        m_pcomboCluster           = NULL;
-        m_pbuttonBack             = NULL;
-        m_pickimage               = NULL;
+        m_pgroupDisplays          = nullptr;
+        m_pobjectTeamPane         = nullptr;
+        m_pobjectExpandedTeamPane = nullptr;
+        m_pobjectTeleportPane     = nullptr;
+        m_pcomboCluster           = nullptr;
+        m_pbuttonBack             = nullptr;
+        m_pickimage               = nullptr;
 
         m_pgroupDisplays = new GroupImage();
 
@@ -3145,7 +3145,7 @@ public:
         IObjectList* plistDisplays; CastTo(plistDisplays, pnsDisplays->FindMember("dialogs"));
 
         plistDisplays->GetFirst();
-        while (plistDisplays->GetCurrent() != NULL)
+        while (plistDisplays->GetCurrent() != nullptr)
         {
             TRef<IObjectPair> ppair; CastTo(ppair, plistDisplays->GetCurrent());
 
@@ -3247,7 +3247,7 @@ void AddChildren(Pane* ppaneParent, ObjectStack& stack)
 
     plist->GetFirst();
 
-    while (plist->GetCurrent() != NULL) {
+    while (plist->GetCurrent() != nullptr) {
         IObjectPair*      ppair;       CastTo(ppair,       plist->GetCurrent());
         TRef<Pane>        ppaneChild;  CastTo(ppaneChild,  ppair->GetFirst()  );
         TRef<PointValue>  ppointChild; CastTo(ppointChild, ppair->GetSecond() );

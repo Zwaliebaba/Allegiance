@@ -67,8 +67,8 @@ namespace Training
         ImodelIGC*      pStation = pCore->GetModel (OT_station, 1030);
         IshipIGC*       pCommander = pCore->GetShip (m_commanderID);
         pCommander->SetStation (static_cast<IstationIGC*> (pStation));
-        pCommander->SetCommand (c_cmdAccepted, NULL, c_cidDoNothing);
-        pCommander->SetCommand (c_cmdCurrent, NULL, c_cidDoNothing);
+        pCommander->SetCommand (c_cmdAccepted, nullptr, c_cidDoNothing);
+        pCommander->SetCommand (c_cmdCurrent, nullptr, c_cidDoNothing);
         pCommander->SetAutopilot (false);
     }
 

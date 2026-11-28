@@ -66,7 +66,7 @@ public:
                 //
 
                 TRef<LogonPopup> pthis = this;
-                ClosePopup(NULL);
+                ClosePopup(nullptr);
 
 
                 //
@@ -83,7 +83,7 @@ public:
     bool OnButtonAbort()
     {
         m_psite->OnAbort();
-        ClosePopup(NULL);
+        ClosePopup(nullptr);
         return true;
     }
 

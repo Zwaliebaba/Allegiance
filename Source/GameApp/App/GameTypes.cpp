@@ -146,7 +146,7 @@ TRef<GameType> GameType::FindType(const MissionParams& misparams)
         gameTypesIter.Next();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 TList<TRef<GameType> >& GameType::GetGameTypes()

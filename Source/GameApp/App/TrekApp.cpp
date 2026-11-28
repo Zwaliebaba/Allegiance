@@ -36,7 +36,7 @@ bool CheckFreeMemory()
 
     // if that fails, try allocating a big chunk of memory to try to force the 
     // swap file to grow.
-    void *pv = VirtualAlloc(NULL, nAppSize, MEM_COMMIT, PAGE_NOACCESS);
+    void *pv = VirtualAlloc(nullptr, nAppSize, MEM_COMMIT, PAGE_NOACCESS);
 
     if (pv)
     {
@@ -63,7 +63,7 @@ public:
         //
         {
           char    path[MAX_PATH + 16];
-          ::GetModuleFileName(NULL, path, MAX_PATH);
+          ::GetModuleFileName(nullptr, path, MAX_PATH);
           char*   p = strrchr(path, '\\');
           if (!p)
               p = path;
@@ -81,7 +81,7 @@ public:
 
         if (!CheckFreeMemory())
         {
-            if (MessageBox(NULL, 
+            if (MessageBox(nullptr, 
                 "You are low on free memory and/or hard drive space.  "
                 "You may experience proplems running Allegiance.  Run anyway?", 
                 "Allegiance",
@@ -93,7 +93,7 @@ public:
             }
         }
 
-        HRESULT hr = CoInitialize(NULL);
+        HRESULT hr = CoInitialize(nullptr);
 
         if (FAILED(hr))
             return hr;
@@ -112,7 +112,7 @@ public:
 
         if (pathStr.empty()) {
             char    szArtPath[MAX_PATH + 16];
-            GetModuleFileNameA(NULL, szArtPath, MAX_PATH);
+            GetModuleFileNameA(nullptr, szArtPath, MAX_PATH);
             char*   p = strrchr(szArtPath, '\\');
             if (!p)
                 p = szArtPath;
@@ -159,7 +159,7 @@ public:
                 else
                 {
                   // pop up error message box
-                  MessageBox(NULL, "Framerate log file location is invalid.\n"
+                  MessageBox(nullptr, "Framerate log file location is invalid.\n"
                                    "Set LogFrameDataPath in the settings file to "
                                    "a valid location.",
                                    "Framerate Logging Error", MB_ICONEXCLAMATION | MB_OK);

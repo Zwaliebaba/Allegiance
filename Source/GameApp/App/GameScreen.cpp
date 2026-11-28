@@ -210,7 +210,7 @@ private:
             // find the game type...
             TRef<GameType> pGameType = GameType::FindType(game->GetMissionParams());
             
-            if (pGameType != NULL)
+            if (pGameType != nullptr)
             {
                 // draw the game type's name
                 psurface->DrawString(pfont, color, WinPoint(m_viColumns[7] + 4, 6), pGameType->GetName());
@@ -342,7 +342,7 @@ private:
             if (m_pkeyboardInputOldFocus)
                 GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
 
-            m_pkeyboardInputOldFocus = NULL;
+            m_pkeyboardInputOldFocus = nullptr;
 
             IPopup::OnClose();
         }
@@ -477,7 +477,7 @@ private:
             if (m_pkeyboardInputOldFocus)
                 GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
 
-            m_pkeyboardInputOldFocus = NULL;
+            m_pkeyboardInputOldFocus = nullptr;
 
             IPopup::OnClose();
         }
@@ -511,7 +511,7 @@ private:
         bool OnButtonOK()
         {
             GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-            m_pkeyboardInputOldFocus = NULL;
+            m_pkeyboardInputOldFocus = nullptr;
 
             if (m_ppopupOwner) {
                 m_ppopupOwner->ClosePopup(this);
@@ -521,7 +521,7 @@ private:
 
             GetWindow()->SetWaitCursor();
             TRef<IMessageBox> pmsgBox = 
-                CreateMessageBox("Asking server to find player....", NULL, false, false, 1.0f);
+                CreateMessageBox("Asking server to find player....", nullptr, false, false, 1.0f);
             GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
 
             BEGIN_PFM_CREATE(trekClient.m_fmLobby, pfmFindPlayer, C, FIND_PLAYER)
@@ -535,7 +535,7 @@ private:
         bool OnButtonCancel()
         {
             GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-            m_pkeyboardInputOldFocus = NULL;
+            m_pkeyboardInputOldFocus = nullptr;
 
             if (m_ppopupOwner) {
                 m_ppopupOwner->ClosePopup(this);
@@ -644,7 +644,7 @@ public:
         {
             GetWindow()->SetWaitCursor();
             TRef<IMessageBox> pmsgBox = 
-                CreateMessageBox("Connecting to lobby....", NULL, false, false);
+                CreateMessageBox("Connecting to lobby....", nullptr, false, false);
             GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
 
             AddEventTarget(&GameScreen::DoLobbyConnect, GetWindow(), 0.1f);
@@ -662,11 +662,11 @@ public:
     {
         // close the "connecting..." popup
         if (GetWindow()->GetPopupContainer() && !GetWindow()->GetPopupContainer()->IsEmpty())
-            GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+            GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
         GetWindow()->RestoreCursor();
 
         // make sure we're connected
-        HRESULT hr = trekClient.ConnectToLobby(NULL);
+        HRESULT hr = trekClient.ConnectToLobby(nullptr);
         if (FAILED(hr))
         {
             GetWindow()->screen(ScreenIDLobbyScreen);
@@ -1181,10 +1181,10 @@ public:
     void OnFoundPlayer(MissionInfo* pMissionInfo) override
     {
         if (!GetWindow()->GetPopupContainer()->IsEmpty())
-            GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+            GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
         GetWindow()->RestoreCursor();
 
-        if (pMissionInfo == NULL)
+        if (pMissionInfo == nullptr)
         {
             TRef<IMessageBox> pmsgBox = 
                 CreateMessageBox("The player was not found.");
@@ -1217,7 +1217,7 @@ public:
         {
             // rejected !!  Bad password?
             if (!GetWindow()->GetPopupContainer()->IsEmpty())
-                GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+                GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
             GetWindow()->RestoreCursor();
 
             bool bDisconnect = true;
@@ -1344,7 +1344,7 @@ public:
         float fDistanceClosest = 1e10f;
 
         int index = 0;
-        while (plists[0]->GetCurrent() != NULL) {
+        while (plists[0]->GetCurrent() != nullptr) {
 
             float fDistance = 0;
 
@@ -1371,7 +1371,7 @@ public:
         // wait for a join message.
         GetWindow()->SetWaitCursor();
         TRef<IMessageBox> pmsgBox = 
-            CreateMessageBox("Joining mission....", NULL, false, false);
+            CreateMessageBox("Joining mission....", nullptr, false, false);
         GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
     }
 

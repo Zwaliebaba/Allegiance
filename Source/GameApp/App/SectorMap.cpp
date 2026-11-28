@@ -853,7 +853,7 @@ public:
     }
 
     ImodelIGC* pmodelRipcord = trekClient.GetShip()->GetRipcordModel();
-    IclusterIGC* pclusterRipcord = NULL;
+    IclusterIGC* pclusterRipcord = nullptr;
     IsideIGC* pside = trekClient.GetSide();
     ClusterListIGC clustersRipcord;
 

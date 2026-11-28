@@ -127,7 +127,7 @@ public:
         {
             PlayerInfo* pplayer = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitemArg));
             ZString     pname;
-            if (pplayer == NULL || trekClient.MyMission() == NULL)
+            if (pplayer == nullptr || trekClient.MyMission() == nullptr)
                 return;
             
             // draw the selection bar
@@ -264,7 +264,7 @@ public:
               SideInfo* pitem = (SideInfo*)pitemArg;
               
               Color color;
-              IsideIGC* pside = NULL;
+              IsideIGC* pside = nullptr;
               
               if (trekClient.GetCore())
                   pside = trekClient.GetCore()->GetSide(pitem->GetSideID());
@@ -364,7 +364,7 @@ public:
           {
               SideInfo* pitem = (SideInfo*)pitemArg;
               
-              IsideIGC* pside = NULL;
+              IsideIGC* pside = nullptr;
               
               if (trekClient.GetCore())
                   pside = trekClient.GetCore()->GetSide(pitem->GetSideID());
@@ -400,7 +400,7 @@ public:
               
               psurface->BitBlt(WinPoint(0,0), m_pimageIconPanel->GetSurface());
               
-              IcivilizationIGC* pciv = pside ? pside->GetCivilization() : NULL;
+              IcivilizationIGC* pciv = pside ? pside->GetCivilization() : nullptr;
               ZString str;
               
               str = ZString("icon") + StrToLower(ZString(pciv->GetIconName())) + ZString("bmp");
@@ -415,7 +415,7 @@ public:
     {
         PlayerInfo* pplayer = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitem));
         
-        if (pplayer == NULL || trekClient.MyMission() == NULL)
+        if (pplayer == nullptr || trekClient.MyMission() == nullptr)
             return false;
         
         return (pplayer->IsHuman() 
@@ -453,12 +453,12 @@ public:
     
     public:
         TeamPane(Modeler* pmodeler, const ZString& strPrefix)
-            : m_peventPlayers(NULL), m_sortPlayers(sortLeader), m_pTeamPaneTwin(NULL)
+            : m_peventPlayers(nullptr), m_sortPlayers(sortLeader), m_pTeamPaneTwin(nullptr)
         {
             TRef<IObject> pobjColumns;
             
             // a team pane is meaningless without a team
-            if (trekClient.MyMission() == NULL)
+            if (trekClient.MyMission() == nullptr)
                 return;
             
             // Load the members from MDL
@@ -569,7 +569,7 @@ public:
             
             m_pcomboTeams->SetSelection(trekClient.GetSideID());
             OnTeamCombo(trekClient.GetSideID());
-            OnSelectPlayer(NULL);
+            OnSelectPlayer(nullptr);
     }
     
     ~TeamPane()
@@ -622,7 +622,7 @@ public:
         int nPlayers = 0;
 
         for (ShipLinkIGC* psl = pside->GetShips()->first(); 
-            (psl != NULL); psl = psl->next())
+            (psl != nullptr); psl = psl->next())
         {
             PlayerInfo* pplayer = (PlayerInfo*)(psl->data()->GetPrivateData());
             
@@ -642,7 +642,7 @@ public:
         if (missionparams.iMaxImbalance != 0x7fff)
         {
             for (SideLinkIGC* psidel = trekClient.GetCore()->GetSides()->first(); 
-                (psidel != NULL); psidel = psidel->next())
+                (psidel != nullptr); psidel = psidel->next())
             {
                 if (psidel->data()->GetActiveF())
                 {
@@ -683,7 +683,7 @@ public:
         bool bEnableAccept = false;
         bool bHideAccept = true;
         
-        if (pitem != NULL)
+        if (pitem != nullptr)
         {
             PlayerInfo* pplayer = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitem));
             if (m_sideCurrent == trekClient.GetSideID())
@@ -707,7 +707,7 @@ public:
                     if (pplayer->IsHuman())
                     {
                         IshipIGC*   psd = pship->GetAutoDonate();
-                        bEnableAutoDonate = ((psd == NULL) ||
+                        bEnableAutoDonate = ((psd == nullptr) ||
                                              (psd == trekClient.GetShip())) &&
                                             (pship != trekClient.GetShip()->GetAutoDonate());
 
@@ -733,7 +733,7 @@ public:
                 {
                     bHideAutoDonate = true;
                     bHideStopDonate = false;
-                    bEnableStopDonate = trekClient.GetShip()->GetAutoDonate() != NULL;
+                    bEnableStopDonate = trekClient.GetShip()->GetAutoDonate() != nullptr;
                 }
             }
             else
@@ -795,7 +795,7 @@ public:
     
     bool OnSelTeam(ItemID pitem)
     {
-        if (pitem == NULL)
+        if (pitem == nullptr)
         {
             // default the selection to the last team
             m_plistPaneTeams->SetSelection(
@@ -972,7 +972,7 @@ public:
     
     bool OnButtonDonate()
     {
-        if (m_plistPanePlayers->GetSelection() != NULL)
+        if (m_plistPanePlayers->GetSelection() != nullptr)
         {
             ShipID shipID = IntItemIDWrapper<ShipID>(m_plistPanePlayers->GetSelection());
             
@@ -989,7 +989,7 @@ public:
     bool OnButtonAutoDonate()
     {
         ShipID  shipID;
-        if ((m_plistPanePlayers->GetSelection() != NULL) && (trekClient.m_fm.IsConnected ()))
+        if ((m_plistPanePlayers->GetSelection() != nullptr) && (trekClient.m_fm.IsConnected ()))
         {
             shipID = IntItemIDWrapper<ShipID>(m_plistPanePlayers->GetSelection());
             
@@ -1018,7 +1018,7 @@ public:
     
     bool OnButtonTakeMeTo()
     {
-        if (m_plistPanePlayers->GetSelection() != NULL)
+        if (m_plistPanePlayers->GetSelection() != nullptr)
         {
             GetWindow()->TurnOffOverlayFlags(ofExpandedTeam | ofTeam);
 
@@ -1049,19 +1049,19 @@ public:
                     //GetWindow()->SetTarget(pplayer->GetShip(), c_cidDefault);
                     
                     IclusterIGC*    pClusterShip = trekClient.GetShip()->GetCluster();
-                    if ((pClusterShip == NULL) || (pClusterShip == pCluster))
+                    if ((pClusterShip == nullptr) || (pClusterShip == pCluster))
                     {
                         if (GetWindow()->GetViewMode() != TrekWindow::vmCommand)
                             GetWindow()->SetViewMode(TrekWindow::vmCommand);
 
-                        if (pClusterShip == NULL)
+                        if (pClusterShip == nullptr)
                             trekClient.RequestViewCluster(pCluster, pplayer->GetShip());
                         else
                         {
                             assert (pClusterShip == pCluster);
                             GetWindow()->PositionCommandView(pplayer->GetShip()->SeenBySide(trekClient.GetSide())
                                                              ? &(pplayer->GetShip()->GetPosition())
-                                                             : NULL,
+                                                             : nullptr,
                                                              2.0f);
                         }
                     }
@@ -1075,7 +1075,7 @@ public:
     }
     bool OnButtonAccept()
     {
-        if (m_plistPanePlayers->GetSelection() != NULL)
+        if (m_plistPanePlayers->GetSelection() != nullptr)
         {
             ShipID      shipID = IntItemIDWrapper<ShipID>(m_plistPanePlayers->GetSelection());
             PlayerInfo* pplayer = trekClient.FindPlayer(shipID);
@@ -1318,7 +1318,7 @@ public:
     {
         IclusterIGC* psector = trekClient.GetCore()->GetCluster(id);
         
-        if (psector == NULL)
+        if (psector == nullptr)
             return "unknown";
         else
             return psector->GetName();
@@ -1353,7 +1353,7 @@ public:
         {
             IhullTypeIGC* phull = trekClient.GetCore()->GetHullType(pplayer->LastSeenShipType());
             
-            if (phull == NULL)
+            if (phull == nullptr)
                 strShip = "<none>";
             else
                 strShip = phull->GetName();
@@ -1519,7 +1519,7 @@ class ExpandedTeamPane : public TeamPane
         {
             PlayerInfo* pplayer = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitemArg));
             
-            if (pplayer == NULL || trekClient.MyMission() == NULL)
+            if (pplayer == nullptr || trekClient.MyMission() == nullptr)
                 return;
             
             IshipIGC* pship = trekClient.GetCore()->GetShip(pplayer->ShipID());
@@ -1689,7 +1689,7 @@ public:
         : TeamPane(pmodeler, strPrefix)
     {
         // a team pane is meaningless without a team
-        if (trekClient.MyMission() == NULL)
+        if (trekClient.MyMission() == nullptr)
             return;
         
         TRef<INameSpace> pns = pmodeler->GetNameSpace("teampane");

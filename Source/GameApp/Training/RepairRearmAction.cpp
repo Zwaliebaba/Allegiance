@@ -47,7 +47,7 @@ namespace Training
         // fill the first empty cargo slot with missiles
         int i;
         for (i = -1; i > -c_maxCargo; i--)
-            if (pShip->GetMountedPart (NA, i) == 0)
+            if (pShip->GetMountedPart (NA, i) == nullptr)
             {
                 g_pMission->AddPartToShip (150, i, 0x7fff);
                 break;
@@ -55,12 +55,12 @@ namespace Training
 
         // fill the second empty cargo slot with ammo
         for (; i > -c_maxCargo; i--)
-            if (pShip->GetMountedPart (NA, i) == 0)
+            if (pShip->GetMountedPart (NA, i) == nullptr)
                 g_pMission->AddPartToShip (24, i, 0x7fff);
 
         // fill all subsequent slots with missiles
         for (; i > -c_maxCargo; i--)
-            if (pShip->GetMountedPart (NA, i) == 0)
+            if (pShip->GetMountedPart (NA, i) == nullptr)
                 g_pMission->AddPartToShip (150, i, 0x7fff);
     }
 

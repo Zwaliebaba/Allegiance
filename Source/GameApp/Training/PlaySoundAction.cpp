@@ -20,7 +20,7 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  PlaySoundAction::PlaySoundAction (SoundID soundID) : 
     m_soundID (soundID),
-    m_soundInstance (0),
+    m_soundInstance (nullptr),
     m_bHasStarted (false)
     {
     }
@@ -28,7 +28,7 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  PlaySoundAction::~PlaySoundAction (void)
     {
-        m_soundInstance = 0;
+        m_soundInstance = nullptr;
     }
 
     //------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ namespace Training
         if (m_soundID != NA)
         {
             ThingSitePrivate*           pThingSite = static_cast<ThingSitePrivate*> (trekClient.GetShip ()->GetThingSite());
-            TRef<ISoundPositionSource>  pSource = pThingSite ? pThingSite->GetSoundSource () : NULL;
+            TRef<ISoundPositionSource>  pSource = pThingSite ? pThingSite->GetSoundSource () : nullptr;
             m_soundInstance = trekClient.StartSound (m_soundID, pSource);
         }
         m_bHasStarted = true;

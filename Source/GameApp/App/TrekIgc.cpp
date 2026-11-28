@@ -55,9 +55,9 @@ class ClusterSiteImpl : public ClusterSite
                     delete l;
                 }
             }
-            m_pGroupScene   = NULL;
-            m_pposterImage  = NULL;
-            m_pexplosionGeo = NULL;
+            m_pGroupScene   = nullptr;
+            m_pposterImage  = nullptr;
+            m_pexplosionGeo = nullptr;
         }
 
 
@@ -255,7 +255,7 @@ class ClusterSiteImpl : public ClusterSite
 
         Geo* GetEnvironmentGeo() override
         {
-            if (m_pgeoEnvironment == NULL) {
+            if (m_pgeoEnvironment == nullptr) {
                 return Geo::GetEmpty();
             } else {
                 return m_pgeoEnvironment;
@@ -377,7 +377,7 @@ class ClusterSiteImpl : public ClusterSite
             am &= (c_amStation | c_amEnemyStation | c_amEnemyTeleport);
 
             for (ShipLinkIGC*    psl = trekClient.m_pCoreIGC->GetShips()->first();
-                 (psl != NULL);
+                 (psl != nullptr);
                  psl = psl->next())
             {
                 IshipIGC*   pship = psl->data();
@@ -406,7 +406,7 @@ class ClusterSiteImpl : public ClusterSite
             am &= ~(c_amStation | c_amEnemyStation);
 
             for (StationLinkIGC*    psl = m_pcluster->GetStations()->first();
-                 (psl != NULL);
+                 (psl != nullptr);
                  psl = psl->next())
             {
                 am |= (psl->data()->GetSide() == pside)
@@ -467,7 +467,7 @@ public:
     // destroyed or leaves the cluster
     void Destroy()
     {
-        m_pmodel = NULL;
+        m_pmodel = nullptr;
     }
 
 
@@ -479,7 +479,7 @@ public:
     HRESULT GetPosition(Vector& vectPosition) override
     {
         ZAssert(m_pmodel != NULL);
-        if (m_pmodel == NULL) return E_FAIL;
+        if (m_pmodel == nullptr) return E_FAIL;
 
         if (IsRelative())
         {
@@ -500,7 +500,7 @@ public:
     HRESULT GetVelocity(Vector& vectVelocity) override
     {
         ZAssert(m_pmodel != NULL);
-        if (m_pmodel == NULL) return E_FAIL;
+        if (m_pmodel == nullptr) return E_FAIL;
 
         if (IsRelative())
             vectVelocity = Vector(0,0,0);
@@ -514,7 +514,7 @@ public:
     HRESULT GetOrientation(Vector& vectOrientation) override
     {
         ZAssert(m_pmodel != NULL);
-        if (m_pmodel == NULL) return E_FAIL;
+        if (m_pmodel == nullptr) return E_FAIL;
 
         if (IsRelative())
             vectOrientation = m_vectOrientation;
@@ -537,7 +537,7 @@ public:
     // S_FALSE once, it should never return S_OK again.
     HRESULT IsPlaying() override
     {
-        return (m_pmodel != NULL) ? S_OK : S_FALSE;
+        return (m_pmodel != nullptr) ? S_OK : S_FALSE;
     };
 };
 
@@ -577,7 +577,7 @@ private:
         void Destroy()
         {
             ModelPointSoundSource::Destroy();
-            m_pSite = NULL;
+            m_pSite = nullptr;
         };
     };
 
@@ -627,7 +627,7 @@ public:
         if (m_psourceCenter)
         {
             m_psourceCenter->Destroy();
-            m_psourceCenter = NULL;
+            m_psourceCenter = nullptr;
         }
 
         // destroy any registered sources
@@ -701,7 +701,7 @@ public:
     void StopSounds() override
     {
         SoundSite::StopSounds();
-        m_pAmbientSound = NULL;
+        m_pAmbientSound = nullptr;
     };
 };
 
@@ -924,7 +924,7 @@ private:
             if (pSound)
             {
                 pSound->Stop();
-                pSound= NULL;
+                pSound= nullptr;
             }
         }
     };
@@ -948,8 +948,8 @@ private:
                 if (m_vpActiveSound[mount])
                     m_vpActiveSound[mount]->Stop();
                 
-                m_vpBurstSound[mount] = NULL;
-                m_vpActiveSound[mount] = NULL;
+                m_vpBurstSound[mount] = nullptr;
+                m_vpActiveSound[mount] = nullptr;
 
                 m_vpCurrentWeaponType[mount] = pweapon->GetPartType();
             }
@@ -970,7 +970,7 @@ private:
                     && TurnRate(pweapon->GetGunner()) > 0.01);
 
             // if the weapon is burst-firing, play that sound
-            bool bWasBurstFiring = m_vpBurstSound[mount] != NULL;
+            bool bWasBurstFiring = m_vpBurstSound[mount] != nullptr;
             SoundID idBurstSound = pweapon ? pweapon->GetBurstSound() : NA;
             PlaySoundIf(m_vpBurstSound[mount], idBurstSound, 
                 m_psounceWeaponMount[mount], 
@@ -979,7 +979,7 @@ private:
             // if we shot this frame and we are not playing a burst-fire sound,
             // play a single shot sound.
             if (pweapon && pweapon->fFiringShot() 
-                && m_vpBurstSound[mount] == NULL && !bWasBurstFiring)
+                && m_vpBurstSound[mount] == nullptr && !bWasBurstFiring)
             {
                 trekClient.StartSound(pweapon->GetSingleShotSound(), 
                     m_psounceWeaponMount[mount]);
@@ -1166,7 +1166,7 @@ public:
     {
         for (Mount mount = 0; mount < c_maxMountedWeapons; mount++)
         {
-            m_vpBurstSound[mount] = NULL;
+            m_vpBurstSound[mount] = nullptr;
         };
     }
 
@@ -1201,7 +1201,7 @@ public:
                 if (m_pGunnerInteriorSound)
                 {
                     m_pGunnerInteriorSound->Stop();
-                    m_pGunnerInteriorSound = NULL;
+                    m_pGunnerInteriorSound = nullptr;
                 };
 
                 m_mountLastTurret = trekClient.GetShip()->GetTurretID();
@@ -1341,30 +1341,30 @@ public:
 
         if (m_psourceEngine)
         {
-            m_psourceEngine = NULL;
+            m_psourceEngine = nullptr;
 
-            m_pOutOfBoundsSound = NULL;
-            m_pRipcordingSound = NULL;
+            m_pOutOfBoundsSound = nullptr;
+            m_pRipcordingSound = nullptr;
 
-            m_pPilotInteriorSound = NULL;
-            m_pGunnerInteriorSound = NULL;
-            m_pMainThrusterInteriorSound = NULL;
-            m_pTurnThrusterInteriorSound = NULL;
-            m_pAfterburnerInteriorSound = NULL;
+            m_pPilotInteriorSound = nullptr;
+            m_pGunnerInteriorSound = nullptr;
+            m_pMainThrusterInteriorSound = nullptr;
+            m_pTurnThrusterInteriorSound = nullptr;
+            m_pAfterburnerInteriorSound = nullptr;
     
-            m_pExteriorSound = NULL;
-            m_pMainThrusterExteriorSound = NULL;
-            m_pTurnThrusterExteriorSound = NULL;
-            m_pAfterburnerExteriorSound = NULL;
+            m_pExteriorSound = nullptr;
+            m_pMainThrusterExteriorSound = nullptr;
+            m_pTurnThrusterExteriorSound = nullptr;
+            m_pAfterburnerExteriorSound = nullptr;
 
             Mount maxWeapons = m_pship->GetHullType()->GetMaxWeapons();
             for (Mount mount = 0; mount < maxWeapons; mount++) 
             {
-                m_psounceWeaponMount[mount] = NULL;
+                m_psounceWeaponMount[mount] = nullptr;
 
-                m_vpBurstSound[mount] = NULL;
-                m_vpActiveSound[mount] = NULL;
-                m_vpTurretSound[mount] = NULL;
+                m_vpBurstSound[mount] = nullptr;
+                m_vpActiveSound[mount] = nullptr;
+                m_vpTurretSound[mount] = nullptr;
             }
 
             m_stateLast = wasSilent;
@@ -1415,7 +1415,7 @@ class ThingSiteImpl : public ThingSitePrivate
                     SoundID sound = ((IprojectileIGC*)pmodel)
                         ->GetProjectileType()->GetAmbientSound();
                     if (sound = NA)
-                        m_pSoundSite = NULL;
+                        m_pSoundSite = nullptr;
                     else
                         m_pSoundSite = new AmbientSoundSite(pmodel, sound);
                 }
@@ -1431,7 +1431,7 @@ class ThingSiteImpl : public ThingSitePrivate
                 break;
 
             default:
-                m_pSoundSite = NULL;
+                m_pSoundSite = nullptr;
                 break;
             }
         }
@@ -1447,12 +1447,12 @@ class ThingSiteImpl : public ThingSitePrivate
             if (m_pthing) {
                 assert (!m_pdecal);
                 m_pthingGeo->SetEmpty();
-                m_pthingGeo = NULL;
-                m_pthing = NULL;
+                m_pthingGeo = nullptr;
+                m_pthing = nullptr;
             }
             else if (m_pdecal) {
                 m_pdecal->SetEmpty();
-                m_pdecal = NULL;
+                m_pdecal = nullptr;
             }
         }
 
@@ -1461,7 +1461,7 @@ class ThingSiteImpl : public ThingSitePrivate
             if (m_pdecal)
             {
                 m_pdecal->SetEmpty();
-                m_pdecal = NULL;
+                m_pdecal = nullptr;
 
                 assert(m_pvisibleGeoBolt == NULL);
             }
@@ -1471,20 +1471,20 @@ class ThingSiteImpl : public ThingSitePrivate
                 {
                     assert (!m_pdecal);
                     m_pthingGeo->SetEmpty();
-                    m_pthingGeo = NULL;
-                    m_pthing = NULL;
+                    m_pthingGeo = nullptr;
+                    m_pthing = nullptr;
 
 
                     if (m_pvisibleGeoBolt)
                     {
                         m_pvisibleGeoBolt->SetEmpty();
-                        m_pvisibleGeoBolt = NULL;
+                        m_pvisibleGeoBolt = nullptr;
                     }
                 }
                 else if (m_pbuildeffect)
                 {
                     m_pbuildeffect->SetEmpty();
-                    m_pbuildeffect = NULL;
+                    m_pbuildeffect = nullptr;
                 }
             }
         }
@@ -1782,7 +1782,7 @@ class ThingSiteImpl : public ThingSitePrivate
                 m_pthingGeo = m_pthing->GetGeo();
 
                 if (textureName && ((!isalpha(textureName[0])) || (strcmp(modelName, textureName) == 0))) {
-                    textureName = NULL;
+                    textureName = nullptr;
                 }
 
                 TRef<Image> pimageTexture;
@@ -1794,7 +1794,7 @@ class ThingSiteImpl : public ThingSitePrivate
 
                 TRef<INameSpace> pns = GetModeler()->GetNameSpace(modelName);
 
-                if (pns != NULL) {
+                if (pns != nullptr) {
                     rc = m_pthing->LoadMDL(options, pns, pimageTexture);
                 } else {
                     return E_FAIL;
@@ -1887,7 +1887,7 @@ class ThingSiteImpl : public ThingSitePrivate
             if (psurface) {
                 m_pmineFieldGeo = CreateMineFieldGeo(psurface, strength, radius);
 
-                HRESULT hr = m_pthing->Load(0, m_pmineFieldGeo, NULL);
+                HRESULT hr = m_pthing->Load(0, m_pmineFieldGeo, nullptr);
 
                 return hr;
             }
@@ -2030,7 +2030,7 @@ class ThingSiteImpl : public ThingSitePrivate
                         //do it the hard way
                         m_sideVisibility.fVisible(false);
                         for (ScannerLinkIGC*   l = pcluster->GetClusterSite()->GetScanners(0)->first();
-                             (l != NULL);
+                             (l != nullptr);
                              l = l->next())
                         {
                             IscannerIGC*   s = l->data();
@@ -2124,7 +2124,7 @@ class ThingSiteImpl : public ThingSitePrivate
         {
             if (m_pvisibleGeoBolt) {
                 m_pvisibleGeoBolt->SetEmpty();
-                m_pvisibleGeoBolt = NULL;
+                m_pvisibleGeoBolt = nullptr;
             }
         }
 
@@ -2267,7 +2267,7 @@ WinTrekClient::WinTrekClient(void)
     m_bLostLastGame(false),
     m_nNumEndgamePlayers(0),
     m_nNumEndgameSides(0),
-    m_vplayerEndgameInfo(NULL),
+    m_vplayerEndgameInfo(nullptr),
     m_nGrooveLevel(0),
     m_bDisconnected(false),
     m_strDisconnectReason(""),
@@ -2362,17 +2362,17 @@ TRef<AnimatedImage> WinTrekClient::LoadExplosionImage(const ZString& str)
 
 void WinTrekClient::Terminate(void)
 {
-    m_pgeoFlares[2] = NULL;
-    m_pgeoFlares[1] = NULL;
-    m_pgeoFlares[0] = NULL;
+    m_pgeoFlares[2] = nullptr;
+    m_pgeoFlares[1] = nullptr;
+    m_pgeoFlares[0] = nullptr;
 
-    m_pimageFlare = NULL;
+    m_pimageFlare = nullptr;
 
-    m_pmodeler = NULL;
-    m_pengine = NULL;
-    m_pwindow = NULL;
-    m_psoundAmbient = NULL;
-    m_psoundMissileWarning = NULL;
+    m_pmodeler = nullptr;
+    m_pengine = nullptr;
+    m_pwindow = nullptr;
+    m_psoundAmbient = nullptr;
+    m_psoundMissileWarning = nullptr;
 
     BaseClient::Terminate();
 }
@@ -2416,18 +2416,18 @@ void    WinTrekClient::NextCargoPart(void)
             mountSelected = -1;
 
         IpartIGC *ppart = GetShip()->GetSourceShip()->GetMountedPart(NA, mountSelected);
-        IpartTypeIGC *ppartType = ppart ? ppart->GetPartType() : NULL;
+        IpartTypeIGC *ppartType = ppart ? ppart->GetPartType() : nullptr;
 
         bFoundPart = true;
 
         // If this is ammo/missiles/etc, is this the first instance of this part?
         ObjectType ot = ppart ? ppart->GetObjectType() : NA;
-        if (ppart == NULL || ot == OT_pack || ot == OT_magazine || ot == OT_dispenser)
+        if (ppart == nullptr || ot == OT_pack || ot == OT_magazine || ot == OT_dispenser)
         {
             for (Mount mountPrev = mountSelected + 1; mountPrev < 0; ++mountPrev)
             {
                 IpartIGC *ppartPrev = GetShip()->GetSourceShip()->GetMountedPart(NA, mountPrev);
-                IpartTypeIGC *ppartTypePrev = ppartPrev ? ppartPrev->GetPartType() : NULL;
+                IpartTypeIGC *ppartTypePrev = ppartPrev ? ppartPrev->GetPartType() : nullptr;
 
                 if (ppartType == ppartTypePrev)
                 {
@@ -2528,7 +2528,7 @@ IObject*    WinTrekClient::LoadRadarIcon(const char* szName)
         //psurface->SetColorKey(Color(0, 0, 0));
     }
     else
-        psurface = NULL;
+        psurface = nullptr;
 
     return psurface;
 }
@@ -2549,7 +2549,7 @@ void WinTrekClient::ChangeCluster(IshipIGC*  pship, IclusterIGC* pclusterOld, Ic
         if (pclusterOld && (pclusterOld != GetViewCluster()))
         {
             // stop the sounds on every object in the sector
-            for (ModelLinkIGC*   pml = pclusterOld->GetModels()->first(); (pml != NULL); pml = pml->next())
+            for (ModelLinkIGC*   pml = pclusterOld->GetModels()->first(); (pml != nullptr); pml = pml->next())
             {
                 ImodelIGC*   pmodel = pml->data();
                 ThingSite*  pts = pmodel->GetThingSite();
@@ -2571,13 +2571,13 @@ void WinTrekClient::ChangeCluster(IshipIGC*  pship, IclusterIGC* pclusterOld, Ic
                 && ((IbuoyIGC*)ptarget)->GetCluster() == pclusterNew)
             {
                 // clear the command
-                pship->SetCommand(i, NULL, c_cidNone);
+                pship->SetCommand(i, nullptr, c_cidNone);
             }
         }
 
         // notify the UI of the change
         GetWindow()->SetCluster(pclusterNew);
-        GetWindow()->PositionCommandView(NULL, 0.0f);
+        GetWindow()->PositionCommandView(nullptr, 0.0f);
         trekClient.GetClientEventSource()->OnClusterChanged(pclusterNew);
     }
 }
@@ -2588,14 +2588,14 @@ void WinTrekClient::ChangeStation(IshipIGC*  pship, IstationIGC* pstationOld, Is
     {
         if (pstationNew)
         {
-            if (pstationOld == NULL)
+            if (pstationOld == nullptr)
             {
                 ConsoleImage*   pconsole = GetWindow()->GetConsoleImage();
                 if (pconsole)
                 {
                     pconsole->SetDisplayMDL(pstationNew->GetSide()->GetCivilization()->GetHUDName());
 
-                    if ((trekClient.GetShip()->GetParentShip() == NULL) && !trekClient.GetShip()->IsGhost())
+                    if ((trekClient.GetShip()->GetParentShip() == nullptr) && !trekClient.GetShip()->IsGhost())
                     {
                         trekClient.RestoreLoadout(pstationNew);
                     }
@@ -2668,7 +2668,7 @@ void WinTrekClient::ChangeStation(IshipIGC*  pship, IstationIGC* pstationOld, Is
             GetWindow()->GetConsoleImage()->SetDisplayMDL(pszDisplayMDL);
             */
 
-            RequestViewCluster(NULL);
+            RequestViewCluster(nullptr);
             GetWindow()->OverrideCamera(trekClient.m_now, pstationOld, false);
 
             //joyThrottle = true;
@@ -2704,21 +2704,21 @@ void WinTrekClient::TargetKilled(ImodelIGC*  pmodel)
 
             ImodelIGC*  pmodelTarget = FindTarget(pshipSource,
                                                   mask,
-                                                  pmodel, NULL, NULL, NULL, abm);
-            if ((pmodelTarget == NULL) && abm)
+                                                  pmodel, nullptr, nullptr, nullptr, abm);
+            if ((pmodelTarget == nullptr) && abm)
             {
                 pmodelTarget = FindTarget(pshipSource,
                                           mask,
-                                          pmodel, NULL, NULL, NULL, c_habmMiner | c_habmBuilder);
+                                          pmodel, nullptr, nullptr, nullptr, c_habmMiner | c_habmBuilder);
 
-                if (pmodelTarget == NULL)
+                if (pmodelTarget == nullptr)
                     pmodelTarget = FindTarget(pshipSource,
                                               mask,
                                               pmodel);
             }
 
             if (pmodelTarget == pmodel)
-                pmodelTarget = NULL;
+                pmodelTarget = nullptr;
 
             GetWindow()->SetTarget(pmodelTarget, c_cidDefault);
             if (trekClient.autoPilot() && (trekClient.GetShip()->GetCommandTarget(c_cmdPlan) == pmodel))
@@ -2800,7 +2800,7 @@ void WinTrekClient::DestroyTeleportProbe(IprobeIGC* pprobe)
 
         AssetMask      am = pcs->GetClusterAssetMask() & ~c_amEnemyTeleport;
         {
-            for (ProbeLinkIGC*  ppl = pcluster->GetProbes()->first(); (ppl != NULL); ppl = ppl->next())
+            for (ProbeLinkIGC*  ppl = pcluster->GetProbes()->first(); (ppl != nullptr); ppl = ppl->next())
             {
                 IprobeIGC*  pp = ppl->data();
                 if ((pp != pprobe) && (pp->GetSide() != psideMe) && pp->GetProbeType()->HasCapability(c_eabmRipcord))
@@ -2869,7 +2869,7 @@ void WinTrekClient::SaveCharacterName(ZString strName)
 void WinTrekClient::CreateMissionReq()
 {
     GetWindow()->SetWaitCursor();
-    TRef<IMessageBox> pmsgBox = CreateMessageBox("Creating a game...", NULL, false);
+    TRef<IMessageBox> pmsgBox = CreateMessageBox("Creating a game...", nullptr, false);
     GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
     BaseClient::CreateMissionReq();
 }
@@ -2877,7 +2877,7 @@ void WinTrekClient::CreateMissionReq()
 void WinTrekClient::JoinMission(MissionInfo * pMission, const char* szMissionPassword)
 {
     GetWindow()->SetWaitCursor();
-    TRef<IMessageBox> pmsgBox = CreateMessageBox("Joining the game...", NULL, false);
+    TRef<IMessageBox> pmsgBox = CreateMessageBox("Joining the game...", nullptr, false);
     GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
     BaseClient::JoinMission(pMission, szMissionPassword);
 }
@@ -2887,7 +2887,7 @@ void WinTrekClient::OnLogonAck(bool fValidated, bool bRetry, LPCSTR szFailureRea
 {
     // close the "logging in" popup
     if (GetWindow()->GetPopupContainer() && !GetWindow()->GetPopupContainer()->IsEmpty())
-        GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+        GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
     GetWindow()->RestoreCursor();
 
     if (fValidated) 
@@ -2909,7 +2909,7 @@ void WinTrekClient::OnLogonLobbyAck(bool fValidated, bool bRetry, LPCSTR szFailu
     //
     // close the "logging in" popup
     if (GetWindow()->GetPopupContainer() && !GetWindow()->GetPopupContainer()->IsEmpty())
-        GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+        GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
     GetWindow()->RestoreCursor();
         
     if (!fValidated) 
@@ -2962,7 +2962,7 @@ HRESULT WinTrekClient::OnSessionLost(const char* szReason, FedMessaging * pthis)
 
                 // close the "connecting..." popup
                 if (GetWindow()->GetPopupContainer() && !GetWindow()->GetPopupContainer()->IsEmpty())
-                    GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+                    GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
                 GetWindow()->RestoreCursor();
 
                 TRef<IMessageBox> pmsgBox = 
@@ -2978,7 +2978,7 @@ HRESULT WinTrekClient::OnSessionLost(const char* szReason, FedMessaging * pthis)
         {
             // close any existing popup
             if (GetWindow()->GetPopupContainer() && !GetWindow()->GetPopupContainer()->IsEmpty())
-                GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+                GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
             GetWindow()->RestoreCursor();
 
             if (Training::GetTrainingMissionID () == Training::c_TM_7_Live)
@@ -2994,7 +2994,7 @@ HRESULT WinTrekClient::OnSessionLost(const char* szReason, FedMessaging * pthis)
     {
         // close the "connecting..." popup
         if (GetWindow()->GetPopupContainer() && !GetWindow()->GetPopupContainer()->IsEmpty())
-            GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+            GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
         GetWindow()->RestoreCursor();
 
         GetWindow()->screen(ScreenIDLobbyScreen);
@@ -3213,8 +3213,8 @@ void WinTrekClient::LayExpendable(Time now, IexpendableTypeIGC* pet, IshipIGC* p
 
         DataProbeIGC dp; 
         dp.pside = pside;
-        dp.pship = NULL;
-        dp.pmodelTarget = NULL;
+        dp.pship = nullptr;
+        dp.pmodelTarget = nullptr;
         dp.probeID = m_pCoreIGC->GenerateNewProbeID();
 
         dp.time0 = now;
@@ -3241,7 +3241,7 @@ void WinTrekClient::LayExpendable(Time now, IexpendableTypeIGC* pet, IshipIGC* p
     pshipLayer->SetAmmo(0);
     pshipLayer->SetFuel(0.0f);
 
-    KillShipEvent(now, pshipLayer, NULL, 0.0f, position, Vector::GetZero());
+    KillShipEvent(now, pshipLayer, nullptr, 0.0f, position, Vector::GetZero());
 }
 
 void    WinTrekClient::DroneTypeCompleted(IbucketIGC*  b, IstationIGC* pstation, IdroneTypeIGC*   dt, Time now)
@@ -3321,16 +3321,16 @@ void WinTrekClient::SetViewCluster(IclusterIGC* pcluster, const Vector* ppositio
             if (m_fm.IsConnected ())
             {
                 for (ShipLinkIGC*   l = ships->first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     ImodelIGC*  m = l->data();
-                    m->SetCluster(NULL);
+                    m->SetCluster(nullptr);
                 }
             }
 
             // stop the sounds on every object in the sector
-            for (ModelLinkIGC*   pml = pclusterOld->GetModels()->first(); (pml != NULL); pml = pml->next())
+            for (ModelLinkIGC*   pml = pclusterOld->GetModels()->first(); (pml != nullptr); pml = pml->next())
             {
                 ImodelIGC*   pmodel = pml->data();
                 ThingSite*  pts = pmodel->GetThingSite();
@@ -3362,7 +3362,7 @@ void WinTrekClient::RequestViewCluster(IclusterIGC* pcluster, ImodelIGC* pmodelT
 {
     if (m_fm.IsConnected() && (trekClient.GetCluster() != pcluster))
     {
-        if (pcluster == NULL)
+        if (pcluster == nullptr)
             SetViewCluster(pcluster);
 
         trekClient.SetMessageType(BaseClient::c_mtGuaranteed);
@@ -3383,7 +3383,7 @@ void WinTrekClient::RequestViewCluster(IclusterIGC* pcluster, ImodelIGC* pmodelT
     }
     else
     {
-        SetViewCluster(pcluster, pmodelTarget && pmodelTarget->SeenBySide(trekClient.GetSide()) ? &(pmodelTarget->GetPosition()) : NULL);
+        SetViewCluster(pcluster, pmodelTarget && pmodelTarget->SeenBySide(trekClient.GetSide()) ? &(pmodelTarget->GetPosition()) : nullptr);
     }
 }
 
@@ -3601,7 +3601,7 @@ void      WinTrekClient::ReceiveChat(IshipIGC*   pshipSender,
 
     if (idSonicChat != NA)
     {
-        if (pszText == NULL)
+        if (pszText == nullptr)
         {
             // make sure the string sticks around through the entire function
             strSonicChat = GetWindow()->GetSonicChatText(idSonicChat, 0);
@@ -3651,14 +3651,14 @@ void      WinTrekClient::ReceiveChat(IshipIGC*   pshipSender,
         }
     }
 
-    if (pmodelTarget == NULL)
+    if (pmodelTarget == nullptr)
         pmodelTarget = trekClient.m_pCoreIGC->GetModel(otTarget, oidTarget);
 
     if (Training::IsTraining ())
     {
         // prevent players from giving commands to themselves
         if (pshipSender && (oidRecipient == pshipSender->GetObjectID ()))
-            pmodelTarget = NULL;
+            pmodelTarget = nullptr;
 
         // send out the chat we are getting to see if we are waiting for it...
         Training::RecordChat (ctRecipient);
@@ -3856,7 +3856,7 @@ void      WinTrekClient::ReceiveChat(IshipIGC*   pshipSender,
             {
                 assert (!bForMe);
                 cid = c_cidNone;
-                pmodelTarget = NULL;
+                pmodelTarget = nullptr;
             }
         }
 
@@ -3906,9 +3906,9 @@ void      WinTrekClient::ReceiveChat(IshipIGC*   pshipSender,
                 //Find a matching player
                 pszText += 6;
 
-                IshipIGC*   pship = NULL;
+                IshipIGC*   pship = nullptr;
                 for (ShipLinkIGC*   psl = trekClient.GetSide()->GetShips()->first();
-                     (psl != NULL);
+                     (psl != nullptr);
                      psl = psl->next())
                 {
                     if (strcmp(pszText, psl->data()->GetName()) == 0)
@@ -3931,7 +3931,7 @@ void      WinTrekClient::ReceiveChat(IshipIGC*   pshipSender,
             {
                 pszText += 4;
                 GetWindow()->SetShowFPS(*pszText == '1',
-                                        *(pszText + 1) == '\0' ? NULL : pszText + 1);
+                                        *(pszText + 1) == '\0' ? nullptr : pszText + 1);
             }
         }
 
@@ -3948,7 +3948,7 @@ void      WinTrekClient::ReceiveChat(IshipIGC*   pshipSender,
                 GetWindow()->SetTarget(pmodelTarget, cid);
 
                 if (trekClient.GetShip()->GetCluster() &&
-                    (trekClient.GetShip()->GetParentShip() == NULL) &&
+                    (trekClient.GetShip()->GetParentShip() == nullptr) &&
                     trekClient.GetCluster(trekClient.GetShip(), pmodelTarget))
                 {
                     trekClient.SetAutoPilot(true);
@@ -4022,7 +4022,7 @@ void WinTrekClient::PlaySoundEffect(SoundID soundID, ImodelIGC* model)
     if (!model || (model->GetCluster() && model->GetCluster() == GetCluster()))
     {
         TRef<ISoundPositionSource> psource = model ? 
-            ((ThingSiteImpl*)model->GetThingSite())->GetSoundSource() : NULL;
+            ((ThingSiteImpl*)model->GetThingSite())->GetSoundSource() : nullptr;
         StartSound(soundID, psource);
     }
 }
@@ -4032,7 +4032,7 @@ void WinTrekClient::PlaySoundEffect(SoundID soundID, ImodelIGC* model, const Vec
     if (!model || (model->GetCluster() && model->GetCluster() == GetCluster()))
     {
         TRef<ISoundPositionSource> psource = model ? 
-            ((ThingSiteImpl*)model->GetThingSite())->GetSoundSource(vectOffset) : NULL;
+            ((ThingSiteImpl*)model->GetThingSite())->GetSoundSource(vectOffset) : nullptr;
         StartSound(soundID, psource);
     }
 }
@@ -4042,21 +4042,21 @@ void WinTrekClient::PlayNotificationSound(SoundID soundID, ImodelIGC* model)
     if (model == GetShip() || model == GetShip()->GetSourceShip())
     {
         TRef<ISoundPositionSource> psource = model ? 
-            ((ThingSiteImpl*)model->GetThingSite())->GetSoundSource() : NULL;
+            ((ThingSiteImpl*)model->GetThingSite())->GetSoundSource() : nullptr;
         StartSound(soundID, psource);
     }
 }
 
 void WinTrekClient::PlayFFEffect(ForceEffectID effectID, ImodelIGC* model, LONG lDirection)
 {
-    if ((model == NULL) || (model == GetShip())) {
+    if ((model == nullptr) || (model == GetShip())) {
         GetWindow()->PlayFFEffect(effectID, lDirection);
     }
 }
 
 void WinTrekClient::PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model, float fIntensity)
 {
-    if ((model == NULL) || (model == GetShip()))
+    if ((model == nullptr) || (model == GetShip()))
     {
         switch (effectID)
         {
@@ -4070,7 +4070,7 @@ void WinTrekClient::PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model, 
 void WinTrekClient::UpdateAmbientSounds(DWORD dwElapsedTime)
 {
     // update the sector warnings
-    for (ClusterLinkIGC* cLink = GetCore()->GetClusters()->first(); cLink != NULL; cLink = cLink->next())
+    for (ClusterLinkIGC* cLink = GetCore()->GetClusters()->first(); cLink != nullptr; cLink = cLink->next())
     {
         IclusterIGC* pCluster = cLink->data();
 
@@ -4084,7 +4084,7 @@ void WinTrekClient::UpdateAmbientSounds(DWORD dwElapsedTime)
         if (m_psoundAmbient)
         {
             m_psoundAmbient->Stop();
-            m_psoundAmbient = NULL;
+            m_psoundAmbient = nullptr;
         }
 
         bool bPlayMissileWarning = false;
@@ -4093,7 +4093,7 @@ void WinTrekClient::UpdateAmbientSounds(DWORD dwElapsedTime)
         IclusterIGC* pcluster = GetCluster();
         
         // let every object in the sector update its sounds
-        for (ModelLinkIGC*   pml = pcluster->GetModels()->first(); (pml != NULL); pml = pml->next())
+        for (ModelLinkIGC*   pml = pcluster->GetModels()->first(); (pml != nullptr); pml = pml->next())
         {
             ImodelIGC*   pmodel = pml->data();
             ThingSite*  pts = pmodel->GetThingSite();
@@ -4132,7 +4132,7 @@ void WinTrekClient::UpdateAmbientSounds(DWORD dwElapsedTime)
         else if (m_psoundMissileWarning)
         {
             m_psoundMissileWarning->Stop();
-            m_psoundMissileWarning = NULL;
+            m_psoundMissileWarning = nullptr;
         }
     }
     else if (trekClient.GetShip()->GetStation() 
@@ -4147,14 +4147,14 @@ void WinTrekClient::UpdateAmbientSounds(DWORD dwElapsedTime)
             if (m_psoundAmbient)
                 m_psoundAmbient->Stop();
 
-            m_psoundAmbient = StartSound(m_idAmbient, NULL);
+            m_psoundAmbient = StartSound(m_idAmbient, nullptr);
         }
 
         // kill the missile warning
         if (m_psoundMissileWarning)
         {
             m_psoundMissileWarning->Stop();
-            m_psoundMissileWarning = NULL;
+            m_psoundMissileWarning = nullptr;
         }
     }
     else
@@ -4163,14 +4163,14 @@ void WinTrekClient::UpdateAmbientSounds(DWORD dwElapsedTime)
         if (m_psoundAmbient)
         {
             m_psoundAmbient->Stop();
-            m_psoundAmbient = NULL;
+            m_psoundAmbient = nullptr;
         }
 
         // kill the missile warning
         if (m_psoundMissileWarning)
         {
             m_psoundMissileWarning->Stop();
-            m_psoundMissileWarning = NULL;
+            m_psoundMissileWarning = nullptr;
         }
     }
 }
@@ -4181,7 +4181,7 @@ void WinTrekClient::ResetSound()
     if (m_psoundAmbient)
     {
         m_psoundAmbient->Stop();
-        m_psoundAmbient = NULL;
+        m_psoundAmbient = nullptr;
     }
 
     // if we are currently in a cluster
@@ -4190,7 +4190,7 @@ void WinTrekClient::ResetSound()
         IclusterIGC* pcluster = GetCluster();
         
         // stop the sounds from every object in the sector
-        for (ModelLinkIGC*   pml = pcluster->GetModels()->first(); (pml != NULL); pml = pml->next())
+        for (ModelLinkIGC*   pml = pcluster->GetModels()->first(); (pml != nullptr); pml = pml->next())
         {
             ImodelIGC*   pmodel = pml->data();
             ThingSite*  pts = pmodel->GetThingSite();
@@ -4212,7 +4212,7 @@ HRESULT WinTrekClient::ConnectToServer(BaseClient::ConnectInfo & ci, DWORD dwCoo
 
     // close the "connecting" popup
     if (!GetWindow()->GetPopupContainer()->IsEmpty())
-        GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+        GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
     GetWindow()->RestoreCursor();
 
     if (!m_fm.IsConnected()) 
@@ -4224,7 +4224,7 @@ HRESULT WinTrekClient::ConnectToServer(BaseClient::ConnectInfo & ci, DWORD dwCoo
     else
     {
         GetWindow()->SetWaitCursor();
-        TRef<IMessageBox> pmsgBox = CreateMessageBox("Logging in...", NULL, false);
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("Logging in...", nullptr, false);
         GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
         m_bDisconnected = false;
     }
@@ -4246,7 +4246,7 @@ HRESULT WinTrekClient::ConnectToLobby(BaseClient::ConnectInfo * pci)
 
     // close the "connecting" popup
     if (!GetWindow()->GetPopupContainer()->IsEmpty())
-        GetWindow()->GetPopupContainer()->ClosePopup(NULL);
+        GetWindow()->GetPopupContainer()->ClosePopup(nullptr);
     GetWindow()->RestoreCursor();
 
     if (!m_fmLobby.IsConnected()) 
@@ -4260,7 +4260,7 @@ HRESULT WinTrekClient::ConnectToLobby(BaseClient::ConnectInfo * pci)
     else
     {
         GetWindow()->SetWaitCursor();
-        TRef<IMessageBox> pmsgBox = CreateMessageBox("Logging into lobby...", NULL, false);
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("Logging into lobby...", nullptr, false);
         Point point(c_PopupX, c_PopupY);
         Rect rect(point, point);
         GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, rect, false);
@@ -4371,7 +4371,7 @@ void WinTrekClient::SetGameoverInfo(FMD_S_GAME_OVER* pfmGameOver)
 
     if (m_vplayerEndgameInfo)
         delete []m_vplayerEndgameInfo;
-    m_vplayerEndgameInfo = NULL;
+    m_vplayerEndgameInfo = nullptr;
     memcpy(m_vsideEndgameInfo, pfmGameOver->rgSides, sizeof(SideEndgameInfo) * c_cSidesMax);
     m_bEndgameEjectPods = pfmGameOver->bEjectPods;
     m_bGameCounted = true; // assume the game counted until we are told otherwise
@@ -4538,7 +4538,7 @@ int WinTrekClient::GetGrooveLevel()
     if (GetCluster())
     {
         for (ShipLinkIGC*    psl = GetCluster()->GetShips()->first();
-             (psl != NULL);
+             (psl != nullptr);
              psl = psl->next())
         {
             IshipIGC* pship = psl->data();
@@ -4578,7 +4578,7 @@ int WinTrekClient::GetGrooveLevel()
     }
 
     // look for a cluster with a threatened builder, or station
-    for (ClusterLinkIGC* cLink = GetCore()->GetClusters()->first(); cLink != NULL; cLink = cLink->next())
+    for (ClusterLinkIGC* cLink = GetCore()->GetClusters()->first(); cLink != nullptr; cLink = cLink->next())
     {
         IclusterIGC* pCluster = cLink->data();
 
