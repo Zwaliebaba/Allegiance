@@ -148,7 +148,7 @@ private:
             m_pmenu->MouseEnter(m_pitem);
         }
 
-        void MouseLeave(IInputProvider* pprovider, const Point& point)
+        void MouseLeave(IInputProvider* _provider) override
         {
             m_pmenu->MouseLeave(m_pitem);
         }

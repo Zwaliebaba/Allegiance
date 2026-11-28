@@ -2712,8 +2712,7 @@ void BaseClient::KillShipEvent(Time now, IshipIGC* pShip, ImodelIGC* pLauncher, 
 void BaseClient::DamageStationEvent(IstationIGC* pStation,
                                     ImodelIGC* pLauncher,
                                     DamageTypeID type, 
-                                    float flAmount,
-                                    float flLeakage)
+                                    float _amount)
 {
     if ((NULL != pStation->GetCluster()) &&
         (pStation->GetCluster() == GetCluster()))
@@ -2728,8 +2727,7 @@ void BaseClient::DamageStationEvent(IstationIGC* pStation,
 
 void BaseClient::KillStationEvent(IstationIGC* pStation,
                                   ImodelIGC* pLauncher,
-                                  float flAmount,
-                                  float flLeakage)
+                                  float _amount)
 {
     if (!m_fm.IsConnected())
     {

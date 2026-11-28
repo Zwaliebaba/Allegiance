@@ -29,7 +29,7 @@ class CprojectileIGC : public TmodelIGC<IprojectileIGC>
 	    HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
 	    void                Terminate(void) override;
         void                Update(Time now) override;
-        virtual int                 Export(void* data);
+        int                 Export(void* _data) const override;
 
         ObjectType          GetObjectType(void) const override
         {

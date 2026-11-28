@@ -35,7 +35,7 @@ class Slideshow :
                 {
                 }
 
-                MouseResult HitTest (IInputProvider* pProvider, const Point& point)
+                MouseResult HitTest (IInputProvider* _provider, const Point& _point, bool _captured) override
                 {
                     return MouseResultHit();
                 }

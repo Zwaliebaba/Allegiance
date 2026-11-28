@@ -437,7 +437,7 @@ public:
         return m_pfile;
     }
 
-    IObject* GetObject()
+    IObject* GetObject() override
     {
         return m_pobjects[ReadDWORD()];
     }

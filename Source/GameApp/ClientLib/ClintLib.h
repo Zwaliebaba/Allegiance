@@ -1038,8 +1038,8 @@ public:
     void KillMineEvent(ImineIGC*    pmine) override;
     void KillMissileEvent(ImissileIGC*    pmissile, const Vector& position) override;
     void KillShipEvent(Time now, IshipIGC* ship, ImodelIGC* launcher, float amount, const Vector& p1, const Vector& p2) override;
-    virtual void DamageStationEvent(IstationIGC* station, ImodelIGC* launcher, DamageTypeID type, float amount, float leakage);
-    virtual void KillStationEvent(IstationIGC* station, ImodelIGC* launcher, float amount, float leakage);
+    void DamageStationEvent(IstationIGC* _station, ImodelIGC* _launcher, DamageTypeID _type, float _amount) override;
+    void KillStationEvent(IstationIGC* _station, ImodelIGC* _launcher, float _amount) override;
     void FireMissile(IshipIGC* pship, ImagazineIGC* pmagazine,
                     Time timeFired, ImodelIGC* pTarget, float lock) override;
     void FireExpendable(IshipIGC* pShip,
