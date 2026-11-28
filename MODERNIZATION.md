@@ -1139,6 +1139,34 @@ that every changed line differs from the old one only in those constants. `NULL`
 where an integer is meant, is left alone, as the check leaves it; so are the few files clang could not parse
 on Linux (those using Media Foundation, X3DAudio and MsQuic headers mingw-w64 lacks).
 
+#### Bounded strings (done)
+
+`strcpy`, `lstrcpy`, `strcat`, `sprintf`, `wsprintf`, `_snprintf`, `_vsnprintf`, `vsprintf` and `strncpy` are
+gone from `Source` and `Tests`: 213 calls go through `Bounded::Copy`, `Append`, `Format` and `FormatList`
+(`NeuronCore/Base/BoundedString.h`, reached through `ZLib.h`). They take the destination as an array, so the
+bound is the array's own and a pointer destination does not compile without a stated size. What does not fit is
+cut off and the result always terminated (cut off rather than `strcpy_s`'s abort, since names, chat and game
+settings come off the network and a long one must not stop the server); `Copy` zero-fills the rest of the buffer
+as `strncpy` did, so a record sent whole carries no stale memory. A script rewrote the calls with array
+destinations (212); the 23 with pointer destinations were sized by hand, two of them in Debug-only code.
+Left alone: `lstrcpyn` (already bounded), the cvh art tool (it does not link NeuronCore) and vendored Qhull.
+The logon handler, for one, already checked its fields' lengths before copying; the bounds make that the rule
+rather than each caller's care. What they turned up:
+
+- `FormatErrorMessage` (the FTP/HTTP session) wrote the server's response text at the end of its 1 KB error
+  buffer but gave it the size of the whole buffer.
+- `SetSessionDetails` built the server's published game list in a static 10 KB buffer with no bound and no
+  terminator, so a shorter list than the last kept the tail of the longer one: clients could be shown games that
+  had ended.
+- A console readout appended a space and a name to a full 100-byte buffer, over its terminator.
+- `FedSrvApp::AsyncFileOut` formatted a 19-character time prefix, with its terminator, into the text's length
+  plus 19 bytes.
+- `FileCRC`'s error buffer contract (100 + `MAX_PATH`) is a constant, `FILE_ERROR_SIZE`, which `UTL::SaveFile`
+  shares.
+
+`UTL::SearchAndReplace` (no callers, a destination with no size, and replacements that can lengthen the result)
+and the unbounded `Strcpy` / `Strncpy` wrappers are deleted.
+
 #### Unit tests and AddressSanitizer
 
 Each library has a Microsoft CppUnitTest project, `Tests/<Library>.Tests` (a DLL that links the
