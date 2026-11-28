@@ -152,7 +152,7 @@ enum ServerEventIDs
     { EventID_LogoutGame, "LogoutGame", EventSeverity_Info, false, "%.SubjectName% logged off '%GameName%' (id=%GameID%)." }, \
     { EventID_JoinTeam, "JoinTeam", EventSeverity_Info, false, "%.SubjectName% joined team '%TeamName%' (%Team%)" }, \
     { EventID_LeaveTeam, "LeaveTeam", EventSeverity_Info, false, "%.SubjectName% left team '%TeamName%' (%Team%)" }, \
-    { EventID_TeamInfoChange, "TeamInfoChange", EventSeverity_Info, false, "Team '%.SubjectName%' (%.SubjectID%) in game '%.GameName%' (%.GameID%) changed.\nNew team name = '%NewTeamName%'" }, \
+    { EventID_TeamInfoChange, "TeamInfoChange", EventSeverity_Info, false, "Team '%.SubjectName%' (%.SubjectID%) in game '%GameName%' (%GameID%) changed.\nNew team name = '%NewTeamName%'" }, \
     { EventID_HackLog, "HackLog", EventSeverity_Warning, true, "Possible hack attempt made by %.SubjectName%. Player not booted from the server.\nLine: %Line%\nExpression: %Expr%" }, \
     { EventID_HackBoot, "HackBoot", EventSeverity_Warning, true, "Possible hack attempt made by %.SubjectName%. Player has been booted from the server.\nLine: %Line%\nExpression: %Expr%" }, \
     { EventID_HackBootNoPlayer, "HackBootNoPlayer", EventSeverity_Warning, true, "Possible hack attempt made by an unknown player. Connection has been disconnected.\nLine: %Line%\nExpression: %Expr%" }, \
