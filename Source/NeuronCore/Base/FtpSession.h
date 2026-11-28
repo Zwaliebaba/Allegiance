@@ -203,4 +203,4 @@ public:
 
 
 
-IHTTPSession * CreateHTTPSession(IHTTPSessionSink * pUpdateSink = NULL);
+IHTTPSession * CreateHTTPSession(IHTTPSessionSink * pUpdateSink = nullptr);

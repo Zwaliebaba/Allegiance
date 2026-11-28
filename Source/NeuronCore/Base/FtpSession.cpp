@@ -26,32 +26,32 @@ class CInternetSessionImpl :
 public:
 
     CInternetSessionImpl(IInternetSessionSink * pSink) : // pSink can be NULL
-      m_buffer(NULL),
-      m_hFile(NULL),
-      m_pszFileList(NULL),
-      m_pszFileListData(NULL),
+      m_buffer(nullptr),
+      m_hFile(nullptr),
+      m_pszFileList(nullptr),
+      m_pszFileListData(nullptr),
       m_nLastErrorCode(0),
       m_nLastErrorCodeInThread(0),
       m_cBytesRead(0),
       m_bAbortDownload(false),
-      m_hFTPSession(NULL),
-      m_hFileConnection(NULL),
+      m_hFTPSession(nullptr),
+      m_hFileConnection(nullptr),
       m_pUpdateSink(pSink) 
     {
       m_szLastError[0] = 0;
       m_szErrorInThread[0] = 0;
 
-      m_eventResumeDownload = CreateEvent(NULL, FALSE, FALSE, NULL);
-      m_eventKillDownload = CreateEvent(NULL, TRUE, FALSE, NULL);
-      m_eventProgress = CreateEvent(NULL, FALSE, FALSE, NULL);
-      m_eventDownloadTerminated = CreateEvent(NULL, TRUE, FALSE, NULL);
-      m_eventFileCompleted = CreateEvent(NULL, FALSE, FALSE, NULL);
+      m_eventResumeDownload = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+      m_eventKillDownload = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+      m_eventProgress = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+      m_eventDownloadTerminated = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+      m_eventFileCompleted = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
       debugf("Creating download thread.\n");
       DWORD dum;
-      m_threadDownload = CreateThread(NULL, 0, DownloadThread, (void*)this, 0, &dum);
+      m_threadDownload = CreateThread(nullptr, 0, DownloadThread, (void*)this, 0, &dum);
 
-      if (m_pUpdateSink && m_threadDownload == NULL)
+      if (m_pUpdateSink && m_threadDownload == nullptr)
           debugf("Failed to create thread.\n");
     }
 
@@ -117,7 +117,7 @@ public:
                 i++;
                 psz++;
             }
-            m_pszFileListData[i] = NULL;
+            m_pszFileListData[i] = nullptr;
             m_pszFileList = m_pszFileListData;
         }
 
@@ -132,8 +132,8 @@ public:
 
         m_nBufferSize = nMaxBufferSize;
 
-        if(m_buffer == NULL)
-            m_buffer = (char*)::VirtualAlloc(NULL, m_nBufferSize, MEM_COMMIT, PAGE_READWRITE);
+        if(m_buffer == nullptr)
+            m_buffer = (char*)::VirtualAlloc(nullptr, m_nBufferSize, MEM_COMMIT, PAGE_READWRITE);
 
         assert(m_buffer);
 
@@ -161,13 +161,13 @@ public:
                 DoError("Disconnect Failed");
                 return false;
             }
-            m_hInternetSession = NULL;
+            m_hInternetSession = nullptr;
         }
 
         if (m_buffer)
         {
             ::VirtualFree((void*)m_buffer, 0, MEM_RELEASE);
-            m_buffer = NULL;
+            m_buffer = nullptr;
         }
 
         return true;
@@ -184,7 +184,7 @@ public:
         {
             return m_szLastError;
         }
-        else return NULL; // no error has occured
+        else return nullptr; // no error has occured
     }
 
     void Abort(bool bAutoDisconnect) override 
@@ -217,7 +217,7 @@ public:
         }
 
         // Note: *m_pszFileList is 0xFFFFFFFF if download thread hasn't started downloading yet
-        if (*m_pszFileList != NULL && !m_bAbortDownload) // if not done
+        if (*m_pszFileList != nullptr && !m_bAbortDownload) // if not done
         {
             if (WaitForSingleObject(m_eventProgress, 0) == WAIT_OBJECT_0)
             {
@@ -285,7 +285,7 @@ protected:
         //
         while (WaitForMultipleObjects(2, pHandles, FALSE, INFINITE) != WAIT_OBJECT_0)
         {
-            if (pSession->m_hFile == NULL)
+            if (pSession->m_hFile == nullptr)
             {
                 if (!pSession->StartNextFile())
                 {
@@ -294,7 +294,7 @@ protected:
                 }
             }
 
-            if (pSession->m_hFile != NULL) 
+            if (pSession->m_hFile != nullptr) 
             {
 //                DOWNLOAD_RESULT result = pSession->DownloadFileBlock();
                 DOWNLOAD_RESULT result = DOWNLOAD_ERROR; // default to error, until we know better
@@ -344,7 +344,7 @@ protected:
             //
             // Open file for download
             //
-            while ((m_hFileConnection = FtpOpenFile(m_hFTPSession, *m_pszFileList, GENERIC_READ, FTP_TRANSFER_TYPE_BINARY | INTERNET_FLAG_RELOAD, 0)), m_hFileConnection == NULL) // no use of a volatile assignment's value (deprecated in C++20)
+            while ((m_hFileConnection = FtpOpenFile(m_hFTPSession, *m_pszFileList, GENERIC_READ, FTP_TRANSFER_TYPE_BINARY | INTERNET_FLAG_RELOAD, 0)), m_hFileConnection == nullptr) // no use of a volatile assignment's value (deprecated in C++20)
             {
                 //
                 // Okay, it failed.  On NT5, this seems to sometimes happen for no apparent reason, so lets try a 
@@ -375,7 +375,7 @@ protected:
                 DoError("InternetCloseHandle() Failed for download file");
                 return false;
             }
-            m_hFileConnection = NULL;
+            m_hFileConnection = nullptr;
         }
 
         //
@@ -474,10 +474,10 @@ protected:
        m_hFile = CreateFile(szFilename, 
                                  GENERIC_WRITE, 
                                  FILE_SHARE_READ, 
-                                 NULL, 
+                                 nullptr, 
                                  CREATE_ALWAYS, 
                                  FILE_ATTRIBUTE_TEMPORARY, // don't write to disk right away (for better performance).
-                                 NULL);
+                                 nullptr);
 
        if (m_hFile == INVALID_HANDLE_VALUE)
        {
@@ -503,13 +503,13 @@ protected:
                     // skip this file.  
                     // NOTE: This hasn't been tested.
                     ::InternetCloseHandle(m_hFileConnection);
-                    m_hFileConnection = NULL;
+                    m_hFileConnection = nullptr;
                     ::CloseHandle(m_hFile);
-                    m_hFile = NULL;
+                    m_hFile = nullptr;
                }
            }
 
-           if (!WriteFile(m_hFile, (void*)m_buffer, m_cBytesRead, &cBytesWritten, NULL))
+           if (!WriteFile(m_hFile, (void*)m_buffer, m_cBytesRead, &cBytesWritten, nullptr))
            {
                DoError("Failed to write the file (%s) to local drive : ", *m_pszFileList);
                return false;
@@ -524,13 +524,13 @@ protected:
 
     bool CloseDownloadFile(bool bCompleted)
     {
-       if (m_hFile == NULL)
+       if (m_hFile == nullptr)
            return true;
 
        if (!::CloseHandle(m_hFile))
            DoError("Failed to close file %s", *m_pszFileList);
 
-       m_hFile = NULL;
+       m_hFile = nullptr;
 
       //
       // If progress updates are wanted
@@ -564,12 +564,12 @@ protected:
 
       FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | 
                     FORMAT_MESSAGE_IGNORE_INSERTS, 
-                    NULL, 
+                    nullptr, 
                     dwErrorCode, 
                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
                     szBuffer + strlen(szBuffer),
                     128,
-                    NULL 
+                    nullptr 
                     );
       strcat(m_szLastError, "   ");
       unsigned long dummy, size = sizeof(m_szLastError) - strlen(szBuffer) - 2;
@@ -636,7 +636,7 @@ protected:
                 TerminateThread(m_threadDownload, 0);
             }
             CloseHandle(m_threadDownload);
-            m_threadDownload = NULL;
+            m_threadDownload = nullptr;
         }
     }
 
@@ -693,11 +693,11 @@ public:
        m_hInternetSession = ::InternetOpen(
                            "Microsoft Internet Explorer",   // agent
                             INTERNET_OPEN_TYPE_PRECONFIG, //INTERNET_OPEN_TYPE_PROXY,       // access
-                            NULL,//"ftp-gw",                       // proxy server
-                            NULL,                           // defaults
+                            nullptr,//"ftp-gw",                       // proxy server
+                            nullptr,                           // defaults
                             0);                             // synchronous
 
-       if (m_hInternetSession == NULL)
+       if (m_hInternetSession == nullptr)
            DoError("Failed to initialize HTTP stuff.");
     }
 
@@ -707,7 +707,7 @@ public:
 
     bool ConstructionSuccess()
     {
-        return m_hInternetSession != NULL;
+        return m_hInternetSession != nullptr;
     }
 
     int GetFileListIncrement() override
@@ -729,7 +729,7 @@ public:
             //
             // Open file for download
             //
-            while ((m_hFileConnection = InternetOpenUrl(m_hInternetSession, *m_pszFileList, NULL, 0, INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE, 0)), m_hFileConnection == NULL)
+            while ((m_hFileConnection = InternetOpenUrl(m_hInternetSession, *m_pszFileList, nullptr, 0, INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE, 0)), m_hFileConnection == nullptr)
             {
                 DWORD dwError = GetLastError();
                 cTries++;
@@ -751,7 +751,7 @@ public:
 
             ++m_pszFileList;
 
-            if (*m_pszFileList == NULL) // todo, verify the memory is ours
+            if (*m_pszFileList == nullptr) // todo, verify the memory is ours
             {
                 DoErrorInThread("FileList has bad format");
                 return false;
@@ -769,7 +769,7 @@ public:
     {
         bool bRet = CInternetSessionImpl<IHTTPSession>::InitiateDownload(pszFileList, szDestFolder, false, nMaxBufferSize);
 
-        if(m_pUpdateSink && *(m_pszFileList+2) != NULL)
+        if(m_pUpdateSink && *(m_pszFileList+2) != nullptr)
             // Fire starting point
             m_pUpdateSink->OnProgress(0, *(m_pszFileList+2), 0);
 
@@ -788,5 +788,5 @@ IHTTPSession * CreateHTTPSession(IHTTPSessionSink * pUpdateSink /*= NULL*/)
     if (pNew && pNew->ConstructionSuccess())
         return pNew; 
     else
-        return NULL;
+        return nullptr;
 }

@@ -147,14 +147,14 @@ int MemoryCRC(const void *_data, unsigned size)
 
 int FileCRC(HANDLE hFile, char * szErrorMsg) 
 {
-   unsigned size = GetFileSize(hFile, 0);
+   unsigned size = GetFileSize(hFile, nullptr);
 
    if (size == 0)
        return 1;
 
-   char *buffer = (char*)::VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
+   char *buffer = (char*)::VirtualAlloc(nullptr, size, MEM_COMMIT, PAGE_READWRITE);
 
-   if (buffer == NULL)
+   if (buffer == nullptr)
    {
       if(szErrorMsg)
         sprintf(szErrorMsg, "Memory error before reading file; Error Code: %d; ", GetLastError());
@@ -164,7 +164,7 @@ int FileCRC(HANDLE hFile, char * szErrorMsg)
 
    unsigned long cBytesRead;
 
-   if (!ReadFile(hFile, buffer, size, &cBytesRead, NULL))
+   if (!ReadFile(hFile, buffer, size, &cBytesRead, nullptr))
    {
       if(szErrorMsg)
         sprintf(szErrorMsg, "Failed read file; Error Code: %d; ", GetLastError());
@@ -193,10 +193,10 @@ int FileCRC(const char *szFilename, char * szErrorMsg)
    HANDLE hFile = CreateFile(szFilename, 
                              GENERIC_READ, 
                              FILE_SHARE_READ, 
-                             NULL, 
+                             nullptr, 
                              OPEN_EXISTING, 
                              FILE_ATTRIBUTE_NORMAL, 
-                             NULL);
+                             nullptr);
 
    if (hFile == INVALID_HANDLE_VALUE)
    {

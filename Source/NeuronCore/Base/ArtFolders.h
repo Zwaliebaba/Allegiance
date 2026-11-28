@@ -18,14 +18,14 @@
 // NULL-terminated; an empty list for types that live in the root
 inline const char* const* ArtFolders(const char* szExtension)
 {
-    static const char* const s_textures[]  = { "Textures", "Models", NULL };
-    static const char* const s_mdl[]       = { "Interface", "Models", "Fonts", NULL };
-    static const char* const s_models[]    = { "Models", NULL };
-    static const char* const s_interface[] = { "Interface", NULL };
-    static const char* const s_audio[]     = { "Audio", NULL };
-    static const char* const s_movies[]    = { "Movies", NULL };
-    static const char* const s_data[]      = { "Data", NULL };
-    static const char* const s_none[]      = { NULL };
+    static const char* const s_textures[]  = { "Textures", "Models", nullptr };
+    static const char* const s_mdl[]       = { "Interface", "Models", "Fonts", nullptr };
+    static const char* const s_models[]    = { "Models", nullptr };
+    static const char* const s_interface[] = { "Interface", nullptr };
+    static const char* const s_audio[]     = { "Audio", nullptr };
+    static const char* const s_movies[]    = { "Movies", nullptr };
+    static const char* const s_data[]      = { "Data", nullptr };
+    static const char* const s_none[]      = { nullptr };
 
     struct Type { const char* m_szExtension; const char* const* m_pszFolders; };
 

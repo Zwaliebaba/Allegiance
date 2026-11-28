@@ -43,7 +43,7 @@ public:
             pnode = pnode->m_pnode;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     class Iterator : public IObject {
@@ -67,7 +67,7 @@ public:
 
         virtual bool End()
         {
-            return (m_pnode == NULL);
+            return (m_pnode == nullptr);
         }
 
         virtual bool Next()
@@ -81,7 +81,7 @@ public:
     };
 
     TMap() :
-        m_pnodes(NULL),
+        m_pnodes(nullptr),
         m_count(0)
     {}
 
@@ -108,7 +108,7 @@ public:
         if (pnode) {
             value = pnode->m_value;
         }
-        return pnode != NULL;
+        return pnode != nullptr;
     }
 
     const bool FindValue(const TValue& value, TKey& key)
@@ -164,7 +164,7 @@ public:
     void SetEmpty()
     {
         m_count = 0;
-        m_pnodes = NULL;
+        m_pnodes = nullptr;
         m_fnSink();
     }
 

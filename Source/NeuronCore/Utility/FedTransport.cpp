@@ -97,7 +97,7 @@ const BYTE c_probeReply   = 2;
 CRITICAL_SECTION       g_csQuic;
 bool                   g_fcsQuic         = false;
 int                    g_cQuicRefs       = 0;
-HMODULE                g_hmsquic         = NULL;
+HMODULE                g_hmsquic         = nullptr;
 const QUIC_API_TABLE*  g_pquic           = NULL;
 HQUIC                  g_hregistration   = NULL;
 
@@ -127,19 +127,19 @@ bool AcquireQuic(std::string& strError)
 
     g_hmsquic = LoadLibraryA("msquic.dll");
 
-    if (g_hmsquic == NULL) {
+    if (g_hmsquic == nullptr) {
         strError = "msquic.dll was not found next to the program.";
         LeaveCriticalSection(&g_csQuic);
         return false;
     }
 
     MsQuicOpenVersionFn pfnOpen = (MsQuicOpenVersionFn)GetProcAddress(g_hmsquic, "MsQuicOpenVersion");
-    const void*         papi    = NULL;
+    const void*         papi    = nullptr;
 
     if (pfnOpen == NULL || QUIC_FAILED(pfnOpen(QUIC_API_VERSION_2, &papi))) {
         strError = "msquic.dll could not be initialised.";
         FreeLibrary(g_hmsquic);
-        g_hmsquic = NULL;
+        g_hmsquic = nullptr;
         LeaveCriticalSection(&g_csQuic);
         return false;
     }
@@ -154,7 +154,7 @@ bool AcquireQuic(std::string& strError)
         if (pfnClose) pfnClose(g_pquic);
         g_pquic = NULL;
         FreeLibrary(g_hmsquic);
-        g_hmsquic = NULL;
+        g_hmsquic = nullptr;
         LeaveCriticalSection(&g_csQuic);
         return false;
     }
@@ -182,7 +182,7 @@ void ReleaseQuic()
         g_pquic = NULL;
 
         FreeLibrary(g_hmsquic);
-        g_hmsquic = NULL;
+        g_hmsquic = nullptr;
     }
 
     LeaveCriticalSection(&g_csQuic);
@@ -235,7 +235,7 @@ PCCERT_CONTEXT CreateServerCertificate(std::string& strError)
 
     if (NCryptOpenStorageProvider(&hprov, MS_KEY_STORAGE_PROVIDER, 0) != ERROR_SUCCESS) {
         strError = "Could not open the key storage provider.";
-        return NULL;
+        return nullptr;
     }
 
     if (NCryptOpenKey(hprov, &hkey, c_szKeyName, 0, 0) != ERROR_SUCCESS) {
@@ -248,7 +248,7 @@ PCCERT_CONTEXT CreateServerCertificate(std::string& strError)
             if (hkey) NCryptFreeObject(hkey);
             NCryptFreeObject(hprov);
             strError = "Could not create the server's key.";
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -259,7 +259,7 @@ PCCERT_CONTEXT CreateServerCertificate(std::string& strError)
     const wchar_t* szSubject = L"CN=Allegiance Game Server";
     DWORD          cbName    = 0;
 
-    CertStrToNameW(X509_ASN_ENCODING, szSubject, CERT_X500_NAME_STR, NULL, NULL, &cbName, NULL);
+    CertStrToNameW(X509_ASN_ENCODING, szSubject, CERT_X500_NAME_STR, nullptr, nullptr, &cbName, nullptr);
     std::vector<BYTE> name(cbName);
     CertStrToNameW(X509_ASN_ENCODING, szSubject, CERT_X500_NAME_STR, NULL, name.data(), &cbName, NULL);
 
@@ -273,7 +273,7 @@ PCCERT_CONTEXT CreateServerCertificate(std::string& strError)
     CERT_ENHKEY_USAGE usage       = { 1, rgszUsage };
     DWORD             cbUsage     = 0;
 
-    CryptEncodeObject(X509_ASN_ENCODING, X509_ENHANCED_KEY_USAGE, &usage, NULL, &cbUsage);
+    CryptEncodeObject(X509_ASN_ENCODING, X509_ENHANCED_KEY_USAGE, &usage, nullptr, &cbUsage);
     std::vector<BYTE> usageEncoded(cbUsage);
     CryptEncodeObject(X509_ASN_ENCODING, X509_ENHANCED_KEY_USAGE, &usage, usageEncoded.data(), &cbUsage);
 
@@ -326,7 +326,7 @@ PCCERT_CONTEXT CreateServerCertificate(std::string& strError)
     NCryptFreeObject(hkey);
     NCryptFreeObject(hprov);
 
-    if (pcert == NULL) {
+    if (pcert == nullptr) {
         strError = "Could not create the server's certificate.";
     }
 
@@ -365,7 +365,7 @@ struct Peer
     char              m_szAddress[INET6_ADDRSTRLEN];
 
     Peer() :
-        m_ptransport(NULL),
+        m_ptransport(nullptr),
         m_hconnection(NULL),
         m_hstream(NULL),
         m_id(0),
@@ -398,8 +398,8 @@ struct SendBuffer
         DWORD       cbHeader = (fStream ? sizeof(DWORD) : 0) + 1;
         SendBuffer* psb      = (SendBuffer*)malloc(sizeof(SendBuffer) + cbHeader + cb);
 
-        if (psb == NULL) {
-            return NULL;
+        if (psb == nullptr) {
+            return nullptr;
         }
 
         BYTE* p = psb->m_data;
@@ -461,7 +461,7 @@ public:
         m_hconfigServer(NULL),
         m_hconfigClient(NULL),
         m_hlistener(NULL),
-        m_pcert(NULL),
+        m_pcert(nullptr),
         m_idApplication(0),
         m_guidInstance(),
         m_port(0),
@@ -469,7 +469,7 @@ public:
         m_socketDiscovery(INVALID_SOCKET)
     {
         InitializeCriticalSection(&m_cs);
-        m_hevent = CreateEvent(NULL, FALSE, FALSE, NULL);
+        m_hevent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
         StartWinsock();
     }
 
@@ -584,7 +584,7 @@ public:
 
         if (m_pcert) {
             CertFreeCertificateContext(m_pcert);
-            m_pcert = NULL;
+            m_pcert = nullptr;
         }
 
         ReleaseQuic();
@@ -625,7 +625,7 @@ public:
         if (fServer) {
             m_pcert = CreateServerCertificate(strError);
 
-            if (m_pcert == NULL) {
+            if (m_pcert == nullptr) {
                 g_pquic->ConfigurationClose(hconfig);
                 return NULL;
             }
@@ -750,7 +750,7 @@ public:
 
         SendBuffer* psb = SendBuffer::Create(ppeer, type, pv, cb, true, true);
 
-        if (psb == NULL) {
+        if (psb == nullptr) {
             return;
         }
 
@@ -793,7 +793,7 @@ public:
                     return;
                 }
 
-                const char* szRefuse = NULL;
+                const char* szRefuse = nullptr;
 
                 if (phello->m_dwVersion != c_dwProtocolVersion) {
                     szRefuse = "The server runs a different version of Allegiance.";
@@ -1491,16 +1491,16 @@ public:
         m_sinTarget.sin_family = AF_INET;
         m_sinTarget.sin_port   = htons(portDiscovery);
 
-        if (szHost == NULL || szHost[0] == '\0') {
+        if (szHost == nullptr || szHost[0] == '\0') {
             m_sinTarget.sin_addr.s_addr = htonl(INADDR_BROADCAST);
             m_fTarget = true;
         } else {
             addrinfo  hints = {};
-            addrinfo* presult = NULL;
+            addrinfo* presult = nullptr;
             hints.ai_family   = AF_INET;
             hints.ai_socktype = SOCK_DGRAM;
 
-            if (getaddrinfo(szHost, NULL, &hints, &presult) == 0 && presult) {
+            if (getaddrinfo(szHost, nullptr, &hints, &presult) == 0 && presult) {
                 m_sinTarget.sin_addr = ((sockaddr_in*)presult->ai_addr)->sin_addr;
                 m_fTarget = true;
                 freeaddrinfo(presult);
@@ -1556,7 +1556,7 @@ public:
                 char szHost[INET_ADDRSTRLEN] = { 0 };
                 inet_ntop(AF_INET, &sinFrom.sin_addr, szHost, sizeof(szHost));
 
-                FedSessionInfo* pinfo = NULL;
+                FedSessionInfo* pinfo = nullptr;
 
                 for (size_t index = 0; index < m_sessions.size(); index++) {
                     if (m_sessions[index].m_guidInstance == preply->m_guidInstance) {
@@ -1564,7 +1564,7 @@ public:
                     }
                 }
 
-                if (pinfo == NULL) {
+                if (pinfo == nullptr) {
                     m_sessions.push_back(FedSessionInfo());
                     pinfo = &m_sessions.back();
                     pinfo->m_guidInstance = preply->m_guidInstance;
@@ -1609,7 +1609,7 @@ FedTransport* CreateFedTransport(HANDLE hEventSignal, std::string& strError)
 
     if (!ptransport->Init(strError)) {
         delete ptransport;
-        return NULL;
+        return nullptr;
     }
 
     return ptransport;

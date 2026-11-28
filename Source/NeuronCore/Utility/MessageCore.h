@@ -87,7 +87,7 @@ public:
   const char * GetName() {return m_szName;}
   DWORD     GetID() {return m_id;}
   virtual int GetCountConnections() = 0;
-  virtual CFMGroup * AsGroup() {return NULL;}
+  virtual CFMGroup * AsGroup() {return nullptr;}
 
 protected:
   CFMRecipient(const char * szName, DWORD id) :
@@ -312,7 +312,7 @@ public:
   void            PurgeOutBox()         
   {
     m_pbFMNext = BuffOut();
-    m_precipDefault = NULL;
+    m_precipDefault = nullptr;
   }
   CB              CbFreeSpaceInOutbox()
   {

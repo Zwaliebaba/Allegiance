@@ -89,8 +89,8 @@ void    CollisionQueue::flush(int       n,
             pentrySource->m_pHitTest1->Release();
             pentrySource->m_pHitTest2->Release();
 
-            pentrySource->m_pHitTest1 = NULL;   //NYI shouldn't be needed
-            pentrySource->m_pHitTest2 = NULL;
+            pentrySource->m_pHitTest1 = nullptr;   //NYI shouldn't be needed
+            pentrySource->m_pHitTest2 = nullptr;
         }
         else
         {

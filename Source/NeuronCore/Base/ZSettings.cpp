@@ -55,7 +55,7 @@ JValue* JValue::Find(const std::string& key)
             return &m_o[i].m_value;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void JValue::Set(const std::string& key, const JValue& value)
@@ -455,7 +455,7 @@ private:
 
         std::string str(pchStart, m_pch);
         value.m_kind = JValue::Number;
-        value.m_n    = strtod(str.c_str(), NULL);
+        value.m_n    = strtod(str.c_str(), nullptr);
         return true;
     }
 };
@@ -575,7 +575,7 @@ std::string Convert(const std::string& s, UINT cpFrom, UINT cpTo)
         return s;
     }
 
-    int cwch = MultiByteToWideChar(cpFrom, 0, s.data(), (int)s.size(), NULL, 0);
+    int cwch = MultiByteToWideChar(cpFrom, 0, s.data(), (int)s.size(), nullptr, 0);
     if (cwch <= 0) {
         return std::string();
     }
@@ -583,13 +583,13 @@ std::string Convert(const std::string& s, UINT cpFrom, UINT cpTo)
     std::wstring wstr(cwch, L'\0');
     MultiByteToWideChar(cpFrom, 0, s.data(), (int)s.size(), &wstr[0], cwch);
 
-    int cch = WideCharToMultiByte(cpTo, 0, wstr.data(), cwch, NULL, 0, NULL, NULL);
+    int cch = WideCharToMultiByte(cpTo, 0, wstr.data(), cwch, nullptr, 0, nullptr, nullptr);
     if (cch <= 0) {
         return std::string();
     }
 
     std::string result(cch, '\0');
-    WideCharToMultiByte(cpTo, 0, wstr.data(), cwch, &result[0], cch, NULL, NULL);
+    WideCharToMultiByte(cpTo, 0, wstr.data(), cwch, &result[0], cch, nullptr, nullptr);
     return result;
 }
 
@@ -608,10 +608,10 @@ std::string Narrow(const std::wstring& wstr)
     if (wstr.empty()) {
         return std::string();
     }
-    int cch = WideCharToMultiByte(CP_ACP, 0, wstr.data(), (int)wstr.size(), NULL, 0, NULL, NULL);
+    int cch = WideCharToMultiByte(CP_ACP, 0, wstr.data(), (int)wstr.size(), nullptr, 0, nullptr, nullptr);
     std::string result(cch > 0 ? cch : 0, '\0');
     if (cch > 0) {
-        WideCharToMultiByte(CP_ACP, 0, wstr.data(), (int)wstr.size(), &result[0], cch, NULL, NULL);
+        WideCharToMultiByte(CP_ACP, 0, wstr.data(), (int)wstr.size(), &result[0], cch, nullptr, nullptr);
     }
     return result;
 }
@@ -642,7 +642,7 @@ struct ZSettingsFile::Impl
 
     explicit Impl(const wchar_t* wszPath) :
         m_wstrPath(wszPath ? wszPath : L""),
-        m_hmutex(NULL),
+        m_hmutex(nullptr),
         m_root(MakeObject()),
         m_fLoaded(false),
         m_fCorrupt(false)
@@ -665,7 +665,7 @@ struct ZSettingsFile::Impl
 
         wchar_t wszName[64];
         swprintf_s(wszName, L"Local\\Allegiance.Settings.%016llx", hash);
-        m_hmutex = CreateMutexW(NULL, FALSE, wszName);
+        m_hmutex = CreateMutexW(nullptr, FALSE, wszName);
     }
 
     ~Impl()
@@ -703,7 +703,7 @@ struct ZSettingsFile::Impl
         m_fLoaded = true;
 
         HANDLE hfile = CreateFileW(m_wstrPath.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                                   NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+                                   nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         if (hfile == INVALID_HANDLE_VALUE) {
             if (GetLastError() == ERROR_FILE_NOT_FOUND || GetLastError() == ERROR_PATH_NOT_FOUND) {
                 m_root     = MakeObject();
@@ -720,7 +720,7 @@ struct ZSettingsFile::Impl
             data.resize((size_t)size.QuadPart);
             DWORD cbRead = 0;
             fRead = data.empty()
-                || (ReadFile(hfile, &data[0], (DWORD)data.size(), &cbRead, NULL) && cbRead == data.size());
+                || (ReadFile(hfile, &data[0], (DWORD)data.size(), &cbRead, nullptr) && cbRead == data.size());
         }
         CloseHandle(hfile);
 
@@ -784,7 +784,7 @@ struct ZSettingsFile::Impl
 
         size_t ichSlash = m_wstrPath.find_last_of(L"\\/");
         if (ichSlash != std::wstring::npos) {
-            CreateDirectoryW(m_wstrPath.substr(0, ichSlash).c_str(), NULL);
+            CreateDirectoryW(m_wstrPath.substr(0, ichSlash).c_str(), nullptr);
         }
 
         std::string text;
@@ -792,14 +792,14 @@ struct ZSettingsFile::Impl
         text += "\r\n";
 
         std::wstring wstrTemp = m_wstrPath + L".tmp";
-        HANDLE hfile = CreateFileW(wstrTemp.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        HANDLE hfile = CreateFileW(wstrTemp.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
         if (hfile == INVALID_HANDLE_VALUE) {
             Trace("Settings: couldn't write %s%s\n", wstrTemp);
             return false;
         }
 
         DWORD cbWritten = 0;
-        bool  fOk = WriteFile(hfile, text.data(), (DWORD)text.size(), &cbWritten, NULL) && cbWritten == text.size();
+        bool  fOk = WriteFile(hfile, text.data(), (DWORD)text.size(), &cbWritten, nullptr) && cbWritten == text.size();
         fOk = FlushFileBuffers(hfile) && fOk;
         CloseHandle(hfile);
 
@@ -818,7 +818,7 @@ struct ZSettingsFile::Impl
         if (szSection) {
             pparent = m_root.Find(ToUtf8(szSection));
             if (!pparent || pparent->m_kind != JValue::Object) {
-                return NULL;
+                return nullptr;
             }
         }
         return pparent->Find(ToUtf8(szName));
@@ -846,7 +846,7 @@ struct ZSettingsFile::Impl
                     m_root.Set(section, MakeObject());
                     pparent = m_root.Find(section);
                 } else {
-                    pparent = NULL;
+                    pparent = nullptr;
                 }
             }
         }
@@ -887,7 +887,7 @@ bool ZSettingsFile::Has(const char* szSection, const char* szName)
 {
     EnterCriticalSection(&m_pimpl->m_cs);
     m_pimpl->EnsureLoaded();
-    bool fHas = m_pimpl->Find(szSection, szName) != NULL;
+    bool fHas = m_pimpl->Find(szSection, szName) != nullptr;
     LeaveCriticalSection(&m_pimpl->m_cs);
     return fHas;
 }
@@ -916,7 +916,7 @@ DWORD ZSettingsFile::GetDWORD(const char* szSection, const char* szName, DWORD d
             case JValue::String:
             {
                 const char* sz    = pvalue->m_s.c_str();
-                char*       szEnd = NULL;
+                char*       szEnd = nullptr;
                 unsigned long ul  = strtoul(sz, &szEnd, 0);
                 if (*sz && szEnd && *szEnd == '\0') {
                     dwResult = (DWORD)ul;
@@ -1012,7 +1012,7 @@ void ZSettingsFile::SetDWORDs(const char* szSection, const char* szName, const s
 
 void ZSettingsFile::Remove(const char* szSection, const char* szName)
 {
-    m_pimpl->Update(szSection, szName, NULL);
+    m_pimpl->Update(szSection, szName, nullptr);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1025,7 +1025,7 @@ namespace
 {
     const char*        g_szFileName = "settings.json";
     ZSettings::Scope   g_scope      = ZSettings::PerUser;
-    ZSettingsFile*     g_pfile      = NULL;
+    ZSettingsFile*     g_pfile      = nullptr;
     INIT_ONCE          g_initOnce   = INIT_ONCE_STATIC_INIT;
 
     BOOL CALLBACK CreateProcessSettings(PINIT_ONCE, PVOID, PVOID*)
@@ -1038,7 +1038,7 @@ namespace
 void ZSettings::Configure(const char* szFileName, Scope scope)
 {
     // Only before the first Get(); later calls would be ignored.
-    if (g_pfile == NULL) {
+    if (g_pfile == nullptr) {
         g_szFileName = szFileName;
         g_scope      = scope;
     }
@@ -1056,7 +1056,7 @@ std::wstring ZSettings::PathFor(const char* szFileName, Scope scope)
     //
 
     wchar_t wszModule[MAX_PATH];
-    DWORD cch = GetModuleFileNameW(NULL, wszModule, MAX_PATH);
+    DWORD cch = GetModuleFileNameW(nullptr, wszModule, MAX_PATH);
     if (cch > 0 && cch < MAX_PATH) {
         std::wstring wstrExeDir(wszModule);
         size_t ichSlash = wstrExeDir.find_last_of(L"\\/");
@@ -1085,6 +1085,6 @@ std::wstring ZSettings::PathFor(const char* szFileName, Scope scope)
 
 ZSettingsFile& ZSettings::Get()
 {
-    InitOnceExecuteOnce(&g_initOnce, CreateProcessSettings, NULL, NULL);
+    InitOnceExecuteOnce(&g_initOnce, CreateProcessSettings, nullptr, nullptr);
     return *g_pfile;
 }

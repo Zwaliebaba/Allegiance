@@ -40,7 +40,7 @@ public:
 
         bool End()
         {
-            return (m_pnode == NULL);
+            return (m_pnode == nullptr);
         }
 
         bool First();
@@ -63,8 +63,8 @@ protected:
     int m_count;
 
     TListImpl() :
-        m_pfirst(NULL),
-        m_plast(NULL),
+        m_pfirst(nullptr),
+        m_plast(nullptr),
         m_count(0)
     {}
 
@@ -147,7 +147,7 @@ private:
             pfind = pfind->GetNext();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     ListNode* GetFirst()
@@ -215,25 +215,25 @@ public:
 
     void PushFront()
     {
-        PushFrontImpl(new ListNode(NULL, GetFirst()));
+        PushFrontImpl(new ListNode(nullptr, GetFirst()));
         m_fnSink();
     }
 
     void PushFront(const TValue& value)
     {
-        PushFrontImpl(new ListNode(value, NULL, GetFirst()));
+        PushFrontImpl(new ListNode(value, nullptr, GetFirst()));
         m_fnSink();
     }
 
     void PushEnd()
     {
-        PushEndImpl(new ListNode(GetLast(), NULL));
+        PushEndImpl(new ListNode(GetLast(), nullptr));
         m_fnSink();
     }
 
     void PushEnd(const TValue& value)
     {
-        PushEndImpl(new ListNode(value, GetLast(), NULL));
+        PushEndImpl(new ListNode(value, GetLast(), nullptr));
         m_fnSink();
     }
 
@@ -246,9 +246,9 @@ public:
     {
         ListNode* pnode = GetLast();
 
-        while (pnode != NULL) {
+        while (pnode != nullptr) {
             if (!m_fnCompare(((const TValue&)pnode->m_value), value)) {
-                InsertAfterImpl(pnode, new ListNode(value, NULL, NULL));
+                InsertAfterImpl(pnode, new ListNode(value, nullptr, nullptr));
                 m_fnSink();
                 return;
             }
@@ -300,7 +300,7 @@ public:
 
     bool Find(const TValue& value)
     {
-        return FindInternal(value) != NULL;
+        return FindInternal(value) != nullptr;
     }
 
     bool Remove(const TValue& value)
@@ -393,7 +393,7 @@ public:
             return m_iter.Value();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     TValue*  GetLast()
@@ -411,7 +411,7 @@ public:
             return m_iter.Value();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     TValue*  GetPrevious()
@@ -428,7 +428,7 @@ public:
         if (!m_iter.End()) {
             return m_iter.Value();
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 
