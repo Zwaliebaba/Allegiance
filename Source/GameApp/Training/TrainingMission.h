@@ -62,7 +62,7 @@ namespace Training
         protected:
                     std::unique_ptr<Condition> m_pCondition;
                     std::unique_ptr<Condition> m_pDeadCondition;
-                    std::list<std::unique_ptr<Condition>> m_WaitConditionList;
+                    std::list<std::unique_ptr<Condition>> m_waitConditionList;
                     std::list<Condition*>   m_KeyConditionList;
                     Condition*              m_pChatCondition;
                     bool                    m_bMusicWasOn;

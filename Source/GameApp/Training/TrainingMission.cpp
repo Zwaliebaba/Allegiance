@@ -94,7 +94,7 @@ namespace Training
         // tears down. Then the wait conditions.
         m_pCondition.reset ();
         m_pDeadCondition.reset ();
-        m_WaitConditionList.clear ();
+        m_waitConditionList.clear ();
 
         // the application is closing: the window and the client are being torn
         // down, so don't switch screens, quit the mission or restore settings
@@ -177,8 +177,8 @@ namespace Training
             if (not Time::IsPaused ())
             {
                 // Check to see if there is a wait condition.
-                auto pWaitConditionIterator = m_WaitConditionList.begin ();
-                auto end = m_WaitConditionList.end ();
+                auto pWaitConditionIterator = m_waitConditionList.begin ();
+                auto end = m_waitConditionList.end ();
                 if (pWaitConditionIterator != end)
                 {
                     while (pWaitConditionIterator != end)
@@ -190,7 +190,7 @@ namespace Training
                             // don't check it next time around. Note that we have to advance
                             // the iterator at the same time in order to preserve traversal
                             // order.
-                            m_WaitConditionList.erase (pWaitConditionIterator++);
+                            m_waitConditionList.erase (pWaitConditionIterator++);
                         }
                         else
                         {
@@ -238,7 +238,7 @@ namespace Training
     void        TrainingMission::AddWaitCondition (Condition* pWaitCondition)
     {
         // XXX I don't remember if order is important, but look at ResetAction to see if it is
-        m_WaitConditionList.emplace_front (pWaitCondition);
+        m_waitConditionList.emplace_front (pWaitCondition);
     }
 
     //------------------------------------------------------------------------------
