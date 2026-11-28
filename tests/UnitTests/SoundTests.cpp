@@ -53,6 +53,18 @@ namespace SoundTests
             Assert::IsTrue(DistanceAttenuation(10 * c_fMinToMaxDistanceRatio - 1, 10, 1) > 0);
         }
 
+        // The distance low-pass: open up to the minimum distance, a quarter of
+        // the way down at ten times it, never below the floor
+        TEST_METHOD(DistanceCutoffFallsWithDistance)
+        {
+            AreClose(c_fDistanceCutoffOpen, DistanceCutoff(5, 10));
+            AreClose(c_fDistanceCutoffOpen, DistanceCutoff(10, 10));
+            Assert::AreEqual(20000.0f * std::pow(0.1f, 0.6f), DistanceCutoff(100, 10), 1.0f);
+            Assert::IsTrue(DistanceCutoff(50, 10) > DistanceCutoff(100, 10));
+            AreClose(c_fDistanceCutoffFloor, DistanceCutoff(10 * c_fMinToMaxDistanceRatio, 10));
+            AreClose(c_fDistanceCutoffOpen, DistanceCutoff(100, 0));        // no minimum distance: unfiltered
+        }
+
         // The angles are full cone widths, as DirectSound took them
         TEST_METHOD(ConeGainAsDirectSound)
         {

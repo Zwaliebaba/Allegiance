@@ -214,6 +214,10 @@ public:
 
     // Sets the doppler factor, where 1.0 is real-world doppler
     virtual HRESULT SetDopplerFactor(float fDopplerFactor) = 0;
+
+    // Sets how much of the room reverb (the station screens) is heard, 0 to
+    // 1; the level fades to it over about a second
+    virtual HRESULT SetReverb(float fLevel) = 0;
 };
 
 

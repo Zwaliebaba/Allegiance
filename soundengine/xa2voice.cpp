@@ -7,6 +7,8 @@
 #include "soundmath.h"
 #include "x3dpan.h"
 #include "xa2voice.h"
+#include "spatializer.h"
+#include "xa2spatial.h"
 
 #include <memory>
 
@@ -14,6 +16,9 @@ namespace SoundEngine {
 
 // the most a voice's pitch (with doppler) can raise its frequency
 const float c_fMaxFrequencyRatio = 8.0f;
+
+// the distance low-pass: XAudio2's state-variable filter, Butterworth (Q of 0.707)
+const float c_fFilterOneOverQ = 1.4142f;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -24,8 +29,11 @@ const float c_fMaxFrequencyRatio = 8.0f;
 XA2Device::XA2Device() :
     m_pxaudio2(NULL),
     m_pmaster(NULL),
+    m_preverb(NULL),
     m_dwChannelMask(0),
     m_nChannels(0),
+    m_nSampleRate(48000),
+    m_bHeadphones(false),
     m_fRolloffFactor(1.0f),
     m_fDopplerFactor(1.0f),
     m_fDistanceFactor(1.0f),
@@ -38,6 +46,10 @@ XA2Device::XA2Device() :
 
 XA2Device::~XA2Device()
 {
+    if (m_preverb) {
+        m_preverb->DestroyVoice();
+    }
+
     if (m_pmaster) {
         m_pmaster->DestroyVoice();
     }
@@ -65,7 +77,20 @@ HRESULT XA2Device::Init()
 
     XAUDIO2_VOICE_DETAILS details;
     m_pmaster->GetVoiceDetails(&details);
-    m_nChannels = details.InputChannels;
+    m_nChannels   = details.InputChannels;
+    m_nSampleRate = details.InputSampleRate;
+
+    //
+    // Stereo output is taken to be headphones: positioned sounds go through
+    // the head model (spatializer.h). On stereo speakers its crosstalk is
+    // wrong, so the HeadphoneSpatialization setting turns it off. More
+    // channels (5.1, 7.1, and Windows Sonic or Dolby Atmos, which present
+    // 7.1) keep X3DAudio's pan.
+    //
+
+    m_bHeadphones = m_nChannels == 2 && ZSettings::GetDWORD("HeadphoneSpatialization", 1) != 0;
+
+    m_preverb = CreateReverbVoice(m_pxaudio2, m_nSampleRate, m_nChannels);
 
     m_pmaster->GetChannelMask(&m_dwChannelMask);
 
@@ -75,8 +100,16 @@ HRESULT XA2Device::Init()
 
     SetDistanceFactor(m_fDistanceFactor);
 
-    debugf("XAudio2: %u output channels (mask %X) at %u Hz\n", m_nChannels, m_dwChannelMask, details.InputSampleRate);
+    debugf("XAudio2: %u output channels (mask %X) at %u Hz%s\n", m_nChannels, m_dwChannelMask, details.InputSampleRate,
+        m_bHeadphones ? ", head model" : "");
     return S_OK;
+}
+
+void XA2Device::SetReverbLevel(float fLevel)
+{
+    if (m_preverb) {
+        m_preverb->SetVolume(fLevel);
+    }
 }
 
 void XA2Device::SetDistanceFactor(float fMetersPerUnit)
@@ -130,6 +163,9 @@ static std::shared_ptr<const std::vector<BYTE>> GetSoundBytes(ISoundPCMData* pda
 XA2Voice::XA2Voice() :
     m_pvoice(NULL),
     m_nChannels(1),
+    m_nOutChannels(1),
+    m_bSpatial(false),
+    m_fFilter(-1),
     m_nBlockAlign(1),
     m_nLength(0),
     m_bLooping(false),
@@ -194,12 +230,52 @@ HRESULT XA2Voice::Init(XA2Device* pdevice, ISoundPCMData* pdata, bool bLooping,
     format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
     format.cbSize          = 0;
 
-    HRESULT hr = pdevice->m_pxaudio2->CreateSourceVoice(&m_pvoice, &format, 0, c_fMaxFrequencyRatio);
+    //
+    // The voice sends to the master and to the station reverb. A 3D sound
+    // gets the distance low-pass, and on headphones the head model, which
+    // turns its one or two channels into two.
+    //
+
+    XAUDIO2_SEND_DESCRIPTOR sends[2] = {
+        { 0, pdevice->m_pmaster },
+        { 0, pdevice->m_preverb }
+    };
+    XAUDIO2_VOICE_SENDS voiceSends = { pdevice->m_preverb ? 2u : 1u, sends };
+    UINT32              flags      = bSupport3D ? XAUDIO2_VOICE_USEFILTER : 0;
+
+    IUnknown* peffect = NULL;
+
+    if (bSupport3D && pdevice->m_bHeadphones && FAILED(CreateSpatialEffect(&peffect))) {
+        peffect = NULL;
+    }
+
+    XAUDIO2_EFFECT_DESCRIPTOR effect = { peffect, TRUE, 2 };
+    XAUDIO2_EFFECT_CHAIN      chain  = { 1, &effect };
+
+    HRESULT hr = pdevice->m_pxaudio2->CreateSourceVoice(&m_pvoice, &format, flags, c_fMaxFrequencyRatio,
+        NULL, &voiceSends, peffect ? &chain : NULL);
+
+    if (FAILED(hr) && peffect) {
+        debugf("CreateSourceVoice with the head model failed: %X\n", hr);
+        hr = pdevice->m_pxaudio2->CreateSourceVoice(&m_pvoice, &format, flags, c_fMaxFrequencyRatio,
+            NULL, &voiceSends, NULL);
+        peffect->Release();
+        peffect = NULL;
+    }
+
     if (FAILED(hr)) {
         debugf("CreateSourceVoice failed: %X\n", hr);
         m_pvoice = NULL;
         return hr;
     }
+
+    // XAudio2 holds the effect now
+    if (peffect) {
+        peffect->Release();
+    }
+
+    m_bSpatial     = peffect != NULL;
+    m_nOutChannels = m_bSpatial ? 2 : m_nChannels;
 
     m_pbytes = GetSoundBytes(pdata);
 
@@ -330,27 +406,64 @@ void XA2Voice::ApplyFrequency()
 }
 
 //
-// The output matrix: unpositioned, a mono sound goes to the front left and
-// right at full level (DirectSound's centre pan) and a stereo one to its
-// sides; positioned, X3DAudio's pan scaled by DirectSound's distance and cone
-// attenuation (a stereo sound is panned as one point, each side at half)
+// A sound's direction in the listener's frame (x right, y up, z front), from
+// X3DAudio's left-handed vectors
+//
+
+static HeadDirection ListenerDirection(const PanListener& listener, const PanVector& position)
+{
+    PanVector d     = { position.x - listener.m_position.x, position.y - listener.m_position.y, position.z - listener.m_position.z };
+    PanVector front = listener.m_front;
+    PanVector top   = listener.m_top;
+
+    // right = top x front, in X3DAudio's left-handed frame
+    PanVector right = {
+        top.y * front.z - top.z * front.y,
+        top.z * front.x - top.x * front.z,
+        top.x * front.y - top.y * front.x
+    };
+
+    return HeadDirection{
+        d.x * right.x + d.y * right.y + d.z * right.z,
+        d.x * top.x   + d.y * top.y   + d.z * top.z,
+        d.x * front.x + d.y * front.y + d.z * front.z
+    };
+}
+
+//
+// The output: unpositioned, a mono sound goes to the front left and right at
+// full level (DirectSound's centre pan) and a stereo one to its sides.
+// Positioned, it is attenuated by DirectSound's distance and cone
+// attenuation, low-passed with distance, and either rendered by the head
+// model (headphones) or panned by X3DAudio (a stereo sound as one point,
+// each side at half). Every sound is also sent to the station reverb, at its
+// attenuated level; the reverb voice's volume decides how much is heard.
 //
 
 void XA2Voice::ApplyOutput()
 {
     XA2Device* pdevice = m_pdevice;
     UINT32     nOut    = pdevice->m_nChannels;
+    UINT32     nIn     = m_nOutChannels;
     float      matrix[2 * XAUDIO2_MAX_AUDIO_CHANNELS] = {};
+    float      fSend   = 1.0f;
+    float      fCutoff = 0;     // Hz; 0: no filtering
 
-    if (nOut == 0 || nOut > XAUDIO2_MAX_AUDIO_CHANNELS) {
+    if (nOut == 0 || nOut > XAUDIO2_MAX_AUDIO_CHANNELS || nIn == 0 || nIn > 2) {
         return;
     }
 
     if (!(m_bSupport3D && m_b3D)) {
+        if (m_bSpatial) {
+            // the head model passes it through: mono to both ears, stereo as it is
+            SpatialEffectParameters params = { 0, 0, 1, FALSE };
+            m_pvoice->SetEffectParameters(0, &params, sizeof(params));
+        }
+
         if (nOut == 1) {
-            matrix[0] = m_nChannels == 1 ? 1.0f : 0.5f;
+            matrix[0] = nIn == 1 ? 1.0f : 0.5f;
             matrix[1] = 0.5f;
-        } else if (m_nChannels == 1) {
+        } else if (nIn == 1) {
             matrix[0] = 1.0f;                       // front left
             matrix[1] = 1.0f;                       // front right
         } else {
@@ -364,10 +477,11 @@ void XA2Voice::ApplyOutput()
         }
     } else {
         const PanListener& listener = m_bListenerRelative ? pdevice->m_listenerRelative : pdevice->m_listener;
+        PanVector          position = ConvertVector(m_vectPosition);
 
         float pan[XAUDIO2_MAX_AUDIO_CHANNELS] = {};
         float fDoppler = X3DPan(pdevice->m_x3daudio, listener,
-            ConvertVector(m_vectPosition), ConvertVector(m_vectVelocity),
+            position, ConvertVector(m_vectVelocity),
             pdevice->m_fDopplerFactor, nOut, pan);
 
         //
@@ -388,14 +502,31 @@ void XA2Voice::ApplyOutput()
         float fAttenuation = DistanceAttenuation(fDistance, m_fMinimumDistance, pdevice->m_fRolloffFactor)
             * DbToAmplitude(fCone);
 
-        for (UINT32 out = 0; out < nOut; out++) {
-            if (m_nChannels == 1) {
-                matrix[out] = pan[out] * fAttenuation;
-            } else {
-                matrix[out * 2 + 0] = pan[out] * fAttenuation * 0.5f;
-                matrix[out * 2 + 1] = pan[out] * fAttenuation * 0.5f;
+        if (m_bSpatial) {
+            //
+            // Headphones: the head model gives each ear its sound; the matrix
+            // only attenuates (the output is stereo)
+            //
+
+            HeadDirection           direction = ListenerDirection(listener, position);
+            SpatialEffectParameters params    = { direction.x, direction.y, direction.z, TRUE };
+            m_pvoice->SetEffectParameters(0, &params, sizeof(params));
+
+            matrix[0 * 2 + 0] = fAttenuation;
+            matrix[1 * 2 + 1] = fAttenuation;
+        } else {
+            for (UINT32 out = 0; out < nOut; out++) {
+                if (nIn == 1) {
+                    matrix[out] = pan[out] * fAttenuation;
+                } else {
+                    matrix[out * 2 + 0] = pan[out] * fAttenuation * 0.5f;
+                    matrix[out * 2 + 1] = pan[out] * fAttenuation * 0.5f;
+                }
             }
         }
+
+        fSend   = fAttenuation;
+        fCutoff = DistanceCutoff(fDistance, m_fMinimumDistance);
 
         if (m_fDoppler != fDoppler) {
             m_fDoppler = fDoppler;
@@ -403,7 +534,31 @@ void XA2Voice::ApplyOutput()
         }
     }
 
-    m_pvoice->SetOutputMatrix(NULL, m_nChannels, nOut, matrix);
+    m_pvoice->SetOutputMatrix(pdevice->m_pmaster, nIn, nOut, matrix);
+
+    if (pdevice->m_preverb) {
+        float send[2] = { fSend / nIn, fSend / nIn };
+        m_pvoice->SetOutputMatrix(pdevice->m_preverb, nIn, 1, send);
+    }
+
+    //
+    // The distance low-pass (a 3D voice has the filter); set when it moves
+    // by more than a little, as it changes every frame
+    //
+
+    if (m_bSupport3D) {
+        // XAudio2CutoffFrequencyToRadians, which xaudio2.h defines only with XAUDIO2_HELPER_FUNCTIONS
+        float fFilter = fCutoff > 0 && fCutoff * 6.0f < pdevice->m_nSampleRate
+            ? 2.0f * std::sin(3.14159265f * fCutoff / pdevice->m_nSampleRate)
+            : (float)XAUDIO2_MAX_FILTER_FREQUENCY;
+
+        if (m_fFilter < 0 || std::fabs(fFilter - m_fFilter) > 0.002f) {
+            m_fFilter = fFilter;
+
+            XAUDIO2_FILTER_PARAMETERS filter = { LowPassFilter, fFilter, c_fFilterOneOverQ };
+            m_pvoice->SetFilterParameters(&filter);
+        }
+    }
 }
 
 HRESULT XA2Voice::UpdateState(float fGain, float fPitch)

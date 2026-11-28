@@ -39,6 +39,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="xa2voice.cpp" />
+    <ClCompile Include="xa2spatial.cpp" />
+    <ClCompile Include="xa2reverb.cpp" />
     <ClCompile Include="x3dpan.cpp">
       <!-- x3daudio.h's Direct3D types must not meet zlib.h's DirectX 7 ones -->
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -61,6 +63,7 @@
     <ClInclude Include="xa2engine.h" />
     <ClInclude Include="x3dpan.h" />
     <ClInclude Include="xa2voice.h" />
+    <ClInclude Include="xa2spatial.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="redbooksound.h" />
     <ClInclude Include="soundbase.h" />

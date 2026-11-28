@@ -240,6 +240,12 @@ public:
         return S_OK;
     }
 
+    // Sets how much of the room reverb is heard
+    HRESULT SetReverb(float fLevel)
+    {
+        return S_OK;
+    }
+
 
     //
     // ISoundBufferSource

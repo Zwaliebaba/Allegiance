@@ -65,6 +65,29 @@ inline float DistanceAttenuation(float fDistance, float fMinimumDistance, float 
 
 
 //
+// The distance low-pass's cutoff in Hz: open up to the sound's minimum
+// distance, then falling with distance (a quarter at ten times it, to about
+// 5 kHz), never below 2 kHz, so distant sounds lose their top end the way
+// they would through air
+//
+
+const float c_fDistanceCutoffOpen     = 20000.0f;
+const float c_fDistanceCutoffFloor    = 2000.0f;
+const float c_fDistanceCutoffExponent = 0.6f;
+
+inline float DistanceCutoff(float fDistance, float fMinimumDistance)
+{
+    if (fMinimumDistance <= 0 || fDistance <= fMinimumDistance) {
+        return c_fDistanceCutoffOpen;
+    }
+
+    float fCutoff = c_fDistanceCutoffOpen * std::pow(fMinimumDistance / fDistance, c_fDistanceCutoffExponent);
+
+    return fCutoff < c_fDistanceCutoffFloor ? c_fDistanceCutoffFloor : fCutoff;
+}
+
+
+//
 // DirectSound 3D's sound cone, in dB. fCosAngle is the cosine of the angle
 // between the cone's direction and the direction from the sound to the
 // listener; the angles are the cone's full widths in degrees, as DirectSound

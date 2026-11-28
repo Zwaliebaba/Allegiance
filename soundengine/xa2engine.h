@@ -29,6 +29,10 @@ class XA2SoundEngine : public ISoundEngine, public ISoundBufferSource  SoundDebu
     // the distance factor, where 1.0f is the real-world distance factor
     float m_fDistanceFactor;
 
+    // the room reverb's level, and the level it fades to
+    float m_fReverb;
+    float m_fReverbTarget;
+
 
     // the update event source, triggered on each call to update.
     TRef<IntegerEventSourceImpl> m_peventsourceUpdate;
@@ -132,6 +136,9 @@ public:
 
     // Sets the doppler factor, where 1.0 is real-world doppler
     virtual HRESULT SetDopplerFactor(float fDopplerFactor);
+
+    // Sets how much of the room reverb is heard (fades to it)
+    virtual HRESULT SetReverb(float fLevel);
 
 
 
