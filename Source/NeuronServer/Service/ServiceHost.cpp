@@ -16,7 +16,7 @@
 
 ServiceArgs ParseServiceArgs(int argc, char * argv[])
 {
-  ServiceArgs args = { ServiceCommand::Other, NULL, NULL };
+  ServiceArgs args = { ServiceCommand::Other, nullptr, nullptr };
 
   if (argc <= 1)
   {
@@ -66,9 +66,9 @@ namespace ServiceHost
 
 std::string SystemErrorText(DWORD dwError)
 {
-  char * szMessage = NULL;
+  char * szMessage = nullptr;
   FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                 NULL, dwError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&szMessage, 0, NULL);
+                 nullptr, dwError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&szMessage, 0, nullptr);
 
   std::string str;
   if (szMessage)
@@ -96,7 +96,7 @@ void PrintSystemError(const char * szText, DWORD dwError)
 
 bool Install(const char * szService, const char * szDisplayName, const char * szUser, const char * szPassword)
 {
-  SC_HANDLE schMgr = OpenSCManagerA(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
+  SC_HANDLE schMgr = OpenSCManagerA(nullptr, nullptr, SC_MANAGER_CREATE_SERVICE);
   if (!schMgr)
   {
     PrintSystemError("Unable to open the service control manager. Service not installed.\n", GetLastError());
@@ -106,12 +106,12 @@ bool Install(const char * szService, const char * szDisplayName, const char * sz
   // The service control manager starts the program with -service
   char szModule[MAX_PATH];
   char szPath[MAX_PATH + 16];
-  GetModuleFileNameA(NULL, szModule, sizeof(szModule));
+  GetModuleFileNameA(nullptr, szModule, sizeof(szModule));
   sprintf_s(szPath, "\"%s\" -service", szModule);
 
   SC_HANDLE schSvc = CreateServiceA(schMgr, szService, szDisplayName, SERVICE_ALL_ACCESS,
                                     SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
-                                    szPath, NULL, NULL, NULL, szUser, szPassword);
+                                    szPath, nullptr, nullptr, nullptr, szUser, szPassword);
   if (!schSvc)
   {
     PrintSystemError("Unable to create the service. Service not installed.\n", GetLastError());
@@ -148,7 +148,7 @@ bool Install(const char * szService, const char * szDisplayName, const char * sz
 
 bool Remove(const char * szService)
 {
-  SC_HANDLE schMgr = OpenSCManagerA(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+  SC_HANDLE schMgr = OpenSCManagerA(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
   if (!schMgr)
   {
     PrintSystemError("Unable to open the service control manager. Service not removed.\n", GetLastError());
@@ -193,8 +193,8 @@ bool Remove(const char * szService)
 //////////////////////////////////////////////////////////////////////////////
 
 static char                  s_szService[256];
-static IServiceApp *         s_papp     = NULL;
-static SERVICE_STATUS_HANDLE s_ssh      = NULL;
+static IServiceApp *         s_papp     = nullptr;
+static SERVICE_STATUS_HANDLE s_ssh      = nullptr;
 static bool                  s_fService = false;
 
 static void SetStatus(DWORD state, DWORD dwExitCode)
@@ -245,7 +245,7 @@ static void WINAPI ServiceControl(DWORD dwCode)
         // Stopping takes a while, and the service control manager wants an
         // answer at once, so another thread stops the server
         SetStatus(SERVICE_STOP_PENDING, NO_ERROR);
-        HANDLE hThread = CreateThread(NULL, 0, StopThread, NULL, 0, NULL);
+        HANDLE hThread = CreateThread(nullptr, 0, StopThread, nullptr, 0, nullptr);
         if (hThread)
           CloseHandle(hThread);
       }
@@ -289,7 +289,7 @@ bool RunAsService(const char * szService, IServiceApp * papp)
   SERVICE_TABLE_ENTRYA rgSTE[] =
   {
     { s_szService, ServiceMain },
-    { NULL, NULL }
+    { nullptr, nullptr }
   };
 
   if (!StartServiceCtrlDispatcherA(rgSTE))
@@ -313,7 +313,7 @@ bool IsService()
 //
 //////////////////////////////////////////////////////////////////////////////
 
-static HANDLE s_hConsoleStop = NULL;
+static HANDLE s_hConsoleStop = nullptr;
 
 static BOOL WINAPI ConsoleCtrl(DWORD dwCtrlType)
 {
@@ -374,7 +374,7 @@ HRESULT RunInConsole(IServiceApp * papp)
 
   papp->Stop();
   SetConsoleCtrlHandler(ConsoleCtrl, FALSE);
-  s_hConsoleStop = NULL;
+  s_hConsoleStop = nullptr;
   return hr;
 }
 
