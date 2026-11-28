@@ -39,7 +39,7 @@ IXAudio2SubmixVoice* CreateReverbVoice(IXAudio2* pxaudio2, UINT32 nSampleRate, U
     }
 
     XAUDIO2FX_REVERB_I3DL2_PARAMETERS i3dl2  = XAUDIO2FX_I3DL2_PRESET_LARGEROOM;
-    XAUDIO2_FILTER_PARAMETERS       native;
+    XAUDIO2FX_REVERB_PARAMETERS       native;
 
     ReverbConvertI3DL2ToNative(&i3dl2, &native);
     native.WetDryMix = 100;     // the voice carries only the reverb; the dry sound goes to the master
