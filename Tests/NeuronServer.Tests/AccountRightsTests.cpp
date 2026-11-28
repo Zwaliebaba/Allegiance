@@ -18,7 +18,7 @@ namespace AccountRightsTests
     {
         DWORD             cb = SECURITY_MAX_SID_SIZE;
         std::vector<BYTE> sid(cb);
-        Assert::IsTrue(!!CreateWellKnownSid(type, NULL, sid.data(), &cb));
+        Assert::IsTrue(!!CreateWellKnownSid(type, nullptr, sid.data(), &cb));
         sid.resize(cb);
         return sid;
     }
@@ -30,7 +30,7 @@ namespace AccountRightsTests
         DWORD        cchName   = sizeof(szName);
         DWORD        cchDomain = sizeof(szDomain);
         SID_NAME_USE use;
-        Assert::IsTrue(!!LookupAccountSidA(NULL, (PSID)sid.data(), szName, &cchName, szDomain, &cchDomain, &use));
+        Assert::IsTrue(!!LookupAccountSidA(nullptr, (PSID)sid.data(), szName, &cchName, szDomain, &cchDomain, &use));
         return *szDomain ? std::string(szDomain) + "\\" + szName : std::string(szName);
     }
 
@@ -51,7 +51,7 @@ namespace AccountRightsTests
         TEST_METHOD(DotIsThisComputer)
         {
             // The current user, if it is an account on this computer (not a domain's)
-            HANDLE hToken = NULL;
+            HANDLE hToken = nullptr;
             Assert::IsTrue(!!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken));
             BYTE  rgb[256];
             DWORD cb = 0;
@@ -114,7 +114,7 @@ namespace AccountRightsTests
         TEST_METHOD(AnAccountWithNoRightsAtAll)
         {
             // A SID no account has: the policy has no entry for it
-            PSID psid = NULL;
+            PSID psid = nullptr;
             Assert::IsTrue(!!ConvertStringSidToSidA("S-1-5-21-1-2-3-4242", &psid));
             AccountInfo info;
             info.m_sid.assign((BYTE *)psid, (BYTE *)psid + GetLengthSid(psid));

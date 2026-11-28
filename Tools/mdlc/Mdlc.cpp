@@ -68,7 +68,7 @@ public:
             if (hfind == INVALID_HANDLE_VALUE)
                 continue;
             do {
-                if (AddFontResourceEx((strDir + "\\" + data.cFileName).c_str(), FR_PRIVATE, NULL) != 0)
+                if (AddFontResourceEx((strDir + "\\" + data.cFileName).c_str(), FR_PRIVATE, nullptr) != 0)
                     count++;
                 else
                     printf("mdlc : warning : could not load font %s\\%s\n", strDir.c_str(), data.cFileName);
@@ -194,7 +194,7 @@ public:
     {
         // Unbuffered, so the last line printed before a crash shows how far a
         // batch got (stdout is a pipe under MSBuild, hence fully buffered).
-        setvbuf(stdout, NULL, _IONBF, 0);
+        setvbuf(stdout, nullptr, _IONBF, 0);
 
         if (FAILED(EffectApp::Initialize(strCommandLine + " -software")))
             Fail("engine initialization failed");
@@ -217,7 +217,7 @@ public:
                     Fail("usage: mdlc -batch <file>");
 
                 FILE* f = fopen(strFile.c_str(), "r");
-                if (f == NULL)
+                if (f == nullptr)
                     Fail("cannot open " + strFile);
 
                 char line[4096];

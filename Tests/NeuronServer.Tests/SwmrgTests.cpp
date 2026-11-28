@@ -28,7 +28,7 @@ namespace SWMRGTests
     public:
         TEST_METHOD_INITIALIZE(Create)
         {
-            Assert::IsTrue(FSWMRGInitialize(&m_guard, NULL));
+            Assert::IsTrue(FSWMRGInitialize(&m_guard, nullptr));
         }
 
         TEST_METHOD_CLEANUP(Delete)

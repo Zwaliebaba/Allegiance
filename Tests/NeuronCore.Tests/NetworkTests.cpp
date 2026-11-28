@@ -239,7 +239,7 @@ namespace NetworkTests
             AreEqualStr("::1", strHost);
             Assert::AreEqual(47700, (int)port);
 
-            FedParseHostPort(NULL, 47700, strHost, port);
+            FedParseHostPort(nullptr, 47700, strHost, port);
             AreEqualStr("", strHost);
             Assert::AreEqual(47700, (int)port);
         }
@@ -283,7 +283,7 @@ namespace NetworkTests
             std::unique_ptr<FedMessaging> pserver = std::make_unique<FedMessaging>(&siteServer);
             std::unique_ptr<FedMessaging> pclient = std::make_unique<FedMessaging>(&siteClient);
 
-            HRESULT hr = pserver->HostSession(c_appTest, true, NULL, false);
+            HRESULT hr = pserver->HostSession(c_appTest, true, nullptr, false);
             Assert::IsTrue(SUCCEEDED(hr), Wide("HostSession: " + siteServer.m_strMessageBox).c_str());
 
             hr = pclient->JoinSession(c_appTest, "127.0.0.1:47700", "tester");
