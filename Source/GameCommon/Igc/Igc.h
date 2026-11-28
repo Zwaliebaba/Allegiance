@@ -199,7 +199,7 @@ typedef Slink_utl<DamageBucket*> DamageBucketLink;
 
 typedef short VisualEffectID;
 
-const VisualEffectID effectJiggle = 0;
+const VisualEffectID EFFECT_JIGGLE = 0;
 
 typedef short  TrekKey;
 

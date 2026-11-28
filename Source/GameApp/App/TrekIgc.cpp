@@ -4038,7 +4038,7 @@ void WinTrekClient::PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model, 
     {
         switch (effectID)
         {
-        case effectJiggle:
+        case EFFECT_JIGGLE:
             GetWindow()->SetJiggle(fIntensity);
             break;
         }

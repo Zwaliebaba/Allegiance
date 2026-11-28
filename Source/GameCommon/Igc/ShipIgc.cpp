@@ -871,7 +871,7 @@ void    CshipIGC::HandleCollision(Time                   timeCollision,
 
                 // play the collision effects...
                 igcsite->PlaySoundEffect(collisionSound, this);
-                igcsite->PlayVisualEffect(effectJiggle, this, 2.0f * damage1 * c_impactJiggleCoefficient);
+                igcsite->PlayVisualEffect(EFFECT_JIGGLE, this, 2.0f * damage1 * c_impactJiggleCoefficient);
 
                 pModel->Release();
                 Release();
@@ -1041,10 +1041,10 @@ void    CshipIGC::HandleCollision(Time                   timeCollision,
             }
 
             igcsite->PlaySoundEffect(collisionSound, this);
-            igcsite->PlayVisualEffect(effectJiggle, this, (2.0f * damage1 + damage2) * c_impactJiggleCoefficient);
+            igcsite->PlayVisualEffect(EFFECT_JIGGLE, this, (2.0f * damage1 + damage2) * c_impactJiggleCoefficient);
 
             igcsite->PlaySoundEffect(collisionSound, pModel);
-            igcsite->PlayVisualEffect(effectJiggle, pModel, (damage1 + 2.0f * damage2) * c_impactJiggleCoefficient);
+            igcsite->PlayVisualEffect(EFFECT_JIGGLE, pModel, (damage1 + 2.0f * damage2) * c_impactJiggleCoefficient);
 
             cluster->RecalculateCollisions(tCollision, this, pModel);
 
