@@ -161,7 +161,7 @@ the DCOM admin objects were removed, and then AGC itself; see "Server administra
 |---|---|---|
 | Rendering | DirectDraw 4 + Direct3D 3 (DirectX 6), software rasterizer | D3D11 backend. Stage 1 (below): a D3D11 rasterizer with the engine's CPU transform and lighting. Stage 2: transform and lighting in shaders. Stage 3: HDR, MSAA, bloom, per-pixel lighting and native widescreen |
 | Input | DirectInput 2/7 | DirectInput 8 |
-| Audio | DirectSound / DS3D | Done: XAudio2 2.9 (in Windows 10 and later) with X3DAudio for the pan and doppler (see "Sound" below) |
+| Audio | DirectSound / DS3D | Done: XAudio2 2.9 (in Windows 10 and later) with X3DAudio for the pan and doppler; on headphones a parametric head model, plus a distance low-pass and station reverb (see "Sound: 3D audio for headphones" below) |
 | Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Done: the same `IDiskPlayer` interface plays the WAVs from `Artwork/Music` (copied to `out\Artwork\Music` by `Art.proj`; CD track n is line n - 1 of `tracks.lst`) through the Media Foundation Media Engine, audio only. The music gain sets the player's volume instead of the system mixer's CD line |
 | Networking | DirectPlay 4 inside `FedMessaging` | MsQuic: a reliable ordered stream and unreliable datagrams per connection, plus a UDP probe for LAN discovery (see "Networking" below) |
 | Settings | `HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.0` (and `...\Server`) | A JSON file per program (see "Settings" below) |
@@ -319,6 +319,60 @@ Known gaps:
 - **HUD scale.** The HUD and fonts are drawn at their pixel size, so at 4K they are small. Scaling the UI is a separate change.
 - **Competitive balance.** Hor+ shows 21:9 players more of the sector than 4:3 players.
 - **Not done.** Tearing and VRR without vsync, and specular or emissive maps (the art has none).
+
+#### Sound: 3D audio for headphones
+
+The XAudio2 port kept DirectSound 3D's model: X3DAudio pans each positioned sound over the output speakers
+and gives its doppler, and DirectSound's distance and cone attenuation (`soundengine/soundmath.h`) scale it.
+On 5.1 and 7.1 speakers that already places sounds in front and behind. On headphones, the usual way to play,
+it only pans left and right: a ship behind sounded like one in front, and above like below.
+
+Decisions:
+
+- **Output.** Headphones, and Windows Spatial Sound: with Windows Sonic for Headphones, Dolby Atmos or DTS:X turned on, positioned sounds become its dynamic audio objects (`ISpatialAudioClient`), with height. Otherwise a stereo output gets the head model below.
+- **No measured HRTF.** The game ships no third-party HRTF data. The one set reachable when this was written (MIT KEMAR, from libmysofa) carries "No license provided" in its SOFA metadata. A parametric head model replaces it.
+- **Extras.** A distance low-pass, and reverb while docked. No occlusion.
+- **Verification.** Unit tests for the model and the distance curve. Listening by hand at the end.
+
+| Piece | Before | Now |
+|---|---|---|
+| Stereo output (headphones) | X3DAudio's stereo pan (left-right only) | Each 3D voice runs the head model (`soundengine/spatializer.h`) as an XAudio2 effect (`xa2spatial.cpp`, a plain `IXAPO` without `xapobase.lib`). It takes the voice's one or two channels and gives two, from the sound's direction in the listener's frame (the camera), which `XA2Voice::ApplyOutput` sets every update. The output matrix then only attenuates. Unpositioned sounds pass through: mono to both ears at full level, stereo as it is |
+| The head model | | Woodworth's interaural time difference for an 8.75 cm sphere (up to 0.66 ms); Brown and Duda's head-shadow filter (one pole, one zero; up to +6 dB at high frequencies facing the ear, down to -20 dB on the far side); Brown and Duda's five pinna echoes for elevation, at half their strength (their full comb colours the sound) and summing to unit gain at low frequencies; and a high shelf at 4 kHz that dims sounds behind the listener by up to 6 dB, the strongest front-back cue a model without a measured pinna has. Straight ahead, low frequencies come out at X3DAudio's centre-pan level (-3 dB per ear). Parameters move linearly across each block, so a moving source doesn't click |
+| Windows Spatial Sound on | X3DAudio's 7.1 pan into the virtual 7.1 device | Each positioned sound is a dynamic audio object (`soundengine/xa2objects.cpp`). XAudio2 still decodes, loops, pitches, dopplers and low-passes it: the voice's effect, the last step before the volume, hands the result to the object through a lock-free ring (`spatialstream.h`), with the sound's direction (Windows' frame, +z behind, at a meter) and its gain (the voice's volume and attenuation, as Windows doesn't attenuate). The voice's master output stays silent; its reverb send doesn't. A render thread in the multithreaded apartment owns everything that touches `ISpatialAudioClient`: activation on the default endpoint, a mono float object format, up to 32 dynamic objects, and each pass's buffers, positions and volumes. The mastering voice runs at the objects' rate. The ring keeps two to six object buffers in hand (10 to 60 ms), dropping the oldest beyond six |
+| Spatial sound fallback | | A voice asks for an object the first time it is positioned and keeps its slot until it is destroyed (after `DestroyVoice`, so no effect still writes to a slot another voice reuses). A sound Windows has no object for (other applications may hold them), or every sound once the stream stops (the endpoint changes, spatial sound is turned off), plays the other ways: the head model on stereo, X3DAudio's pan otherwise. `"WindowsSpatialSound": 0` turns it off. Unpositioned sounds always stay in XAudio2's mix |
+| More channels | X3DAudio's pan | Unchanged for 5.1 and 7.1 speakers without spatial sound |
+| Stereo speakers | | The head model's crosstalk is wrong on speakers. `"HeadphoneSpatialization": 0` in `settings.json` goes back to X3DAudio's stereo pan |
+| Distance | Attenuation only | Also XAudio2's low-pass (state-variable, Butterworth) on 3D voices: open up to the sound's minimum distance, then 20 kHz times (minimum / distance)^0.6 (about 5 kHz at ten times it), never below 2 kHz (`DistanceCutoff`) |
+| Stations | Dry | Every voice also sends to a reverb submix voice (XAudio2's reverb, the I3DL2 "large room" preset, fully wet), at its attenuated level. `ISoundEngine::SetReverb` sets the submix level, which fades over about a second; the client sets 0.35 while the ship is docked and 0 in space |
+
+The constants (pinna strength, rear cut, output gain, the distance curve, the reverb preset and level) are
+at the top of `spatializer.h` and `soundmath.h`, and in `xa2reverb.cpp` and `WinTrek.cpp`, chosen without
+listening, and are the first thing to tune.
+
+How it was checked: CI builds it and runs the unit tests (`HeadModelTests.cpp`: the time difference, the
+level difference rising with frequency, the mirror image, the centre-pan level, front-back, elevation, the
+pass-through, a moving source, the tail; `SpatialStreamTests.cpp`: the ring's margin, running dry, falling
+behind, the mono mix, the pose, and a writer and a reader on two threads; `SoundTests.cpp`: the distance
+curve). They were also run natively on Linux, the ring's under ThreadSanitizer. The XAPO, the reverb and the
+spatial sound renderer were checked against the mingw-w64 headers where they have the types, not by running
+them.
+
+To check when listening, on headphones:
+
+- A ship circling you: it should move around your head, with behind duller than in front, not jump from side to side.
+- Above and below (for example in the command view, or climbing past a station): a difference, if subtle. Elevation is the model's weakest cue.
+- No clicks or zipper noise when sounds or the camera move fast, and no change in loudness overall compared with before.
+- Distant explosions and engines duller than near ones.
+- Docking: the hangar and station sounds gain a room, and launching returns to dry space.
+- With `"HeadphoneSpatialization": 0`: the old stereo pan.
+
+With Windows Sonic for Headphones (or Atmos or DTS:X) turned on:
+
+- The debug log should report "Windows Spatial Sound: n dynamic objects at 48000 Hz" and "XAudio2: ... Windows Spatial Sound".
+- Sounds around and above and below you, with a clearer height than the head model; no gaps or crackle when many sounds play (a sound Windows has no object for falls back to the pan, which may sound different).
+- Latency: weapons fire against the visual, which should feel as before (the hand-over adds 10 to 60 ms).
+- Turning spatial sound off, or unplugging the headphones, mid-game: the sounds keep playing, through the head model or the pan (sounds started before the change keep their voice's way until they end).
+- With `"WindowsSpatialSound": 0`: the head model or the pan, as without spatial sound.
 
 #### Networking: MsQuic replaces DirectPlay
 

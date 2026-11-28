@@ -28,13 +28,19 @@ inline void ZAssertIsUnitVector(const Vector& vect)
 // device goes after the last voice.
 //
 
+class SpatialObjects;
+
 class XA2Device : public IObject
 {
 public:
     IXAudio2*               m_pxaudio2;
     IXAudio2MasteringVoice* m_pmaster;
+    IXAudio2SubmixVoice*    m_preverb;          // the station reverb, or NULL
     DWORD                   m_dwChannelMask;
     UINT32                  m_nChannels;
+    UINT32                  m_nSampleRate;
+    bool                    m_bHeadphones;      // stereo output: positioned sounds go through the head model
+    TRef<SpatialObjects>    m_pobjects;         // Windows Spatial Sound, when it's on
     unsigned char           m_x3daudio[c_cbX3DHandle];
 
     // set by the engine before the sounds update
@@ -53,6 +59,9 @@ public:
     // X3DAudio takes the speed of sound in game units, which the distance
     // factor gives
     void SetDistanceFactor(float fMetersPerUnit);
+
+    // The station reverb's level, 0 (off) to 1
+    void SetReverbLevel(float fLevel);
 };
 
 
@@ -72,6 +81,11 @@ class XA2Voice : public ISoundObject  SoundDebugImpl
     IXAudio2SourceVoice*                    m_pvoice;
 
     unsigned m_nChannels;
+    unsigned m_nOutChannels;    // into the output matrix: the effect's two, or the sound's own
+    bool     m_bSpatial;        // the voice has the 3D effect (head model, spatial sound hand-over)
+    int      m_nSlot;           // its Windows Spatial Sound slot, or -1; kept until the voice goes
+    bool     m_bSlotTried;      // a slot was asked for once (one per voice)
+    float    m_fFilter;         // the distance low-pass, as last set (XAudio2's radians)
     unsigned m_nBlockAlign;
     unsigned m_nLength;         // samples
     bool     m_bLooping;

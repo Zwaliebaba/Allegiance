@@ -5808,6 +5808,18 @@ public:
         }
         CheckCountdownSound();
 
+        //
+        // Room reverb while docked (the station screens); open space is dry.
+        // The sound engine fades between the two.
+        //
+
+        if (m_pSoundEngine) {
+            const float c_fStationReverb = 0.35f;
+
+            IshipIGC* pship = trekClient.GetShip();
+            m_pSoundEngine->SetReverb(pship != NULL && pship->GetStation() != NULL ? c_fStationReverb : 0.0f);
+        }
+
         // receive network messages
         trekClient.m_lastUpdate  = m_timeLastFrame;
         trekClient.m_now         = time;

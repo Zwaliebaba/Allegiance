@@ -130,6 +130,8 @@ XA2SoundEngine::XA2SoundEngine() :
     m_fRolloffFactor(1.0f),
     m_fDopplerFactor(1.0f),
     m_fDistanceFactor(1.0f),
+    m_fReverb(0.0f),
+    m_fReverbTarget(0.0f),
     m_nNumBuffersDesired(16),
     m_nNumBuffersMax(24)
 {
@@ -284,6 +286,21 @@ HRESULT XA2SoundEngine::Update()
         };
     }
 
+    //
+    // The room reverb fades in and out over about a second
+    //
+
+    if (m_fReverb != m_fReverbTarget && m_pdevice)
+    {
+        float fStep = dwUpdatePeriod / 1000.0f;
+
+        m_fReverb = m_fReverb < m_fReverbTarget
+            ? min(m_fReverb + fStep, m_fReverbTarget)
+            : max(m_fReverb - fStep, m_fReverbTarget);
+
+        m_pdevice->SetReverbLevel(m_fReverb);
+    }
+
     m_dwLastUpdateTime = dwUpdateTime;
 
     return S_OK;
@@ -406,6 +423,20 @@ HRESULT XA2SoundEngine::SetDopplerFactor(float fDopplerFactor)
     };
 
     m_fDopplerFactor = fDopplerFactor;
+    return S_OK;
+}
+
+
+// Sets how much of the room reverb is heard, 0 to 1
+HRESULT XA2SoundEngine::SetReverb(float fLevel)
+{
+    if (fLevel < 0.0f || fLevel > 1.0f)
+    {
+        ZAssert(false);
+        return E_INVALIDARG;
+    }
+
+    m_fReverbTarget = fLevel;
     return S_OK;
 }
 
