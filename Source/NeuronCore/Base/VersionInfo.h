@@ -30,10 +30,10 @@ class ZVersionInfo
 public:
   ZVersionInfo(bool);
   ZVersionInfo(LPCTSTR szModule);
-  ZVersionInfo(HINSTANCE hinstance = NULL);
+  ZVersionInfo(HINSTANCE hinstance = nullptr);
   virtual ~ZVersionInfo();
   bool Load(LPCTSTR szModule);
-  bool Load(HINSTANCE hinstance = NULL);
+  bool Load(HINSTANCE hinstance = nullptr);
   bool Load(const void* pvVerInfo, UINT cbVerInfo);
   void Unload();
 
@@ -111,19 +111,19 @@ public:
   LANGID GetLanguageID    () const;
   void   SetCodePage      (WORD wCodePage = -1);
   WORD   GetCodePage      () const;
-  ZString GetStringValue(LPCTSTR pszKey, bool* pbExists = NULL) const;
+  ZString GetStringValue(LPCTSTR pszKey, bool* pbExists = nullptr) const;
 
   // Common String Values
-  ZString GetCompanyName     (bool* pbExists = NULL) const;
-  ZString GetFileDescription (bool* pbExists = NULL) const;
-  ZString GetFileVersion     (bool* pbExists = NULL) const;
-  ZString GetInternalName    (bool* pbExists = NULL) const;
-  ZString GetLegalCopyright  (bool* pbExists = NULL) const;
-  ZString GetOriginalFilename(bool* pbExists = NULL) const;
-  ZString GetProductName     (bool* pbExists = NULL) const;
-  ZString GetProductVersion  (bool* pbExists = NULL) const;
-  ZString GetSpecialBuild    (bool* pbExists = NULL) const;
-  ZString GetOLESelfRegister (bool* pbExists = NULL) const;
+  ZString GetCompanyName     (bool* pbExists = nullptr) const;
+  ZString GetFileDescription (bool* pbExists = nullptr) const;
+  ZString GetFileVersion     (bool* pbExists = nullptr) const;
+  ZString GetInternalName    (bool* pbExists = nullptr) const;
+  ZString GetLegalCopyright  (bool* pbExists = nullptr) const;
+  ZString GetOriginalFilename(bool* pbExists = nullptr) const;
+  ZString GetProductName     (bool* pbExists = nullptr) const;
+  ZString GetProductVersion  (bool* pbExists = nullptr) const;
+  ZString GetSpecialBuild    (bool* pbExists = nullptr) const;
+  ZString GetOLESelfRegister (bool* pbExists = nullptr) const;
 
   // Raw Data Access
   const BYTE*             GetVerInfo    () const;

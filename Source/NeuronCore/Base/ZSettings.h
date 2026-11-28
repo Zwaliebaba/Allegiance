@@ -89,22 +89,22 @@ namespace ZSettings
 
     inline DWORD GetDWORD(const char* szName, DWORD dwDefault)
     {
-        return Get().GetDWORD(NULL, szName, dwDefault);
+        return Get().GetDWORD(nullptr, szName, dwDefault);
     }
 
     inline std::string GetString(const char* szName, const char* szDefault)
     {
-        return Get().GetString(NULL, szName, szDefault);
+        return Get().GetString(nullptr, szName, szDefault);
     }
 
     inline void SetDWORD(const char* szName, DWORD dwValue)
     {
-        Get().SetDWORD(NULL, szName, dwValue);
+        Get().SetDWORD(nullptr, szName, dwValue);
     }
 
     inline void SetString(const char* szName, const char* szValue)
     {
-        Get().SetString(NULL, szName, szValue);
+        Get().SetString(nullptr, szName, szValue);
     }
 }
 

@@ -38,10 +38,10 @@ KDnode::KDnode(KDnode*          parent)
     m_pivotValue(0.0f),
     m_nHitTests(0),
     m_maxHitTests(0),
-    m_ppHitTests(NULL)
+    m_ppHitTests(nullptr)
 {
-    m_ppEndpoints[0] = NULL;
-    m_children[0] = m_children[1] = NULL;
+    m_ppEndpoints[0] = nullptr;
+    m_children[0] = m_children[1] = nullptr;
 }
 
 KDnode::~KDnode(void)

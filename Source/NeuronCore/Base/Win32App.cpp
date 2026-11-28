@@ -13,13 +13,13 @@
 static void LogAssertCallStack()
 {
     void*  frames[48];
-    USHORT count = CaptureStackBackTrace(2, ARRAYSIZE(frames), frames, NULL); // skip this and OnAssert
+    USHORT count = CaptureStackBackTrace(2, ARRAYSIZE(frames), frames, nullptr); // skip this and OnAssert
 
     HANDLE      hProcess     = GetCurrentProcess();
     static bool s_bSymbols   = false;
     if (!s_bSymbols) {
         SymSetOptions(SYMOPT_UNDNAME | SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS);
-        s_bSymbols = SymInitialize(hProcess, NULL, TRUE) != FALSE;
+        s_bSymbols = SymInitialize(hProcess, nullptr, TRUE) != FALSE;
     }
 
     ZDebugOutput("call stack:\n");
@@ -85,7 +85,7 @@ void ZDebugOutputImpl(const char *psz)
     else
         ::OutputDebugStringA(psz);
 }
-HANDLE g_logfile = NULL;
+HANDLE g_logfile = nullptr;
 
 void retailf(const char* format, ...)
 {
@@ -293,7 +293,7 @@ void Win32App::DebugOutput(const char *psz)
 
         if (g_logfile) {
             DWORD nBytes;
-            ::WriteFile(g_logfile, psz, strlen(psz), &nBytes, NULL);
+            ::WriteFile(g_logfile, psz, strlen(psz), &nBytes, nullptr);
         }
     #endif
 }
@@ -332,7 +332,7 @@ void Win32App::OnAssertBreak()
     // Cause an exception
     //
 
-    (*(int*)0) = 0;
+    (*(int*)nullptr) = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -383,7 +383,7 @@ __declspec(dllexport) int WINAPI Win32Main(HINSTANCE hInstance, HINSTANCE hPrevI
     // seed the random number generator with the current time
     // (GetTickCount may be semi-predictable on server startup, so we add the 
     // clock time to shake things up a bit)
-    srand(GetTickCount() + time(NULL));
+    srand(GetTickCount() + time(nullptr));
 
     // shift the stack locals and the heap by a random amount.            
     char* pzSpacer = new char[4 * (int)random(21, 256)];

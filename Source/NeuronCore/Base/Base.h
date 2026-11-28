@@ -27,7 +27,7 @@ protected:
     HANDLE m_handle;
 
 public:
-    WaitableObject(HANDLE handle = NULL) :
+    WaitableObject(HANDLE handle = nullptr) :
         m_handle(handle)
     {}
 
@@ -93,7 +93,7 @@ public:
 
 class Event : public WaitableObject {
 public:
-    Event() : WaitableObject(CreateEvent(NULL, FALSE, FALSE, NULL))
+    Event() : WaitableObject(CreateEvent(nullptr, FALSE, FALSE, nullptr))
     {}
 
     void Set()   { SetEvent(m_handle); }

@@ -46,7 +46,7 @@ public:
         int nCount = 0;
 // VSNet 2003 port: resolve error C2475
 #if _MSC_VER >= 1300
-        for (Slink_utl<T, ListEventSource>* link = this->first(); link != NULL; link = (link->next)())
+        for (Slink_utl<T, ListEventSource>* link = this->first(); link != nullptr; link = (link->next)())
 #else
         for (Slink_utl<T, ListEventSource>* link = this->first(); link != NULL; link = link->next)
 #endif
@@ -65,7 +65,7 @@ public:
         int nIndex = 0;
 // VSNet 2003 port: resolve error C2475
 #if _MSC_VER >= 1300
-        for (Link* link = this->first(); link != NULL; link = (link->next)())
+        for (Link* link = this->first(); link != nullptr; link = (link->next)())
 #else
         for (Link* link = this->first(); link != NULL; link = link->next)
 #endif
@@ -156,7 +156,7 @@ public:
     ItemID        GetItem(int index) override
     {
         if (index < 0 || index >= GetCount())
-            return NULL;
+            return nullptr;
         else
             return (ItemID)((*this)[index]);
     }
@@ -185,13 +185,13 @@ public:
                 iter.Next();
 
                 if (iter.End())
-                    return NULL;
+                    return nullptr;
                 else
                     return (ItemID)iter.Value();
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     IEventSource* GetChangedEvent() override
@@ -232,7 +232,7 @@ public:
         }
 
         if (iter.End())
-            return NULL;
+            return nullptr;
         else
             return (ItemID)iter.Value();
     }
@@ -261,13 +261,13 @@ public:
                 iter.Next();
 
                 if (iter.End())
-                    return NULL;
+                    return nullptr;
                 else
                     return (ItemID)iter.Value();
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     IEventSource* GetChangedEvent() override
@@ -308,7 +308,7 @@ public:
         int nCount = 0;
         ItemID currentItem = m_list->GetItem(0);
 
-        while (currentItem != NULL)
+        while (currentItem != nullptr)
         {
             if (m_filter(currentItem))
                 nCount++;
@@ -323,7 +323,7 @@ public:
         int nCurrentIndex = 0;
         ItemID currentItem = m_list->GetItem(0);
 
-        while (currentItem != NULL)
+        while (currentItem != nullptr)
         {
             if (m_filter(currentItem))
             {
@@ -344,7 +344,7 @@ public:
         int nIndex = 0;
         ItemID currentItem = m_list->GetItem(0);
 
-        while (currentItem != NULL)
+        while (currentItem != nullptr)
         {
             if (m_filter(currentItem))
             {
@@ -363,7 +363,7 @@ public:
     {
         ItemID currentItem = m_list->GetNext(pitem);
 
-        while (currentItem != NULL)
+        while (currentItem != nullptr)
         {
             if (m_filter(currentItem))
             {
@@ -372,7 +372,7 @@ public:
             currentItem = m_list->GetNext(currentItem);
         }
 
-        return NULL;
+        return nullptr;
     }
 
     IEventSource* GetChangedEvent() override
@@ -395,7 +395,7 @@ private:
 
 public:
 
-    ListDelegate(List* plist, IObject* pcontainer = NULL)
+    ListDelegate(List* plist, IObject* pcontainer = nullptr)
         : m_plist(plist), m_pcontainer(pcontainer) {}
 
     int           GetCount() override
@@ -492,12 +492,12 @@ public:
         // case 1: pitem and pitem->next are in list1
         ItemID next = m_list1->GetNext(pitem);
 
-        if (next == NULL)
+        if (next == nullptr)
         {
             // case 2: pitem and pitem->next are in list2
             next = m_list2->GetNext(pitem);
 
-            if ((next == NULL) && (m_list1->GetIndex(pitem) != -1))
+            if ((next == nullptr) && (m_list1->GetIndex(pitem) != -1))
             {
                 // case 3: pitem is in list1, pitem next is in list2
                 next = m_list2->GetItem(0);
@@ -592,7 +592,7 @@ public:
         }
 
         if (iter.End())
-            return NULL;
+            return nullptr;
         else
             return (ItemID)iter.Value();
     }
@@ -624,13 +624,13 @@ public:
                 iter.Next();
 
                 if (iter.End())
-                    return NULL;
+                    return nullptr;
                 else
                     return (ItemID)iter.Value();
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     IEventSource* GetChangedEvent() override
@@ -661,7 +661,7 @@ class SingletonList : public List
 
 public:
 
-    SingletonList(ItemID itemID = NULL)
+    SingletonList(ItemID itemID = nullptr)
         : m_itemID(itemID)
     {
     }
@@ -686,7 +686,7 @@ public:
         if (index == 0)
             return m_itemID;
         else
-            return NULL;
+            return nullptr;
     }
 
     int           GetIndex(ItemID pitem) override
@@ -699,7 +699,7 @@ public:
 
     ItemID        GetNext(ItemID pitem) override
     {
-        return NULL;
+        return nullptr;
     }
 
     IEventSource* GetChangedEvent() override

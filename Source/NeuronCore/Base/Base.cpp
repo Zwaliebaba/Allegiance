@@ -34,7 +34,7 @@ bool IsWindows9x()
 ////////////////////////////////////////////////////////////////////////////////
 
 ZFile::ZFile(const PathString& strPath, DWORD how) : 
-    m_p(NULL)
+    m_p(nullptr)
 {
     OFSTRUCT rob;
     // An HFILE is a file handle in 32 bits; HFILE_ERROR (-1) sign-extends
@@ -59,7 +59,7 @@ DWORD ZFile::Read(void* p, DWORD length)
 {
     DWORD cbActual;
 
-    ReadFile(m_handle, p, length, (LPDWORD)&cbActual, NULL);
+    ReadFile(m_handle, p, length, (LPDWORD)&cbActual, nullptr);
     return cbActual;
 }
 
@@ -67,7 +67,7 @@ DWORD ZFile::Write(void* p, DWORD length)
 {
     DWORD cbActual;
 
-    WriteFile(m_handle, p, length, (LPDWORD)&cbActual, NULL);
+    WriteFile(m_handle, p, length, (LPDWORD)&cbActual, nullptr);
 
     ZAssert(cbActual == length);
 
@@ -124,24 +124,24 @@ bool ZFile::Write(float value)
 
 int ZFile::GetLength()
 {
-    return GetFileSize(m_handle, NULL);
+    return GetFileSize(m_handle, nullptr);
 }
 
 BYTE* ZFile::GetPointer(bool bWrite, bool bCopyOnWrite)
 {
     ZAssert(!bWrite || !bCopyOnWrite);
 
-    if (m_p == NULL) {
+    if (m_p == nullptr) {
         m_hfileMapping = 
             CreateFileMapping(
                 m_handle,
-                0,
+                nullptr,
                 bWrite
                     ? PAGE_READWRITE
                     : PAGE_READONLY,
                 0,
                 0,
-                NULL
+                nullptr
             );
 
         ZAssert(m_hfileMapping != NULL);
