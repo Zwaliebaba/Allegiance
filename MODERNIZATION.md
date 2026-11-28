@@ -1130,6 +1130,15 @@ buoys and chaff out of the client's visibility pass, but `const` by mistake, so 
 the pass hides and shows them like everything else. Fixing it would make them always visible, a
 fog-of-war change to try in play first.
 
+#### NULL to nullptr (done)
+
+clang-tidy's `modernize-use-nullptr` fix-its: 3,571 null pointer constants (`NULL`, and 45 literal `0`s used
+as pointers) on 3,419 lines are `nullptr`, one `Mechanical:` commit per library (NeuronCore, NeuronClient,
+NeuronServer, GameCommon, GameLogic, GameApp, and the executables, tests and tools together). A script checked
+that every changed line differs from the old one only in those constants. `NULL` inside macro definitions, and
+where an integer is meant, is left alone, as the check leaves it; so are the few files clang could not parse
+on Linux (those using Media Foundation, X3DAudio and MsQuic headers mingw-w64 lacks).
+
 #### Unit tests and AddressSanitizer
 
 Each library has a Microsoft CppUnitTest project, `Tests/<Library>.Tests` (a DLL that links the
