@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "d3d11engine.h"
+#include "alphacoverage.h"
 #include "dds.h"
 
 #include "present_vs.h"
@@ -493,6 +494,14 @@ public:
                 vmips[level - 1].data(),
                 sizeLevel.X() * 4
             );
+        }
+
+        //
+        // A cut-out's mip levels keep its coverage (alphacoverage.h)
+        //
+
+        if (bColorKey) {
+            AlphaCoverage::PreserveCoverage(m_vconvert.data(), size.X() * size.Y(), vmips);
         }
 
         if (entry.m_ptexture != NULL && entry.m_size == size && entry.m_mipLevels == mipLevels && mipLevels == 1) {

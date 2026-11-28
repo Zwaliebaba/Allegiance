@@ -13,6 +13,7 @@
 #include "tl_ps_flat.h"
 #include "scene_vs.h"
 #include "scene_ps.h"
+#include "scene_ps_ms.h"
 #include "bloom_down_ps.h"
 #include "bloom_up_ps.h"
 
@@ -53,8 +54,11 @@ public:
 
     TRef<ID3D11Texture2D>           m_pcolor;       // RGBA16F, m_samples
     TRef<ID3D11RenderTargetView>    m_prtv;
+    TRef<ID3D11ShaderResourceView>  m_psrvSamples;  // m_pcolor's samples, for the composite (if multisampled)
     TRef<ID3D11Texture2D>           m_pdepth;       // D32F, m_samples
     TRef<ID3D11DepthStencilView>    m_pdsv;
+    TRef<ID3D11DepthStencilView>    m_pdsvReadOnly; // for the replayed blended draws (feature level 11),
+    TRef<ID3D11ShaderResourceView>  m_psrvDepth;    // which read the depth through this
     TRef<ID3D11Texture2D>           m_presolve;     // RGBA16F, one sample
     TRef<ID3D11ShaderResourceView>  m_psrv;
 
@@ -102,6 +106,13 @@ const float c_bloomKnee      = 0.5f;
 const float c_bloomStrength  = 0.35f;
 
 //
+// Soft particles: a replayed blended draw fades out over this view distance
+// in front of the geometry behind it (world units; a fighter is about 10)
+//
+
+const float c_softDistance = 3.0f;
+
+//
 // Pipeline objects shared by every rasterizer, re-created with the device
 //
 
@@ -144,9 +155,11 @@ struct Pipeline {
     //
 
     TRef<ID3D11BlendState>         m_pblendScene[3];    // BlendMode
+    TRef<ID3D11BlendState>         m_pblendSceneCoverage; // opaque cut-outs: alpha to coverage
     TRef<ID3D11BlendState>         m_pblendComposite;
     TRef<ID3D11VertexShader>       m_pvsScene;
     TRef<ID3D11PixelShader>        m_ppsScene;
+    TRef<ID3D11PixelShader>        m_ppsSceneMS;        // 4 samples, tonemapped one by one
     TRef<ID3D11Buffer>             m_pcbScene;
     TRef<ID3D11PixelShader>        m_ppsBloomDown;
     TRef<ID3D11PixelShader>        m_ppsBloomUp;
@@ -154,6 +167,7 @@ struct Pipeline {
     TRef<ID3D11BlendState>         m_pblendBloomAdd;
     TRef<ID3D11SamplerState>       m_psamplerClamp;     // linear, clamped: bloom
     int                            m_samplesScene;
+    bool                           m_bSoftParticles;    // the scene depth can be read while bound (feature level 11)
     std::vector<TRef<SceneTarget>> m_vscenes;
 
     Pipeline() :
@@ -161,7 +175,8 @@ struct Pipeline {
         m_generation(-1),
         m_vbCapacity(0),
         m_ibCapacity(0),
-        m_samplesScene(1)
+        m_samplesScene(1),
+        m_bSoftParticles(false)
     {
     }
 };
@@ -287,6 +302,31 @@ bool CreatePipeline(D3D11Device* pdevice)
         if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendScene[mode]))) return false;
     }
 
+    //
+    // Opaque cut-outs (colour-keyed model textures) in a multisampled scene:
+    // the shader's alpha says how many of a pixel's samples the surface
+    // covers, so a cut-out's edge is antialiased like a triangle's. The
+    // samples it covers are opaque: colour as it is, alpha from the blend
+    // factor (the default, 1), not from the shader.
+    //
+
+    {
+        D3D11_BLEND_DESC desc = {};
+        desc.AlphaToCoverageEnable = TRUE;
+
+        D3D11_RENDER_TARGET_BLEND_DESC& rt = desc.RenderTarget[0];
+        rt.BlendEnable           = TRUE;
+        rt.SrcBlend              = D3D11_BLEND_ONE;
+        rt.DestBlend             = D3D11_BLEND_ZERO;
+        rt.BlendOp               = D3D11_BLEND_OP_ADD;
+        rt.SrcBlendAlpha         = D3D11_BLEND_BLEND_FACTOR;
+        rt.DestBlendAlpha        = D3D11_BLEND_ZERO;
+        rt.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+        rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+        if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendSceneCoverage))) return false;
+    }
+
     {
         D3D11_BLEND_DESC desc = {};
         D3D11_RENDER_TARGET_BLEND_DESC& rt = desc.RenderTarget[0];
@@ -305,6 +345,7 @@ bool CreatePipeline(D3D11Device* pdevice)
 
     if (FAILED(pd3d->CreateVertexShader(g_scene_vs, sizeof(g_scene_vs), NULL, &p.m_pvsScene))) return false;
     if (FAILED(pd3d->CreatePixelShader (g_scene_ps, sizeof(g_scene_ps), NULL, &p.m_ppsScene))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_scene_ps_ms, sizeof(g_scene_ps_ms), NULL, &p.m_ppsSceneMS))) return false;
 
     if (FAILED(pd3d->CreatePixelShader(g_bloom_down_ps, sizeof(g_bloom_down_ps), NULL, &p.m_ppsBloomDown))) return false;
     if (FAILED(pd3d->CreatePixelShader(g_bloom_up_ps,   sizeof(g_bloom_up_ps),   NULL, &p.m_ppsBloomUp  ))) return false;
@@ -368,6 +409,13 @@ bool CreatePipeline(D3D11Device* pdevice)
             p.m_samplesScene = 4;
         }
     }
+
+    //
+    // Read-only depth views, which a draw can test against while it reads
+    // the depth as a texture, need feature level 11
+    //
+
+    p.m_bSoftParticles = pd3d->GetFeatureLevel() >= D3D_FEATURE_LEVEL_11_0;
 
     //
     // Depth: ZENABLE off means neither test nor write, as in DirectX 6
@@ -510,17 +558,44 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
     td.SampleDesc.Count   = pscene->m_samples;
     td.SampleDesc.Quality = 0;
     td.Usage              = D3D11_USAGE_DEFAULT;
-    td.BindFlags          = D3D11_BIND_RENDER_TARGET;
+    td.BindFlags          = D3D11_BIND_RENDER_TARGET | (pscene->m_samples > 1 ? D3D11_BIND_SHADER_RESOURCE : 0);
 
     HRESULT hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_pcolor);
     if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_pcolor, NULL, &pscene->m_prtv);
+    if (SUCCEEDED(hr) && pscene->m_samples > 1) hr = pd3d->CreateShaderResourceView(pscene->m_pcolor, NULL, &pscene->m_psrvSamples);
+
+    //
+    // The depth, readable by the replayed blended draws where the device
+    // allows it: typeless, with a depth view, a read-only one and a texture
+    // view
+    //
+
+    bool bReadable = p.m_bSoftParticles;
+    bool bSamples  = pscene->m_samples > 1;
 
     if (SUCCEEDED(hr)) {
-        td.Format    = c_formatSceneDepth;
-        td.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        td.Format    = bReadable ? DXGI_FORMAT_R32_TYPELESS : c_formatSceneDepth;
+        td.BindFlags = D3D11_BIND_DEPTH_STENCIL | (bReadable ? D3D11_BIND_SHADER_RESOURCE : 0);
         hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_pdepth);
     }
-    if (SUCCEEDED(hr)) hr = pd3d->CreateDepthStencilView(pscene->m_pdepth, NULL, &pscene->m_pdsv);
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC dsvd = {};
+    dsvd.Format        = c_formatSceneDepth;
+    dsvd.ViewDimension = bSamples ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
+
+    if (SUCCEEDED(hr)) hr = pd3d->CreateDepthStencilView(pscene->m_pdepth, &dsvd, &pscene->m_pdsv);
+
+    if (SUCCEEDED(hr) && bReadable) {
+        dsvd.Flags = D3D11_DSV_READ_ONLY_DEPTH;
+        hr = pd3d->CreateDepthStencilView(pscene->m_pdepth, &dsvd, &pscene->m_pdsvReadOnly);
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC srvd = {};
+        srvd.Format              = DXGI_FORMAT_R32_FLOAT;
+        srvd.ViewDimension       = bSamples ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
+        srvd.Texture2D.MipLevels = 1;
+
+        if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_pdepth, &srvd, &pscene->m_psrvDepth);
+    }
 
     if (SUCCEEDED(hr)) {
         td.Format           = c_formatScene;
@@ -629,6 +704,34 @@ private:
     bool                           m_bStateChanged;
     DWORD                          m_flagsBound;
 
+    //
+    // Blended draws in a scene, deferred until its opaque geometry is drawn
+    // (see Defer): each with the state it was drawn in and a copy of its
+    // vertices
+    //
+
+    struct DeferredDraw {
+        ShadeMode                  m_shadeMode;
+        BlendMode                  m_blendMode;
+        CullMode                   m_cullMode;
+        bool                       m_bLinearFilter;
+        bool                       m_bColorKey;
+        TRef<Surface>              m_psurfaceTexture;
+        Rect                       m_rectClip;
+
+        D3D11_PRIMITIVE_TOPOLOGY   m_topology;
+        bool                       m_bModel;        // DrawModel's, with m_tl; else screen vertices
+        bool                       m_bNormal;
+        int                        m_stride;
+        TransformAndLight          m_tl;
+        std::vector<BYTE>          m_vvertex;
+        std::vector<MeshIndex>     m_vindex;
+    };
+
+    std::vector<DeferredDraw>      m_vdeferred;
+    bool                           m_bReplaying;
+    float                          m_sceneDepth[2];   // the scene's depth to view distance, from its model draws
+
 public:
     D3D11RasterizerImpl(PrivateSurface* psurface) :
         m_psurface(psurface),
@@ -644,8 +747,12 @@ public:
         m_bLinearFilter(true),
         m_bColorKey(true),
         m_bStateChanged(true),
-        m_flagsBound(0xffffffff)
+        m_flagsBound(0xffffffff),
+        m_bReplaying(false)
     {
+        m_sceneDepth[0] = 0;
+        m_sceneDepth[1] = 0;
+
         CastTo(m_pengine, psurface->GetEngine());
 
         WinPoint size = psurface->GetSize();
@@ -674,6 +781,7 @@ public:
             m_pscene = NULL;
         }
 
+        m_vdeferred.clear();
         m_ptarget   = NULL;
         m_prtvBound = NULL;
     }
@@ -734,6 +842,7 @@ public:
         ) {
             m_pscene->m_bInUse = false;
             m_pscene = NULL;
+            m_vdeferred.clear();
         }
 
         if (m_pscene == NULL && !D3D11EnsureDepth(pdevice, ptarget)) {
@@ -815,13 +924,43 @@ public:
         bool  bFlat   = !bPoints && m_shadeMode == ShadeModeFlat;
         bool  bDecal  = m_shadeMode == ShadeModeNone || m_shadeMode == ShadeModeCopy;
         bool  bBlend  = !bPoints && m_blendMode != BlendModeSource;
+
+        //
+        // An opaque cut-out in a multisampled scene: alpha to coverage
+        //
+
+        bool  bCoverage =
+               !bPoints
+            && !bBlend
+            && m_bColorKey
+            && psrv != NULL
+            && m_pscene != NULL
+            && m_pscene->m_samples > 1;
+
         DWORD flags   =
               (psrv != NULL       ? 1 : 0)
             | (bDecal             ? 2 : 0)
             | (m_bColorKey        ? 4 : 0)
             | (bKeyBlack          ? 8 : 0)
             | (bBlend             ? 16 : 0)
-            | (m_pscene != NULL   ? 32 | 64 : 0);
+            | (m_pscene != NULL   ? 32 | 64 : 0)
+            | (bCoverage          ? 128 : 0);
+
+        //
+        // A replayed blended draw fades against the scene's depth, which it
+        // reads through the read-only view the replay bound
+        //
+
+        bool bSoft =
+               m_bReplaying
+            && bBlend
+            && m_pscene != NULL
+            && m_pscene->m_psrvDepth != NULL
+            && m_sceneDepth[1] != 0;
+
+        if (bSoft) {
+            flags |= 256 | (m_pscene->m_samples > 1 ? 512 : 0);
+        }
 
         if (flags != m_flagsBound) {
             D3D11_MAPPED_SUBRESOURCE mapped;
@@ -830,12 +969,14 @@ public:
                 float* pf = (float*)mapped.pData;
                 pf[0] = 2.0f / m_sizeTarget.X();
                 pf[1] = 2.0f / m_sizeTarget.Y();
-                pf[2] = 0;
-                pf[3] = 0;
+                pf[2] = m_sceneDepth[0];
+                pf[3] = m_sceneDepth[1];
+
+                float softDistance = c_softDistance;
 
                 DWORD* pdw = (DWORD*)(pf + 4);
                 pdw[0] = flags;
-                pdw[1] = 0;
+                memcpy(&pdw[1], &softDistance, sizeof(float));
                 pdw[2] = 0;
                 pdw[3] = 0;
 
@@ -859,9 +1000,14 @@ public:
             pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
             pcontext->RSSetState(p.m_praster[0]);
         } else {
-            pcontext->OMSetBlendState(pblend[m_blendMode], NULL, 0xffffffff);
+            pcontext->OMSetBlendState(bCoverage ? (ID3D11BlendState*)p.m_pblendSceneCoverage : (ID3D11BlendState*)pblend[m_blendMode], NULL, 0xffffffff);
+            //
+            // Replayed blended draws write no depth: they are see-through,
+            // and the depth may be bound read-only
+            //
+
             pcontext->OMSetDepthStencilState(
-                (m_pscene != NULL ? p.m_pdepthScene : p.m_pdepth)[m_bZTest ? 1 : 0][m_bZWrite ? 1 : 0],
+                (m_pscene != NULL ? p.m_pdepthScene : p.m_pdepth)[m_bZTest ? 1 : 0][m_bZWrite && !m_bReplaying ? 1 : 0],
                 0
             );
 
@@ -985,6 +1131,10 @@ public:
         m_bSceneDrawn   = false;
         m_bStateChanged = true;
         m_prtvBound     = NULL;   // rebind to the scene
+
+        m_vdeferred.clear();
+        m_sceneDepth[0] = 0;
+        m_sceneDepth[1] = 0;
     }
 
     void End3DLayer()
@@ -992,6 +1142,8 @@ public:
         if (m_pscene == NULL) {
             return;
         }
+
+        FlushDeferred();
 
         TRef<SceneTarget> pscene = m_pscene;
 
@@ -1074,8 +1226,16 @@ public:
 
         ID3D11Buffer*             pcb      = p.m_pcbScene;
         ID3D11SamplerState*       psampler = p.m_psamplerClamp;
+        //
+        // A multisampled scene is composited from its samples, each
+        // tonemapped on its own (scene.hlsli); the resolve above is for the
+        // bloom
+        //
+
+        bool bSamples = pscene->m_samples > 1;
+
         ID3D11ShaderResourceView* psrvs[2] = {
-            pscene->m_psrv,
+            bSamples ? (ID3D11ShaderResourceView*)pscene->m_psrvSamples : (ID3D11ShaderResourceView*)pscene->m_psrv,
             pscene->m_bloomLevels > 0 ? (ID3D11ShaderResourceView*)pscene->m_psrvBloom[0] : NULL
         };
 
@@ -1085,7 +1245,7 @@ public:
         pcontext->IASetInputLayout(NULL);
         pcontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         pcontext->VSSetShader(p.m_pvsScene, NULL, 0);
-        pcontext->PSSetShader(p.m_ppsScene, NULL, 0);
+        pcontext->PSSetShader(bSamples ? p.m_ppsSceneMS : p.m_ppsScene, NULL, 0);
         pcontext->PSSetConstantBuffers(0, 1, &pcb);
         pcontext->PSSetShaderResources(0, 2, psrvs);
         pcontext->PSSetSamplers(0, 1, &psampler);
@@ -1201,6 +1361,12 @@ public:
 
     void ClearZBuffer()
     {
+        //
+        // The blended draws so far were drawn against this depth
+        //
+
+        FlushDeferred();
+
         D3D11Device* pdevice;
 
         if (!Bind(pdevice)) {
@@ -1260,6 +1426,166 @@ public:
         //
 
         m_bStateChanged = true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //
+    // Blended draws after the opaque ones
+    //
+    // In a 3D layer's scene a blended draw that tests depth is recorded, and
+    // drawn once the scene's opaque geometry is in: when the layer ends, or
+    // before the z-buffer is cleared or something is drawn without a depth
+    // test (which keeps their order). Drawn in place, a translucent surface
+    // wrote depth that hid the opaque geometry drawn after it behind it, and
+    // it could not read the depth behind it to fade where it meets it (soft
+    // particles). The replay keeps the draws' order; the effects Context
+    // sorts are back to front already.
+    //
+    //////////////////////////////////////////////////////////////////////////////
+
+    //
+    // Whether to record this draw; one that keeps its place among the
+    // recorded ones (drawn without a depth test) draws those first
+    //
+
+    bool Defer(bool bPoints)
+    {
+        if (m_pscene == NULL || m_bReplaying) {
+            return false;
+        }
+
+        if (!bPoints && m_bZTest && m_blendMode != BlendModeSource) {
+            return true;
+        }
+
+        if (bPoints || !m_bZTest) {
+            FlushDeferred();
+        }
+
+        return false;
+    }
+
+    DeferredDraw& Record(
+        D3D11_PRIMITIVE_TOPOLOGY topology,
+        const void*              pvertex,
+        int                      stride,
+        int                      vcount,
+        const MeshIndex*         pindex,
+        int                      icount
+    ) {
+        m_vdeferred.emplace_back();
+
+        DeferredDraw& draw = m_vdeferred.back();
+        draw.m_shadeMode       = m_shadeMode;
+        draw.m_blendMode       = m_blendMode;
+        draw.m_cullMode        = m_cullMode;
+        draw.m_bLinearFilter   = m_bLinearFilter;
+        draw.m_bColorKey       = m_bColorKey;
+        draw.m_psurfaceTexture = m_psurfaceTexture;
+        draw.m_rectClip        = m_rectClip;
+        draw.m_topology        = topology;
+        draw.m_bModel          = false;
+        draw.m_bNormal         = false;
+        draw.m_stride          = stride;
+        draw.m_vvertex.assign((const BYTE*)pvertex, (const BYTE*)pvertex + vcount * stride);
+
+        if (pindex != NULL && icount > 0) {
+            draw.m_vindex.assign(pindex, pindex + icount);
+        }
+
+        return draw;
+    }
+
+    void FlushDeferred()
+    {
+        if (m_vdeferred.empty() || m_bReplaying) {
+            return;
+        }
+
+        std::vector<DeferredDraw> vdraws;
+        vdraws.swap(m_vdeferred);
+
+        D3D11Device* pdevice;
+
+        if (m_pscene == NULL || !Bind(pdevice) || m_pscene == NULL) {
+            return;
+        }
+
+        ID3D11DeviceContext* pcontext = pdevice->GetContext();
+
+        //
+        // The scene's depth, to test against read-only and to read
+        //
+
+        bool bRead = m_pscene->m_pdsvReadOnly != NULL;
+
+        if (bRead) {
+            bool bSamples = m_pscene->m_samples > 1;
+
+            ID3D11RenderTargetView*   prtv     = m_pscene->m_prtv;
+            ID3D11ShaderResourceView* psrvs[2] = {
+                bSamples ? (ID3D11ShaderResourceView*)m_pscene->m_psrvDepth : NULL,
+                bSamples ? NULL : (ID3D11ShaderResourceView*)m_pscene->m_psrvDepth
+            };
+
+            pcontext->OMSetRenderTargets(1, &prtv, m_pscene->m_pdsvReadOnly);
+            pcontext->PSSetShaderResources(1, 2, psrvs);
+        }
+
+        ShadeMode     shadeMode       = m_shadeMode;
+        BlendMode     blendMode       = m_blendMode;
+        CullMode      cullMode        = m_cullMode;
+        bool          bZTest          = m_bZTest;
+        bool          bZWrite         = m_bZWrite;
+        bool          bLinearFilter   = m_bLinearFilter;
+        bool          bColorKey       = m_bColorKey;
+        TRef<Surface> psurfaceTexture = m_psurfaceTexture;
+        Rect          rectClip        = m_rectClip;
+
+        m_bReplaying = true;
+        m_flagsBound = 0xffffffff;
+
+        for (DeferredDraw& draw : vdraws) {
+            m_shadeMode       = draw.m_shadeMode;
+            m_blendMode       = draw.m_blendMode;
+            m_cullMode        = draw.m_cullMode;
+            m_bZTest          = true;
+            m_bZWrite         = false;
+            m_bLinearFilter   = draw.m_bLinearFilter;
+            m_bColorKey       = draw.m_bColorKey;
+            m_psurfaceTexture = draw.m_psurfaceTexture;
+            m_rectClip        = draw.m_rectClip;
+            m_bStateChanged   = true;
+
+            int              vcount = (int)draw.m_vvertex.size() / draw.m_stride;
+            int              icount = (int)draw.m_vindex.size();
+            const MeshIndex* pindex = icount > 0 ? draw.m_vindex.data() : NULL;
+
+            if (draw.m_bModel) {
+                DrawModel(draw.m_topology, draw.m_tl, draw.m_vvertex.data(), draw.m_stride, draw.m_bNormal, vcount, pindex, icount);
+            } else {
+                DrawPrimitive(draw.m_topology, (const VertexScreen*)draw.m_vvertex.data(), vcount, pindex, icount, false);
+            }
+        }
+
+        m_bReplaying      = false;
+        m_shadeMode       = shadeMode;
+        m_blendMode       = blendMode;
+        m_cullMode        = cullMode;
+        m_bZTest          = bZTest;
+        m_bZWrite         = bZWrite;
+        m_bLinearFilter   = bLinearFilter;
+        m_bColorKey       = bColorKey;
+        m_psurfaceTexture = psurfaceTexture;
+        m_rectClip        = rectClip;
+        m_bStateChanged   = true;
+        m_flagsBound      = 0xffffffff;
+
+        if (bRead) {
+            ID3D11ShaderResourceView* pnull[2] = { NULL, NULL };
+            pcontext->PSSetShaderResources(1, 2, pnull);
+            m_prtvBound = NULL;   // the next draw binds the writable depth again
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -1341,6 +1667,11 @@ public:
             return;
         }
 
+        if (Defer(bPoints)) {
+            Record(topology, pvertex, sizeof(VertexScreen), vcount, pindex, pindex != NULL ? icount : 0);
+            return;
+        }
+
         D3D11Device* pdevice;
 
         if (!Bind(pdevice)) {
@@ -1401,6 +1732,23 @@ public:
         int                       icount
     ) {
         if (vcount <= 0 || pindex == NULL || icount <= 0) {
+            return;
+        }
+
+        //
+        // The scene's projection, for the replayed draws' soft fade
+        //
+
+        if (m_pscene != NULL && tl.m_depth[1] != 0) {
+            m_sceneDepth[0] = tl.m_depth[0];
+            m_sceneDepth[1] = tl.m_depth[1];
+        }
+
+        if (Defer(false)) {
+            DeferredDraw& draw = Record(topology, pvertex, stride, vcount, pindex, icount);
+            draw.m_bModel  = true;
+            draw.m_bNormal = bNormal;
+            draw.m_tl      = tl;
             return;
         }
 

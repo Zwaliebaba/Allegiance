@@ -940,7 +940,7 @@ different until an image is authored with soft edges.
 | Topic | Decision |
 |---|---|
 | Alpha form | Premultiplied, in the DDS files and everywhere after. The converted art already is: its transparent pixels are RGB 0, so the baked mip levels (a box filter over those pixels) are premultiplied averages. Treating the files as straight alpha would have meant premultiplying in the texture cache, which darkens the edge texels of every model texture's mip levels a second time. Editors save straight alpha; `bmp2dds.py premultiply` converts |
-| Where it applies | Wherever an image is colour keyed, as before: UI images (blits, on the GPU and on the CPU), and images drawn through the 3D path with blending (`BlendModeSourceAlpha`, `BlendModeAdd`: HUD indicators, radar, loadout, effect images), where the texture's alpha multiplies the vertex alpha. Opaque 3D draws (model textures, `BlendModeSource`) still cut out at alpha 50%, which is the old colour key for 0/255 art, with no sorting of transparent parts |
+| Where it applies | Wherever an image is colour keyed, as before: UI images (blits, on the GPU and on the CPU), and images drawn through the 3D path with blending (`BlendModeSourceAlpha`, `BlendModeAdd`: HUD indicators, radar, loadout, effect images), where the texture's alpha multiplies the vertex alpha. Opaque 3D draws (model textures, `BlendModeSource`) still cut out at alpha 50%, which is the old colour key for 0/255 art, with no sorting of transparent parts (since then antialiased with alpha to coverage; see "Alpha beyond the cut-out") |
 | Hit testing | A keyed image catches clicks where its alpha is at least 50%, so faint glows and shadows don't |
 | CPU surfaces | `GetPrimaryPixelFormat` is 32-bit BGRA with alpha (it was RGB565). Fills, text, conversions, the GPU readback and the colour-keyed blit (now a premultiplied "over") handle it; the fill asserted 16-bit, which an `AnimatedImage` of a DDS strip with more than one frame hit since the DDS change. `Surface::Save` (16-bit BMP, no callers) is removed |
 | Render targets | A pane's GPU copy holds premultiplied alpha as coverage. Fills, text and opaque blits replace pixels (alpha 1); keyed blits blend over them, colour and alpha; opaque 3D draws write alpha 1, blended ones accumulate it. A fill with the colour key (black, in 565 terms) writes alpha 0, so a keyed pane cleared that way starts transparent and keeps soft edges drawn into it |
@@ -956,6 +956,27 @@ Visible differences, for 0/255 art:
 - CPU-composed surfaces (the hangar, the LOD scroll pane) now keep 24-bit colour instead of 565.
 - CPU text: glyphs clipped at the left or right edge lost their pixels beyond the first eight columns
   (`ibit & 0x7 == 0` parses as `ibit & (0x7 == 0)`); fixed. The GPU text path was not affected.
+
+#### Alpha beyond the cut-out
+
+The art's alpha is all 0 or 255 (720 colour-keyed textures, 256 opaque), and all translucency in 3D is
+the effects' (glows, trails, bolts, alephs, explosions: mostly additive). This makes what there is look
+better and prepares for translucent art.
+
+| Piece | What it does |
+|---|---|
+| Alpha to coverage | An opaque cut-out (a colour-keyed model texture) in a 4x multisampled scene: the filtered alpha, sharpened to a ramp a pixel wide around 0.5, is the share of the pixel's samples it covers, so its edges are antialiased like a triangle's and stay where the 50% cut put them. The blend state takes the stored alpha from the blend factor (1), not the shader. Without MSAA (GPUs with under 1 GB) the 50% cut stays (`raster.hlsli`, `m_pblendSceneCoverage`) |
+| No dark fringe | An opaque cut-out shows its texel's colour, not its premultiplied colour: a filtered edge texel at alpha 0.6 held 60% of its colour, and was drawn as that, a dark outline round every cut-out |
+| Coverage-preserving mip levels | Box-filtered mip levels average a thin strut below alpha 0.5, so cut-out detail thinned out and vanished with distance. At upload each level of a cut-out (full-size alpha only 0 and 255) is scaled so its share of texels at or above 0.5 matches the full-size image, the colour with the alpha, as the texels are premultiplied; of the scales that give that, the middle one, so the deciding texels are clear of 0.5 (`Engine/alphacoverage.h`, tested). The DDS files are unchanged; translucent art is left alone |
+| Per-sample tonemapping | A multisampled scene is composited from its samples, each tonemapped and encoded before they are averaged (`scene_ps_ms.hlsl`): a glow at ten times white next to a dark hull used to be averaged first, which smeared the edge white. The box resolve stays, for the bloom |
+| Blended draws after the opaque ones | In a 3D layer's scene a blended draw that tests depth is recorded (its state and a copy of its vertices) and drawn once the layer's opaque geometry is in: when the layer ends, or before the z-buffer is cleared or something is drawn without a depth test, which keeps its place. Replayed in order (Context's sorted effects are back to front), without writing depth. Drawn in place, a translucent surface's depth hid the opaque geometry drawn after it behind it |
+| Soft particles | The replay binds the scene's depth read-only and as a texture (feature level 11: typeless depth, a read-only view and a texture view), and a replayed blended fragment fades out over `c_softDistance` (3 world units) in front of the geometry behind it, the nearest of the pixel's samples, so glows and trails no longer cut hard lines into hulls. Reversed depth is (1 + a) - b / d for screen and model-space vertices alike, so Device3D hands the rasterizer (1 + a, b) to get view distances back |
+
+To check by eye (nothing in CI renders): the edges of cut-out parts (station struts, antennae, the
+lattice textures) antialiased at all distances and no longer outlined in dark; thin cut-out detail
+still there far away; engine glows and explosions fading into hulls instead of cutting into them, and
+3 units the right distance for that; and nothing drawn blended in a z-buffered 3D layer (the HUD's
+3D parts) now in front of or behind what it should not be, the one risk of moving those draws.
 
 ### Phase 5: optional
 
