@@ -32,7 +32,7 @@ namespace Training
                     void                AddAction (Action* pAction);
 
         protected:
-                    std::list<Action*>              m_actionList;
+                    std::list<std::unique_ptr<Action>> m_actionList;
     };
 
     //------------------------------------------------------------------------------

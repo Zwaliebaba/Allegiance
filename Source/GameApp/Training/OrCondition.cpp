@@ -27,8 +27,6 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  OrCondition::~OrCondition (void)
     {
-        delete m_pConditionA;
-        delete m_pConditionB;
     }
 
     //------------------------------------------------------------------------------

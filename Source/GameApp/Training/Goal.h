@@ -41,7 +41,7 @@ namespace Training
                     void                AddConstraintCondition (Condition* pConstraintCondition);
 
         protected:
-                    Condition*          m_pSuccessCondition;
+                    std::unique_ptr<Condition> m_pSuccessCondition;
                     ActionList          m_startActionList;
                     ConditionList       m_constraintConditionList;
     };

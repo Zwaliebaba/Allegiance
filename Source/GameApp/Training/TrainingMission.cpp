@@ -88,14 +88,13 @@ namespace Training
         // clean up the old condition (at application shutdown the mission may
         // still be running, so its live condition is freed here as well)
         assert ((m_pCondition == 0) or m_bShuttingDown);
-        delete m_pCondition;
-        delete m_pDeadCondition;
 
-        // clean up the wait conditions
-        std::list<Condition*>::iterator pWaitConditionIterator = m_WaitConditionList.begin ();
-        std::list<Condition*>::iterator end = m_WaitConditionList.end ();
-        while (pWaitConditionIterator != end)
-            delete (*pWaitConditionIterator++);
+        // Freed here, before the player leaves the mission below, not after the
+        // body: the conditions point at the ships and stations that leaving
+        // tears down. Then the wait conditions.
+        m_pCondition.reset ();
+        m_pDeadCondition.reset ();
+        m_WaitConditionList.clear ();
 
         // the application is closing: the window and the client are being torn
         // down, so don't switch screens, quit the mission or restore settings
@@ -160,7 +159,7 @@ namespace Training
         trekClient.GetClientEventSource ()->OnClearChat ();
         CreateUniverse ();
         trekClient.OnEnterGame();
-        m_pCondition = CreateMission ();
+        m_pCondition.reset (CreateMission ());
         ResetAction::Initialize ();
         CommandAcknowledgedCondition::SetCommandAcknowledged (c_cidDoNothing);
         m_pCondition->Start ();
@@ -178,8 +177,8 @@ namespace Training
             if (not Time::IsPaused ())
             {
                 // Check to see if there is a wait condition.
-                std::list<Condition*>::iterator pWaitConditionIterator = m_WaitConditionList.begin ();
-                std::list<Condition*>::iterator end = m_WaitConditionList.end ();
+                auto pWaitConditionIterator = m_WaitConditionList.begin ();
+                auto end = m_WaitConditionList.end ();
                 if (pWaitConditionIterator != end)
                 {
                     while (pWaitConditionIterator != end)
@@ -187,11 +186,10 @@ namespace Training
                         // See if the wait condition is satisfied.
                         if ((*pWaitConditionIterator)->Evaluate () == true)
                         {
-                            // Delete the condition and remove it from the list so we don't
-                            // check it next time around. Note that we have to advance the
-                            // iterator at the same time in order to preserve traversal
+                            // Remove the condition from the list (which frees it) so we
+                            // don't check it next time around. Note that we have to advance
+                            // the iterator at the same time in order to preserve traversal
                             // order.
-                            delete (*pWaitConditionIterator);
                             m_WaitConditionList.erase (pWaitConditionIterator++);
                         }
                         else
@@ -232,8 +230,7 @@ namespace Training
         // must not overwrite the dead condition, or the mission tree leaks.
         if (m_pCondition)
         {
-            m_pDeadCondition = m_pCondition;
-            m_pCondition = nullptr;
+            m_pDeadCondition = std::move (m_pCondition);
         }
     }
 
@@ -241,7 +238,7 @@ namespace Training
     void        TrainingMission::AddWaitCondition (Condition* pWaitCondition)
     {
         // XXX I don't remember if order is important, but look at ResetAction to see if it is
-        m_WaitConditionList.push_front (pWaitCondition);
+        m_WaitConditionList.emplace_front (pWaitCondition);
     }
 
     //------------------------------------------------------------------------------

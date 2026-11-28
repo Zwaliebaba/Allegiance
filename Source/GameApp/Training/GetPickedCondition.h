@@ -34,7 +34,7 @@ namespace Training
             bool                Evaluate (void) override;
 
         protected:
-                    AbstractTarget*     m_pTarget;
+                    std::unique_ptr<AbstractTarget> m_pTarget;
     };
 
     //------------------------------------------------------------------------------

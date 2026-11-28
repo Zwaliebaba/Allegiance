@@ -36,7 +36,7 @@ namespace Training
             void                Execute (void) override;
 
         protected:
-                    AbstractTarget*     m_pTarget;
+                    std::unique_ptr<AbstractTarget> m_pTarget;
                     float               m_fSignature;
     };
 

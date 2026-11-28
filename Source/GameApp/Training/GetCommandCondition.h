@@ -35,7 +35,7 @@ namespace Training
             bool                Evaluate (void) override;
 
         protected:
-                    AbstractTarget*     m_pShip;
+                    std::unique_ptr<AbstractTarget> m_pShip;
                     CommandID           m_command;
     };
 

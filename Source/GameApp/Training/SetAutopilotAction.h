@@ -35,7 +35,7 @@ namespace Training
             void                Execute (void) override;
 
         protected:
-                    AbstractTarget*     m_pShip;
+                    std::unique_ptr<AbstractTarget> m_pShip;
                     bool                m_bNewValue;
     };
 

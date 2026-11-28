@@ -42,8 +42,6 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  GetTargetCondition::~GetTargetCondition (void)
     {
-        delete m_pShip;
-        delete m_pTarget;
     }
 
     //------------------------------------------------------------------------------

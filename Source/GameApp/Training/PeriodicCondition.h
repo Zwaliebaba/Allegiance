@@ -32,7 +32,7 @@ namespace Training
             bool                Evaluate (void) override;
 
         protected:
-                    Condition*          m_pCondition;
+                    std::unique_ptr<Condition> m_pCondition;
                     DWORD               m_dwPeriod;
                     DWORD               m_dwStartTime;
     };

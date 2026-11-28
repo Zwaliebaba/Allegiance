@@ -36,8 +36,8 @@ namespace Training
             void                Execute (void) override;
 
         protected:
-                    AbstractTarget*     m_pObject;
-                    AbstractTarget*     m_pTarget;
+                    std::unique_ptr<AbstractTarget> m_pObject;
+                    std::unique_ptr<AbstractTarget> m_pTarget;
     };
 
     //------------------------------------------------------------------------------

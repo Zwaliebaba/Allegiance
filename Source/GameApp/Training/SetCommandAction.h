@@ -37,9 +37,9 @@ namespace Training
             void                Execute (void) override;
 
         protected:
-                    AbstractTarget*     m_pShip;
+                    std::unique_ptr<AbstractTarget> m_pShip;
                     Command             m_command;
-                    AbstractTarget*     m_pTarget;
+                    std::unique_ptr<AbstractTarget> m_pTarget;
                     CommandID           m_commandID;
     };
 

@@ -60,9 +60,9 @@ namespace Training
                     Condition*              CreateTooLongCondition (float fDelay, SoundID sound);
 
         protected:
-                    Condition*              m_pCondition;
-                    Condition*              m_pDeadCondition;
-                    std::list<Condition*>   m_WaitConditionList;
+                    std::unique_ptr<Condition> m_pCondition;
+                    std::unique_ptr<Condition> m_pDeadCondition;
+                    std::list<std::unique_ptr<Condition>> m_WaitConditionList;
                     std::list<Condition*>   m_KeyConditionList;
                     Condition*              m_pChatCondition;
                     bool                    m_bMusicWasOn;

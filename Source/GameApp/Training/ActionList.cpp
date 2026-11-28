@@ -25,17 +25,13 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  ActionList::~ActionList (void)
     {
-        // assume that no one else is managing the memory for these actions, and delete
-        // them myself.
-        std::list<Action*>::iterator    iterator = m_actionList.begin ();
-        for (; iterator != m_actionList.end (); iterator++)
-            delete *iterator;
+        // the list owns its actions
     }
 
     //------------------------------------------------------------------------------
     void        ActionList::Execute (void)
     {
-        std::list<Action*>::iterator    iterator = m_actionList.begin ();
+        auto    iterator = m_actionList.begin ();
         for (; iterator != m_actionList.end (); iterator++)
             (*iterator)->Execute ();
     }
@@ -43,7 +39,7 @@ namespace Training
     //------------------------------------------------------------------------------
     void        ActionList::Stop (void)
     {
-        std::list<Action*>::iterator    iterator = m_actionList.begin ();
+        auto    iterator = m_actionList.begin ();
         for (; iterator != m_actionList.end (); iterator++)
             (*iterator)->Stop ();
     }
@@ -53,7 +49,7 @@ namespace Training
     {
         // Store the actions in the order they are added. This gives the
         // author some modicum of control over playback order.
-        m_actionList.push_back (pAction);
+        m_actionList.emplace_back (pAction);
     }
 
     //------------------------------------------------------------------------------

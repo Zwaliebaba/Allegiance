@@ -27,10 +27,7 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  GoalList::~GoalList (void)
     {
-        // assume that no one else is managing the memory for these goals, and delete
-        // them myself.
-        for (m_iterator = m_goalList.begin (); m_iterator != m_goalList.end (); m_iterator++)
-            delete *m_iterator;
+        // the list owns its goals
    }
 
     //------------------------------------------------------------------------------
@@ -96,7 +93,7 @@ namespace Training
     {
         // Store the goals in the order they are added. This gives the
         // author some modicum of control over playback order.
-        m_goalList.push_back (pGoal);
+        m_goalList.emplace_back (pGoal);
 
         // I'm being lazy and getting the list iterator at each addition.
         // This saves having to have a separate method for saying we are

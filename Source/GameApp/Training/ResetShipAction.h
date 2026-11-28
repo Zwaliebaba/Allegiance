@@ -42,7 +42,7 @@ namespace Training
                     short               sAmmo;
                     float               fEnergy;
             };
-                    State*              m_pState;
+                    std::unique_ptr<State> m_pState;
                     TRef<IshipIGC>      m_ship;
     };
 

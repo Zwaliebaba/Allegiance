@@ -30,9 +30,9 @@ namespace Training
             /* ImodelIGC* */    operator ImodelIGC* (void) override;
 
         protected:
-                    AbstractTarget*     m_pTarget;
+                    std::unique_ptr<AbstractTarget> m_pTarget;
                     bool                m_bLockOnFirstFetch;
-                    AbstractTarget*     m_pFetched;
+                    std::unique_ptr<AbstractTarget> m_pFetched;
     };
 
     //------------------------------------------------------------------------------

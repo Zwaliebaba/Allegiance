@@ -63,8 +63,6 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  SetCommandAction::~SetCommandAction (void)
     {
-        delete m_pShip;
-        delete m_pTarget;
     }
 
     //------------------------------------------------------------------------------

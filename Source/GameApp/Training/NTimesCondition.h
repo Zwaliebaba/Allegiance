@@ -32,7 +32,7 @@ namespace Training
             bool                Evaluate (void) override;
 
         protected:
-                    Condition*          m_pCondition;
+                    std::unique_ptr<Condition> m_pCondition;
                     unsigned int        m_iTimes;
                     unsigned int        m_iCount;
                     bool                m_bSticky;
