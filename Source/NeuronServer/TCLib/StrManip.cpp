@@ -98,7 +98,7 @@ int TCReplaceTextImpl(LPCTSTR pszSource, LPCTSTR pszFind, LPCTSTR pszReplace,
       // Copy the string up to the first character of the search phrase
       int cch = pszFound - pszBegin2;
       if (cch < cchMaxDest)
-        _tcsncpy(pszDest, pszBegin, cch);
+        memmove(pszDest, pszBegin, cch * sizeof(TCHAR)); // in place, the two overlap
       else
         TC_tcscpyn(pszDest, pszBegin, cchMaxDest);
       cchMaxDest = max(0, cchMaxDest - cch);
@@ -106,7 +106,7 @@ int TCReplaceTextImpl(LPCTSTR pszSource, LPCTSTR pszFind, LPCTSTR pszReplace,
 
       // Copy the replacement string
       if (cchReplace < cchMaxDest)
-        _tcsncpy(pszDest, pszReplace, cchReplace);
+        memmove(pszDest, pszReplace, cchReplace * sizeof(TCHAR));
       else
         TC_tcscpyn(pszDest, pszReplace, cchMaxDest);
       cchMaxDest = max(0, cchMaxDest - cchReplace);

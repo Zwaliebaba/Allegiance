@@ -47,8 +47,12 @@ inline LPTSTR TC_tcscpyn(LPTSTR pszDest, LPCTSTR pszSource, int cchMaxDest)
   {
     if (!pszSource)
       pszSource = TEXT("");
-    _tcsncpy(pszDest, pszSource, cchMaxDest - 1);
-    pszDest[cchMaxDest - 1] = TEXT('\0');
+    // memmove: TCReplaceText copies within one buffer when it works in place
+    size_t cch = _tcslen(pszSource);
+    if (cch > size_t(cchMaxDest - 1))
+      cch = cchMaxDest - 1;
+    memmove(pszDest, pszSource, cch * sizeof(TCHAR));
+    pszDest[cch] = TEXT('\0');
   }
   return pszDest;
 }
