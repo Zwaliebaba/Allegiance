@@ -59,6 +59,7 @@
 //
 
 #include "ZAssert.h"
+#include "BoundedString.h"   // Bounded::Copy, Append, Format: the bounded strcpy, strcat, sprintf
 #include "Alloc.h"
 #include "Mask.h"
 #include "TRef.h"

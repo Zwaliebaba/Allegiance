@@ -4,6 +4,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArtFolderTests.cpp" />
+    <ClCompile Include="BoundedStringTests.cpp" />
     <ClCompile Include="NetworkTests.cpp" />
     <ClCompile Include="PathStringTests.cpp" />
     <ClCompile Include="pch.cpp" />
