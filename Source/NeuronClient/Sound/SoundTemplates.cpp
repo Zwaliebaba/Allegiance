@@ -27,8 +27,8 @@ public:
         // check to make sure the file exists.
         HANDLE hFile;
 
-        hFile = CreateFile(strFilename.c_str(), 0, FILE_SHARE_READ, NULL, 
-            OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL);
+        hFile = CreateFile(strFilename.c_str(), 0, FILE_SHARE_READ, nullptr, 
+            OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, nullptr);
 
         if (INVALID_HANDLE_VALUE == hFile)
             return STG_E_FILENOTFOUND;
@@ -52,7 +52,7 @@ public:
 
     // Creates a new instance of the given sound
     HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = nullptr) override
     {
         // if we have not loaded this sound yet...
         if (!m_pdata)
@@ -577,7 +577,7 @@ public:
 
     // Creates a new instance of the given sound
     HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = nullptr) override
     {
         if (!pbufferSource)
         {
@@ -674,7 +674,7 @@ public:
 
     // Creates a new instance of the given sound
     HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = nullptr) override
     {
         if (!pbufferSource)
         {
@@ -735,7 +735,7 @@ public:
     {
         // if we have an event source, we've hooked the event sources for the
         // two child sound instances.
-        if (m_peventDelegate != NULL)
+        if (m_peventDelegate != nullptr)
         {
             // unhook ourselves.
             m_pBase1->GetFinishEventSource()->RemoveSink(m_peventDelegate);
@@ -768,7 +768,7 @@ public:
     // reason)
     IEventSource* GetFinishEventSource() override
     {
-        if (m_peventsourceFinished == NULL)
+        if (m_peventsourceFinished == nullptr)
         {
             m_peventsourceFinished = new EventSourceImpl();
             m_peventDelegate = IEventSink::CreateDelegate(this);
@@ -792,7 +792,7 @@ public:
         // this sound is only tweakable if both it's child sounds are tweakable
         if (!m_ptweak1 || !m_ptweak2)
         {
-            return NULL;
+            return nullptr;
         }
         else
         {
@@ -811,7 +811,7 @@ public:
         // this sound is only tweak3Dable if both it's child sounds are tweak3Dable
         if (!m_ptweak3D1 || !m_ptweak3D2)
         {
-            return NULL;
+            return nullptr;
         }
         else
         {
@@ -992,7 +992,7 @@ class RepeatFirePCMData : public ISoundPCMData
         ZAssert(pdata);
         ZAssert(dwRepeatLength > 0);
 
-        m_pvData = NULL;
+        m_pvData = nullptr;
         m_pdataBase = pdata;
         m_dwRepeatLength = dwRepeatLength;
         m_dwSize = m_pdataBase->GetSize() + m_dwRepeatLength * 2;
@@ -1041,14 +1041,14 @@ public:
         ZAssert(s_nCacheRefCount > 0);
 
         if (!pdata)
-            return NULL;
+            return nullptr;
 
         DWORD dwRepeatLength = (DWORD)(fRepeatDelay * (pdata->GetBytesPerSec())) 
             & ~(pdata->GetBytesPerSample() - 1);
 
         // if the repeat length is over 16 Meg, don't even try it.  
         if (dwRepeatLength > 0x1000000 || dwRepeatLength == 0)
-            return NULL;
+            return nullptr;
 
         // otherwise, try to find it in the cache.
         RepeatFireDataCache::iterator iter;
@@ -1317,7 +1317,7 @@ public:
 
     // Creates a new instance of the given sound
     HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = nullptr) override
     {
         if (!pbufferSource)
         {
@@ -1367,7 +1367,7 @@ public:
 
     RandomSoundTemplate() :
             m_fTotalWeight(0),
-            m_pstLast(NULL)
+            m_pstLast(nullptr)
     {
     }
 
@@ -1397,7 +1397,7 @@ public:
 
     // Creates a new instance of the given sound
     HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = nullptr) override
     {
         ISoundTemplate* pstNew;
 
@@ -1723,7 +1723,7 @@ public:
         if (m_psinkDelegate)
         {
             m_pBase->GetFinishEventSource()->RemoveSink(m_psinkDelegate);
-            m_psinkDelegate = NULL;
+            m_psinkDelegate = nullptr;
         }
     }
 
@@ -1737,9 +1737,9 @@ public:
             m_psinkDelegate = IEventSink::CreateDelegate(this);
             m_pBase->GetFinishEventSource()->AddSink(m_psinkDelegate);
 
-            m_pstSource = NULL;
-            m_pbufferSource = NULL;
-            m_psource = NULL;
+            m_pstSource = nullptr;
+            m_pbufferSource = nullptr;
+            m_psource = nullptr;
         }
 
         return hr;
@@ -1757,7 +1757,7 @@ public:
         else if (m_peventsource)
         {
             m_peventsource->Trigger();
-            m_pstSource = NULL;
+            m_pstSource = nullptr;
         }
 
         return S_OK;
@@ -1766,8 +1766,8 @@ public:
     // a sound finished
     bool OnEvent(IEventSource* pevent) override
     {
-        m_pBase = NULL;
-        m_psinkDelegate = NULL;
+        m_pBase = nullptr;
+        m_psinkDelegate = nullptr;
         if (m_peventsource)
             m_peventsource->Trigger();
 
@@ -1803,7 +1803,7 @@ public:
         if (m_pBase)
             return m_pBase->GetISoundTweakable();
         else
-            return NULL;
+            return nullptr;
     }
 
     TRef<ISoundTweakable3D> GetISoundTweakable3D() override
@@ -1813,7 +1813,7 @@ public:
         if (m_pBase)
             return m_pBase->GetISoundTweakable3D();
         else
-            return NULL;
+            return nullptr;
     }
 };
 
@@ -1984,9 +1984,9 @@ public:
     // a sound finished
     bool OnEvent(IEventSource* pevent) override
     {
-        m_pstCurrent = NULL;
-        m_psoundCurrent = NULL;
-        m_peventSoundFinished = NULL;
+        m_pstCurrent = nullptr;
+        m_psoundCurrent = nullptr;
+        m_peventSoundFinished = nullptr;
         QueueNextSound();
         return false;
     }
@@ -1994,11 +1994,11 @@ public:
     // erases any pending sounds without playing them
     HRESULT Reset() override
     {
-        m_pstCurrent = NULL;
-        m_psoundCurrent = NULL;
+        m_pstCurrent = nullptr;
+        m_psoundCurrent = nullptr;
         if (m_peventSoundFinished)
             m_peventSoundFinished->RemoveSink(this);
-        m_peventSoundFinished = NULL;
+        m_peventSoundFinished = nullptr;
         m_templatesPending.clear();
 
         return S_OK;

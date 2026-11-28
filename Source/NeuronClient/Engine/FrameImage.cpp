@@ -53,7 +53,7 @@ public:
 
     ~FrameImage()
     {
-        if (m_pobjectMemory == NULL) {
+        if (m_pobjectMemory == nullptr) {
             delete[] m_pdwOffsets;
             delete[] m_prle;
         }
@@ -483,7 +483,7 @@ TRef<Image> CreateFrameImage(
             xframes * yframes, 
             pdwOffsets, 
             prle, 
-            NULL
+            nullptr
         );
 }
 

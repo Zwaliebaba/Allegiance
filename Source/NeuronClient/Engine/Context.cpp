@@ -290,9 +290,9 @@ public:
             m_countDrawString(0),
             m_countDrawStringChars(0),
         #endif
-        m_pvertexBuffer(NULL),
+        m_pvertexBuffer(nullptr),
         m_countVertexBuffer(0),
-        m_pindexBuffer(NULL),
+        m_pindexBuffer(nullptr),
         m_countIndexBuffer(0),
         m_psurface(psurface),
         m_bRendering(false),
@@ -314,7 +314,7 @@ public:
 
             TRef<Rasterizer> prasterizer = CreateD3D11Rasterizer(m_psurface);
 
-            if (prasterizer == NULL) {
+            if (prasterizer == nullptr) {
                 return;
             }
 
@@ -329,7 +329,7 @@ public:
 
         m_pstateDevice->m_mat.SetIdentity();
         m_pstateDevice->m_matPerspective.SetIdentity();
-        m_pstateDevice->m_pmaterial              = NULL;
+        m_pstateDevice->m_pmaterial              = nullptr;
         m_pstateDevice->m_bZTest                 = false;
         m_pstateDevice->m_bZWrite                = false;
         m_pstateDevice->m_bPerspectiveCorrection = false;
@@ -354,7 +354,7 @@ public:
 
     bool IsValid() override
     {
-        return m_pdevice3D != NULL && m_pdevice3D->IsValid();
+        return m_pdevice3D != nullptr && m_pdevice3D->IsValid();
     }
 
     //////////////////////////////////////////////////////////////////////////////

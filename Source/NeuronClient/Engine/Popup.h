@@ -20,8 +20,8 @@ protected:
     IPopup*                 m_ppopupOwner;
 
     IPopup() :
-        m_pcontainer(NULL),
-        m_ppopupOwner(NULL)
+        m_pcontainer(nullptr),
+        m_ppopupOwner(nullptr)
     {
     }
 
@@ -47,9 +47,9 @@ TRef<IPopup> CreatePanePopup(Pane* ppane);
 class IPopupContainer : public IKeyboardInput {
 public:
     virtual void   OpenPopup(IPopup* ppopup, PointValue* ppoint, bool bCloseAll, IPopup* ppopupOwner)                                         = 0;
-    virtual void   OpenPopup(IPopup* ppopup, const Point& point, bool bCloseAll = true, IPopup* ppopupOwner = NULL)                           = 0;
-    virtual void   OpenPopup(IPopup* ppopup, const Rect&  rect,  bool bCloseAll = true, bool bCascadeDown = true, IPopup* ppopupOwner = NULL) = 0;
-    virtual void   OpenPopup(IPopup* ppopup, bool bCloseAll = true, IPopup* ppopupOwner = NULL)                                               = 0;
+    virtual void   OpenPopup(IPopup* ppopup, const Point& point, bool bCloseAll = true, IPopup* ppopupOwner = nullptr)                           = 0;
+    virtual void   OpenPopup(IPopup* ppopup, const Rect&  rect,  bool bCloseAll = true, bool bCascadeDown = true, IPopup* ppopupOwner = nullptr) = 0;
+    virtual void   OpenPopup(IPopup* ppopup, bool bCloseAll = true, IPopup* ppopupOwner = nullptr)                                               = 0;
     virtual void   ClosePopup(IPopup* ppopup)                                                                                                 = 0;
     virtual bool   IsEmpty()                                                                                                                  = 0;
     virtual Image* GetImage()                                                                                                                 = 0;

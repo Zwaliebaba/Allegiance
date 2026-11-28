@@ -55,7 +55,7 @@ public:
             AddRef();
             return S_OK;
         }
-        *ppv = NULL;
+        *ppv = nullptr;
         return E_NOINTERFACE;
     }
     STDMETHODIMP_(ULONG) AddRef()  { return InterlockedIncrement(&m_cRef); }
@@ -91,7 +91,7 @@ public:
 
     DiskPlayerImpl() :
         m_pengine(NULL),
-        m_pnotify(NULL),
+        m_pnotify(nullptr),
         m_fStarted(false),
         m_nCurrentTrack(0),
         m_fGain(0)
@@ -157,7 +157,7 @@ public:
         if (FAILED(hr))
             return hr;
 
-        IMFAttributes* pattributes = NULL;
+        IMFAttributes* pattributes = nullptr;
         hr = MFCreateAttributes(&pattributes, 2);
         if (SUCCEEDED(hr))
         {
@@ -189,8 +189,8 @@ public:
             return S_OK;
 
         const char* szPath = m_vstrTracks[iFile].c_str();
-        int         cwch   = MultiByteToWideChar(CP_ACP, 0, szPath, -1, NULL, 0);
-        BSTR        bstr   = SysAllocStringLen(NULL, cwch);
+        int         cwch   = MultiByteToWideChar(CP_ACP, 0, szPath, -1, nullptr, 0);
+        BSTR        bstr   = SysAllocStringLen(nullptr, cwch);
         if (!bstr)
             return E_OUTOFMEMORY;
         MultiByteToWideChar(CP_ACP, 0, szPath, -1, bstr, cwch);
@@ -371,7 +371,7 @@ private:
         IEventSource* GetFinishEventSource() override
         {
             ZError("NYI");
-            return NULL;
+            return nullptr;
         }
 
         // Gets an interface for tweaking the sound, if supported, NULL otherwise.
@@ -411,7 +411,7 @@ public:
 
     // Creates a new instance of the given sound
     HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = nullptr) override
     {
         if (!pbufferSource)
         {

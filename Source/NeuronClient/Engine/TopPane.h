@@ -44,7 +44,7 @@ protected:
     void  Paint(Surface* psurface) override;
 
 public:
-    TopPane(Engine* pengine, SurfaceType stype, bool bColorKey, TopPaneSite* psite, Pane* pchild = NULL);
+    TopPane(Engine* pengine, SurfaceType stype, bool bColorKey, TopPaneSite* psite, Pane* pchild = nullptr);
 
     //
     // Top Pane members

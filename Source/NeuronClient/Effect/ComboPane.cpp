@@ -176,7 +176,7 @@ public:
 
     ~ComboPaneImpl()
     {
-        m_pmenu->SetMenuCommandSink(NULL);
+        m_pmenu->SetMenuCommandSink(nullptr);
     }
 
     //////////////////////////////////////////////////////////////////////////////

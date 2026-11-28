@@ -135,7 +135,7 @@ protected:
     Pane* GetCapturePane();
 
 public:
-    Pane(Pane* pchild = NULL, const WinPoint& size = WinPoint(0, 0));
+    Pane(Pane* pchild = nullptr, const WinPoint& size = WinPoint(0, 0));
     ~Pane();
 
     //

@@ -28,7 +28,7 @@ HRESULT VirtualSoundBuffer::PrepareBuffer(XA2Device* pdevice, bool bSupport3D)
 {
     HRESULT hr;
 
-    if (m_pvoice == NULL)
+    if (m_pvoice == nullptr)
     {
         TRef<XA2Voice> pvoice = new XA2Voice();
 
@@ -137,11 +137,11 @@ HRESULT VirtualSoundBuffer::Update(DWORD dwTimeElapsed,
     if (m_bStopped && !bWasStopped)
     {
         // free the voice to conserve resources
-        m_pvoice = NULL;
+        m_pvoice = nullptr;
         m_bBufferPlaying = FALSE;
 
         // if there is an event source for the sound finishing, trigger it.
-        if (m_peventsourceFinished != NULL)
+        if (m_peventsourceFinished != nullptr)
         {
             m_peventsourceFinished->Trigger();
         }
@@ -182,7 +182,7 @@ HRESULT VirtualSoundBuffer::StartBuffer(XA2Device* pdevice)
 
     // A voice starts once, so a sound that is given a voice again gets a new
     // one, at the position the tracker has reached
-    m_pvoice = NULL;
+    m_pvoice = nullptr;
 
     hr = PrepareBuffer(pdevice, false);
     if (FAILED(hr)) return hr;
@@ -215,7 +215,7 @@ HRESULT VirtualSoundBuffer::StopBuffer()
     hr = m_pvoice->Stop(true);
     if (ZFailed(hr)) return hr;
 
-    m_pvoice = NULL;
+    m_pvoice = nullptr;
     m_bBufferPlaying = false;
 
     return S_OK;
@@ -294,7 +294,7 @@ HRESULT VirtualSoundBuffer::IsPlaying()
 IEventSource* VirtualSoundBuffer::GetFinishEventSource()
 {
     // if we don't have an event source, create one.
-    if (m_peventsourceFinished == NULL)
+    if (m_peventsourceFinished == nullptr)
     {
         m_peventsourceFinished = new EventSourceImpl();
     }
@@ -313,7 +313,7 @@ TRef<ISoundTweakable> VirtualSoundBuffer::GetISoundTweakable()
 // Gets an interface for tweaking the sound, if supported, NULL otherwise.
 TRef<ISoundTweakable3D> VirtualSoundBuffer::GetISoundTweakable3D()
 {
-    return NULL;
+    return nullptr;
 };
 
 

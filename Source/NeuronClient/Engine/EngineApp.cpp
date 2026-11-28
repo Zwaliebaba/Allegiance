@@ -55,8 +55,8 @@ void EngineApp::Terminate()
     if (m_pengine)
         m_pengine->Terminate();
 
-    m_pmodeler = NULL;
-    m_pengine = NULL;
+    m_pmodeler = nullptr;
+    m_pengine = nullptr;
 
     Win32App::Terminate();
 }

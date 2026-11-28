@@ -145,7 +145,7 @@ public:
         if (layerEnd == layerStart + 1) {
             return CreateSphereSlice();
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 

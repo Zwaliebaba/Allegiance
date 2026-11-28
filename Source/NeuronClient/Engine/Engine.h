@@ -126,15 +126,15 @@ public:
     virtual TRef<Surface> CreateSurface(
         const WinPoint& size, 
         SurfaceType     stype, 
-        SurfaceSite*    psite = NULL
+        SurfaceSite*    psite = nullptr
     ) = 0;
 
     virtual TRef<Surface> CreateSurface(
         const WinPoint& size,
         PixelFormat*    ppf,
-        Palette*        ppalette = NULL,
+        Palette*        ppalette = nullptr,
         SurfaceType     stype    = SurfaceType2D(),
-        SurfaceSite*    psite    = NULL
+        SurfaceSite*    psite    = nullptr
     ) = 0;
 
     virtual TRef<Surface> CreateSurface(

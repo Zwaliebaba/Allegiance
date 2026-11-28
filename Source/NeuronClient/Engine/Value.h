@@ -673,7 +673,7 @@ public:
         int maxIndex = offset;
 
         plist->GetFirst();
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
             TRef<Number>  pindex;  CastTo(pindex,  ppair->GetFirst() );
@@ -689,7 +689,7 @@ public:
         m_v.resize(maxIndex + 1);
 
         plist->GetFirst();
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
             TRef<Number>  pindex;  CastTo(pindex,  ppair->GetFirst() );

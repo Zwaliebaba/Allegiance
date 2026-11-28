@@ -50,7 +50,7 @@ struct Pipeline2D {
     TRef<ID3D11SamplerState>       m_psampler;
 
     Pipeline2D() :
-        m_pdevice(NULL),
+        m_pdevice(nullptr),
         m_generation(-1)
     {
     }
@@ -63,7 +63,7 @@ bool CreatePipeline2D(D3D11Device* pdevice)
 {
     Pipeline2D& p = g_p2d;
 
-    if (p.m_pdevice == pdevice && p.m_generation == pdevice->GetGeneration() && p.m_pvs != NULL) {
+    if (p.m_pdevice == pdevice && p.m_generation == pdevice->GetGeneration() && p.m_pvs != nullptr) {
         return true;
     }
 
@@ -71,12 +71,12 @@ bool CreatePipeline2D(D3D11Device* pdevice)
 
     ID3D11Device* pd3d = pdevice->GetDevice();
 
-    if (pd3d == NULL) {
+    if (pd3d == nullptr) {
         return false;
     }
 
-    if (FAILED(pd3d->CreateVertexShader(g_Draw2DVs, sizeof(g_Draw2DVs), NULL, &p.m_pvs))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_Draw2DPs, sizeof(g_Draw2DPs), NULL, &p.m_pps))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_Draw2DVs, sizeof(g_Draw2DVs), nullptr, &p.m_pvs))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_Draw2DPs, sizeof(g_Draw2DPs), nullptr, &p.m_pps))) return false;
 
     static const D3D11_INPUT_ELEMENT_DESC layout[] = {
         { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -91,11 +91,11 @@ bool CreatePipeline2D(D3D11Device* pdevice)
     bd.Usage          = D3D11_USAGE_DYNAMIC;
     bd.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
     bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    if (FAILED(pd3d->CreateBuffer(&bd, NULL, &p.m_pcb))) return false;
+    if (FAILED(pd3d->CreateBuffer(&bd, nullptr, &p.m_pcb))) return false;
 
     bd.ByteWidth = c_maxQuads * 4 * sizeof(Vertex2D);
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    if (FAILED(pd3d->CreateBuffer(&bd, NULL, &p.m_pvb))) return false;
+    if (FAILED(pd3d->CreateBuffer(&bd, nullptr, &p.m_pvb))) return false;
 
     //
     // Quads share one index buffer: 0 1 2, 2 1 3 per quad
@@ -191,7 +191,7 @@ void DrawQuads(
     ID3D11ShaderResourceView* psrv,
     const WinRect&            rectScissor
 ) {
-    if (quads <= 0 || !CreatePipeline2D(pdevice) || ptarget->m_prtv == NULL) {
+    if (quads <= 0 || !CreatePipeline2D(pdevice) || ptarget->m_prtv == nullptr) {
         return;
     }
 
@@ -236,8 +236,8 @@ void DrawQuads(
     pcontext->Unmap(p.m_pcb, 0);
 
     ID3D11RenderTargetView* prtv = ptarget->m_prtv;
-    pcontext->OMSetRenderTargets(1, &prtv, NULL);
-    pcontext->OMSetBlendState(mode == 1 && keyMode != D3D11KeyNone ? p.m_pblendOver : p.m_pblendReplace, NULL, 0xffffffff);
+    pcontext->OMSetRenderTargets(1, &prtv, nullptr);
+    pcontext->OMSetBlendState(mode == 1 && keyMode != D3D11KeyNone ? p.m_pblendOver : p.m_pblendReplace, nullptr, 0xffffffff);
     pcontext->OMSetDepthStencilState(p.m_pdepth, 0);
 
     D3D11_VIEWPORT vp;
@@ -260,9 +260,9 @@ void DrawQuads(
     pcontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     ID3D11Buffer* pcb = p.m_pcb;
-    pcontext->VSSetShader(p.m_pvs, NULL, 0);
+    pcontext->VSSetShader(p.m_pvs, nullptr, 0);
     pcontext->VSSetConstantBuffers(0, 1, &pcb);
-    pcontext->PSSetShader(p.m_pps, NULL, 0);
+    pcontext->PSSetShader(p.m_pps, nullptr, 0);
     pcontext->PSSetConstantBuffers(0, 1, &pcb);
     pcontext->PSSetShaderResources(0, 1, &psrv);
 
@@ -290,7 +290,7 @@ void DrawQuads(
     // Don't leave a source bound: it may be the next draw's render target
     //
 
-    ID3D11ShaderResourceView* pnull = NULL;
+    ID3D11ShaderResourceView* pnull = nullptr;
     pcontext->PSSetShaderResources(0, 1, &pnull);
 }
 
@@ -305,7 +305,7 @@ void DrawQuads(
 bool D3D11Target::IsValid(D3D11Device* pdevice, const WinPoint& size)
 {
     return
-           m_ptexture   != NULL
+           m_ptexture   != nullptr
         && m_generation == pdevice->GetGeneration()
         && m_size       == size;
 }
@@ -320,17 +320,17 @@ bool D3D11EnsureTarget(D3D11Device* pdevice, D3D11Target* ptarget, const WinPoin
 
     bRecreated = true;
 
-    ptarget->m_ptexture   = NULL;
-    ptarget->m_prtv       = NULL;
-    ptarget->m_psrv       = NULL;
-    ptarget->m_pdepth     = NULL;
-    ptarget->m_pdsv       = NULL;
-    ptarget->m_pstaging   = NULL;
+    ptarget->m_ptexture   = nullptr;
+    ptarget->m_prtv       = nullptr;
+    ptarget->m_psrv       = nullptr;
+    ptarget->m_pdepth     = nullptr;
+    ptarget->m_pdsv       = nullptr;
+    ptarget->m_pstaging   = nullptr;
     ptarget->m_generation = -1;
 
     ID3D11Device* pd3d = pdevice->GetDevice();
 
-    if (pd3d == NULL || size.X() <= 0 || size.Y() <= 0) {
+    if (pd3d == nullptr || size.X() <= 0 || size.Y() <= 0) {
         return false;
     }
 
@@ -344,14 +344,14 @@ bool D3D11EnsureTarget(D3D11Device* pdevice, D3D11Target* ptarget, const WinPoin
     td.Usage            = D3D11_USAGE_DEFAULT;
     td.BindFlags        = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
-    HRESULT hr = pd3d->CreateTexture2D(&td, NULL, &ptarget->m_ptexture);
-    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(ptarget->m_ptexture, NULL, &ptarget->m_prtv);
-    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(ptarget->m_ptexture, NULL, &ptarget->m_psrv);
+    HRESULT hr = pd3d->CreateTexture2D(&td, nullptr, &ptarget->m_ptexture);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(ptarget->m_ptexture, nullptr, &ptarget->m_prtv);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(ptarget->m_ptexture, nullptr, &ptarget->m_psrv);
 
     if (FAILED(hr)) {
-        ptarget->m_ptexture = NULL;
-        ptarget->m_prtv     = NULL;
-        ptarget->m_psrv     = NULL;
+        ptarget->m_ptexture = nullptr;
+        ptarget->m_prtv     = nullptr;
+        ptarget->m_psrv     = nullptr;
         pdevice->CheckDeviceLost(hr);
         return false;
     }
@@ -363,7 +363,7 @@ bool D3D11EnsureTarget(D3D11Device* pdevice, D3D11Target* ptarget, const WinPoin
 
 bool D3D11EnsureDepth(D3D11Device* pdevice, D3D11Target* ptarget)
 {
-    if (ptarget->m_pdsv != NULL) {
+    if (ptarget->m_pdsv != nullptr) {
         return true;
     }
 
@@ -378,12 +378,12 @@ bool D3D11EnsureDepth(D3D11Device* pdevice, D3D11Target* ptarget)
     td.BindFlags        = D3D11_BIND_DEPTH_STENCIL;
 
     ID3D11Device* pd3d = pdevice->GetDevice();
-    HRESULT hr = pd3d->CreateTexture2D(&td, NULL, &ptarget->m_pdepth);
-    if (SUCCEEDED(hr)) hr = pd3d->CreateDepthStencilView(ptarget->m_pdepth, NULL, &ptarget->m_pdsv);
+    HRESULT hr = pd3d->CreateTexture2D(&td, nullptr, &ptarget->m_pdepth);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateDepthStencilView(ptarget->m_pdepth, nullptr, &ptarget->m_pdsv);
 
     if (FAILED(hr)) {
-        ptarget->m_pdepth = NULL;
-        ptarget->m_pdsv   = NULL;
+        ptarget->m_pdepth = nullptr;
+        ptarget->m_pdsv   = nullptr;
         pdevice->CheckDeviceLost(hr);
         return false;
     }
@@ -414,7 +414,7 @@ void D3D11Upload(D3D11Device* pdevice, D3D11Target* ptarget, const BYTE* psource
     g_vconvert.resize(size.X() * size.Y());
     ConvertSurfaceToBGRA(psource, pitch, ppf, size, true, g_vconvert.data(), size.X() * 4);
 
-    pdevice->GetContext()->UpdateSubresource(ptarget->m_ptexture, 0, NULL, g_vconvert.data(), size.X() * 4, 0);
+    pdevice->GetContext()->UpdateSubresource(ptarget->m_ptexture, 0, nullptr, g_vconvert.data(), size.X() * 4, 0);
     g_d3d11Stats.m_uploads++;
 }
 
@@ -422,7 +422,7 @@ bool D3D11Readback(D3D11Device* pdevice, D3D11Target* ptarget, BYTE* pdest, int 
 {
     ID3D11DeviceContext* pcontext = pdevice->GetContext();
 
-    if (ptarget->m_pstaging == NULL) {
+    if (ptarget->m_pstaging == nullptr) {
         D3D11_TEXTURE2D_DESC td = {};
         td.Width            = ptarget->m_size.X();
         td.Height           = ptarget->m_size.Y();
@@ -433,7 +433,7 @@ bool D3D11Readback(D3D11Device* pdevice, D3D11Target* ptarget, BYTE* pdest, int 
         td.Usage            = D3D11_USAGE_STAGING;
         td.CPUAccessFlags   = D3D11_CPU_ACCESS_READ;
 
-        HRESULT hr = pdevice->GetDevice()->CreateTexture2D(&td, NULL, &ptarget->m_pstaging);
+        HRESULT hr = pdevice->GetDevice()->CreateTexture2D(&td, nullptr, &ptarget->m_pstaging);
 
         if (FAILED(hr)) {
             pdevice->CheckDeviceLost(hr);
@@ -488,7 +488,7 @@ void D3D11Blit(
     D3D11KeyMode              keyMode,
     const WinRect&            rectScissor
 ) {
-    if (psrv == NULL || rectDest.IsEmpty() || rectSource.IsEmpty()) {
+    if (psrv == nullptr || rectDest.IsEmpty() || rectSource.IsEmpty()) {
         return;
     }
 
@@ -529,15 +529,15 @@ void D3D11Fill(D3D11Device* pdevice, D3D11Target* ptarget, const WinRect& rect, 
     Vertex2D quad[4];
     SetQuad(quad, rect, 0, 0, 0, 0, bgra);
 
-    DrawQuads(pdevice, ptarget, quad, 1, 0, 0, NULL, rect);
+    DrawQuads(pdevice, ptarget, quad, 1, 0, 0, nullptr, rect);
 }
 
 TRef<ID3D11ShaderResourceView> D3D11CreateAtlas(D3D11Device* pdevice, const BYTE* pdata, const WinPoint& size)
 {
     ID3D11Device* pd3d = pdevice->GetDevice();
 
-    if (pd3d == NULL || size.X() <= 0 || size.Y() <= 0) {
-        return NULL;
+    if (pd3d == nullptr || size.X() <= 0 || size.Y() <= 0) {
+        return nullptr;
     }
 
     D3D11_TEXTURE2D_DESC td = {};
@@ -558,11 +558,11 @@ TRef<ID3D11ShaderResourceView> D3D11CreateAtlas(D3D11Device* pdevice, const BYTE
     TRef<ID3D11ShaderResourceView> psrv;
 
     HRESULT hr = pd3d->CreateTexture2D(&td, &data, &ptexture);
-    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(ptexture, NULL, &psrv);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(ptexture, nullptr, &psrv);
 
     if (FAILED(hr)) {
         pdevice->CheckDeviceLost(hr);
-        return NULL;
+        return nullptr;
     }
 
     return psrv;
@@ -577,7 +577,7 @@ void D3D11DrawGlyphs(
     int                       count,
     const WinRect&            rectScissor
 ) {
-    if (patlas == NULL || count <= 0) {
+    if (patlas == nullptr || count <= 0) {
         return;
     }
 

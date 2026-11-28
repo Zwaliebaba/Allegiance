@@ -44,7 +44,7 @@ public:
         //return pvalue ? pvalue->GetValue() : valueDefault;
     }
 
-    IEngineFont* FindFont(const ZString& strName, IEngineFont* valueDefault = NULL)
+    IEngineFont* FindFont(const ZString& strName, IEngineFont* valueDefault = nullptr)
     {
         TRef<FontValue> pvalue; CastTo(pvalue, FindMember(strName));
         return pvalue->GetValue();

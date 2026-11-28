@@ -10,7 +10,7 @@ class TabWordPane : public Pane {
 private:
 public:
     TabWordPane(int x) : 
-        Pane(NULL, WinPoint(0, 0))
+        Pane(nullptr, WinPoint(0, 0))
     {
     }
 
@@ -203,7 +203,7 @@ public:
     bool Error(const ZString& str)
     {
         m_color = Color::Red();
-        Parse(NULL, "Error: " + str);
+        Parse(nullptr, "Error: " + str);
         return false;
     }
 
@@ -241,7 +241,7 @@ public:
         }
 
         TRef<Image> pimage = m_pmodeler->LoadImage(strImage + "bmp", true, false);
-        if (pimage == NULL) {
+        if (pimage == nullptr) {
             return Error("Invalid image");
         }
 
@@ -309,7 +309,7 @@ public:
         if (m_ppagePaneIncluder) {
             TRef<ZFile> pfile = m_ppagePaneIncluder->Include(str);
 
-            if (pfile == NULL) {
+            if (pfile == nullptr) {
                 pfile = m_pmodeler->LoadFile(strFile, "mml", false);
             }
 
@@ -376,7 +376,7 @@ public:
                 return Error("Expected '>'");
             }
 
-            InsertAtBottom(new Pane(NULL, WinPoint(0, m_pfontDefault->GetHeight())));
+            InsertAtBottom(new Pane(nullptr, WinPoint(0, m_pfontDefault->GetHeight())));
 
             pcc += 2;
             return true;
@@ -643,7 +643,7 @@ public:
         //
 
         Pane* ppane;
-        for(ppane = Child(); ppane != NULL; ppane = ppane->Next()) {
+        for(ppane = Child(); ppane != nullptr; ppane = ppane->Next()) {
             InternalSetExpand(ppane, WinPoint(0, 0));
             ppane->UpdateLayout();
         }
@@ -659,7 +659,7 @@ public:
 
         Pane* ppaneLine = Child();  
 
-        for(ppane = Child(); ppane != NULL; ppane = ppane->Next()) {
+        for(ppane = Child(); ppane != nullptr; ppane = ppane->Next()) {
             //
             // Go to the next line?
             //
@@ -697,7 +697,7 @@ public:
         // fixup the last line
         //
 
-        FixupLineY(ppaneLine, NULL, ysizeLine);
+        FixupLineY(ppaneLine, nullptr, ysizeLine);
 
         //
         // This panes's size
@@ -815,7 +815,7 @@ private:
 public:
     PagePaneWrapper(Modeler* pmodeler, const WinPoint& size, ScrollPane* pscrollPane)
     {
-        m_ppagePane = new PagePaneImpl(pmodeler, size.X(), NULL, NULL);
+        m_ppagePane = new PagePaneImpl(pmodeler, size.X(), nullptr, nullptr);
         TRef<Pane> ppane =
             new JustifyPane(
                 JustifyPane::Left | JustifyPane::Top,

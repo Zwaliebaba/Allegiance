@@ -282,7 +282,7 @@ void ColumnPane::UpdateLayout()
     //
 
     Pane* ppane;
-    for(ppane = Child(); ppane != NULL; ppane = ppane->Next()) {
+    for(ppane = Child(); ppane != nullptr; ppane = ppane->Next()) {
         if (!ppane->IsHidden()) {
             InternalSetExpand(ppane, WinPoint(XExpand(), 0));
             ppane->UpdateLayout();
@@ -308,7 +308,7 @@ void ColumnPane::UpdateLayout()
 
         ysize = 0;
 
-        for(ppane = Child(); ppane != NULL; ppane = ppane->Next()) {
+        for(ppane = Child(); ppane != nullptr; ppane = ppane->Next()) {
             if (!ppane->IsHidden()) {
                 int ysizeOld = ppane->YSize();
 
@@ -339,7 +339,7 @@ void ColumnPane::Paint(Surface* psurface)
         int y = -1;
 
         for(Pane* ppane = Child();
-            ppane != NULL && ppane->Next() != NULL;
+            ppane != nullptr && ppane->Next() != nullptr;
             ppane = ppane->Next()
         ) {
             y += ppane->YSize() + (m_bShowGrid ? 1 : 0);
@@ -390,7 +390,7 @@ void RowPane::UpdateLayout()
     //
 
     Pane* ppane;
-    for(ppane = Child(); ppane != NULL; ppane = ppane->Next()) {
+    for(ppane = Child(); ppane != nullptr; ppane = ppane->Next()) {
         if (!ppane->IsHidden()) {
             InternalSetExpand(ppane, WinPoint(0, YExpand()));
             ppane->UpdateLayout();
@@ -422,7 +422,7 @@ void RowPane::UpdateLayout()
         xsize = 0;
         int ysizeNew = 0;
 
-        for(ppane = Child(); ppane != NULL; ppane = ppane->Next()) {
+        for(ppane = Child(); ppane != nullptr; ppane = ppane->Next()) {
             if (!ppane->IsHidden()) {
                 int xsizeOld = ppane->XSize();
 
@@ -456,7 +456,7 @@ void RowPane::Paint(Surface* psurface)
         int x = -1;
 
         for(Pane* ppane = Child();
-            ppane != NULL && ppane->Next() != NULL;
+            ppane != nullptr && ppane->Next() != nullptr;
             ppane = ppane->Next()
         ) {
             x += ppane->XSize() + 1;
@@ -914,7 +914,7 @@ void AnimatedImagePane::Paint(Surface* psurface)
 {
     if (XSize() > 0 && YSize() > 0) {
         Update();
-        Point offset = Point::Cast(GetOffsetFrom(NULL));
+        Point offset = Point::Cast(GetOffsetFrom(nullptr));
         m_ysizeSurface = float(psurface->GetSize().Y());
 
         TRef<Context> pcontext = psurface->GetContext();
@@ -1133,8 +1133,8 @@ public:
     {
         //  , should pass the buttons in and have ScrollPane handle the events
 
-        m_ppaneLeft  = CreateButton(ppaneLeft,  NULL, false, repeatRate);
-        m_ppaneRight = CreateButton(ppaneRight, NULL, false, repeatRate);
+        m_ppaneLeft  = CreateButton(ppaneLeft,  nullptr, false, repeatRate);
+        m_ppaneRight = CreateButton(ppaneRight, nullptr, false, repeatRate);
 
         m_peventSourceLeft  = m_ppaneLeft->GetEventSource();
         m_peventSourceRight = m_ppaneRight->GetEventSource();
@@ -1364,7 +1364,7 @@ public:
 
     void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override
     {
-        if (bCaptured && GetCapturePane() == NULL) {
+        if (bCaptured && GetCapturePane() == nullptr) {
             if (m_bHorizontal) {
                 SetMousePos((int)(point.X() - m_pointTrack.X()));
             } else {
@@ -1383,7 +1383,7 @@ public:
                     m_pointTrack = point - Point::Cast(ppaneHit->GetOffset());
                     return MouseResultCapture();
                 }
-            } else if (bCaptured && GetCapturePane() == NULL) {
+            } else if (bCaptured && GetCapturePane() == nullptr) {
                 return MouseResultRelease();
             }
         }

@@ -114,7 +114,7 @@ void ParseIntVector(IObject* pobject, std::vector<int>& vec)
 
     plistVertices->GetFirst();
 
-    while (plistVertices->GetCurrent() != NULL) {
+    while (plistVertices->GetCurrent() != nullptr) {
         vec.push_back((int)GetNumber(plistVertices->GetCurrent()));
         plistVertices->GetNext();
     }
@@ -132,7 +132,7 @@ void ParseFloatVector(IObject* pobject, std::vector<float>& vec)
 
     plistVertices->GetFirst();
 
-    while (plistVertices->GetCurrent() != NULL) {
+    while (plistVertices->GetCurrent() != nullptr) {
         vec.push_back((float)GetNumber(plistVertices->GetCurrent()));
         plistVertices->GetNext();
     }
@@ -150,7 +150,7 @@ void ParseStringVector(IObject* pobject, std::vector<ZString>& vec)
 
     plistVertices->GetFirst();
 
-    while (plistVertices->GetCurrent() != NULL) {
+    while (plistVertices->GetCurrent() != nullptr) {
         vec.push_back(GetString(plistVertices->GetCurrent()));
         plistVertices->GetNext();
     }
@@ -270,7 +270,7 @@ TRef<Pane> CreateTrekScrollPane(
 ) {
 
 
-    if (pbuttonUp == NULL || pbuttonDown == NULL)
+    if (pbuttonUp == nullptr || pbuttonDown == nullptr)
     {                                   
         TRef<Image> pimageUp;      
         TRef<Image> pimageUpSel;   
@@ -366,9 +366,9 @@ public:
 
         if(m_bDefaultImages)
         {
-            pbuttonUp = NULL;
-            pbuttonDown = NULL;
-            pImageThumb = NULL;
+            pbuttonUp = nullptr;
+            pbuttonDown = nullptr;
+            pImageThumb = nullptr;
         }
         else
         {
@@ -429,9 +429,9 @@ public:
         return
             (Pane*)CreateListPane(
                 WinPoint::Cast(ppoint->GetValue()),
-                NULL,
-                NULL,
-                NULL,
+                nullptr,
+                nullptr,
+                nullptr,
                 false
             );
     }
@@ -491,8 +491,8 @@ public:
         return (Pane*) 
             CreateStringListPane(
                 WinPoint::Cast(ppoint->GetValue()), 
-                NULL, 
-                NULL, 
+                nullptr, 
+                nullptr, 
                 pscrollPane,
                 false,
                 pfont->GetValue(),
@@ -528,8 +528,8 @@ public:
         return 
             (Pane*)CreateListPane(
                 WinPoint::Cast(ppoint->GetValue()), 
-                NULL, 
-                NULL, 
+                nullptr, 
+                nullptr, 
                 pscrollPane,
                 false
             );
@@ -561,8 +561,8 @@ public:
         return 
             (Pane*)CreateListPane(
                 WinPoint::Cast(ppoint->GetValue()), 
-                NULL, 
-                NULL, 
+                nullptr, 
+                nullptr, 
                 pscrollPane,
                 true
             );
@@ -592,7 +592,7 @@ public:
 
         plist->GetFirst();
 
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             IObjectPair*      ppair;       CastTo(ppair,       plist->GetCurrent());
             TRef<Pane>        ppaneChild;  CastTo(ppaneChild,  ppair->GetFirst()  );
             TRef<PointValue>  ppointChild; CastTo(ppointChild, ppair->GetSecond() );
@@ -649,7 +649,7 @@ public:
 
         plist->GetFirst();
 
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             IObjectPair*      ppair;       CastTo(ppair,       plist->GetCurrent());
             TRef<Pane>        ppaneChild;  CastTo(ppaneChild,  ppair->GetFirst()  );
             TRef<PointValue>  ppointChild; CastTo(ppointChild, ppair->GetSecond() );
@@ -923,7 +923,7 @@ public:
 
         plist->GetFirst();
 
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             IObjectPair*      ppair;       CastTo(ppair,       plist->GetCurrent());
             TRef<Pane>        ppaneChild;  CastTo(ppaneChild,  ppair->GetFirst()  );
             TRef<PointValue>  ppointChild; CastTo(ppointChild, ppair->GetSecond() );

@@ -50,7 +50,7 @@ public:
         m_bAllowSecondary(bAllowSecondary),
         m_bAllow3DAcceleration(bAllow3DAcceleration),
         m_b3DAccelerationImportant(false),
-        m_hwndFocus(NULL),
+        m_hwndFocus(nullptr),
         m_pointFullscreen(640, 480),
         m_gamma(1.0f),
         m_bDeviceFailed(false)
@@ -77,11 +77,11 @@ public:
 
     void Terminate() override
     {
-        if (m_pdevice != NULL && m_hwndFocus != NULL) {
+        if (m_pdevice != nullptr && m_hwndFocus != nullptr) {
             m_pdevice->ReleaseSwapChain(m_hwndFocus);
         }
 
-        m_pdevice = NULL;
+        m_pdevice = nullptr;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -92,10 +92,10 @@ public:
 
     D3D11Device* GetD3D11Device() override
     {
-        if (m_pdevice == NULL && !m_bDeviceFailed) {
+        if (m_pdevice == nullptr && !m_bDeviceFailed) {
             m_pdevice = CreateD3D11Device();
 
-            if (m_pdevice == NULL) {
+            if (m_pdevice == nullptr) {
                 m_bDeviceFailed = true;
             }
         }
@@ -227,9 +227,9 @@ public:
         mi.cbSize = sizeof(mi);
 
         HMONITOR hmonitor =
-            m_hwndFocus != NULL
+            m_hwndFocus != nullptr
                 ? ::MonitorFromWindow(m_hwndFocus, MONITOR_DEFAULTTONEAREST)
-                : ::MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+                : ::MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
 
         if (::GetMonitorInfo(hmonitor, &mi)) {
             return
@@ -445,7 +445,7 @@ public:
 
     int GetTotalVideoMemory() override
     {
-        return m_pdevice != NULL ? m_pdevice->GetTotalVideoMemory() : 0;
+        return m_pdevice != nullptr ? m_pdevice->GetTotalVideoMemory() : 0;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -459,7 +459,7 @@ public:
         m_listDeviceFormatSurfaces.Remove(psurface);
         m_listSurfaces.Remove(psurface);
 
-        if (m_pdevice != NULL) {
+        if (m_pdevice != nullptr) {
             m_pdevice->RemoveSurface(psurface);
         }
     }

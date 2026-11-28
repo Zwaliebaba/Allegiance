@@ -65,7 +65,7 @@ public:
         int                id,
         const ZString&     str,
         char               chAccelerator     = 0,
-        ISubmenuEventSink* psubmenuEventSink = NULL
+        ISubmenuEventSink* psubmenuEventSink = nullptr
     ) = 0;
 
     virtual IMenuItem* FindMenuItem(int id) = 0;
