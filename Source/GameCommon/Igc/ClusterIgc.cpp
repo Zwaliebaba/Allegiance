@@ -87,7 +87,7 @@ void        CclusterIGC::Terminate(void)
 
     assert (m_pClusterSite);
     m_pClusterSite->Terminate();
-    m_pClusterSite = NULL;
+    m_pClusterSite = nullptr;
 
     m_pMission->DeleteCluster(this);
 }
@@ -104,14 +104,14 @@ void        CclusterIGC::Update(Time now)
             {
                 //Have any stations launch docked drones
                 for (StationLinkIGC*   l = m_stations.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     IstationIGC*    pstation = l->data();
 
                     ShipLinkIGC*    pslNext;
                     for (ShipLinkIGC*   psl = pstation->GetShips()->first();
-                         (psl != NULL);
+                         (psl != nullptr);
                          psl = pslNext)
                     {
                         IshipIGC*   pship = psl->data();
@@ -124,7 +124,7 @@ void        CclusterIGC::Update(Time now)
                             assert (pship->GetChildShips()->n() == 0);
 
                             if (pship->OkToLaunch(now))
-                                pship->SetStation(NULL);
+                                pship->SetStation(nullptr);
                         }
                     }
                 }
@@ -140,7 +140,7 @@ void        CclusterIGC::Update(Time now)
                 //Have miners and builders do any pre-plotted moves. Allow ships to suicide.
                 ShipLinkIGC*        lNext;
                 for (ShipLinkIGC*   l = m_ships.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = lNext)
                 {
                     IshipIGC*   s = l->data();
@@ -148,7 +148,7 @@ void        CclusterIGC::Update(Time now)
 
                     if (s->GetPilotType() < c_ptPlayer)
                         m_fCost += costDrone;
-                    else if (s->GetParentShip() != NULL)
+                    else if (s->GetParentShip() != nullptr)
                         m_fCost += costTurret;
                     else
                     {
@@ -171,7 +171,7 @@ void        CclusterIGC::Update(Time now)
                     //Have all ships on autopilot plot their moves. Allow ships to suicide.
                     ShipLinkIGC*        lNext;
                     for (ShipLinkIGC*   l = m_ships.first();
-                         (l != NULL);
+                         (l != nullptr);
                          l = lNext)
                     {
                         IshipIGC*   s = l->data();
@@ -185,12 +185,12 @@ void        CclusterIGC::Update(Time now)
             {
                 //Have all ships execute their moves
                 for (ShipLinkIGC*   l = m_ships.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     IshipIGC*   s = l->data();
 
-                    if (s->GetParentShip() == NULL)
+                    if (s->GetParentShip() == nullptr)
                     {
                         s->ExecuteShipMove(now);
                     }
@@ -210,7 +210,7 @@ void        CclusterIGC::Update(Time now)
 
             ModelLinkIGC*       lNext;
             for (ModelLinkIGC*     l = m_models.first();
-                 (l != NULL);
+                 (l != nullptr);
                  l = lNext)
             {
                 //oldObjectType = newObjectType;
@@ -227,7 +227,7 @@ void        CclusterIGC::Update(Time now)
             {
                 //Update the bounding boxes for all moving objects & projectiles
                 for (ModelLinkIGC*     l = m_models.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     l->data()->SetBB(m_lastUpdate, now, dt);
@@ -242,7 +242,7 @@ void        CclusterIGC::Update(Time now)
             {
                 //Cast rays through the KD tree for each object
                 for (ModelLinkIGC*     l = m_modelsCastRay.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     ImodelIGC*  m = l->data();
@@ -295,7 +295,7 @@ void        CclusterIGC::Update(Time now)
                 //so that the killing a parent doesn't mean hitting dead elements in the list
                 ShipLinkIGC*        lTxen;
                 for (ShipLinkIGC*   l = m_ships.last();
-                     (l != NULL);
+                     (l != nullptr);
                      l = lTxen)
                 {
                     IshipIGC*   s = l->data();
@@ -308,7 +308,7 @@ void        CclusterIGC::Update(Time now)
             //Move each object & projectile
             {
                 for (ModelLinkIGC*  l = m_models.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     l->data()->Move();
@@ -318,7 +318,7 @@ void        CclusterIGC::Update(Time now)
             if ((m_nPass++) % c_nPassesPerUpdate == 0)
             {
                 for (ModelLinkIGC*  l = m_models.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     l->data()->UpdateSeenBySide();
@@ -338,7 +338,7 @@ void        CclusterIGC::Update(Time now)
 
             //Copy the list of models in the sector that can be damaged into
             for (ModelLinkIGC*  l = m_modelsPickable.first();
-                 (l != NULL);
+                 (l != nullptr);
                  l = l->next())
             {
                 ImodelIGC*  pmodel = l->data();
@@ -359,7 +359,7 @@ void        CclusterIGC::Update(Time now)
             ImineIGC*   pmines[c_maxDmgs];
             int         nMines = 0;
             {
-                for (MineLinkIGC*   l = m_mines.first(); (l != NULL); l = l->next())
+                for (MineLinkIGC*   l = m_mines.first(); (l != nullptr); l = l->next())
                 {
                     ImineIGC*   pm = l->data();
                     pm->AddRef();
@@ -546,7 +546,7 @@ ImodelIGC*  CclusterIGC::GetModel(const char* name) const
 {
     assert (name);
     for (ModelLinkIGC*     l = m_models.first();
-         (l != NULL);
+         (l != nullptr);
          l = l->next())
     {
         ImodelIGC*  m = l->data();
@@ -556,7 +556,7 @@ ImodelIGC*  CclusterIGC::GetModel(const char* name) const
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void        CclusterIGC::RecalculateCollisions(float        tOffset,
@@ -569,21 +569,21 @@ void        CclusterIGC::RecalculateCollisions(float        tOffset,
     if (pHitTest1)
     {
         if (pHitTest1->GetDeadF())
-            pHitTest1 = NULL;
+            pHitTest1 = nullptr;
         else
             pHitTest1->SetStopPosition();
     }
 
     HitTest*    pHitTest2;
-    if ((pModel2 == NULL) || (pModel2->GetAttributes() & c_mtStatic))
-        pHitTest2 = NULL;
+    if ((pModel2 == nullptr) || (pModel2->GetAttributes() & c_mtStatic))
+        pHitTest2 = nullptr;
     else
     {
         pHitTest2 = pModel2->GetHitTest();
         if (pHitTest2)
         {
             if (pHitTest2->GetDeadF())
-                pHitTest2 = NULL;
+                pHitTest2 = nullptr;
             else
                 pHitTest2->SetStopPosition();
         }
@@ -599,7 +599,7 @@ void        CclusterIGC::RecalculateCollisions(float        tOffset,
             {
                 //Move all objects to their positions at the time of the collision
                 for (ModelLinkIGC*  l = m_models.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     ImodelIGC*  m = l->data();
@@ -623,7 +623,7 @@ void        CclusterIGC::RecalculateCollisions(float        tOffset,
             {
                 //Check for any collisions between either ship and the rest of the stuff in the cluster
                 for (ModelLinkIGC*     l = m_models.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     ImodelIGC*  m = l->data();

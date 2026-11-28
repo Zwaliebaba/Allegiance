@@ -19,8 +19,8 @@
 // CafterburnerIGC
 CafterburnerIGC::CafterburnerIGC(void)
 :
-    m_partType(NULL),
-    m_ship(NULL),
+    m_partType(nullptr),
+    m_ship(nullptr),
     m_fActive(false),
     m_power(0.0f),
     m_mountID(c_mountNA)
@@ -47,12 +47,12 @@ void        CafterburnerIGC::Terminate(void)
 {
     AddRef();
 
-    SetShip(NULL, NA);
+    SetShip(nullptr, NA);
 
     if (m_partType)
     {
         m_partType->Release();
-        m_partType = NULL;
+        m_partType = nullptr;
     }
 
     Release();

@@ -40,7 +40,7 @@ HRESULT CchaffIGC::Initialize(ImissionIGC* pMission, Time now, const void* data,
 
     m_pChaffTypeData = (DataChaffTypeIGC*)(dataChaff->pchafftype->GetData());
 
-    LoadDecal(m_pChaffTypeData->textureName, NULL,
+    LoadDecal(m_pChaffTypeData->textureName, nullptr,
               Color(1.0f, 1.0f, 1.0f, 1.0f),
               false,
               1.0f,

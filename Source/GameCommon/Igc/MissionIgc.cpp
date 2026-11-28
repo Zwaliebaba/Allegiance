@@ -70,7 +70,7 @@ static void DoDecrypt(int size, char* pdata)
 //------------------------------------------------------------------------------
 void    DumpIGCFile (FILE* file, ImissionIGC* pMission, __int64 iMaskExportTypes,  void (*munge)(int size, char* data))
 {
-    int         iSize = pMission->Export(iMaskExportTypes, 0);
+    int         iSize = pMission->Export(iMaskExportTypes, nullptr);
     char*       pData = new char[iSize+4];      //leave a little extra space for the encryption (which takes dword chunks)
     pMission->Export (iMaskExportTypes, pData);
     fwrite (&iSize, sizeof(int), 1, file);
@@ -150,7 +150,7 @@ bool    DumpIGCStaticCore (const char* name, ImissionIGC* pMission, __int64 iMas
     FILE*       file = fopen (szFilename, "wb");
     if (file)
     {
-        IGC_FILE_VERSION_TYPE   iStaticCoreVersion = static_cast<IGC_FILE_VERSION_TYPE> (time (0));
+        IGC_FILE_VERSION_TYPE   iStaticCoreVersion = static_cast<IGC_FILE_VERSION_TYPE> (time (nullptr));
         fwrite (&iStaticCoreVersion, sizeof(iStaticCoreVersion), 1, file);
         DumpIGCFile (file, pMission, iMaskExportTypes, munge);
         fclose (file);
@@ -181,7 +181,7 @@ int     LoadIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVer
 {
     //See if we've already loaded the static core
     {
-        for (CachedLink*    pcl = s_cores.first(); (pcl != NULL); pcl = pcl->next())
+        for (CachedLink*    pcl = s_cores.first(); (pcl != nullptr); pcl = pcl->next())
         {
             if (_stricmp(name, pcl->data().name) == 0)
             {
@@ -207,7 +207,7 @@ int     LoadIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVer
 
         if (!fGetVersionOnly)
         {
-            pMission->SetStaticCore(NULL);
+            pMission->SetStaticCore(nullptr);
 
             LoadIGCFile (file, pMission, munge);
 
@@ -290,8 +290,8 @@ const float c_fClusterDivisor   = 400.0f;
 
 CstaticIGC::CstaticIGC(void)
 :
-    m_pptAmmoPack(NULL),
-    m_pptFuelPack(NULL)
+    m_pptAmmoPack(nullptr),
+    m_pptFuelPack(nullptr)
 {
     m_constants.floatConstants[c_fcidLensMultiplier]        = c_zLensMultiplier;
     m_constants.floatConstants[c_fcidRadiusUniverse]        = c_radiusUniverse;
@@ -572,9 +572,9 @@ CstaticIGC::CstaticIGC(void)
 
 CmissionIGC::~CmissionIGC(void)
 {
-    if (m_pStatic != NULL)
+    if (m_pStatic != nullptr)
     {
-        for (CachedLink*    pcl = s_cores.first(); (pcl != NULL); pcl = pcl->next())
+        for (CachedLink*    pcl = s_cores.first(); (pcl != nullptr); pcl = pcl->next())
         {
             if (m_pStatic == pcl->data().pstatic)
             {
@@ -605,7 +605,7 @@ void CmissionIGC::Initialize(Time now, IIgcSite* pIgcSite)
     ZVerify(HitTest::Load("bgrnd53"));
     ZVerify(HitTest::Load("bgrnd03"));
 
-    m_sideTeamLobby = NULL;
+    m_sideTeamLobby = nullptr;
 }
 
 void    CmissionIGC::Terminate(void)
@@ -619,21 +619,21 @@ void    CmissionIGC::Terminate(void)
         //So do it before nuking the clusters since that would nuke the ships in the
         //cluster.
         ShipLinkIGC*  l;
-        while ((l = m_ships.first()) != NULL)
+        while ((l = m_ships.first()) != nullptr)
         {
-            l->data()->SetMission(NULL);
+            l->data()->SetMission(nullptr);
         }
     }
     {
         ClusterLinkIGC*  l;
-        while ((l = m_clusters.first()) != NULL)
+        while ((l = m_clusters.first()) != nullptr)
         {
             l->data()->Terminate();
         }
     }
     {
         SideLinkIGC*  l;
-        while ((l = m_sides.first()) != NULL)
+        while ((l = m_sides.first()) != nullptr)
         {
             l->data()->Terminate();
         }
@@ -642,7 +642,7 @@ void    CmissionIGC::Terminate(void)
     {
         m_sideTeamLobby->Terminate();
         m_sideTeamLobby->Release();
-        m_sideTeamLobby = NULL;
+        m_sideTeamLobby = nullptr;
     };
 
     assert (m_clusters.n() == 0);
@@ -666,7 +666,7 @@ void     CmissionIGC::Update(Time now)
             {
                 //Update the various sides
                 for (SideLinkIGC*   l = m_sides.first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     l->data()->Update(now);
@@ -696,7 +696,7 @@ void     CmissionIGC::Update(Time now)
                     //Update all clusters (which update all the models in clusters, etc.)
                     //Clusters can never be deleted on an update, so this is safe.
                     for (ClusterLinkIGC*  l = m_clusters.first();
-                         (l != NULL);
+                         (l != nullptr);
                          l = l->next())
                     {
                         assert (l->data());
@@ -722,7 +722,7 @@ static int  ExportList(__int64              maskTypes,
     int size = 0;
 
     for (BaseLinkIGC*   pbl = plist->first();
-         (pbl != NULL);
+         (pbl != nullptr);
          pbl = pbl->next())
     {
         ObjectType  type = pbl->data()->GetObjectType();
@@ -739,7 +739,7 @@ static int  ExportList(__int64              maskTypes,
                 size += sizeItem + sizeof(int) + sizeof(ObjectType);
             }
             else
-                size += pbl->data()->Export(NULL) + sizeof(int) + sizeof(ObjectType);
+                size += pbl->data()->Export(nullptr) + sizeof(int) + sizeof(ObjectType);
         }
     }
 
@@ -887,7 +887,7 @@ IbaseIGC*           CmissionIGC::CreateObject(Time now, ObjectType objecttype,
         default:
         {
             ShouldBe(false);
-            pBase = NULL;
+            pBase = nullptr;
         }
     }
 
@@ -903,7 +903,7 @@ IbaseIGC*           CmissionIGC::CreateObject(Time now, ObjectType objecttype,
                 pBase->Terminate();
 
             pBase->Release();
-            pBase = NULL;
+            pBase = nullptr;
         }
     }
 
@@ -941,7 +941,7 @@ ImodelIGC*  CmissionIGC::GetModel(ObjectType type, ObjectID id) const
             return GetBuoy(id);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //
@@ -975,7 +975,7 @@ IbaseIGC*  CmissionIGC::GetBase(ObjectType type, ObjectID id) const
 
         case OT_projectile:  
             assert(0);
-            return NULL;//GetProjectile(id);
+            return nullptr;//GetProjectile(id);
 
         case OT_side:        
             return GetSide(id);
@@ -984,7 +984,7 @@ IbaseIGC*  CmissionIGC::GetBase(ObjectType type, ObjectID id) const
             return GetCluster(id);
 
         case OT_weapon:      
-            return NULL;//GetWeapon(id);
+            return nullptr;//GetWeapon(id);
 
         case OT_treasureSet:
             return GetTreasureSet(id);
@@ -1008,7 +1008,7 @@ IbaseIGC*  CmissionIGC::GetBase(ObjectType type, ObjectID id) const
           return GetPartType(id);
 
         case OT_missileType:   
-            return NULL;//GetMissile??(id);
+            return nullptr;//GetMissile??(id);
 
         case OT_mineType:         
             return GetMine(id);
@@ -1029,7 +1029,7 @@ IbaseIGC*  CmissionIGC::GetBase(ObjectType type, ObjectID id) const
             return GetDroneType(id);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void                        CmissionIGC::AddWarp(IwarpIGC*  w)
@@ -1293,9 +1293,9 @@ void                    CmissionIGC::ResetMission()
 {
     {
         // move all of the ships to the null cluster
-        for (ShipLinkIGC*  l = m_ships.first(); l != NULL; l = l->next())
+        for (ShipLinkIGC*  l = m_ships.first(); l != nullptr; l = l->next())
         {
-            l->data()->SetCluster(NULL);
+            l->data()->SetCluster(nullptr);
             l->data()->SetFlag(NA);
         }
     }
@@ -1309,7 +1309,7 @@ void                    CmissionIGC::ResetMission()
 
     // reset all of the side techs
     for (SideLinkIGC * plinkSides = GetSides()->first(); 
-        (plinkSides != NULL); plinkSides = plinkSides->next())
+        (plinkSides != nullptr); plinkSides = plinkSides->next())
     {
         plinkSides->data()->DestroyBuckets();
     }
@@ -1348,7 +1348,7 @@ void                    CmissionIGC::GenerateMission(Time                   now,
     //Create buckets for all of the sides in the game
     {
         unsigned char   pctConquest = (unsigned char)(100 / m_sides.n());
-        for (SideLinkIGC*   psl = m_sides.first(); (psl != NULL); psl = psl->next())
+        for (SideLinkIGC*   psl = m_sides.first(); (psl != nullptr); psl = psl->next())
         {
             IsideIGC*           pside = psl->data();
             IcivilizationIGC*   pciv = pside->GetCivilization();
@@ -1401,7 +1401,7 @@ void                    CmissionIGC::GenerateMission(Time                   now,
         float   amountHe3;
         {
             float   nHe3 = 0.0f;
-            for (ClusterLinkIGC* pcl = m_clusters.first(); (pcl != NULL); pcl = pcl->next())
+            for (ClusterLinkIGC* pcl = m_clusters.first(); (pcl != nullptr); pcl = pcl->next())
             {
                 IclusterIGC*            pcluster = pcl->data();
                 const AsteroidListIGC*  pasteroids = pcluster->GetAsteroids();
@@ -1413,7 +1413,7 @@ void                    CmissionIGC::GenerateMission(Time                   now,
                 }
                 else
                 {
-                    for (AsteroidLinkIGC*   pal = pasteroids->first(); (pal != NULL); pal = pal->next())
+                    for (AsteroidLinkIGC*   pal = pasteroids->first(); (pal != nullptr); pal = pal->next())
                     {
                         if (pal->data()->GetCapabilities() & c_aabmMineHe3)
                             nHe3 += 1.0f;
@@ -1432,7 +1432,7 @@ void                    CmissionIGC::GenerateMission(Time                   now,
         }
 
         const StationTypeListIGC*   pstationtypes = GetStationTypes();
-        for (ClusterLinkIGC* pcl = m_clusters.first(); (pcl != NULL); pcl = pcl->next())
+        for (ClusterLinkIGC* pcl = m_clusters.first(); (pcl != nullptr); pcl = pcl->next())
         {
             IclusterIGC*    pcluster = pcl->data();
 
@@ -1440,7 +1440,7 @@ void                    CmissionIGC::GenerateMission(Time                   now,
                 //Replace stations with ones they actually can get
                 //Walk the list backwards because changing a station moves it to the end of the list.
                 StationLinkIGC*   psl = pcluster->GetStations()->last();
-                while (psl != NULL)
+                while (psl != nullptr)
                 {
                     IstationIGC*            pstation = psl->data();
                     psl = psl->txen();
@@ -1454,7 +1454,7 @@ void                    CmissionIGC::GenerateMission(Time                   now,
                     {
                         StationClassID classID = pst->GetClassID();
 
-                        for (StationTypeLinkIGC*    pstl = pstationtypes->first(); (pstl != NULL); pstl = pstl->next())
+                        for (StationTypeLinkIGC*    pstl = pstationtypes->first(); (pstl != nullptr); pstl = pstl->next())
                         {
                             IstationTypeIGC*    pstPossible = pstl->data();
                             if ((pstPossible->GetClassID() == classID) &&
@@ -1479,13 +1479,13 @@ void                    CmissionIGC::GenerateMission(Time                   now,
         if (pmp->bShowMap)
         {
             for (WarpLinkIGC * pwl = m_warps.first();
-                (pwl != NULL);
+                (pwl != nullptr);
                 pwl = pwl->next())
             {
                 IwarpIGC*   pwarp = pwl->data();
 
                 for (SideLinkIGC * psl = m_sides.first();
-                    (psl != NULL);
+                    (psl != nullptr);
                     psl = psl->next())
                 {
                     pwarp->SetSideVisibility(psl->data(), true);
@@ -1500,26 +1500,26 @@ void                    CmissionIGC::GenerateMission(Time                   now,
         assert (c_cSidesMax == 6);
         unsigned char nTerritoriesPerSide[c_cSidesMax] = {0, 0, 0, 0, 0, 0};
 
-        for (ClusterLinkIGC*    pcl = m_clusters.first(); (pcl != NULL); pcl = pcl->next())
+        for (ClusterLinkIGC*    pcl = m_clusters.first(); (pcl != nullptr); pcl = pcl->next())
         {
             IclusterIGC*    pcluster = pcl->data();
 
-            IsideIGC*       psideOwner = NULL;
+            IsideIGC*       psideOwner = nullptr;
             StationLinkIGC*    psl;
-            for (psl = pcluster->GetStations()->first(); (psl != NULL); psl = psl->next())
+            for (psl = pcluster->GetStations()->first(); (psl != nullptr); psl = psl->next())
             {
                 IsideIGC*   pside = psl->data()->GetSide();
-                if (psideOwner == NULL)
+                if (psideOwner == nullptr)
                     psideOwner = pside;
                 else if (psideOwner != pside)
                     break;
             }
 
-            if (psideOwner && (psl == NULL))
+            if (psideOwner && (psl == nullptr))
                 nTerritoriesPerSide[psideOwner->GetObjectID()]++;
         }
 
-        for (SideLinkIGC*   psl = m_sides.first(); (psl != NULL); psl = psl->next())
+        for (SideLinkIGC*   psl = m_sides.first(); (psl != nullptr); psl = psl->next())
             psl->data()->SetTerritoryCount(nTerritoriesPerSide[psl->data()->GetObjectID()]);
     }
 }
@@ -1571,7 +1571,7 @@ void    CmissionIGC::GenerateTreasure(Time         now,
                 dt.p0.z *= c_zLensMultiplier;
 
                 //Verify that it is not close to any other model in the cluster
-                for (pmlink = models->first(); (pmlink != NULL); pmlink = pmlink->next())
+                for (pmlink = models->first(); (pmlink != nullptr); pmlink = pmlink->next())
                 {
                     ImodelIGC*  pm = pmlink->data();
                     float       r = (pm->GetObjectType() == OT_ship         //Never create a treasure starting within 500*sqrt(10) of a player

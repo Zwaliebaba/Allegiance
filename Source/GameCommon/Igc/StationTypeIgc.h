@@ -23,7 +23,7 @@ class       CstationTypeIGC : public IstationTypeIGC
     public:
         CstationTypeIGC(void)
         :
-            m_pstSuccessor(NULL)
+            m_pstSuccessor(nullptr)
         {
         }
 
@@ -187,7 +187,7 @@ class       CstationTypeIGC : public IstationTypeIGC
             //    we have one, and
             //    the required bits are a subset of the side tech bits and the required bits for this station
             //    (on the logic that, if we have this station, we had the tech bits at one time)
-            if (m_pstSuccessor != NULL)
+            if (m_pstSuccessor != nullptr)
             {
                 if (m_pstSuccessor->GetRequiredTechs() <= (m_data.ttbmRequired |
                                                            pside->GetDevelopmentTechs()))

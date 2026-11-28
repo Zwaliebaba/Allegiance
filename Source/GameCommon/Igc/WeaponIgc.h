@@ -242,7 +242,7 @@ class CweaponIGC : public IweaponIGC
                 fSelected = ((stateM & allWeaponsIGC) ||
                              ((stateM & oneWeaponIGC) &&
                               (m_mountID == ((stateM & selectedWeaponMaskIGC) >> selectedWeaponShiftIGC)))) &&
-                            (m_ship->GetRipcordModel() == NULL);
+                            (m_ship->GetRipcordModel() == nullptr);
             }
             else
             {

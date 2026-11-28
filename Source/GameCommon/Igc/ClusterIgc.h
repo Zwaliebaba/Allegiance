@@ -26,7 +26,7 @@ class       CclusterIGC : public IclusterIGC
     public:
         CclusterIGC(void)
         :
-            m_pClusterSite(NULL),
+            m_pClusterSite(nullptr),
             m_nExplosions(0),
             m_kdrStatic(true),
             m_kdrMoving(false),
@@ -142,7 +142,7 @@ class       CclusterIGC : public IclusterIGC
         void                    AddShip(IshipIGC* shipNew) override
         {
             AddIbaseIGC((BaseListIGC*)&m_ships, shipNew);
-            if (shipNew->GetParentShip() == NULL)
+            if (shipNew->GetParentShip() == nullptr)
                 m_pClusterSite->AddScanner(shipNew->GetSide()->GetObjectID(), shipNew);
             AddModel(shipNew);
         }
@@ -150,7 +150,7 @@ class       CclusterIGC : public IclusterIGC
         {
             assert (shipOld);
             DeleteModel(shipOld);
-            if (shipOld->GetParentShip() == NULL)
+            if (shipOld->GetParentShip() == nullptr)
                 m_pClusterSite->DeleteScanner(shipOld->GetSide()->GetObjectID(), shipOld);
             DeleteIbaseIGC((BaseListIGC*)&m_ships, shipOld);
         }
@@ -318,7 +318,7 @@ class       CclusterIGC : public IclusterIGC
                                                         ImodelIGC*     launcher) override
         {
             if (m_nExplosions == c_maxExplosions)
-                return NULL;
+                return nullptr;
             else
             {
                 ExplosionData&  e = m_explosions[m_nExplosions++];
@@ -376,7 +376,7 @@ class       CclusterIGC : public IclusterIGC
                 //so this object might just be switching clusters
                 //(which would add it to another cluster). This probably
                 //isn't the case ... but let's be safe
-                m_collisions.flush(m_collisionID + 1, NULL, NULL);
+                m_collisions.flush(m_collisionID + 1, nullptr, nullptr);
             }
         }
 

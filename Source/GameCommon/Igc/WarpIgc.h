@@ -23,7 +23,7 @@ class CwarpIGC : public TmodelIGC<IwarpIGC>
     public:
         CwarpIGC(void)
         :
-            m_destination(NULL)
+            m_destination(nullptr)
         {
         }
 
@@ -42,7 +42,7 @@ class CwarpIGC : public TmodelIGC<IwarpIGC>
             if (m_destination)
             {
                 m_destination->Release();
-                m_destination = NULL;
+                m_destination = nullptr;
             }
 
             m_bombs.purge();
@@ -71,7 +71,7 @@ class CwarpIGC : public TmodelIGC<IwarpIGC>
                                           c_etBigShip,
                                           plink->data().timeExplosion,
                                           GetPosition(),
-                                          NULL);
+                                          nullptr);
 
                 IwarpIGC*   pwarp = GetDestination();
                 pcluster = pwarp->GetCluster();
@@ -81,7 +81,7 @@ class CwarpIGC : public TmodelIGC<IwarpIGC>
                                           c_etBigShip,
                                           plink->data().timeExplosion,
                                           pwarp->GetPosition(),
-                                          NULL);
+                                          nullptr);
 
                 delete plink;
             }

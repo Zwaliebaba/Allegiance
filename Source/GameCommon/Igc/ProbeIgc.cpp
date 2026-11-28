@@ -21,9 +21,9 @@ const float c_deceleration = 10.0f;
 // CprobeIGC
 CprobeIGC::CprobeIGC(void)
 :
-    m_probeType(NULL),
+    m_probeType(nullptr),
     m_fraction(1.0f),
-    m_projectileType(NULL),
+    m_projectileType(nullptr),
     m_bCreateNow (false)
 {
 }
@@ -170,11 +170,11 @@ void    CprobeIGC::Terminate(void)
     if (m_projectileType)
     {
         m_projectileType->Release();
-        m_projectileType = NULL;
+        m_projectileType = nullptr;
     }
 
-    m_launcher = NULL;
-    m_target = NULL;
+    m_launcher = nullptr;
+    m_target = nullptr;
 
     GetCluster()->GetClusterSite()->AddExplosion(GetPosition(), GetRadius(), c_etProbe);
 
@@ -184,7 +184,7 @@ void    CprobeIGC::Terminate(void)
     if (m_probeType)
     {
         m_probeType->Release();
-        m_probeType = NULL;
+        m_probeType = nullptr;
     }
     Release();
 }
@@ -247,7 +247,7 @@ inline void  CprobeIGC::GetTarget(const ModelListIGC*  models,
                               float*               pdistance2Min,
                               Vector*              pdirectionMin)
 {
-    for (ModelLinkIGC*   l = models->first(); (l != NULL); l = l->next())
+    for (ModelLinkIGC*   l = models->first(); (l != nullptr); l = l->next())
     {
         ImodelIGC*   pmodel = l->data();
 
@@ -323,7 +323,7 @@ void    CprobeIGC::Update(Time now)
 
 
 
-                ImodelIGC*  pmodelTarget = NULL;
+                ImodelIGC*  pmodelTarget = nullptr;
                 if (eabm & c_eabmShootOnlyTarget)
                 {
                     if (m_target && (m_target->GetCluster() == pcluster))
@@ -362,14 +362,14 @@ void    CprobeIGC::Update(Time now)
                 if (pmodelTarget)
                 {
                     if (m_launcher && (m_launcher->GetMission() != GetMyMission()))
-                        m_launcher = NULL;
+                        m_launcher = nullptr;
 
                     //It is going to shoot ... make it visible to everyone in the sector
                     if (!m_bSeenByAll)
                     {
                         m_bSeenByAll = true;
                         for (SideLinkIGC*   psl = m_pMission->GetSides()->first();
-                             (psl != NULL);
+                             (psl != nullptr);
                              psl = psl->next())
                         {
                             IsideIGC*   psideOther = psl->data();

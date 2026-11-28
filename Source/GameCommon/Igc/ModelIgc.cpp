@@ -25,13 +25,13 @@ CmodelIGC::CmodelIGC(ImodelIGC* model)
     m_render(c_ucRenderAll),
     m_selectedF(false),
     m_attributes(0),
-    m_side(NULL),
-    m_cluster(NULL),
+    m_side(nullptr),
+    m_cluster(nullptr),
     m_decalF(false),
-    m_pHitTest(NULL),
+    m_pHitTest(nullptr),
     m_rotation(c_rotationZero),
     m_signature(1.0f),
-    m_pThingSite(NULL)
+    m_pThingSite(nullptr)
 {
     m_name[0] = '\0';
 }
@@ -62,14 +62,14 @@ void    CmodelIGC::Terminate(void)
         m_pMission->GetIgcSite()->TerminateModelEvent(m_model);
 
     if (m_cluster)
-        m_model->SetCluster(NULL);   //Can be overriden via virtual
+        m_model->SetCluster(nullptr);   //Can be overriden via virtual
 
     if (m_side)
-        m_model->SetSide(NULL);     //ditto
+        m_model->SetSide(nullptr);     //ditto
 
     FreeThingSite();
 
-    m_model->SetMission(NULL);               //Can be overriden.
+    m_model->SetMission(nullptr);               //Can be overriden.
 
     m_model->Release();
 }
@@ -121,20 +121,20 @@ void   CmodelIGC::LoadCVH(const char*     pszFileName,
 
 HRESULT   CmodelIGC::LoadEffect(const Color& color, ModelAttributes attributes)
 {
-    LoadCVH(NULL, NULL, attributes, c_htsSphere);
+    LoadCVH(nullptr, nullptr, attributes, c_htsSphere);
 
     return m_pThingSite->LoadEffect(color);
 }
 HRESULT CmodelIGC::LoadWarp(const char* textureName, const char* iconName, ModelAttributes attributes)
 {
-    LoadCVH(NULL, iconName, attributes, c_htsCone);
+    LoadCVH(nullptr, iconName, attributes, c_htsCone);
 
     return m_pThingSite->LoadAleph(textureName);
 }
 
 HRESULT CmodelIGC::LoadMine(const char* textureName, float strength, float radius, const char* iconName, ModelAttributes attributes)
 {
-    LoadCVH(NULL, iconName, attributes, c_htsSphere);
+    LoadCVH(nullptr, iconName, attributes, c_htsSphere);
 
     return m_pThingSite->LoadMine(textureName, strength, radius);
 }
@@ -207,7 +207,7 @@ void    CmodelIGC::SetMyAttributes(ModelAttributes newVal)
         {
             //projectile or treasure ... can collide with any object (static or moving) but
             //not with each other
-            m_pHitTest->SetID((HitTestID)NULL);
+            m_pHitTest->SetID((HitTestID)nullptr);
         }
         break;
 
@@ -251,7 +251,7 @@ void    CmodelIGC::SetCluster(IclusterIGC* newVal)
             m_cluster->FlushCollisionQueue();
         }
         m_cluster->Release();
-        m_cluster = NULL;
+        m_cluster = nullptr;
     }
 
     m_cluster = newVal;
@@ -271,7 +271,7 @@ void    CmodelIGC::SetCluster(IclusterIGC* newVal)
 HRESULT CmodelIGC::LoadDecal(const char* pszTextureName, const char* iconName, const Color& color, bool bDirectional, float width, ModelAttributes attributes,
                              HitTestShape   htsDefault)
 {
-    LoadCVH(NULL, iconName, attributes, htsDefault);
+    LoadCVH(nullptr, iconName, attributes, htsDefault);
 
     HRESULT rc = m_pThingSite->LoadDecal(pszTextureName, bDirectional, width);
 

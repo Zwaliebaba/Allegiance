@@ -29,9 +29,9 @@ HRESULT     CprojectileTypeIGC::Initialize(ImissionIGC* pMission, Time now, cons
         if (iswalpha(m_data.modelName[0]))
             pMission->GetIgcSite()->Preload(m_data.modelName, iswalpha(m_data.textureName[0])
                                                               ? m_data.textureName
-                                                              : NULL);
+                                                              : nullptr);
         else
-            pMission->GetIgcSite()->Preload(NULL, m_data.textureName);
+            pMission->GetIgcSite()->Preload(nullptr, m_data.textureName);
 
         pMission->AddProjectileType(this);
     }

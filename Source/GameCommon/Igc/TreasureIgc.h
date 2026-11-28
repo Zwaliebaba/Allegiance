@@ -33,7 +33,7 @@ class CtreasureIGC : public TmodelIGC<ItreasureIGC>
             if (m_buyable)
             {
                 m_buyable->Release();
-                m_buyable = NULL;
+                m_buyable = nullptr;
             }
 
             Release();

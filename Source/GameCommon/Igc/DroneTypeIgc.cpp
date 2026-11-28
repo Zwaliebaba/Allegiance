@@ -30,7 +30,7 @@ HRESULT         CdroneTypeIGC::Initialize(ImissionIGC*  pMission,
     memcpy(&m_data, data, dataSize);
 
     m_petLaid = (m_data.etidLaid == NA)
-                ? NULL
+                ? nullptr
                 : pMission->GetExpendableType(m_data.etidLaid);
 
     assert ((m_petLaid != NULL) == (m_data.pilotType == c_ptLayer));

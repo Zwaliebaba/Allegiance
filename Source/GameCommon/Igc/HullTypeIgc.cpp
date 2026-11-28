@@ -47,7 +47,7 @@ HRESULT         ChullTypeIGC::Initialize(ImissionIGC* pMission,
     IIgcSite*   pigc = pMission->GetIgcSite();
     pigc->Preload(m_data->modelName, iswalpha(m_data->textureName[0])
                                               ? m_data->textureName
-                                              : NULL);
+                                              : nullptr);
 
     m_poIcon = pigc->LoadRadarIcon(m_data->iconName);
 

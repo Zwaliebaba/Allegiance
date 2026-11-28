@@ -22,9 +22,9 @@
 // CprojectileIGC
 CprojectileIGC::CprojectileIGC(void)
 :
-    m_launcher(NULL),
-    m_projectileType(NULL),
-    m_pExplosionData(NULL)
+    m_launcher(nullptr),
+    m_projectileType(nullptr),
+    m_pExplosionData(nullptr)
 {
 }
 
@@ -51,13 +51,13 @@ HRESULT CprojectileIGC::Initialize(ImissionIGC* pMission, Time now, const void* 
             //Load the model for the projectile
             if (iswalpha(dataProjectileType->modelName[0]))
             {
-                HRESULT hr = Load(0, dataProjectileType->modelName, dataProjectileType->textureName, NULL, c_mtCastRay | c_mtNotPickable);
+                HRESULT hr = Load(0, dataProjectileType->modelName, dataProjectileType->textureName, nullptr, c_mtCastRay | c_mtNotPickable);
                 assert (SUCCEEDED(hr));
                 SetRadius(dataProjectileType->radius);
             }
             else
             {
-                HRESULT hr = LoadDecal(dataProjectileType->textureName, NULL,
+                HRESULT hr = LoadDecal(dataProjectileType->textureName, nullptr,
                                Color((float)dataProjectileType->color.r,
                                      (float)dataProjectileType->color.g,
                                      (float)dataProjectileType->color.b,
@@ -106,13 +106,13 @@ void    CprojectileIGC::Terminate(void)
     if (m_launcher)
     {
         m_launcher->Release();
-        m_launcher = NULL;
+        m_launcher = nullptr;
     }
 
     if (m_projectileType)
     {
         m_projectileType->Release();
-        m_projectileType = NULL;
+        m_projectileType = nullptr;
     }
 
     Release();
@@ -191,7 +191,7 @@ void                 CprojectileIGC::HandleCollision(Time       timeCollision,
                                                  m_launcher);
 
         //No explosion because no hull damage, not visible or we killed it.
-        fExplosion = (dr <= c_drHullDamage) && pModel->GetVisibleF() && (pModel->GetCluster() != NULL);
+        fExplosion = (dr <= c_drHullDamage) && pModel->GetVisibleF() && (pModel->GetCluster() != nullptr);
 
         pModel->Release();
     }

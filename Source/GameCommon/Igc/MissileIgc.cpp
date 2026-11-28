@@ -19,9 +19,9 @@
 // CmissileIGC
 CmissileIGC::CmissileIGC(void)
 :
-    m_launcher(NULL),
-    m_target(NULL),
-    m_missileType(NULL)
+    m_launcher(nullptr),
+    m_target(nullptr),
+    m_missileType(nullptr)
 {
 }
 
@@ -140,22 +140,22 @@ void    CmissileIGC::Terminate(void)
     if (m_launcher)
     {
         if (m_launcher->GetLastMissileFired() == this)
-            m_launcher->SetLastMissileFired(NULL);
+            m_launcher->SetLastMissileFired(nullptr);
 
         m_launcher->Release();
-        m_launcher = NULL;
+        m_launcher = nullptr;
     }
 
     if (m_target)
     {
         m_target->Release();
-        m_target = NULL;
+        m_target = nullptr;
     }
 
     if (m_missileType)
     {
         m_missileType->Release();
-        m_missileType = NULL;
+        m_missileType = nullptr;
     }
 
     Release();
@@ -364,7 +364,7 @@ void    CmissileIGC::Update(Time now)
             if (m_target && (m_target->GetCluster() != GetCluster()))
             {
                 m_target->Release();
-                m_target = NULL;    //lost our target
+                m_target = nullptr;    //lost our target
             }
 
             const Vector&   myPosition = GetPosition();

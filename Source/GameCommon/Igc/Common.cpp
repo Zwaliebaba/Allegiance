@@ -230,7 +230,7 @@ bool  FindableModel(ImodelIGC*          m,
     {
         IsideIGC*  pHisSide = m->GetSide();
 
-        int sidebits = (pHisSide == NULL)
+        int sidebits = (pHisSide == nullptr)
                        ? c_ttNeutral
                        : ((pside == pHisSide)
                           ? c_ttFriendly
@@ -246,7 +246,7 @@ bool  FindableModel(ImodelIGC*          m,
                 {
                     case OT_ship:
                     {
-                        if (((IshipIGC*)m)->GetParentShip() == NULL)
+                        if (((IshipIGC*)m)->GetParentShip() == nullptr)
                         {
                             IhullTypeIGC*   pht = ((IshipIGC*)m)->GetBaseHullType();
                             okF = pht && pht->HasCapability(abmAbilities);
@@ -285,7 +285,7 @@ bool  FindableModel(ImodelIGC*          m,
                 }
             }
             else
-                okF = ((type != OT_ship) || (((IshipIGC*)m)->GetParentShip() == NULL));
+                okF = ((type != OT_ship) || (((IshipIGC*)m)->GetParentShip() == nullptr));
         }
     }
 
@@ -295,7 +295,7 @@ bool  FindableModel(ImodelIGC*          m,
 static bool IsFriendlyCluster(IclusterIGC*  pcluster, IsideIGC* pside)
 {
     StationLinkIGC* psl = pcluster->GetStations()->first();
-    if (psl == NULL)
+    if (psl == nullptr)
         return false;                   //No stations == unfriendly
 
     bool    rc = false;
@@ -313,7 +313,7 @@ static bool IsFriendlyCluster(IclusterIGC*  pcluster, IsideIGC* pside)
 
         psl = psl->next();
     }
-    while (psl != NULL);
+    while (psl != nullptr);
 
     //It has stations but no enemy stations ... therefore at least one friendly station
     return rc;
@@ -329,7 +329,7 @@ typedef Slink_utl<ClusterPosition> CPLink;
 
 static bool    UniqueCP(CPList*    cpl, IclusterIGC*   pc)
 {
-    for (CPLink*    l = cpl->first(); (l != NULL); l = l->next())
+    for (CPLink*    l = cpl->first(); (l != nullptr); l = l->next())
     {
         if (l->data().pcluster == pc)
             return false;
@@ -358,14 +358,14 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
     if (!pcluster)
         pcluster = pship->GetCluster();
     if (!pcluster)
-        return NULL;
+        return nullptr;
 
-    IsideIGC*   pside = pship ? pship->GetSide() : NULL;
+    IsideIGC*   pside = pship ? pship->GetSide() : nullptr;
 
     if (pmodelCurrent && ((pmodelCurrent == pship) ||
                           (!FindableModel(pmodelCurrent, pside, ttMask, abmAbilities)) ||
                           (!pship->CanSee(pmodelCurrent))))
-        pmodelCurrent = NULL;
+        pmodelCurrent = nullptr;
 
     if (((ttMask & (c_ttFront | c_ttNearest)) == 0) && !pmodelCurrent && (pship || pposition))
         ttMask |= c_ttNearest;
@@ -383,7 +383,7 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
                                             ? (const ModelListIGC*)(pcluster->GetTreasures())
                                             : pcluster->GetPickableModels()));
     assert (models);
-	ImodelIGC*      pmodelTarget = NULL;
+	ImodelIGC*      pmodelTarget = nullptr;
     if (models->n() != 0)
     {
         int    ttBest = (ttMask & (c_ttFront | c_ttNearest | c_ttLeastTargeted));
@@ -400,7 +400,7 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
         if (pmodelCurrent)
         {
             //Find the link (in the model list) that corresponds to the current target
-            while ((mLink != NULL) && (mLink->data() != pmodelCurrent))
+            while ((mLink != nullptr) && (mLink->data() != pmodelCurrent))
                 mLink = mLink->next();
 
             // mLink = mLink && (mLink != models->last()) ? mLink->next() : models->first();
@@ -450,7 +450,7 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
                         n = 0;
                         {
                             //Count the number of drones on this side building or mining this asteroid
-                            for (ShipLinkIGC*   psl = pside->GetShips()->first(); (psl != NULL); psl = psl->next())
+                            for (ShipLinkIGC*   psl = pside->GetShips()->first(); (psl != nullptr); psl = psl->next())
                             {
                                 IshipIGC*   ps = psl->data();
                                 if (ps->GetPilotType() < c_ptPlayer)
@@ -485,7 +485,7 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
                         //Don't replace a valid (if less optimal) target with the
                         //current one unless there is no target (pmodelCurrent is
                         //always checked last).
-                        if ((m != pmodelCurrent) || (pmodelTarget == NULL))
+                        if ((m != pmodelCurrent) || (pmodelTarget == nullptr))
                             pmodelTarget = m;
                     }
                 }
@@ -536,7 +536,7 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
             //Push the destinations of the warps in pcluster onto the end the list of 
             //warps that are an extra jump away
             {
-                for (WarpLinkIGC*   l = pcluster->GetWarps()->first(); (l != NULL); l = l->next())
+                for (WarpLinkIGC*   l = pcluster->GetWarps()->first(); (l != nullptr); l = l->next())
                 {
                     IwarpIGC*   w = l->data();
                     if ((!pship) || pship->CanSee(w))
@@ -547,7 +547,7 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
                             IclusterIGC*    pclusterOther = pwarpDestination->GetCluster();
 
                             //Have we visited pclusterOther?
-                            if (clustersVisited.find(pclusterOther) == NULL)
+                            if (clustersVisited.find(pclusterOther) == nullptr)
                             {
                                 //No
                                 if (((ttMask & c_ttCowardly) == 0) || IsFriendlyCluster(pclusterOther, pside))
@@ -586,22 +586,22 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
             pcluster = pwarp->GetCluster();
             clustersVisited.first(pcluster);
 
-            pmodelTarget = FindTarget(pship, ttMask, NULL, pcluster, pposition, NULL, abmAbilities);
+            pmodelTarget = FindTarget(pship, ttMask, nullptr, pcluster, pposition, nullptr, abmAbilities);
 
             //Skip over the existing target once
-            if ((pmodelTarget != NULL) &&
+            if ((pmodelTarget != nullptr) &&
                 (pmodelTarget == pmodelCurrent) &&
                 firstMatchF)
             {
-                pmodelTarget = NULL;
+                pmodelTarget = nullptr;
                 firstMatchF = false;
             }
         }
-        while (pmodelTarget == NULL);
+        while (pmodelTarget == nullptr);
     }
 
     if (!pship || (ttMask & c_ttNoRipcord) ||
-        (pship->GetBaseHullType() == NULL) || 
+        (pship->GetBaseHullType() == nullptr) || 
         (pship->GetFlag() != NA))
     {
         return pmodelTarget;
@@ -619,7 +619,7 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
     CPList  clustersRipcord;
 
     {
-        for (StationLinkIGC*    psl = pside->GetStations()->first(); (psl != NULL); psl = psl->next())
+        for (StationLinkIGC*    psl = pside->GetStations()->first(); (psl != nullptr); psl = psl->next())
         {
             IstationIGC*    ps = psl->data();
             if (ps->GetStationType()->HasCapability(c_sabmRipcord))
@@ -640,7 +640,7 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
 
         ImissionIGC*        pmission = pship->GetMission();
         IIgcSite*           pigc = pmission->GetIgcSite();
-        for (ShipLinkIGC*    psl = pside->GetShips()->first(); (psl != NULL); psl = psl->next())
+        for (ShipLinkIGC*    psl = pside->GetShips()->first(); (psl != nullptr); psl = psl->next())
         {
             IshipIGC*    ps = psl->data();
             if (ps != pship)
@@ -648,17 +648,17 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
                 IclusterIGC*    pc = pigc->GetRipcordCluster(ps, habm);
                 if (pc && (pc != pclusterStart) && UniqueCP(&clustersRipcord, pc) &&
                     (((ttMask & c_ttCowardly) == 0) || IsFriendlyCluster(pc, pside)))
-                    NewCP(&clustersRipcord, pc, NULL);
+                    NewCP(&clustersRipcord, pc, nullptr);
             }
         }
 
-        for (ClusterLinkIGC*    pcl = pmission->GetClusters()->first(); (pcl != NULL); pcl = pcl->next())
+        for (ClusterLinkIGC*    pcl = pmission->GetClusters()->first(); (pcl != nullptr); pcl = pcl->next())
         {
             IclusterIGC*    pc = pcl->data();
             if ((pc != pclusterStart) && UniqueCP(&clustersRipcord, pc) &&
                 (((ttMask & c_ttCowardly) == 0) || IsFriendlyCluster(pc, pside)))
             {
-                for (ProbeLinkIGC*  ppl = pc->GetProbes()->first(); (ppl != NULL); ppl = ppl->next())
+                for (ProbeLinkIGC*  ppl = pc->GetProbes()->first(); (ppl != nullptr); ppl = ppl->next())
                 {
                     IprobeIGC*  pprobe = ppl->data();
                     if ((pprobe->GetSide() == pside) && pprobe->GetCanRipcord(ripcordSpeed))
@@ -677,9 +677,9 @@ ImodelIGC*  FindTarget(IshipIGC*           pship,
     distance--;
     int distanceBest = 0x7fffffff;
 
-    for (CPLink*    pcl = clustersRipcord.first(); (pcl != NULL); pcl = pcl->next())
+    for (CPLink*    pcl = clustersRipcord.first(); (pcl != nullptr); pcl = pcl->next())
     {
-        ImodelIGC*  pmodel = FindTarget(pship, ttMask, NULL, pcl->data().pcluster, pcl->data().pposition, NULL, abmAbilities, distance);
+        ImodelIGC*  pmodel = FindTarget(pship, ttMask, nullptr, pcl->data().pcluster, pcl->data().pposition, nullptr, abmAbilities, distance);
         if (pmodel)
         {
             IclusterIGC*    pc = pmodel->GetCluster();
@@ -716,7 +716,7 @@ IwarpIGC* FindPath(IshipIGC*    pship,
     assert (pclusterCurrent);
 
     if (pclusterCurrent == pclusterTarget)
-        return NULL;
+        return nullptr;
 
     const Vector&   positionShip = pship->GetPosition();
 
@@ -728,7 +728,7 @@ IwarpIGC* FindPath(IshipIGC*    pship,
     {
         //Add the initial warps ... distance from the player to the aleph
         const WarpListIGC*  pwarps = pclusterCurrent->GetWarps();
-        for (WarpLinkIGC*   wLink = pwarps->first(); (wLink != NULL); wLink = wLink->next())
+        for (WarpLinkIGC*   wLink = pwarps->first(); (wLink != nullptr); wLink = wLink->next())
         {
             IwarpIGC*   pwarp = wLink->data();
             if (pship->CanSee(pwarp))
@@ -750,7 +750,7 @@ IwarpIGC* FindPath(IshipIGC*    pship,
                     PathLink*   p = unexplored.first();
                     while (true)
                     {
-                        if (p == NULL)
+                        if (p == nullptr)
                         {
                             //Nothing left ... to the end of the list
                             unexplored.last(pl);
@@ -770,7 +770,7 @@ IwarpIGC* FindPath(IshipIGC*    pship,
         }
 
         if (unexplored.n() == 0)
-            return NULL;
+            return nullptr;
     }   
 
     while (true)
@@ -778,7 +778,7 @@ IwarpIGC* FindPath(IshipIGC*    pship,
         PathLink*   plinkClosest = unexplored.first();
 
         if (!plinkClosest)
-            return NULL;        //Never found a path
+            return nullptr;        //Never found a path
 
         const Path& path = plinkClosest->data();
         IwarpIGC*   pwarp = path.pwarp;
@@ -794,7 +794,7 @@ IwarpIGC* FindPath(IshipIGC*    pship,
 
         //Add warps for the warp in the new cluster (that do not lead to a previously explored cluster)
         //Add all of the warps in this cluster to the unexplored list
-        for (WarpLinkIGC*   pwl = pclusterNext->GetWarps()->first(); (pwl != NULL); pwl = pwl->next())
+        for (WarpLinkIGC*   pwl = pclusterNext->GetWarps()->first(); (pwl != nullptr); pwl = pwl->next())
         {
             IwarpIGC*   pwarp = pwl->data();
 
@@ -806,7 +806,7 @@ IwarpIGC* FindPath(IshipIGC*    pship,
                     (pclusterDestination == pclusterTarget) ||
                     IsFriendlyCluster(pclusterDestination, pside))
                 {
-                    if (explored.find(pclusterDestination) == NULL)
+                    if (explored.find(pclusterDestination) == nullptr)
                     {
                         PathLink*   ppl = new PathLink;
                         assert (ppl);
@@ -834,7 +834,7 @@ IwarpIGC* FindPath(IshipIGC*  pShip,
 
     IclusterIGC*    pclusterTarget = pTarget->GetMission()->GetIgcSite()->GetCluster(pShip, pTarget);
 
-    return pclusterTarget ? FindPath(pShip, pclusterTarget, bCowardly) : NULL;
+    return pclusterTarget ? FindPath(pShip, pclusterTarget, bCowardly) : nullptr;
 }
 
 bool    SearchClusters(ImodelIGC*    pmodel,
@@ -989,8 +989,8 @@ GotoPositionMask Waypoint::DoApproach(IshipIGC*        pship,
     Vector  dpRest = positionRest - itsPosition;
     float   myRadius = (pship->GetRadius() + m_pmodelTarget->GetRadius() + 10.0f);   //my radius plus a fudge factor
 
-    const Vector* pdirectionBest = NULL;
-    const Vector* pcenterBest = NULL;
+    const Vector* pdirectionBest = nullptr;
+    const Vector* pcenterBest = nullptr;
     Vector  goalBest;
     float   error2Best = FLT_MAX;
     float   offset2Best{};
@@ -1060,7 +1060,7 @@ GotoPositionMask Waypoint::DoApproach(IshipIGC*        pship,
     if (error2Best > 36.0f)
     {
         //Not able to drift into position .. continue normally
-        *ppmodelSkip = NULL;
+        *ppmodelSkip = nullptr;
         *pvectorGoto = goalBest + itsPosition;
 
         float   d2 = (dpNow - goalBest).LengthSquared();
@@ -1085,7 +1085,7 @@ GotoPositionMask Waypoint::DoApproach(IshipIGC*        pship,
             //We are not close to the approach line ... coast in
             gpm = c_gpmKillThrottle | c_gpmDodgeShips;
 
-            *ppmodelSkip = NULL;
+            *ppmodelSkip = nullptr;
             *pvectorGoto = goalBest + itsPosition;
         }
         else
@@ -1150,7 +1150,7 @@ GotoPositionMask Waypoint::GetGotoPosition(IshipIGC*           pship,
             //Yes there is ... pivot
             gpm = c_gpmPivot;
             *pvectorFacing = vCenters;
-            *ppmodelSkip = NULL;
+            *ppmodelSkip = nullptr;
         }
         else
         {
@@ -1384,7 +1384,7 @@ bool    Ignore(IshipIGC*   pship, ImodelIGC* pmodel)
     {
         IshipIGC*   pshipHim = (IshipIGC*)pmodel;
         IhullTypeIGC*   phtHim = pshipHim->GetBaseHullType();
-        if (phtHim == NULL)
+        if (phtHim == nullptr)
             ignore = true;
         else
         {
@@ -1395,7 +1395,7 @@ bool    Ignore(IshipIGC*   pship, ImodelIGC* pmodel)
                     (pship->GetPilotType() < c_ptPlayer) &&                             //if we are a drone &
                     (pshipHim->GetPilotType() < c_ptPlayer) &&                          //he a drone that
                     ((pshipHim->GetStateM() & miningMaskIGC) == 0) &&                   //isn't mining
-                    (pshipHim->GetRipcordModel() == NULL))                              //isn't ripcording
+                    (pshipHim->GetRipcordModel() == nullptr))                              //isn't ripcording
                 {
                     ignore = true;                                                      //ignore him
                 }
@@ -1439,12 +1439,12 @@ bool    Dodge(IshipIGC*     pship,
 
     HitTest*    myHitTest = pship->GetHitTest();
 
-    ImodelIGC*  pmodelCollide = NULL;
+    ImodelIGC*  pmodelCollide = nullptr;
     float       tCollide = FLT_MAX;
     for (ModelLinkIGC*  pml = (bShipsOnly
                                ? (ModelLinkIGC*)(pcluster->GetShips()->first())
                                : pcluster->GetPickableModels()->first());
-         (pml != NULL); pml = pml->next())
+         (pml != nullptr); pml = pml->next())
     {
         ImodelIGC*  pmodel = pml->data();
         if ((pmodel != pship) &&
@@ -1609,7 +1609,7 @@ bool    GotoPlan::SetControls(float  dt, bool bDodge, ControlData*  pcontrols, i
 
                     bool        bCoward = (m_pship->GetPilotType() < c_ptCarrier);
                     IwarpIGC*   pwarp = FindPath(m_pship, pclusterTarget, bCoward);
-                    if (bCoward && (pwarp == NULL))
+                    if (bCoward && (pwarp == nullptr))
                         pwarp = FindPath(m_pship, pclusterTarget, false);
 
                     if (pwarp)
@@ -1623,19 +1623,19 @@ bool    GotoPlan::SetControls(float  dt, bool bDodge, ControlData*  pcontrols, i
                         m_maskWaypoints = c_wpTarget;
 
                         if (bDodge)
-                            Dodge(m_pship, NULL, pstate);
+                            Dodge(m_pship, nullptr, pstate);
                         return false;
                     }
                 }
             }
-            else if (m_wpTarget.m_pmodelTarget->GetCluster() == NULL)
+            else if (m_wpTarget.m_pmodelTarget->GetCluster() == nullptr)
             {
                 //We are in the target cluster but the target is not here ... probably because it is docked.
                 //wait and do nothing (but clear the warp waypoint since we're in the right cluster.
                 m_maskWaypoints = c_wpTarget;
 
                 if (bDodge)
-                    Dodge(m_pship, NULL, pstate);
+                    Dodge(m_pship, nullptr, pstate);
                 return false;
             }
 
@@ -1803,10 +1803,10 @@ bool    GotoPlan::SetControls(float  dt, bool bDodge, ControlData*  pcontrols, i
 
                 float           dMax2 = distance2;
 
-                ImodelIGC*      pmodelDivert = NULL;
+                ImodelIGC*      pmodelDivert = nullptr;
 
                 for (ModelLinkIGC*  pml = pcluster->GetPickableModels()->first();
-                     (pml != NULL);
+                     (pml != nullptr);
                      pml = pml->next())
                 {
                     ImodelIGC*  pmodel = pml->data();
@@ -1923,7 +1923,7 @@ bool    GotoPlan::SetControls(float  dt, bool bDodge, ControlData*  pcontrols, i
                             IsideIGC*   mySide = m_pship->GetSide();
 
                             for (ModelLinkIGC*  pml = pcluster->GetPickableModels()->first();
-                                 (pml != NULL);
+                                 (pml != nullptr);
                                  pml = pml->next())
                             {
                                 ImodelIGC*  pmodel = pml->data();
@@ -2003,7 +2003,7 @@ bool        LineOfSightExist(const IclusterIGC* pcluster,
     // compute the angle subtended by the target from the eye
     float           fVisibleAngle = asinf (pmodel2->GetRadius() * fOverLengthV12);
 
-    for (ModelLinkIGC* pml = ((ModelListIGC*)(pcluster->GetAsteroids()))->first(); (pml != NULL); pml = pml->next())
+    for (ModelLinkIGC* pml = ((ModelListIGC*)(pcluster->GetAsteroids()))->first(); (pml != nullptr); pml = pml->next())
     {
         ImodelIGC*  pmodel = pml->data();
         if (pmodel2 != pmodel)
@@ -2095,12 +2095,12 @@ IshipIGC*   CreateDrone(ImissionIGC*     pmission,
         //Is the name unique?
         ShipLinkIGC*    psl;
         for (psl = pmission->GetShips()->first();
-             ((psl != NULL) && (_stricmp(pszName, psl->data()->GetName()) != 0));
+             ((psl != nullptr) && (_stricmp(pszName, psl->data()->GetName()) != 0));
              psl = psl->next())
         {
         }
  
-        if (psl != NULL)
+        if (psl != nullptr)
         {
             //Name is not unique ... make it unique
             _itoa(shipID, ds.name + strlen(ds.name), 10);
@@ -2121,7 +2121,7 @@ IshipIGC*   CreateDrone(ImissionIGC*     pmission,
     {
         IhullTypeIGC*   pht = ship->GetBaseHullType();
         for (PartTypeLinkIGC*   ptl = pht->GetPreferredPartTypes()->first();
-             (ptl != NULL);
+             (ptl != nullptr);
              ptl = ptl->next())
         {
             IpartTypeIGC*   ppt = ptl->data();
@@ -2134,7 +2134,7 @@ IshipIGC*   CreateDrone(ImissionIGC*     pmission,
 
             for (Mount i = 0; (i < mountMax); i++)
             {
-                if ((ship->GetMountedPart(et, i) == NULL) && pht->CanMount(ppt, i))
+                if ((ship->GetMountedPart(et, i) == nullptr) && pht->CanMount(ppt, i))
                     ship->CreateAndAddPart(ppt, i, 0x7fff);
             }
         }
@@ -2253,13 +2253,13 @@ void    DamageTrack::ApplyDamage(Time        timeNow,
 {
     DamageBucketLink*  l;
     for (l = m_buckets.first();
-         ((l != NULL) && (l->data()->model() != pmodel));
+         ((l != nullptr) && (l->data()->model() != pmodel));
          l = l->next())
     {
     }
 
     DamageBucket*  pBucket;
-    if (l == NULL)
+    if (l == nullptr)
     {
         //No bucket existed for the model ... create one
         pBucket = new DamageBucket(this, pmodel);
@@ -2396,7 +2396,7 @@ int GetDistance(IshipIGC*     pship,
         //Push the destinations of the warps in pcluster onto the end the list of 
         //warps that are an extra jump away
         {
-            for (WarpLinkIGC*   l = pcluster->GetWarps()->first(); (l != NULL); l = l->next())
+            for (WarpLinkIGC*   l = pcluster->GetWarps()->first(); (l != nullptr); l = l->next())
             {
                 IwarpIGC*   w = l->data();
                 if (pship->CanSee(w))
@@ -2408,7 +2408,7 @@ int GetDistance(IshipIGC*     pship,
 
                         if (pclusterOther == pclusterStop)
                             return distance;
-                        else if (clustersVisited.find(pclusterOther) == NULL)
+                        else if (clustersVisited.find(pclusterOther) == nullptr)
                             pwlTwoAway->last(pwarpDestination);
                     }
                 }
@@ -2474,7 +2474,7 @@ static Vector   RandomPosition(const ModelListIGC*  models, float   rThing, floa
         position.z *= lens;
 
         //Verify that it is not close to any other model in the cluster
-        for (pmlink = models->first(); (pmlink != NULL); pmlink = pmlink->next())
+        for (pmlink = models->first(); (pmlink != nullptr); pmlink = pmlink->next())
         {
             ImodelIGC*  pm = pmlink->data();
             float       r = pm->GetRadius();
@@ -2632,7 +2632,7 @@ void        PopulateCluster(ImissionIGC*            pmission,
 
     if (pmp->IsFlagsGame())
     {
-        for (StationLinkIGC*    psl = pstations->last(); (psl != NULL); psl = psl->txen())
+        for (StationLinkIGC*    psl = pstations->last(); (psl != nullptr); psl = psl->txen())
         {
             IstationIGC*    pstation = psl->data();
             IsideIGC*       pside = pstation->GetSide();
@@ -2657,12 +2657,12 @@ void        PopulateCluster(ImissionIGC*            pmission,
     {
         //Make all stations invisible to all sides but their own
         const SideListIGC*      psides = pmission->GetSides();
-        for (StationLinkIGC*    psl = pstations->first(); (psl != NULL); psl = psl->next())
+        for (StationLinkIGC*    psl = pstations->first(); (psl != nullptr); psl = psl->next())
         {
             IstationIGC*    pstation = psl->data();
             IsideIGC*       pside = pstation->GetSide();
 
-            for (SideLinkIGC*   p = psides->first(); (p != NULL); p = p->next())
+            for (SideLinkIGC*   p = psides->first(); (p != nullptr); p = p->next())
             {
                 if (p->data() != pside)
                     pstation->SetSideVisibility(p->data(),

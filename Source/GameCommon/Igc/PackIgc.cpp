@@ -19,8 +19,8 @@
 // CpackIGC
 CpackIGC::CpackIGC(void)
 :
-    m_partType(NULL),
-    m_pship(NULL),
+    m_partType(nullptr),
+    m_pship(nullptr),
     m_mountID(c_mountNA)
 {
 }
@@ -51,12 +51,12 @@ void        CpackIGC::Terminate(void)
 {
     AddRef();
 
-    SetShip(NULL, NA);
+    SetShip(nullptr, NA);
 
     if (m_partType)
     {
         m_partType->Release();
-        m_partType = NULL;
+        m_partType = nullptr;
     }
 
     Release();
