@@ -27,7 +27,7 @@ namespace Training
         public:
             /* void */                  ObjectMovingTowardsCondition (const TRef<ImodelIGC>& object, const TRef<ImodelIGC>& target);
             virtual /* void */          ~ObjectMovingTowardsCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     TRef<ImodelIGC>     m_object;

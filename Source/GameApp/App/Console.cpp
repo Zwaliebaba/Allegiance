@@ -50,11 +50,11 @@ class ConsolePickImage : public Image
                   ConsoleDataImpl*  pconsoleData
         );
         void        SetHitTest(MouseResult  mr);
-        MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
-        MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown);
-        void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside);
-        void MouseEnter(IInputProvider* pprovider, const Point& point);
-        void MouseLeave(IInputProvider* pprovider);
+        MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
+        MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override;
+        void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override;
+        void MouseEnter(IInputProvider* pprovider, const Point& point) override;
+        void MouseLeave(IInputProvider* pprovider) override;
 };
 
 struct ChatSubject
@@ -975,7 +975,7 @@ public:
         m_pnumberTargetInRangeFlag->SetValue(bInRange ? 1.0f : 0.0f);
     }
 
-    void SetTarget(ImodelIGC* pmodel)
+    void SetTarget(ImodelIGC* pmodel) override
     {
         if (m_pmodelDataTarget->GetModel() != pmodel)
         {
@@ -1013,13 +1013,13 @@ public:
             QuitComposing();
     }
 
-    void SetTipText(const ZString& strHelp)
+    void SetTipText(const ZString& strHelp) override
     {
         m_timeLastTipSet = Time::Now();
         m_pstringTipText->SetValue(strHelp);        
     }
 
-    void SetCriticalTipText(const ZString& strHelp)
+    void SetCriticalTipText(const ZString& strHelp) override
     {
         if (!Training::IsTraining())
         {
@@ -1077,11 +1077,11 @@ public:
         return m_csComposeState;
     }
 
-    void OnMoneyChange(PlayerInfo* pPlayerInfo)
+    void OnMoneyChange(PlayerInfo* pPlayerInfo) override
     {
     }
 
-    void OnDelPlayer(MissionInfo *pMissionDef, SideID sideID, PlayerInfo *pPlayerInfo, QuitSideReason reason, const char* szMessageParam)
+    void OnDelPlayer(MissionInfo *pMissionDef, SideID sideID, PlayerInfo *pPlayerInfo, QuitSideReason reason, const char* szMessageParam) override
     {
         if (!Training::IsTraining())
         {
@@ -1396,7 +1396,7 @@ public:
         }
     }
 
-    void OnAddPlayer(MissionInfo *pMissionDef, SideID sideID, PlayerInfo *pPlayerInfo)
+    void OnAddPlayer(MissionInfo *pMissionDef, SideID sideID, PlayerInfo *pPlayerInfo) override
     {
     }
 
@@ -1691,7 +1691,7 @@ public:
         }
     }
 
-    void    PickCluster(IclusterIGC* pcluster, int button)
+    void    PickCluster(IclusterIGC* pcluster, int button) override
     {
         if (m_csComposeState == c_csNotComposing)
         {
@@ -1751,7 +1751,7 @@ public:
         }
     }
 
-    void PickShip(IshipIGC* pship)
+    void PickShip(IshipIGC* pship) override
     {
         assert(pship);
 
@@ -1766,12 +1766,12 @@ public:
         UpdateComposedChat();
     }
 
-    bool IsComposingCommand()
+    bool IsComposingCommand() override
     {
         return (m_csComposeState == c_csComposeMouseCommand || m_csComposeState == c_csComposeCommand);
     }
 
-    IbaseIGC*  GetPickedObject (void)
+    IbaseIGC*  GetPickedObject (void) override
     {
         return m_pchsCurrent->m_pbaseRecipient;
     }
@@ -2869,7 +2869,7 @@ public:
         }
     }
 
-    bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         SetImage(Image::GetEmpty());
         return true;
@@ -2881,7 +2881,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
     {
         MouseResult result = WrapImage::HitTest(pprovider, point, bCaptured);
 
@@ -2986,37 +2986,37 @@ public:
         GetWindow()->SetChatListPane(NULL);
     }
 
-    void StartChat()
+    void StartChat() override
     {
         m_pconsoleData->StartChat();
     }
     void StartQuickChat(ChatTarget  ctRecipient,
                         ObjectID    oidRecipient,
-                        IbaseIGC*   pbaseRecipient)
+                        IbaseIGC*   pbaseRecipient) override
     {
         m_pconsoleData->StartQuickChat(ctRecipient, oidRecipient, pbaseRecipient);
     }
-    void SendQuickChat(int idSonicChat, int ttMask, CommandID cid, AbilityBitMask aabm)
+    void SendQuickChat(int idSonicChat, int ttMask, CommandID cid, AbilityBitMask aabm) override
     {
         m_pconsoleData->SendQuickChat(idSonicChat, ttMask, cid, aabm);
     }
-    void    QuitComposing(void)
+    void    QuitComposing(void) override
     {
         m_pconsoleData->QuitComposing();
     }
 
-    void RenderDropLine(Context* pcontext)
+    void RenderDropLine(Context* pcontext) override
     {
         if (m_pconsoleData)
             m_pconsoleData->RenderDropLine(pcontext);
     }
 
-    bool DrawSelectionBox(void) const
+    bool DrawSelectionBox(void) const override
     {
         return m_pconsoleData ? m_pconsoleData->DrawSelectionBox() : false;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->PushState();
         ConsoleImage::Render(pcontext);
@@ -3025,12 +3025,12 @@ public:
         if (m_pconsoleData)
             m_pconsoleData->Render(pcontext);
     }
-    void Update(Time now)
+    void Update(Time now) override
     {
         m_pconsoleData->Update(now);
     }
 
-    void SetOverlayFlags(OverlayMask om)
+    void SetOverlayFlags(OverlayMask om) override
     {
         if (GetOverlayFlags() != om)
         {
@@ -3060,44 +3060,44 @@ public:
         return m_pconsoleData ? m_pconsoleData->GetOverlayFlags() : 0;
     }
 
-    void OnSwitchViewMode()
+    void OnSwitchViewMode() override
     {
         m_pconsoleData->OnSwitchViewMode();
     }
 
-    ConsoleData* GetConsoleData()
+    ConsoleData* GetConsoleData() override
     {
         return m_pconsoleData;
     }
 
 
-    bool IsComposing()
+    bool IsComposing() override
     {
         return m_pconsoleData->IsTakingKeystrokes();
     }
     
-    bool OnChar(const KeyState& ks)
+    bool OnChar(const KeyState& ks) override
     {
         return m_pconsoleData->OnChar(ks);
     }
 
-    const ShipListIGC*  GetSubjects(void) const
+    const ShipListIGC*  GetSubjects(void) const override
     {
         return m_pconsoleData->GetSubjects();
     }
 
-    void                CycleChatTarget(void)
+    void                CycleChatTarget(void) override
     {
         m_pconsoleData->CycleChatTarget();
         m_pconsoleData->UpdateComposedChat();
     }
 
-    void                SetInRange(bool bInRange)
+    void                SetInRange(bool bInRange) override
     {
         m_pconsoleData->SetInRange(bInRange);
     }
 
-    void SetDisplayMDL(const char* pszFileName)
+    void SetDisplayMDL(const char* pszFileName) override
     {
         if (strcmp(pszFileName, m_szFileName) == 0)
             return;
@@ -3203,7 +3203,7 @@ public:
 
 private:
 
-    TRef<GameStateContainer> GetGameStateContainer()
+    TRef<GameStateContainer> GetGameStateContainer() override
     {
         return m_pgsc;
     }

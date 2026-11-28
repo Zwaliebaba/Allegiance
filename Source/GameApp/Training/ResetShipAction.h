@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          ResetShipAction (const TRef<IshipIGC>& ship);
             virtual /* void */          ~ResetShipAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
             struct  State

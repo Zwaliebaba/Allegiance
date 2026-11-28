@@ -32,7 +32,7 @@ namespace Training
                     /* void */          SetAutopilotAction (IshipIGC* pShip, bool bNewValue = true);
                     /* void */          SetAutopilotAction (ShipID shipID, bool bNewValue = true);
             virtual /* void */          ~SetAutopilotAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     AbstractTarget*     m_pShip;

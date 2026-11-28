@@ -37,11 +37,11 @@ protected:
     // pane members
     //
 
-    Point TransformLocalToImage(const WinPoint& point);
-    void  UpdateLayout();
-    void  NeedPaintInternal();
-    void  NeedLayout();
-    void  Paint(Surface* psurface);
+    Point TransformLocalToImage(const WinPoint& point) override;
+    void  UpdateLayout() override;
+    void  NeedPaintInternal() override;
+    void  NeedLayout() override;
+    void  Paint(Surface* psurface) override;
 
 public:
     TopPane(Engine* pengine, SurfaceType stype, bool bColorKey, TopPaneSite* psite, Pane* pchild = NULL);
@@ -59,8 +59,8 @@ public:
     // IMouseInput methods
     //
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown);
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -85,12 +85,12 @@ public:
         return m_ptype->TransformLocalToImage(point);
     }
 
-    void SurfaceChanged()
+    void SurfaceChanged() override
     {
         m_ptype->SurfaceChanged();
     }
 
-    void SizeChanged()
+    void SizeChanged() override
     {
         m_ptype->SizeChanged();
     }

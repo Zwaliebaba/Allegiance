@@ -40,7 +40,7 @@ public:
     // IPopup methods
     //
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
@@ -63,7 +63,7 @@ public:
         return strResult;
     }
 
-    virtual void OnClose()
+    void OnClose() override
     {
         if (m_pkeyboardInputOldFocus)
             GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
@@ -73,7 +73,7 @@ public:
         IPopup::OnClose();
     }
 
-    virtual void SetContainer(IPopupContainer* pcontainer)
+    void SetContainer(IPopupContainer* pcontainer) override
     {
         m_pkeyboardInputOldFocus = GetWindow()->GetFocus();
         GetWindow()->SetFocus(m_peditPane);
@@ -82,14 +82,14 @@ public:
         IPopup::SetContainer(pcontainer);
     }
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         // we need to make sure we get OnChar calls to pass on to the edit box
         fForceTranslate = true;
         return false;
     }
 
-    bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+    bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
     {
         if (ks.vk == 13)
         {

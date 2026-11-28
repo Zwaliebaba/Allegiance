@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          ShowEyeballAction (bool showEyeball = false);
             virtual /* void */          ~ShowEyeballAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     bool                m_showEyeball;

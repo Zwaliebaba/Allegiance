@@ -25,29 +25,29 @@ public:
     // Geo members
     //
 
-    virtual Image* FindTexture();
-    void Render(Context* pcontext);
-    float GetRadius(const Matrix& mat = Matrix::GetIdentity());
-    void CallGroupGeoCallback(const Matrix& mat, GroupGeoCallback* pcallback);
-    TRef<Geo> FoldTexture();
-    TRef<Geo> RemoveMaterial();
-    TRef<Geo> ApplyTransform(Transform* ptrans);
-    int       GetTriangleCount();
-    bool      AnyChildGroups(bool bHead);
+    Image* FindTexture() override;
+    void Render(Context* pcontext) override;
+    float GetRadius(const Matrix& mat = Matrix::GetIdentity()) override;
+    void CallGroupGeoCallback(const Matrix& mat, GroupGeoCallback* pcallback) override;
+    TRef<Geo> FoldTexture() override;
+    TRef<Geo> RemoveMaterial() override;
+    TRef<Geo> ApplyTransform(Transform* ptrans) override;
+    int       GetTriangleCount() override;
+    bool      AnyChildGroups(bool bHead) override;
 
-    void RemoveCapture();
-    bool HitTest(const Vector& vecOrigin, const Vector& vecRay, HitData3D& hitData, bool bCaptured);
-    void MouseMove(const Vector& vec, bool bCaptured, bool bInside);
-    void MouseEnter(const Vector& vec);
-    void MouseLeave();
-    MouseResult Button(const Vector& vec, int button, bool bCaptured, bool bInside, bool bDown);
+    void RemoveCapture() override;
+    bool HitTest(const Vector& vecOrigin, const Vector& vecRay, HitData3D& hitData, bool bCaptured) override;
+    void MouseMove(const Vector& vec, bool bCaptured, bool bInside) override;
+    void MouseEnter(const Vector& vec) override;
+    void MouseLeave() override;
+    MouseResult Button(const Vector& vec, int button, bool bCaptured, bool bInside, bool bDown) override;
 
     //
     // Value members
     //
 
-    TRef<Value> Fold();
-    ZString GetFunctionName() { return "WrapGeo"; }
+    TRef<Value> Fold() override;
+    ZString GetFunctionName() override { return "WrapGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -139,9 +139,9 @@ public:
         m_scale = scale;
     }
 
-    void Render(Context* pcontext);
+    void Render(Context* pcontext) override;
 
-    int GetTriangleCount()
+    int GetTriangleCount() override
     {
         return 2;
     }
@@ -150,7 +150,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "DecalGeo"; }
+    ZString GetFunctionName() override { return "DecalGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -177,19 +177,19 @@ public:
     // WrapGeo members
     //
 
-    TRef<WrapGeo> Duplicate(Geo* pgeo);
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override;
 
     //
     // Geo members
     //
 
-    void Render(Context* pcontext);
+    void Render(Context* pcontext) override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "VisibleGeo"; }
+    ZString GetFunctionName() override { return "VisibleGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -221,19 +221,19 @@ public:
     // WrapGeo members
     //
 
-    TRef<WrapGeo> Duplicate(Geo* pgeo);
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override;
 
     //
     // Geo members
     //
 
-    void Render(Context* pcontext);
+    void Render(Context* pcontext) override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "ClipGeo"; }
+    ZString GetFunctionName() override { return "ClipGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -256,19 +256,19 @@ public:
     // WrapGeo members
     //
 
-    virtual TRef<WrapGeo> Duplicate(Geo* pgeo);
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override;
 
     //
     // Geo members
     //
 
-    void Render(Context* pcontext);
+    void Render(Context* pcontext) override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "ClipPlaneGeo"; }
+    ZString GetFunctionName() override { return "ClipPlaneGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -288,22 +288,22 @@ public:
     // WrapGeo members
     //
 
-    virtual TRef<WrapGeo> Duplicate(Geo* pgeo);
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override;
 
     //
     // Geo members
     //
 
-    void Render(Context* pcontext);
-    float GetRadius(const Matrix& mat = Matrix::GetIdentity());
-    void CallGroupGeoCallback(const Matrix& mat, GroupGeoCallback* pcallback);
+    void Render(Context* pcontext) override;
+    float GetRadius(const Matrix& mat = Matrix::GetIdentity()) override;
+    void CallGroupGeoCallback(const Matrix& mat, GroupGeoCallback* pcallback) override;
 
     //
     // Value members
     //
 
-    TRef<Value> Fold();
-    ZString GetFunctionName() { return "TransformGeo"; }
+    TRef<Value> Fold() override;
+    ZString GetFunctionName() override { return "TransformGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -327,20 +327,20 @@ public:
     // WrapGeo members
     //
 
-    virtual TRef<WrapGeo> Duplicate(Geo* pgeo);
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override;
 
     //
     // Geo members
     //
 
-    void Render(Context* pcontext);
-    TRef<Geo> RemoveMaterial();
+    void Render(Context* pcontext) override;
+    TRef<Geo> RemoveMaterial() override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "MaterialGeo"; }
+    ZString GetFunctionName() override { return "MaterialGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -369,7 +369,7 @@ public:
     // WrapGeo members
     //
 
-    TRef<WrapGeo> Duplicate(Geo* pgeo)
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override
     {
         return new CullModeGeo(pgeo, m_mode, m_bOveride);
     }
@@ -378,7 +378,7 @@ public:
     // Geo members
     //
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->SetCullMode(m_mode, m_bOveride);
         GetGeo()->Render(pcontext);
@@ -388,7 +388,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "CullModeGeo"; }
+    ZString GetFunctionName() override { return "CullModeGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -411,22 +411,22 @@ public:
     // WrapGeo members
     //
 
-    TRef<WrapGeo> Duplicate(Geo* pgeo);
-    TRef<Geo>     FoldTexture();
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override;
+    TRef<Geo>     FoldTexture() override;
 
     //
     // Geo members
     //
 
-    virtual Image* FindTexture();
-    void Render(Context* pcontext);
-    TextureGeo* GetTextureGeo();
+    Image* FindTexture() override;
+    void Render(Context* pcontext) override;
+    TextureGeo* GetTextureGeo() override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "TextureGeo"; }
+    ZString GetFunctionName() override { return "TextureGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -439,7 +439,7 @@ class TimedGeo : public WrapGeo, public EventSourceImpl {
 private:
     float m_lifespan;
 
-    void Evaluate();
+    void Evaluate() override;
 
     Number* GetTime() { return Number::Cast(GetChild(1)); }
 
@@ -450,7 +450,7 @@ public:
     // WrapGeo members
     //
 
-    virtual TRef<WrapGeo> Duplicate(Geo* pgeo);
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -481,7 +481,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "GroupGeo"; }
+    ZString GetFunctionName() override { return "GroupGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -508,7 +508,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "LODGeo"; }
+    ZString GetFunctionName() override { return "LODGeo"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -525,14 +525,14 @@ public:
     // WrapGeo members
     //
 
-    virtual TRef<WrapGeo> Duplicate(Geo* pgeo);
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override;
 
     //
     // Geo members
     //
 
-    void Render(Context* pcontext);
-    void RenderCallback(Context* pcontext);
+    void Render(Context* pcontext) override;
+    void RenderCallback(Context* pcontext) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////

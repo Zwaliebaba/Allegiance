@@ -33,7 +33,7 @@ namespace Training
             /* void */                  ObjectPointingAtCondition (ImodelIGC* pObject, ObjectType targetType, ObjectID targetID);
             /* void */                  ObjectPointingAtCondition (ImodelIGC* pObject, AbstractTarget* pTarget);
             virtual /* void */          ~ObjectPointingAtCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
                     void                SetVectorMask (const Vector& vectorMask);
                     void                ClearVectorMask (void);
                     void                SetMinimumAngle (float fMinimumAngle);

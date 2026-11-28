@@ -31,17 +31,17 @@ namespace Training
     {
         public:
             virtual /* void */              ~Mission3 (void);
-            virtual int                     GetMissionID (void);
-            virtual SectorID                GetStartSectorID (void);
-            virtual bool                    RecordKeyPress (TrekKey key);
-            virtual bool                    ShipLanded (void);
+            int                     GetMissionID (void) override;
+            SectorID                GetStartSectorID (void) override;
+            bool                    RecordKeyPress (TrekKey key) override;
+            bool                    ShipLanded (void) override;
 
         protected:
                     ShipID                  m_derelict_hulls[TM_NUMBER_OF_DERELICTS];
 
         protected:
-            virtual void                    CreateUniverse (void);
-            virtual Condition*              CreateMission (void);
+            void                    CreateUniverse (void) override;
+            Condition*              CreateMission (void) override;
 
                     Condition*              CreateGotTargetCondition (void);
 

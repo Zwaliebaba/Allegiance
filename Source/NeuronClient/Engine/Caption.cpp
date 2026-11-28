@@ -67,7 +67,7 @@ public:
         return true;
     }
 
-    void SetFullscreen(bool bFullscreen)
+    void SetFullscreen(bool bFullscreen) override
     {
         m_pbuttonClose->SetHidden(!bFullscreen);
         m_pbuttonRestore->SetHidden(!bFullscreen);

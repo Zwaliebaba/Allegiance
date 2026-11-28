@@ -230,7 +230,7 @@ public:
         SysFreeString(bstrPath);
     }
 
-    bool IsValid()
+    bool IsValid() override
     {
         return m_preader != NULL;
     }
@@ -397,7 +397,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    IEventSource* GetEventSource()
+    IEventSource* GetEventSource() override
     {
         return m_peventSource;
     }
@@ -408,12 +408,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void CalcBounds()
+    void CalcBounds() override
     {
         m_bounds.SetRect(GetRect()->GetValue());
     }
 
-    void Render(Context* pcontextArg)
+    void Render(Context* pcontextArg) override
     {
         // the original skipped the first frame too
         if (m_bFirstFrame) {
@@ -457,7 +457,7 @@ public:
         }
     }
 
-    ZString GetFunctionName() { return "VideoImage"; }
+    ZString GetFunctionName() override { return "VideoImage"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////

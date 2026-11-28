@@ -135,12 +135,12 @@ public:
         }
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
         InitializeVertices();
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->DrawTriangles(m_vvertex, m_vindex);
     }

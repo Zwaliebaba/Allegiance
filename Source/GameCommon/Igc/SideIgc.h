@@ -35,9 +35,9 @@ class       CsideIGC : public IsideIGC
     public:
 
     // IbaseIGC
-        virtual HRESULT                 Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void                    Terminate(void);
-        virtual void                    Update(Time now)
+        HRESULT                 Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void                    Terminate(void) override;
+        void                    Update(Time now) override
         {
             //Update the buckets attached to the station.
             for (BucketLinkIGC* l = m_buckets.first();
@@ -50,29 +50,29 @@ class       CsideIGC : public IsideIGC
             m_lastUpdate = now;
         }
 
-        virtual int                     Export(void* data) const;
+        int                     Export(void* data) const override;
 
-        virtual ObjectType              GetObjectType(void) const
+        ObjectType              GetObjectType(void) const override
         {
             return OT_side;
         }
 
-        virtual ObjectID                GetObjectID(void) const
+        ObjectID                GetObjectID(void) const override
         {
             return m_data.sideID;
         }
 
-        virtual ImissionIGC*    GetMission(void) const
+        ImissionIGC*    GetMission(void) const override
         {
             return m_pMission;
         }
 
     // IsideIGC
-        virtual IcivilizationIGC*       GetCivilization(void) const
+        IcivilizationIGC*       GetCivilization(void) const override
         {
             return m_pCivilization;
         }
-        virtual void                    SetCivilization(IcivilizationIGC*   pciv)
+        void                    SetCivilization(IcivilizationIGC*   pciv) override
         {
             assert (pciv);
             assert (m_pCivilization);
@@ -100,39 +100,39 @@ class       CsideIGC : public IsideIGC
             }
         }
 
-        virtual void        DestroyBuckets(void);
-        virtual void        CreateBuckets(void);
+        void        DestroyBuckets(void) override;
+        void        CreateBuckets(void) override;
 
-        void                SetName(const char* newVal)
+        void                SetName(const char* newVal) override
         {
             UTL::putName(m_data.name, newVal);
         }
 
-        virtual const char*             GetName(void) const
+        const char*             GetName(void) const override
         {
             return m_data.name;
         }
 
-        virtual SquadID     GetSquadID() const
+        SquadID     GetSquadID() const override
         {
             return m_data.squadID;
         }
 
-        virtual void        SetSquadID(SquadID squadID)
+        void        SetSquadID(SquadID squadID) override
         {
             m_data.squadID = squadID;
         }
 
-        virtual const TechTreeBitMask  GetTechs(void) const
+        const TechTreeBitMask  GetTechs(void) const override
         {
             return m_ttbmBuildingTechs | m_data.ttbmDevelopmentTechs;
         }
         
-        virtual const TechTreeBitMask&  GetBuildingTechs(void) const
+        const TechTreeBitMask&  GetBuildingTechs(void) const override
         {
             return m_ttbmBuildingTechs;
         }
-        virtual void                    ResetBuildingTechs(void)
+        void                    ResetBuildingTechs(void) override
         {
             //See what the new set of building techs is, from scratch
             TechTreeBitMask ttbm;
@@ -150,7 +150,7 @@ class       CsideIGC : public IsideIGC
             SetBuildingTechs(ttbm);
         }
 
-        virtual void                    SetBuildingTechs(const TechTreeBitMask& ttbm)
+        void                    SetBuildingTechs(const TechTreeBitMask& ttbm) override
         {
             if (ttbm != m_ttbmBuildingTechs)
             {
@@ -162,11 +162,11 @@ class       CsideIGC : public IsideIGC
             }
         }
 
-        virtual const TechTreeBitMask&  GetDevelopmentTechs(void) const
+        const TechTreeBitMask&  GetDevelopmentTechs(void) const override
         {
             return m_data.ttbmDevelopmentTechs;
         }
-        virtual void                    SetDevelopmentTechs(const TechTreeBitMask& ttbm)
+        void                    SetDevelopmentTechs(const TechTreeBitMask& ttbm) override
         {
             if (ttbm != m_data.ttbmDevelopmentTechs)
             {
@@ -176,7 +176,7 @@ class       CsideIGC : public IsideIGC
                 AdjustBuckets();
             }
         }
-        virtual bool                    ApplyDevelopmentTechs(const TechTreeBitMask& ttbm)
+        bool                    ApplyDevelopmentTechs(const TechTreeBitMask& ttbm) override
         {
             bool    rc;
             if (!(ttbm <= m_data.ttbmDevelopmentTechs))
@@ -193,20 +193,20 @@ class       CsideIGC : public IsideIGC
 
             return rc;
         }
-        virtual const TechTreeBitMask&  GetInitialTechs(void) const
+        const TechTreeBitMask&  GetInitialTechs(void) const override
         {
             return m_data.ttbmInitialTechs;
         }
-        virtual void                    SetInitialTechs(const TechTreeBitMask& ttbm)
+        void                    SetInitialTechs(const TechTreeBitMask& ttbm) override
         {
             m_data.ttbmInitialTechs = ttbm;
         }
-        virtual void                    UpdateInitialTechs(void)
+        void                    UpdateInitialTechs(void) override
         {
             m_data.ttbmInitialTechs = m_data.ttbmDevelopmentTechs;
         }
 
-        virtual bool                    CanBuy(const IbuyableIGC* b) const
+        bool                    CanBuy(const IbuyableIGC* b) const override
         {
 
             ObjectType  type = b->GetObjectType();
@@ -256,117 +256,117 @@ class       CsideIGC : public IsideIGC
             return bAvailable;
         }
 
-        virtual void                    AddStation(IstationIGC* s)
+        void                    AddStation(IstationIGC* s) override
         {
             AddIbaseIGC((BaseListIGC*)&m_stations, s);
 
             SetBuildingTechs(m_ttbmBuildingTechs |
                              s->GetStationType()->GetEffectTechs());
         }
-        virtual void                    DeleteStation(IstationIGC* s)
+        void                    DeleteStation(IstationIGC* s) override
         {
             DeleteIbaseIGC((BaseListIGC*)&m_stations, s);
 
             //See what the new set of building techs is, from scratch
             ResetBuildingTechs();
         }
-        virtual IstationIGC*   GetStation(StationID id) const
+        IstationIGC*   GetStation(StationID id) const override
         {
             return (IstationIGC*)GetIbaseIGC((BaseListIGC*)&m_stations, id);
         }
-        virtual const StationListIGC*   GetStations(void) const
+        const StationListIGC*   GetStations(void) const override
         {
             return &m_stations;
         }
 
-        virtual void                    AddShip(IshipIGC* s)
+        void                    AddShip(IshipIGC* s) override
         {
             AddIbaseIGC((BaseListIGC*)&m_ships, s);
         }
-        virtual void                    DeleteShip(IshipIGC* s)
+        void                    DeleteShip(IshipIGC* s) override
         {
             DeleteIbaseIGC((BaseListIGC*)&m_ships, s);
         }
-        virtual IshipIGC*   GetShip(ShipID id) const
+        IshipIGC*   GetShip(ShipID id) const override
         {
             return (IshipIGC*)GetIbaseIGC((BaseListIGC*)&m_ships, id);
         }
-        virtual const ShipListIGC*   GetShips(void) const
+        const ShipListIGC*   GetShips(void) const override
         {
             return &m_ships;
         }
 
-        virtual void                    AddBucket(IbucketIGC* b)
+        void                    AddBucket(IbucketIGC* b) override
         {
             AddIbaseIGC((BaseListIGC*)&m_buckets, b);
         }
-        virtual void                    DeleteBucket(IbucketIGC* b)
+        void                    DeleteBucket(IbucketIGC* b) override
         {
             DeleteIbaseIGC((BaseListIGC*)&m_buckets, b);
         }
 
-        virtual IbucketIGC*                     GetBucket(BucketID      bucketID) const
+        IbucketIGC*                     GetBucket(BucketID      bucketID) const override
         {
             return (IbucketIGC*)GetIbaseIGC((BaseListIGC*)&m_buckets, bucketID);
         }
-        virtual const BucketListIGC*   GetBuckets(void) const
+        const BucketListIGC*   GetBuckets(void) const override
         {
             return &m_buckets;
         }
 
-        virtual const GlobalAttributeSet&   GetGlobalAttributeSet(void) const
+        const GlobalAttributeSet&   GetGlobalAttributeSet(void) const override
         {
             return m_data.gasAttributes;
         }
 
-        virtual void                        SetGlobalAttributeSet(const GlobalAttributeSet& gas)
+        void                        SetGlobalAttributeSet(const GlobalAttributeSet& gas) override
         {
             m_data.gasAttributes = gas;
             m_pMission->GetIgcSite()->SideGlobalAttributeChange(this);
         }
 
-        virtual void                        ApplyGlobalAttributeSet(const GlobalAttributeSet& gas)
+        void                        ApplyGlobalAttributeSet(const GlobalAttributeSet& gas) override
         {
             m_data.gasAttributes.Apply(gas);
             m_pMission->GetIgcSite()->SideGlobalAttributeChange(this);
         }
 
-        virtual void                        ResetGlobalAttributeSet(void)
+        void                        ResetGlobalAttributeSet(void) override
         {
             m_data.gasAttributes.Initialize();
             m_pMission->GetIgcSite()->SideGlobalAttributeChange(this);
         }
 
-        virtual const TechTreeBitMask&      GetUltimateTechs(void) const
+        const TechTreeBitMask&      GetUltimateTechs(void) const override
         {
             return m_ttbmUltimateTechs;
         }
 
-        virtual bool                        GetActiveF(void) const
+        bool                        GetActiveF(void) const override
         {
             return m_activeF;
         }
-        virtual void                        SetActiveF(bool activeF)
+        void                        SetActiveF(bool activeF) override
         {
             m_activeF = activeF;
         }
 
-        virtual const Color&                GetColor(void) const
+        const Color&                GetColor(void) const override
         {
             return m_data.color;
         }
 
-        virtual void                        SetPrivateData(DWORD_PTR dwPrivate)
+        void                        SetPrivateData(DWORD_PTR dwPrivate) override
         {
             m_dwPrivate = dwPrivate;
         }
 
-        virtual DWORD_PTR                   GetPrivateData(void) const
+        DWORD_PTR                   GetPrivateData(void) const override
         {
             return m_dwPrivate;
         }
 
-        virtual void                        AddToStockpile(IbuyableIGC* b, short count)
+        void                        AddToStockpile(IbuyableIGC* b, short count) override
         {
             assert (count > 0);
 
@@ -394,7 +394,7 @@ class       CsideIGC : public IsideIGC
             assert (plink);
             plink->data().count += count;
         }
-        virtual short                        RemoveFromStockpile(IbuyableIGC* b, short count)
+        short                        RemoveFromStockpile(IbuyableIGC* b, short count) override
         {
             assert (count > 0);
 
@@ -421,7 +421,7 @@ class       CsideIGC : public IsideIGC
 
             return 0;
         }
-        virtual short                       GetStockpile(IbuyableIGC* b) const
+        short                       GetStockpile(IbuyableIGC* b) const override
         {
             StockpileLink*  plink = m_stockpile.first();
             while (plink)
@@ -434,105 +434,105 @@ class       CsideIGC : public IsideIGC
 
             return 0;
         }
-        virtual const StockpileList*        GetStockpile(void) const
+        const StockpileList*        GetStockpile(void) const override
         {
             return &m_stockpile;
         }
 
-        virtual short                       GetKills(void) const
+        short                       GetKills(void) const override
         {
             return m_data.nKills;
         }
-        virtual void                        AddKill(void)
+        void                        AddKill(void) override
         {
             m_data.nKills++;
         }
 
-        virtual short                       GetDeaths(void) const
+        short                       GetDeaths(void) const override
         {
             return m_data.nDeaths;
         }
-        virtual void                        AddDeath(void)
+        void                        AddDeath(void) override
         {
             m_data.nDeaths++;
         }
 
-        virtual short                       GetEjections(void) const
+        short                       GetEjections(void) const override
         {
             return m_data.nEjections;
         }
-        virtual void                        AddEjection(void)
+        void                        AddEjection(void) override
         {
             m_data.nEjections++;
         }
 
-        virtual short                       GetBaseKills(void) const
+        short                       GetBaseKills(void) const override
         {
             return m_data.nBaseKills;
         }
-        virtual void                        AddBaseKill(void)
+        void                        AddBaseKill(void) override
         {
             m_data.nBaseKills++;
         }
 
-        virtual short                       GetBaseCaptures(void) const
+        short                       GetBaseCaptures(void) const override
         {
             return m_data.nBaseCaptures;
         }
-        virtual void                        AddBaseCapture(void)
+        void                        AddBaseCapture(void) override
         {
             m_data.nBaseCaptures++;
         }
 
-        unsigned char GetConquestPercent(void) const
+        unsigned char GetConquestPercent(void) const override
         {
             return m_data.conquest;
         }
-        void          SetConquestPercent(unsigned char newVal)
+        void          SetConquestPercent(unsigned char newVal) override
         {
             m_data.conquest = newVal;
         }
-        unsigned char GetTerritoryCount(void) const
+        unsigned char GetTerritoryCount(void) const override
         {
             return m_data.territory;
         }
-        void          SetTerritoryCount(unsigned char newVal)
+        void          SetTerritoryCount(unsigned char newVal) override
         {
             m_data.territory = newVal;
         }
 
-        short GetFlags(void) const
+        short GetFlags(void) const override
         {
             return m_data.nFlags;
         }
-        void          SetFlags(short newVal)
+        void          SetFlags(short newVal) override
         {
             m_data.nFlags = newVal;
         }
 
-        short GetArtifacts(void) const
+        short GetArtifacts(void) const override
         {
             return m_data.nArtifacts;
         }
-        void          SetArtifacts(short newVal)
+        void          SetArtifacts(short newVal) override
         {
             m_data.nArtifacts = newVal;
         }
 
-        float GetTimeEndured() const
+        float GetTimeEndured() const override
         {
             return m_data.fTimeEndured;
         }
 
-        void SetTimeEndured(float fSeconds)
+        void SetTimeEndured(float fSeconds) override
         {
             m_data.fTimeEndured = fSeconds;
         }
 
-        virtual long GetProsperityPercentBought(void) const;
-        virtual long GetProsperityPercentComplete(void) const;
+        long GetProsperityPercentBought(void) const override;
+        long GetProsperityPercentComplete(void) const override;
 
-        void Reset(void)
+        void Reset(void) override
         {
             m_data.nFlags = 0;
             m_data.nArtifacts = 0;

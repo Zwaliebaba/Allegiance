@@ -33,35 +33,35 @@ class CtreasureSetIGC : public ItreasureSetIGC
         }
 
     // IbaseIGC
-        virtual HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void            Terminate(void)
+        HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void            Terminate(void) override
         {
             m_pMission->DeleteTreasureSet(this);
         }
 
-        virtual int             Export(void* data) const;
+        int             Export(void* data) const override;
 
-        virtual ObjectType      GetObjectType(void) const
+        ObjectType      GetObjectType(void) const override
         {
             return OT_treasureSet;
         }
 
-        virtual ObjectID        GetObjectID(void) const
+        ObjectID        GetObjectID(void) const override
         {
             return m_data->treasureSetID;
         }
 
     // ItreasureSetIGC
-        virtual const char*                 GetName(void) const
+        const char*                 GetName(void) const override
         {
             return m_data->name;
         }
-        virtual bool                        GetZoneOnly(void) const
+        bool                        GetZoneOnly(void) const override
         {
             return m_data->bZoneOnly;
         }
 
-        virtual void                        AddTreasureData(TreasureCode tc, ObjectID oid, unsigned char chance)
+        void                        AddTreasureData(TreasureCode tc, ObjectID oid, unsigned char chance) override
         {
             if (m_data->nTreasureData == m_maxTreasureData)
             {
@@ -90,7 +90,7 @@ class CtreasureSetIGC : public ItreasureSetIGC
             m_data->nTreasureData++;
         }
 
-        virtual const TreasureData&         GetRandomTreasureData(void) const
+        const TreasureData&         GetRandomTreasureData(void) const override
         {
             assert (m_totalTreasureChance >= 1);
 

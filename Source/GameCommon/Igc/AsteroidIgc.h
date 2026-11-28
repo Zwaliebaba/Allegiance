@@ -28,8 +28,8 @@ class   CasteroidIGC : public TmodelIGC<IasteroidIGC>
         }
 
     // IbaseIGC
-	    virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void    Terminate(void)
+	    HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void    Terminate(void) override
         {
             if (m_pbuildingEffect)
             {
@@ -41,9 +41,9 @@ class   CasteroidIGC : public TmodelIGC<IasteroidIGC>
             GetMyMission()->DeleteAsteroid(this);
             TmodelIGC<IasteroidIGC>::Terminate();
         }
-        virtual int     Export(void*    data) const;
+        int     Export(void*    data) const override;
 
-        virtual void    Update(Time now)
+        void    Update(Time now) override
         {
             if (((m_asteroidDef.aabmCapabilities & c_aabmMineHe3) != 0) &&
                 (m_asteroidDef.ore < m_asteroidDef.oreMax))
@@ -63,18 +63,18 @@ class   CasteroidIGC : public TmodelIGC<IasteroidIGC>
                 m_pbuildingEffect->AsteroidUpdate(now);
         }
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_asteroid;
         }
 
-        virtual ObjectID    GetObjectID(void) const
+        ObjectID    GetObjectID(void) const override
         {
             return m_asteroidDef.asteroidID;
         }
 
     // ImodelIGC
-        virtual void    SetCluster(IclusterIGC* cluster)
+        void    SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -95,12 +95,12 @@ class   CasteroidIGC : public TmodelIGC<IasteroidIGC>
         }
 
     // IdamageIGC
-        virtual DamageResult        ReceiveDamage(DamageTypeID            type,
+        DamageResult        ReceiveDamage(DamageTypeID            type,
                                                   float                   amount,
                                                   Time                    timeCollision,
                                                   const Vector&           position1,
                                                   const Vector&           position2,
-                                                  ImodelIGC*              launcher)
+                                                  ImodelIGC*              launcher) override
         {
             DamageResult    dr = c_drHullDamage;
 
@@ -137,26 +137,26 @@ class   CasteroidIGC : public TmodelIGC<IasteroidIGC>
 
             return dr;
         }
-        virtual float   GetFraction(void) const
+        float   GetFraction(void) const override
         {
             return m_fraction;
         }
-        virtual void    SetFraction(float newVal)
+        void    SetFraction(float newVal) override
         {
             m_fraction = newVal;
         }
 
-        virtual float               GetHitPoints(void) const
+        float               GetHitPoints(void) const override
         {
             return m_fraction * float(m_asteroidDef.hitpoints);
         }
 
     // IasteroidIGC
-        virtual float   GetOre(void) const
+        float   GetOre(void) const override
         {
             return m_asteroidDef.ore;
         }
-        virtual void    SetOre(float    newVal)
+        void    SetOre(float    newVal) override
         {
             /* NYI -- re-enable if He3 does not regenerate
             if ((newVal == 0.0f) &&
@@ -175,7 +175,7 @@ class   CasteroidIGC : public TmodelIGC<IasteroidIGC>
 
             m_asteroidDef.ore = newVal;
         }
-        virtual float   MineOre(float    newVal)
+        float   MineOre(float    newVal) override
         {
             if (m_asteroidDef.ore < newVal)
             {
@@ -192,20 +192,20 @@ class   CasteroidIGC : public TmodelIGC<IasteroidIGC>
             return newVal;
         }
 
-        virtual AsteroidAbilityBitMask  GetCapabilities(void) const
+        AsteroidAbilityBitMask  GetCapabilities(void) const override
         {
             return m_pbuildingEffect ? 0 : m_asteroidDef.aabmCapabilities;
         }
-        virtual bool                    HasCapability(AsteroidAbilityBitMask aabm) const
+        bool                    HasCapability(AsteroidAbilityBitMask aabm) const override
         {
             return m_pbuildingEffect ? false : ((m_asteroidDef.aabmCapabilities & aabm) != 0);
         }
 
-        virtual IbuildingEffectIGC*     GetBuildingEffect(void) const
+        IbuildingEffectIGC*     GetBuildingEffect(void) const override
         {
             return m_pbuildingEffect;
         }
-        virtual void                    SetBuildingEffect(IbuildingEffectIGC* pbe)
+        void                    SetBuildingEffect(IbuildingEffectIGC* pbe) override
         {
             if (m_pbuildingEffect)
             {

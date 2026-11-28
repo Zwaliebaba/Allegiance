@@ -22,23 +22,23 @@
 class StringMDLType : public MDLType {
 private:
 public:
-    int GetSize()
+    int GetSize() override
     {
         return sizeof(ZString);
     }
 
-    int GetAlignment()
+    int GetAlignment() override
     {
         return alignof(ZString);
     }
 
-    void Destruct(BYTE*& pbyte)
+    void Destruct(BYTE*& pbyte) override
     {
         std::destroy_at((ZString*)pbyte);
         pbyte += sizeof(ZString);
     }
 
-    void StackRead(BYTE*& pbyte, ObjectStack& stack)
+    void StackRead(BYTE*& pbyte, ObjectStack& stack) override
     {
         TRef<StringValue> pstring; CastTo(pstring, (IObject*)stack.Pop());
 
@@ -46,18 +46,18 @@ public:
         pbyte += sizeof(ZString);
     }
 
-    void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack)
+    void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         std::construct_at((ZString*)pbyte, psite->GetString());
         pbyte += sizeof(ZString);
     }
 
-    ZString GetCPPType()
+    ZString GetCPPType() override
     {
         return "ZString";
     }
 
-    ZString GetHungarianPrefix()
+    ZString GetHungarianPrefix() override
     {
         return "str";
     }
@@ -84,23 +84,23 @@ public:
     {
     }
 
-    int GetSize()
+    int GetSize() override
     {
         return sizeof(TRef<IObject>);
     }
 
-    int GetAlignment()
+    int GetAlignment() override
     {
         return alignof(TRef<IObject>);
     }
 
-    void Destruct(BYTE*& pbyte)
+    void Destruct(BYTE*& pbyte) override
     {
         *(TRef<IObject>*)pbyte = NULL;
         pbyte += sizeof(TRef<IObject>);
     }
 
-    void StackRead(BYTE*& pbyte, ObjectStack& stack)
+    void StackRead(BYTE*& pbyte, ObjectStack& stack) override
     {
         TRef<IObject> pobject = stack.Pop();
 
@@ -108,7 +108,7 @@ public:
         pbyte += sizeof(TRef<IObject>);
     }
 
-    void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack)
+    void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         TRef<IObject> pobject = stack.Pop();
 
@@ -116,12 +116,12 @@ public:
         pbyte += sizeof(TRef<IObject>);
     }
 
-    ZString GetCPPType()
+    ZString GetCPPType() override
     {
         return "TRef< " + m_ptype->GetCPPType() + " >";
     }
 
-    ZString GetHungarianPrefix()
+    ZString GetHungarianPrefix() override
     {
         return "p";
     }
@@ -143,23 +143,23 @@ public:
     {
     }
 
-    int GetSize()
+    int GetSize() override
     {
         return sizeof(TRef<IObjectList>);
     }
 
-    int GetAlignment()
+    int GetAlignment() override
     {
         return alignof(TRef<IObjectList>);
     }
 
-    void Destruct(BYTE*& pbyte)
+    void Destruct(BYTE*& pbyte) override
     {
         *(TRef<IObjectList>*)pbyte = NULL;
         pbyte += sizeof(TRef<IObjectList>);
     }
 
-    void StackRead(BYTE*& pbyte, ObjectStack& stack)
+    void StackRead(BYTE*& pbyte, ObjectStack& stack) override
     {
         TRef<IObjectList> plist; CastTo(plist, (IObject*)stack.Pop());
 
@@ -167,7 +167,7 @@ public:
         pbyte += sizeof(TRef<IObjectList>);
     }
 
-    void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack)
+    void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         TRef<IObjectList> plist; CastTo(plist, (IObject*)stack.Pop());
 
@@ -175,12 +175,12 @@ public:
         pbyte += sizeof(TRef<IObjectList>);
     }
 
-    ZString GetCPPType()
+    ZString GetCPPType() override
     {
         return "TRef<IObjectList>";
     }
 
-    ZString GetHungarianPrefix()
+    ZString GetHungarianPrefix() override
     {
         return "list";
     }
@@ -210,44 +210,44 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetSize()
+    int GetSize() override
     {
         ZUnimplemented();
         return 0;
     }
 
-    int GetAlignment()
+    int GetAlignment() override
     {
         ZUnimplemented();
         return 1;
     }
 
-    virtual bool IsStruct()
+    bool IsStruct() override
     {
         return true;
     }
 
-    void Destruct(BYTE*& pbyte)
+    void Destruct(BYTE*& pbyte) override
     {
         ZUnimplemented();
     }
 
-    void StackRead(BYTE*& pbyte, ObjectStack& stack)
+    void StackRead(BYTE*& pbyte, ObjectStack& stack) override
     {
         ZUnimplemented();
     }
 
-    void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack)
+    void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         ZUnimplemented();
     }
 
-    ZString GetCPPType()
+    ZString GetCPPType() override
     {
         return m_strType;
     }
 
-    ZString GetHungarianPrefix()
+    ZString GetHungarianPrefix() override
     {
         return m_strPrefix;
     }
@@ -377,7 +377,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetSize()
+    int GetSize() override
     {
         int offset = 0;
 
@@ -394,7 +394,7 @@ public:
         return AlignOffset(offset, GetAlignment());
     }
 
-    int GetAlignment()
+    int GetAlignment() override
     {
         int align = 1;
 
@@ -413,12 +413,12 @@ public:
         return align;
     }
 
-    virtual bool IsStruct()
+    bool IsStruct() override
     {
         return true;
     }
 
-    void Destruct(BYTE*& pbyte)
+    void Destruct(BYTE*& pbyte) override
     {
         BYTE* pbase = pbyte;
         MemberDataList::Iterator iter(m_list);
@@ -435,7 +435,7 @@ public:
         pbyte = pbase + GetSize();
     }
 
-    void StackRead(BYTE*& pbyte, ObjectStack& stack)
+    void StackRead(BYTE*& pbyte, ObjectStack& stack) override
     {
         BYTE* pbase = pbyte;
         MemberDataList::Iterator iter(m_list);
@@ -452,7 +452,7 @@ public:
         pbyte = pbase + GetSize();
     }
 
-    void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack)
+    void Read(BYTE*& pbyte, IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         BYTE* pbase = pbyte;
         MemberDataList::Iterator iter(m_list);
@@ -469,12 +469,12 @@ public:
         pbyte = pbase + GetSize();
     }
 
-    ZString GetCPPType()
+    ZString GetCPPType() override
     {
         return m_strName;
     }
 
-    ZString GetHungarianPrefix()
+    ZString GetHungarianPrefix() override
     {
         ZUnimplemented();
         return ZString();
@@ -516,7 +516,7 @@ public:
     {
     }
 
-	TRef<IObject> Apply(ObjectStack& stack)
+	TRef<IObject> Apply(ObjectStack& stack) override
 	{
         TRef<IMDLObject> pobject = IMDLObject::Allocate(m_ptype->GetSize(), m_ptype);
         BYTE*            pbyte   = pobject->GetDataPointer();
@@ -526,7 +526,7 @@ public:
         return pobject;
 	}
 
-    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
+    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         TRef<IMDLObject> pobject = IMDLObject::Allocate(m_ptype->GetSize(), m_ptype);
         BYTE*            pbyte   = pobject->GetDataPointer();
@@ -635,7 +635,7 @@ public:
         Next();
     }
 
-    int ParseToken(PCC& pcc)
+    int ParseToken(PCC& pcc) override
     {
         switch (pcc[0]) {
             case '[': pcc++; return LeftBracket;

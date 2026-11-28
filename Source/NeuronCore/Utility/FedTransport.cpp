@@ -684,7 +684,7 @@ public:
         QueueEvent(event);
     }
 
-    bool PopEvent(FedTransportEvent& event)
+    bool PopEvent(FedTransportEvent& event) override
     {
         EnterCriticalSection(&m_cs);
         bool fAny = !m_events.empty();
@@ -698,7 +698,7 @@ public:
         return fAny;
     }
 
-    bool WaitForEvent(DWORD ms)
+    bool WaitForEvent(DWORD ms) override
     {
         EnterCriticalSection(&m_cs);
         bool fAny = !m_events.empty();
@@ -1468,7 +1468,7 @@ public:
         WSACleanup();
     }
 
-    void Start(DWORD idApplication, const char* szHost, unsigned short portDiscovery)
+    void Start(DWORD idApplication, const char* szHost, unsigned short portDiscovery) override
     {
         m_idApplication = idApplication;
         m_sessions.clear();

@@ -84,7 +84,7 @@ private:
         //
         //////////////////////////////////////////////////////////////////////////////
 
-        void UpdateLayout()
+        void UpdateLayout() override
         {
             Child()->UpdateLayout();
             InternalSetSize(WinPoint(
@@ -99,19 +99,19 @@ private:
         //
         //////////////////////////////////////////////////////////////////////////////
 
-        void MouseEnter(IInputProvider* pprovider, const Point& point)
+        void MouseEnter(IInputProvider* pprovider, const Point& point) override
         {
             m_bInside = true;
             m_pcolor->SetValue(m_colorHighlight);
         }
 
-        void MouseLeave(IInputProvider* pprovider)
+        void MouseLeave(IInputProvider* pprovider) override
         {
             m_bInside = false;
             m_pcolor->SetValue(m_color);
         }
 
-        MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+        MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
         {
             if (button == 0 && bDown) {
                 m_peventSource->Trigger(m_strMain);
@@ -296,13 +296,13 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetTopic(const ZString& str)
+    void SetTopic(const ZString& str) override
     {
         m_ptopicSelected = FindTopic(str);
         UpdatePanes();
     }
 
-    const ZString& GetSecondary(const ZString& str)
+    const ZString& GetSecondary(const ZString& str) override
     {
         Topic* ptopic = FindTopic(str);
 
@@ -313,7 +313,7 @@ public:
         }
     }
 
-    virtual TRef<IStringEventSource> GetEventSource()
+    TRef<IStringEventSource> GetEventSource() override
     {
         return m_peventSource;
     }
@@ -324,7 +324,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         m_pcolumn->UpdateLayout();
     }
@@ -338,7 +338,7 @@ public:
 
 class NavPaneFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<IObjectList> plist;           CastTo(plist,           (IObject*)stack.Pop());
         TRef<PointValue>  psize;           CastTo(psize,           (IObject*)stack.Pop());

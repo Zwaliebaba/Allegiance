@@ -179,7 +179,7 @@ public:
     }
 
     // plays one track
-    virtual HRESULT Play(int nTrack)
+    HRESULT Play(int nTrack) override
     {
         int iFile = nTrack - 2;
         if (iFile < 0 || iFile >= (int)m_vstrTracks.size())
@@ -208,7 +208,7 @@ public:
     }
 
     // stops the music
-    virtual HRESULT Stop()
+    HRESULT Stop() override
     {
         if (m_nCurrentTrack)
         {
@@ -219,7 +219,7 @@ public:
     }
 
     // returns S_OK while a track is playing, S_FALSE otherwise
-    virtual HRESULT IsPlaying()
+    HRESULT IsPlaying() override
     {
         if (m_nCurrentTrack && m_pnotify->IsDone())
             m_nCurrentTrack = 0;
@@ -228,7 +228,7 @@ public:
     }
 
     // returns the current track
-    virtual HRESULT GetCurrentTrack(int& nTrack)
+    HRESULT GetCurrentTrack(int& nTrack) override
     {
         IsPlaying();
         nTrack = m_nCurrentTrack;
@@ -237,7 +237,7 @@ public:
 
     // sets the music gain, from 0 to -100 dB (it used to set the system
     // mixer's CD line volume)
-    virtual HRESULT SetGain(float fGain)
+    HRESULT SetGain(float fGain) override
     {
         m_fGain = fGain;
         double dVolume = (fGain <= -100.0f) ? 0.0 : pow(10.0, fGain / 20.0);
@@ -264,25 +264,25 @@ class DummyDiskPlayer : public IDiskPlayer
 {
 public:
     // plays one track
-    virtual HRESULT Play(int nTrack)
+    HRESULT Play(int nTrack) override
     {
         return S_OK;
     };
 
     // stops the CD player
-    virtual HRESULT Stop()
+    HRESULT Stop() override
     {
         return S_OK;
     };
 
     // returns S_OK if the CD player is playing
-    virtual HRESULT IsPlaying()
+    HRESULT IsPlaying() override
     {
         return S_FALSE;
     };
 
     // returns the current track of the CD player
-    virtual HRESULT GetCurrentTrack(int& nTrack)
+    HRESULT GetCurrentTrack(int& nTrack) override
     {
         nTrack = 1;
         return S_OK;
@@ -290,7 +290,7 @@ public:
 
 
     // sets the gain on the CD player, from 0 to -100 dB
-    virtual HRESULT SetGain(float fGain)
+    HRESULT SetGain(float fGain) override
     {
         return S_OK;
     };
@@ -332,7 +332,7 @@ private:
         // Stops the sound.  If bForceNow is true the sound will stop ASAP, 
         // possibly popping.  If it is false some sounds may play a trail-off 
         // sound or fade away.  
-        virtual HRESULT Stop(bool bForceNow = false)
+        HRESULT Stop(bool bForceNow = false) override
         {
             HRESULT hr = IsPlaying();
 
@@ -347,7 +347,7 @@ private:
         }
 
         // returns S_OK if the sound is currently playing, S_FALSE otherwise.
-        virtual HRESULT IsPlaying()
+        HRESULT IsPlaying() override
         {
             HRESULT hr = m_pdiskplayer->IsPlaying();
 
@@ -368,19 +368,19 @@ private:
 
         // Gets an event which fires when the sound finishes playing (for any 
         // reason)
-        virtual IEventSource* GetFinishEventSource()
+        IEventSource* GetFinishEventSource() override
         {
             ZError("NYI");
             return NULL;
         }
 
         // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-        virtual TRef<ISoundTweakable> GetISoundTweakable()
+        TRef<ISoundTweakable> GetISoundTweakable() override
         {
             return NULL;
         }
 
-        virtual TRef<ISoundTweakable3D> GetISoundTweakable3D()
+        TRef<ISoundTweakable3D> GetISoundTweakable3D() override
         {
             return NULL;
         }
@@ -410,8 +410,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
     {
         if (!pbufferSource)
         {

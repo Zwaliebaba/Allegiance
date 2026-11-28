@@ -26,22 +26,22 @@ class CbuoyIGC : public TmodelIGC<IbuoyIGC>
 
     public:
     // IbaseIGC
-	    virtual HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-	    virtual void                Terminate(void);
-        virtual int                 Export(void* data) const;
+	    HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+	    void                Terminate(void) override;
+        int                 Export(void* data) const override;
 
-        virtual ObjectType          GetObjectType(void) const
+        ObjectType          GetObjectType(void) const override
         {
             return OT_buoy;
         }
 
-        virtual ObjectID    GetObjectID(void) const
+        ObjectID    GetObjectID(void) const override
         {
             return m_buoyID;
         }
 
     // ImodelIGC
-        virtual void                SetCluster(IclusterIGC* cluster)
+        void                SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -63,20 +63,20 @@ class CbuoyIGC : public TmodelIGC<IbuoyIGC>
         {
         }
 
-        virtual bool                 GetVisibleF(void) const
+        bool                 GetVisibleF(void) const override
         {
             return (m_nConsumers > 0);
         }
-        virtual void                 SetRender(unsigned char render)
+        void                 SetRender(unsigned char render) override
         {
         }
 
     // IbuoyIGC
-        virtual void                 AddConsumer(void)
+        void                 AddConsumer(void) override
         {
             m_nConsumers++;
         }
-        virtual void                 ReleaseConsumer(void)
+        void                 ReleaseConsumer(void) override
         {
             m_nConsumers--;
             assert (m_nConsumers >= 0);
@@ -85,7 +85,7 @@ class CbuoyIGC : public TmodelIGC<IbuoyIGC>
                 Terminate();
         }
 
-        virtual BuoyType             GetBuoyType(void)
+        BuoyType             GetBuoyType(void) override
         {
             return m_type;
         }

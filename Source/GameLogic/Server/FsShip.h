@@ -254,9 +254,9 @@ public:
             TRef<IshipIGC> pShip, bool fCanCheat);
   virtual ~CFSPlayer();
   CFMGroup *      GetGroup() {return m_pgrp;}
-  virtual void    Launch(IstationIGC* pstation);
+  void    Launch(IstationIGC* pstation) override;
 
-  virtual void    Dock(IstationIGC * pstation);
+  void    Dock(IstationIGC * pstation) override;
 
   // these are for ship updates only
   static DWORD    GetMaxLatency()     {return m_latencyMax;}
@@ -312,7 +312,7 @@ public:
   { 
     return m_strCDKey.c_str(); 
   }
-  virtual void    SetSide(CFSMission * pmission, IsideIGC * pside);
+  void    SetSide(CFSMission * pmission, IsideIGC * pside) override;
   bool            CanCheat()            
   {
     return m_fCanCheat;
@@ -338,7 +338,7 @@ public:
   }
   void            SetDPGroup(CFSCluster*  pfsCluster, bool bFlying);
 
-  virtual void    SetCluster(IclusterIGC * pcluster, bool bViewOnly = false);
+  void    SetCluster(IclusterIGC * pcluster, bool bViewOnly = false) override;
 
   PersistPlayerScoreObjectList * GetPersistPlayerScoreObjectList()
   {
@@ -395,7 +395,7 @@ public:
   {
       m_bannedSideMask |= bsm;
   }
-  virtual void  Reset(bool  bFull)
+  void  Reset(bool  bFull) override
   {
     m_chatBudget = c_chatBudgetMax;
     SetDPGroup(NULL, false);
@@ -512,8 +512,8 @@ public:
   CFSDrone(IshipIGC* pship);
   ~CFSDrone();
 
-  virtual void Launch(IstationIGC* pstation);
-  virtual void Dock(IstationIGC * pstation);
+  void Launch(IstationIGC* pstation) override;
+  void Dock(IstationIGC * pstation) override;
 
   void  SetLastDamageReport(Time t)
   {

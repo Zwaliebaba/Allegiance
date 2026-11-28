@@ -133,7 +133,7 @@ public:
     {
     }
 
-    STDMETHODIMP QueryInterface(const IID &riid, void** ppvObj)
+    STDMETHODIMP QueryInterface(const IID &riid, void** ppvObj) override
     {
         if (riid == IID_IUnknown) {
             AddRef();
@@ -143,12 +143,12 @@ public:
         return m_pobject->NonDelegatingQueryInterface(riid, ppvObj);
     }
 
-    STDMETHODIMP_(ULONG) AddRef()
+    STDMETHODIMP_(ULONG) AddRef() override
     {
         return ++m_count;
     }
 
-    STDMETHODIMP_(ULONG) Release()
+    STDMETHODIMP_(ULONG) Release() override
     {
         if (--m_count == 0) {
             delete m_pobject;

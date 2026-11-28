@@ -123,7 +123,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
@@ -151,7 +151,7 @@ public:
         return true;
     }
 
-    void OnBoardShip(IshipIGC* pshipChild, IshipIGC* pshipParent)
+    void OnBoardShip(IshipIGC* pshipChild, IshipIGC* pshipParent) override
     {
         if (pshipChild == trekClient.GetShip())
         {

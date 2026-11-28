@@ -264,7 +264,7 @@ public:
         #endif
     }
 
-    bool IsValid()
+    bool IsValid() override
     {
         return m_prasterizer->IsValid();
     }
@@ -276,7 +276,7 @@ public:
     //////////////////////////////////////////////////////////////////////////////
 
     #ifdef EnablePerformanceCounters
-        void ResetPerformanceCounters()
+        void ResetPerformanceCounters() override
         {
             m_countPoints          = 0;
             m_countLines           = 0;
@@ -287,7 +287,7 @@ public:
             m_countMatrixLoads     = 0;
         }
 
-        int GetPerformanceCounter(Counter counter)
+        int GetPerformanceCounter(Counter counter) override
         {
             switch (counter) {
                 case CounterPoints          : return m_countPoints         ;
@@ -335,7 +335,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool Has3DAcceleration()
+    bool Has3DAcceleration() override
     {
         return m_prasterizer->Has3DAcceleration();
     }
@@ -346,27 +346,27 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void BeginScene()
+    void BeginScene() override
     {
         m_prasterizer->BeginScene();
     }
 
-    void EndScene()
+    void EndScene() override
     {
         m_prasterizer->EndScene();
     }
 
-    void ClearZBuffer()
+    void ClearZBuffer() override
     {
         m_prasterizer->ClearZBuffer();
     }
 
-    void Begin3DLayer(bool bZBuffer)
+    void Begin3DLayer(bool bZBuffer) override
     {
         m_prasterizer->Begin3DLayer(bZBuffer);
     }
 
-    void End3DLayer()
+    void End3DLayer() override
     {
         m_prasterizer->End3DLayer();
     }
@@ -377,7 +377,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetClipRect(const Rect& rectClip)
+    void SetClipRect(const Rect& rectClip) override
     {
         m_rectClip       = rectClip;
         m_rectClipScreen =
@@ -399,13 +399,13 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DirectionalLight(const Vector& vec, const Color& color)
+    void DirectionalLight(const Vector& vec, const Color& color) override
     {
         m_vecLightWorld  = m_mat.TransformDirection(vec);
         m_bBidirectional = false;
     }
 
-    void BidirectionalLight(const Vector& vec, const Color& color, const Color& colorAlt)
+    void BidirectionalLight(const Vector& vec, const Color& color, const Color& colorAlt) override
     {
         m_vecLightWorld  = m_mat.TransformDirection(vec);
         m_color          = color;
@@ -413,12 +413,12 @@ public:
         m_bBidirectional = true;
     }
 
-    void SetAmbientLevel(float level)
+    void SetAmbientLevel(float level) override
     {
         m_brightAmbient = level;
     }
 
-    void SetGlobalColor(const Color& color)
+    void SetGlobalColor(const Color& color) override
     {
         m_colorGlobal = color;
     }
@@ -585,17 +585,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool GetClipping()
+    bool GetClipping() override
     {
         return m_bClip;
     }
 
-    const Matrix& GetMatrix()
+    const Matrix& GetMatrix() override
     {
         return m_mat;
     }
 
-    const Matrix& GetInverseModelMatrix()
+    const Matrix& GetInverseModelMatrix() override
     {
         if (m_bUpdateInverse) {
             m_bUpdateInverse = false;
@@ -611,7 +611,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetMatrix(const Matrix& mat)
+    void SetMatrix(const Matrix& mat) override
     {
         m_mat             = mat;
         m_bUpdateMatFull  = true;
@@ -619,20 +619,20 @@ public:
         m_bUpdateInverse  = true;
     }
 
-    void SetPerspectiveMatrix(const Matrix& mat)
+    void SetPerspectiveMatrix(const Matrix& mat) override
     {
         m_matPerspective = mat;
         m_bUpdateMatFull = true;
     }
 
-    void SetClipping(bool bClip)
+    void SetClipping(bool bClip) override
     {
         m_bClip = bClip;
         m_bUpdateMatFull  = true;
         m_bUpdatePointers = true;
     }
 
-    void RemoveClipPlane(int indexRemove)
+    void RemoveClipPlane(int indexRemove) override
     {
         ZAssert(indexRemove >= 0 && indexRemove + 6 < m_countPlanes);
 
@@ -643,7 +643,7 @@ public:
         m_countPlanes--;
     }
 
-    void AddClipPlane(const Plane& plane)
+    void AddClipPlane(const Plane& plane) override
     {
         ZAssert(m_countPlanes < g_maxCountPlanes);
 
@@ -665,81 +665,81 @@ public:
         m_countPlanes++;
     }
 
-    void SetShadeMode(ShadeMode shadeMode)
+    void SetShadeMode(ShadeMode shadeMode) override
     {
         m_shadeMode = shadeMode;
         m_bUpdatePointers = true;
         m_prasterizer->SetShadeMode(shadeMode);
     }
 
-    void SetMaterial(Material* pmaterial)
+    void SetMaterial(Material* pmaterial) override
     {
         m_pmaterial = pmaterial;
         m_bUpdatePointers = true;
     }
 
-    void SetBlendMode(BlendMode blendMode)
+    void SetBlendMode(BlendMode blendMode) override
     {
         m_blendMode = blendMode;
         m_bUpdatePointers = true;
         m_prasterizer->SetBlendMode(blendMode);
     }
 
-    void SetTexture(Surface* psurfaceTexture)
+    void SetTexture(Surface* psurfaceTexture) override
     {
         m_prasterizer->SetTexture(psurfaceTexture);
     }
 
-    void SetWrapMode(WrapMode wrapMode)
+    void SetWrapMode(WrapMode wrapMode) override
     {
         m_prasterizer->SetWrapMode(wrapMode);
     }
 
-    void SetCullMode(CullMode cullMode)
+    void SetCullMode(CullMode cullMode) override
     {
         m_prasterizer->SetCullMode(cullMode);
     }
 
-    void SetZTest(bool bZTest)
+    void SetZTest(bool bZTest) override
     {
         m_bZTest = bZTest;
         m_bUpdatePointers = true;
         m_prasterizer->SetZTest(bZTest);
     }
 
-    void SetZWrite(bool bZWrite)
+    void SetZWrite(bool bZWrite) override
     {
         m_bZWrite = bZWrite;
         m_bUpdatePointers = true;
         m_prasterizer->SetZWrite(bZWrite);
     }
 
-    void SetLinearFilter(bool bLinearFilter)
+    void SetLinearFilter(bool bLinearFilter) override
     {
         m_prasterizer->SetLinearFilter(bLinearFilter);
     }
 
-    void SetPerspectiveCorrection(bool bPerspectiveCorrection)
+    void SetPerspectiveCorrection(bool bPerspectiveCorrection) override
     {
         m_prasterizer->SetPerspectiveCorrection(bPerspectiveCorrection);
     }
 
-    void SetDither(bool bDither)
+    void SetDither(bool bDither) override
     {
         m_prasterizer->SetDither(bDither);
     }
 
-    void SetColorKey(bool bColorKey)
+    void SetColorKey(bool bColorKey) override
     {
         m_prasterizer->SetColorKey(bColorKey);
     }
 
-    void SetLineWidth(float width)
+    void SetLineWidth(float width) override
     {
         m_lineWidth = 0.5f * width;
     }
 
-    void SetDeformation(Deformation* pdeform)
+    void SetDeformation(Deformation* pdeform) override
     {
         m_pdeform = pdeform;
         m_bUpdatePointers = true;
@@ -796,13 +796,13 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    VertexL* GetVertexLBuffer(int count)
+    VertexL* GetVertexLBuffer(int count) override
     {
         SizeVertexLBuffer(count);
         return m_pvertexLBuffer;
     }
 
-    VertexScreen* GetVertexScreenBuffer(int count)
+    VertexScreen* GetVertexScreenBuffer(int count) override
     {
         SizeVertexScreenBuffer(count);
         return m_pvertexScreenBuffer;
@@ -2198,12 +2198,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawTriangles(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         m_prasterizer->DrawTriangles(pvertex, vcount, pindex, icount);
     }
 
-    void DrawLines(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         UpdatePointers();
         (this->*m_pfnDrawLines)(pvertex, vcount, pindex, icount);
@@ -2214,17 +2214,17 @@ public:
         m_prasterizer->DrawPoints(pvertex, vcount);
     }
 
-    void DrawPoints(const VertexScreen* pvertex, int vcount)
+    void DrawPoints(const VertexScreen* pvertex, int vcount) override
     {
         m_prasterizer->DrawPoints(pvertex, vcount);
     }
 
-    void DrawTriangles(const D3DVertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const D3DVertex* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         ZAssert(false);
     }
 
-    void DrawLines(const D3DVertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const D3DVertex* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         ZAssert(false);
     }
@@ -2234,7 +2234,7 @@ public:
         ZAssert(false);
     }
 
-    void DrawPoints(const D3DVertex* pvertex, int vcount)
+    void DrawPoints(const D3DVertex* pvertex, int vcount) override
     {
         ZAssert(false);
     }
@@ -2245,7 +2245,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawTriangles(const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         #ifdef EnablePerformanceCounters
             m_countTriangles += icount / 3;
@@ -2268,7 +2268,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawLines(const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         #ifdef EnablePerformanceCounters
             m_countLines += icount - 1;
@@ -2291,7 +2291,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawPoints(const Vertex* pvertex, int vcount)
+    void DrawPoints(const Vertex* pvertex, int vcount) override
     {
         #ifdef EnablePerformanceCounters
             m_countPoints += vcount;
@@ -2307,7 +2307,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawTriangles(const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         #ifdef EnablePerformanceCounters
             m_countTriangles += icount / 3;
@@ -2330,7 +2330,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawLines(const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         #ifdef EnablePerformanceCounters
             m_countLines += icount - 1;
@@ -2353,7 +2353,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawPoints(const VertexL* pvertex, int vcount)
+    void DrawPoints(const VertexL* pvertex, int vcount) override
     {
         #ifdef EnablePerformanceCounters
             m_countPoints += vcount;

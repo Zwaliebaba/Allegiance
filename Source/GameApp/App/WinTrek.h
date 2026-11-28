@@ -69,14 +69,14 @@ class  WinTrekClient :
 {
     private:
         TRef<AnimatedImage> LoadExplosionImage(const ZString& str);
-        bool OnEvent(IIntegerEventSource* pevent, int value);
+        bool OnEvent(IIntegerEventSource* pevent, int value) override;
 
     public:
         WinTrekClient(void);
         ~WinTrekClient(void);
 
-        virtual void Initialize(Time timeNow);
-        virtual void Terminate();
+        void Initialize(Time timeNow) override;
+        void Terminate() override;
         ImissionIGC*    ResetStaticData (void);
 
         bool                    bInitTrekThrottle;
@@ -133,46 +133,46 @@ class  WinTrekClient :
         TRef<AnimatedImage> LoadExplosion(const ZString& str);
         
     public:
-        virtual void      DevelopmentCompleted(IbucketIGC*  b, IdevelopmentIGC*   d, Time now);
-        virtual void      StationTypeCompleted(IbucketIGC*  b, IstationIGC* pstation, IstationTypeIGC*   st, Time now);
-        virtual void      DroneTypeCompleted(IbucketIGC*  b, IstationIGC* pstation, IdroneTypeIGC*   dt, Time now);
-        virtual void      BuildStation(IasteroidIGC* pasteroid, IsideIGC* pside, IstationTypeIGC* pstationtype, Time now);
-        virtual void      LayExpendable(Time now, IexpendableTypeIGC* pet, IshipIGC* pshipLayer);
-        virtual TRef<ThingSite>   CreateThingSite(ImodelIGC* pModel);
-        virtual TRef<ClusterSite> CreateClusterSite(IclusterIGC* pCluster);
-        virtual void      PlaySoundEffect(SoundID soundID, ImodelIGC* model = NULL);
-        virtual void      PlaySoundEffect(SoundID soundID, ImodelIGC* model, const Vector& vectOffset);
-        virtual void      PlayNotificationSound(SoundID soundID, ImodelIGC* model);
-        virtual void      PlayFFEffect(ForceEffectID effectID, ImodelIGC* model = NULL, LONG lDirection = 0);
-        virtual void      PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model = NULL, float fIntensity = 1.0f);
-        virtual void      TerminateModelEvent(ImodelIGC*    pmodel);
-        virtual bool      DockWithStationEvent(IshipIGC* ship, IstationIGC* station);
-        virtual void      KillShipEvent(Time now, IshipIGC* ship, ImodelIGC* launcher, float amount, const Vector& p1, const Vector& p2);
-        virtual void      DamageShipEvent(Time now,
+        void      DevelopmentCompleted(IbucketIGC*  b, IdevelopmentIGC*   d, Time now) override;
+        void      StationTypeCompleted(IbucketIGC*  b, IstationIGC* pstation, IstationTypeIGC*   st, Time now) override;
+        void      DroneTypeCompleted(IbucketIGC*  b, IstationIGC* pstation, IdroneTypeIGC*   dt, Time now) override;
+        void      BuildStation(IasteroidIGC* pasteroid, IsideIGC* pside, IstationTypeIGC* pstationtype, Time now) override;
+        void      LayExpendable(Time now, IexpendableTypeIGC* pet, IshipIGC* pshipLayer) override;
+        TRef<ThingSite>   CreateThingSite(ImodelIGC* pModel) override;
+        TRef<ClusterSite> CreateClusterSite(IclusterIGC* pCluster) override;
+        void      PlaySoundEffect(SoundID soundID, ImodelIGC* model = NULL) override;
+        void      PlaySoundEffect(SoundID soundID, ImodelIGC* model, const Vector& vectOffset) override;
+        void      PlayNotificationSound(SoundID soundID, ImodelIGC* model) override;
+        void      PlayFFEffect(ForceEffectID effectID, ImodelIGC* model = NULL, LONG lDirection = 0) override;
+        void      PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model = NULL, float fIntensity = 1.0f) override;
+        void      TerminateModelEvent(ImodelIGC*    pmodel) override;
+        bool      DockWithStationEvent(IshipIGC* ship, IstationIGC* station) override;
+        void      KillShipEvent(Time now, IshipIGC* ship, ImodelIGC* launcher, float amount, const Vector& p1, const Vector& p2) override;
+        void      DamageShipEvent(Time now,
                                           IshipIGC * pShip,
                                           ImodelIGC * pLauncher,
                                           DamageTypeID type, 
                                           float flAmount,
                                           float flLeakage,
                                           const Vector& p1,
-                                          const Vector& p2);
-        virtual void      TargetKilled(ImodelIGC*    pmodel);
-        virtual void      ShipWarped(IshipIGC* ship, SectorID sidOld, SectorID sidNew);
-        virtual void      ActivateTeleportProbe(IprobeIGC* pprobe);
-        virtual void      DestroyTeleportProbe(IprobeIGC* pprobe);
-        virtual void      PostText(bool bCritical, const char* pszText, ...);
-        virtual void      PostNotificationText(ImodelIGC* pmodel, bool bCritical, const char* pszText, ...);
-        virtual void      OverrideCamera(ImodelIGC*    pmodel);
-        virtual void      EjectPlayer(ImodelIGC*    pmodel);
-        virtual void      HitWarpEvent(IshipIGC* ship, IwarpIGC* warp);
-        virtual bool      HitTreasureEvent(Time now, IshipIGC* ship, ItreasureIGC* treasure);
-        virtual void      PaydayEvent(IsideIGC* pside, float money);
-        virtual bool      UseRipcord(IshipIGC* pship, ImodelIGC* pmodel);
-        virtual bool      ContinueRipcord(IshipIGC* pship, ImodelIGC* pmodel);
+                                          const Vector& p2) override;
+        void      TargetKilled(ImodelIGC*    pmodel) override;
+        void      ShipWarped(IshipIGC* ship, SectorID sidOld, SectorID sidNew) override;
+        void      ActivateTeleportProbe(IprobeIGC* pprobe) override;
+        void      DestroyTeleportProbe(IprobeIGC* pprobe) override;
+        void      PostText(bool bCritical, const char* pszText, ...) override;
+        void      PostNotificationText(ImodelIGC* pmodel, bool bCritical, const char* pszText, ...) override;
+        void      OverrideCamera(ImodelIGC*    pmodel) override;
+        void      EjectPlayer(ImodelIGC*    pmodel) override;
+        void      HitWarpEvent(IshipIGC* ship, IwarpIGC* warp) override;
+        bool      HitTreasureEvent(Time now, IshipIGC* ship, ItreasureIGC* treasure) override;
+        void      PaydayEvent(IsideIGC* pside, float money) override;
+        bool      UseRipcord(IshipIGC* pship, ImodelIGC* pmodel) override;
+        bool      ContinueRipcord(IshipIGC* pship, ImodelIGC* pmodel) override;
 
-        virtual void      SetViewCluster(IclusterIGC* pcluster, const Vector* pposition = NULL);
-        virtual void      RequestViewCluster(IclusterIGC* pcluster, ImodelIGC* pmodelTarget = NULL);
-        virtual void      ReceiveChat(IshipIGC*   pshipSender,
+        void      SetViewCluster(IclusterIGC* pcluster, const Vector* pposition = NULL) override;
+        void      RequestViewCluster(IclusterIGC* pcluster, ImodelIGC* pmodelTarget = NULL) override;
+        void      ReceiveChat(IshipIGC*   pshipSender,
                                       ChatTarget  ctRecipient,
                                       ObjectID    oidRecipient,
                                       SoundID     voiceOver,
@@ -181,9 +181,9 @@ class  WinTrekClient :
                                       ObjectType  otTarget,
                                       ObjectID    oidTarget,
                                       ImodelIGC*  pmodelTarget = NULL,
-                                      bool        bObjectModel = false);
+                                      bool        bObjectModel = false) override;
 
-        virtual void      GetMoneyRequest(IshipIGC* pshipSender, Money amount, HullID hidFor);
+        void      GetMoneyRequest(IshipIGC* pshipSender, Money amount, HullID hidFor) override;
 
         bool              FilterChatsToAll() { return m_bFilterChatsToAll; };
         void              FilterChatsToAll(bool bFilterChatsToAll) { m_bFilterChatsToAll = bFilterChatsToAll; };
@@ -195,40 +195,40 @@ class  WinTrekClient :
         virtual void FireMissile(IshipIGC* pship, ImagazineIGC* pmagazine,
                         Time timeFired, ImodelIGC* pTarget, float lock);
 */
-        virtual HRESULT   ConnectToServer(BaseClient::ConnectInfo & ci, DWORD dwCookie, Time now, const char* szPassword, bool bStandalonePrivate);
-        virtual HRESULT   ConnectToLobby(BaseClient::ConnectInfo * pci); // pci is NULL if relogging in
+        HRESULT   ConnectToServer(BaseClient::ConnectInfo & ci, DWORD dwCookie, Time now, const char* szPassword, bool bStandalonePrivate) override;
+        HRESULT   ConnectToLobby(BaseClient::ConnectInfo * pci) override; // pci is NULL if relogging in
 
-        virtual void      JoinMission(MissionInfo * pMission, const char* szMissionPassword);
-        virtual void      CreateMissionReq();
+        void      JoinMission(MissionInfo * pMission, const char* szMissionPassword) override;
+        void      CreateMissionReq() override;
         
 // IFedMessagingSite
-        virtual HRESULT   OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnFrom, FEDMESSAGE * pfm);
+        HRESULT   OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnFrom, FEDMESSAGE * pfm) override;
 #ifndef NO_MSG_CRC
-        virtual void      OnBadCRC(FedMessaging * pthis, CFMConnection & cnxn, BYTE * pMsg, DWORD cbMsg);
+        void      OnBadCRC(FedMessaging * pthis, CFMConnection & cnxn, BYTE * pMsg, DWORD cbMsg) override;
 #endif
-        virtual void      OnLogonAck(bool fValidated, bool bRetry, LPCSTR szFailureReason);
-        virtual void      OnLogonLobbyAck(bool fValidated, bool bRetry, LPCSTR szFailureReason);
-        virtual HRESULT   OnSessionLost(const char * szReason, FedMessaging * pthis);
+        void      OnLogonAck(bool fValidated, bool bRetry, LPCSTR szFailureReason) override;
+        void      OnLogonLobbyAck(bool fValidated, bool bRetry, LPCSTR szFailureReason) override;
+        HRESULT   OnSessionLost(const char * szReason, FedMessaging * pthis) override;
         void              FlushSessionLostMessage();
-        virtual void      Disconnect();
-        virtual void      OnQuitMission(QuitSideReason reason, const char* szMessageParam);
-        virtual void      ChangeStation(IshipIGC* s, IstationIGC* pstationOld, IstationIGC* pstationNew);
-        virtual void      ChangeCluster(IshipIGC* s, IclusterIGC* pclusterOld, IclusterIGC* pclusterNew);
-        virtual void      LoadoutChangeEvent(IshipIGC* pship, IpartIGC* ppart, LoadoutChange lc);
+        void      Disconnect() override;
+        void      OnQuitMission(QuitSideReason reason, const char* szMessageParam) override;
+        void      ChangeStation(IshipIGC* s, IstationIGC* pstationOld, IstationIGC* pstationNew) override;
+        void      ChangeCluster(IshipIGC* s, IclusterIGC* pclusterOld, IclusterIGC* pclusterNew) override;
+        void      LoadoutChangeEvent(IshipIGC* pship, IpartIGC* ppart, LoadoutChange lc) override;
         virtual IpartIGC* GetCargoPart(void);
         virtual void      NextCargoPart(void);
         virtual bool      SelectCargoPartOfType(EquipmentType et, PartMask maxPartMask, IpartTypeIGC* pptNotThis);
         virtual Mount     GetSelectedCargoMount();
 
-        virtual void      OnReload(IpartIGC* ppart, bool bConsumed);
-        virtual void      Preload(const char* pszModelName, const char* pszTextureName);
-        virtual void      SetCDKey(const ZString& strCDKey);
-        virtual void      ChangeGameState(void) { GetWindow()->UpdateGameStateContainer(); }
+        void      OnReload(IpartIGC* ppart, bool bConsumed) override;
+        void      Preload(const char* pszModelName, const char* pszTextureName) override;
+        void      SetCDKey(const ZString& strCDKey) override;
+        void      ChangeGameState(void) override { GetWindow()->UpdateGameStateContainer(); }
 
-        virtual const char* GetArtPath()  { return GetModeler()->GetArtPath().c_str(); }
+        const char* GetArtPath() override  { return GetModeler()->GetArtPath().c_str(); }
 
 
-        IObject*          LoadRadarIcon(const char* szName);
+        IObject*          LoadRadarIcon(const char* szName) override;
 
         
         void              UpdateAmbientSounds(DWORD dwElapsedTime);
@@ -260,11 +260,11 @@ class  WinTrekClient :
         bool              GetGameCounted() { return m_bGameCounted; };
         bool              GetScoresCounted() { return m_bScoresCounted; };
 
-        virtual void      SaveSquadMemberships(const char* szCharacterName);
-        virtual void      RestoreSquadMemberships(const char* szCharacterName);
+        void      SaveSquadMemberships(const char* szCharacterName) override;
+        void      RestoreSquadMemberships(const char* szCharacterName) override;
 
-        virtual void      StartLockDown(const ZString& strReason, LockdownCriteria criteria);
-        virtual void      EndLockDown(LockdownCriteria criteria);
+        void      StartLockDown(const ZString& strReason, LockdownCriteria criteria) override;
+        void      EndLockDown(LockdownCriteria criteria) override;
 
         int               GetGrooveLevel();
         ZString           GetSavedCharacterName();

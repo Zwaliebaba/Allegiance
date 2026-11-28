@@ -18,7 +18,7 @@ protected:
     TRef<Pane>              m_pPaneDefault;
     int                     m_nValueCurrent;
     
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }
@@ -35,7 +35,7 @@ public:
         m_nValueCurrent = (int)Number::Cast(pvalue)->GetValue();
     }
 
-    ZString GetFunctionName() { return "SwitchPane"; }
+    ZString GetFunctionName() override { return "SwitchPane"; }
 
     void InsertPane(Pane* pPane, int nPaneID)
     {
@@ -70,7 +70,7 @@ private:
         }
     }
 
-    void ChildChanged(Value* pvalue, Value* pvalueNew)
+    void ChildChanged(Value* pvalue, Value* pvalueNew) override
     {
         ZAssert(NULL == pvalueNew);
         ZAssert(GetChild(0) == pvalue);
@@ -101,7 +101,7 @@ public:
 
 private:
 
-    void ChildChanged(Value* pvalue, Value* pvalueNew)
+    void ChildChanged(Value* pvalue, Value* pvalueNew) override
     {
         Value::ChildChanged(pvalue, pvalueNew);
 
@@ -109,7 +109,7 @@ private:
         NeedLayout();
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         Update();
 
@@ -119,7 +119,7 @@ private:
         Pane::UpdateLayout();
     }
 
-    void Paint(Surface* psurface)
+    void Paint(Surface* psurface) override
     {
         psurface->BitBlt(WinPoint(0, 0), GetImage()->GetSurface());
     }
@@ -160,9 +160,9 @@ public:
         StringPane::SetString(pvalue->GetValue());
     }
 
-    ZString GetFunctionName() { return "StringPane"; }
+    ZString GetFunctionName() override { return "StringPane"; }
 
-    virtual void SetString(const ZString& str)
+    void SetString(const ZString& str) override
     {
         StringPane::SetString(str);
         SetChild(0, new StringValue(str));
@@ -170,7 +170,7 @@ public:
 
 private:
 
-    void ChildChanged(Value* pvalue, Value* pvalueNew)
+    void ChildChanged(Value* pvalue, Value* pvalueNew) override
     {
         ZAssert(NULL == pvalueNew);
         
@@ -240,7 +240,7 @@ public:
 
 protected:
 
-    void Paint(Surface* psurface)
+    void Paint(Surface* psurface) override
     {
         if (m_value != 0) {
             psurface->BitBlt(
@@ -296,7 +296,7 @@ protected:
 
 private:
 
-    void ChildChanged(Value* pvalue, Value* pvalueNew)
+    void ChildChanged(Value* pvalue, Value* pvalueNew) override
     {
         ZAssert(NULL == pvalueNew);
 
@@ -327,7 +327,7 @@ class SwitchPaneFactory : public IFunction
 {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>      pnumber; CastTo(pnumber, (IObject*)stack.Pop());
         TRef<IObjectList> plist;   CastTo(plist,   (IObject*)stack.Pop());
@@ -361,7 +361,7 @@ class StringPaneFactory : public IFunction
 {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<StringValue> pstring; CastTo(pstring, (IObject*)stack.Pop());
         TRef<ColorValue>  pcolor;  CastTo(pcolor, (IObject*)stack.Pop());
@@ -416,7 +416,7 @@ class GaugePaneFactory : public IFunction
 {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>  pimage     = Image::Cast((Value*)(IObject*)stack.Pop());
         TRef<Number> pnumber;     CastTo(pnumber, (IObject*)stack.Pop());
@@ -458,12 +458,12 @@ namespace
             m_soundId = soundId;
         };
 
-        bool OnEvent(IIntegerEventSource* pevent, int nCmd)
+        bool OnEvent(IIntegerEventSource* pevent, int nCmd) override
         {
             return OnEvent(pevent);
         }
 
-        bool OnEvent(IEventSource* pevent)
+        bool OnEvent(IEventSource* pevent) override
         {
             GetWindow()->StartSound(m_soundId);
 
@@ -522,7 +522,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>        pimage;       CastTo(pimage, (Value*)(IObject*)stack.Pop());
         TRef<Number>       pnumberFaces; CastTo(pnumberFaces, (IObject*)stack.Pop());
@@ -593,7 +593,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>        pimage;       CastTo(pimage, (Value*)(IObject*)stack.Pop());
         TRef<Number>       pnumberFaces; CastTo(pnumberFaces, (IObject*)stack.Pop());
@@ -632,7 +632,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>       pimage;        CastTo(pimage,        (Value*)(IObject*)stack.Pop());
         TRef<Number>      pnumberFaces;  CastTo(pnumberFaces,  (IObject*)stack.Pop());
@@ -683,7 +683,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>     pimage; CastTo(pimage, (Value*)(IObject*)stack.Pop());
         TRef<FontValue> pfont;  CastTo(pfont,  (IObject*)stack.Pop());
@@ -725,7 +725,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> ppointFace; CastTo(ppointFace, (IObject*)stack.Pop());
         TRef<PointValue> ppoint;     CastTo(ppoint,     (IObject*)stack.Pop());
@@ -774,7 +774,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> ppointFace; CastTo(ppointFace, (IObject*)stack.Pop());
         TRef<PointValue> ppoint;     CastTo(ppoint,     (IObject*)stack.Pop());

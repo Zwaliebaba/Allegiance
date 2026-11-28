@@ -66,17 +66,17 @@ public:
         PlayerPainter(const std::vector<int>& viColumns, GameOverScreen* pparent)
             : m_viColumns(viColumns), m_pparent(pparent) {};
 
-        int GetXSize()
+        int GetXSize() override
         {
             return m_viColumns[9];
         }
 
-        int GetYSize()
+        int GetYSize() override
         {
             return 14;
         }
 
-        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
         {
             PlayerEndgameInfo* pplayer = (PlayerEndgameInfo*)pitemArg;
 
@@ -197,17 +197,17 @@ public:
         SidePainter(const std::vector<int>& viColumns, GameOverScreen* pparent)
             : m_viColumns(viColumns), m_pparent(pparent) {};
 
-        int GetXSize()
+        int GetXSize() override
         {
             return m_viColumns[7];
         }
 
-        int GetYSize()
+        int GetYSize() override
         {
             return 14;
         }
 
-        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
         {
             SideEndgameInfo* pside = (SideEndgameInfo*)pitemArg;
 
@@ -440,7 +440,7 @@ public:
         return true;
     }
 
-    bool OnEvent(TEvent<ZString>::Source* pevent, ZString str)
+    bool OnEvent(TEvent<ZString>::Source* pevent, ZString str) override
     {
         if (!str.empty())
             SendChat(str);
@@ -449,7 +449,7 @@ public:
         return true;
     }
 
-    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem)
+    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem) override
     {
         return true;
     }
@@ -476,7 +476,7 @@ public:
         return true;
     }
 
-    virtual void OnFrame()
+    void OnFrame() override
     {
         UpdateCountdownText();
     }
@@ -511,7 +511,7 @@ public:
         }
     }
 
-    virtual void OnMissionStarted(MissionInfo* pMissionDef)
+    void OnMissionStarted(MissionInfo* pMissionDef) override
     {
         // if this is our mission and we are not on the lobby side...
         if (pMissionDef == trekClient.MyMission() && trekClient.GetSideID() != SIDE_TEAMLOBBY)
@@ -525,7 +525,7 @@ public:
         }
     }
 
-    virtual void OnGameoverStats()
+    void OnGameoverStats() override
     {
         m_plistStatsSide->SetEmpty();
 
@@ -538,7 +538,7 @@ public:
         RefreshSides();
     };
 
-    virtual void OnGameoverPlayers()
+    void OnGameoverPlayers() override
     {
         m_plistStats->SetEmpty();
 
@@ -862,7 +862,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }

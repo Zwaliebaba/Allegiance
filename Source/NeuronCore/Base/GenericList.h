@@ -26,11 +26,11 @@ public:
 
 class EmptyList : public List {
 public:
-    int           GetCount()             { return 0;                        }
-    ItemID        GetItem(int index)     { return NULL;                     }
-    int           GetIndex(ItemID pitem) { return -1;                       }
-    ItemID        GetNext(ItemID pitem)  { return NULL;                     }
-    IEventSource* GetChangedEvent()      { return IEventSource::GetNever(); }
+    int           GetCount() override             { return 0;                        }
+    ItemID        GetItem(int index) override     { return NULL;                     }
+    int           GetIndex(ItemID pitem) override { return -1;                       }
+    ItemID        GetNext(ItemID pitem) override  { return NULL;                     }
+    IEventSource* GetChangedEvent() override      { return IEventSource::GetNever(); }
 };
 
 #endif

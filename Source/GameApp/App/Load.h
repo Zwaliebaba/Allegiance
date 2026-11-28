@@ -10,7 +10,7 @@
 class Loadout : public Screen {
 public:
     virtual void   UpdateHullType(void)      = 0;
-    virtual Pane*  GetPane()             = 0;
+    Pane*  GetPane()             override = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////

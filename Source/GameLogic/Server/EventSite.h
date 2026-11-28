@@ -22,7 +22,7 @@ public:
    */
   void ChangeCluster(IshipIGC* pship,
                      IclusterIGC* pclusterOld,
-                     IclusterIGC* pclusterNew)
+                     IclusterIGC* pclusterNew) override
   {
     LPCSTR      pszShip       = pship       ?       pship->GetName    () : "";
     AGCUniqueID shipID        = pship       ?       pship->GetUniqueID() : -1;
@@ -49,7 +49,7 @@ public:
    *-------------------------------------------------------------------------
    */
   void KillShipEvent(Time now, IshipIGC* ship, ImodelIGC* launcher,
-    float amount, const Vector& p1, const Vector& p2)
+    float amount, const Vector& p1, const Vector& p2) override
   {
     LPCSTR      pszShip     = ship     ?     ship->GetName    () : "";
     AGCUniqueID shipID      = ship     ?     ship->GetUniqueID() : -1;
@@ -85,7 +85,7 @@ public:
    * UseRipcord()
    *-------------------------------------------------------------------------
    */
-  bool UseRipcord(IshipIGC* pship, ImodelIGC* pmodel)
+  bool UseRipcord(IshipIGC* pship, ImodelIGC* pmodel) override
   {
     LPCSTR      pszShip     = pship    ? pship->GetName    () : "";
     AGCUniqueID shipID      = pship    ? pship->GetUniqueID() : -1;

@@ -30,13 +30,13 @@ namespace Training
     {
         public:
             virtual /* void */              ~Mission6 (void);
-            virtual int                     GetMissionID (void);
-            virtual SectorID                GetStartSectorID (void);
-            virtual bool                    RestoreShip (void);
+            int                     GetMissionID (void) override;
+            SectorID                GetStartSectorID (void) override;
+            bool                    RestoreShip (void) override;
 
         protected:
-            virtual void                    CreateUniverse (void);
-            virtual Condition*              CreateMission (void);
+            void                    CreateUniverse (void) override;
+            Condition*              CreateMission (void) override;
     };
 
     //------------------------------------------------------------------------------

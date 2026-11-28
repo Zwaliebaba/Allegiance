@@ -453,12 +453,12 @@ class   BoundingHull : public HitTest
                                        sizeof(ConvexVertex*) * pMultiHull->GetNhulls()]);
         }
 
-        virtual void    UpdateStaticBB(void)
+        void    UpdateStaticBB(void) override
         {
             HitTest::UpdateStaticBB(m_desiredRadius * m_pMultiHull->m_ellipseRadiusMultiplier);
         }
 
-        Vector    GetCenter(HitTestShape  hts) const
+        Vector    GetCenter(HitTestShape  hts) const override
         {
             assert (hts >= c_htsConvexHullMin);
             return m_pMultiHull->GetSingleHull(hts)->GetCenter() * m_scale;
@@ -549,7 +549,7 @@ class   BoundingHull : public HitTest
         }
         #pragma optimize ("", on)
 
-        virtual void            SetShape(HitTestShape   shape)
+        void            SetShape(HitTestShape   shape) override
         {
             //Never upgrade to anything more complex than our true shape
             HitTestShape    s = (shape <= m_shapeTrue) ? shape : m_shapeTrue;
@@ -565,7 +565,7 @@ class   BoundingHull : public HitTest
             }
         }
 
-        virtual void    SetRadius(float r)
+        void    SetRadius(float r) override
         {
             m_desiredRadius = r;
             m_scale = r / m_pMultiHull->m_originalRadius;
@@ -579,25 +579,25 @@ class   BoundingHull : public HitTest
             else
                 m_radius = r;
         }
-        virtual float    GetScale(void) const
+        float    GetScale(void) const override
         {
             return m_scale;
         }
-        virtual const Vector*   GetEllipseEquation(void) const
+        const Vector*   GetEllipseEquation(void) const override
         {
             return &m_ellipseEquation;
         }
 
-        const Vector   GetFrameOffset(const char*  pszFrameName) const
+        const Vector   GetFrameOffset(const char*  pszFrameName) const override
         {
             return m_pMultiHull->GetFrameOffset(pszFrameName) * m_scale;
         }
 
-        const Vector&  GetFrameForward(const char* pszFrameName) const
+        const Vector&  GetFrameForward(const char* pszFrameName) const override
         {
             return m_pMultiHull->GetFrameOffset(pszFrameName);
         }
-        const FrameDataUTL* GetFrame(const char* pszFrameName) const
+        const FrameDataUTL* GetFrame(const char* pszFrameName) const override
         {
             return m_pMultiHull->GetFrame(pszFrameName);
         }

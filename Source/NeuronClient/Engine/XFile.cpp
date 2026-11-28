@@ -61,7 +61,7 @@ private:
         return value;
     }
 
-    bool ReadString(ZString& str)
+    bool ReadString(ZString& str) override
     {
         if (Is(TOKEN_NAME)) {
             int length = GetInt();
@@ -82,7 +82,7 @@ public:
     {
     }
 
-    bool EnterSection(ZString& strType, ZString& strName)
+    bool EnterSection(ZString& strType, ZString& strName) override
     {
         // skip any templates
 
@@ -98,7 +98,7 @@ public:
         return false;
     }
 
-    bool LeaveSection()
+    bool LeaveSection() override
     {
         int level = 1;
 
@@ -122,7 +122,7 @@ public:
         return level == 0;
     }
 
-    bool ReadFloat(float& value)
+    bool ReadFloat(float& value) override
     {
         ZAssert(m_intCount == 0);
         if (m_floatCount == 0) {
@@ -139,7 +139,7 @@ public:
         return true;
     }
 
-    bool ReadInt(int& value)
+    bool ReadInt(int& value) override
     {
         ZAssert(m_floatCount == 0);
         if (m_intCount == 0) {
@@ -156,18 +156,18 @@ public:
         return true;
     }
 
-    bool ReadReference(ZString& str)
+    bool ReadReference(ZString& str) override
     {
         ZUnimplemented();
         return false;
     }
 
-    bool Error()
+    bool Error() override
     {
         return !m_strError.empty();
     }
 
-    void SetError(const ZString& str)
+    void SetError(const ZString& str) override
     {
         m_strError = str;
     }
@@ -210,7 +210,7 @@ public:
         Next();
     }
 
-    int ParseToken(PCC& pcc)
+    int ParseToken(PCC& pcc) override
     {
         switch (pcc[0]) {
             case '[': pcc++; return LeftBracket;
@@ -229,22 +229,22 @@ public:
         return 0;
     }
 
-    bool IsSymbolChar(char ch)
+    bool IsSymbolChar(char ch) override
     {
         return TextTokenImpl::IsSymbolChar(ch) || ch == '-' || ch == '.';
     }
 
-    bool Error()
+    bool Error() override
     {
         return TextTokenImpl::Error();
     }
 
-    void SetError(const ZString& str)
+    void SetError(const ZString& str) override
     {
         TextTokenImpl::SetError(str);
     }
 
-    bool EnterSection(ZString& strType, ZString& strName)
+    bool EnterSection(ZString& strType, ZString& strName) override
     {
         if (IsSymbol(strType, false)) {
             IsSymbol(strName, false);
@@ -254,7 +254,7 @@ public:
         return false;
     }
 
-    bool LeaveSection()
+    bool LeaveSection() override
     {
         int level = 1;
 
@@ -271,7 +271,7 @@ public:
         return level == 0;
     }
 
-    bool ReadFloat(float& value)
+    bool ReadFloat(float& value) override
     {
         bool fMinus = Is(Minus, false);
 
@@ -287,7 +287,7 @@ public:
         return false;
     }
 
-    bool ReadInt(int& i)
+    bool ReadInt(int& i) override
     {
         float value;
 
@@ -299,12 +299,12 @@ public:
         return false;
     }
 
-    bool ReadString(ZString& str)
+    bool ReadString(ZString& str) override
     {
         return IsString(str, true);
     }
 
-    bool ReadReference(ZString& str)
+    bool ReadReference(ZString& str) override
     {
         if (Is(TOKEN_OBRACE, true)) {
             if (IsSymbol(str, true)) {

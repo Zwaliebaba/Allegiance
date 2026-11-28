@@ -268,35 +268,35 @@ public:
     //
 
     // Gets the number of channels in the data
-    unsigned GetNumberOfChannels()
+    unsigned GetNumberOfChannels() override
     {
         ZAssert(m_pvData != NULL);  // AKA this has been initialized
         return m_uChannels;
     };
 
     // Gets the number of bits per sample
-    virtual unsigned GetBitsPerSample()
+    unsigned GetBitsPerSample() override
     {
         ZAssert(m_pvData != NULL); // AKA this has been initialized
         return m_uBitsPerSample;
     };
 
     // Gets the default frequency (in samples per second) of the data
-    virtual unsigned GetSampleRate()
+    unsigned GetSampleRate() override
     {
         ZAssert(m_pvData != NULL); // AKA this has been initialized
         return m_uSampleRate;
     };
 
     // Gets the size of the data
-    virtual unsigned GetSize()
+    unsigned GetSize() override
     {
         ZAssert(m_pvData != NULL); // AKA this has been initialized
         return m_uSize;
     };
 
     // Copies the specified portion of the data
-    void GetData(void* dest, unsigned nOffset, unsigned nLength)
+    void GetData(void* dest, unsigned nOffset, unsigned nLength) override
     {
         ZAssert(m_pvData != NULL); // AKA this has been initialized
         ZAssert(nOffset + nLength <= m_uSize);
@@ -348,31 +348,31 @@ class DummyPCMDataImpl : public ISoundPCMData
 public:
 
     // Gets the number of channels in the data
-    virtual unsigned GetNumberOfChannels()
+    unsigned GetNumberOfChannels() override
     {
         return 2;
     };
 
     // Gets the number of bits per sample
-    virtual unsigned GetBitsPerSample()
+    unsigned GetBitsPerSample() override
     {
         return 16;
     };
 
     // Gets the default frequency (in samples per second) of the data
-    virtual unsigned GetSampleRate()
+    unsigned GetSampleRate() override
     {
         return 44100;
     };
 
     // Gets the size of the data
-    virtual unsigned GetSize()
+    unsigned GetSize() override
     {
         return datasize;
     };
 
     // Copies the specified portion of the data
-    virtual void GetData(void* dest, unsigned nOffset, unsigned nLength)
+    void GetData(void* dest, unsigned nOffset, unsigned nLength) override
     {
         assert(nOffset + nLength <= datasize);
         memset(dest, 0, nLength);

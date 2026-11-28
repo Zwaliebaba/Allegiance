@@ -60,7 +60,7 @@ public:
     // Value methods
     //
 
-    ZString GetFunctionName() { return "MuzzleFlareImage"; }
+    ZString GetFunctionName() override { return "MuzzleFlareImage"; }
 };
 
 TRef<MuzzleFlareImage> CreateMuzzleFlareImage(Modeler* pmodeler, Number* ptime);
@@ -84,7 +84,7 @@ public:
     // Value methods
     //
 
-    ZString GetFunctionName() { return "PosterImage"; }
+    ZString GetFunctionName() override { return "PosterImage"; }
 };
 
 TRef<PosterImage> CreatePosterImage(Viewport* pviewport);
@@ -108,7 +108,7 @@ public:
     // Value methods
     //
 
-    ZString GetFunctionName() { return "LensFlareImage"; }
+    ZString GetFunctionName() override { return "LensFlareImage"; }
 };
 
 TRef<LensFlareImage> CreateLensFlareImage(Modeler* pmodeler, Viewport* pviewport);

@@ -16,7 +16,7 @@ public:
     {
     }
 
-    TRef<IPopup> GetSubMenu(IMenuItem* pitem)
+    TRef<IPopup> GetSubMenu(IMenuItem* pitem) override
     {
         return m_psink->GetSubMenu(pitem);
     }
@@ -43,17 +43,17 @@ public:
     {
     }
 
-    void OnMenuCommand(IMenuItem* pitem)
+    void OnMenuCommand(IMenuItem* pitem) override
     {
         m_psink->OnMenuCommand(pitem);
     }
 
-    void OnMenuSelect(IMenuItem* pitem)
+    void OnMenuSelect(IMenuItem* pitem) override
     {
         m_psink->OnMenuSelect(pitem);
     }
 
-    void OnMenuClose(IMenu* pmenu)
+    void OnMenuClose(IMenu* pmenu) override
     {
         m_psink->OnMenuClose(pmenu);
     }
@@ -93,7 +93,7 @@ public:
 
 class PopupSurfaceSite : public SurfaceSite {
 public:
-    void UpdateSurface(Surface* psurface) 
+    void UpdateSurface(Surface* psurface) override 
     {
         const Color color(74.0f / 255.0f, 124.0f / 255.0f, 88.0f / 255.0f);
 
@@ -138,17 +138,17 @@ private:
             InsertAtBottom(ppaneChild);
         }
 
-        void UpdateLayout()
+        void UpdateLayout() override
         {
             DefaultUpdateLayout();
         }
 
-        void MouseEnter(IInputProvider* pprovider, const Point& point)
+        void MouseEnter(IInputProvider* pprovider, const Point& point) override
         {
             m_pmenu->MouseEnter(m_pitem);
         }
 
-        void MouseLeave(IInputProvider* pprovider, const Point& point)
+        void MouseLeave(IInputProvider* _provider) override
         {
             m_pmenu->MouseLeave(m_pitem);
         }
@@ -160,7 +160,7 @@ private:
             bool bCaptured,
             bool bInside,
             bool bDown
-        ) {
+        ) override {
             if (button == 0 && !bDown) {
                 m_pmenu->MouseClick(m_pitem);
             }
@@ -279,7 +279,7 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    TRef<IPopup> GetPopup(Rect& rect)
+    TRef<IPopup> GetPopup(Rect& rect) override
     {
         if (m_psubmenuEventSink) {
             Point point = m_ppane->TransformLocalToImage(WinPoint(0, 0));
@@ -298,18 +298,18 @@ public:
         return NULL;
     }
 
-    void Select(bool bSelect)
+    void Select(bool bSelect) override
     {
         m_bSelected = bSelect;
         UpdateColors();
     }
 
-    TRef<Pane> GetPane()
+    TRef<Pane> GetPane() override
     {
         return m_ppane;
     }
 
-    char GetAccelerator()
+    char GetAccelerator() override
     {
         return m_chAccelerator;
     }
@@ -320,17 +320,17 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    int GetID()
+    int GetID() override
     {
         return m_id;
     }
 
-    const ZString& GetString()
+    const ZString& GetString() override
     {
         return m_pstringPane->GetString();
     }
 
-    void SetString(const ZString& str)
+    void SetString(const ZString& str) override
     {
         m_pstringPane->SetString(str);
     }
@@ -340,7 +340,7 @@ public:
         const Color& colorText,
         const Color& colorSelectedBack,
         const Color& colorSelectedText
-    ) {
+    ) override {
         m_colorBack         = colorBack        ;
         m_colorText         = colorText        ;
         m_colorSelectedBack = colorSelectedBack;
@@ -349,22 +349,22 @@ public:
         UpdateColors();
     }
 
-    Color GetColor()
+    Color GetColor() override
     {
         return m_colorBack;
     }
 
-    void SetEnabled(bool bEnabled)
+    void SetEnabled(bool bEnabled) override
     {
         m_bEnabled = bEnabled;
     }
 
-    bool IsEnabled()
+    bool IsEnabled() override
     {
         return m_bEnabled;
     }
 
-    void SetAccelerator(char ch)
+    void SetAccelerator(char ch) override
     {
         if (ch >= 'a' && ch <= 'z') {
             ch += 'A' - 'a';
@@ -553,17 +553,17 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    void MouseEnter(IMenuItemPrivate* pitem)
+    void MouseEnter(IMenuItemPrivate* pitem) override
     {
         SelectItem(pitem);
         OpenItem(m_pitemSelection);
     }
 
-    void MouseLeave(IMenuItemPrivate* pitem)
+    void MouseLeave(IMenuItemPrivate* pitem) override
     {
     }
 
-    void MouseClick(IMenuItemPrivate* pitem)
+    void MouseClick(IMenuItemPrivate* pitem) override
     {
         ItemCommand(m_pitemSelection);
     }
@@ -579,7 +579,7 @@ public:
         const ZString&     str,
         char               chAccelerator     = 0,
         ISubmenuEventSink* psubmenuEventSink = NULL
-    ) {
+    ) override {
         TRef<IMenuItemPrivate> pitem =
             new IMenuItemImpl(
                 this,
@@ -603,7 +603,7 @@ public:
     }
 
 
-    IMenuItem* FindMenuItem(int id)
+    IMenuItem* FindMenuItem(int id) override
     {
         MenuItemList::Iterator iter(m_listItems);
 
@@ -618,7 +618,7 @@ public:
         return NULL;
     }
 
-    void SetMenuCommandSink(IMenuCommandSink* psink)
+    void SetMenuCommandSink(IMenuCommandSink* psink) override
     {
         m_psink = psink;
     }
@@ -629,19 +629,19 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
 
-    void ClosePopup(IPopup* ppopup)
+    void ClosePopup(IPopup* ppopup) override
     {
         ZAssert(m_ppopup == ppopup);
         m_pcontainer->ClosePopup(ppopup);
         m_ppopup = NULL;
     }
 
-    void OnClose()
+    void OnClose() override
     {
         if (m_psink) {
             m_psink->OnMenuClose(this);
@@ -654,12 +654,12 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+    bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
     {
         return false;
     }
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         if (ks.bDown) {
             switch (ks.vk) {

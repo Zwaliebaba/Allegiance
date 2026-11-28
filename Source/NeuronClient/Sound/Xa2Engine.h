@@ -109,36 +109,36 @@ public:
     //
 
     // Rebuild the sound stage to reflect any recent changes in sound
-    virtual HRESULT Update();
+    HRESULT Update() override;
 
     // Gets a buffer source for this object (not guarenteed to keep the sound 
     // engine alive due to circular reference problems)
-    virtual ISoundBufferSource* GetBufferSource();
+    ISoundBufferSource* GetBufferSource() override;
 
     // Gets the number of virtual sound buffers that are playing at a given 
     // moment.  (no guarantees on how this number changes - it's just a perf.
     // number to use.)
-    virtual HRESULT GetNumPlayingVirtualBuffers(int& nBuffers);
+    HRESULT GetNumPlayingVirtualBuffers(int& nBuffers) override;
 
 
     // Sets a general quality of playback (CPU time vs. fidelity)
-    HRESULT SetQuality(Quality quality);
+    HRESULT SetQuality(Quality quality) override;
 
     // Sets the listener to use for the current sounds
-    virtual HRESULT SetListener(ISoundListener* plistener);
+    HRESULT SetListener(ISoundListener* plistener) override;
 
     // Sets the conversion from game units to meters
-    virtual HRESULT SetDistanceFactor(float fMetersPerUnit);
+    HRESULT SetDistanceFactor(float fMetersPerUnit) override;
 
     // Sets the rolloff factor, where 1.0 is the real world attenuation with 
     // distance, 2.0 is twice the attenuation of the real world, etc..
-    virtual HRESULT SetRolloffFactor(float fRolloffFactor);
+    HRESULT SetRolloffFactor(float fRolloffFactor) override;
 
     // Sets the doppler factor, where 1.0 is real-world doppler
-    virtual HRESULT SetDopplerFactor(float fDopplerFactor);
+    HRESULT SetDopplerFactor(float fDopplerFactor) override;
 
     // Sets how much of the room reverb is heard (fades to it)
-    virtual HRESULT SetReverb(float fLevel);
+    HRESULT SetReverb(float fLevel) override;
 
 
 
@@ -148,19 +148,19 @@ public:
 
     // Creates a static sound buffer of the given wave file.  If bLooping is 
     // true, the sound will loop until stopped.
-    virtual HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
-        ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource = NULL);
+    HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
+        ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource = NULL) override;
 
     // Creates a sound buffer with a loop in the middle.  The sound will play
     // the start sound, play the loop sound until it gets a soft stop, then
     // play the rest of the sound.  
-    virtual HRESULT CreateASRBuffer(TRef<ISoundInstance>& psoundNew, 
+    HRESULT CreateASRBuffer(TRef<ISoundInstance>& psoundNew, 
         ISoundPCMData* pcmdata, unsigned uLoopStart, unsigned uLoopLength, 
-        ISoundPositionSource* psource = NULL);
+        ISoundPositionSource* psource = NULL) override;
 
     // Gets an event which fires each time update is called.  This can be used
     // for some of the trickier sounds that change with time.
-    virtual IIntegerEventSource* GetUpdateEventSource();
+    IIntegerEventSource* GetUpdateEventSource() override;
 
 
     //

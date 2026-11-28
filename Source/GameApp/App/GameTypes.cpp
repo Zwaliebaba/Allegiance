@@ -50,12 +50,12 @@ public:
     {
     };
 
-    virtual ZString GetName()
+    ZString GetName() override
     {
         return m_strName;
     };
 
-    virtual bool IsGameType(const MissionParams& misparams)
+    bool IsGameType(const MissionParams& misparams) override
     {
         return (misparams.bAllowDevelopments == m_bAllowDevelopments)
             && (misparams.bInvulnerableStations == m_bInvulnerableStations)
@@ -73,7 +73,7 @@ public:
         // note: allow any map type.
     };
 
-    virtual void Apply(MissionParams& misparams)
+    void Apply(MissionParams& misparams) override
     {
         misparams.bAllowDevelopments = m_bAllowDevelopments;
         misparams.bInvulnerableStations = m_bInvulnerableStations;

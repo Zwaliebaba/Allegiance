@@ -31,94 +31,94 @@ class       CdroneTypeIGC : public IdroneTypeIGC
 
     public:
     // IbaseIGC
-        virtual HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void            Terminate(void);
+        HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void            Terminate(void) override;
 
-        virtual int             Export(void* data) const;
+        int             Export(void* data) const override;
 
-        virtual ObjectType      GetObjectType(void) const
+        ObjectType      GetObjectType(void) const override
         {
             return OT_droneType;
         }
 
-        virtual ObjectID        GetObjectID(void) const
+        ObjectID        GetObjectID(void) const override
         {
             return m_data.droneTypeID;
         }
 
     // ItypeIGC
-        virtual const void*   GetData(void) const
+        const void*   GetData(void) const override
         {
             return &m_data;
         }
 
     // IbuyableIGC
-        virtual const char*          GetModelName(void) const
+        const char*          GetModelName(void) const override
         {
             return m_data.modelName;
         }
 
-        virtual const char*          GetIconName(void) const
+        const char*          GetIconName(void) const override
         {
             return m_data.iconName;
         }
 
-        virtual const char*          GetName(void) const
+        const char*          GetName(void) const override
         {
             return m_data.name;
         }
-        virtual const char*          GetDescription(void) const
+        const char*          GetDescription(void) const override
         {
             return m_data.description;
         }
-        virtual Money                GetPrice(void) const
+        Money                GetPrice(void) const override
         {
             return m_data.price;
         }
-        virtual BuyableGroupID       GetGroupID(void) const 
+        BuyableGroupID       GetGroupID(void) const override 
         { 
             return m_data.groupID; 
         };
 
-        virtual const TechTreeBitMask&  GetRequiredTechs(void) const
+        const TechTreeBitMask&  GetRequiredTechs(void) const override
         {
             return m_data.ttbmRequired;
         }
 
-        virtual const TechTreeBitMask&  GetEffectTechs(void) const
+        const TechTreeBitMask&  GetEffectTechs(void) const override
         {
             return m_data.ttbmEffects;
         }
 
-        virtual DWORD                   GetTimeToBuild(void) const
+        DWORD                   GetTimeToBuild(void) const override
         {
             return m_data.timeToBuild;
         }
 
         // IdroneTypeIGC
-        virtual HullID                  GetHullTypeID(void) const
+        HullID                  GetHullTypeID(void) const override
         {
             return m_data.hullTypeID;
         }
-        virtual PilotType               GetPilotType(void) const
+        PilotType               GetPilotType(void) const override
         {
             return m_data.pilotType;
         }
 
-        virtual float                   GetShootSkill(void) const
+        float                   GetShootSkill(void) const override
         {
             return m_data.shootSkill;
         }
-        virtual float                   GetMoveSkill(void) const
+        float                   GetMoveSkill(void) const override
         {
             return m_data.moveSkill;
         }
-        virtual float                   GetBravery(void) const
+        float                   GetBravery(void) const override
         {
             return m_data.bravery;
         }
 
-        virtual IexpendableTypeIGC*     GetLaidExpendable(void) const
+        IexpendableTypeIGC*     GetLaidExpendable(void) const override
         {
             return m_petLaid;
         }

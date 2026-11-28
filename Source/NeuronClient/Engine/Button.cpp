@@ -54,7 +54,7 @@ public:
         ZAssert(m_countFaces * m_ysize == size.Y());
     }
 
-    void SetFocus(bool bFocus)
+    void SetFocus(bool bFocus) override
     {
         if (m_bFocus != bFocus) {
             m_bFocus = bFocus;
@@ -62,7 +62,7 @@ public:
         }
     }
 
-    void SetEnabled(bool bEnabled)
+    void SetEnabled(bool bEnabled) override
     {
         if (m_bEnabled != bEnabled) {
             m_bEnabled = bEnabled;
@@ -70,7 +70,7 @@ public:
         }
     }
 
-    void SetChecked(bool bChecked)
+    void SetChecked(bool bChecked) override
     {
         if (m_bChecked != bChecked) {
             m_bChecked = bChecked;
@@ -78,7 +78,7 @@ public:
         }
     }
 
-    void SetChecked2(bool bChecked)
+    void SetChecked2(bool bChecked) override
     {
         if (m_bChecked2 != bChecked) {
             m_bChecked2 = bChecked;
@@ -86,7 +86,7 @@ public:
         }
     }
 
-    void SetInside(bool bInside)
+    void SetInside(bool bInside) override
     {
         if (m_bInside != bInside) {
             m_bInside = bInside;
@@ -94,7 +94,7 @@ public:
         }
     }
 
-    void SetDown(bool bDown)
+    void SetDown(bool bDown) override
     {
         if (m_bDown != bDown) {
             m_bDown = bDown;
@@ -150,7 +150,7 @@ public:
         }
     }
 
-    void Paint(Surface* psurface)
+    void Paint(Surface* psurface) override
     {
         //
         // Figure out which face to draw
@@ -262,7 +262,7 @@ public:
         }
     }
 
-    void SetDown(bool bDown)
+    void SetDown(bool bDown) override
     {
         if (bDown != m_bDown) {
             m_bDown = bDown;
@@ -271,7 +271,7 @@ public:
         }
     }
 
-    virtual void SetChecked(bool bChecked)
+    void SetChecked(bool bChecked) override
     {
         if (bChecked != m_bChecked) {
             m_bChecked = bChecked;
@@ -280,7 +280,7 @@ public:
         }
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         bool bFaceDown;
 
@@ -415,12 +415,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetDownTrigger(bool bDownTrigger) 
+    void SetDownTrigger(bool bDownTrigger) override 
     {
         m_bDownTrigger = bDownTrigger;
     }
 
-    void SetEnabled(bool bEnabled)
+    void SetEnabled(bool bEnabled) override
     {
         if (m_bEnabled != bEnabled) {
             m_bEnabled = bEnabled;
@@ -431,7 +431,7 @@ public:
         }
     }
 
-    void SetChecked(bool bChecked)
+    void SetChecked(bool bChecked) override
     {
         if (m_bChecked != bChecked) {
             m_bChecked = bChecked;
@@ -439,7 +439,7 @@ public:
         }
     }
 
-    void SetChecked2(bool bChecked)
+    void SetChecked2(bool bChecked) override
     {
         if (m_bChecked2 != bChecked) {
             m_bChecked2 = bChecked;
@@ -447,7 +447,7 @@ public:
         }
     }
 
-    void SetRepeat(float repeatRate, float repeatDelay)
+    void SetRepeat(float repeatRate, float repeatDelay) override
     {
         if (repeatRate == 0 && m_pprovider != NULL) {
             m_pprovider->GetTimer()->RemoveSink(m_peventSinkDelegate);
@@ -458,42 +458,42 @@ public:
         m_repeatDelay = repeatDelay;
     }
 
-    bool GetChecked()
+    bool GetChecked() override
     {
         return m_bChecked;
     }
 
-    bool GetChecked2()
+    bool GetChecked2() override
     {
         return m_bChecked2;
     }
 
-    bool GetEnabled()
+    bool GetEnabled() override
     {
         return m_bEnabled;
     }
 
-    IEventSource* GetEventSource()
+    IEventSource* GetEventSource() override
     {
         return m_peventSource;
     }
 
-    IEventSource* GetDoubleClickEventSource()
+    IEventSource* GetDoubleClickEventSource() override
     {
         return m_peventSourceDoubleClick;
     }
 
-    IEventSource* GetMouseEnterEventSource()
+    IEventSource* GetMouseEnterEventSource() override
     {
         return m_peventMouseEnterSource;
     }
 
-    IEventSource* GetMouseLeaveEventSource()
+    IEventSource* GetMouseLeaveEventSource() override
     {
         return m_peventMouseLeaveSource;
     }
 
-    IEventSource* GetMouseEnterWhileEnabledEventSource()
+    IEventSource* GetMouseEnterWhileEnabledEventSource() override
     {
         return m_peventMouseEnterWhileEnabledSource;
     }
@@ -504,7 +504,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }
@@ -515,7 +515,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void RemoveCapture()
+    void RemoveCapture() override
     {
         if (m_pprovider) {
             m_pprovider->GetTimer()->RemoveSink(m_peventSinkDelegate);
@@ -523,7 +523,7 @@ public:
         }   
     }
 
-    void MouseEnter(IInputProvider* pprovider, const Point& point)
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override
     {
         SetInside(true);
         m_peventMouseEnterSource->Trigger();
@@ -531,13 +531,13 @@ public:
             m_peventMouseEnterWhileEnabledSource->Trigger();
     }
 
-    void MouseLeave(IInputProvider* pprovider)
+    void MouseLeave(IInputProvider* pprovider) override
     {
         SetInside(false);
         m_peventMouseLeaveSource->Trigger();
     }
 
-    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside)
+    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override
     {
         SetInside(bInside);
 
@@ -546,7 +546,7 @@ public:
         }
     }
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         if (button == 0) {
             if (bDown) {
@@ -613,7 +613,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         if (m_bDown) {
             m_peventSource->Trigger();
@@ -725,7 +725,7 @@ public:
         }
     }
 
-    bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         int nCmd;
 
@@ -754,17 +754,17 @@ public:
         return true;
     }
 
-    IIntegerEventSource* GetEventSource()
+    IIntegerEventSource* GetEventSource() override
     {
         return m_peventSource;
     }
 
-    IIntegerEventSource* GetMouseEnterWhileEnabledEventSource()
+    IIntegerEventSource* GetMouseEnterWhileEnabledEventSource() override
     {
         return m_peventMouseEnterWhileEnabledSource;
     }
 
-    void RemoveAll()
+    void RemoveAll() override
     {
         {
             TMap<TRef<IEventSource>, int>::Iterator iter(m_mapMouseEnterWhileEnabledSources);
@@ -785,7 +785,7 @@ public:
         m_pRowPane->RemoveAllChildren();
     }
 
-    void InsertButton(ButtonPane* pPane, int nCmd)
+    void InsertButton(ButtonPane* pPane, int nCmd) override
     {
         ZAssert(nCmd != -1);
         TRef<IEventSource> pEventSource = pPane->GetEventSource();
@@ -806,66 +806,66 @@ public:
         }
     }
 
-    void SetHidden(int nCmd, bool bHidden)
+    void SetHidden(int nCmd, bool bHidden) override
     {
         TRef<ButtonPane> pButtonPane;
         ZVerify(m_mapButtonPanes.Find(nCmd, pButtonPane));
         pButtonPane->SetHidden(bHidden);
     }
 
-    void SetEnabled(int nCmd, bool bEnabled)
+    void SetEnabled(int nCmd, bool bEnabled) override
     {
         TRef<ButtonPane> pButtonPane;
         ZVerify(m_mapButtonPanes.Find(nCmd, pButtonPane));
         pButtonPane->SetEnabled(bEnabled);
     }
 
-    void SetChecked(int nCmd, bool bChecked)
+    void SetChecked(int nCmd, bool bChecked) override
     {
         TRef<ButtonPane> pButtonPane;
         ZVerify(m_mapButtonPanes.Find(nCmd, pButtonPane));
         pButtonPane->SetChecked(bChecked);
     }
 
-    void SetChecked2(int nCmd, bool bChecked)
+    void SetChecked2(int nCmd, bool bChecked) override
     {
         TRef<ButtonPane> pButtonPane;
         ZVerify(m_mapButtonPanes.Find(nCmd, pButtonPane));
         pButtonPane->SetChecked2(bChecked);
     }
 
-    bool GetEnabled(int nCmd)
+    bool GetEnabled(int nCmd) override
     {
         TRef<ButtonPane> pButtonPane;
         ZVerify(m_mapButtonPanes.Find(nCmd, pButtonPane));
         return pButtonPane->GetEnabled();
     }
 
-    bool GetChecked(int nCmd)
+    bool GetChecked(int nCmd) override
     {
         TRef<ButtonPane> pButtonPane;
         ZVerify(m_mapButtonPanes.Find(nCmd, pButtonPane));
         return pButtonPane->GetChecked();
     }
 
-    bool GetChecked2(int nCmd)
+    bool GetChecked2(int nCmd) override
     {
         TRef<ButtonPane> pButtonPane;
         ZVerify(m_mapButtonPanes.Find(nCmd, pButtonPane));
         return pButtonPane->GetChecked2();
     }
 
-    void FlashButton(int nCmd)
+    void FlashButton(int nCmd) override
     {
         // NYI
     }
 
-    int GetSelection()
+    int GetSelection() override
     {
         return m_nCmdSelected;
     }
     
-    void SetSelection(int nCmd)
+    void SetSelection(int nCmd) override
     {
         if (m_bActAsTabs) {
             TRef<ButtonPane> pButtonPane;
@@ -883,7 +883,7 @@ public:
         }
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }

@@ -931,7 +931,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void OnAddPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnAddPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         // if this is me...
         if (trekClient.MyPlayerInfo()->ShipID() == pPlayerInfo->ShipID())
@@ -941,7 +941,7 @@ public:
         }
     }
 
-    void OnPlayerStatusChange(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnPlayerStatusChange(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         if (trekClient.MyPlayerInfo()->ShipID() == pPlayerInfo->ShipID())
         {
@@ -949,7 +949,7 @@ public:
         }
     }
 
-    virtual void OnFrame()
+    void OnFrame() override
     {
         UpdateCountdownText();
     }
@@ -984,13 +984,13 @@ public:
         }
     }
 
-    virtual void OnMissionCountdown(MissionInfo* pMissionDef)
+    void OnMissionCountdown(MissionInfo* pMissionDef) override
     {
         UpdateButtonStates();
     }
 
    
-    void OnMissionStarted(MissionInfo* pMissionDef)
+    void OnMissionStarted(MissionInfo* pMissionDef) override
     {
         // if this is our mission and we are not on the lobby side...
         if (pMissionDef == trekClient.MyMission() && trekClient.GetSideID() != SIDE_TEAMLOBBY)
@@ -1004,7 +1004,7 @@ public:
         }
     }
 
-    void OnAddMission(MissionInfo* pMissionInfo)
+    void OnAddMission(MissionInfo* pMissionInfo) override
     {
         if (pMissionInfo == trekClient.MyMission())
         {
@@ -1021,7 +1021,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }

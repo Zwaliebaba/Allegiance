@@ -32,8 +32,8 @@ class CwarpIGC : public TmodelIGC<IwarpIGC>
         }
 
     // IbaseIGC
-	    virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int length);
-	    virtual void    Terminate(void)
+	    HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int length) override;
+	    void    Terminate(void) override
         {
             AddRef();
             GetMyMission()->DeleteWarp(this);
@@ -49,7 +49,7 @@ class CwarpIGC : public TmodelIGC<IwarpIGC>
 
             Release();
         }
-        virtual void            Update(Time   now)
+        void            Update(Time   now) override
         {
             WarpBombLink*   plink;
 
@@ -89,20 +89,20 @@ class CwarpIGC : public TmodelIGC<IwarpIGC>
             TmodelIGC<IwarpIGC>::Update(now);
         }
 
-        virtual int                 Export(void* data) const;
+        int                 Export(void* data) const override;
 
-        virtual ObjectType          GetObjectType(void) const
+        ObjectType          GetObjectType(void) const override
         {
             return OT_warp;
         }
 
-	    virtual ObjectID            GetObjectID(void) const
+	    ObjectID            GetObjectID(void) const override
         {
             return m_warpDef.warpID;
         }
 
     // ImodelIGC
-        virtual void    SetCluster(IclusterIGC* cluster)
+        void    SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -123,7 +123,7 @@ class CwarpIGC : public TmodelIGC<IwarpIGC>
         }
 
     // IwarpIGC
-	    virtual IwarpIGC*       GetDestination(void)
+	    IwarpIGC*       GetDestination(void) override
         {
             if (!m_destination)
             {
@@ -137,8 +137,8 @@ class CwarpIGC : public TmodelIGC<IwarpIGC>
             return m_destination;
         }
 
-        virtual void         AddBomb(Time               timeExplosion,
-                                     ImissileTypeIGC*   pmt)
+        void         AddBomb(Time               timeExplosion,
+                                     ImissileTypeIGC*   pmt) override
         {
             WarpBombLink*   p = new WarpBombLink;
             p->data().timeExplosion = timeExplosion;
@@ -160,7 +160,7 @@ class CwarpIGC : public TmodelIGC<IwarpIGC>
             m_bombs.last(p);
         }
 
-        virtual const WarpBombList* GetBombs(void) const
+        const WarpBombList* GetBombs(void) const override
         {
             return &m_bombs;
         }

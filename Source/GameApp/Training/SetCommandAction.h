@@ -34,7 +34,7 @@ namespace Training
                     /* void */          SetCommandAction (ShipID shipID, Command command, ObjectType targetType, ObjectID targetID, CommandID commandID);
                     /* void */          SetCommandAction (ShipID shipID, Command command, ImodelIGC* pTarget, CommandID commandID);
             virtual /* void */          ~SetCommandAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     AbstractTarget*     m_pShip;

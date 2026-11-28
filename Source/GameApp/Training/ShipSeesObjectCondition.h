@@ -33,7 +33,7 @@ namespace Training
             /* void */                  ShipSeesObjectCondition (IshipIGC* pShip, ObjectType targetType, ObjectID targetID);
             /* void */                  ShipSeesObjectCondition (ObjectID shipID, ObjectType targetType, ObjectID targetID);
             virtual /* void */          ~ShipSeesObjectCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     AbstractTarget*     m_pShip;

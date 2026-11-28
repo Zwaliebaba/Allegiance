@@ -162,13 +162,13 @@ public:
     // IMouseInput methods
     //
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
 
     //
     // Value members
     //
 
-    virtual void Evaluate();
+    void Evaluate() override;
 };
 
 //////////////////////////////////////////////////////////////////////////////

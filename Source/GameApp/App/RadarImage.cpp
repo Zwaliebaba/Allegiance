@@ -139,7 +139,7 @@ class RadarImageImpl : public RadarImage {
     // Evaluate gets called when the view size changes
     //
     //////////////////////////////////////////////////////////////////////////////
-    void        Evaluate (void)
+    void        Evaluate (void) override
     {
         Color   color (0.5f, 0.5f, 0.5f, 0.25f);
 
@@ -220,11 +220,11 @@ public:
     }
 
 
-    void SetRadarLOD(RadarLOD radarLOD)
+    void SetRadarLOD(RadarLOD radarLOD) override
     {
         m_radarLOD = radarLOD;
     }
-    RadarLOD    GetRadarLOD(void) const
+    RadarLOD    GetRadarLOD(void) const override
     {
         return m_radarLOD;
     }
@@ -1054,7 +1054,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
 		if (m_radarLOD != c_rlNone)
         {

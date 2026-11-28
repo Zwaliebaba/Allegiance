@@ -34,7 +34,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetStrength(float strength)
+    void SetStrength(float strength) override
     {
         int count = GetCount(strength, m_radius);
 
@@ -50,12 +50,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    float GetRadius(const Matrix& mat)
+    float GetRadius(const Matrix& mat) override
     {
         return m_radius;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         Vector vecEye = pcontext->TransformLocalToEye(Vector::GetZero());
         float  bright = bound(100.0f / vecEye.Length(), 0.0f, 1.0f);
@@ -133,25 +133,25 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    float GetRadius()
+    float GetRadius() override
     {
         return m_radius;
     }
-    void  SetRadius(float f)
+    void  SetRadius(float f) override
     {
         m_radius = f;
     }
 
-    const Vector& GetPosition()
+    const Vector& GetPosition() override
     {
         return m_position;
     }
-    void          SetPosition(const Vector& p)
+    void          SetPosition(const Vector& p) override
     {
         m_position = p;
     }
 
-    void    SetColors(float aInner, float fInner, float fOuter)
+    void    SetColors(float aInner, float fInner, float fOuter) override
     {
         m_colorInner = m_colorComplement * fInner;
         m_colorInner.SetAlpha(aInner);
@@ -165,17 +165,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Evaluate()
+    void Evaluate() override
     {
         m_time      = GetTime()->GetValue();
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->DrawCallbackGeo(this, true);
     }
 
-    void RenderCallback(Context* pcontext)
+    void RenderCallback(Context* pcontext) override
     {
         //
         // Rendering modes
@@ -320,7 +320,7 @@ public:
         ZAssert(index == (int)m_indices.size());
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->DrawLines(m_vertices, m_indices);
     }
@@ -329,7 +329,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "WireSphereGeo"; }
+    ZString GetFunctionName() override { return "WireSphereGeo"; }
 };
 const int WireSphereGeo::vSegments = 3;
 
@@ -351,7 +351,7 @@ class PulseGeoImpl :
 protected:
     class WhiteSurfaceSite : public SurfaceSite {
     public:
-        void UpdateSurface(Surface* psurface) 
+        void UpdateSurface(Surface* psurface) override 
         {
             psurface->FillSurface(Color::White());
         }
@@ -386,23 +386,23 @@ public:
         m_pTexture = pmodeler->GetEngine ()->CreateSurface (WinPoint (16, 16), SurfaceType2D (), new WhiteSurfaceSite());
     }
 
-    void    AddPulse (float fExplodeTime, float fRadius, const Vector& vecPosition, const Color& color) 
+    void    AddPulse (float fExplodeTime, float fRadius, const Vector& vecPosition, const Color& color) override 
     {
         float   fStartTime = GetTime()->GetValue();
         m_pulseData.PushFront (new PulseData (fStartTime, fExplodeTime, (fRadius / m_pSphere->GetRadius (Matrix::GetIdentity ())) * 0.5f, vecPosition, color));
     }
 
-    void    Evaluate()
+    void    Evaluate() override
     {
         m_fTime = GetTime()->GetValue();
     }
 
-    void    Render(Context* pcontext)
+    void    Render(Context* pcontext) override
     {
         pcontext->DrawCallbackGeo(this, true);
     }
 
-    void    RenderCallback(Context* pcontext)
+    void    RenderCallback(Context* pcontext) override
     {
         TList<TRef<PulseData> >::Iterator   iter (m_pulseData);
 
@@ -547,7 +547,7 @@ public:
         }
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
               float   time     = GetTime()->GetValue();
         const Vector& vecPos   = GetPosition()->GetValue();
@@ -582,12 +582,12 @@ public:
         }
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->DrawCallbackGeo(this, true);
     }
 
-    void RenderCallback(Context* pcontext)
+    void RenderCallback(Context* pcontext) override
     {
         pcontext->SetMaterial(NULL);
         pcontext->SetShadeMode(ShadeModeGouraud);
@@ -651,7 +651,7 @@ public:
         m_psurfaceTangent = pmodeler->LoadSurface(AWF_EFFECT_TANGENT, true);
     }
 
-    void AddHullHit(const Vector& vecPosition, const Vector& vecNormal)
+    void AddHullHit(const Vector& vecPosition, const Vector& vecNormal) override
     {
         m_listHullHitData.PushFront();
 
@@ -671,7 +671,7 @@ public:
         data.m_timeStart = GetTime()->GetValue();
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         float timeCurrent = GetTime()->GetValue();
 
@@ -779,7 +779,7 @@ public:
         const Vector& vecPosition,
         const Vector& dvecPosition,
         float size
-    ) {
+    ) override {
         --m_indexFirst;
 
         if (m_indexFirst == m_indexLast) {
@@ -794,12 +794,12 @@ public:
         m_data[m_indexFirst].m_size         = size;
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
         m_time = GetTime()->GetValue();
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         if (m_indexFirst != m_indexLast) {
 
@@ -853,12 +853,12 @@ public:
     {
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->DrawCallbackGeo(this, false);
     }
 
-    void RenderCallback(Context* pcontext)
+    void RenderCallback(Context* pcontext) override
     {
         int index;
 
@@ -978,7 +978,7 @@ public:
         m_radius = GetGeo()->GetRadius(Matrix::GetIdentity());
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         bool bNoClipping;
 
@@ -1017,7 +1017,7 @@ public:
     {
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         #ifdef FixPermedia
             pcontext->SetShadeMode(ShadeModeGlobalColor);

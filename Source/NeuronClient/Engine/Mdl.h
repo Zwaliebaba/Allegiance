@@ -109,27 +109,27 @@ public:
     {
     }
 
-    int GetSize()
+    int GetSize() override
     {
         return sizeof(Type);
     }
 
-    int GetAlignment()
+    int GetAlignment() override
     {
         return alignof(Type);
     }
 
-    virtual bool IsStruct()
+    bool IsStruct() override
     {
         return false;
     }
 
-    void Destruct(BYTE*& pbyte)
+    void Destruct(BYTE*& pbyte) override
     {
         pbyte += sizeof(Type);
     }
 
-    void StackRead(BYTE*& pv, ObjectStack& stack)
+    void StackRead(BYTE*& pv, ObjectStack& stack) override
     {
         TRef<TStaticValue<Type> > pvalue; CastTo(pvalue, (IObject*)stack.Pop());
 
@@ -137,18 +137,18 @@ public:
         pv += sizeof(Type);
     }
 
-    void Read(BYTE*& pv, IBinaryReaderSite* psite, ObjectStack& stack)
+    void Read(BYTE*& pv, IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         psite->CopyStructure((Type*)pv);
         pv += sizeof(Type);
     }
 
-    ZString GetCPPType()
+    ZString GetCPPType() override
     {
         return m_str;
     }
 
-    ZString GetHungarianPrefix()
+    ZString GetHungarianPrefix() override
     {
         return m_strPrefix;
     }

@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          GetRadarLODCondition (RadarImage::RadarLOD expectedRadarLOD);
             virtual /* void */          ~GetRadarLODCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     RadarImage::RadarLOD    m_expectedRadarLOD;

@@ -26,18 +26,18 @@ class CprojectileIGC : public TmodelIGC<IprojectileIGC>
 
     public:
     // IbaseIGC
-	    virtual HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-	    virtual void                Terminate(void);
-        virtual void                Update(Time now);
-        virtual int                 Export(void* data);
+	    HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+	    void                Terminate(void) override;
+        void                Update(Time now) override;
+        int                 Export(void* _data) const override;
 
-        virtual ObjectType          GetObjectType(void) const
+        ObjectType          GetObjectType(void) const override
         {
             return OT_projectile;
         }
 
     // ImodelIGC
-        virtual void                SetCluster(IclusterIGC* cluster)
+        void                SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -55,21 +55,21 @@ class CprojectileIGC : public TmodelIGC<IprojectileIGC>
             Release();
         }
 
-        virtual void                HandleCollision(Time       timeCollision,
+        void                HandleCollision(Time       timeCollision,
                                                     float                  tCollision,
                                                     const CollisionEntry&  entry,
-                                                    ImodelIGC* pModel);
+                                                    ImodelIGC* pModel) override;
 
     // IprojectileIGC
-        virtual IprojectileTypeIGC* GetProjectileType(void) const
+        IprojectileTypeIGC* GetProjectileType(void) const override
         {
             return m_projectileType;
         }
-        virtual ImodelIGC*           GetLauncher(void) const
+        ImodelIGC*           GetLauncher(void) const override
         {
             return m_launcher;
         }
-        virtual void                SetLauncher(ImodelIGC* newVal)
+        void                SetLauncher(ImodelIGC* newVal) override
         {
             assert (!m_launcher);       //Only set once
             assert (newVal);
@@ -80,7 +80,7 @@ class CprojectileIGC : public TmodelIGC<IprojectileIGC>
             GetHitTest()->SetNoHit(m_launcher->GetHitTest());
             SetSide(m_launcher->GetSide());
         }
-        virtual void                SetGunner(IshipIGC* newVal)
+        void                SetGunner(IshipIGC* newVal) override
         {
             assert (!m_launcher);       //Only set once
             assert (newVal);

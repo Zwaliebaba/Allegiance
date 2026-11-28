@@ -19,7 +19,7 @@ public:
     {
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         if (Child()) {
             InternalSetExpand(
@@ -45,7 +45,7 @@ public:
         }
     }
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         return MouseResult();
     }
@@ -85,7 +85,7 @@ public:
         return true;
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }

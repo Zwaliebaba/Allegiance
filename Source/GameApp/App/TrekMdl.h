@@ -34,37 +34,37 @@ public:
 class SectorMapPaneFactory : public IFunction
 {
 public:
-    TRef<IObject> Apply(ObjectStack& stack);
+    TRef<IObject> Apply(ObjectStack& stack) override;
 };
 
 class SectorInfoPaneFactory : public IFunction
 {
 public:
-    TRef<IObject> Apply(ObjectStack& stack);
+    TRef<IObject> Apply(ObjectStack& stack) override;
 };
 
 class PurchasesPaneFactory : public IFunction
 {
 public:
-    TRef<IObject> Apply(ObjectStack& stack);
+    TRef<IObject> Apply(ObjectStack& stack) override;
 };
 
 class PartInfoPaneFactory : public IFunction
 {
 public:
-    TRef<IObject> Apply(ObjectStack& stack);
+    TRef<IObject> Apply(ObjectStack& stack) override;
 };
 
 class SelectionPaneFactory : public IFunction
 {
 public:
-    TRef<IObject> Apply(ObjectStack& stack);
+    TRef<IObject> Apply(ObjectStack& stack) override;
 };
 
 class SelectModelPaneFactory : public IFunction
 {
 public:
-    TRef<IObject> Apply(ObjectStack& stack);
+    TRef<IObject> Apply(ObjectStack& stack) override;
 };
 
 class ChatListPane : public ValuePane
@@ -80,13 +80,13 @@ public:
 class ChatListPaneFactory : public IFunction
 {
 public:
-    TRef<IObject> Apply(ObjectStack& stack);
+    TRef<IObject> Apply(ObjectStack& stack) override;
 };
 
 class InventoryImageFactory : public IFunction
 {
 public:
-    TRef<IObject> Apply(ObjectStack& stack);
+    TRef<IObject> Apply(ObjectStack& stack) override;
 };
 
 #endif

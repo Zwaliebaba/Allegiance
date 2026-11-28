@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          TypeIDTarget (ObjectType targetType, ObjectID targetID);
             virtual /* void */          ~TypeIDTarget (void);
-            virtual /* ImodelIGC* */    operator ImodelIGC* (void);
+            /* ImodelIGC* */    operator ImodelIGC* (void) override;
 
         protected:
                     ObjectType          m_targetType;

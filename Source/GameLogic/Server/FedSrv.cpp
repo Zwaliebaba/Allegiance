@@ -6222,11 +6222,11 @@ class ThingSiteImpl : public ThingSite
         {
         }
 
-        virtual void    Terminate(void)
+        void    Terminate(void) override
         {
         }
 
-        void SetCluster(ImodelIGC* pmodel, IclusterIGC* pcluster)
+        void SetCluster(ImodelIGC* pmodel, IclusterIGC* pcluster) override
         {
             assert (pmodel);
             if (m_bSideVisibility)
@@ -6357,8 +6357,8 @@ class ThingSiteImpl : public ThingSite
             }
         }
 
-        virtual void    UpdateSideVisibility(ImodelIGC*     pmodel,
-                                             IclusterIGC*   pcluster)
+        void    UpdateSideVisibility(ImodelIGC*     pmodel,
+                                             IclusterIGC*   pcluster) override
         {
             assert (pmodel == m_pmodel);
 
@@ -6471,14 +6471,14 @@ class ThingSiteImpl : public ThingSite
                 }
             }
         }
-        virtual bool    GetSideVisibility(IsideIGC* pside)
+        bool    GetSideVisibility(IsideIGC* pside) override
         {
             assert (pside != NULL);
             return m_bSideVisibility ? m_rgSideVisibility[pside->GetObjectID()].fVisible() : true;
         }
 
-        virtual void    SetSideVisibility(IsideIGC* pside,
-                                          bool      fVisible)
+        void    SetSideVisibility(IsideIGC* pside,
+                                          bool      fVisible) override
         {
             assert (pside);
             if (m_bSideVisibility)
@@ -6514,7 +6514,7 @@ class   ClusterSiteImpl : public ClusterSite
             CFSMission * pfsMission = (CFSMission *) pcluster->GetMission()->GetPrivateData();
         }
 
-        virtual void                    AddScanner(SideID   sid, IscannerIGC* scannerNew)
+        void                    AddScanner(SideID   sid, IscannerIGC* scannerNew) override
         {
             assert (sid >= 0);
             assert (sid < c_cSidesMax);
@@ -6522,7 +6522,7 @@ class   ClusterSiteImpl : public ClusterSite
 
             AddIbaseIGC((BaseListIGC*)&(m_scanners[sid]), scannerNew);
         }
-        virtual void                    DeleteScanner(SideID   sid, IscannerIGC* scannerOld)
+        void                    DeleteScanner(SideID   sid, IscannerIGC* scannerOld) override
         {
             assert (sid >= 0);
             assert (sid < c_cSidesMax);
@@ -6530,7 +6530,7 @@ class   ClusterSiteImpl : public ClusterSite
 
             DeleteIbaseIGC((BaseListIGC*)&(m_scanners[sid]), scannerOld);
         }
-        virtual const ScannerListIGC*      GetScanners(SideID   sid) const
+        const ScannerListIGC*      GetScanners(SideID   sid) const override
         {
             assert (sid >= 0);
             assert (sid < c_cSidesMax);
@@ -6538,7 +6538,7 @@ class   ClusterSiteImpl : public ClusterSite
             return &(m_scanners[sid]);
         }
 
-        virtual void Terminate()
+        void Terminate() override
         {
           ((CFSMission *)m_pcluster->GetMission()->GetPrivateData())->DeleteCluster(m_pcluster); // destroy FS cluster
           ClusterSite::Terminate();

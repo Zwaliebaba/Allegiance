@@ -173,12 +173,12 @@ public:
         return true;
     }
 
-    const char* GetDownloadPath()
+    const char* GetDownloadPath() override
     {
         return m_szDestFolder;
     }
 
-    const char* GetLastErrorMessage() 
+    const char* GetLastErrorMessage() override 
     {
         if (m_szLastError[0] != '\0')
         {
@@ -187,7 +187,7 @@ public:
         else return NULL; // no error has occured
     }
 
-    void Abort(bool bAutoDisconnect) 
+    void Abort(bool bAutoDisconnect) override 
     {
         KillDownload();
         m_bAbortDownload = true;
@@ -196,7 +196,7 @@ public:
     }
 
 
-    bool ContinueDownload()
+    bool ContinueDownload() override
     {
         if (m_szLastError[0] != '\0')  // if aborted or previous error
             return false;
@@ -710,12 +710,12 @@ public:
         return m_hInternetSession != NULL;
     }
 
-    virtual int GetFileListIncrement()
+    int GetFileListIncrement() override
     {
         return 2;
     }
 
-    virtual bool StartNextFile()
+    bool StartNextFile() override
     {
         m_cBytesRead = 0;
         m_cCurrentFileBytesRead = 0;
@@ -763,9 +763,9 @@ public:
         return true;
     }
 
-    virtual bool  InitiateDownload(const char * const * pszFileList, 
+    bool  InitiateDownload(const char * const * pszFileList, 
                                    const char * szDestFolder, 
-                                   int nMaxBufferSize = 1024*1024)
+                                   int nMaxBufferSize = 1024*1024) override
     {
         bool bRet = CInternetSessionImpl<IHTTPSession>::InitiateDownload(pszFileList, szDestFolder, false, nMaxBufferSize);
 

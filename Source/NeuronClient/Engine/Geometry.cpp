@@ -16,13 +16,13 @@ public:
     // Value members
     //
 
-	ZString GetString(int indent) { return "emptyGeo"; }
-    ZString GetFunctionName() 
+	ZString GetString(int indent) override { return "emptyGeo"; }
+    ZString GetFunctionName() override 
     { 
         return "emptyGeo"; 
     }
 
-    void Write(IMDLBinaryFile* pfile)
+    void Write(IMDLBinaryFile* pfile) override
     {
         pfile->WriteReference("emptyGeo");
     }
@@ -194,22 +194,22 @@ public:
     {
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->DrawTriangles(m_vertices, m_indices);
     }
 
-    void CallGroupGeoCallback(const Matrix& mat, GroupGeoCallback* pcallback)
+    void CallGroupGeoCallback(const Matrix& mat, GroupGeoCallback* pcallback) override
     {
         pcallback->ReportTriangles(mat, m_vertices, m_indices);
     }
 
-    MeshGeo* GetMeshGeo()
+    MeshGeo* GetMeshGeo() override
     {
         return this;
     }
 
-    TRef<MeshGeo> Combine(MeshGeo* pmeshArg)
+    TRef<MeshGeo> Combine(MeshGeo* pmeshArg) override
     {
         TMeshGeo* pmesh; CastTo(pmesh, pmeshArg);
 
@@ -257,7 +257,7 @@ public:
         return new TMeshGeo(vertices, indices);
     }
 
-    TRef<Geo> ApplyTransform(Transform* ptrans)
+    TRef<Geo> ApplyTransform(Transform* ptrans) override
     {
         Matrix mat = ptrans->GetValue();
 
@@ -285,12 +285,12 @@ public:
         return new TMeshGeo(vertices, m_indices);
     }
 
-    int GetTriangleCount()
+    int GetTriangleCount() override
     {
         return (int)m_indices.size() / 3;
     }
 
-    float GetRadius(const Matrix& mat)
+    float GetRadius(const Matrix& mat) override
     {
         float radius = 0;
         int count = (int)m_vertices.size();
@@ -302,7 +302,7 @@ public:
         return radius;
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         // Mesh( [(vertices, normals, texture coordinates)], [indices])
 
@@ -344,14 +344,14 @@ public:
     // Value members
     //
 
-    bool IsConstant()
+    bool IsConstant() override
     {
         return true;
     }
 
-    ZString GetFunctionName() { return "MeshGeo"; }
+    ZString GetFunctionName() override { return "MeshGeo"; }
 
-    void Write(IMDLBinaryFile* pmdlFile)
+    void Write(IMDLBinaryFile* pmdlFile) override
     {
         pmdlFile->WriteReference("MeshGeo");
         TRef<ZFile> pfile = pmdlFile->WriteBinary();
@@ -1018,7 +1018,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool RemoveValue(Value* pvalue)
+    bool RemoveValue(Value* pvalue) override
     {
         return pvalue == Geo::GetEmpty();
     }
@@ -1029,7 +1029,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    TRef<Geo> ApplyTransform(Transform* ptrans)
+    TRef<Geo> ApplyTransform(Transform* ptrans) override
     {
         ValueList* plist = GetValueList();
         TRef<GroupGeo> pgroupNew = new GroupGeoImpl();
@@ -1050,7 +1050,7 @@ public:
         return pgroupNew;
     }
 
-    bool AnyChildGroups(bool bHead)
+    bool AnyChildGroups(bool bHead) override
     {
         if (bHead) {
             TRef<ValueList> plist = GetValueList();
@@ -1069,7 +1069,7 @@ public:
         return true;
     }
 
-    TRef<Geo> RemoveMaterial()
+    TRef<Geo> RemoveMaterial() override
     {
         bool bAnyFold = false;
         TRef<ValueList> plist = GetValueList();
@@ -1117,7 +1117,7 @@ public:
     };
     typedef TMap<TRef<Surface>, TRef<TextureData> > MapType;
 
-    TRef<Geo> FoldTexture()
+    TRef<Geo> FoldTexture() override
     {
         bool bAnyFold = false;
         TRef<ValueList> plist = GetValueList();
@@ -1192,7 +1192,7 @@ public:
         return NULL;
     }
 
-    TRef<Value> Fold()
+    TRef<Value> Fold() override
     {
         bool bAnyFold = false;
         TRef<ValueList> plist = GetValueList();
@@ -1289,27 +1289,27 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetName(const ZString& strName)
+    void SetName(const ZString& strName) override
     {
         m_strName = strName;
     }
 
-    const ZString& GetName()
+    const ZString& GetName() override
     {
         return m_strName;
     }
 
-    void AddGeo(Geo* pgeo)
+    void AddGeo(Geo* pgeo) override
     {
         GetValueList()->PushFront(pgeo);
     }
 
-    void RemoveGeo(Geo* pgeo)
+    void RemoveGeo(Geo* pgeo) override
     {
         GetValueList()->Remove(pgeo);
     }
 
-    ValueList* GetList()
+    ValueList* GetList() override
     {
         return GetValueList();
     }
@@ -1320,12 +1320,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    GroupGeo* GetGroupGeo()
+    GroupGeo* GetGroupGeo() override
     {
         return this;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         Geo* pgeo = Geo::Cast(GetValueList()->GetFirst());
         while (pgeo) {
@@ -1341,7 +1341,7 @@ public:
         }
     }
 
-    Image* FindTexture()
+    Image* FindTexture() override
     {
         Geo* pgeo = Geo::Cast(GetValueList()->GetFirst());
         while (pgeo) {
@@ -1356,7 +1356,7 @@ public:
         return NULL;
     }
 
-    int GetTriangleCount()
+    int GetTriangleCount() override
     {
         int tcount = 0;
         Geo* pgeo = Geo::Cast(GetValueList()->GetFirst());
@@ -1368,7 +1368,7 @@ public:
         return tcount;
     }
 
-    float GetRadius(const Matrix& mat)
+    float GetRadius(const Matrix& mat) override
     {
         float radius = 0;
         Geo* pgeo = Geo::Cast(GetValueList()->GetFirst());
@@ -1380,7 +1380,7 @@ public:
         return radius;
     }
 
-    void CallGroupGeoCallback(const Matrix& mat, GroupGeoCallback* pcallback)
+    void CallGroupGeoCallback(const Matrix& mat, GroupGeoCallback* pcallback) override
     {
         TRef<Geo> pgeoReplace = pcallback->Execute(mat, this);
 
@@ -1399,7 +1399,7 @@ public:
         }
     }
 
-    void RemoveCapture()
+    void RemoveCapture() override
     {
         if (m_pgeoCapture) {
             m_pgeoCapture->RemoveCapture();
@@ -1407,7 +1407,7 @@ public:
         }
     }
 
-    bool HitTest(const Vector& vecOrigin, const Vector& vecRay, HitData3D& hitData, bool bCaptured)
+    bool HitTest(const Vector& vecOrigin, const Vector& vecRay, HitData3D& hitData, bool bCaptured) override
     {
         /* !!! this isn't exactly right
         m_pgeoHit = NULL;
@@ -1440,7 +1440,7 @@ public:
         bool bCaptured,
         bool bInside,
         bool bDown
-    ) {
+    ) override {
         MouseResult mouseResult;
 
         if (m_pgeoCapture) {
@@ -1549,7 +1549,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void AddGeo(Geo* pgeo, float radius)
+    void AddGeo(Geo* pgeo, float radius) override
     {
         //
         // Insert in sorted order
@@ -1597,7 +1597,7 @@ public:
         }
     }
 
-    ZString GetInfo()
+    ZString GetInfo() override
     {
         int count = GetChildCount();
         ZString str = "LODGeo with " + StrFromInt(count) + " levels\n";
@@ -1618,7 +1618,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetTriangleCount()
+    int GetTriangleCount() override
     {
         int tcount = 0;
 
@@ -1630,7 +1630,7 @@ public:
         return tcount;
     }
 
-    float GetRadius(const Matrix& mat)
+    float GetRadius(const Matrix& mat) override
     {
         float radius = 0;
 
@@ -1642,7 +1642,7 @@ public:
         return radius;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         float radius = pcontext->GetLOD();
 
@@ -1657,7 +1657,7 @@ public:
         Geo::Cast(GetChild(index))->Render(pcontext);
     }
 
-    bool AnyChildGroups(bool bHead)
+    bool AnyChildGroups(bool bHead) override
     {
         int count = GetChildCount();
         for (int index = 0; index < count; index++) {
@@ -1671,7 +1671,7 @@ public:
         return false;
     }
 
-    TRef<Geo> RemoveMaterial()
+    TRef<Geo> RemoveMaterial() override
     {
         bool bAnyFold = false;
         int count = GetChildCount();
@@ -1694,7 +1694,7 @@ public:
         return NULL;
     }
 
-    TRef<Geo> FoldTexture()
+    TRef<Geo> FoldTexture() override
     {
         bool bAnyFold = false;
         TRef<LODGeoImpl>   plodGeoNew = new LODGeoImpl(Geo::GetEmpty());
@@ -1755,7 +1755,7 @@ public:
         return NULL;
     }
 
-    TRef<WrapGeo> Duplicate(Geo* pgeo)
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override
     {
         TRef<LODGeoImpl> pgeoNew = new LODGeoImpl(pgeo);
 
@@ -1776,7 +1776,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    TRef<Value> Fold()
+    TRef<Value> Fold() override
     {
         if (GetChildCount() == 1) {
             return GetGeo();
@@ -1785,12 +1785,12 @@ public:
         return NULL;
     }
 
-    ZString GetFunctionName()
+    ZString GetFunctionName() override
     {
         return "LODGeo";
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         // LODGeo (baseGeo, [(pixels, geo)])
 
@@ -1819,7 +1819,7 @@ public:
         return str;
     }
 
-    void Write(IMDLBinaryFile* pmdlFile)
+    void Write(IMDLBinaryFile* pmdlFile) override
     {
         int count = GetChildCount();
 
@@ -1891,7 +1891,7 @@ public:
     // WrapGeo members
     //
 
-    TRef<WrapGeo> Duplicate(Geo* pgeo)
+    TRef<WrapGeo> Duplicate(Geo* pgeo) override
     {
         return new BlendGeo(pgeo, m_blendMode);
     }
@@ -1900,7 +1900,7 @@ public:
     // Geo members
     //
 
-    void RenderCallback(Context* pcontext)
+    void RenderCallback(Context* pcontext) override
     {
         pcontext->SetBlendMode(m_blendMode);
         pcontext->SetZWrite(false);

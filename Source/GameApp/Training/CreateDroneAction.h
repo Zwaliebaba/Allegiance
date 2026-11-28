@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          CreateDroneAction (const ZString& name, ShipID shipID, HullID hullID, SideID sideID, PilotType pilotType);
             virtual /* void */          ~CreateDroneAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
                     void                SetCreatedLocation (SectorID sectorID, const Vector& position);
                     void                SetCreatedOrientation (const Vector& forward, const Vector& up);
                     void                SetStationType (StationTypeID stationTypeID);

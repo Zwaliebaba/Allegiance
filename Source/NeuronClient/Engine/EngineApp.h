@@ -35,10 +35,10 @@ public:
     // Win32App methods
     //
 
-    HRESULT Initialize(const ZString& strCommandLine);
-    void Terminate();
+    HRESULT Initialize(const ZString& strCommandLine) override;
+    void Terminate() override;
 
-    int OnException(DWORD code, ExceptionData* pdata);
+    int OnException(DWORD code, ExceptionData* pdata) override;
 
     #ifdef _DEBUG
         bool OnAssert(const char* psz, const char* pszFile, int line, const char* pszModule);

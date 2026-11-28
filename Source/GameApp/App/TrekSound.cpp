@@ -12,7 +12,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<StringValue> pstring; CastTo(pstring, (IObject*)stack.Pop());
         TRef<ISoundTemplate> pTemplate;
@@ -43,7 +43,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>         pnumMinDist; CastTo(pnumMinDist, (IObject*)stack.Pop());
         TRef<ISoundTemplate> ptemplateBase; CastTo(ptemplateBase, (IObject*)stack.Pop());
@@ -68,7 +68,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>         pnumInnerAngle; CastTo(pnumInnerAngle, (IObject*)stack.Pop());
         TRef<Number>         pnumOuterAngle; CastTo(pnumOuterAngle, (IObject*)stack.Pop());
@@ -96,7 +96,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>         pnumPitch;    CastTo(pnumPitch, (IObject*)stack.Pop());
         TRef<ISoundTemplate> ptemplateBase; CastTo(ptemplateBase, (IObject*)stack.Pop());
@@ -133,19 +133,19 @@ public:
 
         // Sets the Gain shift, where 1.0 is normal, 0.5 is half of normal speed, 
         // and 2.0 is twice normal speed.  
-        HRESULT SetGain(float fGain)
+        HRESULT SetGain(float fGain) override
         {
             m_fCurrentGain = fGain;
             return SoundTweakableWrapper::SetGain(m_pnumGain->GetValue() + m_fCurrentGain);
         };
 
         // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-        TRef<ISoundTweakable> GetISoundTweakable()
+        TRef<ISoundTweakable> GetISoundTweakable() override
         {
             return this;
         };
 
-        void ChildChanged(Value* pvalue, Value* pvalueNew)
+        void ChildChanged(Value* pvalue, Value* pvalueNew) override
         {
             // the only child is the gain value, so let's adjust that.  
             ZSucceeded(SetGain(m_fCurrentGain));
@@ -160,8 +160,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource) override
     {
         HRESULT hr = m_pstBase->CreateSound(psoundNew, pbufferSource, psource);
         if (ZFailed(hr)) return hr;
@@ -196,7 +196,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>         pnumGain;    CastTo(pnumGain, (IObject*)stack.Pop());
         TRef<ISoundTemplate> ptemplateBase; CastTo(ptemplateBase, (IObject*)stack.Pop());
@@ -220,7 +220,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>         pnumPriority;    CastTo(pnumPriority, (IObject*)stack.Pop());
         TRef<ISoundTemplate> ptemplateBase; CastTo(ptemplateBase, (IObject*)stack.Pop());
@@ -245,7 +245,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<ISoundTemplate> ptemplateBase; CastTo(ptemplateBase, (IObject*)stack.Pop());
         TRef<ISoundTemplate> pTemplate;
@@ -269,7 +269,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>         pnumLoopStart; CastTo(pnumLoopStart, (IObject*)stack.Pop());
         TRef<Number>         pnumLoopLength; CastTo(pnumLoopLength, (IObject*)stack.Pop());
@@ -296,7 +296,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<ISoundTemplate> ptemplateBase1; CastTo(ptemplateBase1, (IObject*)stack.Pop());
         TRef<ISoundTemplate> ptemplateBase2; CastTo(ptemplateBase2, (IObject*)stack.Pop());
@@ -321,7 +321,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>         pnumRepeatRate; CastTo(pnumRepeatRate, (IObject*)stack.Pop());
         TRef<ISoundTemplate> ptemplateBase; CastTo(ptemplateBase, (IObject*)stack.Pop());
@@ -350,7 +350,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<IObjectList> plist; CastTo(plist, (IObject*)stack.Pop());
         TRef<IRandomSoundTemplate> pTemplate;
@@ -386,7 +386,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>         pnumPeriod;        CastTo(pnumPeriod, (IObject*)stack.Pop());
         TRef<Boolean>        pboolPlayMultiple; CastTo(pboolPlayMultiple, (IObject*)stack.Pop());
@@ -413,7 +413,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<IDiskPlayer>    pdiskPlayer; CastTo(pdiskPlayer, (IObject*)stack.Pop());
         TRef<Number>         pnumTrack;   CastTo(pnumTrack, (IObject*)stack.Pop());
@@ -437,7 +437,7 @@ public:
 
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<ISoundMutex>    pmutex;              CastTo(pmutex, (IObject*)stack.Pop());
         TRef<Number>         pnumTimeout;         CastTo(pnumTimeout, (IObject*)stack.Pop());

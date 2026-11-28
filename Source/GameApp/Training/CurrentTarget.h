@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          CurrentTarget (AbstractTarget* pTarget, bool bLockOnFirstFetch = false);
             virtual /* void */          ~CurrentTarget (void);
-            virtual /* ImodelIGC* */    operator ImodelIGC* (void);
+            /* ImodelIGC* */    operator ImodelIGC* (void) override;
 
         protected:
                     AbstractTarget*     m_pTarget;

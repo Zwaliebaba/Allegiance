@@ -196,16 +196,16 @@ class CmapMakerIGC : public ImapMakerIGC
         CmapMakerIGC();
         virtual ~CmapMakerIGC();
 
-        virtual MapMakerID  GetMapMakerID() const           { return(mMMID); }
-        virtual VOID        SetMapMakerID(MapMakerID mmID)  { mMMID = mmID; }
-        virtual char const* GetName() const
+        MapMakerID  GetMapMakerID() const override           { return(mMMID); }
+        VOID        SetMapMakerID(MapMakerID mmID) override  { mMMID = mmID; }
+        char const* GetName() const override
             { return(mszName); }
-        virtual VOID        SetName(const char * newVal)
+        VOID        SetName(const char * newVal) override
             { strcpy(mszName, newVal); }
 
-        virtual VOID        GenerateMission(Time now,
+        VOID        GenerateMission(Time now,
                                             const MissionParams * pmp,
-                                            ImissionIGC * pMission);
+                                            ImissionIGC * pMission) override;
 
         //
         // Our own custom helper methods.
@@ -284,15 +284,15 @@ class CmapMakerDoubleRingIGC : public CmapMakerIGC
 
         CmapMakerDoubleRingIGC();
 
-        virtual VOID        GenerateTeamClusterScreenPosition(
+        VOID        GenerateTeamClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+                                            SectorID sID) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
+                                            SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
 } ;
 
 //
@@ -308,16 +308,16 @@ class CmapMakerHiLoIGC : public CmapMakerIGC
         }
 
         CmapMakerHiLoIGC();
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateTeamClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateTeamClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+                                            SectorID sID) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
+                                            SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
 } ;
 
 //
@@ -333,16 +333,16 @@ class CmapMakerHiHigherIGC : public CmapMakerIGC
         }
 
         CmapMakerHiHigherIGC();
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateTeamClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateTeamClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+                                            SectorID sID) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
+                                            SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
 } ;
 
 //
@@ -358,16 +358,16 @@ class CmapMakerStarIGC : public CmapMakerIGC
         }
 
         CmapMakerStarIGC();
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateTeamClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateTeamClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+                                            SectorID sID) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
+                                            SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
 } ;
 
 //
@@ -385,16 +385,16 @@ class CmapMakerBigRingIGC : public CmapMakerIGC
         }
 
         CmapMakerBigRingIGC();
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateTeamClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateTeamClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+                                            SectorID sID) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
+                                            SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
 } ;
 
 //
@@ -410,15 +410,15 @@ class CmapMakerBrawlIGC : public CmapMakerIGC
 
         CmapMakerBrawlIGC();
 
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                                     CMapData * pMapData,
                                                     DataClusterIGC * pdc,
-                                                    SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
-        virtual VOID        PopulateCluster(CMapData*       pMapData,
+                                                    SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
+        VOID        PopulateCluster(CMapData*       pMapData,
                                             IclusterIGC*    pcluster,
-                                            float           amountHe3);
+                                            float           amountHe3) override;
 } ;
 
 //
@@ -438,15 +438,15 @@ class CmapMakerPinWheelIGC : public CmapMakerIGC
 
         CmapMakerPinWheelIGC();
 
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                                     CMapData * pMapData,
                                                     DataClusterIGC * pdc,
-                                                    SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
-        virtual VOID        PopulateCluster(CMapData*       pMapData,
+                                                    SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
+        VOID        PopulateCluster(CMapData*       pMapData,
                                             IclusterIGC*    pcluster,
-                                            float           amountHe3);
+                                            float           amountHe3) override;
 } ;
 
 
@@ -464,16 +464,16 @@ class CmapMakerDiamondRingIGC : public CmapMakerIGC
 
         CmapMakerDiamondRingIGC();
 
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateTeamClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateTeamClusterScreenPosition(
                                                     CMapData * pMapData,
                                                     DataClusterIGC * pdc,
-                                                    SectorID sID);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+                                                    SectorID sID) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                                     CMapData * pMapData,
                                                     DataClusterIGC * pdc,
-                                                    SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
+                                                    SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
 } ;
 
 
@@ -495,16 +495,16 @@ class CmapMakerSnowFlakeIGC : public CmapMakerIGC
 
         CmapMakerSnowFlakeIGC();
 
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateTeamClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateTeamClusterScreenPosition(
                                                     CMapData * pMapData,
                                                     DataClusterIGC * pdc,
-                                                    SectorID sID);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+                                                    SectorID sID) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                                     CMapData * pMapData,
                                                     DataClusterIGC * pdc,
-                                                    SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
+                                                    SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
 } ;
 
 
@@ -544,16 +544,16 @@ class CmapMakerGridIGC : public CmapMakerIGC
 
         CmapMakerGridIGC();
 
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateTeamClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateTeamClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+                                            SectorID sID) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
+                                            SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
 };
 
 class CmapMakerEastWestIGC : public CmapMakerIGC
@@ -563,19 +563,19 @@ class CmapMakerEastWestIGC : public CmapMakerIGC
 
         CmapMakerEastWestIGC();
 
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateTeamClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateTeamClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+                                            SectorID sID) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
-        virtual VOID        PopulateCluster(CMapData*       pMapData,
+                                            SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
+        VOID        PopulateCluster(CMapData*       pMapData,
                                             IclusterIGC*    pcluster,
-                                            float           amountHe3);
+                                            float           amountHe3) override;
 };
 
 class CmapMakerSplitBaseIGC : public CmapMakerIGC
@@ -584,16 +584,16 @@ class CmapMakerSplitBaseIGC : public CmapMakerIGC
         static const char*  IsValid(const MissionParams* pmp);
 
         CmapMakerSplitBaseIGC();
-        virtual VOID        GenerateLayout(CMapData * pMapData);
-        virtual VOID        GenerateTeamClusterScreenPosition(
+        VOID        GenerateLayout(CMapData * pMapData) override;
+        VOID        GenerateTeamClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        GenerateNeutralClusterScreenPosition(
+                                            SectorID sID) override;
+        VOID        GenerateNeutralClusterScreenPosition(
                                             CMapData * pMapData,
                                             DataClusterIGC * pdc,
-                                            SectorID sID);
-        virtual VOID        LinkClusters(CMapData * pMapData);
+                                            SectorID sID) override;
+        VOID        LinkClusters(CMapData * pMapData) override;
 } ;
 
 #endif //__MAPMAKERIGC_H_

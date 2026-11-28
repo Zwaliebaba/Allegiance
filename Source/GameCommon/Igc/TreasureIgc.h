@@ -22,8 +22,8 @@ class CtreasureIGC : public TmodelIGC<ItreasureIGC>
 {
     public:
     // IbaseIGC
-        virtual HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int length);
-        virtual void    Terminate(void)
+        HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int length) override;
+        void    Terminate(void) override
         {
             AddRef();
 
@@ -39,22 +39,22 @@ class CtreasureIGC : public TmodelIGC<ItreasureIGC>
             Release();
         }
 
-        virtual void            Update(Time now);
+        void            Update(Time now) override;
 
-        virtual int             Export(void* data) const;
+        int             Export(void* data) const override;
 
-        virtual ObjectType      GetObjectType(void) const
+        ObjectType      GetObjectType(void) const override
         {
             return OT_treasure;
         }
 
-        virtual ObjectID        GetObjectID(void) const
+        ObjectID        GetObjectID(void) const override
         {
             return m_data.objectID;
         }
 
     // ImodelIGC
-        virtual void    SetCluster(IclusterIGC* cluster)
+        void    SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -74,10 +74,10 @@ class CtreasureIGC : public TmodelIGC<ItreasureIGC>
             Release();
         }
 
-        virtual void                 HandleCollision(Time       timeCollision,
+        void                 HandleCollision(Time       timeCollision,
                                                      float                  tCollision,
                                                      const CollisionEntry&  entry,
-                                                     ImodelIGC* pModel)
+                                                     ImodelIGC* pModel) override
         {
             if (pModel->GetObjectType() == OT_ship)
             {
@@ -103,37 +103,37 @@ class CtreasureIGC : public TmodelIGC<ItreasureIGC>
         }
 
     // ItreasureIGC
-        virtual TreasureCode    GetTreasureCode(void) const
+        TreasureCode    GetTreasureCode(void) const override
         {
             return m_data.treasureCode;
         }
 
-        virtual IbuyableIGC*   GetBuyable(void) const
+        IbuyableIGC*   GetBuyable(void) const override
         {
             return m_buyable;
         }
-        virtual ObjectID       GetTreasureID(void) const
+        ObjectID       GetTreasureID(void) const override
         {
             return m_data.treasureID;
         }
-        virtual void            SetTreasureID(ObjectID newVal)
+        void            SetTreasureID(ObjectID newVal) override
         {
             m_data.treasureID = newVal;
         }
-        virtual short           GetAmount(void) const
+        short           GetAmount(void) const override
         {
             return m_data.amount;
         }
-        virtual void            SetAmount(short a)
+        void            SetAmount(short a) override
         {
             m_data.amount = a;
         }
-        virtual void            ResetExpiration(Time now)
+        void            ResetExpiration(Time now) override
         {
             m_expire = now + m_data.lifespan;
         }
 
-        virtual void            SetCreateNow (void)
+        void            SetCreateNow (void) override
         {
             m_data.createNow = true;
         }

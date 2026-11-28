@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          SetDisplayModeAction (TrekWindow::CameraMode mode);
             virtual /* void */          ~SetDisplayModeAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     TrekWindow::CameraMode  m_mode;

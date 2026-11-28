@@ -179,13 +179,13 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    TRef<Surface> GetSurface()
+    TRef<Surface> GetSurface() override
     {
         UpdateFrame();
         return m_psurface;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         UpdateFrame();
         pcontext->DrawImage(m_psurface);
@@ -197,12 +197,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetFunctionName()
+    ZString GetFunctionName() override
     {
         return "FrameImage";
     }
 
-    void Write(IMDLBinaryFile* pmdlFile)
+    void Write(IMDLBinaryFile* pmdlFile) override
     {
         WriteChildren(pmdlFile);
         pmdlFile->WriteReference("FrameImage");
@@ -234,7 +234,7 @@ public:
     // the result in a binary MDL file (read by Read below).
     //
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>  pimage   = Image::Cast((Value*)(IObject*)stack.Pop());
         TRef<Number> pframe   = Number::Cast((IObject*)stack.Pop());
@@ -246,7 +246,7 @@ public:
         return (Value*)CreateFrameImage(pframe, pimage->GetSurface(), xframes, yframes);
     }
 
-    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
+    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         Number* pframe = Number::Cast((IObject*)stack.Pop());
         Image*  pimage =  Image::Cast((Value*)(IObject*)stack.Pop());
@@ -544,17 +544,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    IEventSource* GetEventSource()
+    IEventSource* GetEventSource() override
     {
         return m_peventSource;
     }
 
-    IEventSource* GetMouseEnterEventSource()
+    IEventSource* GetMouseEnterEventSource() override
     {
         return m_peventMouseEnterSource;
     }
 
-    IEventSource* GetMouseLeaveEventSource()
+    IEventSource* GetMouseLeaveEventSource() override
     {
         return m_peventMouseLeaveSource;
     }
@@ -565,14 +565,14 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void ChildChanged(Value* pvalue, Value* pvalueNew)
+    void ChildChanged(Value* pvalue, Value* pvalueNew) override
     {
         Value::ChildChanged(pvalue, pvalueNew);
 
         NeedPaint();
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
         float time  = GetTime()->GetValue();
         float value;
@@ -618,7 +618,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Paint(Surface* psurface)
+    void Paint(Surface* psurface) override
     {
         Update();
         psurface->BitBlt(WinPoint(0, 0), m_pimage->GetSurface());
@@ -630,7 +630,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void MouseEnter(IInputProvider* pprovider, const Point& point)
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override
     {
         m_bInside    = true;
         m_valueStart = m_pframe->GetValue();
@@ -638,7 +638,7 @@ public:
         m_peventMouseEnterSource->Trigger();
     }
 
-    void MouseLeave(IInputProvider* pprovider)
+    void MouseLeave(IInputProvider* pprovider) override
     {
         m_bInside    = false;
         m_valueStart = m_pframe->GetValue();
@@ -646,7 +646,7 @@ public:
         m_peventMouseLeaveSource->Trigger();
     }
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         if (button == 0) {
             if (bDown) {

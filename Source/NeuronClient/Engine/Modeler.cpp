@@ -22,7 +22,7 @@ public:
     // ModelerSite members
     //
 
-    void Error(const ZString& str)
+    void Error(const ZString& str) override
     {
         ZError(str.c_str());
     }
@@ -37,7 +37,7 @@ public:
 class AnimatedImagePaneRectFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>     pimage =     Image::Cast((Value*)(IObject*)stack.Pop());
         TRef<RectValue> prect  = RectValue::Cast(        (IObject*)stack.Pop());
@@ -59,7 +59,7 @@ public:
 class AnimatedImagePaneFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>     pimage =     Image::Cast((Value*)(IObject*)stack.Pop());
 
@@ -85,7 +85,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Pane>    ppane;             CastTo(ppane, (IObject*)stack.Pop());
         TRef<Boolean> pbooleanZBuffer  = Boolean::Cast((IObject*)stack.Pop());
@@ -128,7 +128,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         StringValue* pstring = StringValue::Cast((IObject*)stack.Pop());
         Number*      pnumber = Number::Cast((IObject*)stack.Pop());
@@ -167,7 +167,7 @@ public:
     {
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = GetPoint()->GetValue().X();
     }
@@ -176,7 +176,7 @@ public:
 class PointXFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> ppoint = PointValue::Cast((IObject*)stack.Pop());
 
@@ -200,7 +200,7 @@ public:
     {
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = GetPoint()->GetValue().Y();
     }
@@ -209,7 +209,7 @@ public:
 class PointYFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> ppoint = PointValue::Cast((IObject*)stack.Pop());
 
@@ -233,7 +233,7 @@ public:
     {
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = Point::Cast(GetImage()->GetBounds().GetRect().Size());
     }
@@ -242,7 +242,7 @@ public:
 class ImageSizeFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image> pimage = Image::Cast((Value*)(IObject*)stack.Pop());
 
@@ -266,7 +266,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<StringValue> pstring  = StringValue::Cast((IObject*)stack.Pop());
 
@@ -287,7 +287,7 @@ public:
 class StringImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>      pjustify =      Number::Cast((IObject*)stack.Pop());
         TRef<Number>      pwidth   =      Number::Cast((IObject*)stack.Pop());
@@ -318,7 +318,7 @@ public:
 class TextFileImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>      pjustify =      Number::Cast((IObject*)stack.Pop());
         TRef<Number>      pwidth   =      Number::Cast((IObject*)stack.Pop());
@@ -376,7 +376,7 @@ public:
 class JustifyImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>  pimage   =  Image::Cast((Value*)(IObject*)stack.Pop());
         TRef<Number> pjustify = Number::Cast(        (IObject*)stack.Pop());
@@ -401,7 +401,7 @@ public:
 class GaugeImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pjustify = Number::Cast((IObject*)stack.Pop());
         TRef<Image>  pimage   =  Image::Cast((Value*)(IObject*)stack.Pop());
@@ -429,7 +429,7 @@ public:
 class GaugeImageRectFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>    pjustify =    Number::Cast(        (IObject*)stack.Pop());
         TRef<Image>     pimage   =     Image::Cast((Value*)(IObject*)stack.Pop());
@@ -460,7 +460,7 @@ public:
 class UndetectableImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>     pimage =     Image::Cast((Value*)(IObject*)stack.Pop());
 
@@ -477,7 +477,7 @@ public:
 class ClipImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>     pimage =     Image::Cast((Value*)(IObject*)stack.Pop());
         TRef<RectValue> prect  = RectValue::Cast(        (IObject*)stack.Pop());
@@ -495,7 +495,7 @@ public:
 class PickImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image> pimage = Image::Cast((Value*)(IObject*)stack.Pop());
 
@@ -512,7 +512,7 @@ public:
 class ColorImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<ColorValue> pcolor = ColorValue::Cast((IObject*)stack.Pop());
 
@@ -529,7 +529,7 @@ public:
 class ExtentImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<RectValue>  prect  =  RectValue::Cast((IObject*)stack.Pop());
         TRef<ColorValue> pcolor = ColorValue::Cast((IObject*)stack.Pop());
@@ -571,7 +571,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         ZString      str     = GetString((IObject*)stack.Pop());
         TRef<Number> pnumber = Number::Cast((IObject*)stack.Pop());
@@ -599,7 +599,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         ZString str = GetString((IObject*)stack.Pop());
 
@@ -631,7 +631,7 @@ public:
         CastTo(m_pengine, m_pmodeler->GetEngine());
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         ZString str = GetString((IObject*)stack.Pop());
         bool      b = GetBoolean((IObject*)stack.Pop());
@@ -641,7 +641,7 @@ public:
         return (Value*)pimage;
     }
 
-    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
+    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack) override
     {
             BinarySurfaceInfo* pbsi; psite->GetStructure(pbsi);
 
@@ -693,13 +693,13 @@ public:
         CastTo(m_pengine, m_pmodeler->GetEngine());
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         ZUnimplemented();
         return NULL;
     }
 
-    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
+    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         return 
             new FontValue(
@@ -726,7 +726,7 @@ public:
         CastTo(m_pengine, m_pmodeler->GetEngine());
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         ZString str = GetString((IObject*)stack.Pop());
         bool      b = GetBoolean((IObject*)stack.Pop());
@@ -763,7 +763,7 @@ public:
         CastTo(m_pengine, m_pmodeler->GetEngine());
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         ZString          str    = GetString((IObject*)stack.Pop());
         TRef<ColorValue> pcolor = ColorValue::Cast(        (IObject*)stack.Pop());
@@ -784,7 +784,7 @@ public:
 class BlendImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image> pimage       =  Image::Cast((Value*)(IObject*)stack.Pop());
         TRef<Number>     pnumberBlend = Number::Cast(        (IObject*)stack.Pop());
@@ -805,7 +805,7 @@ public:
 
 class TranslateImageFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>      pimage =      Image::Cast((Value*)(IObject*)stack.Pop());
         TRef<PointValue> ppoint = PointValue::Cast(        (IObject*)stack.Pop());
@@ -826,7 +826,7 @@ public:
 
 class VisibleImageFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>              pimage = Image::Cast((Value*)(IObject*)stack.Pop());
         TRef<Boolean>  pbool; CastTo(pbool, (Value*)(IObject*)stack.Pop());
@@ -843,7 +843,7 @@ public:
 
 class ScaleImageFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>      pimage =      Image::Cast((Value*)(IObject*)stack.Pop());
         TRef<PointValue> ppoint = PointValue::Cast(        (IObject*)stack.Pop());
@@ -864,7 +864,7 @@ public:
 
 class RotateImageFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>  pimage =  Image::Cast((Value*)(IObject*)stack.Pop());
         TRef<Number> pangle = Number::Cast(        (IObject*)stack.Pop());
@@ -885,7 +885,7 @@ public:
 
 class GeoImageFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Geo>       pgeo            =       Geo::Cast((Value*)(IObject*)stack.Pop());
         TRef<RectValue> prect           = RectValue::Cast(        (IObject*)stack.Pop());
@@ -910,7 +910,7 @@ public:
 
 class GeoImage2DFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Geo> pgeo =Geo::Cast((Value*)(IObject*)stack.Pop());
 
@@ -927,7 +927,7 @@ public:
 class ModifiableNumberFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         float value = GetNumber((IObject*)stack.Pop());
 
@@ -944,7 +944,7 @@ public:
 class WrapNumberFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber = Number::Cast((IObject*)stack.Pop());
 
@@ -963,7 +963,7 @@ typedef TRef<IObject> TRefIObject; //hack for VC5
 template<class StaticType, class ValueType>
 class TIFunctionBinary : public IFunction {
 public:
-    TRefIObject Read(IBinaryReaderSite* psite, ObjectStack& stack)
+    TRefIObject Read(IBinaryReaderSite* psite, ObjectStack& stack) override
     {
             StaticType* pvalue = (StaticType*)psite->GetPointer();
             psite->MovePointer(sizeof(StaticType));
@@ -981,7 +981,7 @@ public:
 class RGBColorFactory : public TIFunctionBinary<Color, ColorValue > {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         float r = GetNumber((IObject*)stack.Pop());
         float g = GetNumber((IObject*)stack.Pop());
@@ -1000,7 +1000,7 @@ public:
 class RGBAColorFactory : public TIFunctionBinary<Color, ColorValue > {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         float r = GetNumber((IObject*)stack.Pop());
         float g = GetNumber((IObject*)stack.Pop());
@@ -1020,7 +1020,7 @@ public:
 class VectorFactory : public TIFunctionBinary<Vector, VectorValue > {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         float x = GetNumber((IObject*)stack.Pop());
         float y = GetNumber((IObject*)stack.Pop());
@@ -1039,7 +1039,7 @@ public:
 class PointFactory : public TIFunctionBinary<Point, PointValue > {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         float x = GetNumber((IObject*)stack.Pop());
         float y = GetNumber((IObject*)stack.Pop());
@@ -1058,7 +1058,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = 
             Point(
@@ -1070,7 +1070,7 @@ public:
 
 class PointVFactory : public TIFunctionBinary<Point, PointValue > {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         Number* px; CastTo(px, (IObject*)stack.Pop());
         Number* py; CastTo(py, (IObject*)stack.Pop());
@@ -1088,7 +1088,7 @@ public:
 class RectFactory : public TIFunctionBinary<Rect, RectValue > {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         float xmin = GetNumber((IObject*)stack.Pop());
         float ymin = GetNumber((IObject*)stack.Pop());
@@ -1108,7 +1108,7 @@ public:
 class MatrixTransformFactory : public TIFunctionBinary<Matrix, Transform> {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         float m00 = GetNumber((IObject*)stack.Pop());
         float m01 = GetNumber((IObject*)stack.Pop());
@@ -1150,7 +1150,7 @@ public:
 
 class MaterialFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<ColorValue> pcolorDiffuse  = ColorValue::Cast((IObject*)stack.Pop());
         TRef<ColorValue> pcolorSpecular = ColorValue::Cast((IObject*)stack.Pop());
@@ -1176,7 +1176,7 @@ public:
 class TransformGeoFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Geo>       pgeo   =       Geo::Cast((IObject*)stack.Pop());
         TRef<Transform> ptrans = Transform::Cast((IObject*)stack.Pop());
@@ -1194,7 +1194,7 @@ public:
 class TextureGeoFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Geo>   pgeo   =   Geo::Cast((IObject*)stack.Pop());
         TRef<Image> pimage = Image::Cast((Value*)(IObject*)stack.Pop());
@@ -1212,7 +1212,7 @@ public:
 class BlendGeoFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Geo>    pgeo         =    Geo::Cast((IObject*)stack.Pop());
         TRef<Number> pnumberBlend = Number::Cast((IObject*)stack.Pop());
@@ -1234,7 +1234,7 @@ public:
 class MaterialGeoFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Geo>      pgeo      =      Geo::Cast((IObject*)stack.Pop());
         TRef<Material> pmaterial = Material::Cast((IObject*)stack.Pop());
@@ -1320,7 +1320,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Evaluate()
+    void Evaluate() override
     {
         float number = GetNumber()->GetValue();
 
@@ -1363,7 +1363,7 @@ private:
     typedef TSwitchValue<StaticType> SwitchType;
 
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>      pnumber; CastTo(pnumber,         (IObject*)stack.Pop());
         TRef<ValueType>   pvalue;  CastTo(pvalue,  (Value*)(IObject*)stack.Pop());
@@ -1397,7 +1397,7 @@ public:
 class SwitchImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number>      pnumber; CastTo(pnumber,         (IObject*)stack.Pop());
         TRef<Image>       pimage;  CastTo(pimage,  (Value*)(IObject*)stack.Pop());
@@ -1428,7 +1428,7 @@ public:
 class GroupImageFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<GroupImage> pgroup = new GroupImage();
 
@@ -1454,7 +1454,7 @@ public:
 class GroupGeoFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<GroupGeo> pgroup = GroupGeo::Create();
 
@@ -1480,7 +1480,7 @@ public:
 class MeshGeoFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<IObjectList> plistVertices; CastTo(plistVertices, (IObject*)stack.Pop());
         TRef<IObjectList> plistIndices;  CastTo(plistIndices,  (IObject*)stack.Pop() );
@@ -1518,7 +1518,7 @@ public:
     }
 
 
-    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
+    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         DWORD countVertices = psite->GetDWORD();
         DWORD countIndices  = psite->GetDWORD();
@@ -1550,7 +1550,7 @@ public:
 class LODGeoFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Geo>         pgeo;     CastTo(pgeo,     (IObject*)stack.Pop());
         TRef<IObjectList> plistLOD; CastTo(plistLOD, (IObject*)stack.Pop());
@@ -1580,7 +1580,7 @@ public:
 class KeyFramedTranslateFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<IObjectList> plist;  CastTo(plist,  (IObject*)stack.Pop());
         TRef<Number>      pframe; CastTo(pframe, (IObject*)stack.Pop());
@@ -1612,7 +1612,7 @@ public:
 class ScaleFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pscale = Number::Cast((IObject*)stack.Pop());
 
@@ -1629,7 +1629,7 @@ public:
 class TranslateFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<VectorValue> pvector = VectorValue::Cast((IObject*)stack.Pop());
 
@@ -1646,7 +1646,7 @@ public:
 class RotateFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<VectorValue> pvector = VectorValue::Cast((IObject*)stack.Pop());
         TRef<Number>      pangle  =      Number::Cast((IObject*)stack.Pop());
@@ -1668,7 +1668,7 @@ public:
 class KeyFramedScaleFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<IObjectList> plist;  CastTo(plist,  (IObject*)stack.Pop());
         TRef<Number>      pframe; CastTo(pframe, (IObject*)stack.Pop());
@@ -1700,7 +1700,7 @@ public:
 class KeyFramedRotateFactory : public IFunction {
 private:
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<IObjectList> plist;  CastTo(plist,  (IObject*)stack.Pop());
         TRef<Number>      pframe; CastTo(pframe, (IObject*)stack.Pop());
@@ -1760,7 +1760,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<StringValue> pstringName;		CastTo(pstringName,		(IObject*)stack.Pop());
         TRef<Number>      pnumberSize;		CastTo(pnumberSize,		(IObject*)stack.Pop());
@@ -1792,7 +1792,7 @@ public:
 class ModFactory : public IFunction {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber1; CastTo(pnumber1, (IObject*)stack.Pop());
         TRef<Number> pnumber2; CastTo(pnumber2, (IObject*)stack.Pop());
@@ -1804,7 +1804,7 @@ public:
 class MinFactory : public IFunction {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber1; CastTo(pnumber1, (IObject*)stack.Pop());
         TRef<Number> pnumber2; CastTo(pnumber2, (IObject*)stack.Pop());
@@ -1816,7 +1816,7 @@ public:
 class MaxFactory : public IFunction {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber1; CastTo(pnumber1, (IObject*)stack.Pop());
         TRef<Number> pnumber2; CastTo(pnumber2, (IObject*)stack.Pop());
@@ -1828,7 +1828,7 @@ public:
 class AddFactory : public IFunction {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber1; CastTo(pnumber1, (IObject*)stack.Pop());
         TRef<Number> pnumber2; CastTo(pnumber2, (IObject*)stack.Pop());
@@ -1840,7 +1840,7 @@ public:
 class SubtractFactory : public IFunction {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber1; CastTo(pnumber1, (IObject*)stack.Pop());
         TRef<Number> pnumber2; CastTo(pnumber2, (IObject*)stack.Pop());
@@ -1852,7 +1852,7 @@ public:
 class MultiplyFactory : public IFunction {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber1; CastTo(pnumber1, (IObject*)stack.Pop());
         TRef<Number> pnumber2; CastTo(pnumber2, (IObject*)stack.Pop());
@@ -1864,7 +1864,7 @@ public:
 class DivideFactory : public IFunction {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber1; CastTo(pnumber1, (IObject*)stack.Pop());
         TRef<Number> pnumber2; CastTo(pnumber2, (IObject*)stack.Pop());
@@ -1888,18 +1888,18 @@ public:
 
     Number* GetNumber() { return Number::Cast(GetChild(0)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = StrFromInt((int)(GetNumber()->GetValue() + 0.5));
     }
 
-    ZString GetFunctionName() { return "NumberString"; }
+    ZString GetFunctionName() override { return "NumberString"; }
 };
 
 class NumberStringFactory : public IFunction {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber; CastTo(pnumber, (IObject*)stack.Pop());
 
@@ -1922,7 +1922,7 @@ public:
 
     Number* GetNumber() { return Number::Cast(GetChild(0)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         char cbTemp[80];
         sprintf(cbTemp, "%.2g", (double)GetNumber()->GetValue());
@@ -1930,13 +1930,13 @@ public:
         GetValueInternal() = cbTemp;
     }
 
-    ZString GetFunctionName() { return "RealNumberString"; }
+    ZString GetFunctionName() override { return "RealNumberString"; }
 };
 
 class RealNumberStringFactory : public IFunction {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber; CastTo(pnumber, (IObject*)stack.Pop());
 
@@ -1957,19 +1957,19 @@ public:
     {
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = ((StringValue*)GetChild(0))->GetValue()
             + ((StringValue*)GetChild(1))->GetValue();
     }
 
-    ZString GetFunctionName() { return "ConcatinatedString"; }
+    ZString GetFunctionName() override { return "ConcatinatedString"; }
 };
 
 class ConcatinatedStringFactory : public IFunction {
 public:
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<StringValue> pstring1; CastTo(pstring1, (IObject*)stack.Pop());
         TRef<StringValue> pstring2; CastTo(pstring2, (IObject*)stack.Pop());
@@ -2001,22 +2001,22 @@ public:
         InitializeNameSpace();
     }
 
-    void SetSite(ModelerSite* psite)
+    void SetSite(ModelerSite* psite) override
     {
         m_psite = psite;
     }
 
-    void SetArtPath(const PathString& pathStr)
+    void SetArtPath(const PathString& pathStr) override
     {
         m_pathStr = pathStr;
     }
 
-    ZString GetArtPath()
+    ZString GetArtPath() override
     {
         return m_pathStr;
     }
 
-    void Terminate()
+    void Terminate() override
     {
         m_mapNameSpace.SetEmpty();
         m_pengine = NULL;
@@ -2222,7 +2222,7 @@ public:
         pns->AddMember("PaneImage",             new PaneImageFactory(this));
     }
 
-    Engine* GetEngine()
+    Engine* GetEngine() override
     {
         return m_pengine;
     }
@@ -2251,7 +2251,7 @@ public:
         return m_pathStr + strFile.c_str();
     }
 
-    ZString GetArtFile(const ZString& strName, const ZString& strExtension)
+    ZString GetArtFile(const ZString& strName, const ZString& strExtension) override
     {
         return FindFile(strName, strExtension);
     }
@@ -2285,12 +2285,12 @@ public:
         return pfile->IsValid() ? pfile : NULL;
     }
 
-    TRef<ZFile> LoadFile(const PathString& pathStr, const ZString& strExtensionArg, bool bError)
+    TRef<ZFile> LoadFile(const PathString& pathStr, const ZString& strExtensionArg, bool bError) override
     {
         return GetFile(pathStr, strExtensionArg, bError);
     }
 
-    TRef<Surface> LoadSurface(const ZString& str, bool bColorKey, bool bError)
+    TRef<Surface> LoadSurface(const ZString& str, bool bColorKey, bool bError) override
     {
         TRef<ConstantImage> pimage; CastTo(pimage, LoadImage(str, bColorKey, bError));
 
@@ -2351,7 +2351,7 @@ public:
         return NULL;
     }
 
-    TRef<Geo> LoadGeo(const ZString& str, bool bError)
+    TRef<Geo> LoadGeo(const ZString& str, bool bError) override
     {
         ZAssert(StrToLower(str) == str);
         TRef<INameSpace> pns = GetNameSpace(str, bError);
@@ -2369,7 +2369,7 @@ public:
         Number* pnumberFrame,
         bool& bAnimation,
         bool bError
-    ) {
+    ) override {
         TRef<ZFile> pfile = GetFile(pathStr, "x", bError);
 
         if (pfile) {
@@ -2379,7 +2379,7 @@ public:
         return NULL;
     }
 
-    INameSpace* CreateNameSpace(const ZString& str)
+    INameSpace* CreateNameSpace(const ZString& str) override
     {
          TRef<INameSpace> pns = ::CreateNameSpace(str);
 
@@ -2388,7 +2388,7 @@ public:
          return pns;
     }
 
-    INameSpace* CreateNameSpace(const ZString& str, INameSpace* pnsParent)
+    INameSpace* CreateNameSpace(const ZString& str, INameSpace* pnsParent) override
     {
          TRef<INameSpace> pns = ::CreateNameSpace(str, pnsParent);
 
@@ -2475,7 +2475,7 @@ public:
         return pns;
     }
 
-    INameSpace* GetNameSpace(const ZString& str, bool bError)
+    INameSpace* GetNameSpace(const ZString& str, bool bError) override
     {
         TRef<INameSpace> pns = GetCachedNameSpace(str);
 
@@ -2515,12 +2515,12 @@ public:
         return NULL;
     }
 
-    void UnloadNameSpace(const ZString& str)
+    void UnloadNameSpace(const ZString& str) override
     {
         m_mapNameSpace.Remove(str);
     }
 
-    void UnloadNameSpace(INameSpace* pns)
+    void UnloadNameSpace(INameSpace* pns) override
     {
         m_mapNameSpace.Remove(TRef<INameSpace>(pns));
     }

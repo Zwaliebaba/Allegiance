@@ -42,16 +42,16 @@ public:
         }
     }
 
-    void SetString(const ZString& str)
+    void SetString(const ZString& str) override
     {
         m_pstringPane->SetString(str);
     }
 
-    void SetInside(bool bInside)
+    void SetInside(bool bInside) override
     {
     }
 
-    void SetColor(const Color& color)
+    void SetColor(const Color& color) override
     {
         if (m_pborder) {
             m_pborder->SetColor(color);
@@ -90,20 +90,20 @@ public:
         InsertAtBottom(m_pfacePane);
     }
 
-    void SetString(const ZString& str)
+    void SetString(const ZString& str) override
     {
     }
 
-    void SetColor(const Color& color)
+    void SetColor(const Color& color) override
     {
     }
 
-    void SetInside(bool bInside)
+    void SetInside(bool bInside) override
     {
         m_pfacePane->SetInside(bInside);
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }
@@ -196,7 +196,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void OnMenuCommand(IMenuItem* pitem)
+    void OnMenuCommand(IMenuItem* pitem) override
     {
         m_pface->SetString(pitem->GetString());
         m_pface->SetColor(pitem->GetColor());
@@ -212,7 +212,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void ClearContents()
+    void ClearContents() override
     {
         m_bFirstItem = true;
         m_idSelection = 0;
@@ -226,7 +226,7 @@ public:
             );
     }
     
-    TRef<IMenuItem> AddItem(const ZString& str, int id)
+    TRef<IMenuItem> AddItem(const ZString& str, int id) override
     {
         TRef<IMenuItem> pitem = m_pmenu->AddMenuItem(id, str);
         if (m_bFirstItem) {
@@ -240,7 +240,7 @@ public:
         return pitem;
     }
 
-    TRef<IMenuItem> AddItem(const ZString& str, int id, const Color& color)
+    TRef<IMenuItem> AddItem(const ZString& str, int id, const Color& color) override
     {
         bool bFirstItem = m_bFirstItem;
 
@@ -253,7 +253,7 @@ public:
         return pitem;
     }
 
-    void SetSelection(int id)
+    void SetSelection(int id) override
     {
         m_idSelection = id;
         IMenuItem* pitem = m_pmenu->FindMenuItem(id);
@@ -268,22 +268,22 @@ public:
         }
     }
 
-    const ZString * GetSelectionString()
+    const ZString * GetSelectionString() override
     {
         return &m_vstrItems[m_idSelection];
     }
 
-    int GetSelection()
+    int GetSelection() override
     {
         return m_idSelection;
     }
 
-    IIntegerEventSource* GetEventSource()
+    IIntegerEventSource* GetEventSource() override
     {
         return m_peventSource;
     }
 
-    void SetEnabled(bool bEnabled)
+    void SetEnabled(bool bEnabled) override
     {
         if (m_bEnabled != bEnabled)
         {
@@ -294,12 +294,12 @@ public:
         }
     }
 
-    IEventSource* GetMouseEnterWhileEnabledEventSource()
+    IEventSource* GetMouseEnterWhileEnabledEventSource() override
     {
         return m_peventMouseEnterWhileEnabledSource;
     }
 
-    IEventSource* GetMenuSelectEventSource()
+    IEventSource* GetMenuSelectEventSource() override
     {
         return m_peventMenuSelectSource;
     }
@@ -310,7 +310,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }
@@ -321,7 +321,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void MouseEnter(IInputProvider* pprovider, const Point& point)
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override
     {
         m_bInside = true;
         m_pface->SetInside(true);
@@ -330,13 +330,13 @@ public:
             m_peventMouseEnterWhileEnabledSource->Trigger();
     }
 
-    void MouseLeave(IInputProvider* pprovider)
+    void MouseLeave(IInputProvider* pprovider) override
     {
         m_bInside = false;
         m_pface->SetInside(false);
     }
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
     {
         bool bInside =
                !IsHidden()
@@ -348,7 +348,7 @@ public:
         return bInside ? MouseResultHit() : MouseResult();
     }
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         if (button == 0 && m_bEnabled) {
             if (bDown) {

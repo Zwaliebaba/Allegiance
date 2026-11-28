@@ -26,22 +26,22 @@ class CmissileIGC : public TmodelIGC<ImissileIGC>
 
     public:
     // IbaseIGC
-	    virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-	    virtual void    Terminate(void);
-        virtual void    Update(Time now);
+	    HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+	    void    Terminate(void) override;
+        void    Update(Time now) override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_missile;
         }
 
-        virtual ObjectID    GetObjectID(void) const
+        ObjectID    GetObjectID(void) const override
         {
             return m_missileID;
         }
 
     // ImodelIGC
-        virtual void    SetCluster(IclusterIGC* cluster)
+        void    SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -59,10 +59,10 @@ class CmissileIGC : public TmodelIGC<ImissileIGC>
             Release();
         }
 
-        virtual void                 HandleCollision(Time       timeCollision,
+        void                 HandleCollision(Time       timeCollision,
                                                      float                  tCollision,
                                                      const CollisionEntry&  entry,
-                                                     ImodelIGC* pModel);
+                                                     ImodelIGC* pModel) override;
 
         /*
         virtual void                SetSide(IsideIGC*   pside)  //override the default SetSide method
@@ -75,12 +75,12 @@ class CmissileIGC : public TmodelIGC<ImissileIGC>
         */
 
     // IdamageIGC
-        virtual DamageResult        ReceiveDamage(DamageTypeID            type,
+        DamageResult        ReceiveDamage(DamageTypeID            type,
                                                   float                   amount,
                                                   Time                    timeCollision,
                                                   const Vector&           position1,
                                                   const Vector&           position2,
-                                                  ImodelIGC*              launcher)
+                                                  ImodelIGC*              launcher) override
         {
             DamageResult dr = c_drHullDamage;
             amount *= GetMyMission()->GetDamageConstant(type, m_missileType->GetDefenseType());
@@ -113,34 +113,34 @@ class CmissileIGC : public TmodelIGC<ImissileIGC>
 
             return dr;
         }
-        virtual float   GetFraction(void) const
+        float   GetFraction(void) const override
         {
             return m_fraction;
         }
-        virtual void    SetFraction(float newVal)
+        void    SetFraction(float newVal) override
         {
             m_fraction = newVal;
         }
 
-        virtual float               GetHitPoints(void) const
+        float               GetHitPoints(void) const override
         {
             return m_fraction * m_missileType->GetHitPoints();
         }
 
     // ImissileIGC
-        virtual ImissileTypeIGC*    GetMissileType(void) const
+        ImissileTypeIGC*    GetMissileType(void) const override
         {
             return m_missileType;
         }
-        virtual IshipIGC*           GetLauncher(void) const
+        IshipIGC*           GetLauncher(void) const override
         {
             return m_launcher;
         }
-        virtual ImodelIGC*          GetTarget(void) const
+        ImodelIGC*          GetTarget(void) const override
         {
             return m_target;
         }
-        virtual void                SetTarget(ImodelIGC* newVal)
+        void                SetTarget(ImodelIGC* newVal) override
         {
             if (m_target)
                 m_target->Release();
@@ -156,14 +156,14 @@ class CmissileIGC : public TmodelIGC<ImissileIGC>
             //is when the missile is spoofed and then the chaff is on top of the target.
         }
 
-        virtual float               GetLock(void) const
+        float               GetLock(void) const override
         {
             return m_lock;
         }
 
-        virtual void                Explode(const Vector& position);
+        void                Explode(const Vector& position) override;
 
-        virtual void                Disarm(void)
+        void                Disarm(void) override
         {
             m_bDisarmed = true;
             if (m_launcher->GetLastMissileFired() == this)

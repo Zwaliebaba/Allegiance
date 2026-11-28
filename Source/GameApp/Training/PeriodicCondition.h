@@ -27,9 +27,9 @@ namespace Training
         public:
                     /* void */          PeriodicCondition (Condition* pCondition, float fPeriod);
             virtual /* void */          ~PeriodicCondition (void);
-            virtual bool                Start (void);
-            virtual void                Stop (void);
-            virtual bool                Evaluate (void);
+            bool                Start (void) override;
+            void                Stop (void) override;
+            bool                Evaluate (void) override;
 
         protected:
                     Condition*          m_pCondition;

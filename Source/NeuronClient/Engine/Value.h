@@ -169,8 +169,8 @@ private:
     TList<TRef<Value> >           m_list;
     TList<TRef<Value> >::Iterator m_iter;
 
-    virtual void InternalUpdate();
-    virtual void ChildChanged(Value* pvalue, Value* pvalueNew);
+    void InternalUpdate() override;
+    void ChildChanged(Value* pvalue, Value* pvalueNew) override;
 
 public:
     DefineCastMember(ValueList);
@@ -192,17 +192,17 @@ public:
     bool   IsFirst();
     bool   IsLast();
 
-    ZString GetString(int indent);
+    ZString GetString(int indent) override;
 
     //
     // Value members
     //
 
-    bool DoFold();
-    int  GetNodeCount();
+    bool DoFold() override;
+    int  GetNodeCount() override;
 
-    void Write(IMDLBinaryFile* pmdlFile);
-    void FillImportTable(IMDLBinaryFile* pfile);
+    void Write(IMDLBinaryFile* pmdlFile) override;
+    void FillImportTable(IMDLBinaryFile* pfile) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -276,22 +276,22 @@ public:
         return m_value;
     }
 
-    bool IsConstant()
+    bool IsConstant() override
     {
         return true;
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         return ValueGetString(indent, m_value);
     }
 
-    void Write(IMDLBinaryFile* pmdlFile)
+    void Write(IMDLBinaryFile* pmdlFile) override
     {
         ValueWrite(pmdlFile, m_value);
     }
 
-    ZString GetFunctionName()
+    ZString GetFunctionName() override
     {
         return ValueGetFunctionName(m_value);
     }
@@ -317,22 +317,22 @@ public:
         this->Changed();
     }
 
-    bool IsConstant()
+    bool IsConstant() override
     {
         return false;
     }
 
-    ZString GetFunctionName()
+    ZString GetFunctionName() override
     {
         return FunctionName::GetName();
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         return FunctionName::GetName() + "(" + ValueGetString(indent, this->GetValue()) +")";
     }
 
-    void Write(IMDLBinaryFile* pmdlFile)
+    void Write(IMDLBinaryFile* pmdlFile) override
     {
         ValueWrite(pmdlFile, this->GetValue());
         pmdlFile->WriteReference(FunctionName::GetName());
@@ -353,7 +353,7 @@ protected:
     // Value members
     //
 
-    void Evaluate()
+    void Evaluate() override
     {
          this->GetValueInternal() = this->GetWrappedValue()->GetValue();
     }
@@ -556,12 +556,12 @@ private:
 public:
     List& GetList() { return m_list; }
 
-    ZString GetFunctionName()
+    ZString GetFunctionName() override
     {
         return ZString();
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         ZString str = "[\n";
 

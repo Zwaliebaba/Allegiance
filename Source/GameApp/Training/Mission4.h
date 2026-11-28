@@ -30,9 +30,9 @@ namespace Training
     {
         public:
             virtual /* void */              ~Mission4 (void);
-            virtual int                     GetMissionID (void);
-            virtual SectorID                GetStartSectorID (void);
-            virtual bool                    ShipLanded (void);
+            int                     GetMissionID (void) override;
+            SectorID                GetStartSectorID (void) override;
+            bool                    ShipLanded (void) override;
 
         protected:
                     ShipID                  m_enemyScoutID;
@@ -43,8 +43,8 @@ namespace Training
                     ShipID                  m_builderID;
 
         protected:
-            virtual void                    CreateUniverse (void);
-            virtual Condition*              CreateMission (void);
+            void                    CreateUniverse (void) override;
+            Condition*              CreateMission (void) override;
 
                     Goal*                   CreateGoal01 (void);
                     Goal*                   CreateGoal02 (void);

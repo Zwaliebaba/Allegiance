@@ -51,8 +51,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
     {
         // if we have not loaded this sound yet...
         if (!m_pdata)
@@ -137,8 +137,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource) override
     {
         // REVIEW: Should we silently allow the 2D case?
         // we have to have a source to be 3D.
@@ -224,8 +224,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource) override
     {
         // we have to have a source to be 3D.
         if (!psource)
@@ -288,13 +288,13 @@ public:
 
         // Sets the pitch shift, where 1.0 is normal, 0.5 is half of normal speed, 
         // and 2.0 is twice normal speed.  
-        HRESULT SetPitch(float fPitch)
+        HRESULT SetPitch(float fPitch) override
         {
             return SoundTweakableWrapper::SetPitch(m_fPitch * fPitch);
         };
 
         // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-        TRef<ISoundTweakable> GetISoundTweakable()
+        TRef<ISoundTweakable> GetISoundTweakable() override
         {
             return this;
         };
@@ -321,8 +321,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource) override
     {
         HRESULT hr = m_pstBase->CreateSound(psoundNew, pbufferSource, psource);
         if (ZFailed(hr)) return hr;
@@ -381,13 +381,13 @@ public:
 
         // Sets the Gain shift, where 1.0 is normal, 0.5 is half of normal speed, 
         // and 2.0 is twice normal speed.  
-        HRESULT SetGain(float fGain)
+        HRESULT SetGain(float fGain) override
         {
             return SoundTweakableWrapper::SetGain(m_fGain + fGain);
         };
 
         // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-        TRef<ISoundTweakable> GetISoundTweakable()
+        TRef<ISoundTweakable> GetISoundTweakable() override
         {
             return this;
         };
@@ -414,8 +414,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource) override
     {
         HRESULT hr = m_pstBase->CreateSound(psoundNew, pbufferSource, psource);
         if (ZFailed(hr)) return hr;
@@ -474,13 +474,13 @@ public:
 
         // Sets the Priority shift, where 1.0 is normal, 0.5 is half of normal speed, 
         // and 2.0 is twice normal speed.  
-        HRESULT SetPriority(float fPriority)
+        HRESULT SetPriority(float fPriority) override
         {
             return SoundTweakableWrapper::SetPriority(m_fPriority + fPriority);
         };
 
         // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-        TRef<ISoundTweakable> GetISoundTweakable()
+        TRef<ISoundTweakable> GetISoundTweakable() override
         {
             return this;
         };
@@ -502,8 +502,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource) override
     {
         HRESULT hr = m_pstBase->CreateSound(psoundNew, pbufferSource, psource);
         if (ZFailed(hr)) return hr;
@@ -554,7 +554,7 @@ class LoopingSoundTemplate : public ISoundTemplate
         // Creates a static sound buffer of the given wave file.  
         // The sound will loop until stopped.
         HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
-            ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource)
+            ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource) override
         {
             return m_pBase->CreateStaticBuffer(psoundNew, pcmdata, true, psource);
         }
@@ -576,8 +576,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
     {
         if (!pbufferSource)
         {
@@ -625,7 +625,7 @@ class ASRSoundTemplate : public ISoundTemplate
         // Creates a static sound buffer of the given wave file.  
         // The sound will loop until stopped.
         HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
-            ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource)
+            ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource) override
         {
             unsigned uBytesPerSec = pcmdata->GetBytesPerSec();
             float fLength = pcmdata->GetSize()/float(uBytesPerSec);
@@ -673,8 +673,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
     {
         if (!pbufferSource)
         {
@@ -746,7 +746,7 @@ public:
     // Stops the sound.  If bForceNow is true the sound will stop ASAP, 
     // possibly popping.  If it is false some sounds may play a trail-off 
     // sound or fade away.  
-    virtual HRESULT Stop(bool bForceNow = false)
+    HRESULT Stop(bool bForceNow = false) override
     {
         HRESULT hr = m_pBase1->Stop(bForceNow);
         if (ZFailed(hr)) return hr;
@@ -755,7 +755,7 @@ public:
     };
 
     // returns S_OK if the sound is currently playing, S_FALSE otherwise.
-    virtual HRESULT IsPlaying()
+    HRESULT IsPlaying() override
     {
         // return S_OK if either sound is still playing
         HRESULT hr = m_pBase1->IsPlaying();
@@ -766,7 +766,7 @@ public:
 
     // Gets an event which fires when the sound finishes playing (for any 
     // reason)
-    virtual IEventSource* GetFinishEventSource()
+    IEventSource* GetFinishEventSource() override
     {
         if (m_peventsourceFinished == NULL)
         {
@@ -780,7 +780,7 @@ public:
     };
 
     // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-    virtual TRef<ISoundTweakable> GetISoundTweakable()
+    TRef<ISoundTweakable> GetISoundTweakable() override
     {
         // try to get the child sounds' tweakable interfaces.
         if (!m_ptweak1 || !m_ptweak2)
@@ -799,7 +799,7 @@ public:
             return this;
         }
     }
-    virtual TRef<ISoundTweakable3D> GetISoundTweakable3D()
+    TRef<ISoundTweakable3D> GetISoundTweakable3D() override
     {
         // try to get the child sounds' tweakable interfaces.
         if (!m_ptweak3D1 || !m_ptweak3D2)
@@ -820,7 +820,7 @@ public:
     }
 
     // forward a child-finished event.
-    virtual bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         m_nNumChildrenFinished++;
 
@@ -841,7 +841,7 @@ public:
     //
 
     // Sets the gain, from 0 to -100 dB
-    virtual HRESULT SetGain(float fGain)
+    HRESULT SetGain(float fGain) override
     {
         HRESULT hr = m_ptweak1->SetGain(fGain);
         if (ZFailed(hr)) return hr;
@@ -851,7 +851,7 @@ public:
 
     // Sets the pitch shift, where 1.0 is normal, 0.5 is half of normal speed, 
     // and 2.0 is twice normal speed.  
-    virtual HRESULT SetPitch(float fPitch)
+    HRESULT SetPitch(float fPitch) override
     {
         HRESULT hr = m_ptweak1->SetPitch(fPitch);
         if (ZFailed(hr)) return hr;
@@ -861,7 +861,7 @@ public:
 
     // sets the priority - used as a addition to volume when choosing which 
     // sounds are most important to play.
-    virtual HRESULT SetPriority(float fPriority)
+    HRESULT SetPriority(float fPriority) override
     {
         HRESULT hr = m_ptweak1->SetPriority(fPriority);
         if (ZFailed(hr)) return hr;
@@ -875,7 +875,7 @@ public:
     //
 
     // toggles 3D Positioning on and off for the given sound.
-    virtual HRESULT Set3D(bool b3D)
+    HRESULT Set3D(bool b3D) override
     {
         HRESULT hr = m_ptweak3D1->Set3D(b3D);
         if (ZFailed(hr)) return hr;
@@ -885,7 +885,7 @@ public:
 
     // Sets the distance at which the sound will be at max volume.  This
     // effects how quickly the sound drops off with distance.  
-    virtual HRESULT SetMinimumDistance(float fMinimumDistance)
+    HRESULT SetMinimumDistance(float fMinimumDistance) override
     {
         HRESULT hr = m_ptweak3D1->SetMinimumDistance(fMinimumDistance);
         if (ZFailed(hr)) return hr;
@@ -896,7 +896,7 @@ public:
     // Sets a sound cone of size fInnerAngle (in degrees) where the volume is at 
     // normal levels, outside of which it fades down by fOutsideGain 
     // (range of 0 to -100 db) at fOuterAngle (degrees) and beyond.  
-    virtual HRESULT SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain)
+    HRESULT SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain) override
     {
         HRESULT hr = m_ptweak3D1->SetCone(fInnerAngle, fOuterAngle, fOutsideGain);
         if (ZFailed(hr)) return hr;
@@ -930,8 +930,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource) override
     {
         TRef<ISoundInstance> psound1, psound2;
         HRESULT hr;
@@ -1096,31 +1096,31 @@ public:
     //
 
     // Gets the number of channels in the data
-    virtual unsigned GetNumberOfChannels()
+    unsigned GetNumberOfChannels() override
     {
         return m_pdataBase->GetNumberOfChannels();
     };
 
     // Gets the number of bits per sample
-    virtual unsigned GetBitsPerSample()
+    unsigned GetBitsPerSample() override
     {
         return m_pdataBase->GetBitsPerSample();
     };
 
     // Gets the default frequency (in samples per second) of the data
-    virtual unsigned GetSampleRate()
+    unsigned GetSampleRate() override
     {
         return m_pdataBase->GetSampleRate();
     }
 
     // Gets the size of the data
-    virtual unsigned GetSize()
+    unsigned GetSize() override
     {
         return m_dwSize;
     }
 
     // Copies the specified portion of the data
-    virtual void GetData(void* dest, unsigned nOffset, unsigned nLength)
+    void GetData(void* dest, unsigned nOffset, unsigned nLength) override
     {
         // if we have not created an ASR version of the data, do so
         if (!m_pvData)
@@ -1247,7 +1247,7 @@ class RepeatFireTemplate : public ISoundTemplate
         // Creates a static sound buffer of the given wave file.  
         // The sound will loop until stopped.
         HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
-            ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource)
+            ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource) override
         {
             unsigned uBytesPerSec = pcmdata->GetBytesPerSec();
 
@@ -1316,8 +1316,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
     {
         if (!pbufferSource)
         {
@@ -1374,7 +1374,7 @@ public:
     // adds the given template as a possible sound to play, with the given 
     // weight.  The weight can be any arbitrary number, but a sound with weight
     // f will play half as often as a sound with weight 2*f.  
-    HRESULT AddSoundTemplate(ISoundTemplate* pstSource, float fWeight)
+    HRESULT AddSoundTemplate(ISoundTemplate* pstSource, float fWeight) override
     {
         if (!pstSource)
         {
@@ -1396,8 +1396,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) override
     {
         ISoundTemplate* pstNew;
 
@@ -1462,7 +1462,7 @@ public:
         };
 
         // fires the m_peventsourceStopped event if bHasStopped is true
-        virtual void Update(DWORD dwElapsedTime, bool bHasStopped)
+        void Update(DWORD dwElapsedTime, bool bHasStopped) override
         {
             StubbedTweakableSoundInstance::Update(dwElapsedTime, bHasStopped);
 
@@ -1510,7 +1510,7 @@ public:
         // Stops the sound.  If bForceNow is true the sound will stop ASAP, 
         // possibly popping.  If it is false some sounds may play a trail-off 
         // sound or fade away.  
-        HRESULT Stop(bool bForceNow)
+        HRESULT Stop(bool bForceNow) override
         {
             ZSucceeded(StubbedTweakableSoundInstance::Stop(bForceNow));
 
@@ -1530,7 +1530,7 @@ public:
         //
 
         // Sets the gain, from 0 to -100 dB
-        virtual HRESULT SetGain(float fGain)
+        HRESULT SetGain(float fGain) override
         {
             ZSucceeded(StubbedTweakableSoundInstance::SetGain(fGain));
 
@@ -1547,7 +1547,7 @@ public:
 
         // Sets the pitch shift, where 1.0 is normal, 0.5 is half of normal speed, 
         // and 2.0 is twice normal speed.  
-        virtual HRESULT SetPitch(float fPitch)
+        HRESULT SetPitch(float fPitch) override
         {
             ZSucceeded(StubbedTweakableSoundInstance::SetPitch(fPitch));
 
@@ -1564,7 +1564,7 @@ public:
 
         // sets the priority - used as a addition to volume when choosing which 
         // sounds are most important to play.
-        virtual HRESULT SetPriority(float fPriority)
+        HRESULT SetPriority(float fPriority) override
         {
             ZSucceeded(StubbedTweakableSoundInstance::SetPriority(fPriority));
 
@@ -1585,7 +1585,7 @@ public:
         // 
 
         // toggles 3D Positioning on and off for the given sound.
-        virtual HRESULT Set3D(bool b3D)
+        HRESULT Set3D(bool b3D) override
         {
             ZSucceeded(StubbedTweakableSoundInstance::Set3D(b3D));
 
@@ -1605,7 +1605,7 @@ public:
 
         // Sets the distance at which the sound will be at max volume.  This
         // effects how quickly the sound drops off with distance.  
-        virtual HRESULT SetMinimumDistance(float fMinimumDistance)
+        HRESULT SetMinimumDistance(float fMinimumDistance) override
         {
             ZSucceeded(StubbedTweakableSoundInstance::SetMinimumDistance(fMinimumDistance));
 
@@ -1626,7 +1626,7 @@ public:
         // Sets a sound cone of size fInnerAngle (in degrees) where the volume is at 
         // normal levels, outside of which it fades down by fOutsideGain 
         // (range of 0 to -100 db) at fOuterAngle (degrees) and beyond.  
-        virtual HRESULT SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain)
+        HRESULT SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain) override
         {
             ZSucceeded(StubbedTweakableSoundInstance::SetCone(fInnerAngle, fOuterAngle, fOutsideGain));
 
@@ -1662,8 +1662,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource) override
     {
         // we need to have a tweakable sound for this to work.
         if (!pbufferSource)
@@ -1748,7 +1748,7 @@ public:
     // Stops the sound.  If bForceNow is true the sound will stop ASAP, 
     // possibly popping.  If it is false some sounds may play a trail-off 
     // sound or fade away.  
-    virtual HRESULT Stop(bool bForceNow = false)
+    HRESULT Stop(bool bForceNow = false) override
     {
         // if the sound has not been started yet, force a start so that we
         // will get the finish event.
@@ -1764,7 +1764,7 @@ public:
     }
 
     // a sound finished
-    virtual bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         m_pBase = NULL;
         m_psinkDelegate = NULL;
@@ -1775,7 +1775,7 @@ public:
     }
 
     // returns S_OK if the sound is currently playing, S_FALSE otherwise.
-    virtual HRESULT IsPlaying()
+    HRESULT IsPlaying() override
     {
         if (m_pBase)
             return m_pBase->IsPlaying();
@@ -1785,7 +1785,7 @@ public:
 
     // Gets an event which fires when the sound finishes playing (for any 
     // reason)
-    virtual IEventSource* GetFinishEventSource()
+    IEventSource* GetFinishEventSource() override
     {
         if (m_peventsource)
             return m_peventsource;
@@ -1796,7 +1796,7 @@ public:
     }
 
     // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-    virtual TRef<ISoundTweakable> GetISoundTweakable()
+    TRef<ISoundTweakable> GetISoundTweakable() override
     {
         assert(false); // not fully implemented
 
@@ -1806,7 +1806,7 @@ public:
             return NULL;
     }
 
-    virtual TRef<ISoundTweakable3D> GetISoundTweakable3D()
+    TRef<ISoundTweakable3D> GetISoundTweakable3D() override
     {
         assert(false); // not fully implemented
 
@@ -1982,7 +1982,7 @@ public:
     }
 
     // a sound finished
-    virtual bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         m_pstCurrent = NULL;
         m_psoundCurrent = NULL;
@@ -1992,7 +1992,7 @@ public:
     }
 
     // erases any pending sounds without playing them
-    virtual HRESULT Reset()
+    HRESULT Reset() override
     {
         m_pstCurrent = NULL;
         m_psoundCurrent = NULL;
@@ -2060,8 +2060,8 @@ public:
     };
 
     // Creates a new instance of the given sound
-    virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource)
+    HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource) override
     {
         return m_pmutex->CreateSound(psoundNew, pbufferSource, psource,
             m_pstBase, m_fTimeout, m_fPriority, m_bSingleInstance);

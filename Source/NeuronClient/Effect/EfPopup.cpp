@@ -144,7 +144,7 @@ public:
     // IEventSync
     //
 
-    bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         if (m_pbuttonOK && pevent == m_pbuttonOK->GetEventSource()) {
             Close(IDOK);
@@ -168,12 +168,12 @@ public:
     // IKeyboardInput
     //
 
-    bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+    bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
     {
         return true;
     }
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         if (ks.bDown) {
             if (ks.vk == VK_ESCAPE) {
@@ -198,7 +198,7 @@ public:
     // IPopup methods
     //
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppaneWrapper;
     }
@@ -208,7 +208,7 @@ public:
         return m_pwrapImage;
     }
 
-    IntegerEventSourceImpl* GetEventSource()
+    IntegerEventSourceImpl* GetEventSource() override
     {
         return m_psource;
     }

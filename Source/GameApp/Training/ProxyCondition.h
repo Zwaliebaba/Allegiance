@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          ProxyCondition (Condition* pCondition);
             virtual /* void */          ~ProxyCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     Condition*          m_pCondition;

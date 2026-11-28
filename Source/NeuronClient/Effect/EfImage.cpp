@@ -36,7 +36,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetEnabled(bool bJoystickEnabled, bool bButtonsEnabled)
+    void SetEnabled(bool bJoystickEnabled, bool bButtonsEnabled) override
     {
         if (m_bJoystickEnabled != bJoystickEnabled) {
             m_bJoystickEnabled = bJoystickEnabled;
@@ -60,17 +60,17 @@ public:
         }
     }
 
-    void SetSensitivity(float sensitivity)
+    void SetSensitivity(float sensitivity) override
     {
         m_sensitivity = sensitivity;
     }
 
-    bool GetJoystickEnabled()
+    bool GetJoystickEnabled() override
     {
         return m_bJoystickEnabled;
     }
 
-    bool GetButtonsEnabled()
+    bool GetButtonsEnabled() override
     {
         return m_bButtonsEnabled;
     }
@@ -81,30 +81,30 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool HasForceFeedback()
+    bool HasForceFeedback() override
     {
         return false;
     }
 
-    void CreateEffects()
+    void CreateEffects() override
     {
     }
 
-    void PlayFFEffect(short effectID, LONG lDirection)
+    void PlayFFEffect(short effectID, LONG lDirection) override
     {
     }
 
-    ZString GetShortDescription(int index)
-    {
-        return "Mouse";
-    }
-
-    ZString GetDescription()
+    ZString GetShortDescription(int index) override
     {
         return "Mouse";
     }
 
-    ZString GetValueDescription(int id)
+    ZString GetDescription() override
+    {
+        return "Mouse";
+    }
+
+    ZString GetValueDescription(int id) override
     {
         switch(id) {
             case 0: return "Left";
@@ -121,27 +121,27 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetValueCount()
+    int GetValueCount() override
     {
         return 2;
     }
 
-    int GetButtonCount()
+    int GetButtonCount() override
     {
         return 3;
     }
 
-    Boolean* IsDown(int id)
+    Boolean* IsDown(int id) override
     {
         return m_ppboolButton[id];
     }
 
-    Number* GetValue(int id)
+    Number* GetValue(int id) override
     {
         return m_ppnumber[id];
     }
 
-    ButtonEvent::Source* GetEventSource()
+    ButtonEvent::Source* GetEventSource() override
     {
         ZUnimplemented();
         return NULL;
@@ -153,12 +153,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
     { 
         return (m_bJoystickEnabled || m_bButtonsEnabled) ? MouseResultHit() : MouseResult(); 
     }
 
-    void MouseMove(IInputProvider* pprovider, const Point& pointMouse, bool bCaptured, bool bInside)
+    void MouseMove(IInputProvider* pprovider, const Point& pointMouse, bool bCaptured, bool bInside) override
     {
         if (m_bJoystickEnabled) {
             if (m_bJustEnabled) {
@@ -187,7 +187,7 @@ public:
         }
     }
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         if (m_bButtonsEnabled) {
             if (button <= 3) {
@@ -220,7 +220,7 @@ public:
     {
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         WrapImage::Render(pcontext);
         pcontext->SetBlendMode(BlendModeSourceAlpha);
@@ -279,7 +279,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetString(int row, int column, const ZString& str)
+    void SetString(int row, int column, const ZString& str) override
     {
         if (m_vvstr[row][column] != str) {
             m_vvstr[row][column] = str;
@@ -287,7 +287,7 @@ public:
         }
     }
 
-    void SetColor(int row, const Color& color)
+    void SetColor(int row, const Color& color) override
     {
         if (m_vcolor[row] != color) {
             m_vcolor[row] = color;
@@ -295,7 +295,7 @@ public:
         }
     }
 
-    void SetSize(int rows, int columns)
+    void SetSize(int rows, int columns) override
     {
         m_vvstr.resize(rows);
         m_vcolor.resize(rows);
@@ -314,7 +314,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void CalcBounds()
+    void CalcBounds() override
     {
         int rows    = (int)m_vvstr.size();
         int columns = (int)m_vvstr[0].size();
@@ -345,7 +345,7 @@ public:
         );
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         int rows    = (int)m_vvstr.size();
         int columns = (int)m_vvstr[0].size();
@@ -401,7 +401,7 @@ public:
         m_pimage = pmodeler->LoadImage(AWF_EFFECT_MUZZLE_FLARE, true);
     }
 
-    void AddFlare(const Point& point, float duration)
+    void AddFlare(const Point& point, float duration) override
     {
         m_list.PushFront();
 
@@ -410,12 +410,12 @@ public:
         m_list.GetFront().m_bRendered = false;
     }
 
-    void SetVisible(bool bVisible)
+    void SetVisible(bool bVisible) override
     {
         m_bVisible = bVisible;
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
         float time = GetTime()->GetValue();
 
@@ -432,7 +432,7 @@ public:
         MuzzleFlareImage::Evaluate();
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         /*
         if (m_bVisible) {
@@ -489,7 +489,7 @@ public:
     {
     }
 
-    void AddPoster(Image* pimage, const Vector& vec, float scale)
+    void AddPoster(Image* pimage, const Vector& vec, float scale) override
     {
         m_list.PushFront();
 
@@ -501,7 +501,7 @@ public:
         m_list.GetFront().m_mat.LookAtFrom(Vector(0, 0, 0), vec * 400.0f, Vector(0, 1, 0));
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         Rect rect = GetViewRect()->GetValue();
         pcontext->Translate(rect.Center());
@@ -616,12 +616,12 @@ public:
                 ->GetSurface();
     }
 
-    void SetLightDirection(const Vector& vec)
+    void SetLightDirection(const Vector& vec) override
     {
         m_vec = vec;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         m_vec = Vector(0, 0, 1);
 

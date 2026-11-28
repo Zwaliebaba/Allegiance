@@ -27,8 +27,8 @@ namespace Training
         public:
                     /* void */          OneTimeAction (Action* pAction);
             virtual /* void */          ~OneTimeAction (void);
-            virtual void                Execute (void);
-            virtual void                Stop (void);
+            void                Execute (void) override;
+            void                Stop (void) override;
 
         protected:
                     Action*             m_pAction;

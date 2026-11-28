@@ -33,7 +33,7 @@ namespace Training
                     /* void */          GetSectorCondition (ObjectType objectType, ObjectID objectID, SectorID sector);
                     /* void */          GetSectorCondition (AbstractTarget* pTarget, SectorID sector);
             virtual /* void */          ~GetSectorCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     AbstractTarget*     m_pModel;

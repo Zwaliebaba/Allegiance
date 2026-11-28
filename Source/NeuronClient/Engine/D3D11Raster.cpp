@@ -896,13 +896,13 @@ public:
         Terminate();
     }
 
-    bool IsValid()
+    bool IsValid() override
     {
         D3D11Device* pdevice = m_pengine->GetD3D11Device();
         return pdevice != NULL && CreatePipeline(pdevice);
     }
 
-    void Terminate()
+    void Terminate() override
     {
         if (g_pboundRasterizer == this) {
             g_pboundRasterizer = NULL;
@@ -1184,36 +1184,36 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetShadeMode(ShadeMode shadeMode)                    { m_shadeMode     = shadeMode;      m_bStateChanged = true; }
-    void SetBlendMode(BlendMode blendMode)                    { m_blendMode     = blendMode;      m_bStateChanged = true; }
-    void SetCullMode(CullMode cullMode)                       { m_cullMode      = cullMode;       m_bStateChanged = true; }
-    void SetZTest(bool bZTest)                                { m_bZTest        = bZTest;         m_bStateChanged = true; }
-    void SetZWrite(bool bZWrite)                              { m_bZWrite       = bZWrite;        m_bStateChanged = true; }
-    void SetLinearFilter(bool bLinearFilter)                  { m_bLinearFilter = bLinearFilter;  m_bStateChanged = true; }
-    void SetColorKey(bool bColorKey)                          { m_bColorKey     = bColorKey;      m_bStateChanged = true; }
-    void SetTexture(Surface* psurfaceTexture)                 { m_psurfaceTexture = psurfaceTexture; m_bStateChanged = true; }
+    void SetShadeMode(ShadeMode shadeMode) override                    { m_shadeMode     = shadeMode;      m_bStateChanged = true; }
+    void SetBlendMode(BlendMode blendMode) override                    { m_blendMode     = blendMode;      m_bStateChanged = true; }
+    void SetCullMode(CullMode cullMode) override                       { m_cullMode      = cullMode;       m_bStateChanged = true; }
+    void SetZTest(bool bZTest) override                                { m_bZTest        = bZTest;         m_bStateChanged = true; }
+    void SetZWrite(bool bZWrite) override                              { m_bZWrite       = bZWrite;        m_bStateChanged = true; }
+    void SetLinearFilter(bool bLinearFilter) override                  { m_bLinearFilter = bLinearFilter;  m_bStateChanged = true; }
+    void SetColorKey(bool bColorKey) override                          { m_bColorKey     = bColorKey;      m_bStateChanged = true; }
+    void SetTexture(Surface* psurfaceTexture) override                 { m_psurfaceTexture = psurfaceTexture; m_bStateChanged = true; }
 
     //
     // Always on with hardware, ignored, and cylindrical wrapping (unused by
     // the game), as in the DirectX 6 rasterizer
     //
 
-    void SetPerspectiveCorrection(bool bPerspectiveCorrection) {}
-    void SetDither(bool bDither)                               {}
-    void SetWrapMode(WrapMode wrapMode)                        {}
+    void SetPerspectiveCorrection(bool bPerspectiveCorrection) override {}
+    void SetDither(bool bDither) override                               {}
+    void SetWrapMode(WrapMode wrapMode) override                        {}
 
-    void SetClipRect(const Rect& rectClip)
+    void SetClipRect(const Rect& rectClip) override
     {
         m_rectClip      = rectClip;
         m_bStateChanged = true;
     }
 
-    Point GetSurfaceSize()
+    Point GetSurfaceSize() override
     {
         return Point::Cast(m_psurface->GetSize());
     }
 
-    bool Has3DAcceleration()
+    bool Has3DAcceleration() override
     {
         return true;
     }
@@ -1230,12 +1230,12 @@ public:
     // the pixels.
     //
 
-    void BeginScene()
+    void BeginScene() override
     {
         m_bInScene = true;
     }
 
-    void EndScene()
+    void EndScene() override
     {
         m_bInScene = false;
     }
@@ -1248,7 +1248,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Begin3DLayer(bool bZBuffer)
+    void Begin3DLayer(bool bZBuffer) override
     {
         if (!bZBuffer || m_pscene != NULL) {
             return;
@@ -1281,7 +1281,7 @@ public:
         m_sceneDepth[1] = 0;
     }
 
-    void End3DLayer()
+    void End3DLayer() override
     {
         if (m_pscene == NULL) {
             return;
@@ -1503,7 +1503,7 @@ public:
         pcontext->OMSetRenderTargets(0, NULL, NULL);
     }
 
-    void ClearZBuffer()
+    void ClearZBuffer() override
     {
         //
         // The blended draws so far were drawn against this depth
@@ -1961,17 +1961,17 @@ public:
         g_d3d11Stats.m_draws3D++;
     }
 
-    void DrawTriangles(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         DrawPrimitive(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, pvertex, vcount, pindex, icount, false);
     }
 
-    void DrawLines(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         DrawPrimitive(D3D11_PRIMITIVE_TOPOLOGY_LINELIST, pvertex, vcount, pindex, icount, false);
     }
 
-    void DrawPoints(const VertexScreen* pvertex, int vcount)
+    void DrawPoints(const VertexScreen* pvertex, int vcount) override
     {
         DrawPrimitive(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST, pvertex, vcount, NULL, 0, true);
     }
@@ -2112,22 +2112,22 @@ public:
         pcontext->IASetInputLayout(p.m_playout);
     }
 
-    void DrawTriangles(const TransformAndLight& tl, const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const TransformAndLight& tl, const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         DrawModel(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, tl, pvertex, sizeof(Vertex), true, vcount, pindex, icount);
     }
 
-    void DrawTriangles(const TransformAndLight& tl, const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const TransformAndLight& tl, const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         DrawModel(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, tl, pvertex, sizeof(VertexL), false, vcount, pindex, icount);
     }
 
-    void DrawLines(const TransformAndLight& tl, const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const TransformAndLight& tl, const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         DrawModel(D3D11_PRIMITIVE_TOPOLOGY_LINELIST, tl, pvertex, sizeof(Vertex), true, vcount, pindex, icount);
     }
 
-    void DrawLines(const TransformAndLight& tl, const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const TransformAndLight& tl, const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         DrawModel(D3D11_PRIMITIVE_TOPOLOGY_LINELIST, tl, pvertex, sizeof(VertexL), false, vcount, pindex, icount);
     }

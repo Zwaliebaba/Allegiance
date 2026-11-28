@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          GetAutopilotCondition (const TRef<IshipIGC>& ship);
             virtual /* void */          ~GetAutopilotCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     TRef<IshipIGC>      m_ship;

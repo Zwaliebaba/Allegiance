@@ -27,8 +27,8 @@ namespace Training
         public:
                     /* void */              PlaySoundAction (SoundID soundID);
             virtual /* void */              ~PlaySoundAction (void);
-            virtual void                    Execute (void);
-            virtual void                    Stop (void);
+            void                    Execute (void) override;
+            void                    Stop (void) override;
                     bool                    HasStarted (void) const;
                     bool                    HasStopped (void) const;
 

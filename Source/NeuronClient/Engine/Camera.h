@@ -61,8 +61,8 @@ public:
     // Value members
     //
 
-    void Evaluate();
-    ZString GetFunctionName() { return "Camera"; }
+    void Evaluate() override;
+    ZString GetFunctionName() override { return "Camera"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -18,8 +18,8 @@ public:
     // Win32App methods
     //
 
-    HRESULT Initialize(const ZString& strCommandLine);
-    void Terminate();
+    HRESULT Initialize(const ZString& strCommandLine) override;
+    void Terminate() override;
 };
 
 //////////////////////////////////////////////////////////////////////////////

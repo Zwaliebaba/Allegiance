@@ -354,7 +354,7 @@ namespace {
             pcachePrevious->SetEmpty();
         }
 
-        void OnLoadoutChanged(IpartIGC* ppart, LoadoutChange lc)
+        void OnLoadoutChanged(IpartIGC* ppart, LoadoutChange lc) override
         {
             switch (lc)
             {
@@ -393,7 +393,7 @@ namespace {
             }
         }
 
-        void OnClusterChanged(IclusterIGC* pcluster)
+        void OnClusterChanged(IclusterIGC* pcluster) override
         {
             if (pcluster != NULL)
             {

@@ -27,8 +27,8 @@ namespace Training
         public:
                     /* void */          GetKeyCondition (TrekKey key);
             virtual /* void */          ~GetKeyCondition (void);
-            virtual bool                Start (void);
-            virtual bool                Evaluate (void);
+            bool                Start (void) override;
+            bool                Evaluate (void) override;
                     void                KeyPressed (TrekKey key);
 
         protected:

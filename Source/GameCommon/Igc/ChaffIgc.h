@@ -26,17 +26,17 @@ class CchaffIGC : public TmodelIGC<IchaffIGC>
 
     public:
     // IbaseIGC
-	    virtual HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-	    virtual void                Terminate(void);
-        virtual void                Update(Time now);
+	    HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+	    void                Terminate(void) override;
+        void                Update(Time now) override;
 
-        virtual ObjectType          GetObjectType(void) const
+        ObjectType          GetObjectType(void) const override
         {
             return OT_chaff;
         }
 
     // ImodelIGC
-        virtual void                SetCluster(IclusterIGC* cluster)
+        void                SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -58,11 +58,11 @@ class CchaffIGC : public TmodelIGC<IchaffIGC>
         {
         }
 
-        virtual bool                 GetVisibleF(void) const
+        bool                 GetVisibleF(void) const override
         {
             return true;
         }
-        virtual void                 SetRender(unsigned char render)
+        void                 SetRender(unsigned char render) override
         {
         }
 

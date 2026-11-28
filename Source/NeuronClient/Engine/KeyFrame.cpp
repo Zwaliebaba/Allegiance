@@ -24,7 +24,7 @@ public:
     {
     }
 
-    void AddKey(float frame, const Vector& vec)
+    void AddKey(float frame, const Vector& vec) override
     {
         int count = (int)m_keys.size();
 
@@ -56,7 +56,7 @@ public:
     }
     */
 
-    void Evaluate()
+    void Evaluate() override
     {
         float frame = GetFrame()->GetValue();
 
@@ -92,7 +92,7 @@ public:
         }
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         // KeyFramedTranslate([ time, x, y, z ], frame)
 
@@ -145,7 +145,7 @@ public:
     {
     }
 
-    void AddKey(float frame, const Vector& vec)
+    void AddKey(float frame, const Vector& vec) override
     {
         int count = (int)m_keys.size();
 
@@ -173,7 +173,7 @@ public:
     }
     */
 
-    void Evaluate()
+    void Evaluate() override
     {
         float frame = GetFrame()->GetValue();
 
@@ -209,7 +209,7 @@ public:
         }
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         // KeyFramedScale([ time, x, y, z ], frame)
 
@@ -262,7 +262,7 @@ public:
     {
     }
 
-    void AddKey(float frame, const Quaternion& quat)
+    void AddKey(float frame, const Quaternion& quat) override
     {
         int count = (int)m_keys.size();
 
@@ -290,7 +290,7 @@ public:
     }
     */
 
-    void Evaluate()
+    void Evaluate() override
     {
         float frame = GetFrame()->GetValue();
 
@@ -334,7 +334,7 @@ public:
         }
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         // KeyFramedRotate([ time, x, y, z ], frame)
 

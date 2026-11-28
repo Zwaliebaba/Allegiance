@@ -57,7 +57,7 @@ public:
     // IPopup methods
     //
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
@@ -95,7 +95,7 @@ private:
         {
         }
 
-        MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+        MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
         {
             return m_pppic->HitTest();
         }
@@ -107,7 +107,7 @@ private:
             bool bCaptured,
             bool bInside,
             bool bDown
-        ) {
+        ) override {
             if (bDown) {
                 m_pppic->Picked();
             }
@@ -115,7 +115,7 @@ private:
             return MouseResult();
         }
 
-        ZString GetFunctionName() { return "ImagePopupContainer"; }
+        ZString GetFunctionName() override { return "ImagePopupContainer"; }
     };
 
     class PopupData : public IObject {
@@ -181,7 +181,7 @@ public:
     void Initialize(
         Engine*    pengine,
         RectValue* prectValue
-    ) {
+    ) override {
         m_pengine    = pengine;
         m_prectValue = prectValue;
     }
@@ -192,12 +192,12 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    void OpenPopup(IPopup* ppopup, const Point& point, bool bCloseAll, IPopup* ppopupOwner)
+    void OpenPopup(IPopup* ppopup, const Point& point, bool bCloseAll, IPopup* ppopupOwner) override
     {
         OpenPopup(ppopup, new PointValue(point), bCloseAll, ppopupOwner);
     }
 
-    void OpenPopup(IPopup* ppopup, PointValue* ppoint, bool bCloseAll, IPopup* ppopupOwner)
+    void OpenPopup(IPopup* ppopup, PointValue* ppoint, bool bCloseAll, IPopup* ppopupOwner) override
     {
         //
         // Open the popup
@@ -233,7 +233,7 @@ public:
         EngineWindow::DoHitTest();
     }
 
-    void OpenPopup(IPopup* ppopup, const Rect& rect, bool bCloseAll, bool bCascadeDown, IPopup* ppopupOwner)
+    void OpenPopup(IPopup* ppopup, const Rect& rect, bool bCloseAll, bool bCascadeDown, IPopup* ppopupOwner) override
     {
         //
         // Figure out where the popup should go
@@ -324,13 +324,13 @@ public:
         {
         }
 
-        void Evaluate()
+        void Evaluate() override
         {
             GetValueInternal() = (GetContainerRect().Size() - GetRect().Size()) / 2;
         }
     };
 
-    void OpenPopup(IPopup* ppopup, bool bCloseAll, IPopup* ppopupOwner)
+    void OpenPopup(IPopup* ppopup, bool bCloseAll, IPopup* ppopupOwner) override
     {
         OpenPopup(
             ppopup,
@@ -340,7 +340,7 @@ public:
         );
     }
 
-    void ClosePopup(IPopup* ppopup)
+    void ClosePopup(IPopup* ppopup) override
     {
         while (m_pdata) {
             m_pgroup->RemoveImage(m_pdata->m_pimage);
@@ -366,12 +366,12 @@ public:
         EngineWindow::DoHitTest();
     }
 
-    bool IsEmpty()
+    bool IsEmpty() override
 	{
 		return (m_pdata == NULL);
 	}
 
-    Image* GetImage()
+    Image* GetImage() override
     {
         return this;
     }
@@ -382,7 +382,7 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+    bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
     {
         if (m_pdata != NULL) {
             m_pdata->m_ppopup->OnChar(pprovider, ks);
@@ -392,7 +392,7 @@ public:
         return false;
     }
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         if (m_pdata != NULL) {
             m_pdata->m_ppopup->OnKey(pprovider, ks, fForceTranslate);

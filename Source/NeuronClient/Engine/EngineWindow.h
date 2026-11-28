@@ -48,7 +48,7 @@ protected:
         {
         }
 
-        void OnMenuCommand(IMenuItem* pitem);
+        void OnMenuCommand(IMenuItem* pitem) override;
     };
 
     friend class MenuCommandSink;
@@ -187,7 +187,7 @@ protected:
     void HandleMouseMessage(UINT message, const Point& point);
 
     void ParseCommandLine(const ZString& strCommandLine, bool& bStartFullscreen);
-    void DoIdle();
+    void DoIdle() override;
     bool ShouldDrawFrame();
     bool RenderFrame();
     void UpdateFrame();
@@ -286,44 +286,44 @@ public:
     // ICaptionSite methods
     //
 
-    void OnCaptionMinimize();
-    void OnCaptionMaximize();
-    void OnCaptionFullscreen();
-    void OnCaptionRestore();
-    void OnCaptionClose();
+    void OnCaptionMinimize() override;
+    void OnCaptionMaximize() override;
+    void OnCaptionFullscreen() override;
+    void OnCaptionRestore() override;
+    void OnCaptionClose() override;
 
     //
     // ButtonEvent::Sink methods
     //
 
-    bool OnEvent(ButtonEvent::Source* pevent, ButtonEventData data);
+    bool OnEvent(ButtonEvent::Source* pevent, ButtonEventData data) override;
 
     //
     // IInputProvider methods
     //
 
-    void SetCursorPos(const Point& point);
-    bool IsDoubleClick();
-    void ShowCursor(bool bShow);
+    void SetCursorPos(const Point& point) override;
+    bool IsDoubleClick() override;
+    void ShowCursor(bool bShow) override;
 
     //
     // Window methods
     //
 
-    void RectChanged();
-    void OnClose();
-    bool OnActivate(UINT nState, bool bMinimized);
-    bool OnActivateApp(bool bActive);
-    bool OnMouseMessage(UINT message, UINT nFlags, const WinPoint& point);
-    bool OnSysCommand(UINT uCmdType, const WinPoint &point);
-    void OnPaint(HDC hdc, const WinRect& rect);
-    bool OnWindowPosChanging(WINDOWPOS* pwp);
+    void RectChanged() override;
+    void OnClose() override;
+    bool OnActivate(UINT nState, bool bMinimized) override;
+    bool OnActivateApp(bool bActive) override;
+    bool OnMouseMessage(UINT message, UINT nFlags, const WinPoint& point) override;
+    bool OnSysCommand(UINT uCmdType, const WinPoint &point) override;
+    void OnPaint(HDC hdc, const WinRect& rect) override;
+    bool OnWindowPosChanging(WINDOWPOS* pwp) override;
 
     //
     // IObject methods
     //
 
-    bool IsValid();
+    bool IsValid() override;
 };
 
 #endif

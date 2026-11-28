@@ -83,12 +83,12 @@ public:
         TList<TRef<Sink> > m_listSinks;
 
     public:
-        void AddSink(Sink* psink)
+        void AddSink(Sink* psink) override
         {
             m_listSinks.PushFront(psink);
         }
 
-        void RemoveSink(Sink* psink)
+        void RemoveSink(Sink* psink) override
         {
             m_listSinks.Remove(psink);
         }
@@ -118,7 +118,7 @@ public:
         {
         }
 
-        bool OnEvent(Source* pevent, Type value)
+        bool OnEvent(Source* pevent, Type value) override
         {
             return m_psink->OnEvent(pevent, value);
         }
@@ -147,8 +147,8 @@ private:
     TList<TRef<IEventSink> > m_listSinks;
 
 public:
-    void AddSink(IEventSink* psink);
-    void RemoveSink(IEventSink* psink);
+    void AddSink(IEventSink* psink) override;
+    void RemoveSink(IEventSink* psink) override;
     void Trigger();
 };
 
@@ -190,11 +190,11 @@ private:
     TList<TRef<IIntegerEventSink> > m_listIntegerSinks;
 
 public:
-    void AddSink(IEventSink* psink);
-    void RemoveSink(IEventSink* psink);
+    void AddSink(IEventSink* psink) override;
+    void RemoveSink(IEventSink* psink) override;
 
-    void AddSink(IIntegerEventSink* psink);
-    void RemoveSink(IIntegerEventSink* psink);
+    void AddSink(IIntegerEventSink* psink) override;
+    void RemoveSink(IIntegerEventSink* psink) override;
     void Trigger(int value);
 };
 
@@ -207,7 +207,7 @@ public:
 class ITimerEventSource : public IEventSource {
 public:
     virtual void AddSink(IEventSink* psink, float when) = 0;
-    virtual void RemoveSink(IEventSink* psink)          = 0;
+    void RemoveSink(IEventSink* psink)          override = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -244,12 +244,12 @@ public:
         m_psource->AddSink(this);
     }
 
-    void Disconnect()
+    void Disconnect() override
     {
         m_psource->RemoveSink(this);
     }
 
-    bool OnEvent(IIntegerEventSource* pevent, int value)
+    bool OnEvent(IIntegerEventSource* pevent, int value) override
     {
         return (m_pobject->*m_pfn)(value);
     }
@@ -288,12 +288,12 @@ public:
         psource->AddSink(this, when);
     }
 
-    void Disconnect()
+    void Disconnect() override
     {
         m_psource->RemoveSink(this);
     }
 
-    bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         return (m_pobject->*m_pfn)();
     }

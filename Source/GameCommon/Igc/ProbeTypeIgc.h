@@ -50,8 +50,8 @@ class CprobeTypeIGC : public IprobeTypeIGC
         }
 
     // IbaseIGC
-        virtual HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void            Terminate(void)
+        HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void            Terminate(void) override
         {
             if (m_projectileType)
             {
@@ -61,129 +61,129 @@ class CprobeTypeIGC : public IprobeTypeIGC
 
             m_pMission->DeleteExpendableType(this);
         }
-        virtual void            Update(Time now)
+        void            Update(Time now) override
         {
         }
 
-        virtual int             Export(void* data) const;
+        int             Export(void* data) const override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_probeType;
         }
 
-        virtual ObjectID        GetObjectID(void) const
+        ObjectID        GetObjectID(void) const override
         {
             return m_data.expendabletypeID;
         }
 
     // ItypeIGC
-        virtual const void*     GetData(void) const
+        const void*     GetData(void) const override
         {
             return &m_data;
         }
 
     // IexpendableTypeIGC
-        virtual const LauncherDef*  GetLauncherDef(void) const
+        const LauncherDef*  GetLauncherDef(void) const override
         {
             return &(m_data.launcherDef);
         }
-        virtual EquipmentType       GetEquipmentType(void) const
+        EquipmentType       GetEquipmentType(void) const override
         {
             return ET_Dispenser;
         }
-        virtual float           GetLoadTime(void) const
+        float           GetLoadTime(void) const override
         {
             return m_data.loadTime;
         }
-        virtual float               GetMass(void) const
+        float               GetMass(void) const override
         {
             return m_data.launcherDef.mass;
         }
-        virtual float           GetLifespan(void) const
+        float           GetLifespan(void) const override
         {
             return m_data.lifespan;
         }
 
-        virtual float           GetSignature(void) const
+        float           GetSignature(void) const override
         {
             return m_data.signature;
         }
-        virtual HitPoints       GetHitPoints(void) const
+        HitPoints       GetHitPoints(void) const override
         {
             return m_data.hitPoints;
         }
-        virtual DefenseTypeID   GetDefenseType(void) const
+        DefenseTypeID   GetDefenseType(void) const override
         {
             return m_data.defenseType;
         }
-        virtual char const*     GetName(void) const
+        char const*     GetName(void) const override
         {
             return m_data.launcherDef.name;
         }
-        virtual char const*     GetModelName(void) const
+        char const*     GetModelName(void) const override
         {
             return m_data.modelName;
         }
-        virtual char const*     GetModelTexture(void) const
+        char const*     GetModelTexture(void) const override
         {
             return m_data.textureName;
         }
-        virtual float           GetRadius(void) const
+        float           GetRadius(void) const override
         {
             return m_data.radius;
         }
 
-        virtual ExpendableAbilityBitMask    GetCapabilities(void) const
+        ExpendableAbilityBitMask    GetCapabilities(void) const override
         {
             return m_data.eabmCapabilities;
         }
 
-        virtual bool                        HasCapability(ExpendableAbilityBitMask eabm) const
+        bool                        HasCapability(ExpendableAbilityBitMask eabm) const override
         {
             return (m_data.eabmCapabilities & eabm) != 0;
         }
 
         // IprobeTypeIGC
-        virtual float           GetScannerRange(void) const
+        float           GetScannerRange(void) const override
         {
             return m_data.scannerRange;
         }
 
-        virtual float               GetDtBurst(void) const
+        float               GetDtBurst(void) const override
         {
             return m_data.dtimeBurst;
         }
 
-        virtual float               GetDispersion(void) const
+        float               GetDispersion(void) const override
         {
             return m_data.dispersion;
         }
 
-        virtual float               GetAccuracy(void) const
+        float               GetAccuracy(void) const override
         {
             return m_data.accuracy;
         }
 
-        virtual short               GetAmmo(void) const
+        short               GetAmmo(void) const override
         {
             return m_data.ammo;
         }
 
-        virtual IprojectileTypeIGC* GetProjectileType(void) const
+        IprojectileTypeIGC* GetProjectileType(void) const override
         {
             return m_projectileType;
         }
-        virtual const Vector&       GetEmissionPt(void) const
+        const Vector&       GetEmissionPt(void) const override
         {
             return m_emissionPt;
         }
-        virtual float               GetRipcordDelay(void) const
+        float               GetRipcordDelay(void) const override
         {
             return m_data.dtRipcord;
         }
 
-        virtual SoundID             GetAmbientSound(void) const
+        SoundID             GetAmbientSound(void) const override
         {
             return m_data.ambientSound;
         }

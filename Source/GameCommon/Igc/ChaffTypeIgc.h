@@ -30,96 +30,96 @@ class CchaffTypeIGC : public IchaffTypeIGC
         }
 
     // IbaseIGC
-        virtual HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void            Terminate(void)
+        HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void            Terminate(void) override
         {
             m_pMission->DeleteExpendableType(this);
         }
-        virtual void            Update(Time now)
+        void            Update(Time now) override
         {
         }
 
-        virtual int             Export(void* data) const;
+        int             Export(void* data) const override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_chaffType;
         }
 
-        virtual ObjectID        GetObjectID(void) const
+        ObjectID        GetObjectID(void) const override
         {
             return m_data.expendabletypeID;
         }
 
     // ItypeIGC
-        virtual const void*     GetData(void) const
+        const void*     GetData(void) const override
         {
             return &m_data;
         }
 
     // IexpendableTypeIGC
-        virtual const LauncherDef*  GetLauncherDef(void) const
+        const LauncherDef*  GetLauncherDef(void) const override
         {
             return &(m_data.launcherDef);
         }
-        virtual EquipmentType       GetEquipmentType(void) const
+        EquipmentType       GetEquipmentType(void) const override
         {
             return ET_ChaffLauncher;
         }
-        virtual float           GetLoadTime(void) const
+        float           GetLoadTime(void) const override
         {
             return m_data.loadTime;
         }
-        virtual float               GetMass(void) const
+        float               GetMass(void) const override
         {
             return m_data.launcherDef.mass;
         }
-        virtual float           GetLifespan(void) const
+        float           GetLifespan(void) const override
         {
             return m_data.lifespan;
         }
 
-        virtual float           GetSignature(void) const
+        float           GetSignature(void) const override
         {
             return m_data.signature;
         }
-        virtual HitPoints       GetHitPoints(void) const
+        HitPoints       GetHitPoints(void) const override
         {
             return m_data.hitPoints;
         }
-        virtual DefenseTypeID   GetDefenseType(void) const
+        DefenseTypeID   GetDefenseType(void) const override
         {
             return m_data.defenseType;
         }
-        virtual char const*     GetName(void) const
+        char const*     GetName(void) const override
         {
             return m_data.launcherDef.name;
         }
-        virtual char const*     GetModelName(void) const
+        char const*     GetModelName(void) const override
         {
             return m_data.modelName;
         }
-        virtual char const*     GetModelTexture(void) const
+        char const*     GetModelTexture(void) const override
         {
             return m_data.textureName;
         }
-        virtual float           GetRadius(void) const
+        float           GetRadius(void) const override
         {
             return m_data.radius;
         }
 
-        virtual ExpendableAbilityBitMask    GetCapabilities(void) const
+        ExpendableAbilityBitMask    GetCapabilities(void) const override
         {
             return m_data.eabmCapabilities;
         }
 
-        virtual bool                        HasCapability(ExpendableAbilityBitMask eabm) const
+        bool                        HasCapability(ExpendableAbilityBitMask eabm) const override
         {
             return (m_data.eabmCapabilities & eabm) != 0;
         }
 
         // IchaffTypeIGC
-        virtual float               GetChaffStrength(void) const
+        float               GetChaffStrength(void) const override
         {
             return m_data.chaffStrength;
         }

@@ -215,17 +215,17 @@ private:
         {
         }
 
-        MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+        MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
         { 
             return MouseResultHit(); 
         }
 
-        void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside)
+        void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override
         {
             m_pcamera->MouseMove(pprovider, point, bCaptured, bInside);
         }
 
-        MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+        MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
         {
             return m_pcamera->Button(pprovider, point, button, bCaptured, bInside, bDown);
         }
@@ -234,7 +234,7 @@ private:
         // Value members
         //
 
-        ZString GetFunctionName() { return "MotionCameraImage"; }
+        ZString GetFunctionName() override { return "MotionCameraImage"; }
     };
 
     class MotionVector : public VectorValue {
@@ -250,7 +250,7 @@ private:
         // Value members
         //
 
-        void Evaluate()
+        void Evaluate() override
         {
             GetValueInternal() = GetMotionCamera()->m_position;
         }
@@ -269,7 +269,7 @@ private:
         // Value members
         //
 
-        void Evaluate()
+        void Evaluate() override
         {
             GetValueInternal() = GetMotionCamera()->m_orient;
         }
@@ -352,7 +352,7 @@ public:
     //
 	//////////////////////////////////////////////////////////////////////////////
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         switch (ks.vk) {
             case 'W'      : m_bForward    = ks.bDown; return true;
@@ -470,7 +470,7 @@ public:
     //
 	//////////////////////////////////////////////////////////////////////////////
 
-    void Evaluate()
+    void Evaluate() override
     {
         float time  = GetTime();
         float dtime = time - m_timeLast;
@@ -537,7 +537,7 @@ public:
         m_position += vecDPos * m_speed;
     }
 
-    ZString GetFunctionName() { return "MotionCamera"; }
+    ZString GetFunctionName() override { return "MotionCamera"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -620,7 +620,7 @@ public:
         GetValueInternal() = m_positionStart;
     }
 
-    void Goto(const Vector& vector, float dtime)
+    void Goto(const Vector& vector, float dtime) override
     {
 		if (m_listData.IsEmpty()) {
 			m_timeStart = GetTime();
@@ -635,7 +635,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Evaluate()
+    void Evaluate() override
     {
         float time  = GetTime();
         float dtime = time - m_timeStart;
@@ -727,7 +727,7 @@ public:
         GetValueInternal() = orientation;
     }
 
-    void Goto(const Orientation& orientation, float dtime)
+    void Goto(const Orientation& orientation, float dtime) override
     {
 		if (m_listData.IsEmpty())
         {
@@ -743,7 +743,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Evaluate()
+    void Evaluate() override
     {
         if (m_listData.IsEmpty())
                 return;
@@ -805,7 +805,7 @@ class LookAtOrientation : public OrientationValue {
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Evaluate()
+    void Evaluate() override
     {
         const Vector& vecAt   = GetAt();
         const Vector& vecFrom = GetFrom();

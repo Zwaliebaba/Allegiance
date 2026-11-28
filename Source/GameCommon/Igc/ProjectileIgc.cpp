@@ -144,11 +144,11 @@ void    CprojectileIGC::Update(Time now)
     }
 }
 
-int     CprojectileIGC::Export(void*    data)
+int     CprojectileIGC::Export(void*    _data) const
 {
-    if (data)
+    if (_data)
     {
-        DataProjectileIGC*  dataProjectile = (DataProjectileIGC*)data;
+        DataProjectileIGC*  dataProjectile = (DataProjectileIGC*)_data;
 
         dataProjectile->projectileTypeID = m_projectileType->GetObjectID();
 

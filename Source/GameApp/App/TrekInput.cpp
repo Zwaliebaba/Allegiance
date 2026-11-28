@@ -415,7 +415,7 @@ public:
         return m_pboolKeyDown[vk];
     }
 
-    ZString GetFPSString()
+    ZString GetFPSString() override
     {
         return
               ZString(m_pboolNone->GetValue()                ? "N "   : "  "  )
@@ -429,7 +429,7 @@ public:
             ;
     }
 
-    bool LoadMap(const ZString& str)
+    bool LoadMap(const ZString& str) override
     {
         //
         // load the input map
@@ -771,7 +771,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool IsTrekKeyDown(TrekKey tk, bool bCheckKeyboard)
+    bool IsTrekKeyDown(TrekKey tk, bool bCheckKeyboard) override
     {
         bool bDown = false;
 
@@ -800,7 +800,7 @@ public:
         return bDown;
     }
 
-    void SetFocus(bool bFocus)
+    void SetFocus(bool bFocus) override
     {
         if (m_bFocus != bFocus) {
             m_bFocus = bFocus;
@@ -817,7 +817,7 @@ public:
         }
     }
 
-    TrekKey TranslateKeyMessage(const KeyState& ks)
+    TrekKey TranslateKeyMessage(const KeyState& ks) override
     {
         //
         // Translate to a trek key
@@ -856,7 +856,7 @@ public:
         return TK_NoKeyMapping;
     }
 
-    TrekKey HandleKeyMessage(const KeyState& ks)
+    TrekKey HandleKeyMessage(const KeyState& ks) override
     {
         /* 
         ZDebugOutput(
@@ -890,7 +890,7 @@ public:
         return TK_NoKeyMapping;
     }
 
-    void PlayFFEffect(ForceEffectID effectID, LONG lDirection)
+    void PlayFFEffect(ForceEffectID effectID, LONG lDirection) override
     {
         if (
                m_pinputEngine->GetJoystick(0) 
@@ -900,7 +900,7 @@ public:
         }
     }
 
-    float GetAxis(int index)
+    float GetAxis(int index) override
     {
         if (m_ppnumberAxis[index] != NULL) {
             return m_ppnumberAxis[index]->GetValue();
@@ -909,12 +909,12 @@ public:
         }
     }
 
-    bool IsAxisValid(int index)
+    bool IsAxisValid(int index) override
     {
         return m_ppnumberAxis[index] != NULL;
     }
 
-    void GetButtonTrekKeys(TrekInputSite* psite)
+    void GetButtonTrekKeys(TrekInputSite* psite) override
     {
         //
         // Update hat buttons
@@ -966,7 +966,7 @@ public:
         }        
     }
 
-    TRef<IPopup> CreateInputMapPopup(Modeler* pmodeler, IEngineFont* pfont, Number* ptime)
+    TRef<IPopup> CreateInputMapPopup(Modeler* pmodeler, IEngineFont* pfont, Number* ptime) override
     {
         return 
             ::CreateInputMapPopup(
@@ -1885,7 +1885,7 @@ private:
         {
         }
 
-        void Evaluate()
+        void Evaluate() override
         {
             m_ppopup->Evaluate();
         }
@@ -1896,7 +1896,7 @@ private:
         //
         //////////////////////////////////////////////////////////////////////////////
 
-        MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+        MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
         { 
             MouseResult result = WrapImage::HitTest(pprovider, point, bCaptured);
 
@@ -1907,7 +1907,7 @@ private:
             return result;
         }
 
-        MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+        MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
         { 
             if (m_ppopup->IsEditing()) {
                 if (bDown) {
@@ -2712,22 +2712,22 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetCount()
+    int GetCount() override
     {
         return g_nCommandInfo + (int)m_paxis.size();
     }
 
-    ItemID GetItem(int index)
+    ItemID GetItem(int index) override
     {
         return (ItemID)(INT_PTR)(index + 1);
     }
 
-    int GetIndex(ItemID pitem)
+    int GetIndex(ItemID pitem) override
     {
         return (int)(INT_PTR)pitem - 1;
     }
 
-    ItemID GetNext(ItemID pitem)
+    ItemID GetNext(ItemID pitem) override
     {
         int index = GetIndex(pitem);
 
@@ -2738,7 +2738,7 @@ public:
         }
     }
 
-    IEventSource* GetChangedEvent()
+    IEventSource* GetChangedEvent() override
     {
         return m_peventSource;
     }
@@ -2749,17 +2749,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetXSize()
+    int GetXSize() override
     {
         return m_plistPane->XSize();
     }
 
-    int GetYSize()
+    int GetYSize() override
     {
         return m_pfont->GetHeight();
     }
 
-    void Paint(ItemID itemID, Surface* psurface, bool bSelected, bool bFocus)
+    void Paint(ItemID itemID, Surface* psurface, bool bSelected, bool bFocus) override
     {
         ZString strCommand;
         ZString strMapping;
@@ -2832,12 +2832,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
 
-    TRef<Image> GetImage(Engine* pengine)
+    TRef<Image> GetImage(Engine* pengine) override
     {
         return 
             new EvaluateImage(
@@ -2853,7 +2853,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     { 
         if (ks.bDown) {
             if (m_bQuestion) {

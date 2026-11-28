@@ -654,7 +654,7 @@ public:
         pContext->PopState ();
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         if (TrekWindow::InternalCamera(GetWindow()->GetCameraMode()) || (GetWindow()->GetCameraMode () == TrekWindow::cmExternalChase) || (GetWindow()->GetCameraMode () == TrekWindow::cmExternalMissile))
         {

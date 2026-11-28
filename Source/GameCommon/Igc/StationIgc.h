@@ -37,75 +37,75 @@ class       MyStationType : public IstationTypeIGC
         }
 
         //IbaseIGC
-        virtual HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int length);
-        virtual void            Terminate(void);
-        virtual void            Update(Time   now);
+        HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int length) override;
+        void            Terminate(void) override;
+        void            Update(Time   now) override;
 
-        virtual ObjectType      GetObjectType(void) const;
-        virtual ObjectID        GetObjectID(void) const;
+        ObjectType      GetObjectType(void) const override;
+        ObjectID        GetObjectID(void) const override;
 
         //ItypeIGC
-        virtual const void*     GetData(void) const;
+        const void*     GetData(void) const override;
 
         //IbuyableIGC
-        virtual const char*             GetName(void) const;
-        virtual const char*             GetDescription(void) const;
-        virtual const char*             GetModelName(void) const;
-        virtual const TechTreeBitMask&  GetRequiredTechs(void) const;
-        virtual const TechTreeBitMask&  GetEffectTechs(void) const;
+        const char*             GetName(void) const override;
+        const char*             GetDescription(void) const override;
+        const char*             GetModelName(void) const override;
+        const TechTreeBitMask&  GetRequiredTechs(void) const override;
+        const TechTreeBitMask&  GetEffectTechs(void) const override;
 
-        virtual Money                   GetPrice(void) const;
-        virtual DWORD                   GetTimeToBuild(void) const;
-        virtual BuyableGroupID          GetGroupID(void) const;
+        Money                   GetPrice(void) const override;
+        DWORD                   GetTimeToBuild(void) const override;
+        BuyableGroupID          GetGroupID(void) const override;
 
         // IstationTypeIGC
-        virtual HitPoints               GetMaxArmorHitPoints(void) const;
-        virtual DefenseTypeID           GetArmorDefenseType(void) const;
-        virtual HitPoints               GetMaxShieldHitPoints(void) const;
-        virtual DefenseTypeID           GetShieldDefenseType(void) const;
-        virtual float                   GetArmorRegeneration(void) const;
-        virtual float                   GetShieldRegeneration(void) const;
-        virtual float                   GetSignature(void) const;
-        virtual float                   GetRadius(void) const;
-        virtual float                   GetScannerRange(void) const;
-        virtual Money                   GetIncome(void) const;
-        virtual const TechTreeBitMask&  GetLocalTechs(void) const;
-        virtual StationAbilityBitMask   GetCapabilities(void) const;
-        virtual bool                    HasCapability(StationAbilityBitMask sabm) const;
-        virtual const char*             GetTextureName(void) const;
-        virtual const char*             GetBuilderName(void) const;
-        virtual const char*             GetIconName(void) const;
-        virtual IstationTypeIGC*        GetSuccessorStationType(const IsideIGC*   pside);
-        virtual AsteroidAbilityBitMask  GetBuildAABM(void) const;
+        HitPoints               GetMaxArmorHitPoints(void) const override;
+        DefenseTypeID           GetArmorDefenseType(void) const override;
+        HitPoints               GetMaxShieldHitPoints(void) const override;
+        DefenseTypeID           GetShieldDefenseType(void) const override;
+        float                   GetArmorRegeneration(void) const override;
+        float                   GetShieldRegeneration(void) const override;
+        float                   GetSignature(void) const override;
+        float                   GetRadius(void) const override;
+        float                   GetScannerRange(void) const override;
+        Money                   GetIncome(void) const override;
+        const TechTreeBitMask&  GetLocalTechs(void) const override;
+        StationAbilityBitMask   GetCapabilities(void) const override;
+        bool                    HasCapability(StationAbilityBitMask sabm) const override;
+        const char*             GetTextureName(void) const override;
+        const char*             GetBuilderName(void) const override;
+        const char*             GetIconName(void) const override;
+        IstationTypeIGC*        GetSuccessorStationType(const IsideIGC*   pside) override;
+        AsteroidAbilityBitMask  GetBuildAABM(void) const override;
 
-        virtual int                     GetLaunchSlots(void) const;
-        virtual const Vector&           GetLaunchPosition(int   slotID) const;
-        virtual const Vector&           GetLaunchDirection(int   slotID) const;
+        int                     GetLaunchSlots(void) const override;
+        const Vector&           GetLaunchPosition(int   slotID) const override;
+        const Vector&           GetLaunchDirection(int   slotID) const override;
 
-        virtual int                     GetLandSlots(void) const;
-        virtual int                     GetCapLandSlots(void) const;
-        virtual int                     GetLandPlanes(int   slotID) const;
-        virtual const Vector&           GetLandPosition(int slotID, int planeID) const;
-        virtual const Vector&           GetLandDirection(int slotID, int planeID) const;
+        int                     GetLandSlots(void) const override;
+        int                     GetCapLandSlots(void) const override;
+        int                     GetLandPlanes(int   slotID) const override;
+        const Vector&           GetLandPosition(int slotID, int planeID) const override;
+        const Vector&           GetLandDirection(int slotID, int planeID) const override;
 
-        virtual SoundID                 GetInteriorSound() const;
-        virtual SoundID                 GetInteriorAlertSound() const;
-        virtual SoundID                 GetExteriorSound() const;
+        SoundID                 GetInteriorSound() const override;
+        SoundID                 GetInteriorAlertSound() const override;
+        SoundID                 GetExteriorSound() const override;
 
-        virtual SoundID                 GetConstructorNeedRockSound() const;
-        virtual SoundID                 GetConstructorUnderAttackSound() const;
-        virtual SoundID                 GetConstructorDestroyedSound() const;
-        virtual SoundID                 GetCompletionSound() const;
+        SoundID                 GetConstructorNeedRockSound() const override;
+        SoundID                 GetConstructorUnderAttackSound() const override;
+        SoundID                 GetConstructorDestroyedSound() const override;
+        SoundID                 GetCompletionSound() const override;
 
-        virtual SoundID                 GetUnderAttackSound() const;
-        virtual SoundID                 GetCriticalSound() const;
-        virtual SoundID                 GetDestroyedSound() const;
-        virtual SoundID                 GetCapturedSound() const;
-        virtual SoundID                 GetEnemyCapturedSound() const;
-        virtual SoundID                 GetEnemyDestroyedSound() const;
+        SoundID                 GetUnderAttackSound() const override;
+        SoundID                 GetCriticalSound() const override;
+        SoundID                 GetDestroyedSound() const override;
+        SoundID                 GetCapturedSound() const override;
+        SoundID                 GetEnemyCapturedSound() const override;
+        SoundID                 GetEnemyDestroyedSound() const override;
 
-        virtual StationClassID          GetClassID() const;
-        virtual IdroneTypeIGC*          GetConstructionDroneType(void) const;
+        StationClassID          GetClassID() const override;
+        IdroneTypeIGC*          GetConstructionDroneType(void) const override;
 
     private:
         IstationTypeIGC*    GetStationType(void) const
@@ -158,8 +158,8 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
         }
         */
     // IbaseIGC
-	    virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int length);
-	    virtual void    Terminate(void)
+	    HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int length) override;
+	    void    Terminate(void) override
         {
             AddRef();
             {
@@ -176,7 +176,7 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
             m_myStationType.SetStationType(NULL);
             Release();
         }
-        virtual void    Update(Time now)
+        void    Update(Time now) override
         {
             float   dt = now - GetMyLastUpdate();
 
@@ -201,20 +201,20 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
                 TmodelIGC<IstationIGC>::Update(now);
             }
         }
-        virtual int             Export(void* data) const;
+        int             Export(void* data) const override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_station;
         }
 
-        virtual ObjectID    GetObjectID(void) const
+        ObjectID    GetObjectID(void) const override
         {
             return m_stationID;
         }
 
     // ImodelIGC
-        virtual void    SetCluster(IclusterIGC* cluster)
+        void    SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -240,7 +240,7 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
             Release();
         }
 
-        virtual void    SetSide(IsideIGC*   psideNew)
+        void    SetSide(IsideIGC*   psideNew) override
         {
             IsideIGC*   psideOld = GetSide();
             if (psideOld != psideNew)
@@ -273,29 +273,29 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
         }
 
     // IdamageIGC
-        virtual DamageResult        ReceiveDamage(DamageTypeID            type,
+        DamageResult        ReceiveDamage(DamageTypeID            type,
                                                   float                   amount,
                                                   Time                    timeCollision,
                                                   const Vector&           position1,
                                                   const Vector&           position2,
-                                                  ImodelIGC*              launcher);
+                                                  ImodelIGC*              launcher) override;
 
-        virtual float   GetFraction(void) const
+        float   GetFraction(void) const override
         {
             return m_hullFraction;
         }
-        virtual void    SetFraction(float newVal)
+        void    SetFraction(float newVal) override
         {
             m_hullFraction = newVal;
         }
 
-        virtual float               GetHitPoints(void) const
+        float               GetHitPoints(void) const override
         {
             return m_hullFraction * (float)m_myStationType.GetMaxArmorHitPoints();
         }
 
     // IscannerIGC
-        bool            InScannerRange(ImodelIGC*   pModel) const
+        bool            InScannerRange(ImodelIGC*   pModel) const override
         {
             assert (pModel);
 
@@ -325,7 +325,7 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
             return rc;
         }
 
-        bool             CanSee(ImodelIGC*   pModel) const
+        bool             CanSee(ImodelIGC*   pModel) const override
         {
             assert (pModel);
 
@@ -337,23 +337,23 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
         }
 
     // IstationIGC
-        virtual const IstationTypeIGC*  GetStationType(void) const
+        const IstationTypeIGC*  GetStationType(void) const override
         {
             return &m_myStationType;
         }
 
-        virtual IstationTypeIGC*        GetBaseStationType(void) const
+        IstationTypeIGC*        GetBaseStationType(void) const override
         {
             return m_myStationType.GetStationType();
         }
 
-        virtual void                SetBaseStationType(IstationTypeIGC* pst);
+        void                SetBaseStationType(IstationTypeIGC* pst) override;
 
-        virtual float   GetShieldFraction(void) const
+        float   GetShieldFraction(void) const override
         {
             return m_shieldFraction;
         }
-        virtual void    SetShieldFraction(float newVal)
+        void    SetShieldFraction(float newVal) override
         {
             if (newVal < 0.0f)
                 newVal = 0.0f;
@@ -363,7 +363,7 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
             m_shieldFraction = newVal;
         }
 
-        virtual bool                    CanBuy(const IbuyableIGC* b) const
+        bool                    CanBuy(const IbuyableIGC* b) const override
         {
             IsideIGC*   s = GetSide();
             assert (s);
@@ -373,13 +373,13 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
             return b->GetRequiredTechs() <= (m_myStationType.GetLocalTechs() | s->GetTechs());
         }
 
-        virtual bool                    IsObsolete(IbuyableIGC* b) const
+        bool                    IsObsolete(IbuyableIGC* b) const override
         {
             IbuyableIGC*    pSuccessor = GetSuccessor(b);
             return (pSuccessor != b);
         }
 
-        virtual IbuyableIGC*    GetSuccessor(IbuyableIGC* b) const
+        IbuyableIGC*    GetSuccessor(IbuyableIGC* b) const override
         {
             assert (b);
 
@@ -422,7 +422,7 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
             return pSuccessor;                   
         }
 
-        virtual IpartTypeIGC*           GetSimilarPart(IpartTypeIGC* ppt) const
+        IpartTypeIGC*           GetSimilarPart(IpartTypeIGC* ppt) const override
         {
             //Walk through the predecessor parts until one is found that can be bought
             //We need to make only a single pass because sucessors always precede their predecessors
@@ -441,30 +441,30 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
             return NULL;
         }
         
-        virtual void                    AddShip(IshipIGC* s);
-        virtual void                    DeleteShip(IshipIGC* s);
-        virtual IshipIGC*               GetShip(ShipID shipID) const;
-        virtual const ShipListIGC*      GetShips(void) const;
+        void                    AddShip(IshipIGC* s) override;
+        void                    DeleteShip(IshipIGC* s) override;
+        IshipIGC*               GetShip(ShipID shipID) const override;
+        const ShipListIGC*      GetShips(void) const override;
 
-        virtual void                    Launch(IshipIGC* pship);
-        virtual void                    RepairAndRefuel(IshipIGC* pship) const;
-        virtual bool                    InGarage(IshipIGC* pship, const Vector& position);
+        void                    Launch(IshipIGC* pship) override;
+        void                    RepairAndRefuel(IshipIGC* pship) const override;
+        bool                    InGarage(IshipIGC* pship, const Vector& position) override;
 
-        virtual void                    SetLastDamageReport(Time timeLastDamage)
+        void                    SetLastDamageReport(Time timeLastDamage) override
         {
             m_timeLastDamageReport = timeLastDamage;
         }
-        virtual Time                    GetLastDamageReport(void) const
+        Time                    GetLastDamageReport(void) const override
         {
             return m_timeLastDamageReport;
         }
 
-        virtual SoundID                 GetInteriorSound() const
+        SoundID                 GetInteriorSound() const override
         {
             return (GetFraction() > 0.8) ? m_myStationType.GetInteriorSound() 
                 : m_myStationType.GetInteriorAlertSound();
         }
-        virtual SoundID                 GetExteriorSound() const
+        SoundID                 GetExteriorSound() const override
         {
             return m_myStationType.GetExteriorSound();
         }

@@ -127,15 +127,15 @@ public:
     //
 
     // Sets the gain, from 0 to -100 dB
-    virtual HRESULT SetGain(float fGain);
+    HRESULT SetGain(float fGain) override;
 
     // Sets the pitch shift, where 1.0 is normal, 0.5 is half of normal speed, 
     // and 2.0 is twice normal speed.  
-    virtual HRESULT SetPitch(float fPitch);
+    HRESULT SetPitch(float fPitch) override;
 
     // sets the priority - used as a addition to volume when choosing which 
     // sounds are most important to play.
-    virtual HRESULT SetPriority(float fPriority);
+    HRESULT SetPriority(float fPriority) override;
 
 
     //
@@ -145,20 +145,20 @@ public:
     // Stops the sound.  If bForceNow is true the sound will stop ASAP, 
     // possibly popping.  If it is false some sounds may play a trail-off 
     // sound or fade away.  
-    virtual HRESULT Stop(bool bForceNow = false);
+    HRESULT Stop(bool bForceNow = false) override;
 
     // returns S_OK if the sound is currently playing, S_FALSE otherwise.
-    virtual HRESULT IsPlaying();
+    HRESULT IsPlaying() override;
 
     // Gets an event which fires when the sound finishes playing (for any 
     // reason)
-    virtual IEventSource* GetFinishEventSource();
+    IEventSource* GetFinishEventSource() override;
 
     // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-    virtual TRef<ISoundTweakable> GetISoundTweakable();
+    TRef<ISoundTweakable> GetISoundTweakable() override;
 
     // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-    virtual TRef<ISoundTweakable3D> GetISoundTweakable3D();
+    TRef<ISoundTweakable3D> GetISoundTweakable3D() override;
 
 
     //
@@ -226,13 +226,13 @@ public:
 protected:
 
     // prepare a voice with the given 3D support
-    virtual HRESULT PrepareBuffer(XA2Device* pdevice, bool bSupport3D);
+    HRESULT PrepareBuffer(XA2Device* pdevice, bool bSupport3D) override;
 
 public:
 
     // Recalculates the sounds position, loudness, whether it's playing, etc..
-    virtual HRESULT Update(DWORD dwTimeElapsed, 
-            const Vector& vectListenerPosition, float fRolloffFactor);
+    HRESULT Update(DWORD dwTimeElapsed, 
+            const Vector& vectListenerPosition, float fRolloffFactor) override;
 
 
     //
@@ -240,16 +240,16 @@ public:
     //
 
     // toggles 3D Positioning on and off for the given sound.
-    virtual HRESULT Set3D(bool b3D);
+    HRESULT Set3D(bool b3D) override;
 
     // Sets the distance at which the sound will be at max volume.  This
     // effects how quickly the sound drops off with distance.  
-    virtual HRESULT SetMinimumDistance(float fMinimumDistance);
+    HRESULT SetMinimumDistance(float fMinimumDistance) override;
 
     // Sets a sound cone of size fInnerAngle (in degrees) where the volume is at 
     // normal levels, outside of which it fades down by fOutsideGain 
     // (range of 0 to -100 db) at fOuterAngle (degrees) and beyond.  
-    virtual HRESULT SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain);
+    HRESULT SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain) override;
 
 
     //
@@ -257,21 +257,21 @@ public:
     //
 
     // Sets the gain, from 0 to -100 dB
-    virtual HRESULT SetGain(float fGain);
+    HRESULT SetGain(float fGain) override;
 
     // Sets the pitch shift, where 1.0 is normal, 0.5 is half of normal speed, 
     // and 2.0 is twice normal speed.  
-    virtual HRESULT SetPitch(float fPitch);
+    HRESULT SetPitch(float fPitch) override;
 
     // sets the priority - used as a addition to volume when choosing which 
     // sounds are most important to play.
-    virtual HRESULT SetPriority(float fPriority);
+    HRESULT SetPriority(float fPriority) override;
 
     // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-    virtual TRef<ISoundTweakable> GetISoundTweakable();
+    TRef<ISoundTweakable> GetISoundTweakable() override;
 
     // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-    virtual TRef<ISoundTweakable3D> GetISoundTweakable3D();
+    TRef<ISoundTweakable3D> GetISoundTweakable3D() override;
 };
 
 };

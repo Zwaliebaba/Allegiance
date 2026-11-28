@@ -128,7 +128,7 @@ public:
     TRef<StringPane> AddGameStateTile(
         const ZString& strTitle, 
         Pane*          ppane
-    ) {
+    ) override {
         TRef<StringPane> pstringPane = new StringPane(ZString(), m_pfontTitles);
 
 		
@@ -158,17 +158,17 @@ public:
         return pstringPane;
     }
 
-    TRef<Image> GetImage()
+    TRef<Image> GetImage() override
     {
         return m_pimage;
     }
 
-    TRef<IEngineFont> GetFont()
+    TRef<IEngineFont> GetFont() override
     {
         return m_pfontTitles;
     }
 
-    void SetTimeElapsed(int seconds)
+    void SetTimeElapsed(int seconds) override
     {
         if (seconds != m_secondsOld)
         {
@@ -190,7 +190,7 @@ public:
         }
     }
 
-    void SetTimeRemaining(int seconds)
+    void SetTimeRemaining(int seconds) override
     {
         if (seconds != m_secondsOld)
         {
@@ -212,7 +212,7 @@ public:
         }
     }
 
-    IEventSource* GetCloseEvent()
+    IEventSource* GetCloseEvent() override
     {
         return m_pbuttonClose->GetEventSource();
     }

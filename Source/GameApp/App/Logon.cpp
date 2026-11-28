@@ -96,7 +96,7 @@ public:
         m_pfocus->SetFocusState(true);
     }
 
-    bool OnEvent(TEvent<ZString>::Source* psource, ZString str)
+    bool OnEvent(TEvent<ZString>::Source* psource, ZString str) override
     {
         m_pbuttonLogon->SetEnabled(!str.empty());
         return true;
@@ -114,7 +114,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetContainer(IPopupContainer* pcontainer)
+    void SetContainer(IPopupContainer* pcontainer) override
     {
         IPopup::SetContainer(pcontainer);
 
@@ -124,7 +124,7 @@ public:
         }
     }
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
@@ -135,7 +135,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         if (ks.bDown) 
         {
@@ -161,7 +161,7 @@ public:
         return m_pfocus->OnKey(pprovider, ks, fForceTranslate);
     }
 
-    bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+    bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
     {
         return m_pfocus->OnChar(pprovider, ks);
     }

@@ -42,7 +42,7 @@ class BSPGeo : public Geo {
         {
         }
 
-        void Render(MeshIndex*& pindex, HVector& vec)
+        void Render(MeshIndex*& pindex, HVector& vec) override
         {
             if (m_plane.Distance(vec) >= 0) {
                 m_pback->Render(pindex, vec);
@@ -78,7 +78,7 @@ class BSPGeo : public Geo {
         {
         }
 
-        void Render(MeshIndex*& pindex, HVector& vec)
+        void Render(MeshIndex*& pindex, HVector& vec) override
         {
             pindex[0] = m_index0;
             pindex[1] = m_index1;
@@ -155,7 +155,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    float GetRadius(const Matrix& mat)
+    float GetRadius(const Matrix& mat) override
     {
         float radius = 0;
         int count = (int)m_vvertex.size();
@@ -167,7 +167,7 @@ public:
         return radius;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         MeshIndex* pindex = (MeshIndex*)&(m_vindex[0]);
 

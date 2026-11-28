@@ -113,17 +113,17 @@ public:
         PlayerPainter(const std::vector<int>& viColumns)
             : m_viColumns(viColumns) {};
         
-        int GetXSize()
+        int GetXSize() override
         {
             return 160;
         }
         
-        int GetYSize()
+        int GetYSize() override
         {
             return 28;
         }
         
-        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
         {
             PlayerInfo* pplayer = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitemArg));
             ZString     pname;
@@ -249,17 +249,17 @@ public:
               
           };
           
-          int GetXSize()
+          int GetXSize() override
           {
               return m_nWidth;
           }
           
-          int GetYSize()
+          int GetYSize() override
           { 
               return m_nHeight;
           }
           
-          void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+          void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
           {
               SideInfo* pitem = (SideInfo*)pitemArg;
               
@@ -350,17 +350,17 @@ public:
               
           };
           
-          int GetXSize()
+          int GetXSize() override
           {
               return m_nWidth;
           }
           
-          int GetYSize()
+          int GetYSize() override
           { 
               return m_nHeight;
           }
           
-          void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+          void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
           {
               SideInfo* pitem = (SideInfo*)pitemArg;
               
@@ -591,7 +591,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
     
-    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem)
+    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem) override
     {
         if (pevent == m_peventPlayers) {
             OnSelectPlayer(pitem);
@@ -601,13 +601,13 @@ public:
         return true;
     }
     
-    void OnShipStatusChange(PlayerInfo* pplayer)
+    void OnShipStatusChange(PlayerInfo* pplayer) override
     {
         // this might have been someone buying a ship with turrets.
         OnSelectPlayer(m_plistPanePlayers->GetSelection());
     }
     
-    void OnMoneyChange(PlayerInfo* pPlayerInfo)
+    void OnMoneyChange(PlayerInfo* pPlayerInfo) override
     {
         if ((pPlayerInfo == trekClient.MyPlayerInfo()) 
             || (pPlayerInfo == m_plistPanePlayers->GetSelection()))
@@ -821,14 +821,14 @@ public:
         return true;
     }
     
-    void OnAddPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnAddPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         if (m_plistPaneSelTeam)
             m_plistPaneSelTeam->ForceRefresh();
         OnSelectPlayer(m_plistPanePlayers->GetSelection());
     }
     
-    void OnDelPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam)
+    void OnDelPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam) override
     {
         if (m_plistPaneSelTeam)
             m_plistPaneSelTeam->ForceRefresh();
@@ -961,7 +961,7 @@ public:
         return true;
     }
     
-    void OnPlayerStatusChange(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnPlayerStatusChange(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         if (trekClient.MyPlayerInfo()->ShipID() == pPlayerInfo->ShipID())
         {
@@ -1504,18 +1504,18 @@ class ExpandedTeamPane : public TeamPane
         ExpandedPlayerPainter(const std::vector<int>& viColumns)
             : m_viColumns(viColumns), PlayerPainter(viColumns) {};
         
-        int GetXSize()
+        int GetXSize() override
         {
             return m_viColumns[6] - 15;
         }
         
-        int GetYSize()
+        int GetYSize() override
         {
             return 15;
         }
         
 
-        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
         {
             PlayerInfo* pplayer = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitemArg));
             

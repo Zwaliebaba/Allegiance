@@ -58,7 +58,7 @@ public:
     ZFile(const PathString& strPath, DWORD how = OF_READ | OF_SHARE_DENY_WRITE);
     ~ZFile();
 
-    bool  IsValid();
+    bool  IsValid() override;
     int   GetLength();
     BYTE* GetPointer(bool bWrite = false, bool bCopyOnWrite = false);
 

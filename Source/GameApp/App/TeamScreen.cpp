@@ -140,12 +140,12 @@ private:
             //m_pimageSelectedTab = GetModeler()->LoadImage(AWF_TEAMROOM_SELECTED_TAB_MASK, true);
         };
 
-        int GetXSize()
+        int GetXSize() override
         {
             return m_viColumns[4];
         }
 
-        int GetYSize()
+        int GetYSize() override
         { 
             return m_nHeight;
         }
@@ -156,7 +156,7 @@ private:
             return WinPoint(m_viColumns[2], m_nHeight * 1/2 - 8);
         }
 
-        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
         {
             SideInfo* pitem = (SideInfo*)pitemArg;
 
@@ -294,17 +294,17 @@ private:
         PlayerPainter(MissionInfo* pMission, const std::vector<int>& viColumns, const SideID& sideCurrent)
             : m_viColumns(viColumns), m_sideCurrent(sideCurrent), m_pMission(pMission) {};
 
-        int GetXSize()
+        int GetXSize() override
         {
             return m_viColumns[5];
         }
 
-        int GetYSize()
+        int GetYSize() override
         {
             return 14;
         }
 
-        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
         {
             PlayerInfo* pplayer = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitemArg));
 
@@ -420,7 +420,7 @@ private:
             m_pimageCivIcon = Image::GetEmpty();
         }
 
-        void CalcBounds()
+        void CalcBounds() override
         {
             m_bounds = m_pimageBkgnd->GetBounds();
         }
@@ -462,7 +462,7 @@ private:
                 );
         }
 
-        void Render(Context* pcontext)
+        void Render(Context* pcontext) override
         {
             // draw the background
             Surface* psurfaceBackground = m_pimageBkgnd->GetSurface();
@@ -644,7 +644,7 @@ private:
         // IPopup methods
         //
 
-        Pane* GetPane()
+        Pane* GetPane() override
         {
             return m_ppane;
         }
@@ -706,7 +706,7 @@ private:
         // IPopup methods
         //
         
-        void OnAddMission(MissionInfo* pMissionDef)
+        void OnAddMission(MissionInfo* pMissionDef) override
         {
             // if this is my mission...
         
@@ -721,7 +721,7 @@ private:
             }
         }
 
-        void OnDelPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParamParam) 
+        void OnDelPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParamParam) override 
         {
             // if this is me...
             if (m_pparent->m_bTeamSettingsPopupOpen
@@ -733,7 +733,7 @@ private:
             }
         }
 
-        void OnTeamNameChange(MissionInfo* pMissionInfo, SideID sideID)
+        void OnTeamNameChange(MissionInfo* pMissionInfo, SideID sideID) override
         {
             if (sideID == trekClient.GetSideID())
             {
@@ -756,7 +756,7 @@ private:
                 m_pcomboSquad->SetSelection(trekClient.GetSide()->GetSquadID());
         }
 
-        virtual void OnClose()
+        void OnClose() override
         {
             if (m_pkeyboardInputOldFocus)
                 GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
@@ -767,7 +767,7 @@ private:
             debugf("team settings popup closed\n");
         }
 
-        virtual void SetContainer(IPopupContainer* pcontainer)
+        void SetContainer(IPopupContainer* pcontainer) override
         {      
             m_pkeyboardInputOldFocus = GetWindow()->GetFocus();
             IPopup::SetContainer(pcontainer);
@@ -790,14 +790,14 @@ private:
             m_pcomboCiv->SetSelection(trekClient.GetSide()->GetCivilization()->GetObjectID());
         }
 
-        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
         {
             // we need to make sure we get OnChar calls to pass on to the edit box
             fForceTranslate = true;
             return false;
         }
 
-        bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+        bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
         {
             if (ks.vk == 13)
             {
@@ -808,7 +808,7 @@ private:
                 return ((IKeyboardInput*)m_peditPaneTeamName)->OnChar(pprovider, ks);
         }
 
-        Pane* GetPane()
+        Pane* GetPane() override
         {
             return m_ppane;
         }
@@ -1264,7 +1264,7 @@ public:
                 + ZString(" -- you need to pick a team"));
     }
 
-    void OnFrame()
+    void OnFrame() override
     {
         UpdateCountdownText();
 
@@ -1595,7 +1595,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
@@ -1606,7 +1606,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem)
+    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem) override
     {
         if (pevent == m_peventPlayers) {
             OnSelPlayer(pitem);
@@ -1683,7 +1683,7 @@ public:
         }
     }
 
-    void OnTeamCivChange(MissionInfo *pMissionDef, SideID sideID, CivID civID)
+    void OnTeamCivChange(MissionInfo *pMissionDef, SideID sideID, CivID civID) override
     {
         UpdateCivBitmap();
     }
@@ -1769,7 +1769,7 @@ public:
         return true;
     }
 
-    bool OnEvent(TEvent<ZString>::Source* pevent, ZString str)
+    bool OnEvent(TEvent<ZString>::Source* pevent, ZString str) override
     {
         if (!str.empty())
             SendChat(str);
@@ -1778,12 +1778,12 @@ public:
         return true;
     }
 
-    bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         return OnTimer();
     }
 
-    void OnNewChatMessage()
+    void OnNewChatMessage() override
     {
         ChatTarget target = trekClient.m_chatList.last()->data().GetChatTarget();
         if (target != m_chattargetChannel)
@@ -2245,7 +2245,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void OnAddMission(MissionInfo* pMissionDef)
+    void OnAddMission(MissionInfo* pMissionDef) override
     {
         // if this is my mission...
         
@@ -2276,7 +2276,7 @@ public:
         }
     }
 
-    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         // if this is the side I'm looking at, if we just upped the number of 
         // players we may need to change the civ watermark.
@@ -2324,7 +2324,7 @@ public:
         UpdateStatusText();
     }
 
-    virtual void OnDelPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParamParam) 
+    void OnDelPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParamParam) override 
     {
         // if this is me...
         if (trekClient.MyPlayerInfo()->ShipID() == pPlayerInfo->ShipID())
@@ -2397,7 +2397,7 @@ public:
         }
     }
 
-    void OnPlayerStatusChange(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnPlayerStatusChange(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         if (trekClient.MyPlayerInfo()->ShipID() == pPlayerInfo->ShipID())
         {
@@ -2406,7 +2406,7 @@ public:
         UpdateStatusText();
     }
 
-    void OnTeamAutoAcceptChange(MissionInfo* pMissionInfo, SideID sideID, bool fAutoAccept)
+    void OnTeamAutoAcceptChange(MissionInfo* pMissionInfo, SideID sideID, bool fAutoAccept) override
     {
         if (m_pMission == pMissionInfo && trekClient.GetSideID() == sideID)
         {
@@ -2414,17 +2414,17 @@ public:
         }
     }
 
-    void OnLockLobby(bool bLock)
+    void OnLockLobby(bool bLock) override
     {
         UpdateButtonStates();
     }
 
-    void OnLockSides(bool bLock)
+    void OnLockSides(bool bLock) override
     {
         UpdateButtonStates();
     }
 
-    void OnTeamForceReadyChange(MissionInfo* pMissionInfo, SideID sideID, bool fTeamForceReady)
+    void OnTeamForceReadyChange(MissionInfo* pMissionInfo, SideID sideID, bool fTeamForceReady) override
     {
         if (m_pMission == pMissionInfo && trekClient.GetSideID() == sideID)
         {
@@ -2433,23 +2433,23 @@ public:
         UpdateStatusText();
     }
 
-    void OnTeamReadyChange(MissionInfo* pMissionDef, SideID sideID, bool fTeamReady) 
+    void OnTeamReadyChange(MissionInfo* pMissionDef, SideID sideID, bool fTeamReady) override 
     {
         UpdateStatusText();
     }
 
-    virtual void OnEnterMission()
+    void OnEnterMission() override
     {
         s_nLastSelectedChatTab = NA;
     }
 
-    virtual void OnMissionCountdown(MissionInfo* pMissionDef)
+    void OnMissionCountdown(MissionInfo* pMissionDef) override
     {
         UpdateStatusText();
         UpdateButtonStates();
     }
 
-    virtual void OnMissionStarted(MissionInfo* pMissionDef)
+    void OnMissionStarted(MissionInfo* pMissionDef) override
     {
         // if this is our mission and we are not on the lobby side...
         if (pMissionDef == m_pMission && trekClient.GetSideID() != SIDE_TEAMLOBBY)
@@ -2465,7 +2465,7 @@ public:
         UpdateStatusText();
     }
 
-    void OnDelRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason)
+    void OnDelRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason) override
     {
         if (pPlayerInfo == trekClient.MyPlayerInfo())
         {
@@ -2562,19 +2562,19 @@ public:
         }
     }
 
-    virtual void OnTeamNameChange(MissionInfo* pMissionDef, SideID sideID)
+    void OnTeamNameChange(MissionInfo* pMissionDef, SideID sideID) override
     {
         UpdateSquadsStatsMessage();
         UpdatePromptText();
         UpdateStatusText();
     }
 
-    void OnMissionEnded(MissionInfo* pmission)
+    void OnMissionEnded(MissionInfo* pmission) override
     {
         UpdateStatusText();
     }
 
-    virtual void OnGameoverPlayers()
+    void OnGameoverPlayers() override
     {
         m_pbuttonGameOver->SetHidden(trekClient.GetNumEndgamePlayers() == 0);
     }

@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          ProxyAction (Action* pAction);
             virtual /* void */          ~ProxyAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     Action*             m_pAction;

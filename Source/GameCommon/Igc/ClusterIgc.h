@@ -36,117 +36,117 @@ class       CclusterIGC : public IclusterIGC
         }
 
     // IbaseIGC
-        virtual HRESULT                 Initialize(ImissionIGC* pMission, Time now, const void* data, int length);
-        virtual void                    Terminate(void);
-        virtual void                    Update(Time now);
+        HRESULT                 Initialize(ImissionIGC* pMission, Time now, const void* data, int length) override;
+        void                    Terminate(void) override;
+        void                    Update(Time now) override;
 
-        virtual int                     Export(void* data) const;
-        virtual ObjectType              GetObjectType(void) const
+        int                     Export(void* data) const override;
+        ObjectType              GetObjectType(void) const override
         {
             return OT_cluster;
         }
-        virtual ObjectID                GetObjectID(void) const
+        ObjectID                GetObjectID(void) const override
         {
             return m_data.clusterID;
         }
 
-        virtual ImissionIGC*    GetMission(void) const
+        ImissionIGC*    GetMission(void) const override
         {
             return m_pMission;
         }
 
     // IclusterIGC
-        virtual const char*             GetName(void) const
+        const char*             GetName(void) const override
         {
             return m_data.name;
         }
 
-        virtual Time                    GetLastUpdate(void) const
+        Time                    GetLastUpdate(void) const override
         {
             return m_lastUpdate;
         }
 
-        virtual void                    SetLastUpdate(Time now)
+        void                    SetLastUpdate(Time now) override
         {
             m_lastUpdate = now;
         }
 
-        virtual void                    AddModel(ImodelIGC* modelNew);
-        virtual void                    DeleteModel(ImodelIGC* modelOld);
+        void                    AddModel(ImodelIGC* modelNew) override;
+        void                    DeleteModel(ImodelIGC* modelOld) override;
 
-        virtual ImodelIGC*              GetModel(const char* name) const;
-        virtual const ModelListIGC*     GetModels(void) const
+        ImodelIGC*              GetModel(const char* name) const override;
+        const ModelListIGC*     GetModels(void) const override
         {
             return &m_models;
         }
-        virtual const ModelListIGC*     GetPickableModels(void) const
+        const ModelListIGC*     GetPickableModels(void) const override
         {
             return &m_modelsPickable;
         }
 
-        virtual void                    AddTreasure(ItreasureIGC* treasureNew)
+        void                    AddTreasure(ItreasureIGC* treasureNew) override
         {
             AddIbaseIGC((BaseListIGC*)&m_treasures, treasureNew);
             AddModel(treasureNew);
         }
-        virtual void                    DeleteTreasure(ItreasureIGC* treasureOld)
+        void                    DeleteTreasure(ItreasureIGC* treasureOld) override
         {
             DeleteModel(treasureOld);
             DeleteIbaseIGC((BaseListIGC*)&m_treasures, treasureOld);
         }
-        virtual ItreasureIGC*           GetTreasure(TreasureID  id) const
+        ItreasureIGC*           GetTreasure(TreasureID  id) const override
         {
             return (ItreasureIGC*)GetIbaseIGC((BaseListIGC*)&m_treasures, id);
         }
-        virtual const TreasureListIGC*  GetTreasures(void) const
+        const TreasureListIGC*  GetTreasures(void) const override
         {
             return &m_treasures;
         }
 
-        virtual void                    AddWarp(IwarpIGC* warpNew)
+        void                    AddWarp(IwarpIGC* warpNew) override
         {
             AddIbaseIGC((BaseListIGC*)&m_warps, warpNew);
             AddModel(warpNew);
         }
-        virtual void                    DeleteWarp(IwarpIGC* warpOld)
+        void                    DeleteWarp(IwarpIGC* warpOld) override
         {
             DeleteModel(warpOld);
             DeleteIbaseIGC((BaseListIGC*)&m_warps, warpOld);
         }
-        virtual const WarpListIGC*      GetWarps(void) const
+        const WarpListIGC*      GetWarps(void) const override
         {
             return &m_warps;
         }
 
-        virtual void                    AddStation(IstationIGC* stationNew)
+        void                    AddStation(IstationIGC* stationNew) override
         {
             AddIbaseIGC((BaseListIGC*)&m_stations, stationNew);
             m_pClusterSite->AddScanner(stationNew->GetSide()->GetObjectID(), stationNew);
             AddModel(stationNew);
         }
-        virtual void                    DeleteStation(IstationIGC* stationOld)
+        void                    DeleteStation(IstationIGC* stationOld) override
         {
             DeleteModel(stationOld);
             m_pClusterSite->DeleteScanner(stationOld->GetSide()->GetObjectID(), stationOld);
             DeleteIbaseIGC((BaseListIGC*)&m_stations, stationOld);
         }
-        virtual IstationIGC*            GetStation(StationID   id) const
+        IstationIGC*            GetStation(StationID   id) const override
         {
             return (IstationIGC*)GetIbaseIGC((BaseListIGC*)&m_stations, id);
         }
-        virtual const StationListIGC*   GetStations(void) const
+        const StationListIGC*   GetStations(void) const override
         {
             return &m_stations;
         }
 
-        virtual void                    AddShip(IshipIGC* shipNew)
+        void                    AddShip(IshipIGC* shipNew) override
         {
             AddIbaseIGC((BaseListIGC*)&m_ships, shipNew);
             if (shipNew->GetParentShip() == NULL)
                 m_pClusterSite->AddScanner(shipNew->GetSide()->GetObjectID(), shipNew);
             AddModel(shipNew);
         }
-        virtual void                    DeleteShip(IshipIGC* shipOld)
+        void                    DeleteShip(IshipIGC* shipOld) override
         {
             assert (shipOld);
             DeleteModel(shipOld);
@@ -154,133 +154,133 @@ class       CclusterIGC : public IclusterIGC
                 m_pClusterSite->DeleteScanner(shipOld->GetSide()->GetObjectID(), shipOld);
             DeleteIbaseIGC((BaseListIGC*)&m_ships, shipOld);
         }
-        virtual IshipIGC*               GetShip(ShipID   id) const
+        IshipIGC*               GetShip(ShipID   id) const override
         {
             return (IshipIGC*)GetIbaseIGC((BaseListIGC*)&m_ships, id);
         }
-        virtual const ShipListIGC*      GetShips(void) const
+        const ShipListIGC*      GetShips(void) const override
         {
             return &m_ships;
         }
 
-        virtual void                    AddMine(ImineIGC* mineNew)
+        void                    AddMine(ImineIGC* mineNew) override
         {
             AddIbaseIGC((BaseListIGC*)&m_mines, mineNew);
             AddModel(mineNew);
         }
-        virtual void                    DeleteMine(ImineIGC* mineOld)
+        void                    DeleteMine(ImineIGC* mineOld) override
         {
             assert (mineOld);
             DeleteModel(mineOld);
 
             DeleteIbaseIGC((BaseListIGC*)&m_mines, mineOld);
         }
-        virtual ImineIGC*               GetMine(MineID   id) const
+        ImineIGC*               GetMine(MineID   id) const override
         {
             return (ImineIGC*)GetIbaseIGC((BaseListIGC*)&m_mines, id);
         }
-        virtual const MineListIGC*      GetMines(void) const
+        const MineListIGC*      GetMines(void) const override
         {
             return &m_mines;
         }
 
-        virtual void                    AddMissile(ImissileIGC* missileNew)
+        void                    AddMissile(ImissileIGC* missileNew) override
         {
             AddIbaseIGC((BaseListIGC*)&m_missiles, missileNew);
             AddModel(missileNew);
         }
-        virtual void                    DeleteMissile(ImissileIGC* missileOld)
+        void                    DeleteMissile(ImissileIGC* missileOld) override
         {
             assert (missileOld);
             DeleteModel(missileOld);
 
             DeleteIbaseIGC((BaseListIGC*)&m_missiles, missileOld);
         }
-        virtual ImissileIGC*               GetMissile(MissileID   id) const
+        ImissileIGC*               GetMissile(MissileID   id) const override
         {
             return (ImissileIGC*)GetIbaseIGC((BaseListIGC*)&m_missiles, id);
         }
-        virtual const MissileListIGC*      GetMissiles(void) const
+        const MissileListIGC*      GetMissiles(void) const override
         {
             return &m_missiles;
         }
 
-        virtual void                    AddProbe(IprobeIGC* probeNew)
+        void                    AddProbe(IprobeIGC* probeNew) override
         {
             AddIbaseIGC((BaseListIGC*)&m_probes, probeNew);
             m_pClusterSite->AddScanner(probeNew->GetSide()->GetObjectID(), probeNew);
             AddModel(probeNew);
         }
-        virtual void                    DeleteProbe(IprobeIGC* probeOld)
+        void                    DeleteProbe(IprobeIGC* probeOld) override
         {
             assert (probeOld);
             DeleteModel(probeOld);
             m_pClusterSite->DeleteScanner(probeOld->GetSide()->GetObjectID(), probeOld);
             DeleteIbaseIGC((BaseListIGC*)&m_probes, probeOld);
         }
-        virtual IprobeIGC*               GetProbe(ProbeID   id) const
+        IprobeIGC*               GetProbe(ProbeID   id) const override
         {
             return (IprobeIGC*)GetIbaseIGC((BaseListIGC*)&m_probes, id);
         }
-        virtual const ProbeListIGC*      GetProbes(void) const
+        const ProbeListIGC*      GetProbes(void) const override
         {
             return &m_probes;
         }
 
-        virtual void                    AddAsteroid(IasteroidIGC* asteroidNew)
+        void                    AddAsteroid(IasteroidIGC* asteroidNew) override
         {
             AddIbaseIGC((BaseListIGC*)&m_asteroids, asteroidNew);
 
             AddModel(asteroidNew);
         }
-        virtual void                    DeleteAsteroid(IasteroidIGC* asteroidOld)
+        void                    DeleteAsteroid(IasteroidIGC* asteroidOld) override
         {
             DeleteModel(asteroidOld);
             DeleteIbaseIGC((BaseListIGC*)&m_asteroids, asteroidOld);
         }
-        virtual IasteroidIGC*           GetAsteroid(AsteroidID   id) const
+        IasteroidIGC*           GetAsteroid(AsteroidID   id) const override
         {
             return (IasteroidIGC*)GetIbaseIGC((BaseListIGC*)&m_asteroids, id);
         }
-        virtual const AsteroidListIGC*  GetAsteroids(void) const
+        const AsteroidListIGC*  GetAsteroids(void) const override
         {
             return &m_asteroids;
         }
 
-        virtual ClusterSite*            GetClusterSite(void) const
+        ClusterSite*            GetClusterSite(void) const override
         {
             return m_pClusterSite;
         }
-        virtual IbuildingEffectIGC*     CreateBuildingEffect(Time           now,
+        IbuildingEffectIGC*     CreateBuildingEffect(Time           now,
                                                              IasteroidIGC*  pasteroid,
                                                              IstationIGC*   pstation,
                                                              IshipIGC*      pshipBuilder,
                                                              float          radiusAsteroid,
                                                              float          radiusStation,
                                                              const Vector&  positionStart,
-                                                             const Vector&  positionStop);
+                                                             const Vector&  positionStop) override;
 
-        virtual short                   GetNdebris(void) const
+        short                   GetNdebris(void) const override
         {
             return m_data.nDebris;
         }
 
-        virtual short                   GetNstars(void) const
+        short                   GetNstars(void) const override
         {
             return m_data.nStars;
         }
 
-        virtual unsigned int            GetStarSeed(void) const
+        unsigned int            GetStarSeed(void) const override
         {
             return m_data.starSeed;
         }
 
-        virtual const Vector&           GetLightDirection(void) const
+        const Vector&           GetLightDirection(void) const override
         {
             return m_data.lightDirection;
         }
 
-        virtual Color                GetLightColor(void) const
+        Color                GetLightColor(void) const override
         {
             return
                 Color(
@@ -290,32 +290,32 @@ class       CclusterIGC : public IclusterIGC
                 );
         }
 
-        virtual Color                GetLightColorAlt(void) const
+        Color                GetLightColorAlt(void) const override
         {
             return Color(0, 0.5f, 1.0f);
         }
 
-        virtual float                GetAmbientLevel(void) const
+        float                GetAmbientLevel(void) const override
         {
             return 0.5f;
         }
 
-        virtual float                GetBidirectionalAmbientLevel(void) const
+        float                GetBidirectionalAmbientLevel(void) const override
         {
             return 0.25f;
         }
 
-        virtual void                    RecalculateCollisions(float        tOffset,
+        void                    RecalculateCollisions(float        tOffset,
                                                               ImodelIGC*   pModel1,
-                                                              ImodelIGC*   pModel2);
+                                                              ImodelIGC*   pModel2) override;
 
-        virtual ExplosionData*          CreateExplosion(DamageTypeID   damageType,
+        ExplosionData*          CreateExplosion(DamageTypeID   damageType,
                                                         float          amount,
                                                         float          radius,
                                                         int            explosionType,
                                                         Time           time,
                                                         const Vector&  position,
-                                                        ImodelIGC*     launcher)
+                                                        ImodelIGC*     launcher) override
         {
             if (m_nExplosions == c_maxExplosions)
                 return NULL;
@@ -338,37 +338,37 @@ class       CclusterIGC : public IclusterIGC
             }
         }
 
-        virtual float                   GetScreenX(void) const
+        float                   GetScreenX(void) const override
         {
             return m_data.screenX;
         }
 
-        virtual float                   GetScreenY(void) const
+        float                   GetScreenY(void) const override
         {
             return m_data.screenY;
         }
 
-        virtual void                    SetActive(bool bActive)
+        void                    SetActive(bool bActive) override
         {
             m_data.activeF = bActive;
         }
 
-        virtual const char*             GetPosterName(void) const
+        const char*             GetPosterName(void) const override
         {
             return m_data.posterName;
         }
 
-        virtual void                    SetPrivateData(DWORD_PTR dwPrivate)
+        void                    SetPrivateData(DWORD_PTR dwPrivate) override
         {
             m_dwPrivate = dwPrivate;
         }
 
-        virtual DWORD_PTR               GetPrivateData(void) const
+        DWORD_PTR               GetPrivateData(void) const override
         {
             return m_dwPrivate;
         }
 
-        virtual void                    FlushCollisionQueue(void)
+        void                    FlushCollisionQueue(void) override
         {
             if (m_collisionID < m_collisions.n())
             {
@@ -380,7 +380,7 @@ class       CclusterIGC : public IclusterIGC
             }
         }
 
-        virtual void                    MakeModelStatic(ImodelIGC* pmodel)
+        void                    MakeModelStatic(ImodelIGC* pmodel) override
         {
             assert (pmodel);
 
@@ -397,7 +397,7 @@ class       CclusterIGC : public IclusterIGC
             m_kdrStatic.addHitTest(ht);
         }
 
-        virtual void                    MakeModelUnhitable(ImodelIGC* pmodel)
+        void                    MakeModelUnhitable(ImodelIGC* pmodel) override
         {
             assert (pmodel);
 
@@ -412,7 +412,7 @@ class       CclusterIGC : public IclusterIGC
             DeleteIbaseIGC((BaseListIGC*)&m_modelsCastRay, pmodel);
         }
 
-        virtual void             FreeThingSite(ModelAttributes  ma, ImodelIGC*   pmodel, HitTest* pht)
+        void             FreeThingSite(ModelAttributes  ma, ImodelIGC*   pmodel, HitTest* pht) override
         {
             if (ma & c_mtHitable)
             {
@@ -431,21 +431,21 @@ class       CclusterIGC : public IclusterIGC
             }
         }
 
-        virtual bool             GetHomeSector(void) const
+        bool             GetHomeSector(void) const override
         {
             return m_data.bHomeSector;
         }
 
-        virtual float             GetPendingTreasures(void) const
+        float             GetPendingTreasures(void) const override
         {
             return m_fPendingTreasures;
         }
-        virtual void             SetPendingTreasures(float  fpt)
+        void             SetPendingTreasures(float  fpt) override
         {
             m_fPendingTreasures = fpt;
         }
 
-        virtual float            GetCost(void) const
+        float            GetCost(void) const override
         {
             return m_fCost;
         }

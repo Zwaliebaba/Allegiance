@@ -33,21 +33,21 @@ public:
     //
 
     // Gets the position of the sound in space
-    HRESULT GetPosition(Vector& vectPosition)
+    HRESULT GetPosition(Vector& vectPosition) override
     {
         vectPosition = Vector(0, 0, 0);
         return S_OK;
     };
 
     // Gets the velocity of the sound in space
-    HRESULT GetVelocity(Vector& vectVelocity)
+    HRESULT GetVelocity(Vector& vectVelocity) override
     {
         vectVelocity = Vector(0, 0, 0);
         return S_OK;
     };
 
     // Gets the orientation of the sound in space, used for sound cones.
-    virtual HRESULT GetOrientation(Vector& vectOrientation)
+    HRESULT GetOrientation(Vector& vectOrientation) override
     {
         vectOrientation = Vector(0, 0, 1);
         return S_OK;
@@ -55,7 +55,7 @@ public:
 
     // Returns S_OK if the position, velocity and orientation reported are 
     // relative to the listener, S_FALSE otherwise.  
-    virtual HRESULT IsListenerRelative()
+    HRESULT IsListenerRelative() override
     {
         return S_FALSE; // it would be useless if it was "listener relative"
     };
@@ -64,7 +64,7 @@ public:
     // otherwise.  This might be false if a sound emitter is destroyed, for 
     // example, in which case the sound might fade out.  Once it returns
     // S_FALSE once, it should never return S_OK again.
-    virtual HRESULT IsPlaying()
+    HRESULT IsPlaying() override
     {
         return S_OK;
     };
@@ -74,7 +74,7 @@ public:
     //
 
     // get the "up" vector for the listener
-    virtual HRESULT GetUpDirection(Vector& vectUp)
+    HRESULT GetUpDirection(Vector& vectUp) override
     {
         vectUp = Vector(0, 1, 0);
         return S_OK;

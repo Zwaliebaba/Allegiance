@@ -106,21 +106,21 @@ public:
     // ITimerEventSource
     //
 
-    void AddSink(IEventSink* psink);
-    void AddSink(IEventSink* psink, float when);
-    void RemoveSink(IEventSink* psink);
+    void AddSink(IEventSink* psink) override;
+    void AddSink(IEventSink* psink, float when) override;
+    void RemoveSink(IEventSink* psink) override;
 
     //
     // IInputProvider
     //
 
-    ITimerEventSource* GetTimer();
-    bool IsFocus(IKeyboardInput* pinput);
-    IKeyboardInput* GetFocus();
-    void SetFocus(IKeyboardInput* pinput);
-    void RemoveFocus(IKeyboardInput* pinput);
-    void SetCursorPos(const Point& point);
-    void ShowCursor(bool bShow);
+    ITimerEventSource* GetTimer() override;
+    bool IsFocus(IKeyboardInput* pinput) override;
+    IKeyboardInput* GetFocus() override;
+    void SetFocus(IKeyboardInput* pinput) override;
+    void RemoveFocus(IKeyboardInput* pinput) override;
+    void SetCursorPos(const Point& point) override;
+    void ShowCursor(bool bShow) override;
 
     //
     // Hierachy

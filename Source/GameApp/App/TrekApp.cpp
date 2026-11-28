@@ -55,7 +55,7 @@ public:
         AddRef();
     }
 
-    HRESULT Initialize(const ZString& strCommandLine)
+    HRESULT Initialize(const ZString& strCommandLine) override
     {
         //
         // Run from the directory Allegiance.exe is in: the lobby config file
@@ -316,7 +316,7 @@ public:
         return hr;
     }
 
-    void Terminate()
+    void Terminate() override
     {
       EffectApp::Terminate();
       CoUninitialize();

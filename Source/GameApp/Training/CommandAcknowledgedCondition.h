@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          CommandAcknowledgedCondition (char cTargetCommand);
             virtual /* void */          ~CommandAcknowledgedCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
             static  void                SetCommandAcknowledged (char cAcknowledged);
 
         protected:

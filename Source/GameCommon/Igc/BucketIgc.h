@@ -32,10 +32,10 @@ class       CbucketIGC : public IbucketIGC
 
     public:
     // IbaseIGC
-        virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void    Terminate(void);
+        HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void    Terminate(void) override;
 
-        virtual void    Update(Time now)
+        void    Update(Time now) override
         {
             assert (now >= m_lastUpdate);
 
@@ -71,14 +71,14 @@ class       CbucketIGC : public IbucketIGC
             m_lastUpdate = now;
         }
 
-        virtual int         Export(void* data) const;
+        int         Export(void* data) const override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_bucket;
         }
 
-        virtual short                   GetObjectID(void) const
+        short                   GetObjectID(void) const override
         {
             const short c_bucketMultiplier = 0x7fff / (1 + OT_bucketEnd - OT_bucketStart);
             assert (c_bucketMultiplier >= 500);
@@ -87,95 +87,95 @@ class       CbucketIGC : public IbucketIGC
                    (m_data.buyable->GetObjectType() - OT_bucketStart) * c_bucketMultiplier;
         }
 
-        virtual ImissionIGC*    GetMission(void) const
+        ImissionIGC*    GetMission(void) const override
         {
             return m_pMission;
         }
 
     // ItypeIGC
-        virtual const void*   GetData(void) const
+        const void*   GetData(void) const override
         {
             return m_data.buyable->GetData();
         }
 
     // IbuyableIGC
-        virtual const char*          GetModelName(void) const
+        const char*          GetModelName(void) const override
         {
             return m_data.buyable->GetModelName();
         }
 
-        virtual const char*          GetIconName(void) const
+        const char*          GetIconName(void) const override
         {
             return m_data.buyable->GetIconName();
         }
 
-        virtual const char*          GetName(void) const
+        const char*          GetName(void) const override
         {
             return m_data.buyable->GetName();
         }
-        virtual const char*          GetDescription(void) const
+        const char*          GetDescription(void) const override
         {
             return m_data.buyable->GetDescription();
         }
-        virtual Money                GetPrice(void) const
+        Money                GetPrice(void) const override
         {
             return m_price;
         }
 
-        virtual const TechTreeBitMask&  GetRequiredTechs(void) const
+        const TechTreeBitMask&  GetRequiredTechs(void) const override
         {
             return m_data.buyable->GetRequiredTechs();
         }
 
-        virtual const TechTreeBitMask&  GetEffectTechs(void) const
+        const TechTreeBitMask&  GetEffectTechs(void) const override
         {
             return m_data.buyable->GetEffectTechs();
         }
     
-        virtual DWORD                   GetTimeToBuild(void) const
+        DWORD                   GetTimeToBuild(void) const override
         {
             return m_timeToBuild;
         }
 
-        virtual BuyableGroupID          GetGroupID(void) const
+        BuyableGroupID          GetGroupID(void) const override
         {
             return m_data.buyable->GetGroupID();
         }
 
         // IbucketIGC
-        virtual IbuyableIGC*            GetBuyable(void) const
+        IbuyableIGC*            GetBuyable(void) const override
         {
             return m_data.buyable;
         }
-        virtual IsideIGC*               GetSide(void) const
+        IsideIGC*               GetSide(void) const override
         {
             return m_data.side;
         }
 
-        virtual void                    SetPrice(Money m)
+        void                    SetPrice(Money m) override
         {
             assert (m_investedMoney == 0);
             assert (m > 0);
             m_price = m;
         }
 
-        virtual int                     GetPercentBought(void) const
+        int                     GetPercentBought(void) const override
         {
             assert (m_price > 0);
             return ((100 * m_investedMoney) / m_price);
         }
-        virtual int                     GetPercentComplete(void) const
+        int                     GetPercentComplete(void) const override
         {
             //m_investedMilliseconds
             return m_investedMilliseconds / (10 * m_timeToBuild);
         }
 
-        virtual bool                    GetCompleteF(void) const
+        bool                    GetCompleteF(void) const override
         {
             return m_investedMilliseconds >= (1000 * m_timeToBuild);
         }
 
-        virtual void                    ForceComplete(Time now)
+        void                    ForceComplete(Time now) override
         {
             assert (m_data.side->CanBuy(m_data.buyable));
 
@@ -259,24 +259,24 @@ class       CbucketIGC : public IbucketIGC
             }
         }
 
-        virtual DWORD                   GetTime(void) const
+        DWORD                   GetTime(void) const override
         {
             return m_investedMilliseconds;
         }
 
-        virtual Money                   GetMoney(void) const
+        Money                   GetMoney(void) const override
         {
             return m_investedMoney;
         }
 
-        virtual void                    SetTimeAndMoney(DWORD dwTime, Money money)
+        void                    SetTimeAndMoney(DWORD dwTime, Money money) override
         {
             m_investedMilliseconds = dwTime;
             m_investedMoney = money;
 
             m_pMission->GetIgcSite()->BucketChangeEvent(c_bcMoneyChange, this);
         }
-        virtual Money                    AddMoney(Money m)
+        Money                    AddMoney(Money m) override
         {
             {
                 Money leftover = m_price - m_investedMoney - m;
@@ -289,7 +289,7 @@ class       CbucketIGC : public IbucketIGC
 
             return m;
         }
-        virtual void                    SetEmpty(void)
+        void                    SetEmpty(void) override
         {
             m_investedMoney = 0;
             m_investedMilliseconds = 0;
@@ -297,11 +297,11 @@ class       CbucketIGC : public IbucketIGC
             m_pMission->GetIgcSite()->BucketChangeEvent(c_bcEmptied, this);
         }
 
-        virtual ObjectType              GetBucketType(void) const
+        ObjectType              GetBucketType(void) const override
         {
             return m_data.buyable->GetObjectType();
         }
-        virtual IbucketIGC*             GetPredecessor(void) const
+        IbucketIGC*             GetPredecessor(void) const override
         {
             return m_pbucketPredecessor;
         }

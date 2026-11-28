@@ -31,7 +31,7 @@ class SmokeBehavior : public ParticleBehavior
         }
 
         //////////////////////////////////////////////////////////////////////
-        virtual void    Render (Context* pContext, ParticleData* pParticleData, float fElapsedTime)
+        void    Render (Context* pContext, ParticleData* pParticleData, float fElapsedTime) override
         {
             // get the surface we will render from
             TRef<Surface> pSmokeSurface = m_pImageSmoke->GetSurface();
@@ -75,7 +75,7 @@ class FireBehavior : public ParticleBehavior
         }
 
         //////////////////////////////////////////////////////////////////////
-        virtual void    Render (Context* pContext, ParticleData* pParticleData, float fElapsedTime)
+        void    Render (Context* pContext, ParticleData* pParticleData, float fElapsedTime) override
         {
             // get the surface we will render from
             TRef<Surface> pFireSurface = m_pImageFire->GetSurface();
@@ -139,7 +139,7 @@ class DamageBehavior : public ParticleBehavior
         }
 
         //////////////////////////////////////////////////////////////////////
-        virtual void    Render (Context* pContext, ParticleData* pParticleData, float fElapsedTime)
+        void    Render (Context* pContext, ParticleData* pParticleData, float fElapsedTime) override
         {
             // we use smoke behavior instead of this
         }
@@ -161,7 +161,7 @@ class AfterburnerBehavior : public ParticleBehavior
         }
 
         //////////////////////////////////////////////////////////////////////
-        virtual void    Render (Context* pContext, ParticleData* pParticleData, float fElapsedTime)
+        void    Render (Context* pContext, ParticleData* pParticleData, float fElapsedTime) override
         {
             // get the surface we will render from
             TRef<Surface> pSmokeSurface = m_pImageSmoke->GetSurface();
@@ -216,7 +216,7 @@ class SparkBehavior : public ParticleBehavior
         }
 
         //////////////////////////////////////////////////////////////////////
-        virtual void    Render (Context* pContext, ParticleData* pParticleData, float fElapsedTime)
+        void    Render (Context* pContext, ParticleData* pParticleData, float fElapsedTime) override
         {
             // get the surface we will render from
             TRef<Surface> pSparkSurface = m_pImageSpark->GetSurface();
@@ -328,49 +328,49 @@ class ParticleGeoImpl : public ParticleGeo
         }
 
         //////////////////////////////////////////////////////////////////////
-        ParticleData*   AddAfterburner (void)
+        ParticleData*   AddAfterburner (void) override
         {
             return GetNextParticle (&m_afterburnerBehavior);
         }
 
         //////////////////////////////////////////////////////////////////////
-        ParticleData*   AddDamage (void)
+        ParticleData*   AddDamage (void) override
         {
             return GetNextParticle (&m_damageBehavior);
         }
 
         //////////////////////////////////////////////////////////////////////
-        ParticleData*   AddSmoke (void)
+        ParticleData*   AddSmoke (void) override
         {
             return GetNextParticle (&m_smokeBehavior);
         }
 
         //////////////////////////////////////////////////////////////////////
-        ParticleData*   AddFire (void)
+        ParticleData*   AddFire (void) override
         {
             return GetNextParticle (&m_fireBehavior);
         }
 
         //////////////////////////////////////////////////////////////////////
-        ParticleData*   AddSpark (void)
+        ParticleData*   AddSpark (void) override
         {
             return GetNextParticle (&m_sparkBehavior);
         }
 
         //////////////////////////////////////////////////////////////////////
-        void    Evaluate (void)
+        void    Evaluate (void) override
         {
             m_fTime = GetTime ()->GetValue ();
         }
 
         //////////////////////////////////////////////////////////////////////
-        ZString GetFunctionName (void) 
+        ZString GetFunctionName (void) override 
         { 
             return "ParticleGeo"; 
         }
 
         //////////////////////////////////////////////////////////////////////
-        void    Render(Context* pContext)
+        void    Render(Context* pContext) override
         {
             // compute how much of the buffer we are going to use
             int iParticleBufferSize = PARTICLE_BUFFER_SIZE * ThingGeo::GetShowSmoke ();

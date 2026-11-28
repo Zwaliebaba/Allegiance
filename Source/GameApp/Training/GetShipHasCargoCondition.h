@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          GetShipHasCargoCondition (const TRef<IshipIGC>& ship, EquipmentType part);
             virtual /* void */          ~GetShipHasCargoCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     TRef<IshipIGC>      m_ship;

@@ -334,7 +334,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool IsValid()
+    bool IsValid() override
     {
         return (m_pgeoMesh != NULL);
     }
@@ -345,7 +345,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetBoundsGeo(Geo* pgeo)
+    void SetBoundsGeo(Geo* pgeo) override
     {
         m_pgeoBounds = pgeo;
     }
@@ -366,12 +366,12 @@ public:
         {
         }
 
-        float GetRadius(const Matrix& mat)
+        float GetRadius(const Matrix& mat) override
         {
             return m_pthing->GetRadius(mat);
         }
 
-        void Render(Context* pcontext)
+        void Render(Context* pcontext) override
         {
             //
             // Scale the target geo so that it is radius 1
@@ -381,14 +381,14 @@ public:
             m_pthing->RenderTargetGeo(pcontext);
         }
 
-        void Evaluate()
+        void Evaluate() override
         {
             m_pthing->Evaluate();
             Changed();
         }
     };
 
-    Geo* GetTargetGeo()
+    Geo* GetTargetGeo() override
     {
         return new TargetGeo(this);
     }
@@ -408,24 +408,24 @@ public:
         {
         }
 
-        float GetRadius(const Matrix& mat)
+        float GetRadius(const Matrix& mat) override
         {
             return m_pthing->GetRadius(mat);
         }
 
-        void Render(Context* pcontext)
+        void Render(Context* pcontext) override
         {
             m_pthing->Render(pcontext);
         }
 
-        void Evaluate()
+        void Evaluate() override
         {
             m_pthing->Evaluate();
             Changed();
         }
     };
 
-    Geo* GetGeo()
+    Geo* GetGeo() override
     {
         return new ThingGeoWrapper(this);
     }
@@ -455,14 +455,14 @@ public:
         m_scaleGlow = 1 - pow(1 - value, 2);
     }
 
-    void SetAfterburnerThrust(const Vector& vecThrustDirection, float power)
+    void SetAfterburnerThrust(const Vector& vecThrustDirection, float power) override
     {
         m_vecThrustDirection = vecThrustDirection;
         m_fThrustPower = power;
         UpdateGlow();
     }
 
-    void SetThrust(float value)
+    void SetThrust(float value) override
     {
         ZAssert(value >= 0.0f && value < 1.0001f);
         if (value > 1.0f)
@@ -473,22 +473,22 @@ public:
         UpdateGlow();
     }
 
-    void SetParticleGeo (ParticleGeo* pParticleGeo)
+    void SetParticleGeo (ParticleGeo* pParticleGeo) override
     {
         m_pParticleGeo = pParticleGeo;
     }
 
-    void    SetAfterburnerSmokeSize (float fSize)
+    void    SetAfterburnerSmokeSize (float fSize) override
     {
         m_sizeSmoke = fSize;
     }
 
-    void    SetAfterburnerFireDuration (float fDuration)
+    void    SetAfterburnerFireDuration (float fDuration) override
     {
         m_fAfterburnerFireDuration = fDuration;
     }
 
-    void    SetAfterburnerSmokeDuration (float fDuration)
+    void    SetAfterburnerSmokeDuration (float fDuration) override
     {
         m_fAfterburnerSmokeDuration = fDuration;
     }
@@ -914,7 +914,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
 
-    void SetTrailColor(const Color& color)
+    void SetTrailColor(const Color& color) override
     {
         //
         // Is there any frame data?
@@ -949,7 +949,7 @@ public:
         }
     }
 
-    void SetShadeAlways(bool bShadeAlways)
+    void SetShadeAlways(bool bShadeAlways) override
     {
         m_bShadeAlways = bShadeAlways;
     }
@@ -973,7 +973,7 @@ public:
         return NULL;
     }
 
-    HRESULT LoadMDL(short options, INameSpace* pns, Image* pimageTexture)
+    HRESULT LoadMDL(short options, INameSpace* pns, Image* pimageTexture) override
     {
         //
         // Pull stuff out of the name space
@@ -1010,7 +1010,7 @@ public:
         return E_FAIL;
     }
 
-    HRESULT Load(short options, Geo* pgeo, Image* pimageTexture)
+    HRESULT Load(short options, Geo* pgeo, Image* pimageTexture) override
     {
         //
         // Use the passed in mesh
@@ -1082,7 +1082,7 @@ public:
         return vec * m_orientation;
     }
 
-    bool GetChildModelOffset(const ZString& str, Vector& vec)
+    bool GetChildModelOffset(const ZString& str, Vector& vec) override
     {
         if (m_pframes) {
             FrameDataListValue::FrameList::Iterator iter(m_pframes->GetList());
@@ -1109,7 +1109,7 @@ public:
         return false;
     }
 
-    bool GetChildOffset(const ZString& str, Vector& vec)
+    bool GetChildOffset(const ZString& str, Vector& vec) override
     {
         if (GetChildModelOffset(str, vec))
         {
@@ -1124,7 +1124,7 @@ public:
         return false;
     }
 
-    float GetRadius()
+    float GetRadius() override
     {
         return m_radius;
     }
@@ -1134,12 +1134,12 @@ public:
         return m_radius * mat.GetScale();
     }
 
-    void SetVisible(bool bVisible)
+    void SetVisible(bool bVisible) override
     {
         m_bVisible = bVisible;
     }
 
-    void SetVisibleShip(bool bVisible)
+    void SetVisibleShip(bool bVisible) override
     {
         m_bVisibleShip = bVisible;
     }
@@ -1154,7 +1154,7 @@ public:
         }
     }
 
-    void SetPosition(const Vector& vec)
+    void SetPosition(const Vector& vec) override
     {
         if (m_pbooleanMoving != NULL) {
             m_pbooleanMoving->SetValue(m_vecPosition != vec);
@@ -1167,7 +1167,7 @@ public:
         }
     }
 
-    void SetOrientation(const Orientation& orient)
+    void SetOrientation(const Orientation& orient) override
     {
         m_orientation = orient;
 
@@ -1178,7 +1178,7 @@ public:
         UpdateTrailPosition();
     }
 
-    float SetRadius(float radius)
+    float SetRadius(float radius) override
     {
         m_scale = radius / m_radiusMesh;
 
@@ -1193,7 +1193,7 @@ public:
         return m_radius;
     }
 
-    void SetTexture(Image* pimageTexture)
+    void SetTexture(Image* pimageTexture) override
     {
         m_psurfaceTexture = pimageTexture->GetSurface();
     }
@@ -1204,7 +1204,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    float GetFlareCount(void) const
+    float GetFlareCount(void) const override
     {
         return m_countFlares;
     }
@@ -1218,7 +1218,7 @@ public:
         {
         }
 
-        bool OnEvent(IEventSource* pevent)
+        bool OnEvent(IEventSource* pevent) override
         {
             return m_pthing->OnEvent(pevent);
         }
@@ -1236,7 +1236,7 @@ public:
         return false;
     }
 
-    void AddFlare(Geo* pgeo, Number* ptime, const Vector& vecDirection, const Vector* pvectorEllipse)
+    void AddFlare(Geo* pgeo, Number* ptime, const Vector& vecDirection, const Vector* pvectorEllipse) override
     {
         // !!! how about only one flare per thing
         /* !!! why is this commented out?
@@ -1312,12 +1312,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetBitsGeo(BitsGeo* pbitsGeo)
+    void SetBitsGeo(BitsGeo* pbitsGeo) override
     {
         m_pbitsGeo = pbitsGeo;
     }
 
-    void AddHullHit(const Vector& vecPosition, const Vector& vecNormal)
+    void AddHullHit(const Vector& vecPosition, const Vector& vecNormal) override
     {
         m_phullHitGeo->AddHullHit(vecPosition, vecNormal);
 
@@ -1346,12 +1346,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void    SetShowDamage (bool bShowDamage)
+    void    SetShowDamage (bool bShowDamage) override
     {
         m_bShowDamage = bShowDamage;
     }
 
-    void    AddDamage (const Vector& vecDamagePosition, float fDamageFraction)
+    void    AddDamage (const Vector& vecDamagePosition, float fDamageFraction) override
     {
         int iDamageIndexOpen = int((1.0f - fDamageFraction) * MAX_DAMAGE_FRAMES) - 1;
         int iDamageIndex = bound(iDamageIndexOpen, -1, MAX_DAMAGE_FRAMES - 1);
@@ -1377,7 +1377,7 @@ public:
             m_iLastDamageIndex = iDamageIndex;
     }
 
-    void    RemoveDamage (float fDamageFraction)
+    void    RemoveDamage (float fDamageFraction) override
     {
         int iDamageIndexOpen = int((1.0f - fDamageFraction) * MAX_DAMAGE_FRAMES) - 1;
         int iDamageIndex = bound(iDamageIndexOpen, -1, MAX_DAMAGE_FRAMES - 1);
@@ -1396,12 +1396,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void    SetTimeUntilRipcord (float fTimeUntilTeleport)
+    void    SetTimeUntilRipcord (float fTimeUntilTeleport) override
     {
         m_fTimeUntilRipcord = fTimeUntilTeleport;
     }
 
-    void    SetTimeUntilAleph (float fTimeUntilTeleport)
+    void    SetTimeUntilAleph (float fTimeUntilTeleport) override
     {
         m_fTimeUntilAleph = fTimeUntilTeleport;
     }
@@ -1447,7 +1447,7 @@ public:
         {
         }
 
-        void RenderCallback(Context* pcontext) {
+        void RenderCallback(Context* pcontext) override {
             m_pthing->RenderCallback(pcontext);
         }
     };

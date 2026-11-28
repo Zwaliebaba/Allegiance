@@ -233,7 +233,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
     
-    void Write(ZFile* pfile)
+    void Write(ZFile* pfile) override
     {
         SyncCpu();
 
@@ -258,12 +258,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    TRef<Surface> CreateCompatibleSurface(const WinPoint& size, SurfaceType stype, SurfaceSite* psite)
+    TRef<Surface> CreateCompatibleSurface(const WinPoint& size, SurfaceType stype, SurfaceSite* psite) override
     {
         return m_pengine->CreateCompatibleSurface(this, size, stype, psite);
     }
 
-    TRef<Surface> Copy()
+    TRef<Surface> Copy() override
     {
         TRef<Surface> psurface = m_pengine->CreateCompatibleSurface(this, m_size, GetSurfaceType(), m_psite);
 
@@ -293,7 +293,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetSite(SurfaceSite* psite)
+    void SetSite(SurfaceSite* psite) override
     {
         m_psite = psite;
     }
@@ -304,7 +304,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetPixelFormat(PixelFormat* ppf)
+    void SetPixelFormat(PixelFormat* ppf) override
     {
         ZAssert(m_pobjectMemory == NULL);
         DropMipLevels();
@@ -337,7 +337,7 @@ public:
         if (m_id < 0) m_id = 0;
     }
 
-    int GetChangeID()
+    int GetChangeID() override
     {
         return m_id;
     }
@@ -348,7 +348,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetMipLevels(int count, const BYTE* const* plevels, IObject* pobjectMemory)
+    void SetMipLevels(int count, const BYTE* const* plevels, IObject* pobjectMemory) override
     {
         m_vmipLevels.assign(plevels, plevels + count);
         m_pobjectMipMemory = pobjectMemory;
@@ -363,12 +363,12 @@ public:
         }
     }
 
-    int GetMipLevelCount()
+    int GetMipLevelCount() override
     {
         return 1 + (int)m_vmipLevels.size();
     }
 
-    const BYTE* GetMipLevel(int level)
+    const BYTE* GetMipLevel(int level) override
     {
         ZAssert(level >= 1 && level < GetMipLevelCount());
         return m_vmipLevels[level - 1];
@@ -380,17 +380,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    PixelFormat* GetPixelFormat()
+    PixelFormat* GetPixelFormat() override
     {
         return m_ppf;
     }
 
-    Palette* GetPalette()
+    Palette* GetPalette() override
     {
         return NULL;
     }
 
-    void SetName(const ZString& str)
+    void SetName(const ZString& str) override
     {
         m_strName = str;
     }
@@ -400,12 +400,12 @@ public:
         return m_strName;
     }
 
-    Engine* GetEngine()
+    Engine* GetEngine() override
     { 
         return m_pengine;               
     }
 
-    const WinPoint& GetSize()
+    const WinPoint& GetSize() override
     { 
         return m_size;                  
     }
@@ -419,23 +419,23 @@ public:
             );
     }
 
-    SurfaceType GetSurfaceType() 
+    SurfaceType GetSurfaceType() override 
     { 
         return m_stype;           
     }
 
-    bool HasColorKey()
+    bool HasColorKey() override
     {
         return m_bColorKey;
     }
 
-    const Color& GetColorKey()
+    const Color& GetColorKey() override
     {
         ZAssert(m_bColorKey);
         return m_colorKey;
     }
 
-    void SetColorKey(const Color& color)
+    void SetColorKey(const Color& color) override
     {
         m_bColorKey = true;
         m_colorKey = color;
@@ -457,7 +457,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Context* GetContext()
+    Context* GetContext() override
     {
 		ZAssert(!m_bInContext);
 
@@ -487,7 +487,7 @@ public:
         return NULL;
     }
 
-    void ReleaseContext(Context* pcontext)
+    void ReleaseContext(Context* pcontext) override
     {
 		ZAssert(m_bInContext);
         ZAssert(m_pcontext == pcontext);
@@ -644,17 +644,17 @@ public:
         return m_pgpu;
     }
 
-    bool UsesGpu()
+    bool UsesGpu() override
     {
         return GetGpuDevice() != NULL;
     }
 
-    D3D11Target* BeginGpuDraw()
+    D3D11Target* BeginGpuDraw() override
     {
         return BeginGpuDraw(false);
     }
 
-    ID3D11ShaderResourceView* GetGpuSource()
+    ID3D11ShaderResourceView* GetGpuSource() override
     {
         if (m_pgpu == NULL) {
             return NULL;
@@ -673,7 +673,7 @@ public:
         return m_pgpu->m_psrv;
     }
 
-    bool MakeGpuResident()
+    bool MakeGpuResident() override
     {
         D3D11Device* pdevice = EnsureGpuTarget();
 
@@ -775,18 +775,18 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetPitch()
+    int GetPitch() override
     {
         return m_pitch;
     }
 
-    const BYTE* GetPointer()
+    const BYTE* GetPointer() override
     {
         SyncCpu();
         return m_pbits;
     }
 
-    const BYTE* GetPointer(const WinPoint& point)
+    const BYTE* GetPointer(const WinPoint& point) override
     {
         return 
               GetPointer()
@@ -794,7 +794,7 @@ public:
             + point.X() * m_ppf->PixelBytes();
     }
 
-    BYTE* GetWritablePointer()
+    BYTE* GetWritablePointer() override
     {
         DropMipLevels();
         SyncCpu();
@@ -804,7 +804,7 @@ public:
         return m_pbits;
     }
 
-    BYTE* GetWritablePointer(const WinPoint& point)
+    BYTE* GetWritablePointer(const WinPoint& point) override
     {
         return 
               GetWritablePointer()
@@ -812,26 +812,26 @@ public:
             + point.X() * m_ppf->PixelBytes();
     }
 
-    void ReleasePointer()
+    void ReleasePointer() override
     {
     }
 
-    Pixel GetPixel(const WinPoint& point)
+    Pixel GetPixel(const WinPoint& point) override
     {
         return m_ppf->GetPixel(GetPointer(point));
     }
 
-    Color GetColor(const WinPoint& point)
+    Color GetColor(const WinPoint& point) override
     {
         return m_ppf->MakeColor(GetPixel(point));
     }
 
-    void SetPixel(const WinPoint& point, Pixel pixel)
+    void SetPixel(const WinPoint& point, Pixel pixel) override
     {
         m_ppf->SetPixel(GetWritablePointer(point), pixel);
     }
 
-    void SetColor(const WinPoint& point, const Color& color)
+    void SetColor(const WinPoint& point, const Color& color) override
     {
         SetPixel(point, m_ppf->MakePixel(color));
     }
@@ -842,31 +842,31 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Offset(const WinPoint& pointOffset)
+    void Offset(const WinPoint& pointOffset) override
     {
         m_pointOffset += pointOffset;
     }
 
-    const WinPoint& GetOffset()
+    const WinPoint& GetOffset() override
     {
         return m_pointOffset;
     }
 
-    WinRect GetClipRect()
+    WinRect GetClipRect() override
     {
         WinRect rect = m_rectClip;
         rect.Offset(-m_pointOffset);
         return rect;
     }
 
-    void SetClipRect(const WinRect& rectLocal)
+    void SetClipRect(const WinRect& rectLocal) override
     {
         WinRect rectClip(rectLocal);
         rectClip.Offset(m_pointOffset);
         m_rectClip.Intersect(rectClip);
     }
 
-    void RestoreClipRect(const WinRect& rectLocal)
+    void RestoreClipRect(const WinRect& rectLocal) override
     {
         m_rectClip = rectLocal;
         m_rectClip.Offset(m_pointOffset);
@@ -883,7 +883,7 @@ public:
         const Color& color, 
         const WinPoint& point, 
         const ZString& str
-    ) {
+    ) override {
         pfont->DrawString(
             this, 
             point + m_pointOffset, 
@@ -899,7 +899,7 @@ public:
         const Color& colorShadow,
         const WinPoint& point, 
         const ZString& str
-    ) {
+    ) override {
         DrawString(pfont, colorShadow, point + WinPoint(1, 1), str);
         DrawString(pfont, color      , point                 , str);
     }
@@ -1112,7 +1112,7 @@ public:
         }
     }
 
-    void BitBlt(const WinPoint& point, Surface* psurfaceSourceArg, const WinRect& rectSourceArg)
+    void BitBlt(const WinPoint& point, Surface* psurfaceSourceArg, const WinRect& rectSourceArg) override
     {
         PrivateSurfaceImpl* psurfaceSource = (PrivateSurfaceImpl*)psurfaceSourceArg;
 
@@ -1153,7 +1153,7 @@ public:
         SurfaceChanged();
     }
 
-    void BitBlt(const WinPoint& point, Surface* psurfaceSource)
+    void BitBlt(const WinPoint& point, Surface* psurfaceSource) override
     {
         BitBlt(
             point, 
@@ -1165,7 +1165,7 @@ public:
         );
     }
 
-    void BitBltFromCenter(const WinPoint& point, Surface* psurfaceSource)
+    void BitBltFromCenter(const WinPoint& point, Surface* psurfaceSource) override
     {
         BitBlt(
             point - psurfaceSource->GetSize() / 2, 
@@ -1228,7 +1228,7 @@ public:
         ReleasePointer();
     }
 
-    void BitBlt(const WinRect& rectTargetArg, Surface* psurfaceSourceArg, const WinRect& rectSource)
+    void BitBlt(const WinRect& rectTargetArg, Surface* psurfaceSourceArg, const WinRect& rectSource) override
     {
         PrivateSurfaceImpl* psurfaceSource = (PrivateSurfaceImpl*)psurfaceSourceArg;
 
@@ -1255,7 +1255,7 @@ public:
         SurfaceChanged();
     }
 
-    void BitBlt(const WinRect& rectTarget, Surface* psurfaceSource)
+    void BitBlt(const WinRect& rectTarget, Surface* psurfaceSource) override
     {
         BitBlt(
             rectTarget,
@@ -1310,7 +1310,7 @@ public:
         }
     }
 
-    void FillRect(const WinRect& rectArg, Pixel pixel)
+    void FillRect(const WinRect& rectArg, Pixel pixel) override
     {
         //
         // Offset the rect to the origin of the surface
@@ -1343,7 +1343,7 @@ public:
     // nearest pixel value, as before
     //
 
-    void FillRect(const WinRect& rectArg, const Color& color)
+    void FillRect(const WinRect& rectArg, const Color& color) override
     {
         WinRect rect = rectArg;
         rect.Offset(m_pointOffset);
@@ -1358,17 +1358,17 @@ public:
         SurfaceChanged();
     }
 
-    void FillSurface(Pixel pixel)
+    void FillSurface(Pixel pixel) override
     {
         FillRect(WinRect(-m_pointOffset, m_size - m_pointOffset), pixel);
     }
 
-    void FillSurface(const Color& color)
+    void FillSurface(const Color& color) override
     {
         FillRect(WinRect(-m_pointOffset, m_size - m_pointOffset), color);
     }
 
-    void FillSurfaceWithColorKey()
+    void FillSurfaceWithColorKey() override
     {
         FillSurface(m_colorKey);
     }

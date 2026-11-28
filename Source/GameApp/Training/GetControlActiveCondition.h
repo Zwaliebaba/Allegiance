@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          GetControlActiveCondition (const TRef<IshipIGC>& ship, Axis axis, float fExpectedValue, bool bUseInputControls = false);
             virtual /* void */          ~GetControlActiveCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     TRef<IshipIGC>      m_ship;

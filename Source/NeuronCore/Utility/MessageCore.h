@@ -137,7 +137,7 @@ public:
   {
     return m_dwTimeLastComplete;
   }
-  virtual int GetCountConnections() {return 1;}
+  int GetCountConnections() override {return 1;}
 
 private:
   CFMConnection(FedMessaging * fm, const char * szName, DWORD id); // only FedMessaging::CreateConnection can create these things
@@ -164,8 +164,8 @@ friend FedMessaging;
 public:
   void AddConnection(FedMessaging * pfm, CFMConnection * pcnxn);
   void DeleteConnection(FedMessaging * pfm, CFMConnection * pcnxn);
-  virtual int GetCountConnections() {return m_listMembers.GetCount();}
-  virtual CFMGroup * AsGroup() {return this;}
+  int GetCountConnections() override {return m_listMembers.GetCount();}
+  CFMGroup * AsGroup() override {return this;}
   ListConnections * GetMembers() {return &m_listMembers;}
 
 private:

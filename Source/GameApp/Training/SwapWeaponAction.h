@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          SwapWeaponAction (EquipmentType equipmentType, Mount mount);
             virtual /* void */          ~SwapWeaponAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     EquipmentType       m_equipmentType;

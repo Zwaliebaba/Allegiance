@@ -19,7 +19,7 @@ public:
     };
 
     ImageStringPane(LPCSTR szText, LPCSTR szImage, bool bUp = true, int Layout = ImageLeft);
-    virtual void UpdateLayout();
+    void UpdateLayout() override;
     virtual void SetString(LPCSTR szText);
 
 };
@@ -40,7 +40,7 @@ private:
 public:
 
     ImageStringButtonPane(LPCSTR szText, LPCSTR szImageUp, LPCSTR szImageDn, int Layout = ImageStringPane::ImageLeft);
-    virtual void UpdateLayout();
+    void UpdateLayout() override;
     virtual IEventSource* GetEventSource();
     virtual void SetString(LPCSTR szText);
 
@@ -67,14 +67,14 @@ private:
 
 public:
     CommandGeo(float radius, float zGrid, int nSegments);
-    void Render(Context* pcontext);
+    void Render(Context* pcontext) override;
     void SetCluster(IclusterIGC* pcluster);
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "CommandGeo"; }
+    ZString GetFunctionName() override { return "CommandGeo"; }
 
     static const Color s_colorGrid;
     static const Color s_colorGridMajor;

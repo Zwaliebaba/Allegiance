@@ -36,33 +36,33 @@ public:
     // Stops the sound.  If bForceNow is true the sound will stop ASAP, 
     // possibly popping.  If it is false some sounds may play a trail-off 
     // sound or fade away.  
-    HRESULT Stop(bool bForceNow = false)
+    HRESULT Stop(bool bForceNow = false) override
     {
         m_bLooping = false;
         return S_OK;
     };
 
     // returns S_OK if the sound is currently playing
-    HRESULT IsPlaying()
+    HRESULT IsPlaying() override
     {
         return m_bPlaying ? S_OK : S_FALSE;
     };
 
     // Gets an event which fires when the sound finishes playing (for any 
     // reason)
-    IEventSource* GetFinishEventSource()
+    IEventSource* GetFinishEventSource() override
     {
         return m_peventsourceFinished;
     };
 
     // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-    virtual TRef<ISoundTweakable> GetISoundTweakable()
+    TRef<ISoundTweakable> GetISoundTweakable() override
     {
         return this;
     };
 
     // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-    virtual TRef<ISoundTweakable3D> GetISoundTweakable3D()
+    TRef<ISoundTweakable3D> GetISoundTweakable3D() override
     {
         return this;
     };
@@ -87,21 +87,21 @@ public:
     //
 
     // Sets the gain, from 0 to -100 dB
-    HRESULT SetGain(float fGain)
+    HRESULT SetGain(float fGain) override
     {
         return S_OK;
     }
 
     // Sets the pitch shift, where 1.0 is normal, 0.5 is half of normal speed, 
     // and 2.0 is twice normal speed.  
-    HRESULT SetPitch(float fPitch)
+    HRESULT SetPitch(float fPitch) override
     {
         return S_OK;
     }
 
     // sets the priority - used as a addition to volume when choosing which 
     // sounds are most important to play.
-    virtual HRESULT SetPriority(float fPriority)
+    HRESULT SetPriority(float fPriority) override
     {
         return S_OK;
     }
@@ -112,14 +112,14 @@ public:
     //
 
     // toggles 3D Positioning on and off for the given sound.
-    HRESULT Set3D(bool b3D)
+    HRESULT Set3D(bool b3D) override
     {
         return S_OK;
     }
 
     // Sets the distance at which the sound will be at max volume.  This
     // effects how quickly the sound drops off with distance.  
-    HRESULT SetMinimumDistance(float fMinimumDistance)
+    HRESULT SetMinimumDistance(float fMinimumDistance) override
     {
         return S_OK;
     }
@@ -127,7 +127,7 @@ public:
     // Sets a sound cone of size fInnerAngle (in degrees) where the volume is at 
     // normal levels, outside of which it fades down by fOutsideGain 
     // (range of 0 to -100 db) at fOuterAngle (degrees) and beyond.  
-    HRESULT SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain)
+    HRESULT SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain) override
     {
         return S_OK;
     }
@@ -160,7 +160,7 @@ public:
     }
 
     // Rebuild the sound stage to reflect any recent changes in sound
-    virtual HRESULT Update()
+    HRESULT Update() override
     {
         DWORD dwUpdateTime = timeGetTime();
         DWORD dwUpdatePeriod = dwUpdateTime - m_dwLastUpdateTime; 
@@ -189,7 +189,7 @@ public:
 
     // Gets a buffer source for this object (not guarenteed to keep the sound 
     // engine alive due to circular reference problems)
-    virtual ISoundBufferSource* GetBufferSource()
+    ISoundBufferSource* GetBufferSource() override
     {
         return m_pBufferSourceDelegate;
     };
@@ -197,7 +197,7 @@ public:
     // Gets the number of virtual sound buffers that are playing at a given 
     // moment.  (no guarantees on how this number changes - it's just a perf.
     // number to use.)
-    virtual HRESULT GetNumPlayingVirtualBuffers(int& nBuffers)
+    HRESULT GetNumPlayingVirtualBuffers(int& nBuffers) override
     {
         nBuffers = m_listPlayingSounds.GetCount();
 
@@ -209,39 +209,39 @@ public:
     //
 
     // Sets the listener to use for the current sounds
-    HRESULT SetListener(ISoundListener* plistener)
+    HRESULT SetListener(ISoundListener* plistener) override
     {
         TRef<ISoundListener> plistenerRef = plistener; // cycle the ref count
         return S_OK;
     };
 
     // Sets a general quality of playback (CPU time vs. fidelity)
-    HRESULT SetQuality(Quality quality)
+    HRESULT SetQuality(Quality quality) override
     {
         return S_OK;
     };
 
     // Sets the conversion from game units to meters
-    HRESULT SetDistanceFactor(float fMetersPerUnit)
+    HRESULT SetDistanceFactor(float fMetersPerUnit) override
     {
         return S_OK;
     }
 
     // Sets the rolloff factor, where 1.0 is the real world attenuation with 
     // distance, 2.0 is twice the attenuation of the real world, etc..
-    HRESULT SetRolloffFactor(float fRolloffFactor)
+    HRESULT SetRolloffFactor(float fRolloffFactor) override
     {
         return S_OK;
     }
 
     // Sets the doppler factor, where 1.0 is real-world doppler
-    HRESULT SetDopplerFactor(float fDopplerFactor)
+    HRESULT SetDopplerFactor(float fDopplerFactor) override
     {
         return S_OK;
     }
 
     // Sets how much of the room reverb is heard
-    HRESULT SetReverb(float fLevel)
+    HRESULT SetReverb(float fLevel) override
     {
         return S_OK;
     }
@@ -253,8 +253,8 @@ public:
 
     // Creates a static sound buffer of the given wave file.  If bLooping is 
     // true, the sound will loop until stopped.
-    virtual HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
-        ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource = NULL)
+    HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
+        ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource = NULL) override
     {
         DummySoundInstance* dummySound = new DummySoundInstance(bLooping, psource);
         psoundNew = (ISoundInstance*)dummySound;
@@ -265,9 +265,9 @@ public:
     // Creates a sound buffer with a loop in the middle.  The sound will play
     // the start sound, play the loop sound until it gets a soft stop, then
     // play the rest of the sound.  
-    virtual HRESULT CreateASRBuffer(TRef<ISoundInstance>& psoundNew, 
+    HRESULT CreateASRBuffer(TRef<ISoundInstance>& psoundNew, 
         ISoundPCMData* pcmdata, unsigned uLoopStart, unsigned uLoopLength, 
-        ISoundPositionSource* psource = NULL)
+        ISoundPositionSource* psource = NULL) override
     {
         DummySoundInstance* dummySound = new DummySoundInstance(true, psource);
         psoundNew = (ISoundInstance*)dummySound;
@@ -277,7 +277,7 @@ public:
 
     // Gets an event which fires each time update is called.  This can be used
     // for some of the trickier sounds that change with time.
-    virtual IIntegerEventSource* GetUpdateEventSource()
+    IIntegerEventSource* GetUpdateEventSource() override
     {
         return m_peventsourceUpdate;
     };

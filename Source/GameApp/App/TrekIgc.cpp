@@ -42,7 +42,7 @@ class ClusterSiteImpl : public ClusterSite
             m_assetmaskLastWarning = 0;
         }
 
-        void Terminate(void)
+        void Terminate(void) override
         {
             //Clear out anything left in the scanners array
             //(it wasn't cleared because the player's side was set to NULL
@@ -169,7 +169,7 @@ class ClusterSiteImpl : public ClusterSite
             );
         }
 
-        void AddExplosion(ImodelIGC* pmodel, int type)
+        void AddExplosion(ImodelIGC* pmodel, int type) override
         {
             const Orientation& orient = pmodel->GetOrientation();
 
@@ -188,7 +188,7 @@ class ClusterSiteImpl : public ClusterSite
             const Vector& vecPosition,
             float scale,
             int   type
-        ) {
+        ) override {
             AddExplosion(
                 vecPosition,
                 Vector(0, 1, 0),
@@ -199,13 +199,13 @@ class ClusterSiteImpl : public ClusterSite
             );
         }
 
-        void AddPulse (float fExplodeTime, const Vector& vecPosition, float fRadius, const Color& color)
+        void AddPulse (float fExplodeTime, const Vector& vecPosition, float fRadius, const Color& color) override
         {
             // add a pulse geo to something or other
             //m_pPulseGeo->AddPulse (fExplodeTime, fRadius, vecPosition, color);
         }
 
-        void AddThingSite(ThingSite*    pThingSite)
+        void AddThingSite(ThingSite*    pThingSite) override
         {
             TRef<ThingGeo> pthing = pThingSite->GetThingGeo();
 
@@ -225,14 +225,14 @@ class ClusterSiteImpl : public ClusterSite
             }
         }
 
-        void DeleteThingSite(ThingSite* pThingSite)
+        void DeleteThingSite(ThingSite* pThingSite) override
         {
             Geo*    pgeo = pThingSite->GetGeo();
             if (pgeo)
                 m_pGroupScene->RemoveGeo(pgeo);
         }
 
-        HRESULT AddPoster(const char* textureName, const Vector& vec, float radius)
+        HRESULT AddPoster(const char* textureName, const Vector& vec, float radius) override
         {
             TRef<Image> pimage = GetWindow()->GetModeler()->LoadImage(textureName, true);
 
@@ -244,7 +244,7 @@ class ClusterSiteImpl : public ClusterSite
             return E_FAIL;
         }
 
-        void SetEnvironmentGeo(const char* pszName)
+        void SetEnvironmentGeo(const char* pszName) override
         {
             TRef<INameSpace> pns = GetModeler()->GetNameSpace(pszName);
 
@@ -253,7 +253,7 @@ class ClusterSiteImpl : public ClusterSite
             }
         }
 
-        Geo* GetEnvironmentGeo()
+        Geo* GetEnvironmentGeo() override
         {
             if (m_pgeoEnvironment == NULL) {
                 return Geo::GetEmpty();
@@ -262,17 +262,17 @@ class ClusterSiteImpl : public ClusterSite
             }
         }
 
-        GroupGeo*       GetGroupScene()
+        GroupGeo*       GetGroupScene() override
         {
             return m_pGroupScene;
         }
 
-        PosterImage* GetPosterImage()
+        PosterImage* GetPosterImage() override
         {
             return m_pposterImage;
         }
 
-        virtual void                    AddScanner(SideID   sid, IscannerIGC* scannerNew)
+        void                    AddScanner(SideID   sid, IscannerIGC* scannerNew) override
         {
             assert (sid >= 0);
             assert (sid < c_cSidesMax);
@@ -281,7 +281,7 @@ class ClusterSiteImpl : public ClusterSite
             if (sid == trekClient.GetSideID())
                 AddIbaseIGC((BaseListIGC*)&(m_scanners), scannerNew);
         }
-        virtual void                    DeleteScanner(SideID   sid, IscannerIGC* scannerOld)
+        void                    DeleteScanner(SideID   sid, IscannerIGC* scannerOld) override
         {
             assert (sid >= 0);
             assert (sid < c_cSidesMax);
@@ -289,7 +289,7 @@ class ClusterSiteImpl : public ClusterSite
             if (sid == trekClient.GetSideID())
                 DeleteIbaseIGC((BaseListIGC*)&(m_scanners), scannerOld);
         }
-        virtual const ScannerListIGC*      GetScanners(SideID   sid) const
+        const ScannerListIGC*      GetScanners(SideID   sid) const override
         {
             assert (sid >= 0);
             assert (sid < c_cSidesMax);
@@ -297,8 +297,8 @@ class ClusterSiteImpl : public ClusterSite
             return &(m_scanners);
         }
 
-        virtual AssetMask               GetClusterAssetMask(void) { return m_assetmask; }
-        virtual void                    SetClusterAssetMask(AssetMask am) 
+        AssetMask               GetClusterAssetMask(void) override { return m_assetmask; }
+        void                    SetClusterAssetMask(AssetMask am) override 
         {
             m_assetmask=am; 
 
@@ -368,7 +368,7 @@ class ClusterSiteImpl : public ClusterSite
             m_assetmaskLastWarning = m_assetmask;
         }
 
-        virtual void                MoveShip(void)
+        void                MoveShip(void) override
         {
             SectorID        sid = m_pcluster->GetObjectID();
             IsideIGC*       pside = trekClient.GetSide();
@@ -398,7 +398,7 @@ class ClusterSiteImpl : public ClusterSite
             SetClusterAssetMask(am);
         }
 
-        virtual void                MoveStation(void)
+        void                MoveStation(void) override
         {
             IsideIGC*       pside = trekClient.GetSide();
 
@@ -476,7 +476,7 @@ public:
     //
 
     // Gets the position of the sound in space
-    virtual HRESULT GetPosition(Vector& vectPosition)
+    HRESULT GetPosition(Vector& vectPosition) override
     {
         ZAssert(m_pmodel != NULL);
         if (m_pmodel == NULL) return E_FAIL;
@@ -497,7 +497,7 @@ public:
     };
     
     // Gets the velocity of the sound in space
-    virtual HRESULT GetVelocity(Vector& vectVelocity)
+    HRESULT GetVelocity(Vector& vectVelocity) override
     {
         ZAssert(m_pmodel != NULL);
         if (m_pmodel == NULL) return E_FAIL;
@@ -511,7 +511,7 @@ public:
     };
     
     // Gets the orientation of the sound in space, used for sound cones.
-    virtual HRESULT GetOrientation(Vector& vectOrientation)
+    HRESULT GetOrientation(Vector& vectOrientation) override
     {
         ZAssert(m_pmodel != NULL);
         if (m_pmodel == NULL) return E_FAIL;
@@ -526,7 +526,7 @@ public:
 
     // Returns S_OK if the position, velocity and orientation reported are 
     // relative to the listener, S_FALSE otherwise.  
-    virtual HRESULT IsListenerRelative()
+    HRESULT IsListenerRelative() override
     {
         return IsRelative() ? S_OK : S_FALSE;
     }
@@ -535,7 +535,7 @@ public:
     // otherwise.  This might be false if a sound emitter is destroyed, for 
     // example, in which case the sound might fade out.  Once it returns
     // S_FALSE once, it should never return S_OK again.
-    virtual HRESULT IsPlaying()
+    HRESULT IsPlaying() override
     {
         return (m_pmodel != NULL) ? S_OK : S_FALSE;
     };
@@ -689,7 +689,7 @@ public:
     }
 
     // updates the current sounds for this object acording to its state.
-    void UpdateSounds(DWORD dwElapsedTime)
+    void UpdateSounds(DWORD dwElapsedTime) override
     {
         if (!m_pAmbientSound)
         {
@@ -698,7 +698,7 @@ public:
     };
 
     // stops all sounds on this object - usually used when changing clusters.
-    void StopSounds()
+    void StopSounds() override
     {
         SoundSite::StopSounds();
         m_pAmbientSound = NULL;
@@ -1171,7 +1171,7 @@ public:
     }
 
     // updates the current sounds for this object acording to its state.
-    void UpdateSounds(DWORD dwElapsedTime)
+    void UpdateSounds(DWORD dwElapsedTime) override
     {
         // if this is not a turret or an observer 
         // REVIEW: Assumes that we can never go from in flight to observer/turret
@@ -1335,7 +1335,7 @@ public:
     };
 
     // stops all sounds on this object - usually used when changing clusters.
-    void StopSounds()
+    void StopSounds() override
     {
         SoundSite::StopSounds();
 
@@ -1442,7 +1442,7 @@ class ThingSiteImpl : public ThingSitePrivate
                 delete m_pSoundSite;
         }
 
-        void Purge(void)
+        void Purge(void) override
         {
             if (m_pthing) {
                 assert (!m_pdecal);
@@ -1456,7 +1456,7 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        void Terminate(void)
+        void Terminate(void) override
         {
             if (m_pdecal)
             {
@@ -1489,7 +1489,7 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        Vector GetChildModelOffset(const ZString& strFrame)
+        Vector GetChildModelOffset(const ZString& strFrame) override
         {
             //m_pthing->Update();
             Vector vec(0, 0, 0);
@@ -1498,7 +1498,7 @@ class ThingSiteImpl : public ThingSitePrivate
             return vec;
         }
 
-        Vector GetChildOffset(const ZString& strFrame)
+        Vector GetChildOffset(const ZString& strFrame) override
         {
             //m_pthing->Update();
             Vector vec(0, 0, 0);
@@ -1506,42 +1506,42 @@ class ThingSiteImpl : public ThingSitePrivate
             return vec;
         }
 
-        void SetAfterburnerSmokeSize (float size)
+        void SetAfterburnerSmokeSize (float size) override
         {
             m_pthing->SetAfterburnerSmokeSize (size);
         }
 
-        void    SetAfterburnerFireDuration (float duration)
+        void    SetAfterburnerFireDuration (float duration) override
         {
             m_pthing->SetAfterburnerFireDuration (duration);
         }
 
-        void    SetAfterburnerSmokeDuration (float duration)
+        void    SetAfterburnerSmokeDuration (float duration) override
         {
             m_pthing->SetAfterburnerSmokeDuration (duration);
         }
 
-        void    AddDamage (const Vector& vecDamagePosition, float fDamageFraction)
+        void    AddDamage (const Vector& vecDamagePosition, float fDamageFraction) override
         {
             m_pthing->AddDamage (vecDamagePosition, fDamageFraction);
         }
 
-        void    RemoveDamage (float fDamageFraction)
+        void    RemoveDamage (float fDamageFraction) override
         {
             m_pthing->RemoveDamage (fDamageFraction);
         }
 
-        void    SetTimeUntilRipcord (float fTimeUntilTeleport)
+        void    SetTimeUntilRipcord (float fTimeUntilTeleport) override
         {
             m_pthing->SetTimeUntilRipcord (fTimeUntilTeleport);
         }
 
-        void    SetTimeUntilAleph (float fTimeUntilTeleport)
+        void    SetTimeUntilAleph (float fTimeUntilTeleport) override
         {
             m_pthing->SetTimeUntilAleph (fTimeUntilTeleport);
         }
 
-        void AddExplosion(const Vector& vecPosition, float scale, int type)
+        void AddExplosion(const Vector& vecPosition, float scale, int type) override
         {
             IclusterIGC* pcluster = m_pmodel->GetCluster();
 
@@ -1550,7 +1550,7 @@ class ThingSiteImpl : public ThingSitePrivate
                 scale, type);
         }
 
-        void AddPulse (float fExplodeTime, const Vector& vecPosition, float fRadius, const Color& color)
+        void AddPulse (float fExplodeTime, const Vector& vecPosition, float fRadius, const Color& color) override
         {
             if ((m_pmodel->GetObjectType()) == OT_warp)
             {
@@ -1559,13 +1559,13 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        void AddHullHit(const Vector& vecPosition, const Vector& vecNormal)
+        void AddHullHit(const Vector& vecPosition, const Vector& vecNormal) override
         {
             if (m_pthing)
                 m_pthing->AddHullHit(vecPosition, vecNormal);
         }
 
-        void SetAfterburnerThrust(const Vector& thrust, float power)
+        void SetAfterburnerThrust(const Vector& thrust, float power) override
         {
             if (m_pthing) {
                 m_pthing->SetAfterburnerThrust(thrust, power);
@@ -1574,14 +1574,14 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        void AddMuzzleFlare(const Vector& vecEmissionPoint, float duration)
+        void AddMuzzleFlare(const Vector& vecEmissionPoint, float duration) override
         {
             if (this == trekClient.GetShip()->GetThingSite())
                 GetWindow()->AddMuzzleFlare(vecEmissionPoint, duration);
         }
 
         void AddFlare(Time timeArg, const Vector& vecPosition, int id,
-                      const Vector* ellipseEquation)
+                      const Vector* ellipseEquation) override
         {
             if (m_pthing->GetFlareCount() < 4.0f)
             {
@@ -1603,7 +1603,7 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        void SetVisible(unsigned char render)
+        void SetVisible(unsigned char render) override
         {
             if (m_pthing)
             {
@@ -1618,12 +1618,12 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        ThingGeo* GetThingGeo()
+        ThingGeo* GetThingGeo() override
         {
             return m_pthing;
         }
 
-        Geo* GetGeo()
+        Geo* GetGeo() override
         {
             if (m_pthingGeo) {
                 return m_pthingGeo;
@@ -1636,7 +1636,7 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        void SetPosition(const Vector& position)
+        void SetPosition(const Vector& position) override
         {
             if (m_pthing) {
                 m_pthing->SetPosition(position);
@@ -1647,7 +1647,7 @@ class ThingSiteImpl : public ThingSitePrivate
                 m_pbuildeffect->SetPosition(position);
         }
 
-        float GetRadius(void)
+        float GetRadius(void) override
         {
             if (m_pthing)
             {
@@ -1663,7 +1663,7 @@ class ThingSiteImpl : public ThingSitePrivate
                 return 0.0f;
         }
 
-        void SetRadius(float r)
+        void SetRadius(float r) override
         {
             m_radius = r;
 
@@ -1686,13 +1686,13 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        void SetColors(float aInner, float fInner, float fOuter)
+        void SetColors(float aInner, float fInner, float fOuter) override
         {
             assert (m_pbuildeffect);
             m_pbuildeffect->SetColors(aInner, fInner, fOuter);
         }
 
-        void SetOrientation(const Orientation& orientation)
+        void SetOrientation(const Orientation& orientation) override
         {
             if (m_pthing)
                 m_pthing->SetOrientation(orientation);
@@ -1703,7 +1703,7 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        void Spin(float r)
+        void Spin(float r) override
         {
             if (m_pdecal)
             {
@@ -1712,13 +1712,13 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        void SetTexture(const char* pszTextureName)
+        void SetTexture(const char* pszTextureName) override
         {
             assert (m_pthing);
             m_pthing->SetTexture(GetWindow()->GetModeler()->LoadImage(pszTextureName, false));
         }
 
-        HRESULT LoadEffect(const Color& color)
+        HRESULT LoadEffect(const Color& color) override
         {
             m_pbuildeffect = CreateBuildEffectGeo(GetWindow()->GetModeler(),
                                                   GetWindow()->GetTime(),
@@ -1728,7 +1728,7 @@ class ThingSiteImpl : public ThingSitePrivate
             return S_OK;
         }
 
-        HRESULT LoadDecal(const char* textureName, bool bDirectional, float width)
+        HRESULT LoadDecal(const char* textureName, bool bDirectional, float width) override
         {
             ZAssert(m_pthing == NULL && m_pdecal == NULL);
 
@@ -1768,7 +1768,7 @@ class ThingSiteImpl : public ThingSitePrivate
             int options,
             const char* modelName,
             const char* textureName
-        ) {
+        ) override {
             HRESULT rc = S_OK;
             ZAssert(m_pthing == NULL && m_pdecal == NULL);
 
@@ -1826,7 +1826,7 @@ class ThingSiteImpl : public ThingSitePrivate
             return rc;
         }
 
-        void    SetTrailColor(const Color& color)
+        void    SetTrailColor(const Color& color) override
         {
             if (m_pthing)
                 m_pthing->SetTrailColor(color);
@@ -1836,7 +1836,7 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        HRESULT LoadAleph(const char* textureName)
+        HRESULT LoadAleph(const char* textureName) override
         {
             ZAssert(m_pthing == NULL && m_pdecal == NULL);
 
@@ -1870,7 +1870,7 @@ class ThingSiteImpl : public ThingSitePrivate
             return E_FAIL;
         }
 
-        HRESULT LoadMine(const char* textureName, float strength, float radius)
+        HRESULT LoadMine(const char* textureName, float strength, float radius) override
         {
             ZAssert(m_pthing == NULL && m_pdecal == NULL);
 
@@ -1895,7 +1895,7 @@ class ThingSiteImpl : public ThingSitePrivate
             return E_FAIL;
         }
 
-        void SetMineStrength(float strength)
+        void SetMineStrength(float strength) override
         {
             m_pmineFieldGeo->SetStrength(strength);
         }
@@ -1905,34 +1905,34 @@ class ThingSiteImpl : public ThingSitePrivate
             float           fScreenRadius,
             float           distanceToEdge,
             unsigned char   ucRadarState
-        ) {
+        ) override {
             m_pointScreenPosition = pointScreenPosition;
             m_fScreenRadius       = fScreenRadius;
             m_distanceToEdge      = distanceToEdge;
             m_ucRadarState        = ucRadarState;
         }
 
-        const Point& GetScreenPosition(void) const
+        const Point& GetScreenPosition(void) const override
         {
             return m_pointScreenPosition;
         }
 
-        float GetDistanceToEdge()
+        float GetDistanceToEdge() override
         {
             return m_distanceToEdge;
         }
         
-        float GetScreenRadius()
+        float GetScreenRadius() override
         {
             return m_fScreenRadius;
         }
         
-        unsigned char GetRadarState()
+        unsigned char GetRadarState() override
         {
             return m_ucRadarState;
         }
 
-        void SetCluster(ImodelIGC* pmodel, IclusterIGC* pcluster)
+        void SetCluster(ImodelIGC* pmodel, IclusterIGC* pcluster) override
         {
             ModelAttributes ma = pmodel->GetAttributes();
 
@@ -1990,7 +1990,7 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        void UpdateSideVisibility(ImodelIGC* pmodel, IclusterIGC* pcluster)
+        void UpdateSideVisibility(ImodelIGC* pmodel, IclusterIGC* pcluster) override
         {
             //We can only update it if we have one & if the client is actually on a side.
             if (m_bSideVisibility && trekClient.GetSide())
@@ -2051,7 +2051,7 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        bool GetSideVisibility(IsideIGC* side)
+        bool GetSideVisibility(IsideIGC* side) override
         {
             assert (side);
 
@@ -2063,7 +2063,7 @@ class ThingSiteImpl : public ThingSitePrivate
             return m_sideVisibility.fVisible();
         }
 
-        void SetSideVisibility(IsideIGC* side, bool fVisible)
+        void SetSideVisibility(IsideIGC* side, bool fVisible) override
         {
             if (m_bSideVisibility && (side == trekClient.GetSide()))
                 m_sideVisibility.fVisible(fVisible);
@@ -2085,7 +2085,7 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        virtual void             ActivateBolt(void)
+        void             ActivateBolt(void) override
         {
             if (m_pmodel->GetVisibleF())
             {
@@ -2120,7 +2120,7 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        virtual void             DeactivateBolt(void)
+        void             DeactivateBolt(void) override
         {
             if (m_pvisibleGeoBolt) {
                 m_pvisibleGeoBolt->SetEmpty();
@@ -2128,23 +2128,23 @@ class ThingSiteImpl : public ThingSitePrivate
             }
         }
 
-        virtual int         GetMask(void) const
+        int         GetMask(void) const override
         {
             return m_mask;
         }
-        virtual void        SetMask(int mask)
+        void        SetMask(int mask) override
         {
             m_mask = mask;
         }
-        virtual void        OrMask(int mask)
+        void        OrMask(int mask) override
         {
             m_mask |= mask;
         }
-        virtual void        AndMask(int mask)
+        void        AndMask(int mask) override
         {
             m_mask &= mask;
         }
-        virtual void        XorMask(int mask)
+        void        XorMask(int mask) override
         {
             m_mask ^= mask;
         }
@@ -2165,7 +2165,7 @@ class ThingSiteImpl : public ThingSitePrivate
                 m_pSoundSite->StopSounds();
         };
 
-        TRef<ISoundPositionSource> GetSoundSource()
+        TRef<ISoundPositionSource> GetSoundSource() override
         {
             if (!m_pSoundSite)
                 m_pSoundSite = new SoundSite(m_pmodel);

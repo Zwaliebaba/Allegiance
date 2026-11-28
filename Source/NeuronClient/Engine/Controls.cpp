@@ -661,45 +661,45 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    TRef<IEventSource> GetClickEvent()
+    TRef<IEventSource> GetClickEvent() override
     {
         return m_peventSource;
     }
 
-    TRef<IStringEventSource> GetChangeEvent()
+    TRef<IStringEventSource> GetChangeEvent() override
     {
         return m_peventSourceZString;
     }
 
-    const ZString& GetString()
+    const ZString& GetString() override
     {
         return m_str;
     }
 
-    void SetTextColor(const Color& color)
+    void SetTextColor(const Color& color) override
     {
         m_textColor = color;
         NeedPaint();
     }
 
-    void SetFont(IEngineFont* pfont)
+    void SetFont(IEngineFont* pfont) override
     {
         m_pfont = pfont;
         NeedPaint();
     }
 
-    void SetReadOnly(bool bReadOnly)  
+    void SetReadOnly(bool bReadOnly) override  
     {
         m_bReadOnly = bReadOnly;
         UpdateStrings();
     }
 
-    bool IsReadOnly()  
+    bool IsReadOnly() override  
     {
         return m_bReadOnly;
     }
 
-    void SetString(const ZString& str)
+    void SetString(const ZString& str) override
     {
         if (str != m_str) {
             m_str = str;
@@ -708,14 +708,14 @@ public:
         }
     }
 
-    void SetType(EditPaneType type)
+    void SetType(EditPaneType type) override
     {
         m_type = type;
         UpdateStrings();
         NeedPaint();
     }
 
-    void SetMaxLength(int length)
+    void SetMaxLength(int length) override
     {
         m_maxLength = length;
 
@@ -730,13 +730,13 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         fForceTranslate = true;
         return false;
     }
 
-    bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+    bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
     {
         if (m_bReadOnly) 
             return true;
@@ -784,7 +784,7 @@ public:
         return true;
     }
 
-    void SetFocusState(bool bFocus)
+    void SetFocusState(bool bFocus) override
     {
         m_bFocus = bFocus;
         UpdateStrings();
@@ -797,7 +797,7 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         if (!m_bReadOnly) 
         {
@@ -817,7 +817,7 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    void Paint(Surface* psurface)
+    void Paint(Surface* psurface) override
     {
         psurface->DrawString(m_pfont, m_textColor, WinPoint(0, 0), m_strClipped);
 
@@ -840,7 +840,7 @@ public:
         }
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
     }
 
@@ -850,7 +850,7 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    void ChildChanged(Value* pvalue, Value* pvalueNew)
+    void ChildChanged(Value* pvalue, Value* pvalueNew) override
     {
         Value::ChildChanged(pvalue, pvalueNew);
 
@@ -1264,7 +1264,7 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         InternalSetSize(GetExpand());
 
@@ -1362,7 +1362,7 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside)
+    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override
     {
         if (bCaptured && GetCapturePane() == NULL) {
             if (m_bHorizontal) {
@@ -1373,7 +1373,7 @@ public:
         }
     }
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         if (button == 0) {
             if (bDown) {
@@ -1397,7 +1397,7 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         if (pevent == m_peventSourceLeft) {
             PageUp();
@@ -1494,58 +1494,58 @@ public:
         m_peventRight->RemoveSink(m_psinkRight);
     }
 
-    IIntegerEventSource* GetEventSource()
+    IIntegerEventSource* GetEventSource() override
     {
         return m_ptroughPane->GetEventSource();
     }
 
-    int  GetSize()     { return m_ptroughPane->GetSize();     }
-    int  GetPageSize() { return m_ptroughPane->GetPageSize(); }
-    int  GetLineSize() { return m_ptroughPane->GetLineSize(); }
-    int  GetPos()      { return m_ptroughPane->GetPos();      }
-    bool IsHorizontal(){ return m_ptroughPane->IsHorizontal();}
+    int  GetSize() override     { return m_ptroughPane->GetSize();     }
+    int  GetPageSize() override { return m_ptroughPane->GetPageSize(); }
+    int  GetLineSize() override { return m_ptroughPane->GetLineSize(); }
+    int  GetPos() override      { return m_ptroughPane->GetPos();      }
+    bool IsHorizontal() override{ return m_ptroughPane->IsHorizontal();}
 
-    void SetSizes(int size, int sizePage)
+    void SetSizes(int size, int sizePage) override
     {
         m_ptroughPane->SetSizes(size, sizePage);
     }
 
-    void SetSize(int size)
+    void SetSize(int size) override
     {
         m_ptroughPane->SetSizes(size, m_ptroughPane->GetPageSize());
     }
 
-    void SetPageSize(int sizePage)
+    void SetPageSize(int sizePage) override
     {
         m_ptroughPane->SetSizes(m_ptroughPane->GetSize(), sizePage);
     }
 
-    void SetLineSize(int sizeLine)
+    void SetLineSize(int sizeLine) override
     {
         m_ptroughPane->SetLineSize(sizeLine);
     }
 
-    void SetPos(int pos)
+    void SetPos(int pos) override
     {
         m_ptroughPane->SetPos(pos);
     }
 
-    void PageUp()
+    void PageUp() override
     {
         m_ptroughPane->PageUp();
     }
 
-    void PageDown()
+    void PageDown() override
     {
         m_ptroughPane->PageDown();
     }
 
-    void LineUp()
+    void LineUp() override
     {
         m_ptroughPane->LineUp();
     }
 
-    void LineDown()
+    void LineDown() override
     {
         m_ptroughPane->LineDown();
     }
@@ -1554,7 +1554,7 @@ public:
     // IEventSink methods
     //
 
-    bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         if (pevent == m_peventLeft) {
             LineUp();
@@ -1569,7 +1569,7 @@ public:
     // Value Methods
     //
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         InternalSetExpand(
             WinPoint(

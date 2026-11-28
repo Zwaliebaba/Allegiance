@@ -148,7 +148,7 @@ public:
         //
         //////////////////////////////////////////////////////////////////////////////
 
-        void UpdateLayout()
+        void UpdateLayout() override
         {
             m_pimageDefault->Update();
             InternalSetSize(
@@ -158,7 +158,7 @@ public:
             Pane::UpdateLayout();
         }
 
-        void Paint(Surface* psurface)
+        void Paint(Surface* psurface) override
         {
             psurface->BitBlt(WinPoint(0, 0), m_pimage->GetSurface());
 
@@ -222,18 +222,18 @@ public:
         //
         //////////////////////////////////////////////////////////////////////////////
 
-        void MouseEnter(IInputProvider* pprovider, const Point& point)
+        void MouseEnter(IInputProvider* pprovider, const Point& point) override
         {
             m_ploadout->SlotEntered(this);
             trekClient.PlaySoundEffect(mouseoverSound);
         }
 
-        void MouseLeave(IInputProvider* pprovider)
+        void MouseLeave(IInputProvider* pprovider) override
         {
             m_ploadout->SlotLeft(this);
         }
 
-        MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+        MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
         {
             if (bDown) {
                 //m_ploadout->SlotEntered(this);
@@ -243,7 +243,7 @@ public:
             return MouseResult();
         }
 
-        void OnBoardShip(IshipIGC* pshipChild, IshipIGC* pshipParent)
+        void OnBoardShip(IshipIGC* pshipChild, IshipIGC* pshipParent) override
         {
             if (pshipParent == trekClient.GetShip() || pshipParent == NULL)
             {
@@ -808,12 +808,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
 
-    void OnFrame()
+    void OnFrame() override
     {
         UpdateButtons();
     }
@@ -1396,7 +1396,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void OnMoneyChange(PlayerInfo* pPlayerInfo)
+    void OnMoneyChange(PlayerInfo* pPlayerInfo) override
     {
         if (pPlayerInfo == trekClient.MyPlayerInfo()) {
             m_pnumberMoney->SetValue((float)trekClient.GetMoney());
@@ -1525,7 +1525,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void OnTechTreeChanged(SideID sideID)
+    void OnTechTreeChanged(SideID sideID) override
     {
         if (trekClient.GetSideID() == sideID)
             UpdateNextAndPrevButtons();
@@ -1723,7 +1723,7 @@ public:
         }
     }
 
-    TRef<IPopup> GetSubMenu(IMenuItem* pitem)
+    TRef<IPopup> GetSubMenu(IMenuItem* pitem) override
     {
         assert(pitem->GetID() == c_midOtherParts);
 
@@ -1816,7 +1816,7 @@ public:
         }
     }
 
-    void OnMenuCommand(IMenuItem* pitem)
+    void OnMenuCommand(IMenuItem* pitem) override
     {
         //  , I don't know why this is getting called twice for the same
         //             menu
@@ -1858,7 +1858,7 @@ public:
         }
     }
 
-    void OnMenuSelect(IMenuItem* pitem)
+    void OnMenuSelect(IMenuItem* pitem) override
     {
         if (m_pslotMenu != NULL) {
             if (pitem->GetID() == -1) {
@@ -1874,7 +1874,7 @@ public:
         }
     }
 
-    void OnMenuClose(IMenu* pmenu)
+    void OnMenuClose(IMenu* pmenu) override
     {
         UpdatePartInfo(NULL, NULL, NULL);
     }
@@ -2034,7 +2034,7 @@ public:
         }
     }
 
-    void UpdateHullType(void)
+    void UpdateHullType(void) override
     {
         UpdateButtons();
     
@@ -2146,7 +2146,7 @@ public:
         }
     }
 
-    void OnPurchaseCompleted(bool bAllPartsBought)
+    void OnPurchaseCompleted(bool bAllPartsBought) override
     {
         if (!bAllPartsBought)
         {

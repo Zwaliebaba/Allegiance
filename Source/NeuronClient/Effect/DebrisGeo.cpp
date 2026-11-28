@@ -38,7 +38,7 @@ public:
         m_psurface = pmodeler->LoadSurface("debris1bmp", true);
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
         const Rect&       rect     = GetViewRect()->GetValue();
               Camera*     pcamera  = GetCamera();
@@ -124,7 +124,7 @@ public:
         m_positionLast = position;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         const Vector& position = GetCamera()->GetPosition();
         float scale = 0.1f / GetCamera()->GetFocus();
@@ -160,7 +160,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetFunctionName() { return "DebrisGeo"; }
+    ZString GetFunctionName() override { return "DebrisGeo"; }
 };
 
 TRef<Geo> CreateDebrisGeo(Modeler* pmodeler, Number* ptime, Viewport* pviewport)

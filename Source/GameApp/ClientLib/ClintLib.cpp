@@ -19,12 +19,12 @@ private:
     }
     
 public:
-    void AddSink(IClientEventSink* psink)
+    void AddSink(IClientEventSink* psink) override
     {
         m_listSinks.PushFront(psink);
     }
     
-    void RemoveSink(IClientEventSink* psink)
+    void RemoveSink(IClientEventSink* psink) override
     {
         // in order to let us remove the current sync while walking the list of
         // sinks, just set the sink to NULL for the moment.  
@@ -41,237 +41,237 @@ public:
             } \
         RemoveDeadSinks(); \
 
-    void OnAddMission(MissionInfo* pMissionInfo)
+    void OnAddMission(MissionInfo* pMissionInfo) override
     {
         ForEachSink( OnAddMission(pMissionInfo) )
     }
 
-    void OnMissionCountdown(MissionInfo* pMissionInfo)
+    void OnMissionCountdown(MissionInfo* pMissionInfo) override
     {
         ForEachSink( OnMissionCountdown(pMissionInfo) )
     }
     
-    void OnMissionStarted(MissionInfo* pMissionInfo)
+    void OnMissionStarted(MissionInfo* pMissionInfo) override
     {
         ForEachSink( OnMissionStarted(pMissionInfo) )
     }
     
-    void OnMissionEnded(MissionInfo* pMissionInfo)
+    void OnMissionEnded(MissionInfo* pMissionInfo) override
     {
         ForEachSink( OnMissionEnded(pMissionInfo) )
     }
 
-    void OnLockLobby(bool bLock)
+    void OnLockLobby(bool bLock) override
     {
         ForEachSink( OnLockLobby(bLock) )
     }
 
-    void OnLockSides(bool bLock)
+    void OnLockSides(bool bLock) override
     {
         ForEachSink( OnLockSides(bLock) )
     }
 
-    void OnFoundPlayer(MissionInfo* pMissionInfo)
+    void OnFoundPlayer(MissionInfo* pMissionInfo) override
     {
         ForEachSink( OnFoundPlayer(pMissionInfo) )
     }
 
-    void OnEnterMission()
+    void OnEnterMission() override
     {
         ForEachSink( OnEnterMission() )
     }
 
-    void OnDelMission(MissionInfo* pMissionInfo)
+    void OnDelMission(MissionInfo* pMissionInfo) override
     {
         ForEachSink( OnDelMission(pMissionInfo) )
     }
     
-    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         ForEachSink( OnAddPlayer(pMissionInfo, sideID, pPlayerInfo) )
     }
 
-    void OnDelPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam)
+    void OnDelPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam) override
     {
         ForEachSink( OnDelPlayer(pMissionInfo, sideID, pPlayerInfo, reason, szMessageParam) )
     }
 
-    void OnAddRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnAddRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         ForEachSink( OnAddRequest(pMissionInfo, sideID, pPlayerInfo) )
     }
 
-    void OnDelRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason)
+    void OnDelRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason) override
     {
         ForEachSink( OnDelRequest(pMissionInfo, sideID, pPlayerInfo, reason) )
     }
 
-    void OnTeamInactive(MissionInfo* pMissionInfo, SideID sideID)
+    void OnTeamInactive(MissionInfo* pMissionInfo, SideID sideID) override
     {
         ForEachSink( OnTeamInactive(pMissionInfo, sideID) )
     }
 
-    void OnTeamReadyChange(MissionInfo* pMissionInfo, SideID sideID, bool fTeamReady)
+    void OnTeamReadyChange(MissionInfo* pMissionInfo, SideID sideID, bool fTeamReady) override
     {
         ForEachSink( OnTeamReadyChange(pMissionInfo, sideID, fTeamReady) )
     }
 
-    void OnTeamForceReadyChange(MissionInfo* pMissionInfo, SideID sideID, bool fTeamForceReady)
+    void OnTeamForceReadyChange(MissionInfo* pMissionInfo, SideID sideID, bool fTeamForceReady) override
     {
         ForEachSink( OnTeamForceReadyChange(pMissionInfo, sideID, fTeamForceReady) )
     }
 
-    void OnTeamAutoAcceptChange(MissionInfo* pMissionInfo, SideID sideID, bool fAutoAccept)
+    void OnTeamAutoAcceptChange(MissionInfo* pMissionInfo, SideID sideID, bool fAutoAccept) override
     {
         ForEachSink( OnTeamAutoAcceptChange(pMissionInfo, sideID, fAutoAccept) )
     }
 
-    void OnTeamCivChange(MissionInfo* pMissionInfo, SideID sideID, CivID civID)
+    void OnTeamCivChange(MissionInfo* pMissionInfo, SideID sideID, CivID civID) override
     {
         ForEachSink( OnTeamCivChange(pMissionInfo, sideID, civID) )
     }
 
-    void OnTeamNameChange(MissionInfo* pMissionInfo, SideID sideID)
+    void OnTeamNameChange(MissionInfo* pMissionInfo, SideID sideID) override
     {
         ForEachSink( OnTeamNameChange(pMissionInfo, sideID) )
     }
 
-    void OnPlayerStatusChange(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnPlayerStatusChange(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         ForEachSink( OnPlayerStatusChange(pMissionInfo, sideID, pPlayerInfo) )
     }
 
-    void OnMoneyChange(PlayerInfo* pPlayerInfo)
+    void OnMoneyChange(PlayerInfo* pPlayerInfo) override
     {
         ForEachSink( OnMoneyChange(pPlayerInfo) )
     }
 
-    void OnBucketChange(BucketChange bc, IbucketIGC* b)
+    void OnBucketChange(BucketChange bc, IbucketIGC* b) override
     {
         ForEachSink( OnBucketChange(bc, b) )
     }
 
-    void OnTechTreeChanged(SideID sid)
+    void OnTechTreeChanged(SideID sid) override
     {
         ForEachSink( OnTechTreeChanged(sid) )
     }
 
-    void OnStationCaptured(StationID stationID, SideID sideID)
+    void OnStationCaptured(StationID stationID, SideID sideID) override
     {
         ForEachSink( OnStationCaptured(stationID, sideID) )
     }
 
-    void OnModelTerminated(ImodelIGC* pmodel)
+    void OnModelTerminated(ImodelIGC* pmodel) override
     {
         ForEachSink( OnModelTerminated(pmodel) )
     }
 
-    void OnLoadoutChanged(IpartIGC* ppart, LoadoutChange lc)
+    void OnLoadoutChanged(IpartIGC* ppart, LoadoutChange lc) override
     {
         ForEachSink( OnLoadoutChanged(ppart, lc) )
     }
     
-    void OnTurretStateChanging(bool bTurret)
+    void OnTurretStateChanging(bool bTurret) override
     {
         ForEachSink( OnTurretStateChanging(bTurret) )
     }
 
-    void OnPurchaseCompleted(bool bAllPartsBought)
+    void OnPurchaseCompleted(bool bAllPartsBought) override
     {
         ForEachSink( OnPurchaseCompleted(bAllPartsBought) )
     }
 
-    void OnShipStatusChange(PlayerInfo* pplayer) 
+    void OnShipStatusChange(PlayerInfo* pplayer) override 
     {
         ForEachSink( OnShipStatusChange(pplayer) )
     }
 
-    void OnBoardShip(IshipIGC* pshipChild, IshipIGC* pshipParent)
+    void OnBoardShip(IshipIGC* pshipChild, IshipIGC* pshipParent) override
     {
         ForEachSink( OnBoardShip(pshipChild, pshipParent) )
     }
 
-    void OnBoardFailed(IshipIGC* pshipParent)
+    void OnBoardFailed(IshipIGC* pshipParent) override
     {
         ForEachSink( OnBoardFailed(pshipParent) )
     }
 
-    void OnDiscoveredStation(IstationIGC* pstation)
+    void OnDiscoveredStation(IstationIGC* pstation) override
     {
         ForEachSink( OnDiscoveredStation(pstation) )
     }
 
-    void OnDiscoveredAsteroid(IasteroidIGC* pasteroid)
+    void OnDiscoveredAsteroid(IasteroidIGC* pasteroid) override
     {
         ForEachSink( OnDiscoveredAsteroid(pasteroid) )
     }
 
-    void OnClusterChanged(IclusterIGC* pcluster)
+    void OnClusterChanged(IclusterIGC* pcluster) override
     {
         ForEachSink( OnClusterChanged(pcluster) )
     }
 
-    void OnGameoverStats()
+    void OnGameoverStats() override
     {
         ForEachSink( OnGameoverStats() )
     }
 
-    void OnGameoverPlayers()
+    void OnGameoverPlayers() override
     {
         ForEachSink( OnGameoverPlayers() )
     }
 
-    void OnDeleteChatMessage(ChatInfo* pchatInfo)
+    void OnDeleteChatMessage(ChatInfo* pchatInfo) override
     {
         ForEachSink( OnDeleteChatMessage(pchatInfo) )
     }
 
-    void OnNewChatMessage()
+    void OnNewChatMessage() override
     {
         ForEachSink( OnNewChatMessage() )
     }
 
-    void OnClearChat()
+    void OnClearChat() override
     {
         ForEachSink( OnClearChat() )
     }
 
-    void OnChatMessageChange()
+    void OnChatMessageChange() override
     {
         ForEachSink( OnChatMessageChange() )
     }
 
-    void OnLostConnection(const char * szReason)
+    void OnLostConnection(const char * szReason) override
     {
         ForEachSink( OnLostConnection(szReason) )
     }
 
-    void OnEnterModalState()
+    void OnEnterModalState() override
     {
         ForEachSink( OnEnterModalState() )
     }
 
-    void OnLeaveModalState()
+    void OnLeaveModalState() override
     {
         ForEachSink( OnLeaveModalState() )
     }
 
-    void OnLogonLobby() 
+    void OnLogonLobby() override 
     {
         ForEachSink( OnLogonLobby() )
     }
 
-    void OnLogonLobbyFailed(bool bRetry, const char * szReason) 
+    void OnLogonLobbyFailed(bool bRetry, const char * szReason) override 
     {
         ForEachSink( OnLogonLobbyFailed(bRetry, szReason) )
     }
 
-    void OnLogonGameServer() 
+    void OnLogonGameServer() override 
     {
         ForEachSink( OnLogonGameServer() )
     }
 
-    void OnLogonGameServerFailed(bool bRetry, const char * szReason) 
+    void OnLogonGameServerFailed(bool bRetry, const char * szReason) override 
     {
         ForEachSink( OnLogonGameServerFailed(bRetry, szReason) )
     }
@@ -290,237 +290,237 @@ public:
     {
     }
 
-    void OnAddMission(MissionInfo* pMissionInfo)
+    void OnAddMission(MissionInfo* pMissionInfo) override
     {
         m_psink->OnAddMission(pMissionInfo);
     }
 
-    void OnMissionCountdown(MissionInfo* pMissionInfo)
+    void OnMissionCountdown(MissionInfo* pMissionInfo) override
     {
         m_psink->OnMissionCountdown(pMissionInfo);
     }
     
-    void OnMissionStarted(MissionInfo* pMissionInfo)
+    void OnMissionStarted(MissionInfo* pMissionInfo) override
     {
         m_psink->OnMissionStarted(pMissionInfo);
     }
     
-    void OnMissionEnded(MissionInfo* pMissionInfo)
+    void OnMissionEnded(MissionInfo* pMissionInfo) override
     {
         m_psink->OnMissionEnded(pMissionInfo);
     }
     
-    void OnLockLobby(bool bLock)
+    void OnLockLobby(bool bLock) override
     {
         m_psink->OnLockLobby(bLock);
     }
     
-    void OnLockSides(bool bLock)
+    void OnLockSides(bool bLock) override
     {
         m_psink->OnLockSides(bLock);
     }
     
-    void OnFoundPlayer(MissionInfo* pMissionDef)
+    void OnFoundPlayer(MissionInfo* pMissionDef) override
     {
         m_psink->OnFoundPlayer(pMissionDef);
     }
 
-    void OnEnterMission()
+    void OnEnterMission() override
     {
         m_psink->OnEnterMission();
     }
 
-    void OnDelMission(MissionInfo* pMissionInfo)
+    void OnDelMission(MissionInfo* pMissionInfo) override
     {
         m_psink->OnDelMission(pMissionInfo);
     }
     
-    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         m_psink->OnAddPlayer(pMissionInfo, sideID, pPlayerInfo);
     }
 
-    void OnDelPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam)
+    void OnDelPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam) override
     {
         m_psink->OnDelPlayer(pMissionInfo, sideID, pPlayerInfo, reason, szMessageParam);
     }
 
-    void OnAddRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnAddRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         m_psink->OnAddRequest(pMissionInfo, sideID, pPlayerInfo);
     }
 
-    void OnDelRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason)
+    void OnDelRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason) override
     {
         m_psink->OnDelRequest(pMissionInfo, sideID, pPlayerInfo, reason);
     }
 
-    void OnTeamInactive(MissionInfo* pMissionInfo, SideID sideID)
+    void OnTeamInactive(MissionInfo* pMissionInfo, SideID sideID) override
     {
         m_psink->OnTeamInactive(pMissionInfo, sideID);
     }
 
-    void OnTeamReadyChange(MissionInfo* pMissionInfo, SideID sideID, bool fTeamReady)
+    void OnTeamReadyChange(MissionInfo* pMissionInfo, SideID sideID, bool fTeamReady) override
     {
         m_psink->OnTeamReadyChange(pMissionInfo, sideID, fTeamReady);
     }
 
-    void OnTeamForceReadyChange(MissionInfo* pMissionInfo, SideID sideID, bool fTeamForceReady)
+    void OnTeamForceReadyChange(MissionInfo* pMissionInfo, SideID sideID, bool fTeamForceReady) override
     {
         m_psink->OnTeamForceReadyChange(pMissionInfo, sideID, fTeamForceReady);
     }
 
-    void OnTeamAutoAcceptChange(MissionInfo* pMissionInfo, SideID sideID, bool fAutoAccept)
+    void OnTeamAutoAcceptChange(MissionInfo* pMissionInfo, SideID sideID, bool fAutoAccept) override
     {
         m_psink->OnTeamAutoAcceptChange(pMissionInfo, sideID, fAutoAccept);
     }
 
-    void OnTeamCivChange(MissionInfo* pMissionInfo, SideID sideID, CivID civID)
+    void OnTeamCivChange(MissionInfo* pMissionInfo, SideID sideID, CivID civID) override
     {
         m_psink->OnTeamCivChange(pMissionInfo, sideID, civID);
     }
 
-    void OnTeamNameChange(MissionInfo* pMissionInfo, SideID sideID)
+    void OnTeamNameChange(MissionInfo* pMissionInfo, SideID sideID) override
     {
         m_psink->OnTeamNameChange(pMissionInfo, sideID);
     }
 
-    void OnPlayerStatusChange(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnPlayerStatusChange(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         m_psink->OnPlayerStatusChange(pMissionInfo, sideID, pPlayerInfo);
     }
 
-    void OnMoneyChange(PlayerInfo* pPlayerInfo)
+    void OnMoneyChange(PlayerInfo* pPlayerInfo) override
     {
         m_psink->OnMoneyChange(pPlayerInfo);
     }
 
-    void OnBucketChange(BucketChange bc, IbucketIGC* b)
+    void OnBucketChange(BucketChange bc, IbucketIGC* b) override
     {
         m_psink->OnBucketChange(bc, b);
     }
 
-    void OnTechTreeChanged(SideID sid)
+    void OnTechTreeChanged(SideID sid) override
     {
         m_psink->OnTechTreeChanged(sid);
     }
 
-    void OnStationCaptured(StationID stationID, SideID sideID)
+    void OnStationCaptured(StationID stationID, SideID sideID) override
     {
         m_psink->OnStationCaptured(stationID, sideID);
     }
 
-    void OnModelTerminated(ImodelIGC* pmodel)
+    void OnModelTerminated(ImodelIGC* pmodel) override
     {
         m_psink->OnModelTerminated(pmodel);
     }
 
-    void OnLoadoutChanged(IpartIGC* ppart, LoadoutChange lc)
+    void OnLoadoutChanged(IpartIGC* ppart, LoadoutChange lc) override
     {
         m_psink->OnLoadoutChanged(ppart, lc);
     }
 
-    void OnTurretStateChanging(bool bTurret)
+    void OnTurretStateChanging(bool bTurret) override
     {
         m_psink->OnTurretStateChanging(bTurret);
     }
 
-    void OnPurchaseCompleted(bool bAllPartsBought)
+    void OnPurchaseCompleted(bool bAllPartsBought) override
     {
         m_psink->OnPurchaseCompleted(bAllPartsBought);
     }
 
-    void OnShipStatusChange(PlayerInfo* pplayer) 
+    void OnShipStatusChange(PlayerInfo* pplayer) override 
     {
         m_psink->OnShipStatusChange(pplayer);
     }
 
-    void OnBoardShip(IshipIGC* pshipChild, IshipIGC* pshipParent)
+    void OnBoardShip(IshipIGC* pshipChild, IshipIGC* pshipParent) override
     {
         m_psink->OnBoardShip(pshipChild, pshipParent);
     }
 
-    void OnBoardFailed(IshipIGC* pshipParent)
+    void OnBoardFailed(IshipIGC* pshipParent) override
     {
         m_psink->OnBoardFailed(pshipParent);
     }
 
-    void OnDiscoveredStation(IstationIGC* pstation)
+    void OnDiscoveredStation(IstationIGC* pstation) override
     {
         m_psink->OnDiscoveredStation(pstation);
     }
 
-    void OnDiscoveredAsteroid(IasteroidIGC* pasteroid)
+    void OnDiscoveredAsteroid(IasteroidIGC* pasteroid) override
     {
         m_psink->OnDiscoveredAsteroid(pasteroid);
     }
 
-    void OnClusterChanged(IclusterIGC* pcluster)
+    void OnClusterChanged(IclusterIGC* pcluster) override
     {
         m_psink->OnClusterChanged(pcluster);
     }
 
-    void OnGameoverStats()
+    void OnGameoverStats() override
     {
         m_psink->OnGameoverStats();
     }
 
-    void OnGameoverPlayers()
+    void OnGameoverPlayers() override
     {
         m_psink->OnGameoverPlayers();
     }
 
-    void OnDeleteChatMessage(ChatInfo* pchatInfo)
+    void OnDeleteChatMessage(ChatInfo* pchatInfo) override
     {
         m_psink->OnDeleteChatMessage(pchatInfo);
     }
 
-    void OnNewChatMessage()
+    void OnNewChatMessage() override
     {
         m_psink->OnNewChatMessage();
     }
 
-    void OnClearChat()
+    void OnClearChat() override
     {
         m_psink->OnClearChat();
     }
 
-    void OnChatMessageChange()
+    void OnChatMessageChange() override
     {
         m_psink->OnChatMessageChange();
     }
 
-    void OnLostConnection(const char* szReason)
+    void OnLostConnection(const char* szReason) override
     {
         m_psink->OnLostConnection(szReason);
     }
 
-    void OnEnterModalState()
+    void OnEnterModalState() override
     {
         m_psink->OnEnterModalState();
     }
 
-    void OnLeaveModalState()
+    void OnLeaveModalState() override
     {
         m_psink->OnLeaveModalState();
     }
 
-    void OnLogonLobby() 
+    void OnLogonLobby() override 
     {
         m_psink->OnLogonLobby();
     }
 
-    void OnLogonLobbyFailed(bool bRetry, const char * szReason) 
+    void OnLogonLobbyFailed(bool bRetry, const char * szReason) override 
     {
         m_psink->OnLogonLobbyFailed(bRetry, szReason);
     }
 
-    void OnLogonGameServer() 
+    void OnLogonGameServer() override 
     {
         m_psink->OnLogonGameServer();
     }
 
-    void OnLogonGameServerFailed(bool bRetry, const char * szReason) 
+    void OnLogonGameServerFailed(bool bRetry, const char * szReason) override 
     {
         m_psink->OnLogonGameServerFailed(bRetry, szReason);
     }
@@ -2712,8 +2712,7 @@ void BaseClient::KillShipEvent(Time now, IshipIGC* pShip, ImodelIGC* pLauncher, 
 void BaseClient::DamageStationEvent(IstationIGC* pStation,
                                     ImodelIGC* pLauncher,
                                     DamageTypeID type, 
-                                    float flAmount,
-                                    float flLeakage)
+                                    float _amount)
 {
     if ((NULL != pStation->GetCluster()) &&
         (pStation->GetCluster() == GetCluster()))
@@ -2728,8 +2727,7 @@ void BaseClient::DamageStationEvent(IstationIGC* pStation,
 
 void BaseClient::KillStationEvent(IstationIGC* pStation,
                                   ImodelIGC* pLauncher,
-                                  float flAmount,
-                                  float flLeakage)
+                                  float _amount)
 {
     if (!m_fm.IsConnected())
     {
