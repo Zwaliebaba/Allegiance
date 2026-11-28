@@ -13,10 +13,10 @@ TListImpl::ListNodeImpl::~ListNodeImpl()
     // which overflowed the stack on long lists (mdlc, Debug x64). A successor
     // that something else still holds (an iterator) is left alone: it won't be
     // destroyed here, so it can't recurse.
-    while (m_pnext != NULL && m_pnext->GetCount() == 1) {
+    while (m_pnext != nullptr && m_pnext->GetCount() == 1) {
         TRef<ListNodeImpl> pnode = m_pnext;
         m_pnext = pnode->m_pnext;
-        pnode->m_pnext = NULL;
+        pnode->m_pnext = nullptr;
         // pnode is destroyed here, with nothing after it
     }
 }
@@ -110,7 +110,7 @@ void TListImpl::PushFrontImpl(ListNodeImpl* pnew)
 
     m_pfirst = pnew;
 
-    if (m_plast == NULL)
+    if (m_plast == nullptr)
         m_plast = pnew;
 
     ++m_count;
@@ -123,7 +123,7 @@ void TListImpl::PushEndImpl(ListNodeImpl* pnew)
 
     m_plast = pnew;
 
-    if (m_pfirst == NULL)
+    if (m_pfirst == nullptr)
         m_pfirst = pnew;
 
     ++m_count;
@@ -167,9 +167,9 @@ void TListImpl::PopFrontImpl()
 
     m_pfirst = m_pfirst->m_pnext;
     if (m_pfirst) {
-        m_pfirst->m_pprev = NULL;
+        m_pfirst->m_pprev = nullptr;
     } else {
-        m_plast = NULL;
+        m_plast = nullptr;
     }
 
     m_count--;
@@ -181,9 +181,9 @@ void TListImpl::PopEndImpl()
 
     m_plast = m_plast->m_pprev;
     if (m_plast) {
-        m_plast->m_pnext = NULL;
+        m_plast->m_pnext = nullptr;
     } else {
-        m_pfirst = NULL;
+        m_pfirst = nullptr;
     }
 
     m_count--;
@@ -191,8 +191,8 @@ void TListImpl::PopEndImpl()
 
 void TListImpl::SetEmptyImpl()
 {
-    m_pfirst = NULL;
-    m_plast = NULL;
+    m_pfirst = nullptr;
+    m_plast = nullptr;
     m_count = 0;
 }
 

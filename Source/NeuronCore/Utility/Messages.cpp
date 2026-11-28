@@ -14,8 +14,8 @@ const MsgClsPrio FedMessaging::c_mcpDefault = 1000;
 
 static DWORD           g_idFrom = 0;
 static bool            g_fHandlingMsg = false;
-static CFMConnection * g_pcnxnFrom = NULL;
-static LPBYTE          g_pbReceiveBuff = NULL;
+static CFMConnection * g_pcnxnFrom = nullptr;
+static LPBYTE          g_pbReceiveBuff = nullptr;
 static DWORD           g_dwMsgPacketSize = 0;
 
 // Ok, this is kinda hacky, but it's too late to make wide-effect changes. The problem is that while in the OnAppMessage
@@ -42,8 +42,8 @@ struct FedMessagingImpl
   std::vector<FedSessionInfo> m_sessions;     // what the last EnumSessions found
 
   FedMessagingImpl() :
-    m_ptransport(NULL),
-    m_pdiscovery(NULL),
+    m_ptransport(nullptr),
+    m_pdiscovery(nullptr),
     m_appEnum(),
     m_fEnumStarted(false)
   {
@@ -109,11 +109,11 @@ FedMessaging::FedMessaging(IFedMessagingSite * pfmSite) :
   m_pfmSite(pfmSite),
   m_fConnected(false),
   m_fSessionCallback(false),
-  m_precipDefault(NULL),
+  m_precipDefault(nullptr),
   m_fmGuaranteedDefault(FM_GUARANTEED),
-  m_pcnxnServer(NULL),
-  m_pgrpEveryone(NULL),
-  m_pcnxnMe(NULL),
+  m_pcnxnServer(nullptr),
+  m_pgrpEveryone(nullptr),
+  m_pcnxnMe(nullptr),
   m_fSecondaryOut(false),
   m_pbFMNextT(m_rgbbuffSecondaryOutPacket),
   m_guidInstance(GUID_NULL),
@@ -307,7 +307,7 @@ FEDMESSAGE * FedMessaging::PfmGetNext(FEDMESSAGE * pfm)
   if (pfmNext - BuffIn() >= (int) PacketSize()) // no more messages in packet
   {
     assert((BYTE*)pfmNext == BuffIn() + PacketSize()); // should be exactly equal
-    return NULL;
+    return nullptr;
   }
   // Assert(!IsBadReadPointer(pfmNext, pfmNext->fm.cbfm))
   return (FEDMESSAGE *)pfmNext;
@@ -406,7 +406,7 @@ HRESULT FedMessaging::GenericSend(CFMRecipient * precip, const void * pv, CB cb,
  */
 int FedMessaging::SendToDefault(FMFlush fmf)
 {
-  return SendMessages(NULL, m_fmGuaranteedDefault, fmf);
+  return SendMessages(nullptr, m_fmGuaranteedDefault, fmf);
 }
 
 
@@ -436,7 +436,7 @@ int FedMessaging::SendMessages(CFMRecipient * precip, FMGuaranteed fmg, FMFlush 
   assert (precip || m_precipDefault);
   if (precip)
   {
-    m_precipDefault = NULL;
+    m_precipDefault = nullptr;
   }
   else
   {
@@ -599,7 +599,7 @@ HRESULT FedMessaging::ReceiveMessages()
   }
 
   g_idFrom = 0;
-  g_pcnxnFrom = NULL;
+  g_pcnxnFrom = nullptr;
   g_fHandlingMsg = false;
   return S_OK;
 }
@@ -720,19 +720,19 @@ void FedMessaging::Shutdown()
   if (m_pimpl->m_ptransport)
   {
     delete m_pimpl->m_ptransport;
-    m_pimpl->m_ptransport = NULL;
+    m_pimpl->m_ptransport = nullptr;
   }
 
   if (m_pcnxnMe)
   {
     delete m_pcnxnMe;
-    m_pcnxnMe = NULL;
+    m_pcnxnMe = nullptr;
   }
 
   if (m_pcnxnServer)
   {
     delete m_pcnxnServer;
-    m_pcnxnServer = NULL;
+    m_pcnxnServer = nullptr;
   }
 
   ResetOutBuffer();
@@ -826,7 +826,7 @@ HRESULT FedMessaging::JoinServer(const FedApplication & app, const char * szHost
   Shutdown();
 
   std::string    strError;
-  FedTransport * ptransport = CreateFedTransport(NULL, strError);
+  FedTransport * ptransport = CreateFedTransport(nullptr, strError);
 
   if (!ptransport)
   {
@@ -921,7 +921,7 @@ CFMConnection * FedMessaging::GetConnectionFromId(DWORD id)
   if (m_pcnxnMe && m_pcnxnMe->GetID() == id)
     return m_pcnxnMe;
 
-  return NULL;
+  return nullptr;
 }
 
 
@@ -944,7 +944,7 @@ HRESULT FedMessaging::GetSendQueue(DWORD * pcMsgs, DWORD * pcBytes)
   DWORD cMsgs = 0, cBytes = 0;
 
   if (m_pimpl->m_ptransport)
-    m_pimpl->m_ptransport->GetTotals(&cMsgs, &cBytes, NULL);
+    m_pimpl->m_ptransport->GetTotals(&cMsgs, &cBytes, nullptr);
 
   if (pcMsgs)  *pcMsgs  = cMsgs;
   if (pcBytes) *pcBytes = cBytes;
@@ -957,7 +957,7 @@ HRESULT FedMessaging::GetReceiveQueue(DWORD * pcMsgs, DWORD * pcBytes)
   DWORD cEvents = 0;
 
   if (m_pimpl->m_ptransport)
-    m_pimpl->m_ptransport->GetTotals(NULL, NULL, &cEvents);
+    m_pimpl->m_ptransport->GetTotals(nullptr, nullptr, &cEvents);
 
   if (pcMsgs)  *pcMsgs  = cEvents;
   if (pcBytes) *pcBytes = 0;
@@ -967,7 +967,7 @@ HRESULT FedMessaging::GetReceiveQueue(DWORD * pcMsgs, DWORD * pcBytes)
 
 HRESULT FedMessaging::GetConnectionSendQueue(CFMConnection * pcnxn, DWORD * pcMsgs, DWORD * pcBytes)
 {
-  if (!pcnxn || !m_pimpl->m_ptransport || !m_pimpl->m_ptransport->GetPeerStats(pcnxn->GetID(), NULL, pcMsgs, pcBytes))
+  if (!pcnxn || !m_pimpl->m_ptransport || !m_pimpl->m_ptransport->GetPeerStats(pcnxn->GetID(), nullptr, pcMsgs, pcBytes))
     return E_FAIL;
 
   return S_OK;
@@ -979,7 +979,7 @@ HRESULT FedMessaging::GetLinkDetails(CFMConnection * pcnxn, OUT DWORD * pdwHundr
 {
   DWORD msRtt = 0;
 
-  if (!pcnxn || !m_pimpl->m_ptransport || !m_pimpl->m_ptransport->GetPeerStats(pcnxn->GetID(), &msRtt, NULL, NULL))
+  if (!pcnxn || !m_pimpl->m_ptransport || !m_pimpl->m_ptransport->GetPeerStats(pcnxn->GetID(), &msRtt, nullptr, nullptr))
     return E_FAIL;
 
   if (pdwHundredbpsG) *pdwHundredbpsG = 0;
@@ -1130,8 +1130,8 @@ void CFMGroup::Delete (FedMessaging * pfm)
  */
 FMSessionDesc::FMSessionDesc(REFGUID guidInstance, const char * szDetails)
 {
-  char * szName = NULL;
-  char * szValue = NULL;
+  char * szName = nullptr;
+  char * szValue = nullptr;
   m_nNumPlayers = 0;
   m_nMaxPlayers = 1;
   m_guidInstance = guidInstance;
@@ -1143,23 +1143,23 @@ FMSessionDesc::FMSessionDesc(REFGUID guidInstance, const char * szDetails)
   {
     if (!lstrcmp(szName, "GAM"))
     {
-      szValue = strtok(NULL, "\n");
+      szValue = strtok(nullptr, "\n");
       m_strGameName = szValue;
     }
     else if (!lstrcmp(szName, "PLR"))
     {
-      szValue = strtok(NULL, "\n");
+      szValue = strtok(nullptr, "\n");
       m_nNumPlayers = szValue ? (short)atoi(szValue) : 0;
     }
     else if (!lstrcmp(szName, "LIM"))
     {
-      szValue = strtok(NULL, "\n");
+      szValue = strtok(nullptr, "\n");
       m_nMaxPlayers = szValue ? (short)atoi(szValue) : 1;
     }
     else // throw away any remainder
     {
-      szValue = strtok(NULL, "\n");
+      szValue = strtok(nullptr, "\n");
     }
-    szName = strtok(NULL, "\t");
+    szName = strtok(nullptr, "\t");
   }
 }

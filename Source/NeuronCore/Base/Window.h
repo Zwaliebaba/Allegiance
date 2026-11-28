@@ -168,17 +168,17 @@ public:
         const ZString& strTitle      = ZString(),
         const ZString& strClass      = ZString(),
               Style    style         = Style(),
-              HMENU    hmenu         = NULL,
+              HMENU    hmenu         = nullptr,
               StyleEX  styleEX       = StyleEX()
     );
 
     BOOL Create(
             Window*     pwindowParent,
             const WinRect& rect = WinRect(0, 0, -1, -1),
-            LPCSTR      szTitle = NULL,
-            LPCSTR      szClass = NULL,
+            LPCSTR      szTitle = nullptr,
+            LPCSTR      szClass = nullptr,
             Style       style   = Style(),
-            HMENU       hmenu   = 0,
+            HMENU       hmenu   = nullptr,
             UINT        nID     = 0,
             StyleEX     styleEX = StyleEX()
 
@@ -238,20 +238,20 @@ public:
     void ReleaseMouse();
     void SetCursorPos(const WinPoint& point);
 
-    BOOL InvalidateRgn(HRGN hrgn = NULL, bool bErase = true)
+    BOOL InvalidateRgn(HRGN hrgn = nullptr, bool bErase = true)
     {
         return ::InvalidateRgn(m_hwnd, hrgn, bErase);
     }
 
-    BOOL RedrawWindow(HRGN hrgn = NULL, UINT flags = RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW)
+    BOOL RedrawWindow(HRGN hrgn = nullptr, UINT flags = RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW)
     {
-        return ::RedrawWindow(m_hwnd, NULL, hrgn, flags);
+        return ::RedrawWindow(m_hwnd, nullptr, hrgn, flags);
     }
 
     BOOL RedrawWindow(const WinRect& rect, UINT flags = RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW)
     {
         RECT rc = rect;
-        return ::RedrawWindow(m_hwnd, &rc, NULL, flags);
+        return ::RedrawWindow(m_hwnd, &rc, nullptr, flags);
     }
 
     int MessageBox(const ZString& strText, const ZString& strCaption, UINT nType)
@@ -328,7 +328,7 @@ public:
         return ::PostMessage(m_hwnd, message, wParam, lParam);
     }
 
-    BOOL TrackPopupMenu(HMENU hmenu, UINT nFlags, int x, int y, LPCRECT lpRect = NULL )
+    BOOL TrackPopupMenu(HMENU hmenu, UINT nFlags, int x, int y, LPCRECT lpRect = nullptr )
     {
         return ::TrackPopupMenu(hmenu, nFlags, x, y, 0, m_hwnd, lpRect);
     }

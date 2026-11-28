@@ -257,7 +257,7 @@ template<class T, class Sink> class Slist_utl : public List_utl
         inline Slink_utl<T, Sink>*    find(const T& e) const
         {
             Slink_utl<T, Sink>*  l;
-            for (l = first(); ((l != NULL) && (l->data() != e)); l = l->next())
+            for (l = first(); ((l != nullptr) && (l->data() != e)); l = l->next())
             {
                 //Intentionally empty
             }
@@ -722,7 +722,7 @@ class   MultiHullBase
         const FrameDataUTL*    GetFrame(const char* pszFrameName) const
         {
             for (FrameLink* pfl = m_frames.first();
-                 (pfl != NULL);
+                 (pfl != nullptr);
                  pfl = pfl->next())
             {
                 const FrameDataUTL&    fd = pfl->data();
@@ -732,7 +732,7 @@ class   MultiHullBase
                 }
             }
 
-            return NULL;
+            return nullptr;
         }
 
         const float GetOriginalRadius(void) const
@@ -767,21 +767,21 @@ class   HitTest : public Transform44
                 HitTestShape    shape)
         :
             m_cRefs(1),
-            m_id(NULL),
+            m_id(nullptr),
             m_data(data),
             m_radius(radius),
             m_shape(shape),
             m_shapeTrue(shape),
-            m_noHit(NULL),
-            m_pvUseTrueShapeSelf(NULL),
-            m_pvUseTrueShapeOther(NULL),
+            m_noHit(nullptr),
+            m_pvUseTrueShapeSelf(nullptr),
+            m_pvUseTrueShapeOther(nullptr),
             m_deadF(true),
             m_deletedF(false),
             m_staticF(staticF),
             m_velocity(Vector::GetZero()),
             m_timeStart(0),
             m_timeStop(0),
-            m_pkdrRoot(NULL)
+            m_pkdrRoot(nullptr)
         {
             assert (data);
             data->AddRef();
@@ -919,7 +919,7 @@ class   HitTest : public Transform44
 
         virtual const Vector*   GetEllipseEquation(void) const
         {
-            return NULL;
+            return nullptr;
         }
 
         float           GetRadius(void) const
@@ -1077,7 +1077,7 @@ class   HitTest : public Transform44
         }
         virtual const FrameDataUTL* GetFrame(const char* pszFrameName) const
         {
-            return NULL;
+            return nullptr;
         }
 
         float       GetTstop(void) const
@@ -1381,7 +1381,7 @@ class CTempTimer_OptimizedOut // timers do nothing in optimized builds
 public:
   CTempTimer_OptimizedOut(const char * szName, float dtWarning) {}
   void Start() {}
-  bool Stop(const char* format = NULL, ...) {return false;}
+  bool Stop(const char* format = nullptr, ...) {return false;}
   DWORD LastInterval() {return 0;}
 };
 
@@ -1403,7 +1403,7 @@ public:
     m_time = Time::Now();
   }
 
-  bool Stop(const char* format = NULL, ...) // returns whether this previous interval was a new record
+  bool Stop(const char* format = nullptr, ...) // returns whether this previous interval was a new record
   {
     m_dtimelast = Time::Now().clock() - m_time.clock();
     m_dtTotal += m_dtimelast;

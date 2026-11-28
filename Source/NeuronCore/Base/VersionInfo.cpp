@@ -14,18 +14,18 @@
 // Construction / Destruction
 
 ZVersionInfo::ZVersionInfo(bool) :
-  m_pVerInfo(NULL),
+  m_pVerInfo(nullptr),
   m_cbVerInfo(0),
-  m_pFixed(NULL),
+  m_pFixed(nullptr),
   m_wLangID(-1),
   m_wCodePage(-1)
 {
 }
 
 ZVersionInfo::ZVersionInfo(LPCTSTR szModule) :
-  m_pVerInfo(NULL),
+  m_pVerInfo(nullptr),
   m_cbVerInfo(0),
-  m_pFixed(NULL),
+  m_pFixed(nullptr),
   m_wLangID(-1),
   m_wCodePage(-1)
 {
@@ -34,9 +34,9 @@ ZVersionInfo::ZVersionInfo(LPCTSTR szModule) :
 }
 
 ZVersionInfo::ZVersionInfo(HINSTANCE hinstance) :
-  m_pVerInfo(NULL),
+  m_pVerInfo(nullptr),
   m_cbVerInfo(0),
-  m_pFixed(NULL),
+  m_pFixed(nullptr),
   m_wLangID(-1),
   m_wCodePage(-1)
 {
@@ -54,7 +54,7 @@ bool ZVersionInfo::Load(LPCTSTR szModule)
 {
   // Check for a NULL or empty string
   if (!szModule || TEXT('\0') == *szModule)
-    return Load(HINSTANCE(NULL));
+    return Load(HINSTANCE(nullptr));
 
   // Ensure that there is no previous version information block allocated
   Unload();
@@ -63,7 +63,7 @@ bool ZVersionInfo::Load(LPCTSTR szModule)
   assert(!m_pFixed);
 
   // Get the size of the version information of the specified module
-  BYTE* pVerInfo = NULL;
+  BYTE* pVerInfo = nullptr;
   DWORD cbVerInfo, dummy;
   cbVerInfo = GetFileVersionInfoSize(const_cast<LPTSTR>(szModule), &dummy);
   if (cbVerInfo)
@@ -89,7 +89,7 @@ bool ZVersionInfo::Load(LPCTSTR szModule)
   }
 
   // Attempt to get a pointer to the fixed version information
-  VS_FIXEDFILEINFO* pFixed = NULL;
+  VS_FIXEDFILEINFO* pFixed = nullptr;
   UINT cbFixed = 0;
   if (!VerQueryValue(pVerInfo, TEXT("\\"), (void**)&pFixed, &cbFixed) || cbFixed != sizeof(*pFixed))
   {
@@ -144,7 +144,7 @@ bool ZVersionInfo::Load(const void* pvVerInfo, UINT cbVerInfo)
   CopyMemory(pVerInfo, pvVerInfo, cbVerInfo);
 
   // Attempt to get a pointer to the fixed version information
-  VS_FIXEDFILEINFO* pFixed = NULL;
+  VS_FIXEDFILEINFO* pFixed = nullptr;
   UINT cbFixed = 0;
   if (!VerQueryValue(pVerInfo, TEXT("\\"), (void**)&pFixed, &cbFixed) || cbFixed != sizeof(*pFixed))
   {
@@ -170,9 +170,9 @@ void ZVersionInfo::Unload()
   if (m_pVerInfo)
     delete m_pVerInfo;
 
-  m_pVerInfo  = NULL;
+  m_pVerInfo  = nullptr;
   m_cbVerInfo = 0;
-  m_pFixed    = NULL;
+  m_pFixed    = nullptr;
 }
 
 
@@ -227,7 +227,7 @@ ZString ZVersionInfo::GetStringValue(LPCTSTR pszKey, bool* pbExists) const
 
     // Query the value
     UINT cbValue = 0;
-    LPCTSTR pszValue = NULL;
+    LPCTSTR pszValue = nullptr;
     if (VerQueryValue(m_pVerInfo, szSubBlock, (void**)&pszValue, &cbValue))
     {
       // Indicate that the key exists

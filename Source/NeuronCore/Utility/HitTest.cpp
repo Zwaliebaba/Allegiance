@@ -23,7 +23,7 @@ void    HitTest::SetBB(Time     start,
         m_tStart = 0.0f;
         m_tStop = dt;
 
-        m_lastTest = NULL;
+        m_lastTest = nullptr;
     }
     else
     {
@@ -106,7 +106,7 @@ void    HitTest::UpdateBB(void)
         }
     }
 
-    m_lastTest = NULL;
+    m_lastTest = nullptr;
 }
 
 const double epsilon = 1.0f / 128.0f;
@@ -331,7 +331,7 @@ class   SingleHull
                 double                      dotMax = direction * pcv->m_position;
                 while (true)
                 {
-                    const ConvexVertex*     pcvNext = NULL;
+                    const ConvexVertex*     pcvNext = nullptr;
 
                     const ConvexVertex**    ppcvAdjacent = pcv->m_adjacencies;
                     do
@@ -343,7 +343,7 @@ class   SingleHull
                             pcvNext = (*ppcvAdjacent);
                         }
                     }
-                    while (*(++ppcvAdjacent) != NULL);
+                    while (*(++ppcvAdjacent) != nullptr);
 
                     if (pcvNext)
                         pcv = pcvNext;
@@ -521,7 +521,7 @@ class   BoundingHull : public HitTest
                 n++;
                 ZRetailAssert (n < 300);
                     
-                const ConvexVertex*     pcvNext = NULL;
+                const ConvexVertex*     pcvNext = nullptr;
 
                 const ConvexVertex**    ppcvAdjacent = pcv->m_adjacencies;
                 do
@@ -536,7 +536,7 @@ class   BoundingHull : public HitTest
                         pcvNext = (*ppcvAdjacent);
                     }
                 }
-                while (*(++ppcvAdjacent) != NULL);
+                while (*(++ppcvAdjacent) != nullptr);
 
                 if (pcvNext)
                     pcv = pcvNext;
@@ -639,16 +639,16 @@ CachedList  cachedMultiHulls;
 MultiHullBase*  HitTest::Load(const char*    pszFileName)
 {
     if ((!pszFileName) || (pszFileName[0] == '\0'))
-        return NULL;
+        return nullptr;
 
-    MultiHull* pMultiHull = NULL;
+    MultiHull* pMultiHull = nullptr;
 
     //Does the name exist in the cache?
     //It could exist but be a non-existant hull
     bool    bFound = false;
     {
         for (CachedLink* pcl = cachedMultiHulls.first();
-             (pcl != NULL);
+             (pcl != nullptr);
              pcl = pcl->next())
         {
             const CachedMultiHull& cmh = pcl->data();
@@ -755,7 +755,7 @@ MultiHullBase*  HitTest::Load(const char*    pszFileName)
                                         }
                                         while (--n);
 
-                                        *(ppcvAdjacent++) = NULL;
+                                        *(ppcvAdjacent++) = nullptr;
                                     }
                                     else
                                         assert (false);
@@ -829,7 +829,7 @@ HitTest*    HitTest::Create(const char*   pszFileName,
                             bool          staticF,
                             HitTestShape  htsDefault)
 {
-    HitTest*    pHitTest = NULL;
+    HitTest*    pHitTest = nullptr;
 
     if (pszFileName)
     {
@@ -1009,7 +1009,7 @@ bool HitTest::HullCollide(float*          tStart,
         //Hack alert ... only phtHullB should be subject to the on the fly adjustment
         //of the hit test shape ... so fiddle with their shape.
         HitTestShape    htsA = phtHullA->m_shape;
-        HitTestShape    htsB = ((phtHullB->m_pvUseTrueShapeSelf == NULL) ||
+        HitTestShape    htsB = ((phtHullB->m_pvUseTrueShapeSelf == nullptr) ||
                                 (phtHullB->m_pvUseTrueShapeSelf != phtHullA->m_pvUseTrueShapeOther)) ? phtHullB->m_shape : phtHullB->m_shapeTrue;
 
 

@@ -27,9 +27,9 @@ public:
 class EmptyList : public List {
 public:
     int           GetCount() override             { return 0;                        }
-    ItemID        GetItem(int index) override     { return NULL;                     }
+    ItemID        GetItem(int index) override     { return nullptr;                     }
     int           GetIndex(ItemID pitem) override { return -1;                       }
-    ItemID        GetNext(ItemID pitem) override  { return NULL;                     }
+    ItemID        GetNext(ItemID pitem) override  { return nullptr;                     }
     IEventSource* GetChangedEvent() override      { return IEventSource::GetNever(); }
 };
 

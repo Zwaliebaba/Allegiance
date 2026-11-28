@@ -93,7 +93,7 @@ public:
     //
 
     TRef() :
-        m_pt(NULL)
+        m_pt(nullptr)
     {
     }
 
@@ -139,7 +139,7 @@ public:
     {
         if (m_pt) {
             m_pt->Release();
-            m_pt = NULL;
+            m_pt = nullptr;
         }
         return &m_pt;
     }

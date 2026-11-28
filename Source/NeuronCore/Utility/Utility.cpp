@@ -112,10 +112,10 @@ bool UTL::SaveFile(const char * szFilename, const void *pData, unsigned cLen, OU
    HANDLE hFile = CreateFile(szFilename, 
                              GENERIC_WRITE, 
                              FILE_SHARE_READ, 
-                             NULL, 
+                             nullptr, 
                              CREATE_ALWAYS, 
                              bCreateAsTemp ? FILE_ATTRIBUTE_TEMPORARY : FILE_ATTRIBUTE_NORMAL, // use bCreateAsTemp for don't write to disk write away (for better performance).
-                             NULL);
+                             nullptr);
 
    if (hFile == INVALID_HANDLE_VALUE)
    {
@@ -126,7 +126,7 @@ bool UTL::SaveFile(const char * szFilename, const void *pData, unsigned cLen, OU
 
    unsigned long cBytesWritten;
 
-   if (!WriteFile(hFile, pData, cLen, &cBytesWritten, NULL))
+   if (!WriteFile(hFile, pData, cLen, &cBytesWritten, nullptr))
    {
       if (szErrorMsg)
           sprintf(szErrorMsg, "Failed write file (%s); Error Code: %d ", szFilename, GetLastError());
@@ -156,7 +156,7 @@ bool UTL::AppendFile(const char * szFileName, const void * data, unsigned bytes)
 	FILE* f;
 
 	f = fopen( szFileName, "ab" ); // a == open for appending
-	if (f == 0) return 0;
+	if (f == nullptr) return 0;
 
 	if (fwrite( data, bytes, 1, f ) != 1) 
 	{
@@ -297,7 +297,7 @@ char*    UTL::strdup(const char* s)
         return r;
     }
     else
-        return NULL;
+        return nullptr;
 }
 
 void    UTL::putName(char*         name, const char*   newVal)
@@ -331,8 +331,8 @@ void    UTL::putFileName(char*         fileName, const char*   newVal)
 */
 List_utl::List_utl(void)
 :
-    m_first(NULL),
-    m_last(NULL),
+    m_first(nullptr),
+    m_last(nullptr),
     m_n(0)
 {
 }
@@ -343,7 +343,7 @@ void            List_utl::first(Link_utl*   l)
 
     l->unlink();
 
-    l->m_txen = NULL;
+    l->m_txen = nullptr;
     l->m_next = m_first;
     l->m_list = this;
 
@@ -364,7 +364,7 @@ void            List_utl::last(Link_utl*   l)
     l->unlink();
 
     l->m_txen = m_last;
-    l->m_next = NULL;
+    l->m_next = nullptr;
     l->m_list = this;
 
     if (m_last)
@@ -382,7 +382,7 @@ Link_utl*       List_utl::operator [] (int index) const
     //Get the offset handling the case where index is < 0.
     int   n = (index >= 0) ? index : (m_n + index);
 
-    Link_utl*   link = NULL;
+    Link_utl*   link = nullptr;
     if ((n >= 0) && (n < m_n))
     {
         if ((n << 1) < m_n)
@@ -413,9 +413,9 @@ Link_utl*       List_utl::operator [] (int index) const
 */
 Link_utl::Link_utl(void)
 :
-    m_list(NULL),
-    m_txen(NULL),
-    m_next(NULL)
+    m_list(nullptr),
+    m_txen(nullptr),
+    m_next(nullptr)
 {
 }
 
@@ -444,16 +444,16 @@ bool  Link_utl::unlink(void)
 
     m_list->m_n--;
 
-    m_list = NULL;
-    m_next = NULL;
-    m_txen = NULL;
+    m_list = nullptr;
+    m_next = nullptr;
+    m_txen = nullptr;
 
     return true;
 }
 
 bool  Link_utl::next(Link_utl*  l)
 {
-    if ((!m_list) || (l == NULL) || (l == this))
+    if ((!m_list) || (l == nullptr) || (l == this))
         return  false;
 
     l->unlink();
@@ -475,7 +475,7 @@ bool  Link_utl::next(Link_utl*  l)
 
 bool  Link_utl::txen(Link_utl*  l)
 {
-    if ((!m_list) || (l == NULL) || (l == this))
+    if ((!m_list) || (l == nullptr) || (l == this))
         return  false;
 
     l->unlink();
@@ -497,7 +497,7 @@ bool  Link_utl::txen(Link_utl*  l)
 
 Lock_utl::Lock_utl(void)
 :
-    m_lockedS(CreateSemaphore(NULL, 1, 1, NULL)),
+    m_lockedS(CreateSemaphore(nullptr, 1, 1, nullptr)),
     m_locking_threadID(0),
     m_locks(0)
 {
@@ -547,7 +547,7 @@ void               Lock_utl::unlock(void) const
     if (--(t->m_locks) == 0)
     {
         t->m_locking_threadID = 0;
-        ReleaseSemaphore(t->m_lockedS, 1, NULL);
+        ReleaseSemaphore(t->m_lockedS, 1, nullptr);
     }
 }
 

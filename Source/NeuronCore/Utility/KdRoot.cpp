@@ -13,7 +13,7 @@
 
 KDroot::KDroot(bool bStatic)
 :
-    KDnode(NULL),
+    KDnode(nullptr),
     m_nAdded(0),
     m_nDeleted(0),
     m_bStatic(bStatic)
@@ -39,7 +39,7 @@ void    KDroot::addHitTest(HitTest*   pHitTest)
     //that -- if it were freed -- then it would have been flushed and all
     //of the hittests that refered back to the it would have had their
     //KDRoot's cleared.
-    if (pHitTest->GetKDRoot() != NULL)
+    if (pHitTest->GetKDRoot() != nullptr)
         pHitTest->GetKDRoot()->flush();
 
     assert (pHitTest->GetKDRoot() == NULL);
@@ -145,7 +145,7 @@ void    KDroot::flush(void)
                 HitTest*    pht = m_ppHitTests[source];
                 if (pht->m_deletedF)
                 {
-                    pht->SetKDRoot(NULL);   //We are not allowed to add this hit test to another KD tree until after this point
+                    pht->SetKDRoot(nullptr);   //We are not allowed to add this hit test to another KD tree until after this point
                                             //so mark the node as not being dead (and acceptable to add) here.
 
                     pht->Release();
