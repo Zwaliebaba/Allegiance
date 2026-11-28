@@ -381,7 +381,7 @@ public:
         if (m_pprovider)
         {
             m_pprovider->GetTimer()->RemoveSink(m_peventSinkDelegate);
-            m_pprovider = NULL;
+            m_pprovider = nullptr;
         }
     }
 
@@ -449,9 +449,9 @@ public:
 
     void SetRepeat(float repeatRate, float repeatDelay) override
     {
-        if (repeatRate == 0 && m_pprovider != NULL) {
+        if (repeatRate == 0 && m_pprovider != nullptr) {
             m_pprovider->GetTimer()->RemoveSink(m_peventSinkDelegate);
-            m_pprovider = NULL;
+            m_pprovider = nullptr;
         }
 
         m_repeatRate  = repeatRate;
@@ -519,7 +519,7 @@ public:
     {
         if (m_pprovider) {
             m_pprovider->GetTimer()->RemoveSink(m_peventSinkDelegate);
-            m_pprovider = NULL;
+            m_pprovider = nullptr;
         }   
     }
 
@@ -550,7 +550,7 @@ public:
     {
         if (button == 0) {
             if (bDown) {
-                if (m_pprovider != NULL) {
+                if (m_pprovider != nullptr) {
                     assert(false); // we should not have a timer set before the button is pressed
                     m_pprovider->GetTimer()->RemoveSink(m_peventSinkDelegate);
                 }
@@ -595,7 +595,7 @@ public:
 
                         if (m_pprovider) {
                             m_pprovider->GetTimer()->RemoveSink(m_peventSinkDelegate);
-                            m_pprovider = NULL;
+                            m_pprovider = nullptr;
                         }
                     }
 
@@ -664,8 +664,8 @@ TRef<ButtonPane> CreateButton(int size)
 {
     return
         CreateButton(
-            new EdgePane(new Pane(NULL, WinPoint(size, size)), true),
-            new EdgePane(new Pane(NULL, WinPoint(size, size)), false)
+            new EdgePane(new Pane(nullptr, WinPoint(size, size)), true),
+            new EdgePane(new Pane(nullptr, WinPoint(size, size)), false)
         );
 }
 

@@ -76,7 +76,7 @@ void Image::Render(Context* pcontext)
 
 TRef<Surface> Image::GetSurface()
 {
-    return NULL;
+    return nullptr;
 }
 
 MouseResult Image::HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
@@ -954,7 +954,7 @@ void GroupImage::RemoveImage(Image* pimage)
     }
 
     if (m_pimageHit == pimage) {
-        m_pimageHit = NULL;
+        m_pimageHit = nullptr;
         EngineWindow::DoHitTest();
     }
 
@@ -997,7 +997,7 @@ void GroupImage::RemoveCapture()
 {
     if (m_pimageCapture) {
         m_pimageCapture->RemoveCapture();
-        m_pimageCapture = NULL;
+        m_pimageCapture = nullptr;
     }
 }
 
@@ -1013,7 +1013,7 @@ MouseResult GroupImage::HitTest(IInputProvider* pprovider, const Point& point, b
     // figure out which image was hit
     //
 
-    Image* pimageHit = NULL;
+    Image* pimageHit = nullptr;
 
     if (m_pimageCapture) {
         ZAssert(bCaptured);
@@ -1041,7 +1041,7 @@ MouseResult GroupImage::HitTest(IInputProvider* pprovider, const Point& point, b
         // Mouse move
         //
 
-        m_pimageCapture->MouseMove(pprovider, point, true, pimageHit != NULL);
+        m_pimageCapture->MouseMove(pprovider, point, true, pimageHit != nullptr);
     } else {
         //
         // Our parent thinks we are captured.  Tell them otherwise.
@@ -1082,7 +1082,7 @@ MouseResult GroupImage::HitTest(IInputProvider* pprovider, const Point& point, b
         }
     }
 
-    if (pimageHit == NULL) {
+    if (pimageHit == nullptr) {
         return MouseResult();
     } else {
         return MouseResultHit();
@@ -1093,7 +1093,7 @@ void GroupImage::MouseLeave(IInputProvider* pprovider)
 {
     if (m_pimageHit) {
         m_pimageHit->MouseLeave(pprovider);
-        m_pimageHit = NULL;
+        m_pimageHit = nullptr;
     }
 }
 
@@ -1114,12 +1114,12 @@ MouseResult GroupImage::Button(
                 point,
                 button,
                 true,
-                m_pimageHit != NULL,
+                m_pimageHit != nullptr,
                 bDown
             );
 
         if (mouseResult.Test(MouseResultRelease())) {
-            m_pimageCapture = NULL;
+            m_pimageCapture = nullptr;
         }
     } else if (m_pimageHit) {
         mouseResult = m_pimageHit->Button(pprovider, point, button, false, true, bDown);

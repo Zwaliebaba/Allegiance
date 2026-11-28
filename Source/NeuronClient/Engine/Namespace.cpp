@@ -155,14 +155,14 @@ public:
             iter.Next();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     IObject* FindMemberAndNameSpace(const ZString& str, INameSpace*& pns) override
     {
         IObject* pobject = FindMemberLocal(str);
 
-        if (pobject != NULL) {
+        if (pobject != nullptr) {
             pns = this;
             return pobject;
         }
@@ -171,14 +171,14 @@ public:
 
         while (!iter.End()) {
             pobject = iter.Value()->FindMemberAndNameSpace(str, pns);
-            if (pobject != NULL) {
+            if (pobject != nullptr) {
                 return pobject;
             }
 
             iter.Next();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     IObject* FindMember(const ZString& str) override
@@ -217,14 +217,14 @@ public:
             iter.Next();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     MDLType* FindTypeAndNameSpace(const ZString& str, NameSpaceImpl*& pns)
     {
         MDLType* ptype = FindTypeLocal(str);
 
-        if (ptype != NULL) {
+        if (ptype != nullptr) {
             pns = this;
             return ptype;
         }
@@ -234,14 +234,14 @@ public:
         while (!iter.End()) {
             NameSpaceImpl* pnsImpl; CastTo(pnsImpl, iter.Value());
             ptype = pnsImpl->FindTypeAndNameSpace(str, pns);
-            if (ptype != NULL) {
+            if (ptype != nullptr) {
                 return ptype;
             }
 
             iter.Next();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     MDLType* FindType(const ZString& strName) override
@@ -371,7 +371,7 @@ public:
 
                 IObject* pobject = m_pns->FindMemberLocal(pnsInfo->GetName());
 
-                if (pobject == NULL) {
+                if (pobject == nullptr) {
                     AddImport(str, pnsInfo->GetNameSpace());
                     return true;
                 }

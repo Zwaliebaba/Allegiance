@@ -295,7 +295,7 @@ public:
             return m_psubmenuEventSink->GetSubMenu(this);
         }
 
-        return NULL;
+        return nullptr;
     }
 
     void Select(bool bSelect) override
@@ -438,7 +438,7 @@ public:
 
     void NextItem()
     {
-        if (m_pitemSelection == NULL) {
+        if (m_pitemSelection == nullptr) {
             SelectItem(m_listItems.GetFront());
         } else {
             MenuItemList::Iterator iter(m_listItems);
@@ -460,7 +460,7 @@ public:
 
     void PreviousItem()
     {
-        if (m_pitemSelection == NULL) {
+        if (m_pitemSelection == nullptr) {
             SelectItem(m_listItems.GetEnd());
         } else {
             MenuItemList::Iterator iter(m_listItems);
@@ -482,7 +482,7 @@ public:
 
     bool OpenItem(IMenuItemPrivate* pitem)
     {
-        if (pitem && m_ppopup == NULL) {
+        if (pitem && m_ppopup == nullptr) {
             if (m_ppopup) {
                 m_pcontainer->ClosePopup(m_ppopup);
             }
@@ -504,7 +504,7 @@ public:
         if (pitem != m_pitemSelection) {
             if (m_ppopup) {
                 m_pcontainer->ClosePopup(m_ppopup);
-                m_ppopup = NULL;
+                m_ppopup = nullptr;
             }
             if (m_pitemSelection) {
                 m_pitemSelection->Select(false);
@@ -578,7 +578,7 @@ public:
         int                id,
         const ZString&     str,
         char               chAccelerator     = 0,
-        ISubmenuEventSink* psubmenuEventSink = NULL
+        ISubmenuEventSink* psubmenuEventSink = nullptr
     ) override {
         TRef<IMenuItemPrivate> pitem =
             new IMenuItemImpl(
@@ -594,7 +594,7 @@ public:
         m_listItems.PushEnd(pitem);
         m_pcolumnPane->InsertAtBottom(pitem->GetPane());
 
-        if (m_pitemSelection == NULL) {
+        if (m_pitemSelection == nullptr) {
             m_pitemSelection = pitem;
             pitem->Select(true);
         }
@@ -615,7 +615,7 @@ public:
         }
 
         // not found
-        return NULL;
+        return nullptr;
     }
 
     void SetMenuCommandSink(IMenuCommandSink* psink) override
@@ -638,7 +638,7 @@ public:
     {
         ZAssert(m_ppopup == ppopup);
         m_pcontainer->ClosePopup(ppopup);
-        m_ppopup = NULL;
+        m_ppopup = nullptr;
     }
 
     void OnClose() override

@@ -48,7 +48,7 @@ private:
     ZString m_strFilename;
 
     SoundFile()
-        : m_pvData(NULL), m_pvFileContents(NULL) {};
+        : m_pvData(nullptr), m_pvFileContents(nullptr) {};
 
     ~SoundFile()
     {
@@ -72,8 +72,8 @@ private:
 
         HANDLE hFile, hMapping;
 
-        hFile = CreateFile(strFilename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, 
-            OPEN_EXISTING, 0, NULL);
+        hFile = CreateFile(strFilename.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, 
+            OPEN_EXISTING, 0, nullptr);
 
         if (hFile == INVALID_HANDLE_VALUE)
         {
@@ -84,12 +84,12 @@ private:
         // if the file is really large, we may do better if we have the file 
         // system assume we are going to read it sequentially. 
         const DWORD dwSequentialFileThreshold = 1000000;
-        if (GetFileSize(hFile, NULL) > dwSequentialFileThreshold)
+        if (GetFileSize(hFile, nullptr) > dwSequentialFileThreshold)
         {
             CloseHandle(hFile); 
             
-            hFile = CreateFile(strFilename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, 
-                OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+            hFile = CreateFile(strFilename.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, 
+                OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
 
             if (hFile == INVALID_HANDLE_VALUE)
             {
@@ -98,7 +98,7 @@ private:
             }
         }
 
-        hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
+        hMapping = CreateFileMapping(hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
 
         CloseHandle(hFile); 
 
@@ -112,7 +112,7 @@ private:
         
         CloseHandle(hMapping);
 
-        if (m_pvFileContents == NULL)
+        if (m_pvFileContents == nullptr)
         {
             ZAssert(false);
             return E_HANDLE;
@@ -166,7 +166,7 @@ private:
                     if (dwBlockLength < sizeof(WAVEFORMAT))
                     {
                         // looks like a corrupt file
-                        m_pvData = NULL;
+                        m_pvData = nullptr;
                         ZAssert(false);
                         return E_FAIL;
                     }
@@ -177,7 +177,7 @@ private:
                     {
                         // file is not PCM (compressed, perhaps?).  At the 
                         // moment, however, we only handle PCM wave files.
-                        m_pvData = NULL;
+                        m_pvData = nullptr;
                         ZAssert(false);
                         return E_NOTIMPL;
                     }
@@ -208,7 +208,7 @@ private:
         // if we did not find one of the blocks, it's not a usable wave file.
         if (!bFoundFormat || !bFoundData)
         {
-            m_pvData = NULL;
+            m_pvData = nullptr;
             ZAssert(false);
             return E_FAIL;
         }
@@ -383,7 +383,7 @@ TRef<ISoundPCMData> psoundDataDummy;
 
 HRESULT CreateDummyPCMData(TRef<ISoundPCMData>& pdata)
 {
-    if (psoundDataDummy == NULL)
+    if (psoundDataDummy == nullptr)
         psoundDataDummy = new DummyPCMDataImpl();
 
     pdata = psoundDataDummy;
@@ -823,7 +823,7 @@ TRef<ISoundTweakable3D> StubbedTweakableSoundInstance::GetISoundTweakable3D()
     if (m_pposSource)
         return this;
     else
-        return NULL;
+        return nullptr;
 };
 
 

@@ -598,7 +598,7 @@ public:
         if (id < (int)m_vbuttonObject.size()) {
             return m_vbuttonObject[id]->GetValue();
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -607,7 +607,7 @@ public:
         if (id < (int)m_vvalueObject.size()) {
             return m_vvalueObject[id]->GetValue();
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -737,7 +737,7 @@ public:
 
         index = 0;
         while (index < countValues) {
-            if (m_vvalueObject[index] == NULL) {
+            if (m_vvalueObject[index] == nullptr) {
                 if (index != countValues - 1) {
                     m_vvalueObject[index] = m_vvalueObject[countValues - 1];
                 }
@@ -828,7 +828,7 @@ public:
         int countValues  = (int)m_vvalueObject.size();
 
         for (int index = 0; index < countValues; index++) {
-            if (m_vvalueObject[index] != NULL) {
+            if (m_vvalueObject[index] != nullptr) {
                 if ((m_vvalueObject[index]->GetDWType() & DIDFT_POV) == 0) {
                     DIPROPRANGE dipr;
 
@@ -953,7 +953,7 @@ public:
 
     static BOOL CALLBACK EnumEffectTypeProc(LPCDIEFFECTINFO pei, LPVOID pv)
     {
-        GUID *pguidEffect = NULL;
+        GUID *pguidEffect = nullptr;
 
         // report back the guid of the effect we enumerated
 
@@ -1025,7 +1025,7 @@ public:
         diEffect.dwFlags               = DIEFF_OBJECTOFFSETS | DIEFF_POLAR;
         diEffect.dwDuration            = 200000;
         diEffect.cAxes                 = 2;
-        diEffect.lpEnvelope            = NULL;
+        diEffect.lpEnvelope            = nullptr;
         diEffect.cbTypeSpecificParams  = sizeof(DICONSTANTFORCE);
         diEffect.lpvTypeSpecificParams = &dicf;
 
@@ -1034,7 +1034,7 @@ public:
                 guidEffect,
                 &diEffect, 
                 &m_peffectBounce, 
-                NULL
+                nullptr
             //)
         );
 
@@ -1048,7 +1048,7 @@ public:
         diEffect.dwFlags               = DIEFF_OBJECTOFFSETS | DIEFF_CARTESIAN;
         diEffect.dwDuration            = 20000;
         diEffect.cAxes                 = 1;
-        diEffect.lpEnvelope            = NULL;
+        diEffect.lpEnvelope            = nullptr;
         diEffect.cbTypeSpecificParams  = sizeof(DICONSTANTFORCE);
         diEffect.lpvTypeSpecificParams = &dicf;
 
@@ -1057,7 +1057,7 @@ public:
                 guidEffect,
                 &diEffect, 
                 &m_peffectFire, 
-                NULL
+                nullptr
             //)
         );
 
@@ -1103,7 +1103,7 @@ public:
                 guidEffect,
                 &diEffect, 
                 &m_peffectExplode, 
-                NULL
+                nullptr
             //)
         );
     }
@@ -1194,7 +1194,7 @@ public:
         if (id < (int)m_vbuttonObject.size()) {
             return m_vbuttonObject[id]->GetValue();
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -1203,14 +1203,14 @@ public:
         if (id < (int)m_vvalueObject.size()) {
             return m_vvalueObject[id]->GetValue();
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 
     ButtonEvent::Source* GetEventSource() override
     {
         ZUnimplemented();
-        return NULL;
+        return nullptr;
     }
 };
 
@@ -1232,7 +1232,7 @@ private:
     {
         TRef<IDirectInputDevice8> pdid2;
 
-        DDCall(m_pdi->CreateDevice( pdidi->guidInstance, &pdid2, NULL));
+        DDCall(m_pdi->CreateDevice( pdidi->guidInstance, &pdid2, nullptr));
 
         //
         // DirectInput 8 splits the old DIDEVTYPE_JOYSTICK into several game
@@ -1242,7 +1242,7 @@ private:
         switch (GET_DIDEVICE_TYPE(pdidi->dwDevType)) {
             case DI8DEVTYPE_MOUSE:
                 {
-                    if (m_pmouseInputStream == NULL) {
+                    if (m_pmouseInputStream == nullptr) {
                         m_pmouseInputStream = new MouseInputStreamImpl(pdid2, m_hwnd);
                     }
                 }
@@ -1306,11 +1306,11 @@ public:
         //
 
         DDCall(DirectInput8Create(
-            GetModuleHandle(NULL),
+            GetModuleHandle(nullptr),
             DIRECTINPUT_VERSION,
             IID_IDirectInput8,
             (void**)&m_pdi,
-            NULL
+            nullptr
         ));
 
         g_pdfDIMouse = &c_dfDIMouse;
@@ -1319,8 +1319,8 @@ public:
         // If we failed then exit the app
         //
 
-        if (m_pdi == NULL) {
-            ::MessageBox(NULL, "Error initializing DirectInput.  Check your installation", "Error", MB_OK);
+        if (m_pdi == nullptr) {
+            ::MessageBox(nullptr, "Error initializing DirectInput.  Check your installation", "Error", MB_OK);
             _exit(0);
         }
 
@@ -1370,7 +1370,7 @@ public:
         ) {
             return m_vjoystickInputStream[index];
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 

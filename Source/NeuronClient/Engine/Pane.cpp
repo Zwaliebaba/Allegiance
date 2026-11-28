@@ -39,7 +39,7 @@ void Pane::SetSystemColor(int index, const Color& color)
 
 Pane::Pane(Pane* pchild, const WinPoint& size) :
     m_index(0),
-    m_pparent(NULL),
+    m_pparent(nullptr),
     m_paintSize(0, 0),
     m_paintOffset(0, 0),
     m_bHiddenPaint(false),
@@ -65,8 +65,8 @@ Pane::~Pane()
 
     while (ppane) {
         TRef<Pane> ppaneNext = ppane->m_pnext;
-        ppane->m_pparent = NULL;
-        ppane->m_pnext = NULL;
+        ppane->m_pparent = nullptr;
+        ppane->m_pnext = nullptr;
         ppane = ppaneNext;
     }
 }
@@ -86,7 +86,7 @@ void Pane::SetSelected(bool bSelected)
 
 bool Pane::IsSelected() const
 {
-    return m_bSelected || (m_pparent != NULL && m_pparent->IsSelected());
+    return m_bSelected || (m_pparent != nullptr && m_pparent->IsSelected());
 }
 
 void Pane::InternalSetSize(const WinPoint& point)
@@ -200,7 +200,7 @@ Pane* Pane::FindChild(int index) const
         ppane = ppane->m_pnext;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool Pane::IsAncestor(Pane* ppaneAncestor) const
@@ -224,7 +224,7 @@ bool Pane::IsAncestor(Pane* ppaneAncestor) const
 
 void Pane::RemoveSelf()
 {
-    if (m_pparent != NULL) {
+    if (m_pparent != nullptr) {
         m_pparent->RemoveChild(this);
     }
 }
@@ -233,8 +233,8 @@ void Pane::RemoveChild(Pane* ppane)
 {
     TRef<Pane> ppaneNext = ppane->m_pnext;
 
-    ppane->m_pparent = NULL;
-    ppane->m_pnext = NULL;
+    ppane->m_pparent = nullptr;
+    ppane->m_pnext = nullptr;
 
     TRef<Pane>* pppane = m_pchild.Pointer();
 
@@ -337,7 +337,7 @@ void Pane::PaintAll(Surface* psurface)
     if (!m_bHidden) {
         Paint(psurface);
 
-        for(Pane* ppane = m_pchild; ppane != NULL; ppane = ppane->m_pnext) {
+        for(Pane* ppane = m_pchild; ppane != nullptr; ppane = ppane->m_pnext) {
             WinRect rectClipOld = psurface->GetClipRect();
             psurface->Offset(ppane->m_offset);
             psurface->SetClipRect(WinRect(WinPoint(0, 0), ppane->GetSize()));
@@ -355,7 +355,7 @@ void Pane::PaintAll(Surface* psurface)
 
 void Pane::TunnelPaint(Surface* psurface, bool bPaintAll)
 {
-    if (m_pparent != NULL && !m_bOpaque) {
+    if (m_pparent != nullptr && !m_bOpaque) {
         psurface->Offset(-m_offset);
         m_pparent->TunnelPaint(psurface, false);    
         psurface->Offset(m_offset);
@@ -373,8 +373,8 @@ void Pane::InternalPaint(Surface* psurface)
     if (m_bPaintAll) {
         TunnelPaint(psurface, true);
     } else if (m_bNeedPaint) {
-        if (m_pchild != NULL) {
-            for(Pane* ppane = m_pchild; ppane != NULL; ppane = ppane->m_pnext) {
+        if (m_pchild != nullptr) {
+            for(Pane* ppane = m_pchild; ppane != nullptr; ppane = ppane->m_pnext) {
                 WinRect rectClipOld = psurface->GetClipRect();
                 psurface->Offset(ppane->m_offset);
                 psurface->SetClipRect(WinRect(WinPoint(0, 0), ppane->GetSize()));
@@ -410,7 +410,7 @@ bool Pane::CalcPaint()
 
     bool bAnyChildSized = false;
 
-    for(Pane* ppane = m_pchild; ppane != NULL; ppane = ppane->m_pnext) {
+    for(Pane* ppane = m_pchild; ppane != nullptr; ppane = ppane->m_pnext) {
         bAnyChildSized |= ppane->CalcPaint();
         if (ppane->m_bNeedPaint) {
             m_bNeedPaint = true;
@@ -461,7 +461,7 @@ bool Pane::NeedEvenHeight()
 void Pane::UpdateLayout()
 {
     Pane* ppane;
-    for(ppane = Child(); ppane != NULL; ppane = ppane->Next()) {
+    for(ppane = Child(); ppane != nullptr; ppane = ppane->Next()) {
         ppane->UpdateLayout();
     }
 }
@@ -502,7 +502,7 @@ void Pane::RemoveCapture()
 {
     if (m_ppaneCapture) {
         m_ppaneCapture->RemoveCapture();
-        m_ppaneCapture = NULL;
+        m_ppaneCapture = nullptr;
     }
 }
 
@@ -542,7 +542,7 @@ MouseResult Pane::HitTest(IInputProvider* pprovider, const Point& point, bool bC
         if (mouseResult.Test(MouseResultHit())) {
             m_ppaneHit = m_ppaneCapture;
         } else {
-            m_ppaneHit = NULL;
+            m_ppaneHit = nullptr;
         }
 
         //
@@ -562,7 +562,7 @@ MouseResult Pane::HitTest(IInputProvider* pprovider, const Point& point, bool bC
             pprovider,
             point - Point::Cast(m_ppaneCapture->m_offset),
             true,
-            m_ppaneHit != NULL
+            m_ppaneHit != nullptr
         );
     } else {
         //
@@ -570,14 +570,14 @@ MouseResult Pane::HitTest(IInputProvider* pprovider, const Point& point, bool bC
         // Which image are we over?
         //
 
-        Pane* ppaneHit  = NULL;
+        Pane* ppaneHit  = nullptr;
 
         // !!! if (bInside || m_ppaneHit != NULL) {
 
         if (bInside) {
             TRef<Pane> ppane;
 
-            for(ppane = m_pchild; ppane!= NULL; ppane = ppane->m_pnext) {
+            for(ppane = m_pchild; ppane!= nullptr; ppane = ppane->m_pnext) {
                 MouseResult mouseResult =
                     ppane->HitTest(
                         pprovider,
@@ -588,7 +588,7 @@ MouseResult Pane::HitTest(IInputProvider* pprovider, const Point& point, bool bC
                 if (mouseResult.Test(MouseResultHit())) {
                     // !!! some of the mdl files violate this
                     // ZAssert(ppaneHit == NULL);
-                    if (ppaneHit == NULL) {
+                    if (ppaneHit == nullptr) {
                         ppaneHit = ppane;
                     }
                 }
@@ -631,7 +631,7 @@ void Pane::MouseLeave(IInputProvider* pprovider)
 {
     if (m_ppaneHit) {
         m_ppaneHit->MouseLeave(pprovider);
-        m_ppaneHit = NULL;
+        m_ppaneHit = nullptr;
     }
 }
 
@@ -653,12 +653,12 @@ MouseResult Pane::Button(
                 point - Point::Cast(m_ppaneCapture->m_offset),
                 button,
                 true,
-                m_ppaneHit != NULL,
+                m_ppaneHit != nullptr,
                 bDown
             );
 
         if (mouseResult.Test(MouseResultRelease())) {
-            m_ppaneCapture = NULL;
+            m_ppaneCapture = nullptr;
         }
     } else if (m_ppaneHit) {
         mouseResult = 

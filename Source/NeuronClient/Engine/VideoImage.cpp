@@ -49,7 +49,7 @@ public:
                 AddRef();
                 return S_OK;
             }
-            *ppv = NULL;
+            *ppv = nullptr;
             return E_NOINTERFACE;
         }
         STDMETHODIMP_(ULONG) AddRef()  { return InterlockedIncrement(&m_cRef); }
@@ -89,7 +89,7 @@ public:
         m_peventSource(new EventSourceImpl()),
         m_pengine(pengine),
         m_strFile(str),
-        m_preader(NULL),
+        m_preader(nullptr),
         m_paudio(NULL),
         m_bStarted(false),
         m_bPlaying(false),
@@ -98,7 +98,7 @@ public:
         m_bFirstFrame(true),
         m_sizeVideo(0, 0),
         m_timeNextFrame(0),
-        m_psamplePending(NULL),
+        m_psamplePending(nullptr),
         m_dwStartTick(0)
     {
         Open();
@@ -127,8 +127,8 @@ public:
 
     static BSTR WidePath(const ZString& str)
     {
-        int  cwch = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
-        BSTR bstr = SysAllocStringLen(NULL, cwch);
+        int  cwch = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, nullptr, 0);
+        BSTR bstr = SysAllocStringLen(nullptr, cwch);
         if (bstr)
             MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, bstr, cwch);
         return bstr;
@@ -151,12 +151,12 @@ public:
         // Video: a source reader converting to RGB32
         //
 
-        IMFAttributes* pattributes = NULL;
+        IMFAttributes* pattributes = nullptr;
         if (SUCCEEDED(MFCreateAttributes(&pattributes, 1)))
         {
             pattributes->SetUINT32(MF_SOURCE_READER_ENABLE_VIDEO_PROCESSING, TRUE);
             if (FAILED(MFCreateSourceReaderFromURL(bstrPath, pattributes, &m_preader)))
-                m_preader = NULL;
+                m_preader = nullptr;
             pattributes->Release();
         }
 
@@ -165,17 +165,17 @@ public:
             m_preader->SetStreamSelection((DWORD)MF_SOURCE_READER_ALL_STREAMS, FALSE);
             m_preader->SetStreamSelection((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, TRUE);
 
-            IMFMediaType* ptype = NULL;
+            IMFMediaType* ptype = nullptr;
             HRESULT hr = MFCreateMediaType(&ptype);
             if (SUCCEEDED(hr))
             {
                 ptype->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
                 ptype->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
-                hr = m_preader->SetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, NULL, ptype);
+                hr = m_preader->SetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, nullptr, ptype);
                 ptype->Release();
             }
 
-            IMFMediaType* pcurrent = NULL;
+            IMFMediaType* pcurrent = nullptr;
             UINT32 cx = 0, cy = 0;
             if (SUCCEEDED(hr) && SUCCEEDED(m_preader->GetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, &pcurrent)))
             {
@@ -187,7 +187,7 @@ public:
             {
                 debugf("VideoImage: cannot decode %s (0x%08x)\n", m_strFile.c_str(), hr);
                 m_preader->Release();
-                m_preader = NULL;
+                m_preader = nullptr;
             }
             else
             {
@@ -206,7 +206,7 @@ public:
             IMFMediaEngineClassFactory* pfactory = NULL;
             if (SUCCEEDED(CoCreateInstance(CLSID_MFMediaEngineClassFactory, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfactory))))
             {
-                IMFAttributes* pengineAttributes = NULL;
+                IMFAttributes* pengineAttributes = nullptr;
                 if (SUCCEEDED(MFCreateAttributes(&pengineAttributes, 1)))
                 {
                     AudioNotify* pnotify = new AudioNotify();
@@ -232,7 +232,7 @@ public:
 
     bool IsValid() override
     {
-        return m_preader != NULL;
+        return m_preader != nullptr;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -266,22 +266,22 @@ public:
 
     void CopyFrame(IMFSample* psample)
     {
-        IMFMediaBuffer* pbuffer = NULL;
+        IMFMediaBuffer* pbuffer = nullptr;
         if (FAILED(psample->ConvertToContiguousBuffer(&pbuffer)))
             return;
 
-        BYTE* pbScan0 = NULL;
+        BYTE* pbScan0 = nullptr;
         LONG  lPitch  = 0;
-        IMF2DBuffer* p2d = NULL;
-        BYTE* pbLocked = NULL;
+        IMF2DBuffer* p2d = nullptr;
+        BYTE* pbLocked = nullptr;
         DWORD cbLocked = 0;
 
         if (SUCCEEDED(pbuffer->QueryInterface(IID_PPV_ARGS(&p2d))))
         {
             if (FAILED(p2d->Lock2D(&pbScan0, &lPitch)))
-                pbScan0 = NULL;
+                pbScan0 = nullptr;
         }
-        else if (SUCCEEDED(pbuffer->Lock(&pbLocked, NULL, &cbLocked)))
+        else if (SUCCEEDED(pbuffer->Lock(&pbLocked, nullptr, &cbLocked)))
         {
             // a plain buffer: top-down rows of width * 4 bytes
             if (cbLocked >= (DWORD)(m_sizeVideo.X() * m_sizeVideo.Y() * 4))
@@ -364,8 +364,8 @@ public:
 
                 DWORD      dwFlags = 0;
                 LONGLONG   timestamp = 0;
-                IMFSample* psample = NULL;
-                HRESULT hr = m_preader->ReadSample((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, NULL, &dwFlags, &timestamp, &psample);
+                IMFSample* psample = nullptr;
+                HRESULT hr = m_preader->ReadSample((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, nullptr, &dwFlags, &timestamp, &psample);
 
                 if (FAILED(hr) || (dwFlags & (MF_SOURCE_READERF_ENDOFSTREAM | MF_SOURCE_READERF_ERROR)))
                 {
@@ -387,7 +387,7 @@ public:
 
             CopyFrame(m_psamplePending);
             m_psamplePending->Release();
-            m_psamplePending = NULL;
+            m_psamplePending = nullptr;
         }
     }
 

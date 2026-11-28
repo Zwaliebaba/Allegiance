@@ -1122,17 +1122,17 @@ public:
 
             if (strType == "Frame") {
                 if (!ReadFrame(strName, pgeoChild)) {
-                    return NULL;    // false is not a null pointer constant
+                    return nullptr;    // false is not a null pointer constant
                 }
             } else if (strType == "Mesh") {
                 if (!ReadMesh(strName, pgeoChild)) {
-                    return NULL;    // false is not a null pointer constant
+                    return nullptr;    // false is not a null pointer constant
                 }
             } else if (strType == "AnimationSet") {
                 ZAssert(!bAnimation);
                 bAnimation = true;
                 if (!ReadAnimationSet(pnumberFrame)) {
-                    return NULL;    // false is not a null pointer constant
+                    return nullptr;    // false is not a null pointer constant
                 }
             }
 
@@ -1144,7 +1144,7 @@ public:
         }
 
         if (m_ptoken->Error()) {
-            return NULL;
+            return nullptr;
         } else {
             return pgroup;
         }

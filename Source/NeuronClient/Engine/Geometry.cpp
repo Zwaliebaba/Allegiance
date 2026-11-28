@@ -57,32 +57,32 @@ bool Geo::AnyChildGroups(bool bHead)
 
 TRef<Geo> Geo::RemoveMaterial()
 {
-    return NULL;
+    return nullptr;
 }
 
 TRef<Geo> Geo::FoldTexture()
 {
-    return NULL;
+    return nullptr;
 }
 
 MeshGeo* Geo::GetMeshGeo()
 {
-    return NULL;
+    return nullptr;
 }
 
 GroupGeo* Geo::GetGroupGeo()
 {
-    return NULL;
+    return nullptr;
 }
 
 TextureGeo* Geo::GetTextureGeo()
 {
-    return NULL;
+    return nullptr;
 }
 
 Image* Geo::FindTexture()
 {
-    return NULL;
+    return nullptr;
 }
 
 void Geo::CallGroupGeoCallback(const Matrix& mat, GroupGeoCallback* pcallback)
@@ -122,7 +122,7 @@ MouseResult Geo::Button(const Vector& vec, int button, bool bCaptured, bool bIns
 
 TRef<Geo> Geo::ApplyTransform(Transform* ptrans)
 {
-    return NULL;
+    return nullptr;
 }
 
 int Geo::GetTriangleCount()
@@ -182,7 +182,7 @@ public:
     // mapping isn't kept alive for the mesh
     //
 
-    TMeshGeo(VertexType* pvertices, int vcount, MeshIndex* pindices, int icount, IObject* pobjectMemory = NULL) :
+    TMeshGeo(VertexType* pvertices, int vcount, MeshIndex* pindices, int icount, IObject* pobjectMemory = nullptr) :
         m_vertices(pvertices, pvertices + vcount),
         m_indices(pindices, pindices + icount)
     {
@@ -425,7 +425,7 @@ TRef<Geo> g_pmeshWhiteEmissiveSquare;
 
 Geo* Geo::GetWhiteEmissiveSquare()
 {
-    if (g_pmeshWhiteEmissiveSquare == NULL) {
+    if (g_pmeshWhiteEmissiveSquare == nullptr) {
         static VertexL vertices[4] =
             {
                 VertexL(-1,  1, 0, 1, 1, 1, 1, 0, 0),
@@ -446,7 +446,7 @@ Geo* Geo::GetWhiteEmissiveSquare()
 
 Geo* Geo::GetSquare()
 {
-    if (g_pmeshSquare == NULL) {
+    if (g_pmeshSquare == nullptr) {
         static Vertex vertices[4] =
             {
                 Vertex(-1,  1, 0, 0, 0, 1, 0, 0),
@@ -468,7 +468,7 @@ Geo* Geo::GetSquare()
 
 Geo* Geo::GetIcosahedron()
 {
-    if (g_pmeshIcosahedron == NULL) {
+    if (g_pmeshIcosahedron == nullptr) {
         const float x = 0.5256f;
         const float z = 0.8506f;
 
@@ -571,7 +571,7 @@ TRef<Geo> WrapGeo::ApplyTransform(Transform* ptrans)
         return Duplicate(pgeo);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool WrapGeo::AnyChildGroups(bool bHead)
@@ -588,7 +588,7 @@ TRef<Geo> WrapGeo::RemoveMaterial()
         return this;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 TRef<Geo> WrapGeo::FoldTexture()
@@ -619,7 +619,7 @@ TRef<Geo> WrapGeo::FoldTexture()
     if (bAnyFold) {
         return this;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -629,7 +629,7 @@ TRef<Value> WrapGeo::Fold()
         return Geo::GetEmpty();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void WrapGeo::Render(Context* pcontext)
@@ -943,7 +943,7 @@ TRef<Geo> TextureGeo::FoldTexture()
     if (bAnyFold) {
         return this;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1039,8 +1039,8 @@ public:
         while (pgeo) {
             TRef<Geo> pgeoNew = pgeo->ApplyTransform(ptrans);
 
-            if (pgeoNew == NULL) {
-                return NULL;
+            if (pgeoNew == nullptr) {
+                return nullptr;
             }
 
             pgroupNew->AddGeo(pgeoNew);
@@ -1091,7 +1091,7 @@ public:
             return pgroupNew;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     TRef<Geo> RemoveTextures()
@@ -1189,7 +1189,7 @@ public:
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     TRef<Value> Fold() override
@@ -1220,7 +1220,7 @@ public:
             TRef<GroupGeoImpl> pgroupChild;
             CastTo(pgroupChild, pgeo->GetGroupGeo());
 
-            if (pgroupChild != NULL) {
+            if (pgroupChild != nullptr) {
                 bAnyFold = true;
                 pgeo = Geo::Cast(plist->RemoveCurrent());
 
@@ -1247,8 +1247,8 @@ public:
         while (pgeo) {
             TRef<MeshGeo> pmeshGeoChild = pgeo->GetMeshGeo();
 
-            if (pmeshGeoChild != NULL) {
-                if (pmeshGeo != NULL) {
+            if (pmeshGeoChild != nullptr) {
+                if (pmeshGeo != nullptr) {
                     bAnyFold = true;
                     pmeshGeo = pmeshGeo->Combine(pmeshGeoChild);
                 } else {
@@ -1278,7 +1278,7 @@ public:
             if (bAnyFold) {
                 return this;
             } else {
-                return NULL;
+                return nullptr;
             }
         }
     }
@@ -1353,7 +1353,7 @@ public:
             pgeo = Geo::Cast(GetValueList()->GetNext());
         }
 
-        return NULL;
+        return nullptr;
     }
 
     int GetTriangleCount() override
@@ -1403,7 +1403,7 @@ public:
     {
         if (m_pgeoCapture) {
             m_pgeoCapture->RemoveCapture();
-            m_pgeoCapture = NULL;
+            m_pgeoCapture = nullptr;
         }
     }
 
@@ -1449,12 +1449,12 @@ public:
                     vec,
                     button,
                     true,
-                    m_pgeoHit != NULL,
+                    m_pgeoHit != nullptr,
                     bDown
                 );
 
             if (mouseResult.Test(MouseResultRelease())) {
-                m_pgeoCapture = NULL;
+                m_pgeoCapture = nullptr;
             }
         } else {
             mouseResult = m_pgeoHit->Button(vec, button, false, true, bDown);
@@ -1691,7 +1691,7 @@ public:
             return this;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     TRef<Geo> FoldTexture() override
@@ -1722,7 +1722,7 @@ public:
 
             TRef<TextureGeo> ptextureGeo = pgeoFold->GetTextureGeo();
             if (ptextureGeo) {
-                if (pimage == NULL) {
+                if (pimage == nullptr) {
                     pimage   = ptextureGeo->GetTexture();
                     psurface = pimage->GetSurface();
                 } else {
@@ -1752,7 +1752,7 @@ public:
             return plodGeoNew;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     TRef<WrapGeo> Duplicate(Geo* pgeo) override
@@ -1782,7 +1782,7 @@ public:
             return GetGeo();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     ZString GetFunctionName() override

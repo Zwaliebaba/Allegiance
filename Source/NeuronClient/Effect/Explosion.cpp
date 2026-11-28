@@ -86,7 +86,7 @@ public:
         // Add the shockwave
         //
 
-		if (pimageShockwave != NULL) {
+		if (pimageShockwave != nullptr) {
 			m_listShockwave.PushFront();
 			ShockwaveData& sdata = m_listShockwave.GetFront();
 

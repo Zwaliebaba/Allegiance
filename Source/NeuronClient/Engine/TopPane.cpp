@@ -82,7 +82,7 @@ void TopPane::Evaluate()
         if (GetSize() != sizeOld) {
             m_bNeedPaint = true;
             m_bPaintAll = true;
-            m_psurface = NULL;
+            m_psurface = nullptr;
             m_psurface =
                 m_pengine->CreateSurface(
                     GetSize(),

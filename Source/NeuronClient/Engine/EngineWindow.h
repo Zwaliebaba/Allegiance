@@ -214,7 +214,7 @@ public:
               bool         bStartFullscreen = false,
         const WinRect&     rect             = WinRect(0, 0, -1, -1),
         const WinPoint&    sizeMin          = WinPoint(1, 1),
-              HMENU        hmenu            = NULL
+              HMENU        hmenu            = nullptr
     );
 
     ~EngineWindow();
@@ -263,7 +263,7 @@ public:
     void SetCaption(ICaption* pcaption);
     void SetHideCursorTimer(bool bHideCursor);
 
-    void SetShowFPS(bool bFPS, const char* pszLabel = NULL);
+    void SetShowFPS(bool bFPS, const char* pszLabel = nullptr);
     void ToggleShowFPS();
     void SetMoveOnHide(bool bMoveOnHide);
 

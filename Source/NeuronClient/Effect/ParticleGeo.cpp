@@ -254,7 +254,7 @@ class SparkBehavior : public ParticleBehavior
 
 /* void */  ParticleData::ParticleData (void)
 {
-    m_pParticleBehavior = NULL;
+    m_pParticleBehavior = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -394,7 +394,7 @@ class ParticleGeoImpl : public ParticleGeo
                     {
                         // the particle is expired, so clear the behavior pointer
                         // so we don't do extra work next time around
-                        m_dataParticle[index].m_pParticleBehavior = NULL;
+                        m_dataParticle[index].m_pParticleBehavior = nullptr;
                     }
                 }
             }

@@ -93,7 +93,7 @@ void Value::Evaluate()
 
 TRef<Value> Value::Fold()
 {
-    return NULL;
+    return nullptr;
 }
 
 bool Value::DoFold()
@@ -129,7 +129,7 @@ bool Value::DoFold()
 
 void Value::ChildChanged(Value* pvalue, Value* pvalueNew)
 {
-    if (pvalueNew != NULL) {
+    if (pvalueNew != nullptr) {
         int count = (int)m_pchildren.size();
         for (int index = 0; index < count; index++) {
             if (pvalue == m_pchildren[index]) {
@@ -190,7 +190,7 @@ void Value::Changed()
 
             //  , get this to work
             //if (!pvalue->m_bChanged) {
-                pvalue->ChildChanged(this, NULL);
+                pvalue->ChildChanged(this, nullptr);
             //}
             iter.Next();
         }
@@ -247,7 +247,7 @@ void Value::AddChild(Value* pvalueChild)
 
 void Value::WriteInternal(IMDLBinaryFile* pfile)
 {
-    if (m_pnsInfo != NULL) {
+    if (m_pnsInfo != nullptr) {
         //
         // This value is top level in some NameSpace
         //
@@ -325,7 +325,7 @@ ZString Value::GetFunctionName()
 
 ZString Value::GetChildString(int indent)
 {
-    if (m_pnsInfo != NULL) {
+    if (m_pnsInfo != nullptr) {
         return m_pnsInfo->GetName();
     } else {
         return GetString(indent);
@@ -435,7 +435,7 @@ void ValueList::ChildChanged(Value* pvalue, Value* pvalueNew)
     if (pvalueNew) {
         pvalue->RemoveParent(this);
         pvalueNew->AddParent(this);
-        if (m_psite != NULL && m_psite->RemoveValue(pvalueNew)) {
+        if (m_psite != nullptr && m_psite->RemoveValue(pvalueNew)) {
             m_list.Remove(pvalue);
         } else {
             m_list.Replace(pvalue, pvalueNew);
@@ -482,7 +482,7 @@ Value* ValueList::GetFirst()
         return m_iter.Value();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Value* ValueList::GetLast()
@@ -491,7 +491,7 @@ Value* ValueList::GetLast()
         return m_iter.Value();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Value* ValueList::GetNext()
@@ -500,7 +500,7 @@ Value* ValueList::GetNext()
         return m_iter.Value();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Value* ValueList::GetPrevious()
@@ -509,7 +509,7 @@ Value* ValueList::GetPrevious()
         return m_iter.Value();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Value* ValueList::GetCurrent()
@@ -517,7 +517,7 @@ Value* ValueList::GetCurrent()
     if (!m_iter.End()) {
         return m_iter.Value();
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -529,7 +529,7 @@ Value* ValueList::RemoveCurrent()
             return m_iter.Value();
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 bool ValueList::IsFirst()

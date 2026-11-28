@@ -23,7 +23,7 @@ public:
     //
 
     ThingRef() :
-        m_pt(NULL)
+        m_pt(nullptr)
     {
     }
 
@@ -311,21 +311,21 @@ public:
 
         delete[] m_damageFrames;
 
-        m_pmodeler = NULL;
-        m_pframes = NULL;
-        m_pgeoTrail = NULL;
-        m_pgeoMesh = NULL;
-        m_phullHitGeo = NULL;
-        m_pgeoLights = NULL;
-        m_pgeoBounds = NULL;
-        m_psurfaceTexture = NULL;
-        m_pvectorPositionTrail = NULL;
-        m_pvectorRightTrail = NULL;
-        m_pbooleanMoving = NULL;
-        m_pgroupFlares = NULL;
-        m_pParticleGeo = NULL;
-        m_pbitsGeo = NULL;
-        m_pimageGlow = NULL;
+        m_pmodeler = nullptr;
+        m_pframes = nullptr;
+        m_pgeoTrail = nullptr;
+        m_pgeoMesh = nullptr;
+        m_phullHitGeo = nullptr;
+        m_pgeoLights = nullptr;
+        m_pgeoBounds = nullptr;
+        m_psurfaceTexture = nullptr;
+        m_pvectorPositionTrail = nullptr;
+        m_pvectorRightTrail = nullptr;
+        m_pbooleanMoving = nullptr;
+        m_pgroupFlares = nullptr;
+        m_pParticleGeo = nullptr;
+        m_pbitsGeo = nullptr;
+        m_pimageGlow = nullptr;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -336,7 +336,7 @@ public:
 
     bool IsValid() override
     {
-        return (m_pgeoMesh != NULL);
+        return (m_pgeoMesh != nullptr);
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -753,7 +753,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     void    AddThrustParticles (float fDeltaTime, const Vector& vecFrameVelocity, const Vector& vecFrameAcceleration)
     {
-        if ((m_pframes != NULL) && m_pParticleGeo && (m_fThrustPower > 0)) 
+        if ((m_pframes != nullptr) && m_pParticleGeo && (m_fThrustPower > 0)) 
         {
             // compute the length of the offset since last frame
             float   fDeltaLength = vecFrameVelocity.Length() * fDeltaTime;
@@ -970,7 +970,7 @@ public:
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     HRESULT LoadMDL(short options, INameSpace* pns, Image* pimageTexture) override
@@ -1035,7 +1035,7 @@ public:
             if (pimageTexture) {
                 m_psurfaceTexture = pimageTexture->GetSurface();
             } else {
-                m_psurfaceTexture = NULL;
+                m_psurfaceTexture = nullptr;
             }
         }
 
@@ -1156,7 +1156,7 @@ public:
 
     void SetPosition(const Vector& vec) override
     {
-        if (m_pbooleanMoving != NULL) {
+        if (m_pbooleanMoving != nullptr) {
             m_pbooleanMoving->SetValue(m_vecPosition != vec);
         }
 
@@ -1502,7 +1502,7 @@ public:
         // Draw the lights
         //
 
-        if (m_bDrawLights && m_pgeoLights != NULL) {
+        if (m_bDrawLights && m_pgeoLights != nullptr) {
             m_pgeoLights->Render(pcontext);
         }
 
@@ -1582,7 +1582,7 @@ public:
             // Draw the trail
             //
 
-            if (s_bShowTrails && m_pgeoTrail != NULL) {
+            if (s_bShowTrails && m_pgeoTrail != nullptr) {
                 m_pgeoTrail->Render(pcontext);
             }
 

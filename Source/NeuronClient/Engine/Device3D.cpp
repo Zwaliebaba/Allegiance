@@ -211,17 +211,17 @@ public:
     Device3D(Rasterizer* prasterizer) :
         m_prasterizer(prasterizer),
 
-        m_pvertexLBuffer(NULL),
+        m_pvertexLBuffer(nullptr),
         m_countVertexLBuffer(0),
 
-        m_pvertexTLBuffer(NULL),
+        m_pvertexTLBuffer(nullptr),
         m_countVertexTLBuffer(0),
 
-        m_pvertexScreenBuffer(NULL),
+        m_pvertexScreenBuffer(nullptr),
         m_countVertexScreenBuffer(0),
         m_indexVertexScreenBuffer(0),
 
-        m_pindexBuffer(NULL),
+        m_pindexBuffer(nullptr),
         m_countIndexBuffer(0),
         m_indexIndexBuffer(0),
 
@@ -511,7 +511,7 @@ public:
 
             bool bClip = m_bClip || m_countPlanes > 6;
 
-            if (m_pdeform != NULL) {
+            if (m_pdeform != nullptr) {
                 bClip = true;
                 m_pfnTransform = &Device3D::TransformDeformClip;
             } else if (bClip) {
@@ -1987,7 +1987,7 @@ public:
 
     bool UseShaderTL()
     {
-        return m_pdeform == NULL;
+        return m_pdeform == nullptr;
     }
 
     void BuildTransformAndLight(TransformAndLight& tl, bool bNormal)
@@ -2298,7 +2298,7 @@ public:
         #endif
 
         UpdatePointers();
-        (this->*m_pfnLightVertex)(pvertex, vcount, NULL, 0, &Device3D::ClipPoints, &Device3D::DrawPoints);
+        (this->*m_pfnLightVertex)(pvertex, vcount, nullptr, 0, &Device3D::ClipPoints, &Device3D::DrawPoints);
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -2360,7 +2360,7 @@ public:
         #endif
 
         UpdatePointers();
-        (this->*m_pfnLightVertexL)(pvertex, vcount, NULL, 0, &Device3D::ClipPoints, &Device3D::DrawPoints);
+        (this->*m_pfnLightVertexL)(pvertex, vcount, nullptr, 0, &Device3D::ClipPoints, &Device3D::DrawPoints);
     }
 };
 

@@ -28,7 +28,7 @@ protected:
     WinPoint m_bigSize;
 
 public:
-    JustifyPane(int layout = Center, const WinPoint& size = WinPoint(0, 0), Pane* pchild = NULL);
+    JustifyPane(int layout = Center, const WinPoint& size = WinPoint(0, 0), Pane* pchild = nullptr);
 
     void UpdateLayout() override;
 };
@@ -67,8 +67,8 @@ protected:
     Color m_colorSelected;
 
 public:
-    BorderPane(int width, const Color& color, Pane* pchild = NULL);
-    BorderPane(int xborder, int yborder, const Color& color, Pane* pchild = NULL);
+    BorderPane(int width, const Color& color, Pane* pchild = nullptr);
+    BorderPane(int xborder, int yborder, const Color& color, Pane* pchild = nullptr);
 
     void SetColor(const Color& color);
     void SetColorSelected(const Color& color);
@@ -88,7 +88,7 @@ protected:
     bool m_bUp;
 
 public:
-    EdgePane(Pane* pchild = NULL, bool bUp = true);
+    EdgePane(Pane* pchild = nullptr, bool bUp = true);
 
     void UpdateLayout() override;
     void Paint(Surface* psurface) override;

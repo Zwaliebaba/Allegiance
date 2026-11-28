@@ -202,7 +202,7 @@ struct Pipeline {
     std::vector<TRef<SceneTarget>> m_vscenes;
 
     Pipeline() :
-        m_pdevice(NULL),
+        m_pdevice(nullptr),
         m_generation(-1),
         m_vbCapacity(0),
         m_ibCapacity(0),
@@ -213,35 +213,35 @@ struct Pipeline {
 };
 
 Pipeline   g_pipeline;
-Rasterizer* g_pboundRasterizer = NULL;
+Rasterizer* g_pboundRasterizer = nullptr;
 
 bool CreatePipeline(D3D11Device* pdevice)
 {
     Pipeline& p = g_pipeline;
 
-    if (p.m_pdevice == pdevice && p.m_generation == pdevice->GetGeneration() && p.m_pvs != NULL) {
+    if (p.m_pdevice == pdevice && p.m_generation == pdevice->GetGeneration() && p.m_pvs != nullptr) {
         return true;
     }
 
     p = Pipeline();
-    g_pboundRasterizer = NULL;
+    g_pboundRasterizer = nullptr;
 
     ID3D11Device* pd3d = pdevice->GetDevice();
 
-    if (pd3d == NULL) {
+    if (pd3d == nullptr) {
         return false;
     }
 
-    if (FAILED(pd3d->CreateVertexShader(g_RasterVs,      sizeof(g_RasterVs),      NULL, &p.m_pvs    ))) return false;
-    if (FAILED(pd3d->CreateVertexShader(g_RasterVsFlat, sizeof(g_RasterVsFlat), NULL, &p.m_pvsFlat))) return false;
-    if (FAILED(pd3d->CreateVertexShader(g_TlVs,          sizeof(g_TlVs),          NULL, &p.m_pvsTL     ))) return false;
-    if (FAILED(pd3d->CreateVertexShader(g_TlVsFlat,     sizeof(g_TlVsFlat),     NULL, &p.m_pvsTLFlat ))) return false;
-    if (FAILED(pd3d->CreateVertexShader(g_TlVsL,        sizeof(g_TlVsL),        NULL, &p.m_pvsTLL    ))) return false;
-    if (FAILED(pd3d->CreateVertexShader(g_TlVsLFlat,   sizeof(g_TlVsLFlat),   NULL, &p.m_pvsTLLFlat))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_RasterPs,      sizeof(g_RasterPs),      NULL, &p.m_pps    ))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_RasterPsFlat, sizeof(g_RasterPsFlat), NULL, &p.m_ppsFlat))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_TlPs,          sizeof(g_TlPs),          NULL, &p.m_ppsTL    ))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_TlPsFlat,     sizeof(g_TlPsFlat),     NULL, &p.m_ppsTLFlat))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_RasterVs,      sizeof(g_RasterVs),      nullptr, &p.m_pvs    ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_RasterVsFlat, sizeof(g_RasterVsFlat), nullptr, &p.m_pvsFlat))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_TlVs,          sizeof(g_TlVs),          nullptr, &p.m_pvsTL     ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_TlVsFlat,     sizeof(g_TlVsFlat),     nullptr, &p.m_pvsTLFlat ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_TlVsL,        sizeof(g_TlVsL),        nullptr, &p.m_pvsTLL    ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_TlVsLFlat,   sizeof(g_TlVsLFlat),   nullptr, &p.m_pvsTLLFlat))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_RasterPs,      sizeof(g_RasterPs),      nullptr, &p.m_pps    ))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_RasterPsFlat, sizeof(g_RasterPsFlat), nullptr, &p.m_ppsFlat))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_TlPs,          sizeof(g_TlPs),          nullptr, &p.m_ppsTL    ))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_TlPsFlat,     sizeof(g_TlPsFlat),     nullptr, &p.m_ppsTLFlat))) return false;
 
     //
     // VertexScreen: x y z rhw, color, specular (unused), u v
@@ -279,10 +279,10 @@ bool CreatePipeline(D3D11Device* pdevice)
     bd.Usage          = D3D11_USAGE_DYNAMIC;
     bd.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
     bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    if (FAILED(pd3d->CreateBuffer(&bd, NULL, &p.m_pcb))) return false;
+    if (FAILED(pd3d->CreateBuffer(&bd, nullptr, &p.m_pcb))) return false;
 
     bd.ByteWidth = 18 * 4 * sizeof(float);   // TLConstants
-    if (FAILED(pd3d->CreateBuffer(&bd, NULL, &p.m_pcbTL))) return false;
+    if (FAILED(pd3d->CreateBuffer(&bd, nullptr, &p.m_pcbTL))) return false;
 
     //
     // Blend: BlendModeSource (off), BlendModeAdd (one, one),
@@ -374,15 +374,15 @@ bool CreatePipeline(D3D11Device* pdevice)
         if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendComposite))) return false;
     }
 
-    if (FAILED(pd3d->CreateVertexShader(g_SceneVs, sizeof(g_SceneVs), NULL, &p.m_pvsScene))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_ScenePs, sizeof(g_ScenePs), NULL, &p.m_ppsScene))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_ScenePsMs, sizeof(g_ScenePsMs), NULL, &p.m_ppsSceneMS))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_SceneVs, sizeof(g_SceneVs), nullptr, &p.m_pvsScene))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_ScenePs, sizeof(g_ScenePs), nullptr, &p.m_ppsScene))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_ScenePsMs, sizeof(g_ScenePsMs), nullptr, &p.m_ppsSceneMS))) return false;
 
-    if (FAILED(pd3d->CreatePixelShader(g_RasterPsOit,      sizeof(g_RasterPsOit),      NULL, &p.m_ppsOit         ))) return false;
-    if (FAILED(pd3d->CreatePixelShader(g_RasterPsFlatOit, sizeof(g_RasterPsFlatOit), NULL, &p.m_ppsOitFlat     ))) return false;
-    if (FAILED(pd3d->CreatePixelShader(g_TlPsOit,          sizeof(g_TlPsOit),          NULL, &p.m_ppsTLOit       ))) return false;
-    if (FAILED(pd3d->CreatePixelShader(g_TlPsFlatOit,     sizeof(g_TlPsFlatOit),     NULL, &p.m_ppsTLOitFlat   ))) return false;
-    if (FAILED(pd3d->CreatePixelShader(g_OitCompositePs,   sizeof(g_OitCompositePs),   NULL, &p.m_ppsOitComposite))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_RasterPsOit,      sizeof(g_RasterPsOit),      nullptr, &p.m_ppsOit         ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_RasterPsFlatOit, sizeof(g_RasterPsFlatOit), nullptr, &p.m_ppsOitFlat     ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_TlPsOit,          sizeof(g_TlPsOit),          nullptr, &p.m_ppsTLOit       ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_TlPsFlatOit,     sizeof(g_TlPsFlatOit),     nullptr, &p.m_ppsTLOitFlat   ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_OitCompositePs,   sizeof(g_OitCompositePs),   nullptr, &p.m_ppsOitComposite))) return false;
 
     {
         D3D11_BLEND_DESC desc = {};
@@ -411,8 +411,8 @@ bool CreatePipeline(D3D11Device* pdevice)
         if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendOit))) return false;
     }
 
-    if (FAILED(pd3d->CreatePixelShader(g_BloomDownPs, sizeof(g_BloomDownPs), NULL, &p.m_ppsBloomDown))) return false;
-    if (FAILED(pd3d->CreatePixelShader(g_BloomUpPs,   sizeof(g_BloomUpPs),   NULL, &p.m_ppsBloomUp  ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_BloomDownPs, sizeof(g_BloomDownPs), nullptr, &p.m_ppsBloomDown))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_BloomUpPs,   sizeof(g_BloomUpPs),   nullptr, &p.m_ppsBloomUp  ))) return false;
 
     {
         D3D11_BUFFER_DESC desc = {};
@@ -420,8 +420,8 @@ bool CreatePipeline(D3D11Device* pdevice)
         desc.Usage          = D3D11_USAGE_DYNAMIC;
         desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        if (FAILED(pd3d->CreateBuffer(&desc, NULL, &p.m_pcbScene))) return false;
-        if (FAILED(pd3d->CreateBuffer(&desc, NULL, &p.m_pcbBloom))) return false;
+        if (FAILED(pd3d->CreateBuffer(&desc, nullptr, &p.m_pcbScene))) return false;
+        if (FAILED(pd3d->CreateBuffer(&desc, nullptr, &p.m_pcbBloom))) return false;
     }
 
     {
@@ -566,7 +566,7 @@ bool CreatePipeline(D3D11Device* pdevice)
 
 bool EnsureBuffer(TRef<ID3D11Buffer>& pbuffer, int& capacity, int bytes, UINT bind)
 {
-    if (pbuffer != NULL && capacity >= bytes) {
+    if (pbuffer != nullptr && capacity >= bytes) {
         return true;
     }
 
@@ -578,10 +578,10 @@ bool EnsureBuffer(TRef<ID3D11Buffer>& pbuffer, int& capacity, int bytes, UINT bi
     desc.BindFlags      = bind;
     desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-    pbuffer  = NULL;
+    pbuffer  = nullptr;
     capacity = 0;
 
-    if (FAILED(g_pipeline.m_pdevice->GetDevice()->CreateBuffer(&desc, NULL, &pbuffer))) {
+    if (FAILED(g_pipeline.m_pdevice->GetDevice()->CreateBuffer(&desc, nullptr, &pbuffer))) {
         return false;
     }
 
@@ -624,9 +624,9 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
     td.Usage              = D3D11_USAGE_DEFAULT;
     td.BindFlags          = D3D11_BIND_RENDER_TARGET | (pscene->m_samples > 1 ? D3D11_BIND_SHADER_RESOURCE : 0);
 
-    HRESULT hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_pcolor);
-    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_pcolor, NULL, &pscene->m_prtv);
-    if (SUCCEEDED(hr) && pscene->m_samples > 1) hr = pd3d->CreateShaderResourceView(pscene->m_pcolor, NULL, &pscene->m_psrvSamples);
+    HRESULT hr = pd3d->CreateTexture2D(&td, nullptr, &pscene->m_pcolor);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_pcolor, nullptr, &pscene->m_prtv);
+    if (SUCCEEDED(hr) && pscene->m_samples > 1) hr = pd3d->CreateShaderResourceView(pscene->m_pcolor, nullptr, &pscene->m_psrvSamples);
 
     //
     // The depth, readable by the replayed blended draws where the device
@@ -640,7 +640,7 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
     if (SUCCEEDED(hr)) {
         td.Format    = bReadable ? DXGI_FORMAT_R32_TYPELESS : c_formatSceneDepth;
         td.BindFlags = D3D11_BIND_DEPTH_STENCIL | (bReadable ? D3D11_BIND_SHADER_RESOURCE : 0);
-        hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_pdepth);
+        hr = pd3d->CreateTexture2D(&td, nullptr, &pscene->m_pdepth);
     }
 
     D3D11_DEPTH_STENCIL_VIEW_DESC dsvd = {};
@@ -665,9 +665,9 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
         td.Format           = c_formatScene;
         td.SampleDesc.Count = 1;
         td.BindFlags        = D3D11_BIND_SHADER_RESOURCE;
-        hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_presolve);
+        hr = pd3d->CreateTexture2D(&td, nullptr, &pscene->m_presolve);
     }
-    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_presolve, NULL, &pscene->m_psrv);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_presolve, nullptr, &pscene->m_psrv);
 
     //
     // Bloom levels, down to about 16 pixels
@@ -690,9 +690,9 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
         td.SampleDesc.Count = 1;
         td.BindFlags        = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
-        hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_pbloom[level]);
-        if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_pbloom[level], NULL, &pscene->m_prtvBloom[level]);
-        if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_pbloom[level], NULL, &pscene->m_psrvBloom[level]);
+        hr = pd3d->CreateTexture2D(&td, nullptr, &pscene->m_pbloom[level]);
+        if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_pbloom[level], nullptr, &pscene->m_prtvBloom[level]);
+        if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_pbloom[level], nullptr, &pscene->m_psrvBloom[level]);
 
         if (SUCCEEDED(hr)) {
             pscene->m_sizeBloom[level] = sizeLevel;
@@ -702,7 +702,7 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
 
     if (FAILED(hr)) {
         pdevice->CheckDeviceLost(hr);
-        return NULL;
+        return nullptr;
     }
 
     pscene->m_bInUse = true;
@@ -717,7 +717,7 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
 
 bool EnsureOitTargets(D3D11Device* pdevice, SceneTarget* pscene)
 {
-    if (pscene->m_prtvAccum != NULL) {
+    if (pscene->m_prtvAccum != nullptr) {
         return true;
     }
 
@@ -739,36 +739,36 @@ bool EnsureOitTargets(D3D11Device* pdevice, SceneTarget* pscene)
 
     td.Format    = c_formatScene;
     td.BindFlags = D3D11_BIND_RENDER_TARGET | (bSamples ? 0 : D3D11_BIND_SHADER_RESOURCE);
-    HRESULT hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_paccum);
-    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_paccum, NULL, &pscene->m_prtvAccum);
+    HRESULT hr = pd3d->CreateTexture2D(&td, nullptr, &pscene->m_paccum);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_paccum, nullptr, &pscene->m_prtvAccum);
 
     if (SUCCEEDED(hr)) {
         td.Format = DXGI_FORMAT_R16_FLOAT;
-        hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_preveal);
+        hr = pd3d->CreateTexture2D(&td, nullptr, &pscene->m_preveal);
     }
-    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_preveal, NULL, &pscene->m_prtvReveal);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_preveal, nullptr, &pscene->m_prtvReveal);
 
     if (SUCCEEDED(hr)) {
         if (bSamples) {
             td.SampleDesc.Count = 1;
             td.BindFlags        = D3D11_BIND_SHADER_RESOURCE;
             td.Format           = c_formatScene;
-            hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_paccumResolve);
+            hr = pd3d->CreateTexture2D(&td, nullptr, &pscene->m_paccumResolve);
             if (SUCCEEDED(hr)) {
                 td.Format = DXGI_FORMAT_R16_FLOAT;
-                hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_prevealResolve);
+                hr = pd3d->CreateTexture2D(&td, nullptr, &pscene->m_prevealResolve);
             }
         } else {
             pscene->m_paccumResolve  = pscene->m_paccum;
             pscene->m_prevealResolve = pscene->m_preveal;
         }
     }
-    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_paccumResolve,  NULL, &pscene->m_psrvAccum);
-    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_prevealResolve, NULL, &pscene->m_psrvReveal);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_paccumResolve,  nullptr, &pscene->m_psrvAccum);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_prevealResolve, nullptr, &pscene->m_psrvReveal);
 
     if (FAILED(hr)) {
         pdevice->CheckDeviceLost(hr);
-        pscene->m_prtvAccum = NULL;
+        pscene->m_prtvAccum = nullptr;
         return false;
     }
 
@@ -779,7 +779,7 @@ bool EnsureOitTargets(D3D11Device* pdevice, SceneTarget* pscene)
 
 void D3D11BoundRasterizerChanged()
 {
-    g_pboundRasterizer = NULL;
+    g_pboundRasterizer = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -866,7 +866,7 @@ private:
 public:
     D3D11RasterizerImpl(PrivateSurface* psurface) :
         m_psurface(psurface),
-        m_prtvBound(NULL),
+        m_prtvBound(nullptr),
         m_sizeTarget(0, 0),
         m_bInScene(false),
         m_bSceneDrawn(false),
@@ -899,23 +899,23 @@ public:
     bool IsValid() override
     {
         D3D11Device* pdevice = m_pengine->GetD3D11Device();
-        return pdevice != NULL && CreatePipeline(pdevice);
+        return pdevice != nullptr && CreatePipeline(pdevice);
     }
 
     void Terminate() override
     {
         if (g_pboundRasterizer == this) {
-            g_pboundRasterizer = NULL;
+            g_pboundRasterizer = nullptr;
         }
 
-        if (m_pscene != NULL) {
+        if (m_pscene != nullptr) {
             m_pscene->m_bInUse = false;
-            m_pscene = NULL;
+            m_pscene = nullptr;
         }
 
         m_vdeferred.clear();
-        m_ptarget   = NULL;
-        m_prtvBound = NULL;
+        m_ptarget   = nullptr;
+        m_prtvBound = nullptr;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -928,8 +928,8 @@ public:
     {
         D3D11Device* pdevice = m_pengine->GetD3D11Device();
 
-        if (pdevice == NULL || !CreatePipeline(pdevice)) {
-            return NULL;
+        if (pdevice == nullptr || !CreatePipeline(pdevice)) {
+            return nullptr;
         }
 
         return pdevice;
@@ -948,13 +948,13 @@ public:
     {
         pdevice = GetDevice();
 
-        if (pdevice == NULL) {
+        if (pdevice == nullptr) {
             return false;
         }
 
         D3D11Target* ptarget = m_psurface->BeginGpuDraw();
 
-        if (ptarget == NULL) {
+        if (ptarget == nullptr) {
             return false;
         }
 
@@ -968,21 +968,21 @@ public:
         //
 
         if (
-               m_pscene != NULL
+               m_pscene != nullptr
             && (   m_pscene->m_size       != ptarget->m_size
                 || m_pscene->m_generation != pdevice->GetGeneration())
         ) {
             m_pscene->m_bInUse = false;
-            m_pscene = NULL;
+            m_pscene = nullptr;
             m_vdeferred.clear();
         }
 
-        if (m_pscene == NULL && !D3D11EnsureDepth(pdevice, ptarget)) {
+        if (m_pscene == nullptr && !D3D11EnsureDepth(pdevice, ptarget)) {
             return false;
         }
 
-        ID3D11RenderTargetView* prtv = m_pscene != NULL ? m_pscene->m_prtv : ptarget->m_prtv;
-        ID3D11DepthStencilView* pdsv = m_pscene != NULL ? m_pscene->m_pdsv : ptarget->m_pdsv;
+        ID3D11RenderTargetView* prtv = m_pscene != nullptr ? m_pscene->m_prtv : ptarget->m_prtv;
+        ID3D11DepthStencilView* pdsv = m_pscene != nullptr ? m_pscene->m_pdsv : ptarget->m_pdsv;
 
         ID3D11DeviceContext* pcontext = pdevice->GetContext();
         Pipeline&            p        = g_pipeline;
@@ -1031,11 +1031,11 @@ public:
         // ignoring texture, blending and z; keep that behaviour.
         //
 
-        ID3D11ShaderResourceView* psrv = NULL;
+        ID3D11ShaderResourceView* psrv = nullptr;
 
         bool bKeyBlack = false;
 
-        if (!bPoints && m_psurfaceTexture != NULL) {
+        if (!bPoints && m_psurfaceTexture != nullptr) {
             PrivateSurface* ptexture; CastTo(ptexture, (Surface*)m_psurfaceTexture);
 
             //
@@ -1046,7 +1046,7 @@ public:
 
             psrv = ptexture->GetGpuSource();
 
-            if (psrv != NULL) {
+            if (psrv != nullptr) {
                 bKeyBlack = true;
             } else {
                 psrv = pdevice->GetTexture(ptexture);
@@ -1065,17 +1065,17 @@ public:
                !bPoints
             && !bBlend
             && m_bColorKey
-            && psrv != NULL
-            && m_pscene != NULL
+            && psrv != nullptr
+            && m_pscene != nullptr
             && m_pscene->m_samples > 1;
 
         DWORD flags   =
-              (psrv != NULL       ? 1 : 0)
+              (psrv != nullptr       ? 1 : 0)
             | (bDecal             ? 2 : 0)
             | (m_bColorKey        ? 4 : 0)
             | (bKeyBlack          ? 8 : 0)
             | (bBlend             ? 16 : 0)
-            | (m_pscene != NULL   ? 32 | 64 : 0)
+            | (m_pscene != nullptr   ? 32 | 64 : 0)
             | (bCoverage          ? 128 : 0);
 
         //
@@ -1086,8 +1086,8 @@ public:
         bool bSoft =
                m_bReplaying
             && bBlend
-            && m_pscene != NULL
-            && m_pscene->m_psrvDepth != NULL
+            && m_pscene != nullptr
+            && m_pscene->m_psrvDepth != nullptr
             && m_sceneDepth[1] != 0;
 
         if (bSoft) {
@@ -1118,12 +1118,12 @@ public:
             m_flagsBound = flags;
         }
 
-        pcontext->VSSetShader(bFlat ? p.m_pvsFlat : p.m_pvs, NULL, 0);
+        pcontext->VSSetShader(bFlat ? p.m_pvsFlat : p.m_pvs, nullptr, 0);
         pcontext->PSSetShader(
             m_bOit
                 ? (bFlat ? p.m_ppsOitFlat : p.m_ppsOit)
                 : (bFlat ? p.m_ppsFlat    : p.m_pps),
-            NULL,
+            nullptr,
             0
         );
         pcontext->PSSetShaderResources(0, 1, &psrv);
@@ -1131,10 +1131,10 @@ public:
         ID3D11SamplerState* psampler = p.m_psampler[m_bLinearFilter ? 1 : 0];
         pcontext->PSSetSamplers(0, 1, &psampler);
 
-        TRef<ID3D11BlendState>* pblend = m_pscene != NULL ? p.m_pblendScene : p.m_pblend;
+        TRef<ID3D11BlendState>* pblend = m_pscene != nullptr ? p.m_pblendScene : p.m_pblend;
 
         if (bPoints) {
-            pcontext->OMSetBlendState(pblend[BlendModeSource], NULL, 0xffffffff);
+            pcontext->OMSetBlendState(pblend[BlendModeSource], nullptr, 0xffffffff);
             pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
             pcontext->RSSetState(p.m_praster[0]);
         } else {
@@ -1142,7 +1142,7 @@ public:
                 m_bOit
                     ? (ID3D11BlendState*)p.m_pblendOit
                     : (bCoverage ? (ID3D11BlendState*)p.m_pblendSceneCoverage : (ID3D11BlendState*)pblend[m_blendMode]),
-                NULL,
+                nullptr,
                 0xffffffff
             );
             //
@@ -1151,7 +1151,7 @@ public:
             //
 
             pcontext->OMSetDepthStencilState(
-                (m_pscene != NULL ? p.m_pdepthScene : p.m_pdepth)[m_bZTest ? 1 : 0][m_bZWrite && !m_bReplaying ? 1 : 0],
+                (m_pscene != nullptr ? p.m_pdepthScene : p.m_pdepth)[m_bZTest ? 1 : 0][m_bZWrite && !m_bReplaying ? 1 : 0],
                 0
             );
 
@@ -1166,7 +1166,7 @@ public:
         scissor.bottom = MinOf((LONG)m_sizeTarget.Y(), (LONG)ceilf(m_rectClip.YMax()));
         pcontext->RSSetScissorRects(1, &scissor);
 
-        if (m_pscene != NULL) {
+        if (m_pscene != nullptr) {
             if (m_bSceneDrawn) {
                 m_rectSceneDrawn.Accumulate(m_rectClip);
             } else {
@@ -1250,19 +1250,19 @@ public:
 
     void Begin3DLayer(bool bZBuffer) override
     {
-        if (!bZBuffer || m_pscene != NULL) {
+        if (!bZBuffer || m_pscene != nullptr) {
             return;
         }
 
         D3D11Device* pdevice = GetDevice();
 
-        if (pdevice == NULL) {
+        if (pdevice == nullptr) {
             return;
         }
 
         m_pscene = AcquireSceneTarget(pdevice, m_psurface->GetSize());
 
-        if (m_pscene == NULL) {
+        if (m_pscene == nullptr) {
             return;
         }
 
@@ -1274,7 +1274,7 @@ public:
 
         m_bSceneDrawn   = false;
         m_bStateChanged = true;
-        m_prtvBound     = NULL;   // rebind to the scene
+        m_prtvBound     = nullptr;   // rebind to the scene
 
         m_vdeferred.clear();
         m_sceneDepth[0] = 0;
@@ -1283,7 +1283,7 @@ public:
 
     void End3DLayer() override
     {
-        if (m_pscene == NULL) {
+        if (m_pscene == nullptr) {
             return;
         }
 
@@ -1292,21 +1292,21 @@ public:
         TRef<SceneTarget> pscene = m_pscene;
 
         m_pscene->m_bInUse = false;
-        m_pscene           = NULL;
+        m_pscene           = nullptr;
         m_bStateChanged    = true;
-        m_prtvBound        = NULL;   // rebind to the surface
-        g_pboundRasterizer = NULL;
+        m_prtvBound        = nullptr;   // rebind to the surface
+        g_pboundRasterizer = nullptr;
 
         D3D11Device* pdevice = GetDevice();
 
-        if (pdevice == NULL || !m_bSceneDrawn) {
+        if (pdevice == nullptr || !m_bSceneDrawn) {
             return;
         }
 
         D3D11Target* ptarget = m_psurface->BeginGpuDraw();
 
         if (
-               ptarget == NULL
+               ptarget == nullptr
             || ptarget->m_size       != pscene->m_size
             || pscene->m_generation  != pdevice->GetGeneration()
         ) {
@@ -1320,7 +1320,7 @@ public:
         // Resolve the samples
         //
 
-        pcontext->OMSetRenderTargets(0, NULL, NULL);
+        pcontext->OMSetRenderTargets(0, nullptr, nullptr);
 
         if (pscene->m_samples > 1) {
             pcontext->ResolveSubresource(pscene->m_presolve, 0, pscene->m_pcolor, 0, c_formatScene);
@@ -1350,7 +1350,7 @@ public:
         }
 
         ID3D11RenderTargetView* prtv = ptarget->m_prtv;
-        pcontext->OMSetRenderTargets(1, &prtv, NULL);
+        pcontext->OMSetRenderTargets(1, &prtv, nullptr);
 
         D3D11_VIEWPORT vp;
         vp.TopLeftX = 0;
@@ -1380,22 +1380,22 @@ public:
 
         ID3D11ShaderResourceView* psrvs[2] = {
             bSamples ? (ID3D11ShaderResourceView*)pscene->m_psrvSamples : (ID3D11ShaderResourceView*)pscene->m_psrv,
-            pscene->m_bloomLevels > 0 ? (ID3D11ShaderResourceView*)pscene->m_psrvBloom[0] : NULL
+            pscene->m_bloomLevels > 0 ? (ID3D11ShaderResourceView*)pscene->m_psrvBloom[0] : nullptr
         };
 
-        pcontext->OMSetBlendState(p.m_pblendComposite, NULL, 0xffffffff);
+        pcontext->OMSetBlendState(p.m_pblendComposite, nullptr, 0xffffffff);
         pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
         pcontext->RSSetState(p.m_praster[0]);
-        pcontext->IASetInputLayout(NULL);
+        pcontext->IASetInputLayout(nullptr);
         pcontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        pcontext->VSSetShader(p.m_pvsScene, NULL, 0);
-        pcontext->PSSetShader(bSamples ? p.m_ppsSceneMS : p.m_ppsScene, NULL, 0);
+        pcontext->VSSetShader(p.m_pvsScene, nullptr, 0);
+        pcontext->PSSetShader(bSamples ? p.m_ppsSceneMS : p.m_ppsScene, nullptr, 0);
         pcontext->PSSetConstantBuffers(0, 1, &pcb);
         pcontext->PSSetShaderResources(0, 2, psrvs);
         pcontext->PSSetSamplers(0, 1, &psampler);
         pcontext->Draw(3, 0);
 
-        ID3D11ShaderResourceView* pnull[2] = { NULL, NULL };
+        ID3D11ShaderResourceView* pnull[2] = { nullptr, nullptr };
         pcontext->PSSetShaderResources(0, 2, pnull);
 
         g_d3d11Stats.m_scenes++;
@@ -1432,7 +1432,7 @@ public:
             pcontext->Unmap(p.m_pcbBloom, 0);
         }
 
-        pcontext->OMSetRenderTargets(1, &pdest, NULL);
+        pcontext->OMSetRenderTargets(1, &pdest, nullptr);
 
         D3D11_VIEWPORT vp;
         vp.TopLeftX = 0;
@@ -1448,13 +1448,13 @@ public:
 
         ID3D11Buffer* pcb = p.m_pcbBloom;
 
-        pcontext->OMSetBlendState(pblend, NULL, 0xffffffff);
-        pcontext->PSSetShader(pps, NULL, 0);
+        pcontext->OMSetBlendState(pblend, nullptr, 0xffffffff);
+        pcontext->PSSetShader(pps, nullptr, 0);
         pcontext->PSSetConstantBuffers(0, 1, &pcb);
         pcontext->PSSetShaderResources(0, 1, &psource);
         pcontext->Draw(3, 0);
 
-        ID3D11ShaderResourceView* pnull = NULL;
+        ID3D11ShaderResourceView* pnull = nullptr;
         pcontext->PSSetShaderResources(0, 1, &pnull);
     }
 
@@ -1471,9 +1471,9 @@ public:
 
         pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
         pcontext->RSSetState(p.m_praster[0]);
-        pcontext->IASetInputLayout(NULL);
+        pcontext->IASetInputLayout(nullptr);
         pcontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        pcontext->VSSetShader(p.m_pvsScene, NULL, 0);
+        pcontext->VSSetShader(p.m_pvsScene, nullptr, 0);
         pcontext->PSSetSamplers(0, 1, &psampler);
 
         for (int level = 0; level < levels; level++) {
@@ -1500,7 +1500,7 @@ public:
             );
         }
 
-        pcontext->OMSetRenderTargets(0, NULL, NULL);
+        pcontext->OMSetRenderTargets(0, nullptr, nullptr);
     }
 
     void ClearZBuffer() override
@@ -1529,7 +1529,7 @@ public:
             // needs nothing special, as its z of 1 is flipped to 0 there
             //
 
-            if (m_pscene != NULL) {
+            if (m_pscene != nullptr) {
                 pcontext->ClearDepthStencilView(m_pscene->m_pdsv, D3D11_CLEAR_DEPTH, 0.0f, 0);
             } else {
                 pcontext->ClearDepthStencilView(m_ptarget->m_pdsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -1560,7 +1560,7 @@ public:
         static const MeshIndex indices[6] = { 0, 1, 2, 2, 1, 3 };
 
         ApplyState(pdevice, true);
-        pcontext->OMSetBlendState(g_pipeline.m_pblendNoColor, NULL, 0xffffffff);
+        pcontext->OMSetBlendState(g_pipeline.m_pblendNoColor, nullptr, 0xffffffff);
         pcontext->OMSetDepthStencilState(g_pipeline.m_pdepthAlways, 0);
 
         Draw(pdevice, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, quad, sizeof(VertexScreen), 4, indices, 6);
@@ -1594,7 +1594,7 @@ public:
 
     bool Defer(bool bPoints)
     {
-        if (m_pscene == NULL || m_bReplaying) {
+        if (m_pscene == nullptr || m_bReplaying) {
             return false;
         }
 
@@ -1616,18 +1616,18 @@ public:
 
     bool IsTranslucentTexture()
     {
-        if (m_blendMode != BlendModeSource || !m_bColorKey || m_psurfaceTexture == NULL) {
+        if (m_blendMode != BlendModeSource || !m_bColorKey || m_psurfaceTexture == nullptr) {
             return false;
         }
 
         PrivateSurface* ptexture; CastTo(ptexture, (Surface*)m_psurfaceTexture);
 
-        if (ptexture->GetGpuSource() != NULL) {
+        if (ptexture->GetGpuSource() != nullptr) {
             return false;
         }
 
         D3D11Device* pdevice = GetDevice();
-        return pdevice != NULL && pdevice->IsTranslucent(ptexture);
+        return pdevice != nullptr && pdevice->IsTranslucent(ptexture);
     }
 
     DeferredDraw& Record(
@@ -1655,7 +1655,7 @@ public:
         draw.m_stride          = stride;
         draw.m_vvertex.assign((const BYTE*)pvertex, (const BYTE*)pvertex + vcount * stride);
 
-        if (pindex != NULL && icount > 0) {
+        if (pindex != nullptr && icount > 0) {
             draw.m_vindex.assign(pindex, pindex + icount);
         }
 
@@ -1676,10 +1676,10 @@ public:
     {
         bool bSamples = m_pscene->m_samples > 1;
 
-        ID3D11RenderTargetView*   prtvs[2] = { m_pscene->m_prtv, NULL };
+        ID3D11RenderTargetView*   prtvs[2] = { m_pscene->m_prtv, nullptr };
         ID3D11ShaderResourceView* psrvs[2] = {
-            bSamples ? (ID3D11ShaderResourceView*)m_pscene->m_psrvDepth : NULL,
-            bSamples ? NULL : (ID3D11ShaderResourceView*)m_pscene->m_psrvDepth
+            bSamples ? (ID3D11ShaderResourceView*)m_pscene->m_psrvDepth : nullptr,
+            bSamples ? nullptr : (ID3D11ShaderResourceView*)m_pscene->m_psrvDepth
         };
 
         if (bOitTargets) {
@@ -1706,7 +1706,7 @@ public:
 
         int              vcount = (int)draw.m_vvertex.size() / draw.m_stride;
         int              icount = (int)draw.m_vindex.size();
-        const MeshIndex* pindex = icount > 0 ? draw.m_vindex.data() : NULL;
+        const MeshIndex* pindex = icount > 0 ? draw.m_vindex.data() : nullptr;
 
         if (draw.m_bModel) {
             DrawModel(draw.m_topology, draw.m_tl, draw.m_vvertex.data(), draw.m_stride, draw.m_bNormal, vcount, pindex, icount);
@@ -1734,20 +1734,20 @@ public:
 
         D3D11_RECT scissor = { 0, 0, (LONG)pscene->m_size.X(), (LONG)pscene->m_size.Y() };
 
-        ID3D11ShaderResourceView* psrvs[3] = { pscene->m_psrvAccum, pscene->m_psrvReveal, NULL };
+        ID3D11ShaderResourceView* psrvs[3] = { pscene->m_psrvAccum, pscene->m_psrvReveal, nullptr };
 
         pcontext->PSSetShaderResources(0, 3, psrvs);
-        pcontext->OMSetBlendState(p.m_pblendComposite, NULL, 0xffffffff);
+        pcontext->OMSetBlendState(p.m_pblendComposite, nullptr, 0xffffffff);
         pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
         pcontext->RSSetState(p.m_praster[0]);
         pcontext->RSSetScissorRects(1, &scissor);
-        pcontext->IASetInputLayout(NULL);
+        pcontext->IASetInputLayout(nullptr);
         pcontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        pcontext->VSSetShader(p.m_pvsScene, NULL, 0);
-        pcontext->PSSetShader(p.m_ppsOitComposite, NULL, 0);
+        pcontext->VSSetShader(p.m_pvsScene, nullptr, 0);
+        pcontext->PSSetShader(p.m_ppsOitComposite, nullptr, 0);
         pcontext->Draw(3, 0);
 
-        ID3D11ShaderResourceView* pnull[3] = { NULL, NULL, NULL };
+        ID3D11ShaderResourceView* pnull[3] = { nullptr, nullptr, nullptr };
         pcontext->PSSetShaderResources(0, 3, pnull);
 
         //
@@ -1771,7 +1771,7 @@ public:
 
         D3D11Device* pdevice;
 
-        if (m_pscene == NULL || !Bind(pdevice) || m_pscene == NULL) {
+        if (m_pscene == nullptr || !Bind(pdevice) || m_pscene == nullptr) {
             return;
         }
 
@@ -1783,7 +1783,7 @@ public:
         // the scene, translucent ones blended over
         //
 
-        bool bRead = m_pscene->m_pdsvReadOnly != NULL;
+        bool bRead = m_pscene->m_pdsvReadOnly != nullptr;
         bool bOit  = false;
 
         if (bRead) {
@@ -1831,7 +1831,7 @@ public:
 
             m_bOit = false;
 
-            ID3D11ShaderResourceView* pnull[2] = { NULL, NULL };
+            ID3D11ShaderResourceView* pnull[2] = { nullptr, nullptr };
             pcontext->PSSetShaderResources(1, 2, pnull);
             CompositeOit(pcontext);
         }
@@ -1860,9 +1860,9 @@ public:
         m_flagsBound      = 0xffffffff;
 
         if (bRead) {
-            ID3D11ShaderResourceView* pnull[2] = { NULL, NULL };
+            ID3D11ShaderResourceView* pnull[2] = { nullptr, nullptr };
             pcontext->PSSetShaderResources(1, 2, pnull);
-            m_prtvBound = NULL;   // the next draw binds the writable depth again
+            m_prtvBound = nullptr;   // the next draw binds the writable depth again
         }
     }
 
@@ -1941,12 +1941,12 @@ public:
         int                      icount,
         bool                     bPoints
     ) {
-        if (vcount <= 0 || (pindex != NULL && icount <= 0)) {
+        if (vcount <= 0 || (pindex != nullptr && icount <= 0)) {
             return;
         }
 
         if (Defer(bPoints)) {
-            Record(topology, pvertex, sizeof(VertexScreen), vcount, pindex, pindex != NULL ? icount : 0);
+            Record(topology, pvertex, sizeof(VertexScreen), vcount, pindex, pindex != nullptr ? icount : 0);
             return;
         }
 
@@ -1957,7 +1957,7 @@ public:
         }
 
         ApplyState(pdevice, bPoints);
-        Draw(pdevice, topology, pvertex, sizeof(VertexScreen), vcount, pindex, pindex != NULL ? icount : 0);
+        Draw(pdevice, topology, pvertex, sizeof(VertexScreen), vcount, pindex, pindex != nullptr ? icount : 0);
         g_d3d11Stats.m_draws3D++;
     }
 
@@ -1973,7 +1973,7 @@ public:
 
     void DrawPoints(const VertexScreen* pvertex, int vcount) override
     {
-        DrawPrimitive(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST, pvertex, vcount, NULL, 0, true);
+        DrawPrimitive(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST, pvertex, vcount, nullptr, 0, true);
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -2009,7 +2009,7 @@ public:
         const MeshIndex*          pindex,
         int                       icount
     ) {
-        if (vcount <= 0 || pindex == NULL || icount <= 0) {
+        if (vcount <= 0 || pindex == nullptr || icount <= 0) {
             return;
         }
 
@@ -2017,7 +2017,7 @@ public:
         // The scene's projection, for the replayed draws' soft fade
         //
 
-        if (m_pscene != NULL && tl.m_depth[1] != 0) {
+        if (m_pscene != nullptr && tl.m_depth[1] != 0) {
             m_sceneDepth[0] = tl.m_depth[0];
             m_sceneDepth[1] = tl.m_depth[1];
         }
@@ -2065,8 +2065,8 @@ public:
         pc->m_params[3] = 0;
         pc->m_mode[0]   = tl.m_mode;
         pc->m_mode[1]   = MinOf(tl.m_countPlanes, c_maxTLClipPlanes);
-        pc->m_mode[2]   = m_pscene != NULL ? 1 : 0;   // linear light
-        pc->m_mode[3]   = m_pscene != NULL ? 1 : 0;   // reversed depth
+        pc->m_mode[2]   = m_pscene != nullptr ? 1 : 0;   // linear light
+        pc->m_mode[3]   = m_pscene != nullptr ? 1 : 0;   // reversed depth
 
         pcontext->Unmap(p.m_pcbTL, 0);
 
@@ -2079,7 +2079,7 @@ public:
             bNormal
                 ? (bFlat ? p.m_pvsTLFlat  : p.m_pvsTL )
                 : (bFlat ? p.m_pvsTLLFlat : p.m_pvsTLL),
-            NULL,
+            nullptr,
             0
         );
 
@@ -2094,7 +2094,7 @@ public:
                 m_bOit
                     ? (bFlat ? p.m_ppsTLOitFlat : p.m_ppsTLOit)
                     : (bFlat ? p.m_ppsTLFlat    : p.m_ppsTL),
-                NULL,
+                nullptr,
                 0
             );
         }
@@ -2147,5 +2147,5 @@ TRef<Rasterizer> CreateD3D11Rasterizer(PrivateSurface* psurface)
         return prasterizer;
     }
 
-    return NULL;
+    return nullptr;
 }

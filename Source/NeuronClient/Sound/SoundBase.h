@@ -159,14 +159,14 @@ public:
     // Creates a static sound buffer of the given wave file.  If bLooping is 
     // true, the sound will loop until stopped.
     virtual HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
-        ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource = NULL) = 0;
+        ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource = nullptr) = 0;
 
     // Creates a sound buffer with a loop in the middle.  The sound will play
     // the start sound, play the loop sound until it gets a soft stop, then
     // play the rest of the sound.  
     virtual HRESULT CreateASRBuffer(TRef<ISoundInstance>& psoundNew, 
         ISoundPCMData* pcmdata, unsigned uLoopStart, unsigned uLoopLength, 
-        ISoundPositionSource* psource = NULL) = 0;
+        ISoundPositionSource* psource = nullptr) = 0;
 
     // Gets an event which fires each time update is called with the number of
     // milliseconds elapsed since the last update.  This can be used for some 
@@ -229,7 +229,7 @@ class ISoundTemplate : public ISoundObject
 public:
     // Creates a new instance of the given sound
     virtual HRESULT CreateSound(TRef<ISoundInstance>& psoundNew, 
-        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = NULL) = 0;
+        ISoundBufferSource* pbufferSource, ISoundPositionSource* psource = nullptr) = 0;
 };
 
 

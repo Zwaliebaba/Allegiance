@@ -118,7 +118,7 @@ EngineWindow::EngineWindow(
     const WinPoint&    sizeMin,
           HMENU        hmenu
 ) :
-    Window(NULL, rect, strTitle, ZString(), 0, hmenu),
+    Window(nullptr, rect, strTitle, ZString(), 0, hmenu),
     m_pengine(papp->GetEngine()),
     m_pmodeler(papp->GetModeler()),
     m_sizeWindowed(rect.Size()),
@@ -282,13 +282,13 @@ void EngineWindow::OnClose()
 {
     RemoveKeyboardInputFilter(m_pkeyboardInput);
 
-    m_pgroupImage           = NULL;
-    m_pwrapImage            = NULL;
-    m_ptransformImageCursor = NULL;
-    m_ptranslateTransform   = NULL;
+    m_pgroupImage           = nullptr;
+    m_pwrapImage            = nullptr;
+    m_ptransformImageCursor = nullptr;
+    m_ptranslateTransform   = nullptr;
 
     m_pmodeler->Terminate();
-    m_pmodeler = NULL;
+    m_pmodeler = nullptr;
 
     m_pengine->Terminate();
 
@@ -337,7 +337,7 @@ void EngineWindow::UpdateSurfacePointer()
     // the client area (presented 1:1).
     //
 
-    m_psurface = NULL;
+    m_psurface = nullptr;
 
     WinPoint size =
           m_pengine->IsFullscreen()
@@ -356,7 +356,7 @@ void EngineWindow::UpdateSurfacePointer()
         m_pengine->CreateSurface(
             size,
             SurfaceType2D() | SurfaceType3D() | SurfaceTypeZBuffer(),
-            NULL
+            nullptr
         );
 }
 
@@ -516,7 +516,7 @@ void EngineWindow::UpdateCursor()
             && m_timeCurrent - m_timeLastMouseMove > 2.0f;
 
         if (
-               m_pimageCursor != NULL 
+               m_pimageCursor != nullptr 
             && m_bShowCursor
             && (!bTimeOut)
         ) {
@@ -567,7 +567,7 @@ void EngineWindow::SetFullscreen(bool bFullscreen)
         // Release the backbuffer
         //
 
-        m_psurface = NULL;
+        m_psurface = nullptr;
 
         //
         // Switch modes
@@ -1271,7 +1271,7 @@ void EngineWindow::SetMouseEnabled(bool bEnable)
 
 void EngineWindow::HandleMouseMessage(UINT message, const Point& point)
 {
-    if (m_pgroupImage != NULL) {
+    if (m_pgroupImage != nullptr) {
         //
         // Make sure these objects don't go away until we are done
         //

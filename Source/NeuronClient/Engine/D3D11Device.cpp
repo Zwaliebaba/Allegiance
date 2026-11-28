@@ -23,7 +23,7 @@ namespace {
 ZString NarrowString(const wchar_t* pwsz)
 {
     char sz[256];
-    int  count = ::WideCharToMultiByte(CP_ACP, 0, pwsz, -1, sz, sizeof(sz), NULL, NULL);
+    int  count = ::WideCharToMultiByte(CP_ACP, 0, pwsz, -1, sz, sizeof(sz), nullptr, nullptr);
 
     if (count <= 0) {
         return ZString();
@@ -207,13 +207,13 @@ private:
 
         SwapChainEntry() :
             m_flags(0),
-            m_hlatency(NULL)
+            m_hlatency(nullptr)
         {
         }
 
         ~SwapChainEntry()
         {
-            if (m_hlatency != NULL) {
+            if (m_hlatency != nullptr) {
                 ::CloseHandle(m_hlatency);
             }
         }
@@ -270,9 +270,9 @@ public:
             D3D_FEATURE_LEVEL_10_0
         };
 
-        m_pdevice  = NULL;
-        m_pcontext = NULL;
-        m_pfactory = NULL;
+        m_pdevice  = nullptr;
+        m_pcontext = nullptr;
+        m_pfactory = nullptr;
 
         HRESULT hr = E_FAIL;
         D3D_FEATURE_LEVEL level;
@@ -287,9 +287,9 @@ public:
 
             for (int first = 0; first < 2 && FAILED(hr); first++) {
                 hr = D3D11CreateDevice(
-                    NULL,
+                    nullptr,
                     type,
-                    NULL,
+                    nullptr,
                     0,
                     levels + first,
                     ArrayCount(levels) - first,
@@ -332,20 +332,20 @@ public:
             m_strName += " (WARP)";
         }
 
-        return m_pfactory != NULL && CreatePresentObjects();
+        return m_pfactory != nullptr && CreatePresentObjects();
     }
 
     bool CreatePresentObjects()
     {
-        if (FAILED(m_pdevice->CreateVertexShader(g_PresentVs, sizeof(g_PresentVs), NULL, &m_pvsPresent))) return false;
-        if (FAILED(m_pdevice->CreatePixelShader (g_PresentPs, sizeof(g_PresentPs), NULL, &m_ppsPresent))) return false;
+        if (FAILED(m_pdevice->CreateVertexShader(g_PresentVs, sizeof(g_PresentVs), nullptr, &m_pvsPresent))) return false;
+        if (FAILED(m_pdevice->CreatePixelShader (g_PresentPs, sizeof(g_PresentPs), nullptr, &m_ppsPresent))) return false;
 
         D3D11_BUFFER_DESC bd = {};
         bd.ByteWidth      = 3 * 4 * sizeof(float);
         bd.Usage          = D3D11_USAGE_DYNAMIC;
         bd.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
         bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        if (FAILED(m_pdevice->CreateBuffer(&bd, NULL, &m_pcbPresent))) return false;
+        if (FAILED(m_pdevice->CreateBuffer(&bd, nullptr, &m_pcbPresent))) return false;
 
         D3D11_SAMPLER_DESC sd = {};
         sd.Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -391,13 +391,13 @@ public:
             m_textures.clear();
             m_swapChains.clear();
 
-            m_pvsPresent      = NULL;
-            m_ppsPresent      = NULL;
-            m_pcbPresent      = NULL;
-            m_psamplerPresent = NULL;
-            m_prasterPresent  = NULL;
-            m_pblendPresent   = NULL;
-            m_pdepthPresent   = NULL;
+            m_pvsPresent      = nullptr;
+            m_ppsPresent      = nullptr;
+            m_pcbPresent      = nullptr;
+            m_psamplerPresent = nullptr;
+            m_prasterPresent  = nullptr;
+            m_pblendPresent   = nullptr;
+            m_pdepthPresent   = nullptr;
 
             if (m_pcontext) {
                 m_pcontext->ClearState();
@@ -418,7 +418,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool IsValid() override                     { return m_pdevice != NULL; }
+    bool IsValid() override                     { return m_pdevice != nullptr; }
     ID3D11Device*        GetDevice() override   { return m_pdevice;         }
     ID3D11DeviceContext* GetContext() override  { return m_pcontext;        }
     ZString GetName() override                  { return m_strName;         }
@@ -437,8 +437,8 @@ public:
 
     ID3D11ShaderResourceView* GetTexture(PrivateSurface* psurface) override
     {
-        if (m_pdevice == NULL) {
-            return NULL;
+        if (m_pdevice == nullptr) {
+            return nullptr;
         }
 
         TextureEntry& entry     = m_textures[psurface];
@@ -447,7 +447,7 @@ public:
         int           mipLevels = psurface->GetMipLevelCount();
 
         if (
-               entry.m_psrv != NULL
+               entry.m_psrv != nullptr
             && entry.m_id == psurface->GetChangeID()
             && entry.m_bColorKey == bColorKey
             && entry.m_size == size
@@ -457,7 +457,7 @@ public:
         }
 
         if (size.X() <= 0 || size.Y() <= 0) {
-            return NULL;
+            return nullptr;
         }
 
         //
@@ -509,8 +509,8 @@ public:
                bColorKey
             && AlphaCoverage::Classify(m_vconvert.data(), size.X() * size.Y()) == AlphaCoverage::Kind::Translucent;
 
-        if (entry.m_ptexture != NULL && entry.m_size == size && entry.m_mipLevels == mipLevels && mipLevels == 1) {
-            m_pcontext->UpdateSubresource(entry.m_ptexture, 0, NULL, m_vconvert.data(), size.X() * 4, 0);
+        if (entry.m_ptexture != nullptr && entry.m_size == size && entry.m_mipLevels == mipLevels && mipLevels == 1) {
+            m_pcontext->UpdateSubresource(entry.m_ptexture, 0, nullptr, m_vconvert.data(), size.X() * 4, 0);
         } else {
             D3D11_TEXTURE2D_DESC td = {};
             td.Width            = size.X();
@@ -531,22 +531,22 @@ public:
                 vdata[level].SysMemPitch = DDSLevelSize(size.X(), level) * 4;
             }
 
-            entry.m_ptexture = NULL;
-            entry.m_psrv     = NULL;
+            entry.m_ptexture = nullptr;
+            entry.m_psrv     = nullptr;
 
             HRESULT hr = m_pdevice->CreateTexture2D(&td, vdata.data(), &entry.m_ptexture);
 
             if (FAILED(hr)) {
                 CheckDeviceLost(hr);
                 m_textures.erase(psurface);
-                return NULL;
+                return nullptr;
             }
 
-            hr = m_pdevice->CreateShaderResourceView(entry.m_ptexture, NULL, &entry.m_psrv);
+            hr = m_pdevice->CreateShaderResourceView(entry.m_ptexture, nullptr, &entry.m_psrv);
 
             if (FAILED(hr)) {
                 m_textures.erase(psurface);
-                return NULL;
+                return nullptr;
             }
         }
 
@@ -560,7 +560,7 @@ public:
 
     bool IsTranslucent(PrivateSurface* psurface) override
     {
-        return GetTexture(psurface) != NULL && m_textures[psurface].m_bTranslucent;
+        return GetTexture(psurface) != nullptr && m_textures[psurface].m_bTranslucent;
     }
 
     void RemoveSurface(PrivateSurface* psurface) override
@@ -578,7 +578,7 @@ public:
     {
         SwapChainEntry& entry = m_swapChains[hwnd];
 
-        if (entry.m_pswapChain == NULL) {
+        if (entry.m_pswapChain == nullptr) {
             DXGI_SWAP_CHAIN_DESC1 desc = {};
             desc.Width            = size.X();
             desc.Height           = size.Y();
@@ -598,7 +598,7 @@ public:
 
             desc.Flags            = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
-            HRESULT hr = m_pfactory->CreateSwapChainForHwnd(m_pdevice, hwnd, &desc, NULL, NULL, &entry.m_pswapChain);
+            HRESULT hr = m_pfactory->CreateSwapChainForHwnd(m_pdevice, hwnd, &desc, nullptr, nullptr, &entry.m_pswapChain);
 
             if (FAILED(hr)) {
                 //
@@ -609,7 +609,7 @@ public:
                 desc.SwapEffect  = DXGI_SWAP_EFFECT_DISCARD;
                 desc.BufferCount = 1;
                 desc.Flags       = 0;
-                hr = m_pfactory->CreateSwapChainForHwnd(m_pdevice, hwnd, &desc, NULL, NULL, &entry.m_pswapChain);
+                hr = m_pfactory->CreateSwapChainForHwnd(m_pdevice, hwnd, &desc, nullptr, nullptr, &entry.m_pswapChain);
             }
 
             if (SUCCEEDED(hr) && desc.Flags != 0) {
@@ -626,7 +626,7 @@ public:
             if (FAILED(hr)) {
                 CheckDeviceLost(hr);
                 m_swapChains.erase(hwnd);
-                return NULL;
+                return nullptr;
             }
 
             //
@@ -636,29 +636,29 @@ public:
             m_pfactory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_WINDOW_CHANGES);
             entry.m_size = size;
         } else if (entry.m_size != size) {
-            entry.m_prtv = NULL;
-            m_pcontext->OMSetRenderTargets(0, NULL, NULL);
+            entry.m_prtv = nullptr;
+            m_pcontext->OMSetRenderTargets(0, nullptr, nullptr);
 
             HRESULT hr = entry.m_pswapChain->ResizeBuffers(0, size.X(), size.Y(), DXGI_FORMAT_UNKNOWN, entry.m_flags);
 
             if (FAILED(hr)) {
                 CheckDeviceLost(hr);
                 m_swapChains.erase(hwnd);
-                return NULL;
+                return nullptr;
             }
 
             entry.m_size = size;
         }
 
-        if (entry.m_prtv == NULL) {
+        if (entry.m_prtv == nullptr) {
             TRef<ID3D11Texture2D> pbackBuffer;
 
             if (
                    FAILED(entry.m_pswapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pbackBuffer))
-                || FAILED(m_pdevice->CreateRenderTargetView(pbackBuffer, NULL, &entry.m_prtv))
+                || FAILED(m_pdevice->CreateRenderTargetView(pbackBuffer, nullptr, &entry.m_prtv))
             ) {
                 m_swapChains.erase(hwnd);
-                return NULL;
+                return nullptr;
             }
         }
 
@@ -672,7 +672,7 @@ public:
 
     void Present(HWND hwnd, PrivateSurface* psurface, const WinRect& rectSource, float gamma) override
     {
-        if (m_pdevice == NULL || psurface == NULL || ::IsIconic(hwnd)) {
+        if (m_pdevice == nullptr || psurface == nullptr || ::IsIconic(hwnd)) {
             return;
         }
 
@@ -686,7 +686,7 @@ public:
 
         SwapChainEntry* pentry = GetSwapChain(hwnd, sizeClient);
 
-        if (pentry == NULL) {
+        if (pentry == nullptr) {
             return;
         }
 
@@ -695,17 +695,17 @@ public:
         // gives it one, so from then on its 2D drawing is done on the GPU too.
         //
 
-        ID3D11ShaderResourceView* psrv = NULL;
+        ID3D11ShaderResourceView* psrv = nullptr;
 
         if (psurface->MakeGpuResident()) {
             psrv = psurface->GetGpuSource();
         }
 
-        if (psrv == NULL) {
+        if (psrv == nullptr) {
             psrv = GetTexture(psurface);
         }
 
-        if (psrv == NULL) {
+        if (psrv == nullptr) {
             return;
         }
 
@@ -771,12 +771,12 @@ public:
 
         ID3D11RenderTargetView* prtv = pentry->m_prtv;
         m_pcontext->ClearRenderTargetView(prtv, black);
-        m_pcontext->OMSetRenderTargets(1, &prtv, NULL);
-        m_pcontext->OMSetBlendState(m_pblendPresent, NULL, 0xffffffff);
+        m_pcontext->OMSetRenderTargets(1, &prtv, nullptr);
+        m_pcontext->OMSetBlendState(m_pblendPresent, nullptr, 0xffffffff);
         m_pcontext->OMSetDepthStencilState(m_pdepthPresent, 0);
         m_pcontext->RSSetState(m_prasterPresent);
         m_pcontext->RSSetViewports(1, &vp);
-        m_pcontext->IASetInputLayout(NULL);
+        m_pcontext->IASetInputLayout(nullptr);
         m_pcontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         //
         // Note: TRef's operator& releases (it is for out parameters), so
@@ -786,15 +786,15 @@ public:
         ID3D11Buffer*       pcb      = m_pcbPresent;
         ID3D11SamplerState* psampler = m_psamplerPresent;
 
-        m_pcontext->VSSetShader(m_pvsPresent, NULL, 0);
+        m_pcontext->VSSetShader(m_pvsPresent, nullptr, 0);
         m_pcontext->VSSetConstantBuffers(0, 1, &pcb);
-        m_pcontext->PSSetShader(m_ppsPresent, NULL, 0);
+        m_pcontext->PSSetShader(m_ppsPresent, nullptr, 0);
         m_pcontext->PSSetConstantBuffers(0, 1, &pcb);
         m_pcontext->PSSetShaderResources(0, 1, &psrv);
         m_pcontext->PSSetSamplers(0, 1, &psampler);
         m_pcontext->Draw(3, 0);
 
-        ID3D11ShaderResourceView* pnull = NULL;
+        ID3D11ShaderResourceView* pnull = nullptr;
         m_pcontext->PSSetShaderResources(0, 1, &pnull);
 
         //
@@ -814,7 +814,7 @@ public:
         // refresh), so the next frame starts from fresh input
         //
 
-        if (pentry->m_hlatency != NULL) {
+        if (pentry->m_hlatency != nullptr) {
             ::WaitForSingleObjectEx(pentry->m_hlatency, 100, TRUE);
         }
     }
@@ -835,5 +835,5 @@ TRef<D3D11Device> CreateD3D11Device()
         return pdevice;
     }
 
-    return NULL;
+    return nullptr;
 }

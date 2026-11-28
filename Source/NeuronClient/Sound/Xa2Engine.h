@@ -149,14 +149,14 @@ public:
     // Creates a static sound buffer of the given wave file.  If bLooping is 
     // true, the sound will loop until stopped.
     HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
-        ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource = NULL) override;
+        ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource = nullptr) override;
 
     // Creates a sound buffer with a loop in the middle.  The sound will play
     // the start sound, play the loop sound until it gets a soft stop, then
     // play the rest of the sound.  
     HRESULT CreateASRBuffer(TRef<ISoundInstance>& psoundNew, 
         ISoundPCMData* pcmdata, unsigned uLoopStart, unsigned uLoopLength, 
-        ISoundPositionSource* psource = NULL) override;
+        ISoundPositionSource* psource = nullptr) override;
 
     // Gets an event which fires each time update is called.  This can be used
     // for some of the trickier sounds that change with time.

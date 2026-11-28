@@ -14,11 +14,11 @@ namespace SoundEngine {
 
 IXAudio2SubmixVoice* CreateReverbVoice(IXAudio2* pxaudio2, UINT32 nSampleRate, UINT32 nOutputChannels)
 {
-    IUnknown* preverb = NULL;
+    IUnknown* preverb = nullptr;
 
     if (FAILED(XAudio2CreateReverb(&preverb))) {
         debugf("XAudio2CreateReverb failed\n");
-        return NULL;
+        return nullptr;
     }
 
     //
@@ -29,13 +29,13 @@ IXAudio2SubmixVoice* CreateReverbVoice(IXAudio2* pxaudio2, UINT32 nSampleRate, U
     XAUDIO2_EFFECT_DESCRIPTOR descriptor = { preverb, TRUE, nOutputChannels >= 2 ? 2u : 1u };
     XAUDIO2_EFFECT_CHAIN      chain      = { 1, &descriptor };
 
-    IXAudio2SubmixVoice* pvoice = NULL;
-    HRESULT hr = pxaudio2->CreateSubmixVoice(&pvoice, 1, nSampleRate, 0, 0, NULL, &chain);
+    IXAudio2SubmixVoice* pvoice = nullptr;
+    HRESULT hr = pxaudio2->CreateSubmixVoice(&pvoice, 1, nSampleRate, 0, 0, nullptr, &chain);
     preverb->Release();
 
     if (FAILED(hr)) {
         debugf("Reverb submix voice: %X\n", hr);
-        return NULL;
+        return nullptr;
     }
 
     XAUDIO2FX_REVERB_I3DL2_PARAMETERS i3dl2  = XAUDIO2FX_I3DL2_PRESET_LARGEROOM;

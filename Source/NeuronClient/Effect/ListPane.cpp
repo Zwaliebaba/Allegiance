@@ -73,8 +73,8 @@ public:
         m_pscroll(pscroll),
         m_indexSelection(0),
         m_posScroll(0),
-        m_pitemSelection(NULL),
-        m_pitemSelectionPrevious(NULL),
+        m_pitemSelection(nullptr),
+        m_pitemSelectionPrevious(nullptr),
         m_bHorizontal(bHorizontal),
         m_iOldSelection(-1),
         m_bNeedScrollUpdate(false),
@@ -84,7 +84,7 @@ public:
         m_peventSingleClick = new EventSourceImpl();
         m_peventDoubleClick = new EventSourceImpl();
 
-        if (m_ppainter == NULL) {
+        if (m_ppainter == nullptr) {
             m_ppainter = new DefaultItemPainter();
         }
 
@@ -94,7 +94,7 @@ public:
             );
         }
 
-        if (plist == NULL) {
+        if (plist == nullptr) {
             SetList(new EmptyList());
         } else {
             SetList(plist);
@@ -228,14 +228,14 @@ public:
     {
         int index;
         
-        if (m_pitemSelection != NULL) 
+        if (m_pitemSelection != nullptr) 
             index = m_plist->GetIndex(m_pitemSelection);
         else 
             index = -1;
 
         if (index == -1) 
         {
-            m_pitemSelection = NULL;
+            m_pitemSelection = nullptr;
             m_iOldSelection = -1;
         }
 
@@ -261,11 +261,11 @@ public:
     void SetList(List* plist) override
     {
         if (plist != m_plist) {
-            if (m_plist != NULL) {
+            if (m_plist != nullptr) {
                 m_plist->GetChangedEvent()->RemoveSink(m_peventSink);
             }
 
-            if (plist == NULL) {
+            if (plist == nullptr) {
                 m_plist = new EmptyList();
             } else {
                 m_plist = plist;
@@ -280,7 +280,7 @@ public:
 
     void SetItemPainter(ItemPainter* ppainter) override
     {
-        if (ppainter == NULL) {
+        if (ppainter == nullptr) {
             m_ppainter = new DefaultItemPainter();
         } else {
             m_ppainter = ppainter;
@@ -303,7 +303,7 @@ public:
                 if (m_indexSelection == -1)
                 {
                     assert(false);
-                    pitem = NULL;
+                    pitem = nullptr;
                 }
             }
             else
@@ -348,7 +348,7 @@ public:
     {
         int index = 0;
         
-        if (pitem != NULL) 
+        if (pitem != nullptr) 
             index = m_plist->GetIndex(pitem);
         
         // try to center the selected item
@@ -543,7 +543,7 @@ public:
         ItemID pitem = m_plist->GetItem(index);
 
         while (
-               pitem != NULL
+               pitem != nullptr
             && y < GetSignificantSize()
         ) {
             if (m_bHorizontal)
@@ -719,7 +719,7 @@ public:
     void SetEmpty() override
     {
         m_count = 0;
-        m_pitem = NULL;
+        m_pitem = nullptr;
 
         m_peventSource->Trigger();
     }
@@ -749,7 +749,7 @@ public:
 
             return pitem;
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -758,7 +758,7 @@ public:
         StringListItem* pitem = m_pitem;
         int index = 0;
 
-        while (pitem != NULL) {
+        while (pitem != nullptr) {
             if ((ItemID)pitem == pitemFind) {
                 return index;
             }

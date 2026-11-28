@@ -164,7 +164,7 @@ public:
         m_pcolumn = new ColumnPane();
         InsertAtBottom(m_pcolumn);
 
-        ReadTopicList(plist, 0, NULL);
+        ReadTopicList(plist, 0, nullptr);
         m_ptopicSelected = m_listTopic.GetFront();
         UpdatePanes();
     }
@@ -178,7 +178,7 @@ public:
     void ReadTopicList(IObjectList* plist, int indent, Topic* ptopicParent)
     {
         plist->GetFirst();
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
             TRef<StringValue> pstring;          CastTo(pstring,          ppair->GetNth(0));
@@ -213,7 +213,7 @@ public:
     {
         TRef<Topic> ptopic = m_ptopicSelected;
 
-        while (ptopic != NULL) {
+        while (ptopic != nullptr) {
             if (ptopic == ptopicParent) {
                 return true;
             }
@@ -232,7 +232,7 @@ public:
         // Top level topics are always open
         //
 
-        if (ptopicParent == NULL) {
+        if (ptopicParent == nullptr) {
             return true;
         }
 
@@ -240,7 +240,7 @@ public:
         // If all of this topic parents are selected this topic is open
         //
 
-        while (ptopicParent != NULL) {
+        while (ptopicParent != nullptr) {
             if (!IsTopicSelected(ptopicParent)) {
                 return false;
             }
@@ -287,7 +287,7 @@ public:
             iter.Next();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     //////////////////////////////////////////////////////////////////////////////

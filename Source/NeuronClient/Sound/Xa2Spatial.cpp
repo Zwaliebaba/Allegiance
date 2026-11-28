@@ -34,7 +34,7 @@ static const XAPO_REGISTRATION_PROPERTIES c_registration = {
 // XAudio2 processes 32-bit floats
 static bool IsFloatFormat(const WAVEFORMATEX* pformat)
 {
-    return pformat != NULL
+    return pformat != nullptr
         && pformat->wBitsPerSample == 32
         && (pformat->wFormatTag == WAVE_FORMAT_IEEE_FLOAT || pformat->wFormatTag == WAVE_FORMAT_EXTENSIBLE);
 }
@@ -90,7 +90,7 @@ public:
 
     STDMETHOD(QueryInterface)(REFIID riid, void** ppv) override
     {
-        if (ppv == NULL) {
+        if (ppv == nullptr) {
             return E_POINTER;
         }
 
@@ -99,7 +99,7 @@ public:
         } else if (riid == __uuidof(IXAPOParameters)) {
             *ppv = static_cast<IXAPOParameters*>(this);
         } else {
-            *ppv = NULL;
+            *ppv = nullptr;
             return E_NOINTERFACE;
         }
 
@@ -129,13 +129,13 @@ public:
 
     STDMETHOD(GetRegistrationProperties)(XAPO_REGISTRATION_PROPERTIES** ppproperties) override
     {
-        if (ppproperties == NULL) {
+        if (ppproperties == nullptr) {
             return E_POINTER;
         }
 
         *ppproperties = (XAPO_REGISTRATION_PROPERTIES*)::CoTaskMemAlloc(sizeof(XAPO_REGISTRATION_PROPERTIES));
 
-        if (*ppproperties == NULL) {
+        if (*ppproperties == nullptr) {
             return E_OUTOFMEMORY;
         }
 
@@ -146,18 +146,18 @@ public:
     // Input: float, one or two channels, at the output's rate
     STDMETHOD(IsInputFormatSupported)(const WAVEFORMATEX* poutput, const WAVEFORMATEX* prequested, WAVEFORMATEX** ppsupported) override
     {
-        if (prequested == NULL) {
+        if (prequested == nullptr) {
             return E_POINTER;
         }
 
         bool bSupported =
                IsFloatFormat(prequested)
             && (prequested->nChannels == 1 || prequested->nChannels == 2)
-            && (poutput == NULL || poutput->nSamplesPerSec == prequested->nSamplesPerSec);
+            && (poutput == nullptr || poutput->nSamplesPerSec == prequested->nSamplesPerSec);
 
         if (bSupported) {
             if (ppsupported) {
-                *ppsupported = NULL;
+                *ppsupported = nullptr;
             }
             return S_OK;
         }
@@ -172,18 +172,18 @@ public:
     // Output: float, two channels, at the input's rate
     STDMETHOD(IsOutputFormatSupported)(const WAVEFORMATEX* pinput, const WAVEFORMATEX* prequested, WAVEFORMATEX** ppsupported) override
     {
-        if (prequested == NULL) {
+        if (prequested == nullptr) {
             return E_POINTER;
         }
 
         bool bSupported =
                IsFloatFormat(prequested)
             && prequested->nChannels == 2
-            && (pinput == NULL || pinput->nSamplesPerSec == prequested->nSamplesPerSec);
+            && (pinput == nullptr || pinput->nSamplesPerSec == prequested->nSamplesPerSec);
 
         if (bSupported) {
             if (ppsupported) {
-                *ppsupported = NULL;
+                *ppsupported = nullptr;
             }
             return S_OK;
         }
@@ -209,8 +209,8 @@ public:
         UINT32 nInput, const XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS* pinput,
         UINT32 nOutput, const XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS* poutput) override
     {
-        if (nInput != 1 || nOutput != 1 || pinput == NULL || poutput == NULL
-            || pinput->pFormat == NULL || poutput->pFormat == NULL
+        if (nInput != 1 || nOutput != 1 || pinput == nullptr || poutput == nullptr
+            || pinput->pFormat == nullptr || poutput->pFormat == nullptr
             || poutput->pFormat->nChannels != 2
             || (pinput->pFormat->nChannels != 1 && pinput->pFormat->nChannels != 2)
         ) {
@@ -235,7 +235,7 @@ public:
         UINT32 nOutput, XAPO_PROCESS_BUFFER_PARAMETERS* poutput,
         BOOL bEnabled) override
     {
-        if (nInput != 1 || nOutput != 1 || pinput == NULL || poutput == NULL) {
+        if (nInput != 1 || nOutput != 1 || pinput == nullptr || poutput == nullptr) {
             return;
         }
 
@@ -258,7 +258,7 @@ public:
         }
 
         UINT32       nFrames = pinput->ValidFrameCount;
-        const float* pin     = pinput->BufferFlags == XAPO_BUFFER_VALID ? (const float*)pinput->pBuffer : NULL;
+        const float* pin     = pinput->BufferFlags == XAPO_BUFFER_VALID ? (const float*)pinput->pBuffer : nullptr;
         float*       pout    = (float*)poutput->pBuffer;
 
         //
@@ -267,7 +267,7 @@ public:
         // (the voice's volume and attenuation; Windows doesn't attenuate)
         //
 
-        ObjectStream* pstream = m_pobjects && m_current.nSlot >= 0 ? m_pobjects->GetStream(m_current.nSlot) : NULL;
+        ObjectStream* pstream = m_pobjects && m_current.nSlot >= 0 ? m_pobjects->GetStream(m_current.nSlot) : nullptr;
 
         if (pstream) {
             HeadDirection d = HeadModel::Normalize(HeadDirection{ m_current.x, m_current.y, m_current.z });
@@ -278,7 +278,7 @@ public:
         // Silence in: the filters ring out, then the output is silent too
         //
 
-        if (pin == NULL && m_spatializer.IsQuiet()) {
+        if (pin == nullptr && m_spatializer.IsQuiet()) {
             poutput->ValidFrameCount = nFrames;
             poutput->BufferFlags     = XAPO_BUFFER_SILENT;
             return;
@@ -306,7 +306,7 @@ public:
 
     STDMETHOD_(void, SetParameters)(const void* pparams, UINT32 cbParams) override
     {
-        if (pparams == NULL || cbParams != sizeof(SpatialEffectParameters)) {
+        if (pparams == nullptr || cbParams != sizeof(SpatialEffectParameters)) {
             return;
         }
 
@@ -318,7 +318,7 @@ public:
 
     STDMETHOD_(void, GetParameters)(void* pparams, UINT32 cbParams) override
     {
-        if (pparams == NULL || cbParams != sizeof(SpatialEffectParameters)) {
+        if (pparams == nullptr || cbParams != sizeof(SpatialEffectParameters)) {
             return;
         }
 
@@ -330,7 +330,7 @@ public:
 
 HRESULT CreateSpatialEffect(IUnknown** ppeffect, SpatialObjects* pobjects)
 {
-    if (ppeffect == NULL) {
+    if (ppeffect == nullptr) {
         return E_POINTER;
     }
 

@@ -39,7 +39,7 @@ public:
     //
 
     virtual TRef<Surface> Copy() = 0;
-    virtual TRef<Surface> CreateCompatibleSurface(const WinPoint& size, SurfaceType stype, SurfaceSite* psite = NULL) = 0;
+    virtual TRef<Surface> CreateCompatibleSurface(const WinPoint& size, SurfaceType stype, SurfaceSite* psite = nullptr) = 0;
 
     //
     // Serialization

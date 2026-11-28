@@ -309,8 +309,8 @@ public:
         m_pfile = pfile;
         m_pdata = pfile->GetPointer(false, false);
         ReadFile();
-        m_pdata = NULL;
-        pfile = NULL;
+        m_pdata = nullptr;
+        pfile = nullptr;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -333,7 +333,7 @@ public:
     {
         IObject* pobject = FindMemberLocal(strName);
 
-        if (pobject != NULL) {
+        if (pobject != nullptr) {
             pns = this;
             return pobject;
         }
@@ -343,12 +343,12 @@ public:
         for(int index = 0; index < count; index++) {
             pobject = m_pnsImports[index]->FindMemberAndNameSpace(strName, pns);
 
-            if (pobject != NULL) {
+            if (pobject != nullptr) {
                 return pobject;
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     IObject* FindMember(const ZString& strName) override
@@ -368,7 +368,7 @@ public:
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     void AddType(const ZString& strName, MDLType* ptype) override
@@ -379,13 +379,13 @@ public:
     MDLType* FindType(const ZString& strName) override               
     {
         ZUnimplemented();
-        return NULL;
+        return nullptr;
     }
 
     MDLType* FindTypeLocal(const ZString& strName) override          
     {
         ZUnimplemented();
-        return NULL;
+        return nullptr;
     }
 
     void WriteTypeHeader(ZFile* pfile) override
