@@ -779,7 +779,7 @@ MultiHullBase*  HitTest::Load(const char*    pszFileName)
                     assert (strlen(line) > 0);
                     assert (strlen(line) < c_cbFrameName);
                     line[strlen(line) - 1] = '\0';      //Trim off the \n
-                    strcpy(pfd->szName, line);
+                    Bounded::Copy(pfd->szName, line);
 
                     ZVerify(fgets(line, c_maxLine, fileIn));
                     sscanf(line, "%f %f %f",
@@ -813,7 +813,7 @@ MultiHullBase*  HitTest::Load(const char*    pszFileName)
             CachedLink*         pcl = new CachedLink;
             CachedMultiHull&    cmh = pcl->data();
             assert (strlen(pszFileName) < c_cbName);
-            strcpy(cmh.m_name, pszFileName);
+            Bounded::Copy(cmh.m_name, pszFileName);
             cmh.m_pMultiHull = pMultiHull;
 
             //Put it at the front of the list (since we might read another one in real soon).

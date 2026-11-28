@@ -214,8 +214,8 @@ extern bool g_bOutput = true;
             const char* months[] = {"jan", "feb", "mar", "apr",
                                     "may", "jun", "jul", "aug",
                                     "sep", "oct", "nov", "dec"};
-            strcpy(p, months[t->tm_mon]);
-            sprintf(p + 3, "%02d%02d%02d%02d.txt",
+            Bounded::Copy(p, sizeof(logFileName) - (p - logFileName), months[t->tm_mon]);
+            Bounded::Format(p + 3, sizeof(logFileName) - (p + 3 - logFileName), "%02d%02d%02d%02d.txt",
                     t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
 
             g_logfile = 

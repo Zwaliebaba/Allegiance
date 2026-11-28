@@ -119,7 +119,7 @@ VOID CMapData::GetNewClusterName(CHAR * szClusterName)
 {
     INT n = randomInt(0, mcClusterNamesLeft - 1);
 
-    strcpy(szClusterName, smszClusterName[mClusterNamesLeft[n]]);
+    Bounded::Copy(szClusterName, c_cbName, smszClusterName[mClusterNamesLeft[n]]);   // both callers pass a DataClusterIGC name
     mcClusterNamesLeft--;
     mClusterNamesLeft[n] = mClusterNamesLeft[mcClusterNamesLeft];
 }
@@ -511,7 +511,7 @@ VOID CmapMakerIGC::GenerateSides(CMapData * pMapData)
         ds.color.SetRGBA(sideColors[sid][0],
                          sideColors[sid][1],
                          sideColors[sid][2]);
-        strcpy(ds.name, sideNames[sid]);
+        Bounded::Copy(ds.name, sideNames[sid]);
         ds.ttbmDevelopmentTechs = pcivilization->GetBaseTechs();
         ds.conquest = 100 / pMapData->GetTeams();
         ds.nKills = ds.nDeaths = 0;
@@ -559,12 +559,12 @@ IclusterIGC * CmapMakerIGC::GenerateTeamCluster(CMapData * pMapData,
 
     pMapData->GetNewClusterName(dc.name);
 
-    strcpy(dc.posterName, "globe");
+    Bounded::Copy(dc.posterName, "globe");
     dc.posterName[5] = '0' + randomInt(1, 8);
     dc.posterName[6] = '\0';
 
     n = randomInt(0, c_NumberOfPlanetPosters - 1);
-    strcpy(dc.planetName, smszPlanetName[n]);
+    Bounded::Copy(dc.planetName, smszPlanetName[n]);
     dc.planetSinLatitude = random(0.0f, 1.0f);
     dc.planetLongitude = random(0.0f, 1.0f);
     dc.planetRadius = (unsigned char)randomInt(50, 100);
@@ -615,7 +615,7 @@ IclusterIGC * CmapMakerIGC::GenerateNeutralCluster(CMapData * pMapData,
 
     pMapData->GetNewClusterName(dc.name);
 
-    strcpy(dc.posterName, "globe");
+    Bounded::Copy(dc.posterName, "globe");
     dc.posterName[5] = '0' + randomInt(1, 8);
     dc.posterName[6] = '\0';
     dc.planetName[0] = '\0';
@@ -807,9 +807,9 @@ VOID CmapMakerIGC::LinkClusters(CMapData* pMapData,
     //
     dw.warpDef.warpID = pMapData->GetNextWarpID();
     dw.clusterID = sID1;
-    strcpy(dw.warpDef.textureName, pszTexture1);
-    strcpy(dw.warpDef.iconName, pszIcon1);
-    strcpy(dw.name, pMapData->GetCluster(sID2)->GetName());
+    Bounded::Copy(dw.warpDef.textureName, pszTexture1);
+    Bounded::Copy(dw.warpDef.iconName, pszIcon1);
+    Bounded::Copy(dw.name, pMapData->GetCluster(sID2)->GetName());
     dw.signature = signature1;
     dw.position.x = dw.position.y = 0.0f;
     dw.position.z = radius1;
@@ -819,9 +819,9 @@ VOID CmapMakerIGC::LinkClusters(CMapData* pMapData,
 
     dw.warpDef.warpID = pMapData->GetNextWarpID();
     dw.clusterID = sID2;
-    strcpy(dw.warpDef.textureName, pszTexture2);
-    strcpy(dw.warpDef.iconName, pszIcon2);
-    strcpy(dw.name, pMapData->GetCluster(sID1)->GetName());
+    Bounded::Copy(dw.warpDef.textureName, pszTexture2);
+    Bounded::Copy(dw.warpDef.iconName, pszIcon2);
+    Bounded::Copy(dw.name, pMapData->GetCluster(sID1)->GetName());
     dw.signature = signature2;
     dw.position.x = dw.position.y = 0.0f;
     dw.position.z = radius2;
@@ -923,7 +923,7 @@ VOID CmapMakerIGC::GenerateStarbase(CMapData*       pMapData,
     pst = pst->GetSuccessorStationType(pSide);
 
     ds.stationTypeID = pst->GetObjectID();
-    strcpy(ds.name, pst->GetName());
+    Bounded::Copy(ds.name, pst->GetName());
 
     IObject * o = pMapData->GetMission()->CreateObject(
                                         pMapData->GetTime(),
@@ -1718,7 +1718,7 @@ VOID CmapMakerBrawlIGC::PopulateCluster(CMapData*    pMapData,
         assert (pst);
 
         ds.stationTypeID = pst->GetObjectID();
-        strcpy(ds.name, pst->GetName());
+        Bounded::Copy(ds.name, pst->GetName());
 
         IstationIGC*    pstation = (IstationIGC*)pMapData->GetMission()->CreateObject(pMapData->GetTime(),
                                                                                        OT_station,

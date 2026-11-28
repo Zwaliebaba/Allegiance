@@ -265,11 +265,11 @@ private:
                 if (pitem->GetSideID() == SIDE_TEAMLOBBY)
                 {
                     TRef<List> plistPlayers = pitem->GetMemberList();
-                    wsprintf(cbPositions, "(%d)", plistPlayers->GetCount());
+                    Bounded::Format(cbPositions, "(%d)", plistPlayers->GetCount());
                 }
                 else
                 {
-                    wsprintf(cbPositions, "(%d/%d)", 
+                    Bounded::Format(cbPositions, "(%d/%d)", 
                         m_pMission->SideNumPlayers(pitem->GetSideID()),
                         m_pMission->SideMaxPlayers(pitem->GetSideID()));
                 }
@@ -560,7 +560,7 @@ private:
             else 
                 strMainText = GetCivString("Default", pns);
 
-            _snprintf(cbTemp, nMaxText, strMainText.c_str(), CensorBadWords (trekClient.GetSide()->GetName()).c_str(), trekClient.GetBriefingText().c_str(), GetCivListString().c_str());
+            Bounded::Format(cbTemp, nMaxText, strMainText.c_str(), CensorBadWords (trekClient.GetSide()->GetName()).c_str(), trekClient.GetBriefingText().c_str(), GetCivListString().c_str());
             strResult = cbTemp;
 
             if (misparams.IsArtifactsGame() || misparams.IsFlagsGame() || misparams.IsCountdownGame() 
@@ -571,37 +571,37 @@ private:
 
                 if (misparams.IsConquestGame() && misparams.GetConquestPercentage() != 100)
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Conquest", pns).c_str(), misparams.GetConquestPercentage());
+                    Bounded::Format(cbTemp, nMaxText, GetCivString("Conquest", pns).c_str(), misparams.GetConquestPercentage());
                     strResult += cbTemp;
                 }
 
                 if (misparams.IsArtifactsGame())
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Artifacts", pns).c_str(), misparams.nGoalArtifactsCount);
+                    Bounded::Format(cbTemp, nMaxText, GetCivString("Artifacts", pns).c_str(), misparams.nGoalArtifactsCount);
                     strResult += cbTemp;
                 }
 
                 if (misparams.IsFlagsGame())
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Flags", pns).c_str(), misparams.nGoalFlagsCount);
+                    Bounded::Format(cbTemp, nMaxText, GetCivString("Flags", pns).c_str(), misparams.nGoalFlagsCount);
                     strResult += cbTemp;
                 }
 
                 if (misparams.IsCountdownGame())
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Countdown", pns).c_str(), (int)(misparams.GetCountDownTime() / 60));
+                    Bounded::Format(cbTemp, nMaxText, GetCivString("Countdown", pns).c_str(), (int)(misparams.GetCountDownTime() / 60));
                     strResult += cbTemp;
                 }
 
                 if (misparams.IsDeathMatchGame())
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Deathmatch", pns).c_str(), misparams.GetDeathMatchKillLimit());
+                    Bounded::Format(cbTemp, nMaxText, GetCivString("Deathmatch", pns).c_str(), misparams.GetDeathMatchKillLimit());
                     strResult += cbTemp;
                 }
 
                 if (misparams.IsProsperityGame())
                 {
-                    _snprintf(cbTemp, nMaxText, GetCivString("Prosperity", pns).c_str(), (int)(misparams.fGoalTeamMoney * trekClient.GetCore()->GetFloatConstant(c_fcidWinTheGameMoney)));
+                    Bounded::Format(cbTemp, nMaxText, GetCivString("Prosperity", pns).c_str(), (int)(misparams.fGoalTeamMoney * trekClient.GetCore()->GetFloatConstant(c_fcidWinTheGameMoney)));
                     strResult += cbTemp;
                 }
             }
@@ -835,7 +835,7 @@ private:
             else
             {
                 pfmSetTeamInfo->squadID = NA;
-                strcpy(pfmSetTeamInfo->SideName, m_peditPaneTeamName->GetString().c_str());
+                Bounded::Copy(pfmSetTeamInfo->SideName, m_peditPaneTeamName->GetString().c_str());
             }
 
             trekClient.SetMessageType(BaseClient::c_mtGuaranteed);

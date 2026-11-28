@@ -38,6 +38,7 @@
     <ClInclude Include="Base\Alloc.h" />
     <ClInclude Include="Base\ArtFolders.h" />
     <ClInclude Include="Base\AutoCriticalSection.h" />
+    <ClInclude Include="Base\BoundedString.h" />
     <ClInclude Include="Base\Base.h" />
     <ClInclude Include="Base\Cast.h" />
     <ClInclude Include="Base\Color.h" />

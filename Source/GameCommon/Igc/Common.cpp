@@ -2090,7 +2090,7 @@ IshipIGC*   CreateDrone(ImissionIGC*     pmission,
     if (pszName)
     {
         assert (strlen(pszName) < c_cbName - 4);
-        strcpy(ds.name, pszName);
+        Bounded::Copy(ds.name, pszName);
 
         //Is the name unique?
         ShipLinkIGC*    psl;
@@ -2579,7 +2579,7 @@ static IstationIGC* CreatePedestalAndFlag(ImissionIGC*     pmission,
         assert (ppedestal->HasCapability(c_sabmPedestal));
 
         ds.stationTypeID = ppedestal->GetObjectID();
-        strcpy(ds.name, ppedestal->GetName());
+        Bounded::Copy(ds.name, ppedestal->GetName());
     }
 
     IstationIGC*    pstation = (IstationIGC*)(pmission->CreateObject(now,

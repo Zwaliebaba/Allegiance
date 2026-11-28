@@ -165,13 +165,13 @@ private:
                 int nMinutes = nSecondsPlayed / 60 - nHours * 60;
                 
                 if (nSecondsPlayed < 0 && game->CountdownStarted())
-                    wsprintf(cbTemp, "-%d:%02d", -nHours, -nMinutes);
+                    Bounded::Format(cbTemp, "-%d:%02d", -nHours, -nMinutes);
                 else if (nSecondsPlayed < -100 || nHours > 99)
-                    wsprintf(cbTemp, "days");
+                    Bounded::Format(cbTemp, "days");
                 else if (nSecondsPlayed < 0)
-                    wsprintf(cbTemp, "0:00");
+                    Bounded::Format(cbTemp, "0:00");
                 else
-                    wsprintf(cbTemp, "%d:%02d", nHours, nMinutes);
+                    Bounded::Format(cbTemp, "%d:%02d", nHours, nMinutes);
              
                 psurface->DrawString(pfont, color, 
                     WinPoint(m_viColumns[2] - pfont->GetTextExtent(cbTemp).X() - 5, 6), 
@@ -186,23 +186,23 @@ private:
 
             // draw team info:
 
-            wsprintf(cbTemp, "%d", game->NumSides());
+            Bounded::Format(cbTemp, "%d", game->NumSides());
             psurface->DrawString(pfont, color, 
                 WinPoint(m_viColumns[4] - pfont->GetTextExtent(cbTemp).X() - 5, 6), 
                 cbTemp);
 
-            wsprintf(cbTemp, "%d", game->MinPlayersPerTeam());
+            Bounded::Format(cbTemp, "%d", game->MinPlayersPerTeam());
             psurface->DrawString(pfont, color, 
                 WinPoint(m_viColumns[5] - pfont->GetTextExtent(cbTemp).X() - 5, 6), 
                 cbTemp);
 
-            wsprintf(cbTemp, "%d", game->MaxPlayersPerTeam());
+            Bounded::Format(cbTemp, "%d", game->MaxPlayersPerTeam());
             psurface->DrawString(pfont, color, 
                 WinPoint(m_viColumns[6] - pfont->GetTextExtent(cbTemp).X() - 5, 6), 
                 cbTemp);
 
             // draw slot info
-            wsprintf(cbTemp, "%d/%d", game->NumPlayers(), game->MaxPlayers());
+            Bounded::Format(cbTemp, "%d/%d", game->NumPlayers(), game->MaxPlayers());
             psurface->DrawString(pfont, color, 
                 WinPoint(m_viColumns[7] - pfont->GetTextExtent(cbTemp).X() - 3, 6), 
                 cbTemp);

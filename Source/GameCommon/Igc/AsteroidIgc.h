@@ -164,7 +164,7 @@ class   CasteroidIGC : public TmodelIGC<IasteroidIGC>
             {
                 m_asteroidDef.aabmCapabilities &= ~(c_aabmMineHe3 | c_aabmMineGold);
                 char    bfr[c_cbName];
-                strcpy(bfr, GetName());
+                Bounded::Copy(bfr, GetName());
                 SetSecondaryName(bfr);
 
                 const AsteroidDef&  ad = IasteroidIGC::GetTypeDefaults(m_asteroidDef.aabmCapabilities);

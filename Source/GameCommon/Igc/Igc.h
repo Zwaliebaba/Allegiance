@@ -1140,7 +1140,7 @@ struct MissionParams
         //
         // default to reasonable values
         //
-        strcpy(strGameName, "Uninitialized Game Name");
+        Bounded::Copy(strGameName, "Uninitialized Game Name");
         szIGCStaticFile[0] = '\0';
         m_killPenalty                   = 0;
         m_killReward                    = 0;
@@ -4571,7 +4571,7 @@ class IIgcSite : public IObject
 
             va_list vl;
             va_start(vl, pszText);
-            _vsnprintf(szChatBfr, c_cbBfr, pszText, vl);
+            Bounded::FormatList(szChatBfr, c_cbBfr, pszText, vl);
             va_end(vl);
 
             SendChat(pshipSender, ctRecipient, oidRecipient,

@@ -857,13 +857,16 @@ public:
             CommandID   cid = trekClient.GetShip()->GetCommandID(c_cmdAccepted);
             if (cid != c_cidNone)
             {
-                strcpy(bfr, c_cdAllCommands[cid].szVerb);
+                Bounded::Copy(bfr, c_cdAllCommands[cid].szVerb);
                 ImodelIGC*  pmodel = trekClient.GetShip()->GetCommandTarget(c_cmdAccepted);
                 if (pmodel)
                 {
-                    int l = strlen(bfr);
-                    bfr[l] = ' ';
-                    strcpy(bfr + l + 1, GetModelName(pmodel));
+                    size_t l = strlen(bfr);
+                    if (l + 2 < sizeof(bfr))
+                    {
+                        bfr[l] = ' ';
+                        Bounded::Copy(bfr + l + 1, sizeof(bfr) - l - 1, GetModelName(pmodel));
+                    }
                 }
             }
             else
@@ -875,13 +878,16 @@ public:
             CommandID   cid = trekClient.GetShip()->GetCommandID(c_cmdQueued);
             if (cid != c_cidNone)
             {
-                strcpy(bfr, c_cdAllCommands[cid].szVerb);
+                Bounded::Copy(bfr, c_cdAllCommands[cid].szVerb);
                 ImodelIGC*  pmodel = trekClient.GetShip()->GetCommandTarget(c_cmdQueued);
                 if (pmodel)
                 {
-                    int l = strlen(bfr);
-                    bfr[l] = ' ';
-                    strcpy(bfr + l + 1, GetModelName(pmodel));
+                    size_t l = strlen(bfr);
+                    if (l + 2 < sizeof(bfr))
+                    {
+                        bfr[l] = ' ';
+                        Bounded::Copy(bfr + l + 1, sizeof(bfr) - l - 1, GetModelName(pmodel));
+                    }
                 }
             }
             else
@@ -1263,7 +1269,7 @@ public:
                         //Fill in the rest of the chat text with the remainder of the picked name
                         char    bfr[c_cbName];
                         int lenText = (int)m_strTypedText.size();
-                        strcpy(bfr, (m_pmodelTarget == trekClient.GetShip()) &&
+                        Bounded::Copy(bfr, (m_pmodelTarget == trekClient.GetShip()) &&
                                     (lenText <= 2) &&
                                     (_strnicmp(m_strTypedText.c_str(), "me", lenText) == 0)
                                     ? "me"
@@ -3103,7 +3109,7 @@ public:
             return;
 
         assert (strlen(pszFileName) < c_cbFileName);
-        strcpy(m_szFileName, pszFileName);
+        Bounded::Copy(m_szFileName, pszFileName);
 
         OverlayMask om = GetOverlayFlags();
 

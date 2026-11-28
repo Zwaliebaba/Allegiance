@@ -18,5 +18,7 @@ Parameters:		szFileName:   file to get CRC from
 Returns:        Checksum of the file, returns 0 on error
 Example:		CRC = FileCRC("autoexec.bat", 0, 0);
 ****************************************************************************/
+constexpr size_t FILE_ERROR_SIZE = 100 + MAX_PATH;   // what szErrorMsg must hold, for FileCRC and UTL::SaveFile
+
 int FileCRC(const char *szFilename, char * szErrorMsg);
 int FileCRC(HANDLE hFile,           char * szErrorMsg);

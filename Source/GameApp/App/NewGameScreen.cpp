@@ -753,8 +753,8 @@ public:
     {
         misparams = GetBaseMissionParams();
 
-        strcpy(misparams.strGameName, m_peditPaneGameName->GetString().c_str());
-        strcpy(misparams.strGamePassword, m_peditPaneGamePassword->GetString().c_str());
+        Bounded::Copy(misparams.strGameName, m_peditPaneGameName->GetString().c_str());
+        Bounded::Copy(misparams.strGamePassword, m_peditPaneGamePassword->GetString().c_str());
 
         misparams.bEjectPods = m_pbuttonEjectPods->GetChecked();
         misparams.bAllowFriendlyFire = m_pbuttonFriendlyFire->GetChecked();
@@ -776,7 +776,7 @@ public:
         misparams.iMinRank = FindValue(m_pcomboSkillLevel->GetSelection(), "GameSkillLevelMin");
         misparams.iMaxRank = FindValue(m_pcomboSkillLevel->GetSelection(), "GameSkillLevelMax");
         misparams.mmMapType = ItemIDToMapType(m_pcomboMapType->GetSelection());
-        strcpy(misparams.szCustomMapFile, ItemIDToMapFile(m_pcomboMapType->GetSelection()));
+        Bounded::Copy(misparams.szCustomMapFile, ItemIDToMapFile(m_pcomboMapType->GetSelection()));
         misparams.iRandomEncounters = FindValue(m_pcomboConnectivity->GetSelection(), "ConnectivityValues");
         misparams.iLives = FindValue(m_pcomboLives->GetSelection(), "LivesValues");
         misparams.nNeutralSectorMineableAsteroids = FindValue(m_pcomboResources->GetSelection(), "ResourcesNeutralMinable");
@@ -840,8 +840,9 @@ public:
                 const StaticMapInfo& mapinfo = trekClient.GetStaticMapInfo(mapTypeIndex);
 
                 const char* szFormat = "The map type '%s' can only be played with %d teams";
-                char* cbTemp = (char*)_alloca(strlen(szFormat) + c_cbName + 8 + 1);
-                wsprintf(cbTemp, szFormat, mapinfo.cbFriendlyName, mapinfo.nNumTeams);
+                size_t cbSize = strlen(szFormat) + c_cbName + 8 + 1;
+                char* cbTemp = (char*)_alloca(cbSize);
+                Bounded::Format(cbTemp, cbSize, szFormat, mapinfo.cbFriendlyName, mapinfo.nNumTeams);
                 pszReason = cbTemp;
             }
         }

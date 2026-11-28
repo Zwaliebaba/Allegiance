@@ -37,7 +37,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             if (pfmLogonAck->fValidated)
             {
                 debugf("I am ship %s, shipid=%d\n", FM_VAR_REF(pfmLogonAck, CharName_OR_FailureReason), pfmLogonAck->shipID);
-                lstrcpy(m_szCharName, FM_VAR_REF(pfmLogonAck, CharName_OR_FailureReason)); // remember who we are
+                Bounded::Copy(m_szCharName, FM_VAR_REF(pfmLogonAck, CharName_OR_FailureReason)); // remember who we are
                 m_fLoggedOn = true;
                 SetCookie(pfmLogonAck->cookie);
 
@@ -913,10 +913,10 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
                 char    bfr[100];
                 if (pclusterRipcord != pclusterDesired)
-                    sprintf(bfr, "Ripcording to %s, which is closest to %s",
+                    Bounded::Format(bfr, "Ripcording to %s, which is closest to %s",
                             name, pclusterDesired->GetName());
                 else
-                    sprintf(bfr, "Ripcording to %s", name);
+                    Bounded::Format(bfr, "Ripcording to %s", name);
 
                 PostText(true, bfr);
 
@@ -1190,7 +1190,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                     if (pshipTo)
                     {
                         char    bfr[100];
-                        sprintf(bfr, "You have started donating your income to %s", pshipTo->GetName());
+                        Bounded::Format(bfr, "You have started donating your income to %s", pshipTo->GetName());
                         PostText(true, bfr);
                     }
                     else
@@ -1201,7 +1201,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 else if (pshipTo == GetShip())
                 {
                     char    bfr[100];
-                    sprintf(bfr, "%s is now donating to you", pshipBy->GetName());
+                    Bounded::Format(bfr, "%s is now donating to you", pshipBy->GetName());
 
                     PostText(true, bfr);
 
@@ -1221,7 +1221,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 else if (pshipOld == GetShip())
                 {
                     char    bfr[100];
-                    sprintf(bfr, "%s has stopped donating to you", pshipBy->GetName());
+                    Bounded::Format(bfr, "%s has stopped donating to you", pshipBy->GetName());
                     PostText(true, bfr);
                 }
             }
@@ -2122,7 +2122,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
                 FMD_S_PLAYERINFO fmPlayerInfo;
                 memset(&fmPlayerInfo, 0, sizeof(fmPlayerInfo));
-                strcpy(fmPlayerInfo.CharacterName, "<error>");
+                Bounded::Copy(fmPlayerInfo.CharacterName, "<error>");
                 fmPlayerInfo.shipID = pfmJoinedMission->shipID;
                 fmPlayerInfo.iSide = NA;
                 pPlayerInfo->Set(&fmPlayerInfo);
@@ -2187,7 +2187,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 ds.abmOrders = pfmPlayerInfo->abmOrders;
                 ds.baseObjectID = pfmPlayerInfo->baseObjectID;
 
-                strcpy(ds.name, pfmPlayerInfo->CharacterName);
+                Bounded::Copy(ds.name, pfmPlayerInfo->CharacterName);
 
                 IshipIGC*   pship = (IshipIGC*)(m_pCoreIGC->CreateObject(m_lastSend, OT_ship, &ds, sizeof(ds)));
                 if (pship != nullptr)
@@ -2859,7 +2859,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 else
                 {
                     char    bfr[100];
-                    sprintf(bfr, "%s has become the team leader", pplayer->CharacterName());
+                    Bounded::Format(bfr, "%s has become the team leader", pplayer->CharacterName());
                     PostText(true, bfr);
                 }
             }

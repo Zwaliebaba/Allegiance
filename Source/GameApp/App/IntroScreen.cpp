@@ -187,7 +187,7 @@ class IntroScreen
         if (serverInfo->nMaxPlayers != 0)
         {
           char cbPlayers[20];
-          wsprintf(cbPlayers, "(%d/%d)", serverInfo->nNumPlayers, serverInfo->nMaxPlayers);
+          Bounded::Format(cbPlayers, "(%d/%d)", serverInfo->nNumPlayers, serverInfo->nMaxPlayers);
           psurface->DrawString(pfont, color, WinPoint(GetXSize() - nPlayerWidth + 2, 0), cbPlayers);
         }
       }
@@ -650,14 +650,14 @@ public:
     ZString strBuild = StrFromInt(vi.GetFileBuildNumber());
 
     // start with a default name
-    lstrcpy(config_file_name, "Allegiance");
-    lstrcat(config_file_name, strBuild.c_str());
-    lstrcat(config_file_name, ".cfg");
+    Bounded::Copy(config_file_name, "Allegiance");
+    Bounded::Append(config_file_name, strBuild.c_str());
+    Bounded::Append(config_file_name, ".cfg");
 
     // then look to see if the settings name one we should use instead
     std::string strCfgFile = ZSettings::GetString("CfgFile", "");
     if (!strCfgFile.empty() && strCfgFile.size() < MAX_PATH)
-      lstrcpy(config_file_name, strCfgFile.c_str());
+      Bounded::Copy(config_file_name, strCfgFile.c_str());
 
     // then construct the full path name of the config file
     PathString pathEXE(PathString::GetCurrentDirectory());
@@ -705,7 +705,7 @@ public:
 
     BaseClient::ConnectInfo ci;
     ci.guidSession = m_guidSession;
-    strcpy(ci.szName, m_strCharacterName.c_str());
+    Bounded::Copy(ci.szName, m_strCharacterName.c_str());
     assert(strlen(m_strPassword.c_str()) < c_cbGamePassword);
 
     trekClient.ConnectToServer(ci, NA, Time::Now(), m_strPassword.c_str(), true);

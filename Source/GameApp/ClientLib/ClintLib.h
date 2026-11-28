@@ -533,7 +533,7 @@ public:
                     { assert(sideID != SIDE_TEAMLOBBY); m_pfmMissionDef->rgCivID[sideID] = civID; 
                         GetSideInfo(sideID)->GetMembers().GetSink()(); m_mapSideInfo.GetSink()(); }*/
     void            SetSideName(SideID sideID, const char* szName)
-                    { assert(sideID != SIDE_TEAMLOBBY); strcpy(m_pfmMissionDef->rgszName[sideID], szName); 
+                    { assert(sideID != SIDE_TEAMLOBBY); Bounded::Copy(m_pfmMissionDef->rgszName[sideID], szName); 
                         m_mapSideInfo.GetSink()(); }
     void            SetSideSquadID(SideID sideID, SquadID squadID)
                     { assert(sideID != SIDE_TEAMLOBBY); squadIDs[sideID] = squadID; m_mapSideInfo.GetSink()(); }

@@ -453,7 +453,7 @@ namespace Training
         dataShip.hullID = hullID;
         dataShip.sideID = sideID;
         dataShip.pilotType = pilotType;
-        strcpy (dataShip.name, name.c_str());
+        Bounded::Copy(dataShip.name, name.c_str());
 
         // clear out the dynamic values
         //dataShip.wingID = 0;
@@ -562,7 +562,7 @@ namespace Training
             assert (civs[sid] != NA);
             ds.civilizationID = civs[sid];
             ds.color.SetRGBA(fSideColors[sid][0], fSideColors[sid][1], fSideColors[sid][2]);
-            strcpy(ds.name, szSideNames[sid]);
+            Bounded::Copy(ds.name, szSideNames[sid]);
             ds.ttbmDevelopmentTechs = pCiv->GetBaseTechs();
             ds.ttbmInitialTechs = pCiv->GetBaseTechs();
             ds.conquest = 100 / c_cSidesMax;
@@ -585,7 +585,7 @@ namespace Training
         // create the mission def
         FMD_S_MISSIONDEF    fmMissionDef;
         fmMissionDef.szDescription[0] = 0;
-        strcpy (fmMissionDef.misparms.szIGCStaticFile, szStaticCoreFilename);
+        Bounded::Copy(fmMissionDef.misparms.szIGCStaticFile, szStaticCoreFilename);
         fmMissionDef.misparms.verIGCcore = iStaticCoreVersion;
         fmMissionDef.dwCookie = static_cast<DWORD> (pCore->GetMissionID ());
         fmMissionDef.iSideMissionOwner = 0;
@@ -594,7 +594,7 @@ namespace Training
         fmMissionDef.stage = STAGE_STARTED;
         for (int q = 0; q < c_cSidesMax; q++)
         {
-            strcpy (fmMissionDef.rgszName[q], szSideNames[q]);
+            Bounded::Copy(fmMissionDef.rgszName[q], szSideNames[q]);
             //fmMissionDef.rgCivID[q] = civs[q];
             fmMissionDef.rgStationID[q] = NA;
             fmMissionDef.rgShipIDLeaders[q] = NA;
@@ -696,7 +696,7 @@ namespace Training
         FMD_S_PLAYERINFO    fmPlayerInfo;
         PlayerInfo*         pPlayerInfo = trekClient.FindAndCreatePlayerLink (shipID);
         memset(&fmPlayerInfo, 0, sizeof(fmPlayerInfo));
-        strcpy(fmPlayerInfo.CharacterName, pShip->GetName ());
+        Bounded::Copy(fmPlayerInfo.CharacterName, pShip->GetName ());
         fmPlayerInfo.iSide = NA;
         fmPlayerInfo.dtidDrone = NA;
         fmPlayerInfo.shipID = shipID;
@@ -736,7 +736,7 @@ namespace Training
         float                           fDisplayRadius = pWithinRadiusCondition->GetRadarRadius ();
         char                            cFloatStringBuffer[256];
         fDisplayRadius = floorf (fDisplayRadius * 0.02) * 50.0;
-        sprintf (cFloatStringBuffer, "Stay at least %g meters from ", floorf (fDisplayRadius));
+        Bounded::Format(cFloatStringBuffer, "Stay at least %g meters from ", floorf (fDisplayRadius));
         pTooCloseMessage->AddMessage (ZString (cFloatStringBuffer) + GetModelName (place) + "!");
         pTooCloseMessage->AddMessage ("A little close, don't ya think?");
         pTooCloseMessage->AddMessage ("Watch your range!");

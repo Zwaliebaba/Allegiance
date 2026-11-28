@@ -21,7 +21,7 @@ char    UTL::s_szUrlRoot[MAX_PATH] = "";
 void UTL::SetUrlRoot(const char * szUrlRoot)
 {
     assert (szUrlRoot);
-    strcpy(s_szUrlRoot, szUrlRoot);
+    Bounded::Copy(s_szUrlRoot, szUrlRoot);
 }
 
 
@@ -30,7 +30,7 @@ void UTL::SetArtPath(const char* szArtwork)
   int cbsz = lstrlen(szArtwork);
   assert(cbsz > 0 && cbsz < MAX_PATH);
   bool fTrailingBS = szArtwork[cbsz - 1] == '\\';
-  lstrcpy(s_artworkPath, szArtwork);
+  Bounded::Copy(s_artworkPath, szArtwork);
   if (!fTrailingBS)
   {
     s_artworkPath[cbsz] = '\\';
@@ -61,7 +61,7 @@ HRESULT UTL::getFile(    const char*    name,
             *(pFile++) = *(pName++);
 
         *pFile = '\0';
-        strcat(szFile, extension);
+        Bounded::Append(szFile, extension);
     }
 
     //
@@ -74,14 +74,14 @@ HRESULT UTL::getFile(    const char*    name,
 
     for (const char* const* pszFolder = pszFolders; *pszFolder; pszFolder++)
     {
-        _snprintf(artwork, MAX_PATH, "%s%s\\%s", s_artworkPath, *pszFolder, szFile);
+        Bounded::Format(artwork, MAX_PATH, "%s%s\\%s", s_artworkPath, *pszFolder, szFile);
         artwork[MAX_PATH - 1] = '\0';
 
         if (ArtFileExists(artwork))
             return S_OK;
     }
 
-    _snprintf(artwork, MAX_PATH, "%s%s", s_artworkPath, szFile);
+    Bounded::Format(artwork, MAX_PATH, "%s%s", s_artworkPath, szFile);
     artwork[MAX_PATH - 1] = '\0';
 
     if (ArtFileExists(artwork))
@@ -89,7 +89,7 @@ HRESULT UTL::getFile(    const char*    name,
 
     if (*pszFolders)
     {
-        _snprintf(artwork, MAX_PATH, "%s%s\\%s", s_artworkPath, *pszFolders, szFile);
+        Bounded::Format(artwork, MAX_PATH, "%s%s\\%s", s_artworkPath, *pszFolders, szFile);
         artwork[MAX_PATH - 1] = '\0';
     }
 
@@ -103,7 +103,7 @@ HRESULT UTL::getFile(    const char*    name,
 //
 //  Writes a blob to disk.   
 //
-//  szErrorMsg should be NULL if no error msg is wanted
+//  szErrorMsg should be NULL if no error msg is wanted, or else hold FILE_ERROR_SIZE chars
 // 
 //  returns true iff no errors
 //
@@ -120,7 +120,7 @@ bool UTL::SaveFile(const char * szFilename, const void *pData, unsigned cLen, OU
    if (hFile == INVALID_HANDLE_VALUE)
    {
       if (szErrorMsg)
-        sprintf(szErrorMsg, "Failed create file (%s); Error Code: %d ", szFilename, GetLastError());
+        Bounded::Format(szErrorMsg, FILE_ERROR_SIZE, "Failed create file (%s); Error Code: %d ", szFilename, GetLastError());
       return false;
    }
 
@@ -129,14 +129,14 @@ bool UTL::SaveFile(const char * szFilename, const void *pData, unsigned cLen, OU
    if (!WriteFile(hFile, pData, cLen, &cBytesWritten, nullptr))
    {
       if (szErrorMsg)
-          sprintf(szErrorMsg, "Failed write file (%s); Error Code: %d ", szFilename, GetLastError());
+          Bounded::Format(szErrorMsg, FILE_ERROR_SIZE, "Failed write file (%s); Error Code: %d ", szFilename, GetLastError());
       return false;
    }
 
    if (!::CloseHandle(hFile))
    {
       if (szErrorMsg)
-          sprintf(szErrorMsg, "Couldn't close file (%s); Error Code: %d ", szFilename, GetLastError());
+          Bounded::Format(szErrorMsg, FILE_ERROR_SIZE, "Couldn't close file (%s); Error Code: %d ", szFilename, GetLastError());
       return false;
    }
 
@@ -170,53 +170,6 @@ bool UTL::AppendFile(const char * szFileName, const void * data, unsigned bytes)
 }
 
 
-
-/////////////////////////////////////////////////////////
-//  SearchAndReplace()
-//
-//  Searches a string, replacing a particular word with another.  The case of the old word 
-//  doesn't matter. 
-//
-//  returns number of replacements made
-//
-int UTL::SearchAndReplace(char * szDest, const char * szSource, const char * szNewWord, const char * szOldWord)
-{
-    int cbSource = strlen(szSource) + 1;
-    int cbDest = strlen(szSource) + 1;
-    int nLengthOldWord = strlen(szOldWord);
-    int nLengthNewWord = strlen(szNewWord);
-    char * szUpperSource = (char*)_alloca(cbSource);
-    char * szUpperOldWord = (char*)_alloca(nLengthOldWord+1);
-    strcpy(szUpperSource, szSource);
-    strcpy(szUpperOldWord, szOldWord);
-    _strupr(szUpperSource);
-    _strupr(szUpperOldWord);
-    memset(szDest, 0, cbDest);
-    char * pszCurrent = szUpperSource;
-    char * pszPrev = szUpperSource;
-    int nSourceOffset = 0;
-    int nDestOffset = 0;
-    int cReplacements = 0;
-
-    while(1)
-    {
-      pszCurrent = strstr(pszCurrent, szUpperOldWord);
-      if (!pszCurrent) // szOldWord not found
-      {
-          // finish up and quit
-          strcpy(szDest + nDestOffset, szSource + nSourceOffset);
-          return cReplacements;
-      }
-      cReplacements++;
-      int nMovement = pszCurrent-pszPrev;
-      strncpy(szDest + nDestOffset, szSource + nSourceOffset, nMovement);
-      strcat(szDest, szNewWord);
-      nSourceOffset += nMovement + nLengthOldWord;
-      nDestOffset += nMovement + nLengthNewWord; 
-      pszCurrent += nLengthOldWord;
-      pszPrev = pszCurrent;
-    }
-}
 
 
 
@@ -291,9 +244,10 @@ char*    UTL::strdup(const char* s)
 {
     if (s)
     {
-        char*   r = new char [strlen(s) + 1];
+        size_t  size = strlen(s) + 1;
+        char*   r = new char [size];
         assert (r);
-        strcpy(r, s);
+        Bounded::Copy(r, size, s);
         return r;
     }
     else
@@ -306,7 +260,7 @@ void    UTL::putName(char*         name, const char*   newVal)
 
     if (newVal)
     {
-        strncpy(name, newVal, c_cbName - 1);
+        Bounded::Copy(name, c_cbName, newVal);   // every caller passes a name[c_cbName]
         name[c_cbName - 1] = '\0';
     }
     else
@@ -319,7 +273,7 @@ void    UTL::putFileName(char*         fileName, const char*   newVal)
 
     if (newVal)
     {
-        strncpy(fileName, newVal, c_cbName - 1);
+        Bounded::Copy(fileName, c_cbName, newVal);
         fileName[c_cbName - 1] = '\0';
     }
     else

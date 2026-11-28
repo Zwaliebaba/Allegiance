@@ -5546,7 +5546,7 @@ public:
         if (trekClient.m_fm.IsConnected())
           trekClient.m_fm.GetIPAddress(*trekClient.m_fm.GetServerConnection(), szRemoteAddress);
         else
-          lstrcpy(szRemoteAddress, "N/A");
+          Bounded::Copy(szRemoteAddress, "N/A");
         
         return
               "TC:" + StrFromInt(ThingGeo::GetTrashCount())
@@ -9093,9 +9093,9 @@ public:
 
         if (nullptr != m_hwndVTEdit)
         {
-            cchText = sprintf(szText, "Version=%d,", ++m_cVTVersion);
+            cchText = Bounded::Format(szText, "Version=%d,", ++m_cVTVersion);
             va_start(vaList, szFormat);
-            vsprintf(szText + cchText, szFormat, vaList);
+            Bounded::FormatList(szText + cchText, sizeof(szText) - cchText, szFormat, vaList);
             va_end(vaList);
 
             ::SetWindowText(m_hwndVTEdit, szText);

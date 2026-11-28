@@ -614,7 +614,7 @@ void CFSShip::CaptureStation(IstationIGC * pstation)
   if (psideWin)
   {
       static char szReason[100];     //Make this static so we only need to keep a pointer to it around
-      sprintf(szReason, "%s won because %s captured %s", psideWin->GetName(), GetIGCShip()->GetName(), pstation->GetName());
+      Bounded::Format(szReason, "%s won because %s captured %s", psideWin->GetName(), GetIGCShip()->GetName(), pstation->GetName());
       m_pfsMission->GameOver(psideWin, szReason);
   }
   else if (psideOld->GetActiveF())

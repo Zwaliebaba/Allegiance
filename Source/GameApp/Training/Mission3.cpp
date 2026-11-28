@@ -217,7 +217,7 @@ namespace Training
                     break;
             }
             char        name[32];
-            sprintf (name, "Derelict %02d", i + 1);
+            Bounded::Format(name, "Derelict %02d", i + 1);
             m_derelict_hulls[i] = pCore->GenerateNewShipID ();
             IshipIGC*   pShip = CreateDrone (name, m_derelict_hulls[i], hullID, 1, c_ptPlayer);
             pShip->SetAutopilot (false);

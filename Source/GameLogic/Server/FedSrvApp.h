@@ -37,7 +37,7 @@
         if (p)
             *(p + 1) = '\0';
         //_itoa(Time::Now().clock(), bfr + strlen(bfr), 10);
-        strcat(bfr, "txt");
+        Bounded::Append(bfr, "txt");
 
         m_hFile = CreateFile(bfr, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NOT_CONTENT_INDEXED | FILE_FLAG_OVERLAPPED, NULL);
         assert (m_hFile);
@@ -69,7 +69,7 @@
       else if ((m_dwDebug & FED_DEBUG_FILE) && !(dw & FED_DEBUG_FILE))
         CloseLogFile();
       char buff[640];
-      wsprintf(buff, "Debug level set from %u to %u.\n", m_dwDebug, dw);
+      Bounded::Format(buff, "Debug level set from %u to %u.\n", m_dwDebug, dw);
       m_dwDebug = dw;
       DebugOutput(buff);
     }

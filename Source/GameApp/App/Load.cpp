@@ -18,10 +18,10 @@ static  const char* GetBuyableName(IbuyableIGC*   ppt)
     else
     {
         static char bfr[c_cbName + 10];
-        strcpy(bfr, name);
-        strcat(bfr, " $(");
+        Bounded::Copy(bfr, name);
+        Bounded::Append(bfr, " $(");
         _itoa(cost, bfr + strlen(bfr), 10);
-        strcat(bfr, ")");
+        Bounded::Append(bfr, ")");
 
         return bfr;
     }

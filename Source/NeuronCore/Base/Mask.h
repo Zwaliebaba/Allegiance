@@ -193,7 +193,7 @@ template<int nBits> class TLargeBitMask
           for (int i = 0; i < cb; ++i)
           {
             char szByte[3];
-            sprintf(szByte, "%02X", m_bits[i]);
+            Bounded::Format(szByte, "%02X", m_bits[i]);
             CopyMemory(pszBytes + (i * 2), szByte, 2);
           }
         }

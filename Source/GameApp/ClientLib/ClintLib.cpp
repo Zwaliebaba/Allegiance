@@ -626,8 +626,7 @@ void MissionInfo::Update(FMD_LS_LOBBYMISSIONINFO* pfmLobbyMissionInfo)
 {
     int numSidesOld = NumSides();
 
-    Strncpy(m_pfmMissionDef->misparms.strGameName, FM_VAR_REF(pfmLobbyMissionInfo, szGameName), c_cbGameName);
-    m_pfmMissionDef->misparms.strGameName[c_cbGameName - 1] = '\0';
+    Bounded::Copy(m_pfmMissionDef->misparms.strGameName, FM_VAR_REF(pfmLobbyMissionInfo, szGameName));
     m_strGameDetailsFiles = (FM_VAR_REF(pfmLobbyMissionInfo, szGameDetailsFiles) != nullptr)
       ? FM_VAR_REF(pfmLobbyMissionInfo, szGameDetailsFiles) : "";
     m_pfmMissionDef->misparms.nTeams = pfmLobbyMissionInfo->nTeams;
@@ -1261,8 +1260,9 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
     if (m_fmLobby.IsConnected())
     {
         DWORD dwTime = Time::Now().clock();
-        char * szEncryptionKey = (char *)_alloca(strlen(CL_LOGON_KEY) + 30);
-        wsprintf(szEncryptionKey, CL_LOGON_KEY, dwTime, m_ci.szName);
+        size_t cbEncryptionKey = strlen(CL_LOGON_KEY) + 30;   // 8 hex digits and a name of up to c_cbName - 1
+        char * szEncryptionKey = (char *)_alloca(cbEncryptionKey);
+        Bounded::Format(szEncryptionKey, cbEncryptionKey, CL_LOGON_KEY, dwTime, m_ci.szName);
 
         // Let's formally announce ourselves to the server
         BEGIN_PFM_CREATE(m_fmLobby, pfmLogon, C, LOGON_LOBBY)
@@ -1270,11 +1270,11 @@ HRESULT BaseClient::ConnectToLobby(ConnectInfo * pci) // pci is NULL if reloggin
         END_PFM_CREATE
         pfmLogon->verLobby = LOBBYVER;
         pfmLogon->dwTime = dwTime;
-        lstrcpy(pfmLogon->szName, m_ci.szName);
+        Bounded::Copy(pfmLogon->szName, m_ci.szName);
 
         debugf("Logging on to lobby \"%s\"...\n",
           m_ci.strServer.empty() ? "" : m_ci.strServer.c_str());
-        lstrcpy(m_szLobbyCharName, m_ci.szName);
+        Bounded::Copy(m_szLobbyCharName, m_ci.szName);
         SendLobbyMessages();
     }
     retailf("$$MSRGuard:Set:UserName=%s\n", m_szLobbyCharName);
@@ -1677,7 +1677,7 @@ void BaseClient::JoinMission(MissionInfo * pMission, const char* szMissionPasswo
     SendLobbyMessages();
     m_dwCookieToJoin = pMission->GetCookie();
     assert(strlen(szMissionPassword) < c_cbGamePassword);
-    strncpy(m_strPasswordToJoin, szMissionPassword, c_cbGamePassword);
+    Bounded::Copy(m_strPasswordToJoin, szMissionPassword);
     m_strPasswordToJoin[c_cbGamePassword - 1] = '\0';
     // waiting for FM_L_JOIN_GAME_ACK. When we get that we can join it
 }
@@ -2330,7 +2330,7 @@ ZString BaseClient::LookupRankName(RankID rank, CivID civ)
     }
 
     char cbTemp[c_cbName + 8];
-    wsprintf(cbTemp, szRankNameTemplate, rank - nClosestRank + 1);
+    Bounded::Format(cbTemp, szRankNameTemplate, rank - nClosestRank + 1);
 	RemoveTrailingSpaces(cbTemp);
 
     return cbTemp;
@@ -3785,7 +3785,7 @@ bool BaseClient::ResetStaticData(const char * szIGCStaticFile, ImissionIGC** ppS
     }
 
     // copy the core name
-    lstrcpy(m_szIGCStaticFile, szIGCStaticFile);
+    Bounded::Copy(m_szIGCStaticFile, szIGCStaticFile);
 
     // here we load the static core data
     int iStaticCoreVersion = LoadIGCStaticCore (szIGCStaticFile, *ppStaticIGC, true); // first just check version
