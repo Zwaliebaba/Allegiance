@@ -100,6 +100,7 @@ private:
 
 - If you change a legacy function's signature line, its parameters on that line are checked. Either rename them (in that function: a small, local rename) or keep your edit off the declaration line.
 - A name an external API dictates (a callback signature, a `WinMain` parameter, an SDK struct you redeclare) takes `// NOLINT(readability-identifier-naming)` on its line, with the reason.
+- **Mechanical commits** are the one exemption. A commit that is entirely a tool's rewrite, such as clang-tidy's `modernize-use-nullptr` or `modernize-use-override` fix-its, says so in a trailer: `Mechanical: clang-tidy modernize-use-nullptr`. The gate leaves the lines it adds unchecked, since a sweep over thousands of declarations must not turn into renaming them, and lists the commits it exempted. `git blame` decides whose a line is, so a line an ordinary commit changes afterwards is checked again. The trailer is for tool output only: a hand edit in such a commit is a review finding, and hand fixes go in a commit of their own.
 
 Run it before you push, from a Developer PowerShell (it needs clang-tidy 19 or newer; Visual Studio ships one at `VC\Tools\Llvm\x64\bin`):
 

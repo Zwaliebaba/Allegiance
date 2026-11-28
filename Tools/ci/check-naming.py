@@ -84,6 +84,57 @@ def added_lines(base):
 
 
 #
+# Commits a tool wrote (AGENTS.md section 1, "Mechanical commits"): a commit
+# whose message has a "Mechanical: <tool and check>" trailer is a rewrite by
+# that tool, such as clang-tidy's modernize-use-nullptr, and the lines it adds
+# are not held to the naming rules: a sweep that touches 3,000 declarations
+# must not have to rename what is on them. git blame decides whose a line is,
+# so a line a later, ordinary commit changes is checked again.
+#
+
+MECHANICAL = re.compile(r"^Mechanical:[ \t]*(\S.*)$", re.MULTILINE)
+
+
+def mechanical_commits(base):
+    out = git("log", "--format=%H%x00%B%x01", base + "..HEAD")
+    commits = {}
+    for entry in out.split("\x01"):
+        if "\x00" not in entry:
+            continue
+        sha, body = entry.lstrip("\n").split("\x00", 1)
+        m = MECHANICAL.search(body)
+        if m:
+            commits[sha] = m.group(1).strip()
+    return commits
+
+
+def to_ranges(lines):
+    ranges = []
+    for line in lines:
+        if ranges and line == ranges[-1][1] + 1:
+            ranges[-1][1] = line
+        else:
+            ranges.append([line, line])
+    return ranges
+
+
+def without_mechanical(ranges, commits):
+    kept = {}
+    for path, rs in ranges.items():
+        args = ["blame", "--porcelain"]
+        for start, end in rs:
+            args += ["-L", "%d,%d" % (start, end)]
+        lines = set()
+        for line in git(*args, "HEAD", "--", path).splitlines():
+            m = re.match(r"^([0-9a-f]{40}) \d+ (\d+)", line)
+            if m and m.group(1) not in commits:
+                lines.add(int(m.group(2)))
+        if lines:
+            kept[path] = to_ranges(sorted(lines))
+    return kept
+
+
+#
 # A file's project: its include directories, definitions and precompiled header
 #
 
@@ -236,8 +287,18 @@ def main():
         print("check-naming: git diff against %s failed: %s" % (args.base, e.stderr.strip()))
         return 2
 
+    try:
+        commits = mechanical_commits(args.base)
+        if commits:
+            for sha, tool in commits.items():
+                print("check-naming: %s is mechanical (%s); its lines are not checked" % (sha[:10], tool))
+            ranges = without_mechanical(ranges, commits)
+    except subprocess.CalledProcessError as e:
+        print("check-naming: reading the commits since %s failed: %s" % (args.base, e.stderr.strip()))
+        return 2
+
     if not ranges:
-        print("check-naming: no C++ lines added since %s" % args.base)
+        print("check-naming: no C++ lines to check since %s" % args.base)
         return 0
 
     #
