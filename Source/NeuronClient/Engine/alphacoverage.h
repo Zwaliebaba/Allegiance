@@ -56,6 +56,37 @@ namespace AlphaCoverage
     }
 
     //
+    // What a texture's alpha is: none (opaque), a cut-out's holes, or
+    // translucency, which the scene draws in its translucent pass
+    // (d3d11raster.cpp): any alpha between 0 and 255, beyond the 1%
+    // of noise a re-saved cut-out picks up at its edges
+    //
+
+    enum class Kind { Opaque, Cutout, Translucent };
+
+    inline Kind Classify(const DWORD* ptexels, int count)
+    {
+        int soft         = 0;
+        bool bTransparent = false;
+
+        for (int index = 0; index < count; index++) {
+            int alpha = Alpha(ptexels[index]);
+
+            if (alpha == 0) {
+                bTransparent = true;
+            } else if (alpha != 255) {
+                soft++;
+            }
+        }
+
+        if (soft * 100 > count) {
+            return Kind::Translucent;
+        }
+
+        return bTransparent || soft > 0 ? Kind::Cutout : Kind::Opaque;
+    }
+
+    //
     // The share of texels whose alpha, times scale, is at least the threshold
     //
 

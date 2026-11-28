@@ -195,6 +195,7 @@ private:
         int                            m_id;
         bool                           m_bColorKey;
         int                            m_mipLevels;
+        bool                           m_bTranslucent;
     };
 
     struct SwapChainEntry {
@@ -504,6 +505,10 @@ public:
             AlphaCoverage::PreserveCoverage(m_vconvert.data(), size.X() * size.Y(), vmips);
         }
 
+        entry.m_bTranslucent =
+               bColorKey
+            && AlphaCoverage::Classify(m_vconvert.data(), size.X() * size.Y()) == AlphaCoverage::Kind::Translucent;
+
         if (entry.m_ptexture != NULL && entry.m_size == size && entry.m_mipLevels == mipLevels && mipLevels == 1) {
             m_pcontext->UpdateSubresource(entry.m_ptexture, 0, NULL, m_vconvert.data(), size.X() * 4, 0);
         } else {
@@ -551,6 +556,11 @@ public:
         entry.m_bColorKey = bColorKey;
 
         return entry.m_psrv;
+    }
+
+    bool IsTranslucent(PrivateSurface* psurface)
+    {
+        return GetTexture(psurface) != NULL && m_textures[psurface].m_bTranslucent;
     }
 
     void RemoveSurface(PrivateSurface* psurface)

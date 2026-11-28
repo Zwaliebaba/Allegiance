@@ -74,6 +74,7 @@ public:
     //
 
     virtual ID3D11ShaderResourceView* GetTexture(PrivateSurface* psurface) = 0;
+    virtual bool                      IsTranslucent(PrivateSurface* psurface) = 0;   // its texture's alpha is translucency (alphacoverage.h), not a cut-out's
     virtual void                      RemoveSurface(PrivateSurface* psurface) = 0;
 
     //

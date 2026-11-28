@@ -978,6 +978,29 @@ still there far away; engine glows and explosions fading into hulls instead of c
 3 units the right distance for that; and nothing drawn blended in a z-buffered 3D layer (the HUD's
 3D parts) now in front of or behind what it should not be, the one risk of moving those draws.
 
+#### Translucent surfaces
+
+For translucent art to come (glass, energy shields, holograms): a texture's alpha decides. Only 0
+and 255 (with at most 1% of texels in between, the noise a re-saved cut-out picks up) is a
+cut-out; more than that in between is translucent (`AlphaCoverage::Classify`, at upload). An opaque
+draw of a translucent texture in a 3D layer's scene goes to the translucent pass with the
+"over"-blended draws (`BlendModeSourceAlpha`); nothing has to be marked in the model.
+
+| Piece | What it does |
+|---|---|
+| Technique | Weighted blended order-independent transparency (McGuire and Bavoil, 2013). During the replay of the scene's blended draws (see "Alpha beyond the cut-out") the translucent ones draw, in any order, into two extra targets with the scene's samples: an accumulation target (RGBA16F: premultiplied colour and alpha, weighted by distance, the paper's equation 9 in world units) and a revealage target (R16F: what still shows through, from 1, times 1 - alpha). A composite (`oit_composite_ps.hlsl`) divides out the weights and lays the average over the scene by 1 - revealage, before the additive effects (so light shows over glass) and before the tonemap |
+| What it gets right | Translucent surfaces in any order, within one model and between models, intersecting ones included, with no sorting; they fade into what is behind them like the soft particles |
+| What it approximates | Where several near-opaque layers stack, their colours mix by weight instead of the front one winning outright; nearer layers weigh more. Fine for glass and shields; not for a stack of opaque-looking decals |
+| Cost | The two targets are made the first time a scene has a translucent draw: about 150 MB at 2560x1440 with 4x MSAA. Feature level 11 (as the soft particles); below it translucent draws are blended in their order, unsorted |
+| Lighting | Translucent model surfaces are lit like the others, without the specular highlight (it is for opaque surfaces) |
+
+Authoring: save the texture with straight alpha, then `python Tools/art/bmp2dds.py premultiply
+<file>.dds` (it rebuilds the mip chain if there is one). To try it before there is art, give an
+existing model texture a uniform alpha of about 50% that way and fly past the model: it should be
+see-through from every side, its far side visible through its near side, with no flicker as the
+view turns and nothing behind it lost; then two such models overlapping, and one in front of an
+engine glow (the glow shows over it).
+
 ### Phase 5: optional
 
 C++20, replacing `ZString` and the custom containers, unit tests, XAudio2 (done, in Phase 3's "Sound"), a D3D12 backend, a new lobby service.

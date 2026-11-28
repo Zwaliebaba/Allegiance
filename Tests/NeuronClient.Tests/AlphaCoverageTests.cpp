@@ -143,6 +143,32 @@ namespace AlphaCoverageTests
             Assert::IsTrue(before == levels[0]);
         }
 
+        TEST_METHOD(ClassifiesOpaqueCutoutAndTranslucent)
+        {
+            // What decides the translucent pass: the texture's own alpha
+            std::vector<DWORD> opaque(100, Texel(1, 2, 3, 255));
+            Assert::IsTrue(Classify(opaque.data(), 100) == Kind::Opaque);
+
+            std::vector<DWORD> cutout = opaque;
+            cutout[0] = 0;
+            Assert::IsTrue(Classify(cutout.data(), 100) == Kind::Cutout);
+
+            // A re-saved cut-out picks up a few soft texels at its edges: still a cut-out
+            cutout[1] = Texel(1, 1, 1, 200);
+            Assert::IsTrue(Classify(cutout.data(), 100) == Kind::Cutout);
+
+            // Glass: much of it in between
+            std::vector<DWORD> glass(100, Texel(20, 30, 40, 96));
+            Assert::IsTrue(Classify(glass.data(), 100) == Kind::Translucent);
+
+            // A soft edge round an opaque middle, more than 1% of the image
+            std::vector<DWORD> soft = opaque;
+            for (int index = 0; index < 5; index++) {
+                soft[index] = Texel(1, 1, 1, 128);
+            }
+            Assert::IsTrue(Classify(soft.data(), 100) == Kind::Translucent);
+        }
+
         TEST_METHOD(TranslucentArtIsLeftAlone)
         {
             std::vector<DWORD> level0(64, Texel(60, 60, 60, 128));

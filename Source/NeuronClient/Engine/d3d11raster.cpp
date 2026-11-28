@@ -16,6 +16,11 @@
 #include "scene_ps_ms.h"
 #include "bloom_down_ps.h"
 #include "bloom_up_ps.h"
+#include "raster_ps_oit.h"
+#include "raster_ps_flat_oit.h"
+#include "tl_ps_oit.h"
+#include "tl_ps_flat_oit.h"
+#include "oit_composite_ps.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -59,6 +64,21 @@ public:
     TRef<ID3D11DepthStencilView>    m_pdsv;
     TRef<ID3D11DepthStencilView>    m_pdsvReadOnly; // for the replayed blended draws (feature level 11),
     TRef<ID3D11ShaderResourceView>  m_psrvDepth;    // which read the depth through this
+    //
+    // The translucent pass's targets (made the first time a scene has a
+    // translucent draw): accumulation (RGBA16F) and revealage (R16F), with
+    // the scene's samples, and one-sample copies the composite reads
+    //
+
+    TRef<ID3D11Texture2D>           m_paccum;
+    TRef<ID3D11RenderTargetView>    m_prtvAccum;
+    TRef<ID3D11Texture2D>           m_preveal;
+    TRef<ID3D11RenderTargetView>    m_prtvReveal;
+    TRef<ID3D11Texture2D>           m_paccumResolve;
+    TRef<ID3D11ShaderResourceView>  m_psrvAccum;
+    TRef<ID3D11Texture2D>           m_prevealResolve;
+    TRef<ID3D11ShaderResourceView>  m_psrvReveal;
+
     TRef<ID3D11Texture2D>           m_presolve;     // RGBA16F, one sample
     TRef<ID3D11ShaderResourceView>  m_psrv;
 
@@ -160,6 +180,17 @@ struct Pipeline {
     TRef<ID3D11VertexShader>       m_pvsScene;
     TRef<ID3D11PixelShader>        m_ppsScene;
     TRef<ID3D11PixelShader>        m_ppsSceneMS;        // 4 samples, tonemapped one by one
+
+    //
+    // The translucent pass (weighted blended OIT, raster.hlsli)
+    //
+
+    TRef<ID3D11PixelShader>        m_ppsOit;
+    TRef<ID3D11PixelShader>        m_ppsOitFlat;
+    TRef<ID3D11PixelShader>        m_ppsTLOit;
+    TRef<ID3D11PixelShader>        m_ppsTLOitFlat;
+    TRef<ID3D11PixelShader>        m_ppsOitComposite;
+    TRef<ID3D11BlendState>         m_pblendOit;         // accumulate (one, one); reveal (zero, 1 - source)
     TRef<ID3D11Buffer>             m_pcbScene;
     TRef<ID3D11PixelShader>        m_ppsBloomDown;
     TRef<ID3D11PixelShader>        m_ppsBloomUp;
@@ -346,6 +377,39 @@ bool CreatePipeline(D3D11Device* pdevice)
     if (FAILED(pd3d->CreateVertexShader(g_scene_vs, sizeof(g_scene_vs), NULL, &p.m_pvsScene))) return false;
     if (FAILED(pd3d->CreatePixelShader (g_scene_ps, sizeof(g_scene_ps), NULL, &p.m_ppsScene))) return false;
     if (FAILED(pd3d->CreatePixelShader (g_scene_ps_ms, sizeof(g_scene_ps_ms), NULL, &p.m_ppsSceneMS))) return false;
+
+    if (FAILED(pd3d->CreatePixelShader(g_raster_ps_oit,      sizeof(g_raster_ps_oit),      NULL, &p.m_ppsOit         ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_raster_ps_flat_oit, sizeof(g_raster_ps_flat_oit), NULL, &p.m_ppsOitFlat     ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_tl_ps_oit,          sizeof(g_tl_ps_oit),          NULL, &p.m_ppsTLOit       ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_tl_ps_flat_oit,     sizeof(g_tl_ps_flat_oit),     NULL, &p.m_ppsTLOitFlat   ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_oit_composite_ps,   sizeof(g_oit_composite_ps),   NULL, &p.m_ppsOitComposite))) return false;
+
+    {
+        D3D11_BLEND_DESC desc = {};
+        desc.IndependentBlendEnable = TRUE;
+
+        D3D11_RENDER_TARGET_BLEND_DESC& accum = desc.RenderTarget[0];
+        accum.BlendEnable           = TRUE;
+        accum.SrcBlend              = D3D11_BLEND_ONE;
+        accum.DestBlend             = D3D11_BLEND_ONE;
+        accum.BlendOp               = D3D11_BLEND_OP_ADD;
+        accum.SrcBlendAlpha         = D3D11_BLEND_ONE;
+        accum.DestBlendAlpha        = D3D11_BLEND_ONE;
+        accum.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+        accum.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+        D3D11_RENDER_TARGET_BLEND_DESC& reveal = desc.RenderTarget[1];
+        reveal.BlendEnable           = TRUE;
+        reveal.SrcBlend              = D3D11_BLEND_ZERO;
+        reveal.DestBlend             = D3D11_BLEND_INV_SRC_COLOR;
+        reveal.BlendOp               = D3D11_BLEND_OP_ADD;
+        reveal.SrcBlendAlpha         = D3D11_BLEND_ZERO;
+        reveal.DestBlendAlpha        = D3D11_BLEND_INV_SRC_ALPHA;
+        reveal.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+        reveal.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED;
+
+        if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendOit))) return false;
+    }
 
     if (FAILED(pd3d->CreatePixelShader(g_bloom_down_ps, sizeof(g_bloom_down_ps), NULL, &p.m_ppsBloomDown))) return false;
     if (FAILED(pd3d->CreatePixelShader(g_bloom_up_ps,   sizeof(g_bloom_up_ps),   NULL, &p.m_ppsBloomUp  ))) return false;
@@ -646,6 +710,71 @@ TRef<SceneTarget> AcquireSceneTarget(D3D11Device* pdevice, const WinPoint& size)
     return pscene;
 }
 
+//
+// The translucent pass's targets of a scene, made on first use (at 2560x1440
+// with 4x MSAA they take about 150 MB)
+//
+
+bool EnsureOitTargets(D3D11Device* pdevice, SceneTarget* pscene)
+{
+    if (pscene->m_prtvAccum != NULL) {
+        return true;
+    }
+
+    ID3D11Device* pd3d = pdevice->GetDevice();
+
+    D3D11_TEXTURE2D_DESC td = {};
+    td.Width              = pscene->m_size.X();
+    td.Height             = pscene->m_size.Y();
+    td.MipLevels          = 1;
+    td.ArraySize          = 1;
+    td.SampleDesc.Count   = pscene->m_samples;
+    td.Usage              = D3D11_USAGE_DEFAULT;
+
+    //
+    // One sample: the targets are read directly; several: resolved first
+    //
+
+    bool bSamples = pscene->m_samples > 1;
+
+    td.Format    = c_formatScene;
+    td.BindFlags = D3D11_BIND_RENDER_TARGET | (bSamples ? 0 : D3D11_BIND_SHADER_RESOURCE);
+    HRESULT hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_paccum);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_paccum, NULL, &pscene->m_prtvAccum);
+
+    if (SUCCEEDED(hr)) {
+        td.Format = DXGI_FORMAT_R16_FLOAT;
+        hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_preveal);
+    }
+    if (SUCCEEDED(hr)) hr = pd3d->CreateRenderTargetView(pscene->m_preveal, NULL, &pscene->m_prtvReveal);
+
+    if (SUCCEEDED(hr)) {
+        if (bSamples) {
+            td.SampleDesc.Count = 1;
+            td.BindFlags        = D3D11_BIND_SHADER_RESOURCE;
+            td.Format           = c_formatScene;
+            hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_paccumResolve);
+            if (SUCCEEDED(hr)) {
+                td.Format = DXGI_FORMAT_R16_FLOAT;
+                hr = pd3d->CreateTexture2D(&td, NULL, &pscene->m_prevealResolve);
+            }
+        } else {
+            pscene->m_paccumResolve  = pscene->m_paccum;
+            pscene->m_prevealResolve = pscene->m_preveal;
+        }
+    }
+    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_paccumResolve,  NULL, &pscene->m_psrvAccum);
+    if (SUCCEEDED(hr)) hr = pd3d->CreateShaderResourceView(pscene->m_prevealResolve, NULL, &pscene->m_psrvReveal);
+
+    if (FAILED(hr)) {
+        pdevice->CheckDeviceLost(hr);
+        pscene->m_prtvAccum = NULL;
+        return false;
+    }
+
+    return true;
+}
+
 } // namespace
 
 void D3D11BoundRasterizerChanged()
@@ -720,6 +849,7 @@ private:
         Rect                       m_rectClip;
 
         D3D11_PRIMITIVE_TOPOLOGY   m_topology;
+        bool                       m_bTranslucent;  // for the translucent pass: blended over, or a translucent texture
         bool                       m_bModel;        // DrawModel's, with m_tl; else screen vertices
         bool                       m_bNormal;
         int                        m_stride;
@@ -730,6 +860,7 @@ private:
 
     std::vector<DeferredDraw>      m_vdeferred;
     bool                           m_bReplaying;
+    bool                           m_bOit;            // replaying into the translucent pass's targets
     float                          m_sceneDepth[2];   // the scene's depth to view distance, from its model draws
 
 public:
@@ -748,7 +879,8 @@ public:
         m_bColorKey(true),
         m_bStateChanged(true),
         m_flagsBound(0xffffffff),
-        m_bReplaying(false)
+        m_bReplaying(false),
+        m_bOit(false)
     {
         m_sceneDepth[0] = 0;
         m_sceneDepth[1] = 0;
@@ -987,7 +1119,13 @@ public:
         }
 
         pcontext->VSSetShader(bFlat ? p.m_pvsFlat : p.m_pvs, NULL, 0);
-        pcontext->PSSetShader(bFlat ? p.m_ppsFlat : p.m_pps, NULL, 0);
+        pcontext->PSSetShader(
+            m_bOit
+                ? (bFlat ? p.m_ppsOitFlat : p.m_ppsOit)
+                : (bFlat ? p.m_ppsFlat    : p.m_pps),
+            NULL,
+            0
+        );
         pcontext->PSSetShaderResources(0, 1, &psrv);
 
         ID3D11SamplerState* psampler = p.m_psampler[m_bLinearFilter ? 1 : 0];
@@ -1000,7 +1138,13 @@ public:
             pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
             pcontext->RSSetState(p.m_praster[0]);
         } else {
-            pcontext->OMSetBlendState(bCoverage ? (ID3D11BlendState*)p.m_pblendSceneCoverage : (ID3D11BlendState*)pblend[m_blendMode], NULL, 0xffffffff);
+            pcontext->OMSetBlendState(
+                m_bOit
+                    ? (ID3D11BlendState*)p.m_pblendOit
+                    : (bCoverage ? (ID3D11BlendState*)p.m_pblendSceneCoverage : (ID3D11BlendState*)pblend[m_blendMode]),
+                NULL,
+                0xffffffff
+            );
             //
             // Replayed blended draws write no depth: they are see-through,
             // and the depth may be bound read-only
@@ -1454,7 +1598,7 @@ public:
             return false;
         }
 
-        if (!bPoints && m_bZTest && m_blendMode != BlendModeSource) {
+        if (!bPoints && m_bZTest && (m_blendMode != BlendModeSource || IsTranslucentTexture())) {
             return true;
         }
 
@@ -1463,6 +1607,27 @@ public:
         }
 
         return false;
+    }
+
+    //
+    // An opaque draw of a texture whose alpha is translucency, not a
+    // cut-out's (alphacoverage.h): drawn in the translucent pass, blended
+    //
+
+    bool IsTranslucentTexture()
+    {
+        if (m_blendMode != BlendModeSource || !m_bColorKey || m_psurfaceTexture == NULL) {
+            return false;
+        }
+
+        PrivateSurface* ptexture; CastTo(ptexture, (Surface*)m_psurfaceTexture);
+
+        if (ptexture->GetGpuSource() != NULL) {
+            return false;
+        }
+
+        D3D11Device* pdevice = GetDevice();
+        return pdevice != NULL && pdevice->IsTranslucent(ptexture);
     }
 
     DeferredDraw& Record(
@@ -1484,6 +1649,7 @@ public:
         draw.m_psurfaceTexture = m_psurfaceTexture;
         draw.m_rectClip        = m_rectClip;
         draw.m_topology        = topology;
+        draw.m_bTranslucent    = m_blendMode == BlendModeSourceAlpha;
         draw.m_bModel          = false;
         draw.m_bNormal         = false;
         draw.m_stride          = stride;
@@ -1493,7 +1659,105 @@ public:
             draw.m_vindex.assign(pindex, pindex + icount);
         }
 
+        if (IsTranslucentTexture()) {
+            draw.m_blendMode    = BlendModeSourceAlpha;
+            draw.m_bTranslucent = true;
+        }
+
         return draw;
+    }
+
+    //
+    // The replay's targets: the scene (or the translucent pass's two), the
+    // depth read-only, and the depth as a texture for the soft fade
+    //
+
+    void BindReplayTargets(ID3D11DeviceContext* pcontext, bool bOitTargets)
+    {
+        bool bSamples = m_pscene->m_samples > 1;
+
+        ID3D11RenderTargetView*   prtvs[2] = { m_pscene->m_prtv, NULL };
+        ID3D11ShaderResourceView* psrvs[2] = {
+            bSamples ? (ID3D11ShaderResourceView*)m_pscene->m_psrvDepth : NULL,
+            bSamples ? NULL : (ID3D11ShaderResourceView*)m_pscene->m_psrvDepth
+        };
+
+        if (bOitTargets) {
+            prtvs[0] = m_pscene->m_prtvAccum;
+            prtvs[1] = m_pscene->m_prtvReveal;
+        }
+
+        pcontext->OMSetRenderTargets(bOitTargets ? 2 : 1, prtvs, m_pscene->m_pdsvReadOnly);
+        pcontext->PSSetShaderResources(1, 2, psrvs);
+    }
+
+    void ReplayDraw(DeferredDraw& draw)
+    {
+        m_shadeMode       = draw.m_shadeMode;
+        m_blendMode       = draw.m_blendMode;
+        m_cullMode        = draw.m_cullMode;
+        m_bZTest          = true;
+        m_bZWrite         = false;
+        m_bLinearFilter   = draw.m_bLinearFilter;
+        m_bColorKey       = draw.m_bColorKey;
+        m_psurfaceTexture = draw.m_psurfaceTexture;
+        m_rectClip        = draw.m_rectClip;
+        m_bStateChanged   = true;
+
+        int              vcount = (int)draw.m_vvertex.size() / draw.m_stride;
+        int              icount = (int)draw.m_vindex.size();
+        const MeshIndex* pindex = icount > 0 ? draw.m_vindex.data() : NULL;
+
+        if (draw.m_bModel) {
+            DrawModel(draw.m_topology, draw.m_tl, draw.m_vvertex.data(), draw.m_stride, draw.m_bNormal, vcount, pindex, icount);
+        } else {
+            DrawPrimitive(draw.m_topology, (const VertexScreen*)draw.m_vvertex.data(), vcount, pindex, icount, false);
+        }
+    }
+
+    //
+    // The translucent pass's average, over the scene (oit_composite_ps.hlsl)
+    //
+
+    void CompositeOit(ID3D11DeviceContext* pcontext)
+    {
+        Pipeline&    p      = g_pipeline;
+        SceneTarget* pscene = m_pscene;
+
+        ID3D11RenderTargetView* prtv = pscene->m_prtv;
+        pcontext->OMSetRenderTargets(1, &prtv, pscene->m_pdsvReadOnly);
+
+        if (pscene->m_samples > 1) {
+            pcontext->ResolveSubresource(pscene->m_paccumResolve,  0, pscene->m_paccum,  0, c_formatScene);
+            pcontext->ResolveSubresource(pscene->m_prevealResolve, 0, pscene->m_preveal, 0, DXGI_FORMAT_R16_FLOAT);
+        }
+
+        D3D11_RECT scissor = { 0, 0, (LONG)pscene->m_size.X(), (LONG)pscene->m_size.Y() };
+
+        ID3D11ShaderResourceView* psrvs[3] = { pscene->m_psrvAccum, pscene->m_psrvReveal, NULL };
+
+        pcontext->PSSetShaderResources(0, 3, psrvs);
+        pcontext->OMSetBlendState(p.m_pblendComposite, NULL, 0xffffffff);
+        pcontext->OMSetDepthStencilState(p.m_pdepth[0][0], 0);
+        pcontext->RSSetState(p.m_praster[0]);
+        pcontext->RSSetScissorRects(1, &scissor);
+        pcontext->IASetInputLayout(NULL);
+        pcontext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        pcontext->VSSetShader(p.m_pvsScene, NULL, 0);
+        pcontext->PSSetShader(p.m_ppsOitComposite, NULL, 0);
+        pcontext->Draw(3, 0);
+
+        ID3D11ShaderResourceView* pnull[3] = { NULL, NULL, NULL };
+        pcontext->PSSetShaderResources(0, 3, pnull);
+
+        //
+        // The rasterizer's own bindings again (Bind only makes them when it
+        // binds the target)
+        //
+
+        pcontext->IASetInputLayout(p.m_playout);
+        m_bStateChanged = true;
+        m_flagsBound    = 0xffffffff;
     }
 
     void FlushDeferred()
@@ -1514,22 +1778,20 @@ public:
         ID3D11DeviceContext* pcontext = pdevice->GetContext();
 
         //
-        // The scene's depth, to test against read-only and to read
+        // The scene's depth, to test against read-only and to read; without
+        // it (below feature level 11) the draws are replayed in order into
+        // the scene, translucent ones blended over
         //
 
         bool bRead = m_pscene->m_pdsvReadOnly != NULL;
+        bool bOit  = false;
 
         if (bRead) {
-            bool bSamples = m_pscene->m_samples > 1;
+            for (const DeferredDraw& draw : vdraws) {
+                bOit = bOit || draw.m_bTranslucent;
+            }
 
-            ID3D11RenderTargetView*   prtv     = m_pscene->m_prtv;
-            ID3D11ShaderResourceView* psrvs[2] = {
-                bSamples ? (ID3D11ShaderResourceView*)m_pscene->m_psrvDepth : NULL,
-                bSamples ? NULL : (ID3D11ShaderResourceView*)m_pscene->m_psrvDepth
-            };
-
-            pcontext->OMSetRenderTargets(1, &prtv, m_pscene->m_pdsvReadOnly);
-            pcontext->PSSetShaderResources(1, 2, psrvs);
+            bOit = bOit && EnsureOitTargets(pdevice, m_pscene);
         }
 
         ShadeMode     shadeMode       = m_shadeMode;
@@ -1545,26 +1807,42 @@ public:
         m_bReplaying = true;
         m_flagsBound = 0xffffffff;
 
+        //
+        // The translucent pass first: its draws in any order into its two
+        // targets, then their average over the scene. Then the rest (the
+        // additive effects), in their order, so light shows over glass.
+        //
+
+        if (bOit) {
+            static const float zero[4] = { 0, 0, 0, 0 };
+            static const float one[4]  = { 1, 1, 1, 1 };
+
+            pcontext->ClearRenderTargetView(m_pscene->m_prtvAccum,  zero);
+            pcontext->ClearRenderTargetView(m_pscene->m_prtvReveal, one);
+
+            BindReplayTargets(pcontext, true);
+            m_bOit = true;
+
+            for (DeferredDraw& draw : vdraws) {
+                if (draw.m_bTranslucent) {
+                    ReplayDraw(draw);
+                }
+            }
+
+            m_bOit = false;
+
+            ID3D11ShaderResourceView* pnull[2] = { NULL, NULL };
+            pcontext->PSSetShaderResources(1, 2, pnull);
+            CompositeOit(pcontext);
+        }
+
+        if (bRead) {
+            BindReplayTargets(pcontext, false);
+        }
+
         for (DeferredDraw& draw : vdraws) {
-            m_shadeMode       = draw.m_shadeMode;
-            m_blendMode       = draw.m_blendMode;
-            m_cullMode        = draw.m_cullMode;
-            m_bZTest          = true;
-            m_bZWrite         = false;
-            m_bLinearFilter   = draw.m_bLinearFilter;
-            m_bColorKey       = draw.m_bColorKey;
-            m_psurfaceTexture = draw.m_psurfaceTexture;
-            m_rectClip        = draw.m_rectClip;
-            m_bStateChanged   = true;
-
-            int              vcount = (int)draw.m_vvertex.size() / draw.m_stride;
-            int              icount = (int)draw.m_vindex.size();
-            const MeshIndex* pindex = icount > 0 ? draw.m_vindex.data() : NULL;
-
-            if (draw.m_bModel) {
-                DrawModel(draw.m_topology, draw.m_tl, draw.m_vvertex.data(), draw.m_stride, draw.m_bNormal, vcount, pindex, icount);
-            } else {
-                DrawPrimitive(draw.m_topology, (const VertexScreen*)draw.m_vvertex.data(), vcount, pindex, icount, false);
+            if (!bOit || !draw.m_bTranslucent) {
+                ReplayDraw(draw);
             }
         }
 
@@ -1812,7 +2090,13 @@ public:
 
         if (bNormal) {
             pcontext->PSSetConstantBuffers(1, 1, &pcb);
-            pcontext->PSSetShader(bFlat ? p.m_ppsTLFlat : p.m_ppsTL, NULL, 0);
+            pcontext->PSSetShader(
+                m_bOit
+                    ? (bFlat ? p.m_ppsTLOitFlat : p.m_ppsTLOit)
+                    : (bFlat ? p.m_ppsTLFlat    : p.m_ppsTL),
+                NULL,
+                0
+            );
         }
         pcontext->IASetInputLayout(bNormal ? p.m_playoutTL : p.m_playoutTLL);
         pcontext->RSSetState(p.m_prasterTL[cull]);

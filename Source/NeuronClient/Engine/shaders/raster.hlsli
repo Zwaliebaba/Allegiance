@@ -235,3 +235,38 @@ float4 Shade(float4 color, float2 uv, float4 position)
 
     return result;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// The translucent pass: weighted blended order-independent transparency
+// (McGuire and Bavoil, "Weighted Blended Order-Independent Transparency",
+// 2013). A translucent fragment adds its premultiplied colour and alpha,
+// weighted by its distance, to the accumulation target, and multiplies the
+// revealage target (what still shows through, from 1) by 1 - alpha. The
+// composite (oit_composite_ps.hlsl) divides out the weights and lays the
+// average over the scene by 1 - revealage. Order does not matter; nearer
+// surfaces weigh more, so the front one dominates where layers stack.
+//
+//////////////////////////////////////////////////////////////////////////////
+
+struct OitOut
+{
+    float4 accum  : SV_Target0;
+    float4 reveal : SV_Target1;     // red only
+};
+
+OitOut Oit(float4 c, float4 position)
+{
+    //
+    // The paper's equation 9, for view distance in world units: about 1 up
+    // to 5 units away, falling to 0.01 by a few hundred
+    //
+
+    float d = ViewDistance(position.z);
+    float w = c.a * clamp(10.0 / (1e-5 + pow(d / 5.0, 2.0) + pow(d / 200.0, 6.0)), 1e-2, 3e3);
+
+    OitOut output;
+    output.accum  = c * w;
+    output.reveal = c.aaaa;
+    return output;
+}
