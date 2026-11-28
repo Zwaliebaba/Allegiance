@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "objectstack.h"
+#include "ObjectStack.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// The MDL evaluator's operand stack (engine/objectstack.h). The factories
+// The MDL evaluator's operand stack (engine/ObjectStack.h). The factories
 // keep plain pointers to what they pop, so a popped object must stay alive
 // until its slot is reused: the use-after-free behind the binary MDL reload
 // crash (MODERNIZATION.md, "Library cleanup").

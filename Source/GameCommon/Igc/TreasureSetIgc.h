@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    treasureSetIGC.h
+**  File:    TreasureSetIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// treasureSetIGC.h : Declaration of the CtreasureSetIGC
+// TreasureSetIgc.h : Declaration of the CtreasureSetIGC
 
 #ifndef __TREASURESETIGC_H_
 #define __TREASURESETIGC_H_

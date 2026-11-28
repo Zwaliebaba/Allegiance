@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
- * FSShip.h
+ * FsShip.h
  * 
  * Declaration of FedSrv ships class (CFSShip) and derivatives for players and drones
  * 

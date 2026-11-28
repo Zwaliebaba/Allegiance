@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	packIGC.cpp
+**  File:	PackIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// packIGC.cpp : Implementation of CpackIGC
+// PackIgc.cpp : Implementation of CpackIGC
 #include "pch.h"
-#include "packIGC.h"
+#include "PackIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CpackIGC

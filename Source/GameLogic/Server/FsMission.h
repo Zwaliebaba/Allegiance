@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
- * FSMission.h
+ * FsMission.h
  * 
  * Class header for managing missions
  * 

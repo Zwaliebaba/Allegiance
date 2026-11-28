@@ -7,7 +7,7 @@
 //
 // Converted once from AGC's AGCEvents.xml (whose events went to the Windows
 // event log by default are the ones logged by default here). This file is
-// now the source: edit it directly. See serverevents.h.
+// now the source: edit it directly. See ServerEvents.h.
 //
 // In a format, %Name% is replaced by the event argument of that name, and
 // %.SubjectName%, %.SubjectID%, %.ComputerName%, %.Context%, %.ID% and

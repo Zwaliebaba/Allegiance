@@ -1,7 +1,7 @@
 #define OIT_PASS
-#include "raster.hlsli"
+#include "Raster.hlsli"
 
-// The translucent pass (raster.hlsli, Oit)
+// The translucent pass (Raster.hlsli, Oit)
 
 OitOut main(float4 position : SV_Position, nointerpolation float4 color : COLOR0, float2 uv : TEXCOORD0)
 {

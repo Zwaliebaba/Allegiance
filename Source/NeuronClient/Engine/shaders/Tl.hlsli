@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// Transform and lighting for model-space geometry: what device3d.cpp did on
+// Transform and lighting for model-space geometry: what Device3D.cpp did on
 // the CPU before handing screen vertices to the rasterizer.
 //
 // Positions go through the same full matrix Device3D clips with (model,
@@ -14,7 +14,7 @@
 // undefined for VertexL (position, uv, colour). Define TL_FLAT for flat
 // shading (the first vertex's values, as D3DSHADE_FLAT).
 //
-// Vertex input is lit per pixel (tl_ps.hlsl): the vertex shader passes the
+// Vertex input is lit per pixel (TlPs.hlsl): the vertex shader passes the
 // model-space normal and the direction to the eye, and the pixel shader
 // evaluates the same lighting formulas there, with a specular highlight in
 // linear light. Define TL_PIXEL to include only what the pixel shader needs.
@@ -30,7 +30,7 @@ cbuffer TLConstants : register(b1)
     float4 g_colorAlt;  // bidirectional: colour of the other side
     float4 g_global;    // global colour, or material diffuse
     float4 g_params;    // x: ambient level
-    uint4  g_tlmode;    // x: TLMode, y: number of extra clip planes, z: linear light (see raster.hlsli),
+    uint4  g_tlmode;    // x: TLMode, y: number of extra clip planes, z: linear light (see Raster.hlsli),
                         // w: reversed depth (a scene target's float depth buffer)
     float4 g_planes[2];
     float4 g_eye;       // xyz: model-space eye position
@@ -82,7 +82,7 @@ float3 AuthoredColor(float3 c)
 #ifdef TL_NORMAL
 
 //
-// The lighting formulas of device3d.cpp's LightVertex,
+// The lighting formulas of Device3D.cpp's LightVertex,
 // BidirectionalLightVertex and MaterialLightVertex, for one normal. One
 // exit point: FXC warns (X4000) about early returns from branches on
 // constant-buffer values.

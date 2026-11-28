@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	buoyIGC.cpp
+**  File:	BuoyIgc.cpp
 **
 **  Author: 
 **
@@ -14,9 +14,9 @@
 **
 **  History:
 */
-// buoyIGC.cpp : Implementation of CbuoyIGC
+// BuoyIgc.cpp : Implementation of CbuoyIGC
 #include "pch.h"
-#include "buoyIGC.h"
+#include "BuoyIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CbuoyIGC

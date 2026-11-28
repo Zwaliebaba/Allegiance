@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "badwords.h"
+#include "BadWords.h"
 
 // note, this became much more complex thatn I have time for, so I'm bailing out 
 // and using a cheeseball algorithm that is probably on the order of n^2 for the

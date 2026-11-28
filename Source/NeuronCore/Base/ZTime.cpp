@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "ztime.h"
+#include "ZTime.h"
 
 tlsDWORD Time::s_dwPauseStart;
 tlsDWORD Time::s_dwNegativeOffset;

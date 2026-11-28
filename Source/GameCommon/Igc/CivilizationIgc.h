@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    civilizationIGC.h
+**  File:    CivilizationIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// civilizationIGC.h : Declaration of the CcivilizationIGC
+// CivilizationIgc.h : Declaration of the CcivilizationIGC
 
 #ifndef __CIVILIZATIONIGC_H_
 #define __CIVILIZATIONIGC_H_

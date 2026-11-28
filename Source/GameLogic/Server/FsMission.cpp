@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
- * FSMission.cpp
+ * FsMission.cpp
  * 
  * FedSrv mission handling stuff
  * 
@@ -301,7 +301,7 @@ CFSMission::~CFSMission()
   m_psiteMission->Destroy(this);
   g.fm.DeleteGroup(m_pgrpSidesReal);
 
-    // A training server (trainingserver.h) stops once its game is gone. A
+    // A training server (TrainingServer.h) stops once its game is gone. A
     // dedicated server keeps running, and keeps its lobby connection, so
     // new games can be created: it used to shut down here unless an admin
     // tool held a DCOM session, which made a public server exit as soon as
@@ -3918,7 +3918,7 @@ void CFSMission::AddJoinRequest(CFSPlayer * pfsPlayer, IsideIGC * pside)
  *    Mark a player as off the side, both the remote player and the local igc player
  *
  * Paremeters:
- *    dwSendBootTo as defined next to declaration of this function in fsmission.h
+ *    dwSendBootTo as defined next to declaration of this function in FsMission.h
  */
 void CFSMission::NotifyPlayerBoot(CFSPlayer * pfsPlayer, IsideIGC * pSide)
 {

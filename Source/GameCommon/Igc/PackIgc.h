@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	packIGC.h
+**  File:	PackIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// packIGC.h : Declaration of the CpackIGC
+// PackIgc.h : Declaration of the CpackIGC
 
 #ifndef __PACKIGC_H_
 #define __PACKIGC_H_

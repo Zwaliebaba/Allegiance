@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	clusterIGC.cpp
+**  File:	ClusterIgc.cpp
 **
 **  Author: 
 **
@@ -16,10 +16,10 @@
 **
 **  History:
 */
-// clusterIGC.cpp : Implementation of CclusterIGC
+// ClusterIgc.cpp : Implementation of CclusterIGC
 #include "pch.h"
-#include "clusterIGC.h"
-#include "modelIGC.h"
+#include "ClusterIgc.h"
+#include "ModelIgc.h"
 #include <stdlib.h>
 #include <math.h>
 

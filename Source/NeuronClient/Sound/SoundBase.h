@@ -1,5 +1,5 @@
 // 
-// soundbase.h
+// SoundBase.h
 //
 // General interfaces for sounds
 //

@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	KDroot.cpp
+**  File:	KdRoot.cpp
 **
 **  Author: 
 **

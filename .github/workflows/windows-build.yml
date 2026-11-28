@@ -185,7 +185,8 @@ jobs:
         shell: pwsh
         run: exit 1
 
-  # The naming gate (AGENTS.md section 1): clang-tidy's readability-identifier-naming
+  # The naming gate (AGENTS.md section 1): file names and their spelling over the
+  # whole tree, then clang-tidy's readability-identifier-naming
   # on the lines a change adds, through Tools/ci/check-naming.py. The legacy tree is
   # exempt, so the gate measures the change against its base: for a pull request the
   # base branch, for a push the previous head, for a manual run main. It needs no
@@ -203,6 +204,12 @@ jobs:
           sparse-checkout: |
             /*
             !/Artwork/
+
+      # File names and their spelling (AGENTS.md R7), over the whole tree: MSVC
+      # opens an #include whatever its case, so nothing else would notice.
+      - name: File names and include case
+        shell: pwsh
+        run: python Tools/ci/check-case.py
 
       - name: Restore NuGet packages (MsQuic)
         shell: pwsh

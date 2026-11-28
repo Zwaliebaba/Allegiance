@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	droneTypeIGC.cpp
+**  File:	DroneTypeIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// droneTypeIGC.cpp : Implementation of CdroneTypeIGC
+// DroneTypeIgc.cpp : Implementation of CdroneTypeIGC
 #include "pch.h"
-#include "droneTypeIGC.h"
+#include "DroneTypeIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CdroneTypeIGC

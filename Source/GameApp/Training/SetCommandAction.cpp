@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	setcommandaction.cpp
+**  File:	SetCommandAction.cpp
 **
 **  Author:  
 **
@@ -12,7 +12,7 @@
 */
 #include    "pch.h"
 #include    "SetCommandAction.h"
-#include    "TypeIDTarget.h"
+#include    "TypeIdTarget.h"
 #include    "TrainingMission.h"
 
 namespace Training

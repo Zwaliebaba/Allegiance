@@ -33,7 +33,7 @@ static void ShowUsage()
  *-------------------------------------------------------------------------
  * Purpose:
  *    -training <civ> [-stopevent <handle>]: the client's training mission 7
- *    (see trainingserver.h). Returns false if the arguments are malformed.
+ *    (see TrainingServer.h). Returns false if the arguments are malformed.
  */
 static bool ParseTrainingArgs(int argc, char *argv[])
 {
@@ -60,13 +60,13 @@ static bool ParseTrainingArgs(int argc, char *argv[])
 //   AllSrv32 -install [user pw]   install as a Windows service
 //   AllSrv32 -remove              remove the Windows service
 //   AllSrv32 -service             how the service control manager starts it
-//   AllSrv32 -training <civ> -stopevent <handle>   (trainingserver.h)
+//   AllSrv32 -training <civ> -stopevent <handle>   (TrainingServer.h)
 //
 // There is no COM any more: no registration, no COM classes, no AGC.
 //
 int __cdecl main(int argc, char *argv[])
 {
-    // The server's settings live in server.json, for all users (serversettings.h)
+    // The server's settings live in server.json, for all users (ServerSettings.h)
     ZSettings::Configure(c_szServerSettingsFile, ZSettings::AllUsers);
 
     // Load the global settings
@@ -80,7 +80,7 @@ int __cdecl main(int argc, char *argv[])
     g.hInst = GetModuleHandle(NULL);
 
     //
-    // -install, -remove and -service are NeuronServer's (servicehost.h);
+    // -install, -remove and -service are NeuronServer's (ServiceHost.h);
     // -training is the client's training server
     //
     ServiceArgs args = ParseServiceArgs(argc, argv);
@@ -105,7 +105,7 @@ int __cdecl main(int argc, char *argv[])
       return 1;
     }
 
-    // Start the event log (serverevents.h)
+    // Start the event log (ServerEvents.h)
     g_service.InitEvents();
 
     if (g.fService)

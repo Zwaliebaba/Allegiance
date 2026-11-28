@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:  launcherTypeIGC.h
+**  File:  LauncherTypeIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// launcherTypeIGC.h : Declaration of the CpartTypeIGC
+// LauncherTypeIgc.h : Declaration of the CpartTypeIGC
 
 #ifndef __LAUNCHERTYPEIGC_H_
 #define __LAUNCHERTYPEIGC_H_

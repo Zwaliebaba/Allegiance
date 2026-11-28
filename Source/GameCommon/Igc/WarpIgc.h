@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	warpIGC.h
+**  File:	WarpIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// warpIGC.h : Declaration of the CwarpIGC
+// WarpIgc.h : Declaration of the CwarpIGC
 
 #ifndef __WARPIGC_H_
 #define __WARPIGC_H_
 
-#include    "modelIGC.h"
+#include    "ModelIgc.h"
 
 class CwarpIGC : public TmodelIGC<IwarpIGC>
 {

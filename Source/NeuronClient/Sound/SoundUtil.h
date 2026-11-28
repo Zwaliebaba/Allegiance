@@ -1,5 +1,5 @@
 //
-// soundutil.h
+// SoundUtil.h
 //
 // Useful utility classes/functions
 //

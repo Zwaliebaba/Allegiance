@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 // 2D drawing into GPU-resident surfaces: blits, fills and text, the CPU
-// loops of surface.cpp and font.cpp done as quads. Positions are pixel
+// loops of Surface.cpp and Font.cpp done as quads. Positions are pixel
 // edges (y down), so a quad covers exactly the pixels whose centres it
 // contains, and point sampling at those centres hits exactly one texel.
 //

@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
- * src\fedsrv\SWMRG.H
+ * src\fedsrv\Swmrg.h
  * 
  * Single Writer, Multiple Reader w/ Guard
  * 

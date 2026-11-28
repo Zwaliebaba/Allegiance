@@ -1,7 +1,7 @@
 #ifndef _mdl_h_
 #define _mdl_h_
 
-#include "objectstack.h"
+#include "ObjectStack.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -250,6 +250,6 @@ public:
 
 static_assert(sizeof(IMDLObject) % alignof(void*) == 0, "IMDLObject member data must be pointer aligned");
 
-// IObjectPair is defined in value.h, where TLookup uses it.
+// IObjectPair is defined in Value.h, where TLookup uses it.
 
 #endif

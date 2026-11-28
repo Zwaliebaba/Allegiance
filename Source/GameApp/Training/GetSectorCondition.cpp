@@ -12,7 +12,7 @@
 */
 #include    "pch.h"
 #include    "GetSectorCondition.h"
-#include    "TypeIDTarget.h"
+#include    "TypeIdTarget.h"
 
 namespace Training
 {

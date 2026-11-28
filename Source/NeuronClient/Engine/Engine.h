@@ -23,7 +23,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "zlib.h"
+#include "ZLib.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -31,9 +31,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "color.h"
-#include "pixel.h"
-#include "pixelformat.h"
+#include "Color.h"
+#include "Pixel.h"
+#include "PixelFormat.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -49,16 +49,16 @@ class Surface;
 class Material;
 class Palette;
 
-#include "value.h"
-#include "font.h"
-#include "namespace.h"
-#include "mdl.h"
+#include "Value.h"
+#include "Font.h"
+#include "Namespace.h"
+#include "Mdl.h"
 
-#include "bounds.h"
-#include "context.h"
-#include "surface.h"
-#include "material.h"
-#include "palette.h"
+#include "Bounds.h"
+#include "Context.h"
+#include "Surface.h"
+#include "Material.h"
+#include "Palette.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -66,7 +66,7 @@ class Palette;
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "inputengine.h"
+#include "InputEngine.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -182,14 +182,14 @@ class JustifyCenter        : public Justification { public: JustifyCenter       
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "transform.h"
-#include "keyframe.h"
-#include "model.h"
-#include "camera.h"
-#include "viewport.h"
-#include "geometry.h"
-#include "bspgeo.h"
-#include "image.h"
+#include "Transform.h"
+#include "KeyFrame.h"
+#include "Model.h"
+#include "Camera.h"
+#include "Viewport.h"
+#include "Geometry.h"
+#include "BspGeo.h"
+#include "Image.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -197,9 +197,9 @@ class JustifyCenter        : public Justification { public: JustifyCenter       
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "pane.h"
-#include "toppane.h"
-#include "paneimage.h"
+#include "Pane.h"
+#include "TopPane.h"
+#include "PaneImage.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -207,8 +207,8 @@ class JustifyCenter        : public Justification { public: JustifyCenter       
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "popup.h"
-#include "menu.h"
+#include "Popup.h"
+#include "Menu.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -216,9 +216,9 @@ class JustifyCenter        : public Justification { public: JustifyCenter       
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "caption.h"
-#include "engineapp.h"
-#include "enginewindow.h"
+#include "Caption.h"
+#include "EngineApp.h"
+#include "EngineWindow.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -226,8 +226,8 @@ class JustifyCenter        : public Justification { public: JustifyCenter       
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "frameimage.h"
-#include "button.h"
-#include "controls.h"
+#include "FrameImage.h"
+#include "Button.h"
+#include "Controls.h"
 
 #endif

@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	shieldIGC.h
+**  File:	ShieldIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// shieldIGC.h : Declaration of the CshieldIGC
+// ShieldIgc.h : Declaration of the CshieldIGC
 
 #ifndef __SHIELDIGC_H_
 #define __SHIELDIGC_H_

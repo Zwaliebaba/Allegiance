@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	chaffIGC.h
+**  File:	ChaffIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// chaffIGC.h : Declaration of the CchaffIGC
+// ChaffIgc.h : Declaration of the CchaffIGC
 
 #ifndef __CHAFFIGC_H_
 #define __CHAFFIGC_H_
 
-#include    "modelIGC.h"
+#include    "ModelIgc.h"
 
 class CchaffIGC : public TmodelIGC<IchaffIGC>
 {

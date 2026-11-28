@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    probeTypeIGC.h
+**  File:    ProbeTypeIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// probeTypeIGC.h : Declaration of the CprobeTypeIGC
+// ProbeTypeIgc.h : Declaration of the CprobeTypeIGC
 
 #ifndef __PROBETYPEIGC_H_
 #define __PROBETYPEIGC_H_

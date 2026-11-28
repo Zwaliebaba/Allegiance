@@ -1,15 +1,15 @@
 //
-// xa2voice.cpp: the XAudio2 device and the source voice that plays one sound
+// Xa2Voice.cpp: the XAudio2 device and the source voice that plays one sound
 //
 
 #include "pch.h"
-#include "soundbase.h"
-#include "soundmath.h"
-#include "x3dpan.h"
-#include "xa2voice.h"
-#include "spatializer.h"
-#include "xa2objects.h"
-#include "xa2spatial.h"
+#include "SoundBase.h"
+#include "SoundMath.h"
+#include "X3DPan.h"
+#include "Xa2Voice.h"
+#include "Spatializer.h"
+#include "Xa2Objects.h"
+#include "Xa2Spatial.h"
 
 
 namespace SoundEngine {
@@ -97,7 +97,7 @@ HRESULT XA2Device::Init()
 
     //
     // Stereo output is taken to be headphones: positioned sounds go through
-    // the head model (spatializer.h). On stereo speakers its crosstalk is
+    // the head model (Spatializer.h). On stereo speakers its crosstalk is
     // wrong, so the HeadphoneSpatialization setting turns it off. More
     // channels (5.1, 7.1, and Windows Sonic or Dolby Atmos, which present
     // 7.1) keep X3DAudio's pan.

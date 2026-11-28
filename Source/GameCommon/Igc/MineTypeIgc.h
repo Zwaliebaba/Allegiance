@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    mineTypeIGC.h
+**  File:    MineTypeIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// mineTypeIGC.h : Declaration of the CmineTypeIGC
+// MineTypeIgc.h : Declaration of the CmineTypeIGC
 
 #ifndef __MINETYPEIGC_H_
 #define __MINETYPEIGC_H_

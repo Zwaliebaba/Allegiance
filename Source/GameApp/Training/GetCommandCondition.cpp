@@ -13,7 +13,7 @@
 
 #include    "pch.h"
 #include    "GetCommandCondition.h"
-#include    "TypeIDTarget.h"
+#include    "TypeIdTarget.h"
 
 namespace Training
 {

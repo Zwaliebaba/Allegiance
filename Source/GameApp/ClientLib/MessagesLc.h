@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
- * \src\Lobby\MessagesLC.h
+ * \src\Lobby\MessagesLc.h
  * 
  * Interface between Lobby and Allegiance
  * 

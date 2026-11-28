@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "SWMRG.h"
+#include "Swmrg.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// The server's single-writer, multiple-reader guard (Base/SWMRG.h), which
+// The server's single-writer, multiple-reader guard (Base/Swmrg.h), which
 // guards the server's global state (g.swmrg). The waits that must fail are
 // made from another thread: the writer's mutex is recursive, so the thread
 // holding it would get it again.

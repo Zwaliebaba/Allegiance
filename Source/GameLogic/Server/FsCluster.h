@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
- * fscluster.h
+ * FsCluster.h
  * 
  * Declaration of FedSrv class Cluster (aka Sector)
  * 

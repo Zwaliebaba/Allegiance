@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	chaffTypeIGC.cpp
+**  File:	ChaffTypeIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// chaffTypeIGC.cpp : Implementation of CchaffTypeIGC
+// ChaffTypeIgc.cpp : Implementation of CchaffTypeIGC
 #include "pch.h"
-#include "chaffTypeIGC.h"
+#include "ChaffTypeIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CchaffTypeIGC

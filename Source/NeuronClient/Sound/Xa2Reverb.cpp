@@ -1,12 +1,12 @@
 //
-// xa2reverb.cpp: the reverb submix voice for the station screens (see
-// xa2spatial.h). XAudio2's reverb with the I3DL2 "large room" preset, fully
+// Xa2Reverb.cpp: the reverb submix voice for the station screens (see
+// Xa2Spatial.h). XAudio2's reverb with the I3DL2 "large room" preset, fully
 // wet; the voice starts silent and the engine raises its volume while the
 // player is docked.
 //
 
 #include "pch.h"
-#include "xa2spatial.h"
+#include "Xa2Spatial.h"
 
 #include <xaudio2fx.h>
 

@@ -1,17 +1,17 @@
 //
-// virtualbuffer.cpp
+// VirtualBuffer.cpp
 //
 // Classes representing virtual sounds that may or may not have a real
 // XAudio2 voice associated with them at any given moment.
 //
 
 #include "pch.h"
-#include "soundbase.h"
+#include "SoundBase.h"
 
-#include "soundmath.h"
-#include "x3dpan.h"
-#include "xa2voice.h"
-#include "virtualbuffer.h"
+#include "SoundMath.h"
+#include "X3DPan.h"
+#include "Xa2Voice.h"
+#include "VirtualBuffer.h"
 
 namespace SoundEngine {
 

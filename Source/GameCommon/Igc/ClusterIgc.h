@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    clusterIGC.h
+**  File:    ClusterIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// clusterIGC.h : Declaration of the CclusterIGC
+// ClusterIgc.h : Declaration of the CclusterIGC
 
 #ifndef __CLUSTERIGC_H_
 #define __CLUSTERIGC_H_

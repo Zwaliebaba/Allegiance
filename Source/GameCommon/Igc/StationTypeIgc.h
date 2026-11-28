@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    stationTypeIGC.h
+**  File:    StationTypeIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// stationTypeIGC.h : Declaration of the CstationTypeIGC
+// StationTypeIgc.h : Declaration of the CstationTypeIGC
 
 #ifndef __STATIONTYPEIGC_H_
 #define __STATIONTYPEIGC_H_

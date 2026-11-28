@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	probeIGC.cpp
+**  File:	ProbeIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// probeIGC.cpp : Implementation of CprobeIGC
+// ProbeIgc.cpp : Implementation of CprobeIGC
 #include "pch.h"
-#include "probeIGC.h"
+#include "ProbeIgc.h"
 
 const float c_deceleration = 10.0f;
 

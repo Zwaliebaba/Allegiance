@@ -17,7 +17,7 @@ public:
         TRef<StringValue> pstring; CastTo(pstring, (IObject*)stack.Pop());
         TRef<ISoundTemplate> pTemplate;
 
-        // Artwork\Audio (artfolders.h)
+        // Artwork\Audio (ArtFolders.h)
         ZString strFilename = m_pmodeler->GetArtFile(pstring->GetValue(), "wav");
 
         if (FAILED(CreateWaveFileSoundTemplate(pTemplate, strFilename)))

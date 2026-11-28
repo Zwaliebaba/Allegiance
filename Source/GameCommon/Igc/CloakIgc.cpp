@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	cloakIGC.cpp
+**  File:	CloakIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// cloakIGC.cpp : Implementation of CcloakIGC
+// CloakIgc.cpp : Implementation of CcloakIGC
 #include "pch.h"
-#include "cloakIGC.h"
+#include "CloakIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CcloakIGC

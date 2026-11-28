@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	magazineIGC.cpp
+**  File:	MagazineIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// magazineIGC.cpp : Implementation of CmagazineIGC
+// MagazineIgc.cpp : Implementation of CmagazineIGC
 #include "pch.h"
-#include "magazineIGC.h"
+#include "MagazineIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CmagazineIGC

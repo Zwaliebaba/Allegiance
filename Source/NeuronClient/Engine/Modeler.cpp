@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "dds.h"
-#include "artfolders.h"
+#include "Dds.h"
+#include "ArtFolders.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Function defined in xfile.cpp
+// Function defined in XFile.cpp
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -2229,7 +2229,7 @@ public:
 
     //
     // Where an art file is: a bare name is looked for in the art folders for
-    // its type, then in the art root (artfolders.h); a name with a folder in
+    // its type, then in the art root (ArtFolders.h); a name with a folder in
     // it, or an absolute path, is taken as it is. The path of the root (or as
     // given) if the file is nowhere.
     //
@@ -2411,7 +2411,7 @@ public:
     //
     // An image namespace "<name>bmp" is read from <name>.dds: one member,
     // named like the namespace, holding the image. The art build used to wrap
-    // every bitmap in a binary MDL file of its own; see dds.h.
+    // every bitmap in a binary MDL file of its own; see Dds.h.
     //
 
     TRef<INameSpace> LoadDDSNameSpace(const ZString& str)

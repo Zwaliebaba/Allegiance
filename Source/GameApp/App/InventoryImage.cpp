@@ -1,6 +1,6 @@
 
 #include "pch.h"
-#include "consoledata.h"
+#include "ConsoleData.h"
 
 namespace {
     class InventoryImage : public WrapImage, public TrekClientEventSink, public IKeyboardInput

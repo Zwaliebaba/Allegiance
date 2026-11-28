@@ -1,4 +1,4 @@
-#include "raster.hlsli"
+#include "Raster.hlsli"
 
 struct VertexOut
 {

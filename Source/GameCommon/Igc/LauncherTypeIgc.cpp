@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	partTypeIGC.cpp
+**  File:	PartTypeIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// partTypeIGC.cpp : Implementation of CpartTypeIGC
+// PartTypeIgc.cpp : Implementation of CpartTypeIGC
 #include "pch.h"
-#include "launcherTypeIGC.h"
+#include "LauncherTypeIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CpartTypeIGC

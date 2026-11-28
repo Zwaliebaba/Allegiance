@@ -11,7 +11,7 @@
 **  History:
 */
 #include    "pch.h"
-#include    "artfolders.h"
+#include    "ArtFolders.h"
 
 const Rotation      c_rotationZero(0.0f, 0.0f, 1.0f, 0.0f);
 
@@ -65,7 +65,7 @@ HRESULT UTL::getFile(    const char*    name,
     }
 
     //
-    // In the art folder for its type (artfolders.h), else in the art root.
+    // In the art folder for its type (ArtFolders.h), else in the art root.
     // A file that is in neither gets the path in its folder, so one that is
     // written (DumpIGCFile) goes there.
     //

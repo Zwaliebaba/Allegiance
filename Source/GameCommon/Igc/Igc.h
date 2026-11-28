@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    igc.h
+**  File:    Igc.h
 **
 **  Author: 
 **
@@ -97,7 +97,7 @@ const FloatConstantID    c_fcidClusterDivisor       = 38;
 const FloatConstantID    c_fcidMax                  = 40;
 
 //
-// Note: AGC_AdminUser in FedSrv/serverevents.h mirrors OT_allsrvUser.
+// Note: AGC_AdminUser in FedSrv/ServerEvents.h mirrors OT_allsrvUser.
 //
 //
 typedef  short   ObjectType;
@@ -438,7 +438,7 @@ typedef short   VoiceID;
 #define DEFSOUND(id) id##Sound,
 enum {
     lastDynamicSound = 1000,
-#include "sounds.h"
+#include "Sounds.h"
 };
 #undef DEFSOUND
 

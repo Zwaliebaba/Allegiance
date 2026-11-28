@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	dispenserIGC.cpp
+**  File:	DispenserIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// dispenserIGC.cpp : Implementation of CdispenserIGC
+// DispenserIgc.cpp : Implementation of CdispenserIGC
 #include "pch.h"
-#include "dispenserIGC.h"
+#include "DispenserIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CdispenserIGC

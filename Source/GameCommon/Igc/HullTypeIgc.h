@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    hullTypeIGC.h
+**  File:    HullTypeIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// hullTypeIGC.h : Declaration of the ChullTypeIGC
+// HullTypeIgc.h : Declaration of the ChullTypeIGC
 
 #ifndef __HULLTYPEIGC_H_
 #define __HULLTYPEIGC_H_

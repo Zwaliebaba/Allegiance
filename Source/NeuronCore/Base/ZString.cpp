@@ -2,9 +2,9 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ZString's own operations (zstring.h), on std::string. They keep the
+// ZString's own operations (ZString.h), on std::string. They keep the
 // semantics the ZString members had: int indices, -1 for not found, and the
-// quirks noted in zstring.h. Out-of-range counts are clamped where ZString
+// quirks noted in ZString.h. Out-of-range counts are clamped where ZString
 // read past the end.
 //
 //////////////////////////////////////////////////////////////////////////////

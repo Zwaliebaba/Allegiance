@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	bucketIGC.cpp
+**  File:	BucketIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// bucketIGC.cpp : Implementation of CbucketIGC
+// BucketIgc.cpp : Implementation of CbucketIGC
 #include "pch.h"
-#include "bucketIGC.h"
+#include "BucketIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CbucketIGC

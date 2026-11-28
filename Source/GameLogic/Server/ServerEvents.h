@@ -16,7 +16,7 @@
 // longer misread the stack; the tag only marks VT_BOOL values.
 //
 // An event is written to the server log (logs\server-<date>.log next to the
-// settings file) if it is logged by default (serverevents_defs.h) or the
+// settings file) if it is logged by default (ServerEventsDefs.h) or the
 // server.json setting LogAllEvents is 1. Warnings and errors also go to the
 // console. An event of severity Error ends the process, as it did with AGC.
 //
@@ -35,7 +35,7 @@ enum EventSeverity
     EventSeverity_Error
 };
 
-#include "serverevents_defs.h"
+#include "ServerEventsDefs.h"
 
 typedef long AGCEventID;            // a ServerEventIDs value (name kept from AGC)
 typedef long AGCUniqueID;           // the ID of an event's subject or object

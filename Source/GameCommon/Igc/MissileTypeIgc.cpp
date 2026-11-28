@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	missileTypeIGC.cpp
+**  File:	MissileTypeIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// missileTypeIGC.cpp : Implementation of CmissileTypeIGC
+// MissileTypeIgc.cpp : Implementation of CmissileTypeIGC
 #include "pch.h"
-#include "missileTypeIGC.h"
+#include "MissileTypeIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CmissileTypeIGC

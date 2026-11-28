@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    shipIGC.cpp
+**  File:    ShipIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// shipIGC.cpp : Implementation of CshipIGC
+// ShipIgc.cpp : Implementation of CshipIGC
 #include "pch.h"
-#include "shipIGC.h"
+#include "ShipIgc.h"
 #include <math.h>
 #include <limits.h>
 

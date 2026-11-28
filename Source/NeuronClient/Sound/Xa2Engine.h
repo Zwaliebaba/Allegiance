@@ -1,5 +1,5 @@
 //
-// xa2engine.h
+// Xa2Engine.h
 //
 // The XAudio2 implementation of the sound engine
 //

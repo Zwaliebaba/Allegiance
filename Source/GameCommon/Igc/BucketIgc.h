@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    bucketIGC.h
+**  File:    BucketIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// bucketIGC.h : Declaration of the CbucketIGC
+// BucketIgc.h : Declaration of the CbucketIGC
 
 #ifndef __BUCKETIGC_H_
 #define __BUCKETIGC_H_

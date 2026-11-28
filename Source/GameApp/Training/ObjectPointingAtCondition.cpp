@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	objectpointingatcondition.cpp
+**  File:	ObjectPointingAtCondition.cpp
 **
 **  Author:  
 **
@@ -12,7 +12,7 @@
 */
 #include    "pch.h"
 #include    "ObjectPointingAtCondition.h"
-#include    "TypeIDTarget.h"
+#include    "TypeIdTarget.h"
 
 namespace Training
 {

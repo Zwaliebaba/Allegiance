@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "gametypes.h"
+#include "GameTypes.h"
 
 class GameTypeImpl : public GameType
 {

@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	buoyIGC.h
+**  File:	BuoyIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// buoyIGC.h : Declaration of the CbuoyIGC
+// BuoyIgc.h : Declaration of the CbuoyIGC
 
 #ifndef __BUOYIGC_H_
 #define __BUOYIGC_H_
 
-#include    "modelIGC.h"
+#include    "ModelIgc.h"
 
 class CbuoyIGC : public TmodelIGC<IbuoyIGC>
 {

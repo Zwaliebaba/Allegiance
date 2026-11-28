@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "soundbase.h"
+#include "SoundBase.h"
 
 //
 // These includes are the real heart of this file.  They were all originally
@@ -7,11 +7,11 @@
 // big to be managable.
 //
 
-#include "soundmath.h"
-#include "x3dpan.h"
-#include "xa2voice.h"
-#include "virtualbuffer.h"
-#include "xa2engine.h"
+#include "SoundMath.h"
+#include "X3DPan.h"
+#include "Xa2Voice.h"
+#include "VirtualBuffer.h"
+#include "Xa2Engine.h"
 
 
 namespace SoundEngine {

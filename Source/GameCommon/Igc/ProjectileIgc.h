@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	projectileIGC.h
+**  File:	ProjectileIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// projectileIGC.h : Declaration of the CprojectileIGC
+// ProjectileIgc.h : Declaration of the CprojectileIGC
 
 #ifndef __PROJECTILEIGC_H_
 #define __PROJECTILEIGC_H_
 
-#include    "modelIGC.h"
+#include    "ModelIgc.h"
 
 class CprojectileIGC : public TmodelIGC<IprojectileIGC>
 {

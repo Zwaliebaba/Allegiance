@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	private.cpp
+**  File:	Private.cpp
 **
 **  Author: 
 **
@@ -12,4 +12,4 @@
 **  History:
 */
 #include    "pch.h"
-#include    "private.h"
+#include    "Private.h"

@@ -3,7 +3,7 @@
 // Bloom on a 3D layer's HDR scene: a chain of half-size levels, each
 // filtered down from the one above (the first from the resolved scene,
 // keeping only its bright part), then added back up, level by level, with a
-// tent filter. The composite (scene_ps.hlsl) adds the top level before the
+// tent filter. The composite (ScenePs.hlsl) adds the top level before the
 // tonemap. Stacked additive light (engines, weapons, explosions, alephs) is
 // what goes over the threshold; lit hulls stay under it.
 //

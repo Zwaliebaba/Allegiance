@@ -1,5 +1,5 @@
 //
-// x3dpan.cpp: X3DAudio's pan and doppler (see x3dpan.h). Built without the
+// X3DPan.cpp: X3DAudio's pan and doppler (see X3DPan.h). Built without the
 // precompiled header.
 //
 
@@ -7,7 +7,7 @@
 #include <xaudio2.h>
 #include <x3daudio.h>
 
-#include "x3dpan.h"
+#include "X3DPan.h"
 
 namespace SoundEngine {
 
@@ -32,7 +32,7 @@ float X3DPan(const unsigned char handle[c_cbX3DHandle], const PanListener& liste
     unsigned nOutputChannels, float* pfLevels)
 {
     // a flat volume curve: the distance attenuation is DirectSound's
-    // (soundmath.h), applied by the voice
+    // (SoundMath.h), applied by the voice
     static X3DAUDIO_DISTANCE_CURVE_POINT s_points[2] = { { 0.0f, 1.0f }, { 1.0f, 1.0f } };
     static X3DAUDIO_DISTANCE_CURVE       s_curve     = { s_points, 2 };
 

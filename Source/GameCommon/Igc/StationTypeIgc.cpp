@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	stationTypeIGC.cpp
+**  File:	StationTypeIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// stationTypeIGC.cpp : Implementation of CstationTypeIGC
+// StationTypeIgc.cpp : Implementation of CstationTypeIGC
 #include "pch.h"
-#include "stationTypeIGC.h"
+#include "StationTypeIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CstationTypeIGC

@@ -72,7 +72,7 @@ END
 // Generated from the TEXTINCLUDE 3 resource.
 //
 
-#include "Allegiance.rc2"  // non-Microsoft Visual C++ edited resources
+#include "allegiance.rc2"  // non-Microsoft Visual C++ edited resources
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

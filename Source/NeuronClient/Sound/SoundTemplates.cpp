@@ -1,14 +1,14 @@
 //
-// soundtemplates.cpp
+// SoundTemplates.cpp
 //
 // Several useful sound template implementations.
 //
 
 #include "pch.h"
 
-#include "soundbase.h"
-#include "soundutil.h"
-#include "soundtemplates.h"
+#include "SoundBase.h"
+#include "SoundUtil.h"
+#include "SoundTemplates.h"
 
 namespace SoundEngine {
 

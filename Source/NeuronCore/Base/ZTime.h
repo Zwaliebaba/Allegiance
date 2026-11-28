@@ -2,7 +2,7 @@
 #define _time_h_
 
 /////////////////////////////////////////////////////////////////////////////
-// ztime.h : Declaration and implementation of the Time class.
+// ZTime.h : Declaration and implementation of the Time class.
 //
 
 #include "TlsValue.h"

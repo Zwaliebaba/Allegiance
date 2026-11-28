@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	mineIGC.cpp
+**  File:	MineIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// mineIGC.cpp : Implementation of CmineIGC
+// MineIgc.cpp : Implementation of CmineIGC
 #include "pch.h"
-#include "mineIGC.h"
+#include "MineIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CmineIGC

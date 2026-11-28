@@ -32,7 +32,7 @@ namespace SoundInit {
 
         // make sure all of the IGC sounds were defined
         #define DEFSOUND(id) ZAssert(vSoundMap[id##Sound] != NULL);
-        #include "sounds.h"
+        #include "Sounds.h"
         #undef DEFSOUND
 
         debugf("Time reading sounds: %d ms\n", timeGetTime() - dwStartTime);
@@ -41,7 +41,7 @@ namespace SoundInit {
     void AddMembers(INameSpace* pns) 
     {
         #define DEFSOUND(id) pns->AddMember(#id "SoundId", new Number((float)id##Sound));
-        #include "sounds.h"
+        #include "Sounds.h"
         #undef DEFSOUND
     }
 }

@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	dispenserIGC.h
+**  File:	DispenserIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// dispenserIGC.h : Declaration of the CdispenserIGC
+// DispenserIgc.h : Declaration of the CdispenserIGC
 
 #ifndef __DISPENSERIGC_H_
 #define __DISPENSERIGC_H_

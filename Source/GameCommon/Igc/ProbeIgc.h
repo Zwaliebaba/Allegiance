@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	probeIGC.h
+**  File:	ProbeIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// probeIGC.h : Declaration of the CprobeIGC
+// ProbeIgc.h : Declaration of the CprobeIGC
 
 #ifndef __PROBEIGC_H_
 #define __PROBEIGC_H_
 
-#include    "modelIGC.h"
+#include    "ModelIgc.h"
 
 class CprobeIGC : public TmodelIGC<IprobeIGC>
 {

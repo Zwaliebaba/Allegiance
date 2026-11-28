@@ -144,7 +144,7 @@ ICO_FEDSRV              ICON    DISCARDABLE     "fedsrv.ico"
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-#include "Fedsrv.rc2"  // non-Microsoft Visual C++ edited resources
+#include "fedsrv.rc2"  // non-Microsoft Visual C++ edited resources
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

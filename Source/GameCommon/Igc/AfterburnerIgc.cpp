@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	afterburnerIGC.cpp
+**  File:	AfterburnerIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// afterburnerIGC.cpp : Implementation of CafterburnerIGC
+// AfterburnerIgc.cpp : Implementation of CafterburnerIGC
 #include "pch.h"
-#include "afterburnerIGC.h"
+#include "AfterburnerIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CafterburnerIGC

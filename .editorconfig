@@ -39,10 +39,10 @@ insert_final_newline = false
 
 # The same for the five sources with Latin-1 bytes in their comments: left as they are, rather
 # than re-encoded by whichever editor touches them next.
-[Source/GameApp/Training/mission{3,4,5}.cpp]
+[Source/GameApp/Training/Mission{3,4,5}.cpp]
 charset = latin1
 
-[Source/GameCommon/Igc/{igc,sounds}.h]
+[Source/GameCommon/Igc/{Igc,Sounds}.h]
 charset = latin1
 
 # Config and content authored by hand.

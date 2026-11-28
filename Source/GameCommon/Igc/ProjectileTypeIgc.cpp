@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	projectileTypeIGC.cpp
+**  File:	ProjectileTypeIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// projectileTypeIGC.cpp : Implementation of CprojectileTypeIGC
+// ProjectileTypeIgc.cpp : Implementation of CprojectileTypeIGC
 #include "pch.h"
-#include "projectileTypeIGC.h"
+#include "ProjectileTypeIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CprojectileTypeIGC

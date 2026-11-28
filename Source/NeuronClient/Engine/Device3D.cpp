@@ -2028,7 +2028,7 @@ public:
         //
         // Then to Direct3D clip space for the whole surface. The half-pixel
         // offset puts DirectX 6 pixel centres (integers) on Direct3D 11's
-        // (half-integers), as raster.hlsli does for screen vertices.
+        // (half-integers), as Raster.hlsli does for screen vertices.
         //
 
         float w = m_sizeSurface.X();

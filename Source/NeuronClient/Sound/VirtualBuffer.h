@@ -1,9 +1,9 @@
 //
-// virtualbuffer.h
+// VirtualBuffer.h
 //
 // Classes representing virtual sounds that may or may not have a real
 // XAudio2 voice associated with them at any given moment (the engine gives
-// voices to the most important ones; see xa2engine.cpp).
+// voices to the most important ones; see Xa2Engine.cpp).
 //
 
 namespace SoundEngine {

@@ -1,7 +1,7 @@
 //
-// spatializer.h: binaural rendering of one sound for headphones, from a
+// Spatializer.h: binaural rendering of one sound for headphones, from a
 // parametric model of the head (no measured HRTF data). Plain C++, so the
-// unit tests can drive it without XAudio2; xa2spatial.cpp runs it as an
+// unit tests can drive it without XAudio2; Xa2Spatial.cpp runs it as an
 // XAudio2 effect on each positioned voice when the output is stereo.
 //
 // The model, per ear:

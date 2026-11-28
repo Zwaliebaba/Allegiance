@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:  partTypeIGC.h
+**  File:  PartTypeIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// partTypeIGC.h : Declaration of the CpartTypeIGC
+// PartTypeIgc.h : Declaration of the CpartTypeIGC
 
 #ifndef __PARTTYPEIGC_H_
 #define __PARTTYPEIGC_H_

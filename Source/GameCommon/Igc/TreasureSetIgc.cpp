@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	treasureSetIGC.cpp
+**  File:	TreasureSetIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// treasureSetIGC.cpp : Implementation of CtreasureSetIGC
+// TreasureSetIgc.cpp : Implementation of CtreasureSetIGC
 #include "pch.h"
-#include "treasureSetIGC.h"
+#include "TreasureSetIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CtreasureSetIGC

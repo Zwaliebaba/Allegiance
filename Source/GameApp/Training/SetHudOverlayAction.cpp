@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	SetHUDOverlayAction.cpp
+**  File:	SetHudOverlayAction.cpp
 **
 **  Author:  
 **
@@ -11,7 +11,7 @@
 **  History:
 */
 #include    "pch.h"
-#include    "SetHUDOverlayAction.h"
+#include    "SetHudOverlayAction.h"
 
 namespace Training
 {

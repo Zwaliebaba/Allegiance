@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	shieldIGC.cpp
+**  File:	ShieldIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// shieldIGC.cpp : Implementation of CshieldIGC
+// ShieldIgc.cpp : Implementation of CshieldIGC
 #include "pch.h"
-#include "shieldIGC.h"
+#include "ShieldIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CshieldIGC

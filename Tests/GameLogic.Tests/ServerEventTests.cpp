@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "serverevents.h"
+#include "ServerEvents.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// The server's event table (Server/serverevents_defs.h), which is edited by
+// The server's event table (Server/ServerEventsDefs.h), which is edited by
 // hand now that AGC's XML is gone: every event defined once, with a name and
 // a format the log can expand.
 //

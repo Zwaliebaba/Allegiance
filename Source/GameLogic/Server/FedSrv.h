@@ -11,7 +11,7 @@
 #ifndef _FEDSRV_H_
 #define _FEDSRV_H_
 
-#include "eventsite.h"
+#include "EventSite.h"
 
 #undef new // because we override it
 

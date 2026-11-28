@@ -45,7 +45,7 @@
 
 // Need to include zlib before any DirectX headers
 #define ID_APP_ICON "winTrekIcon"
-#include "zlib.h"
+#include "ZLib.h"
 
 //
 // DX headers
@@ -57,36 +57,36 @@
 // NeuronClient, NeuronCore and GameCommon
 //
 
-#include "engine.h"
-#include "effect.h"
-#include "help.h"
-#include "utility.h"
-#include "igc.h"
-#include "messagesAll.h"
-#include "messages.h"
-#include "soundengine.h"
+#include "Engine.h"
+#include "Effect.h"
+#include "Help.h"
+#include "Utility.h"
+#include "Igc.h"
+#include "MessagesAll.h"
+#include "Messages.h"
+#include "SoundEngine.h"
 
 //
 // GameApp
 //
 
-#include "trekinput.h"
+#include "TrekInput.h"
 #include "resource.h"
-#include "messagesLC.h"
-#include "clintlib.h"
-#include "screen.h"
-#include "wintrek.h"
-#include "treki.h"
-#include "indicator.h"
-#include "radarimage.h"
-#include "trekctrls.h"
-#include "trekmdl.h"
-#include "loadout.h"
-#include "wintrekp.h"
-#include "artwork.h"
-#include "logon.h"
-#include "passworddialog.h"
-#include "treksound.h"
+#include "MessagesLc.h"
+#include "ClintLib.h"
+#include "Screen.h"
+#include "WinTrek.h"
+#include "Treki.h"
+#include "Indicator.h"
+#include "RadarImage.h"
+#include "TrekCtrls.h"
+#include "TrekMdl.h"
+#include "Loadout.h"
+#include "WinTrekP.h"
+#include "Artwork.h"
+#include "Logon.h"
+#include "PasswordDialog.h"
+#include "TrekSound.h"
 #include "GameTypes.h"
 
 #endif

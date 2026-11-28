@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
- * src\fedsrv\SWMRG.CPP
+ * src\fedsrv\Swmrg.cpp
  * 
  * Single Writer, Multiple Reader w/ Guard
  *
@@ -10,7 +10,7 @@
 
 
 #include "pch.h"
-#include "SWMRG.h"
+#include "Swmrg.h"
 
 /*-------------------------------------------------------------------------
  * ConstructObjName

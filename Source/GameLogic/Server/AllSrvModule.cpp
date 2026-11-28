@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
- * fedsrv\AllSrvModule.CPP
+ * fedsrv\AllSrvModule.cpp
  *
- * The game server as ServiceHost runs it (see allsrvmodule.h)
+ * The game server as ServiceHost runs it (see AllSrvModule.h)
  *
  * Owner:
  *
@@ -36,7 +36,7 @@ void PrintSystemErrorMessage(LPCTSTR szText, DWORD dwErrorCode)
  * CServiceModule::InitEvents / TermEvents
  *-------------------------------------------------------------------------
  * Purpose:
- *    Start and stop the server event log (serverevents.h). This was where
+ *    Start and stop the server event log (ServerEvents.h). This was where
  *    AGC and its event logger were set up.
  */
 void CServiceModule::InitEvents()

@@ -3,16 +3,16 @@
 
 #define TL_NORMAL
 #define TL_PIXEL
-#include "tl.hlsli"
+#include "Tl.hlsli"
 #define RASTER_PIXEL
-#include "raster.hlsli"
+#include "Raster.hlsli"
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Per-pixel lighting for model-space Vertex geometry (tl_ps.hlsl, and the
-// translucent pass's tl_ps_oit.hlsl): the lighting formulas
-// of tl.hlsli for the interpolated normal, then the texture and render
-// state of raster.hlsli. In a 3D layer's linear-light scene, lit opaque
+// Per-pixel lighting for model-space Vertex geometry (TlPs.hlsl, and the
+// translucent pass's TlPsOit.hlsl): the lighting formulas
+// of Tl.hlsli for the interpolated normal, then the texture and render
+// state of Raster.hlsli. In a 3D layer's linear-light scene, lit opaque
 // surfaces also get a Blinn-Phong highlight in the light's colour, faded
 // out towards the terminator.
 //

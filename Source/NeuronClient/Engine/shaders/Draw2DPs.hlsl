@@ -1,8 +1,8 @@
-#include "draw2d.hlsli"
+#include "Draw2D.hlsli"
 
 //
 // Targets and texture-cache textures hold premultiplied alpha (see
-// d3d11draw2d.cpp). Blits of colour keyed images are blended over the target;
+// D3D11Draw2D.cpp). Blits of colour keyed images are blended over the target;
 // everything else replaces it.
 //
 

@@ -1,5 +1,5 @@
 //
-// soundtemplates.h
+// SoundTemplates.h
 //
 // Several useful sound template implementations.
 //

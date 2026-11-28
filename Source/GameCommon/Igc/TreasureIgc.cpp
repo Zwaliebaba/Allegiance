@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	treasureIGC.cpp
+**  File:	TreasureIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// treasureIGC.cpp : Implementation of CtreasureIGC
+// TreasureIgc.cpp : Implementation of CtreasureIGC
 #include "pch.h"
-#include "treasureIGC.h"
+#include "TreasureIgc.h"
 #include <stdio.h>
 
 const float c_deceleration = 10.0f;

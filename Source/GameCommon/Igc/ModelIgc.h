@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	modelIGC.h
+**  File:	ModelIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// modelIGC.h : Declaration of the CmodelIGC
+// ModelIgc.h : Declaration of the CmodelIGC
 
 #ifndef __MODELIGC_H_
 #define __MODELIGC_H_

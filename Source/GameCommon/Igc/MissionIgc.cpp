@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	missionIGC.cpp
+**  File:	MissionIgc.cpp
 **
 **  Author: 
 **
@@ -16,45 +16,45 @@
 **
 **  History:
 */
-// missionIGC.cpp : Implementation of CmissionIGC
+// MissionIgc.cpp : Implementation of CmissionIGC
 #include    "pch.h"
-#include    "missionIGC.h"
-#include    "clusterIGC.h"
-#include    "warpIGC.h"
-#include    "dispenserIGC.h"
-#include    "buildingEffectIGC.h"
-#include    "hullTypeIGC.h"
-#include    "buoyIGC.h"
-#include    "shipIGC.h"
-#include    "chaffIGC.h"
-#include    "shieldIGC.h"
-#include    "cloakIGC.h"
-#include    "projectileIGC.h"
-#include    "projectileTypeIGC.h"
-#include    "partTypeIGC.h"
-#include    "launcherTypeIGC.h"
-#include    "weaponIGC.h"
-#include    "asteroidIGC.h"
-#include    "stationIGC.h"
-#include    "treasureIGC.h"
-#include    "treasureSetIGC.h"
-#include    "afterburnerIGC.h"
-#include    "packIGC.h"
-#include    "magazineIGC.h"
-#include    "missileTypeIGC.h"
-#include    "probeIGC.h"
-#include    "probeTypeIGC.h"
-#include    "mineTypeIGC.h"
-#include    "chaffTypeIGC.h"
-#include    "missileIGC.h"
-#include    "mineIGC.h"
-#include    "civilizationIGC.h"
-#include    "sideIGC.h"
-#include    "stationTypeIGC.h"
-#include    "developmentIGC.h"
-#include    "droneTypeIGC.h"
-#include    "bucketigc.h"
-#include    "mapmakerigc.h"
+#include    "MissionIgc.h"
+#include    "ClusterIgc.h"
+#include    "WarpIgc.h"
+#include    "DispenserIgc.h"
+#include    "BuildingEffectIgc.h"
+#include    "HullTypeIgc.h"
+#include    "BuoyIgc.h"
+#include    "ShipIgc.h"
+#include    "ChaffIgc.h"
+#include    "ShieldIgc.h"
+#include    "CloakIgc.h"
+#include    "ProjectileIgc.h"
+#include    "ProjectileTypeIgc.h"
+#include    "PartTypeIgc.h"
+#include    "LauncherTypeIgc.h"
+#include    "WeaponIgc.h"
+#include    "AsteroidIgc.h"
+#include    "StationIgc.h"
+#include    "TreasureIgc.h"
+#include    "TreasureSetIgc.h"
+#include    "AfterburnerIgc.h"
+#include    "PackIgc.h"
+#include    "MagazineIgc.h"
+#include    "MissileTypeIgc.h"
+#include    "ProbeIgc.h"
+#include    "ProbeTypeIgc.h"
+#include    "MineTypeIgc.h"
+#include    "ChaffTypeIgc.h"
+#include    "MissileIgc.h"
+#include    "MineIgc.h"
+#include    "CivilizationIgc.h"
+#include    "SideIgc.h"
+#include    "StationTypeIgc.h"
+#include    "DevelopmentIgc.h"
+#include    "DroneTypeIgc.h"
+#include    "BucketIgc.h"
+#include    "MapMakerIgc.h"
 static void DoDecrypt(int size, char* pdata)
 {
     DWORD encrypt = 0;

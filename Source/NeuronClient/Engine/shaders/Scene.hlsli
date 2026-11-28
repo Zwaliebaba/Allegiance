@@ -11,10 +11,10 @@
 //
 // Alpha is coverage. Additive draws leave it alone (they add light, they
 // don't hide what is behind), so where the scene has light but no coverage
-// it is added to the frame. Bloom (bloom.hlsli) is light too: it is added
+// it is added to the frame. Bloom (Bloom.hlsli) is light too: it is added
 // to the colour, not the coverage.
 //
-// A multisampled scene is composited sample by sample (scene_ps_ms.hlsl):
+// A multisampled scene is composited sample by sample (ScenePsMs.hlsl):
 // each sample is tonemapped and encoded before they are averaged, so where
 // an engine's glow at ten times white meets the dark hull behind it the
 // edge is the average of what both look like, not a white smear from

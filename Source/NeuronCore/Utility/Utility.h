@@ -20,7 +20,7 @@
 */
 #define     _exposed
 
-#include "CRC.h"
+#include "Crc.h"
 
 class   UTL;
 
@@ -1321,7 +1321,7 @@ class   BytePercentage
 
 extern const Rotation      c_rotationZero;
 
-#include    "utility.hxx"
+#include    "Utility.hxx"
 #undef  _exposed
 
 // safe strcpy
@@ -1347,7 +1347,7 @@ static int Strcmp(const char * szDst, const char * szSrc)
 #define IMPLIES(x, y) (!(x) || (y))
 #define IFF(x, y) (!!(x) == !!(y))
 
-#include "listwrappers.h"
+#include "ListWrappers.h"
 
 // Class for temporary dll function use
 template <class Func> // signature of function to get, so that Proc can be used without casting

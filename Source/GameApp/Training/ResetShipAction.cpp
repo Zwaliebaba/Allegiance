@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	resetshipaction.cpp
+**  File:	ResetShipAction.cpp
 **
 **  Author:  
 **

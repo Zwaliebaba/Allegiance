@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
- * fscluster.cpp
+ * FsCluster.cpp
  * 
  * Implementation of FedSrv class Cluster (aka Sector)
  * 

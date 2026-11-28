@@ -3,7 +3,7 @@
 #include <d3dtypes.h>
 
 //
-// FedMessaging runs on MsQuic (FedTransport, _Utility/fedtransport.cpp); see
+// FedMessaging runs on MsQuic (FedTransport, _Utility/FedTransport.cpp); see
 // MODERNIZATION.md, "Networking". DirectPlay is gone.
 //
 
@@ -11,7 +11,7 @@
 
 //
 // What kind of session a host offers, and where. The game defines its own
-// (GameCommon/Protocol/sessions.h). A client's hello carries the ID, and a
+// (GameCommon/Protocol/Sessions.h). A client's hello carries the ID, and a
 // host refuses one that asks for another; the host listens on the port and
 // answers discovery on port + 1.
 //

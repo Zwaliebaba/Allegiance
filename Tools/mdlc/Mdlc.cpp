@@ -12,7 +12,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "main.h"
+#include "Main.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -266,7 +266,7 @@ public:
                         continue;   // the command itself follows
                     } else if (str == "artpath") {
                         // -artpath <dir>: look art up in <dir>'s folders
-                        // (artfolders.h) instead of the working directory's;
+                        // (ArtFolders.h) instead of the working directory's;
                         // outputs are still written to the working directory
                         ZString strDir;
                         if (!token.IsString(strDir))

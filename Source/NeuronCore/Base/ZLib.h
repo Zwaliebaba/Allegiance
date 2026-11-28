@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// zlib.H
+// ZLib.h
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -28,12 +28,12 @@
 #include "malloc.h"
 
 // The float overloads of abs, floor, pow, sin, ... come from <cmath> in the
-// modern CRT. zmath.h used to define them itself (compiled out since VS.NET
+// modern CRT. ZMath.h used to define them itself (compiled out since VS.NET
 // 2003); without <cmath>, abs(float) is ambiguous between the integer overloads.
 #include <cmath>
 #include <cstdlib>
-#include <utility>   // std::swap, see zmath.h
-#include <memory>    // std::construct_at (engine/mdl.cpp); before alloc.h #defines new
+#include <utility>   // std::swap, see ZMath.h
+#include <memory>    // std::construct_at (engine/Mdl.cpp); before Alloc.h #defines new
 #include <string>    // ZString is a std::string
 
 
@@ -58,63 +58,63 @@
 // Library Headers
 //
 
-#include "zassert.h"
-#include "alloc.h"
-#include "mask.h"
-#include "tref.h"
-#include "cast.h"
-#include "zmath.h"
-#include "zadapt.h"
+#include "ZAssert.h"
+#include "Alloc.h"
+#include "Mask.h"
+#include "TRef.h"
+#include "Cast.h"
+#include "ZMath.h"
+#include "ZAdapt.h"
 
 #include <array>
 #include <vector>
 #include <algorithm>
 
-#include "tcompare.h"
-#include "tlist.h"
-#include "tmap.h"
+#include "TCompare.h"
+#include "TList.h"
+#include "TMap.h"
 
-#include "comobj.h"
+#include "ComObj.h"
 
 //
 // Types
 //
 
-#include "ztime.h"
-#include "zstring.h"
-#include "point.h"
-#include "rect.h"
-#include "vector.h"
-#include "vertex.h"
-#include "orientation.h"
-#include "matrix.h"
-#include "quaternion.h"
-#include "color.h"
+#include "ZTime.h"
+#include "ZString.h"
+#include "Point.h"
+#include "Rect.h"
+#include "Vector.h"
+#include "Vertex.h"
+#include "Orientation.h"
+#include "Matrix.h"
+#include "Quaternion.h"
+#include "Color.h"
 
 
 //
 // Interfaces
 //
 
-#include "event.h"
-#include "input.h"
-#include "genericlist.h"
-#include "FTPSession.h"
+#include "Event.h"
+#include "Input.h"
+#include "GenericList.h"
+#include "FtpSession.h"
 
 //
 // Win32 Wrapper Classes
 //
 
-#include "base.h"
-#include "window.h"
-#include "win32app.h"
-#include "zsettings.h"
+#include "Base.h"
+#include "Window.h"
+#include "Win32App.h"
+#include "ZSettings.h"
 #include "VersionInfo.h"
 
 //
 // Parser
 //
 
-#include "token.h"
+#include "Token.h"
 
 #endif

@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    developmentIGC.h
+**  File:    DevelopmentIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// developmentIGC.h : Declaration of the CdevelopmentIGC
+// DevelopmentIgc.h : Declaration of the CdevelopmentIGC
 
 #ifndef __DEVELOPMENTIGC_H_
 #define __DEVELOPMENTIGC_H_

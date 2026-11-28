@@ -115,7 +115,7 @@ def bgra_from_bmp(path):
 
 
 # --------------------------------------------------------------------------
-# Mip levels and the DDS file (Source/NeuronClient/Engine/dds.cpp's layout)
+# Mip levels and the DDS file (Source/NeuronClient/Engine/Dds.cpp's layout)
 # --------------------------------------------------------------------------
 
 def mip_chain(level0):

@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// The translucent pass's composite (raster.hlsli, Oit): the weighted
+// The translucent pass's composite (Raster.hlsli, Oit): the weighted
 // average of the translucent fragments, over the scene by how much they
 // hide (1 - revealage). Premultiplied, blended (one, inverse source alpha),
-// so the scene's coverage takes it in too. Drawn with scene_vs.hlsl over
+// so the scene's coverage takes it in too. Drawn with SceneVs.hlsl over
 // the scene, before the additive effects and the tonemap.
 //
 //////////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@
 #include "Training.h"
 
 // The local server for training mission 7
-#include <trainingserver.h>
+#include <TrainingServer.h>
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -452,7 +452,7 @@ public:
     //
     // Training mission 7 runs on a local server: AllSrv32.exe next to us,
     // started as a child process with "-training <civ> -stopevent <handle>"
-    // (see trainingserver.h). The server hosts a LAN session with the one
+    // (see TrainingServer.h). The server hosts a LAN session with the one
     // training game, starts the game when we have joined, and shuts down
     // when we set the stop event. It is in a job object, so it also goes
     // away if we crash.

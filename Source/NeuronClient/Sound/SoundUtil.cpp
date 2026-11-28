@@ -1,12 +1,12 @@
 //
-// soundutil.cpp
+// SoundUtil.cpp
 //
 // Useful utility classes/functions
 //
 
 #include "pch.h"
-#include "soundbase.h"
-#include "soundutil.h"
+#include "SoundBase.h"
+#include "SoundUtil.h"
 
 namespace SoundEngine {
 

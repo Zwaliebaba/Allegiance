@@ -1,9 +1,9 @@
-#include "scene.hlsli"
+#include "Scene.hlsli"
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // Scene composite of a 4x multisampled scene: each sample tonemapped and
-// encoded, then averaged (see scene.hlsli). The bloom is smooth already, so
+// encoded, then averaged (see Scene.hlsli). The bloom is smooth already, so
 // it is sampled once per pixel.
 //
 //////////////////////////////////////////////////////////////////////////////

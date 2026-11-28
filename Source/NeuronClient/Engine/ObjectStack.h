@@ -1,7 +1,7 @@
 #ifndef _objectstack_h_
 #define _objectstack_h_
 
-// Needs zlib.h (TRef, IObject, ZAssert) and <vector>.
+// Needs ZLib.h (TRef, IObject, ZAssert) and <vector>.
 
 //////////////////////////////////////////////////////////////////////////////
 //

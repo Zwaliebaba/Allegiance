@@ -3330,7 +3330,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
         default:
         {
             // Note: we can't assert here because there are some messages 
-            // which are only handled in TrekWindowImpl::HandleMessage. TrekIGC.cpp
+            // which are only handled in TrekWindowImpl::HandleMessage. TrekIgc.cpp
             // already asserts that one of the two handles the message, however.  
             //ZError("unknown message");
             hr = S_FALSE;

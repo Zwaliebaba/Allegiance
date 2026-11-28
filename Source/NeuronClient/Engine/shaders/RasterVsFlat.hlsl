@@ -1,4 +1,4 @@
-#include "raster.hlsli"
+#include "Raster.hlsli"
 
 // D3DSHADE_FLAT: the colour of the first vertex, which is also Direct3D 11's
 // provoking vertex.

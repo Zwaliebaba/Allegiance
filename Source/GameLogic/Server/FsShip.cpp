@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
- * FSShip.cpp
+ * FsShip.cpp
  * 
  * Implementation of CFSShip and its derivatives
  * 

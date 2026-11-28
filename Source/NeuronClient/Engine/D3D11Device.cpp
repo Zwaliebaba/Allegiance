@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "d3d11engine.h"
-#include "alphacoverage.h"
-#include "dds.h"
+#include "D3D11Engine.h"
+#include "AlphaCoverage.h"
+#include "Dds.h"
 
-#include "present_vs.h"
-#include "present_ps.h"
+#include "PresentVs.h"
+#include "PresentPs.h"
 
 #include <unordered_map>
 
@@ -337,8 +337,8 @@ public:
 
     bool CreatePresentObjects()
     {
-        if (FAILED(m_pdevice->CreateVertexShader(g_present_vs, sizeof(g_present_vs), NULL, &m_pvsPresent))) return false;
-        if (FAILED(m_pdevice->CreatePixelShader (g_present_ps, sizeof(g_present_ps), NULL, &m_ppsPresent))) return false;
+        if (FAILED(m_pdevice->CreateVertexShader(g_PresentVs, sizeof(g_PresentVs), NULL, &m_pvsPresent))) return false;
+        if (FAILED(m_pdevice->CreatePixelShader (g_PresentPs, sizeof(g_PresentPs), NULL, &m_ppsPresent))) return false;
 
         D3D11_BUFFER_DESC bd = {};
         bd.ByteWidth      = 3 * 4 * sizeof(float);
@@ -498,7 +498,7 @@ public:
         }
 
         //
-        // A cut-out's mip levels keep its coverage (alphacoverage.h)
+        // A cut-out's mip levels keep its coverage (AlphaCoverage.h)
         //
 
         if (bColorKey) {

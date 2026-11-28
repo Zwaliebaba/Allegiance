@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	setradarlodaction.h
+**  File:	SetRadarLodAction.h
 **
 **  Author:  
 **

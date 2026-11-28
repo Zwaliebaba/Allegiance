@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    projectileTypeIGC.h
+**  File:    ProjectileTypeIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// projectileTypeIGC.h : Declaration of the CprojectileTypeIGC
+// ProjectileTypeIgc.h : Declaration of the CprojectileTypeIGC
 
 #ifndef __PROJECTILETYPEIGC_H_
 #define __PROJECTILETYPEIGC_H_

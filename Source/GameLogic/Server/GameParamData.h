@@ -2,7 +2,7 @@
 
 //
 // Game parameters beyond MissionParams (team names, tech bit overrides) that
-// a new mission takes. (This was AGC/gameparamdata.h.)
+// a new mission takes. (This was AGC/GameParamData.h.)
 //
 
 class CAdditionalAGCParamData  // this is extra game parameter data that the object needs but MissionParams do not provide

@@ -1,12 +1,12 @@
 //
-// redbooksound.cpp
+// RedbookSound.cpp
 //
 // SoundEngine support for redbook audio.
 //
 
 #include "pch.h"
-#include "soundbase.h"
-#include "redbooksound.h"
+#include "SoundBase.h"
+#include "RedbookSound.h"
 
 #include <math.h>
 #include <mfapi.h>

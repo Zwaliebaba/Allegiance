@@ -1,5 +1,5 @@
 //
-// xa2spatial.h: the XAudio2 side of 3D sound for headphones and the station
+// Xa2Spatial.h: the XAudio2 side of 3D sound for headphones and the station
 // reverb (see MODERNIZATION.md, "Sound: 3D audio for headphones").
 //
 
@@ -14,9 +14,9 @@ class SpatialObjects;
 // out. Its parameters are the direction of the sound in the listener's
 // frame (x right, y up, z front) and one of three ways to play it:
 //
-//   bSpatial   the head model renders it for headphones (spatializer.h)
+//   bSpatial   the head model renders it for headphones (Spatializer.h)
 //   nSlot >= 0 it goes to that Windows Spatial Sound object
-//              (xa2objects.h) at fGain, and passes through for the reverb
+//              (Xa2Objects.h) at fGain, and passes through for the reverb
 //              send (the voice's master output is silent)
 //   neither    it passes through (mono to both channels), for X3DAudio's
 //              pan or an unpositioned sound
@@ -36,7 +36,7 @@ HRESULT CreateSpatialEffect(IUnknown** ppeffect, SpatialObjects* pobjects);
 
 //
 // The reverb the game's sounds are sent to while docked: a submix voice
-// with one input channel and XAudio2's reverb (xa2reverb.cpp), silent
+// with one input channel and XAudio2's reverb (Xa2Reverb.cpp), silent
 // until its volume is raised. NULL if it couldn't be made.
 //
 

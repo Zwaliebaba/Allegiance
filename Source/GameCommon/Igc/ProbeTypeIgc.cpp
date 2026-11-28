@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	probeTypeIGC.cpp
+**  File:	ProbeTypeIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// probeTypeIGC.cpp : Implementation of CprobeTypeIGC
+// ProbeTypeIgc.cpp : Implementation of CprobeTypeIGC
 #include "pch.h"
-#include "probeTypeIGC.h"
+#include "ProbeTypeIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CprobeTypeIGC

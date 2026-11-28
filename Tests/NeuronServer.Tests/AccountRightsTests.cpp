@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "accountrights.h"
+#include "AccountRights.h"
 
 #include <sddl.h>
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Account rights (Service/accountrights.h), which -install uses to let the
+// Account rights (Service/AccountRights.h), which -install uses to let the
 // service's account log on as a service. Only the reading side is tested:
 // granting a right changes the machine's security policy. Account names are
 // localised, so the tests start from well-known SIDs, not names.

@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    chaffTypeIGC.h
+**  File:    ChaffTypeIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// chaffTypeIGC.h : Declaration of the CchaffTypeIGC
+// ChaffTypeIgc.h : Declaration of the CchaffTypeIGC
 
 #ifndef __CHAFFTYPEIGC_H_
 #define __CHAFFTYPEIGC_H_

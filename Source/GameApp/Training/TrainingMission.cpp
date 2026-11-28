@@ -1,7 +1,7 @@
  /*
 **  Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	trainingmission.cpp
+**  File:	TrainingMission.cpp
 **
 **  Author:  
 **
@@ -39,8 +39,8 @@
 #include    "SoundFinishedCondition.h"
 #include    "SetDisplayModeAction.h"
 #include    "TurnShipAboutCondition.h"
-#include    "GetRadarLODCondition.h"
-#include    "SetRadarLODAction.h"
+#include    "GetRadarLodCondition.h"
+#include    "SetRadarLodAction.h"
 #include    "GetControlActiveCondition.h"
 #include    "GetStateBitsCondition.h"
 #include    "GetShipIsStoppedCondition.h"

@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "soundmath.h"
+#include "SoundMath.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// The sound engine's arithmetic (soundengine/soundmath.h): gains,
+// The sound engine's arithmetic (soundengine/SoundMath.h): gains,
 // DirectSound 3D's distance and cone attenuation as the XAudio2 engine
 // reproduces them, the XAudio2 buffers that play a sound from a position,
 // and a virtual sound's position tracker. See MODERNIZATION.md, "Sound:

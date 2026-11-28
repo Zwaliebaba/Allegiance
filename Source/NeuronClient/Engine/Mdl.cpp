@@ -16,7 +16,7 @@
 //
 // ZStrings in an MDL object's zeroed member buffer: constructed in place
 // when the member is read (each is read once), destroyed explicitly.
-// construct_at, since debug builds #define new (zlib/alloc.h)
+// construct_at, since debug builds #define new (zlib/Alloc.h)
 //
 
 class StringMDLType : public MDLType {

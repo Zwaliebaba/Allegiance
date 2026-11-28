@@ -1,5 +1,5 @@
 //
-// redbooksound.h
+// RedbookSound.h
 //
 // SoundEngine support for redbook audio
 //

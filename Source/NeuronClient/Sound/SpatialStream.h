@@ -1,6 +1,6 @@
 //
-// spatialstream.h: the hand-over between XAudio2 and Windows Spatial Sound
-// for one sound (see xa2objects.cpp). XAudio2's audio thread writes the
+// SpatialStream.h: the hand-over between XAudio2 and Windows Spatial Sound
+// for one sound (see Xa2Objects.cpp). XAudio2's audio thread writes the
 // sound's processed mono samples, with its position and gain, after each
 // pass of its effect chain; the spatial audio render thread reads one
 // object buffer's worth per pass. Plain C++, so the unit tests can drive it.

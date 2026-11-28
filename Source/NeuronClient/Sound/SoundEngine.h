@@ -1,6 +1,6 @@
-#include "soundbase.h"
-#include "soundutil.h"
-#include "soundtemplates.h"
-#include "redbooksound.h"
+#include "SoundBase.h"
+#include "SoundUtil.h"
+#include "SoundTemplates.h"
+#include "RedbookSound.h"
 
 using namespace SoundEngine;

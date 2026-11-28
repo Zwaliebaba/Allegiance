@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	missileIGC.h
+**  File:	MissileIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// missileIGC.h : Declaration of the CmissileIGC
+// MissileIgc.h : Declaration of the CmissileIGC
 
 #ifndef __MISSILEIGC_H_
 #define __MISSILEIGC_H_
 
-#include    "modelIGC.h"
+#include    "ModelIgc.h"
 
 class CmissileIGC : public TmodelIGC<ImissileIGC>
 {

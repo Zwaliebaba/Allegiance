@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	civilizationIGC.cpp
+**  File:	CivilizationIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// civilizationIGC.cpp : Implementation of CcivilizationIGC
+// CivilizationIgc.cpp : Implementation of CcivilizationIGC
 #include "pch.h"
-#include "civilizationIGC.h"
+#include "CivilizationIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CcivilizationIGC

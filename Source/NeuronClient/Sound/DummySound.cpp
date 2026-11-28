@@ -1,13 +1,13 @@
 //
-// dummysound.cpp
+// DummySound.cpp
 //
 // a bunch of dummy implementations of the sound interfaces, for use without a
 // sound card.
 //
 
 #include "pch.h"
-#include "soundbase.h"
-#include "soundutil.h"
+#include "SoundBase.h"
+#include "SoundUtil.h"
 
 namespace SoundEngine {
 

@@ -1,5 +1,5 @@
 //
-// soundmath.h
+// SoundMath.h
 //
 // The sound engine's arithmetic, without XAudio2: gains, DirectSound 3D's
 // distance and cone attenuation (which the XAudio2 engine reproduces, so the

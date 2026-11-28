@@ -1,5 +1,5 @@
 //
-// xa2voice.h: the XAudio2 device and the source voice that plays one sound
+// Xa2Voice.h: the XAudio2 device and the source voice that plays one sound
 // (they replace the DirectSound 3D buffers; see MODERNIZATION.md, "Sound:
 // XAudio2 replaces DirectSound")
 //
@@ -70,7 +70,7 @@ public:
 // regions PlanVoiceRegions gives, all from one copy of the sound's data that
 // the voices of that sound share. Volume, pitch and the 3D state are applied
 // as they are set: the pan and doppler from X3DAudio, the distance and cone
-// attenuation as DirectSound 3D computed them (soundmath.h).
+// attenuation as DirectSound 3D computed them (SoundMath.h).
 //
 
 class XA2Voice : public ISoundObject  SoundDebugImpl

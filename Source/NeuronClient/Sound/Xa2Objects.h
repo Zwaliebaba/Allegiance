@@ -1,15 +1,15 @@
 //
-// xa2objects.h: Windows Spatial Sound (ISpatialAudioClient) for positioned
+// Xa2Objects.h: Windows Spatial Sound (ISpatialAudioClient) for positioned
 // sounds, when the player has turned on Windows Sonic for Headphones, Dolby
 // Atmos or DTS:X. Each sound gets a dynamic audio object; XAudio2 still
 // decodes, pitches and filters it, and the voice's effect hands the result
-// over through an ObjectStream (spatialstream.h). See MODERNIZATION.md,
+// over through an ObjectStream (SpatialStream.h). See MODERNIZATION.md,
 // "Sound: 3D audio for headphones".
 //
 
 #pragma once
 
-#include "spatialstream.h"
+#include "SpatialStream.h"
 
 namespace SoundEngine {
 

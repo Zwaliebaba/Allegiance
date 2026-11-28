@@ -1,10 +1,10 @@
 #ifndef _TREKI_
 #define _TREKI_
 
-#include "cmdview.h"
-#include "load.h"
+#include "CmdView.h"
+#include "Load.h"
 
-#include "console.h"
+#include "Console.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

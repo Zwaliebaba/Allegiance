@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
- * \src\Lobby\MessagesLS.h
+ * \src\Lobby\MessagesLs.h
  * 
  * Interface between Lobby and AllSrv
  * 

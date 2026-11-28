@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    droneTypeIGC.h
+**  File:    DroneTypeIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// droneTypeIGC.h : Declaration of the CdroneTypeIGC
+// DroneTypeIgc.h : Declaration of the CdroneTypeIGC
 
 #ifndef __DRONETYPEIGC_H_
 #define __DRONETYPEIGC_H_

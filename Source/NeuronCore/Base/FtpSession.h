@@ -1,6 +1,6 @@
 
 /*-------------------------------------------------------------------------
- * zlib\FTPSession.h
+ * zlib\FtpSession.h
  * 
  * IHTTPSession downloads files over HTTP while hiding the low level
  * aspects of the WinINet API.

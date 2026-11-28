@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	mapmakerigc.cpp
+**  File:	MapMakerIgc.cpp
 **
 **  Author: Jeff Fink (jfink@microsoft.com)
 **
@@ -11,7 +11,7 @@
 */
 
 #include    "pch.h"
-#include    "mapmakerIGC.h"
+#include    "MapMakerIgc.h"
 
 
 //

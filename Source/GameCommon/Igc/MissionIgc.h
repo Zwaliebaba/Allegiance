@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	missionIGC.h
+**  File:	MissionIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// missionIGC.h : Declaration of the CmissionIGC
+// MissionIgc.h : Declaration of the CmissionIGC
 
 #ifndef __MISSIONIGC_H_
 #define __MISSIONIGC_H_

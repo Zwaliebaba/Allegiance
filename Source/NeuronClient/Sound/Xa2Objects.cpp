@@ -1,5 +1,5 @@
 //
-// xa2objects.cpp: the Windows Spatial Sound renderer (see xa2objects.h).
+// Xa2Objects.cpp: the Windows Spatial Sound renderer (see Xa2Objects.h).
 //
 // Everything that touches ISpatialAudioClient runs on one render thread in
 // the multithreaded apartment, from activation to release, so the game
@@ -15,7 +15,7 @@
 //
 
 #include "pch.h"
-#include "xa2objects.h"
+#include "Xa2Objects.h"
 
 #include <mmdeviceapi.h>
 #include <spatialaudioclient.h>

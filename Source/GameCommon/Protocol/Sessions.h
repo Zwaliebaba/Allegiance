@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "messagecore.h"
+#include "MessageCore.h"
 
 const FedApplication c_appGameServer        = { 1, 47700 };   // public
 const FedApplication c_appGameServerPrivate = { 2, 47700 };   // LAN and training

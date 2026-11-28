@@ -1,11 +1,11 @@
 
 /*-------------------------------------------------------------------------
- * zlib\FTPSession.cpp
+ * zlib\FtpSession.cpp
  * 
  * The implementation of IHTTPSession (the FTP session went with the
  * auto-updater; the shared base still carries its FTP file transfer)
  *
- * See zlib\FTPSession.h for descriptions of all public functions.
+ * See zlib\FtpSession.h for descriptions of all public functions.
  *
  * Owner: 
  * 

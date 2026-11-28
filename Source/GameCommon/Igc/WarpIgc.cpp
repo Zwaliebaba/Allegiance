@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	warpIGC.cpp
+**  File:	WarpIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// warpIGC.cpp : Implementation of CwarpIGC
+// WarpIgc.cpp : Implementation of CwarpIGC
 #include "pch.h"
-#include "warpIGC.h"
+#include "WarpIgc.h"
 #include <stdio.h>
 
 /////////////////////////////////////////////////////////////////////////////

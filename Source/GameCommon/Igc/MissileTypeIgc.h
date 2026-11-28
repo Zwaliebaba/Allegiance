@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    missileTypeIGC.h
+**  File:    MissileTypeIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// missileTypeIGC.h : Declaration of the CmissileTypeIGC
+// MissileTypeIgc.h : Declaration of the CmissileTypeIGC
 
 #ifndef __MISSILETYPEIGC_H_
 #define __MISSILETYPEIGC_H_

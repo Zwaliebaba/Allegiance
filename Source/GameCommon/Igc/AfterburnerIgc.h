@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	afterburnerIGC.h
+**  File:	AfterburnerIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// afterburnerIGC.h : Declaration of the CafterburnerIGC
+// AfterburnerIgc.h : Declaration of the CafterburnerIGC
 
 #ifndef __AFTERBURNERIGC_H_
 #define __AFTERBURNERIGC_H_

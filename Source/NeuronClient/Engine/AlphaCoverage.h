@@ -58,7 +58,7 @@ namespace AlphaCoverage
     //
     // What a texture's alpha is: none (opaque), a cut-out's holes, or
     // translucency, which the scene draws in its translucent pass
-    // (d3d11raster.cpp): any alpha between 0 and 255, beyond the 1%
+    // (D3D11Raster.cpp): any alpha between 0 and 255, beyond the 1%
     // of noise a re-saved cut-out picks up at its edges
     //
 

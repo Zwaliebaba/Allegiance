@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	mapmakerigc.h
+**  File:	MapMakerIgc.h
 **
 **  Author: Jeff Fink (jfink@microsoft.com)
 **
@@ -9,7 +9,7 @@
 **
 **  History:
 */
-// mapmakerIGC.h : Declaration of CmapMakerIGC
+// MapMakerIgc.h : Declaration of CmapMakerIGC
 
 #ifndef __MAPMAKERIGC_H_
 #define __MAPMAKERIGC_H_

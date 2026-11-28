@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    weaponIGC.h
+**  File:    WeaponIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// weaponIGC.h : Declaration of the CweaponIGC
+// WeaponIgc.h : Declaration of the CweaponIGC
 
 #ifndef __WEAPONIGC_H_
 #define __WEAPONIGC_H_

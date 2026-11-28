@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	asteroidIGC.cpp
+**  File:	AsteroidIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// asteroidIGC.cpp : Implementation of CasteroidIGC
+// AsteroidIgc.cpp : Implementation of CasteroidIGC
 #include "pch.h"
-#include "asteroidIGC.h"
+#include "AsteroidIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CasteroidIGC

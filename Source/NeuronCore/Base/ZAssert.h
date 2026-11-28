@@ -34,7 +34,7 @@ extern bool g_bOutput;
 
 #ifdef _DEBUG
     //
-    // These are implemented in Win32app.cpp
+    // These are implemented in Win32App.cpp
     //
 
     inline void ZDebugBreak() { DebugBreak(); }

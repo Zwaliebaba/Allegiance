@@ -1,7 +1,7 @@
 //
-// x3dpan.h: X3DAudio's pan and doppler, behind plain types. x3dpan.cpp is the
+// X3DPan.h: X3DAudio's pan and doppler, behind plain types. X3DPan.cpp is the
 // only file that includes x3daudio.h, whose Direct3D vector type must not
-// meet the DirectX 7 types zlib.h brings in.
+// meet the DirectX 7 types ZLib.h brings in.
 //
 
 #pragma once

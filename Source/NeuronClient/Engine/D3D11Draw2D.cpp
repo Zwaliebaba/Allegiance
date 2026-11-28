@@ -1,15 +1,15 @@
 #include "pch.h"
-#include "d3d11engine.h"
+#include "D3D11Engine.h"
 
-#include "draw2d_vs.h"
-#include "draw2d_ps.h"
+#include "Draw2DVs.h"
+#include "Draw2DPs.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // GPU copies of surfaces and 2D drawing into them
 //
 // The window frame and the 3D panes keep a BGRA8 render target next to their
-// CPU pixels (see surface.cpp for when each copy is current). This file
+// CPU pixels (see Surface.cpp for when each copy is current). This file
 // creates those targets, copies pixels between the two copies, and draws the
 // 2D primitives the engine used to do with CPU loops: blits, fills and text.
 //
@@ -75,8 +75,8 @@ bool CreatePipeline2D(D3D11Device* pdevice)
         return false;
     }
 
-    if (FAILED(pd3d->CreateVertexShader(g_draw2d_vs, sizeof(g_draw2d_vs), NULL, &p.m_pvs))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_draw2d_ps, sizeof(g_draw2d_ps), NULL, &p.m_pps))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_Draw2DVs, sizeof(g_Draw2DVs), NULL, &p.m_pvs))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_Draw2DPs, sizeof(g_Draw2DPs), NULL, &p.m_pps))) return false;
 
     static const D3D11_INPUT_ELEMENT_DESC layout[] = {
         { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -84,7 +84,7 @@ bool CreatePipeline2D(D3D11Device* pdevice)
         { "COLOR",    0, DXGI_FORMAT_B8G8R8A8_UNORM, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    if (FAILED(pd3d->CreateInputLayout(layout, ArrayCount(layout), g_draw2d_vs, sizeof(g_draw2d_vs), &p.m_playout))) return false;
+    if (FAILED(pd3d->CreateInputLayout(layout, ArrayCount(layout), g_Draw2DVs, sizeof(g_Draw2DVs), &p.m_playout))) return false;
 
     D3D11_BUFFER_DESC bd = {};
     bd.ByteWidth      = 8 * sizeof(DWORD);

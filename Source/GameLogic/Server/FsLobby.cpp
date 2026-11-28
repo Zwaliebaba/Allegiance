@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
-  fslobby.cpp
+  FsLobby.cpp
   
   site for FedSrvLobbySite
   

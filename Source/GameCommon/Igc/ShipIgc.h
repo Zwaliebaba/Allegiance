@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    shipIGC.h
+**  File:    ShipIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// shipIGC.h : Declaration of the CshipIGC
+// ShipIgc.h : Declaration of the CshipIGC
 
 #ifndef __SHIPIGC_H_
 #define __SHIPIGC_H_
 
-#include    "modelIGC.h"
+#include    "ModelIgc.h"
 
 const float c_dtCheckRunaway = 31.0f;   //Must be slightly longer than ripcord time for drones.
 

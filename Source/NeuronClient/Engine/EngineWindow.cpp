@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "d3d11engine.h"
+#include "D3D11Engine.h"
 
 //
 // GPU counters for the frame-rate overlay: per-frame averages of g_d3d11Stats

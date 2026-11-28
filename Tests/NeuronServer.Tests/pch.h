@@ -11,7 +11,7 @@
 // __MODULE__ is used by ZAssert
 #define __MODULE__ "NeuronServer.Tests"
 
-// The framework before zlib.h, whose assert and min/max macros it must not
+// The framework before ZLib.h, whose assert and min/max macros it must not
 // see. (The project also defines ZLIB_SKIP_NEW_REDEF: no debug new macro.)
 #include "CppUnitTest.h"
 
@@ -19,7 +19,7 @@
 #include <tchar.h>
 #include <process.h>
 
-#include "zlib.h"
+#include "ZLib.h"
 
 #include <string>
 #include <vector>

@@ -40,8 +40,8 @@
 #include    "SoundFinishedCondition.h"
 #include    "SetDisplayModeAction.h"
 #include    "TurnShipAboutCondition.h"
-#include    "GetRadarLODCondition.h"
-#include    "SetRadarLODAction.h"
+#include    "GetRadarLodCondition.h"
+#include    "SetRadarLodAction.h"
 #include    "GetControlActiveCondition.h"
 #include    "GetStateBitsCondition.h"
 #include    "GetShipIsStoppedCondition.h"
@@ -58,11 +58,11 @@
 #include    "CreateProbeAction.h"
 #include    "CreateDroneAction.h"
 #include    "CreateWaypointAction.h"
-#include    "SetHUDOverlayAction.h"
+#include    "SetHudOverlayAction.h"
 #include    "GetKeyCondition.h"
 #include    "TurnToAction.h"
 #include    "ProxyCondition.h"
-#include    "missionIGC.h"
+#include    "MissionIgc.h"
 
 namespace Training
 {

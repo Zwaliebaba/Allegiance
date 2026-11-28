@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	stationIGC.h
+**  File:	StationIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// shipIGC.h : Declaration of the CshipIGC
+// ShipIgc.h : Declaration of the CshipIGC
 
 #ifndef __STATIONIGC_H_
 #define __STATIONIGC_H_
 
-#include "modelIGC.h"
+#include "ModelIgc.h"
 
 class       CstationIGC;
 

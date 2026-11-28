@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	mineIGC.h
+**  File:	MineIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// mineIGC.h : Declaration of the CmineIGC
+// MineIgc.h : Declaration of the CmineIGC
 
 #ifndef __MINEIGC_H_
 #define __MINEIGC_H_
 
-#include    "modelIGC.h"
+#include    "ModelIgc.h"
 
 const char  c_msStart = 0;
 const char  c_msExploded = 1;

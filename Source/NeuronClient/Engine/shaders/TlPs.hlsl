@@ -1,4 +1,4 @@
-#include "tl_pixel.hlsli"
+#include "TlPixel.hlsli"
 
 float4 main(VertexOut input) : SV_Target
 {

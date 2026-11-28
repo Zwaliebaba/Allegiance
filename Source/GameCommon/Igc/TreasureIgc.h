@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	treasureIGC.h
+**  File:	TreasureIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// treasureIGC.h : Declaration of the CtreasureIGC
+// TreasureIgc.h : Declaration of the CtreasureIGC
 
 #ifndef __TRESUREIGC_H_
 #define __TRESUREIGC_H_
 
-#include    "modelIGC.h"
+#include    "ModelIgc.h"
 
 class CtreasureIGC : public TmodelIGC<ItreasureIGC>
 {

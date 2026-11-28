@@ -2,7 +2,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ZString (a std::string) and its Str* helpers (zlib/zstring.h). The helpers
+// ZString (a std::string) and its Str* helpers (zlib/ZString.h). The helpers
 // keep the semantics of the ZString members they replaced, quirks included;
 // the tests named Quirk* pin those, so changing one is a deliberate act.
 //

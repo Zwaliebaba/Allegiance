@@ -1,26 +1,26 @@
 #include "pch.h"
-#include "d3d11engine.h"
+#include "D3D11Engine.h"
 
-#include "raster_vs.h"
-#include "raster_vs_flat.h"
-#include "raster_ps.h"
-#include "raster_ps_flat.h"
-#include "tl_vs.h"
-#include "tl_vs_flat.h"
-#include "tl_vs_l.h"
-#include "tl_vs_l_flat.h"
-#include "tl_ps.h"
-#include "tl_ps_flat.h"
-#include "scene_vs.h"
-#include "scene_ps.h"
-#include "scene_ps_ms.h"
-#include "bloom_down_ps.h"
-#include "bloom_up_ps.h"
-#include "raster_ps_oit.h"
-#include "raster_ps_flat_oit.h"
-#include "tl_ps_oit.h"
-#include "tl_ps_flat_oit.h"
-#include "oit_composite_ps.h"
+#include "RasterVs.h"
+#include "RasterVsFlat.h"
+#include "RasterPs.h"
+#include "RasterPsFlat.h"
+#include "TlVs.h"
+#include "TlVsFlat.h"
+#include "TlVsL.h"
+#include "TlVsLFlat.h"
+#include "TlPs.h"
+#include "TlPsFlat.h"
+#include "SceneVs.h"
+#include "ScenePs.h"
+#include "ScenePsMs.h"
+#include "BloomDownPs.h"
+#include "BloomUpPs.h"
+#include "RasterPsOit.h"
+#include "RasterPsFlatOit.h"
+#include "TlPsOit.h"
+#include "TlPsFlatOit.h"
+#include "OitCompositePs.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -28,7 +28,7 @@
 //
 // Replaces the DirectX 6 D3DRasterizer (raster.cpp) and the software
 // rasterizer (softraster.cpp). It takes the same pre-transformed screen
-// vertices from device3d.cpp's CPU transform, lighting and clipping, and
+// vertices from Device3D.cpp's CPU transform, lighting and clipping, and
 // reproduces the render states that path set.
 //
 // It draws into the surface's GPU copy (PrivateSurface::BeginGpuDraw), which
@@ -39,7 +39,7 @@
 // A 3D layer with a z-buffer (Context::Begin3DLayer) is drawn into a scene
 // target instead: RGBA16F in linear light, 4x MSAA where the GPU has the
 // memory, with its own depth buffer. At the end of the layer it is resolved,
-// tonemapped and blended over the surface's GPU copy (scene_ps.hlsl).
+// tonemapped and blended over the surface's GPU copy (ScenePs.hlsl).
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -182,7 +182,7 @@ struct Pipeline {
     TRef<ID3D11PixelShader>        m_ppsSceneMS;        // 4 samples, tonemapped one by one
 
     //
-    // The translucent pass (weighted blended OIT, raster.hlsli)
+    // The translucent pass (weighted blended OIT, Raster.hlsli)
     //
 
     TRef<ID3D11PixelShader>        m_ppsOit;
@@ -232,16 +232,16 @@ bool CreatePipeline(D3D11Device* pdevice)
         return false;
     }
 
-    if (FAILED(pd3d->CreateVertexShader(g_raster_vs,      sizeof(g_raster_vs),      NULL, &p.m_pvs    ))) return false;
-    if (FAILED(pd3d->CreateVertexShader(g_raster_vs_flat, sizeof(g_raster_vs_flat), NULL, &p.m_pvsFlat))) return false;
-    if (FAILED(pd3d->CreateVertexShader(g_tl_vs,          sizeof(g_tl_vs),          NULL, &p.m_pvsTL     ))) return false;
-    if (FAILED(pd3d->CreateVertexShader(g_tl_vs_flat,     sizeof(g_tl_vs_flat),     NULL, &p.m_pvsTLFlat ))) return false;
-    if (FAILED(pd3d->CreateVertexShader(g_tl_vs_l,        sizeof(g_tl_vs_l),        NULL, &p.m_pvsTLL    ))) return false;
-    if (FAILED(pd3d->CreateVertexShader(g_tl_vs_l_flat,   sizeof(g_tl_vs_l_flat),   NULL, &p.m_pvsTLLFlat))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_raster_ps,      sizeof(g_raster_ps),      NULL, &p.m_pps    ))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_raster_ps_flat, sizeof(g_raster_ps_flat), NULL, &p.m_ppsFlat))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_tl_ps,          sizeof(g_tl_ps),          NULL, &p.m_ppsTL    ))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_tl_ps_flat,     sizeof(g_tl_ps_flat),     NULL, &p.m_ppsTLFlat))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_RasterVs,      sizeof(g_RasterVs),      NULL, &p.m_pvs    ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_RasterVsFlat, sizeof(g_RasterVsFlat), NULL, &p.m_pvsFlat))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_TlVs,          sizeof(g_TlVs),          NULL, &p.m_pvsTL     ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_TlVsFlat,     sizeof(g_TlVsFlat),     NULL, &p.m_pvsTLFlat ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_TlVsL,        sizeof(g_TlVsL),        NULL, &p.m_pvsTLL    ))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_TlVsLFlat,   sizeof(g_TlVsLFlat),   NULL, &p.m_pvsTLLFlat))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_RasterPs,      sizeof(g_RasterPs),      NULL, &p.m_pps    ))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_RasterPsFlat, sizeof(g_RasterPsFlat), NULL, &p.m_ppsFlat))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_TlPs,          sizeof(g_TlPs),          NULL, &p.m_ppsTL    ))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_TlPsFlat,     sizeof(g_TlPsFlat),     NULL, &p.m_ppsTLFlat))) return false;
 
     //
     // VertexScreen: x y z rhw, color, specular (unused), u v
@@ -253,7 +253,7 @@ bool CreatePipeline(D3D11Device* pdevice)
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    if (FAILED(pd3d->CreateInputLayout(layout, ArrayCount(layout), g_raster_vs, sizeof(g_raster_vs), &p.m_playout))) return false;
+    if (FAILED(pd3d->CreateInputLayout(layout, ArrayCount(layout), g_RasterVs, sizeof(g_RasterVs), &p.m_playout))) return false;
 
     //
     // Vertex: x y z, u v, nx ny nz. VertexL: x y z, u v, r g b a (floats).
@@ -271,8 +271,8 @@ bool CreatePipeline(D3D11Device* pdevice)
         { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    if (FAILED(pd3d->CreateInputLayout(layoutTL,  ArrayCount(layoutTL),  g_tl_vs,   sizeof(g_tl_vs),   &p.m_playoutTL ))) return false;
-    if (FAILED(pd3d->CreateInputLayout(layoutTLL, ArrayCount(layoutTLL), g_tl_vs_l, sizeof(g_tl_vs_l), &p.m_playoutTLL))) return false;
+    if (FAILED(pd3d->CreateInputLayout(layoutTL,  ArrayCount(layoutTL),  g_TlVs,   sizeof(g_TlVs),   &p.m_playoutTL ))) return false;
+    if (FAILED(pd3d->CreateInputLayout(layoutTLL, ArrayCount(layoutTLL), g_TlVsL, sizeof(g_TlVsL), &p.m_playoutTLL))) return false;
 
     D3D11_BUFFER_DESC bd = {};
     bd.ByteWidth      = 8 * sizeof(DWORD);
@@ -374,15 +374,15 @@ bool CreatePipeline(D3D11Device* pdevice)
         if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendComposite))) return false;
     }
 
-    if (FAILED(pd3d->CreateVertexShader(g_scene_vs, sizeof(g_scene_vs), NULL, &p.m_pvsScene))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_scene_ps, sizeof(g_scene_ps), NULL, &p.m_ppsScene))) return false;
-    if (FAILED(pd3d->CreatePixelShader (g_scene_ps_ms, sizeof(g_scene_ps_ms), NULL, &p.m_ppsSceneMS))) return false;
+    if (FAILED(pd3d->CreateVertexShader(g_SceneVs, sizeof(g_SceneVs), NULL, &p.m_pvsScene))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_ScenePs, sizeof(g_ScenePs), NULL, &p.m_ppsScene))) return false;
+    if (FAILED(pd3d->CreatePixelShader (g_ScenePsMs, sizeof(g_ScenePsMs), NULL, &p.m_ppsSceneMS))) return false;
 
-    if (FAILED(pd3d->CreatePixelShader(g_raster_ps_oit,      sizeof(g_raster_ps_oit),      NULL, &p.m_ppsOit         ))) return false;
-    if (FAILED(pd3d->CreatePixelShader(g_raster_ps_flat_oit, sizeof(g_raster_ps_flat_oit), NULL, &p.m_ppsOitFlat     ))) return false;
-    if (FAILED(pd3d->CreatePixelShader(g_tl_ps_oit,          sizeof(g_tl_ps_oit),          NULL, &p.m_ppsTLOit       ))) return false;
-    if (FAILED(pd3d->CreatePixelShader(g_tl_ps_flat_oit,     sizeof(g_tl_ps_flat_oit),     NULL, &p.m_ppsTLOitFlat   ))) return false;
-    if (FAILED(pd3d->CreatePixelShader(g_oit_composite_ps,   sizeof(g_oit_composite_ps),   NULL, &p.m_ppsOitComposite))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_RasterPsOit,      sizeof(g_RasterPsOit),      NULL, &p.m_ppsOit         ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_RasterPsFlatOit, sizeof(g_RasterPsFlatOit), NULL, &p.m_ppsOitFlat     ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_TlPsOit,          sizeof(g_TlPsOit),          NULL, &p.m_ppsTLOit       ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_TlPsFlatOit,     sizeof(g_TlPsFlatOit),     NULL, &p.m_ppsTLOitFlat   ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_OitCompositePs,   sizeof(g_OitCompositePs),   NULL, &p.m_ppsOitComposite))) return false;
 
     {
         D3D11_BLEND_DESC desc = {};
@@ -411,8 +411,8 @@ bool CreatePipeline(D3D11Device* pdevice)
         if (FAILED(pd3d->CreateBlendState(&desc, &p.m_pblendOit))) return false;
     }
 
-    if (FAILED(pd3d->CreatePixelShader(g_bloom_down_ps, sizeof(g_bloom_down_ps), NULL, &p.m_ppsBloomDown))) return false;
-    if (FAILED(pd3d->CreatePixelShader(g_bloom_up_ps,   sizeof(g_bloom_up_ps),   NULL, &p.m_ppsBloomUp  ))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_BloomDownPs, sizeof(g_BloomDownPs), NULL, &p.m_ppsBloomDown))) return false;
+    if (FAILED(pd3d->CreatePixelShader(g_BloomUpPs,   sizeof(g_BloomUpPs),   NULL, &p.m_ppsBloomUp  ))) return false;
 
     {
         D3D11_BUFFER_DESC desc = {};
@@ -530,7 +530,7 @@ bool CreatePipeline(D3D11Device* pdevice)
 
         //
         // Model-space geometry is clipped to the near and far planes, as
-        // device3d.cpp's clipper did
+        // Device3D.cpp's clipper did
         //
 
         desc.DepthClipEnable = TRUE;
@@ -1372,7 +1372,7 @@ public:
         ID3D11SamplerState*       psampler = p.m_psamplerClamp;
         //
         // A multisampled scene is composited from its samples, each
-        // tonemapped on its own (scene.hlsli); the resolve above is for the
+        // tonemapped on its own (Scene.hlsli); the resolve above is for the
         // bloom
         //
 
@@ -1611,7 +1611,7 @@ public:
 
     //
     // An opaque draw of a texture whose alpha is translucency, not a
-    // cut-out's (alphacoverage.h): drawn in the translucent pass, blended
+    // cut-out's (AlphaCoverage.h): drawn in the translucent pass, blended
     //
 
     bool IsTranslucentTexture()
@@ -1716,7 +1716,7 @@ public:
     }
 
     //
-    // The translucent pass's average, over the scene (oit_composite_ps.hlsl)
+    // The translucent pass's average, over the scene (OitCompositePs.hlsl)
     //
 
     void CompositeOit(ID3D11DeviceContext* pcontext)
@@ -1997,7 +1997,7 @@ public:
         float m_zrev[4];
     };
 
-    static_assert(sizeof(TLConstants) == 18 * 4 * sizeof(float), "TLConstants must match tl.hlsli and the buffer size");
+    static_assert(sizeof(TLConstants) == 18 * 4 * sizeof(float), "TLConstants must match Tl.hlsli and the buffer size");
 
     void DrawModel(
         D3D11_PRIMITIVE_TOPOLOGY  topology,

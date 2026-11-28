@@ -1,4 +1,4 @@
-#include "bloom.hlsli"
+#include "Bloom.hlsli"
 
 //
 // Dual-filter upsample of the smaller level (a tent of eight taps), added to

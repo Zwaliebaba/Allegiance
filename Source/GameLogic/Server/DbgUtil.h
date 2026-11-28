@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
-	Dbgutil.H
+	DbgUtil.h
 		Exported header file for Dbgutil module.
 
 	Copyright (C) 1993 Microsoft Corporation

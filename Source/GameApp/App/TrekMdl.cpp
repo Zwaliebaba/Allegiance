@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "trekmdl.h"
-//#include "console.h"
+#include "TrekMdl.h"
+//#include "Console.h"
 #ifndef MARKCU
-#include "consoledata.h"
+#include "ConsoleData.h"
 #endif 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -74,7 +74,7 @@ public:
     //
 
     virtual ID3D11ShaderResourceView* GetTexture(PrivateSurface* psurface) = 0;
-    virtual bool                      IsTranslucent(PrivateSurface* psurface) = 0;   // its texture's alpha is translucency (alphacoverage.h), not a cut-out's
+    virtual bool                      IsTranslucent(PrivateSurface* psurface) = 0;   // its texture's alpha is translucency (AlphaCoverage.h), not a cut-out's
     virtual void                      RemoveSurface(PrivateSurface* psurface) = 0;
 
     //
@@ -94,7 +94,7 @@ TRef<D3D11Device> CreateD3D11Device();
 //
 // Transform and lighting done in the rasterizer's vertex shader. Device3D
 // fills this for each model-space draw; the formulas are those of its CPU
-// lighting functions (device3d.cpp).
+// lighting functions (Device3D.cpp).
 //
 //////////////////////////////////////////////////////////////////////////////
 

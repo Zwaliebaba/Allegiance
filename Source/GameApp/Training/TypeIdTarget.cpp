@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	TypeIDTarget.cpp
+**  File:	TypeIdTarget.cpp
 **
 **  Author:  
 **
@@ -11,7 +11,7 @@
 **  History:
 */
 #include    "pch.h"
-#include    "TypeIDTarget.h"
+#include    "TypeIdTarget.h"
 
 namespace Training
 {

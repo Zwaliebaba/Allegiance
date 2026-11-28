@@ -12,7 +12,7 @@
 */
 #include    "pch.h"
 #include    "ShipSeesObjectCondition.h"
-#include    "TypeIDTarget.h"
+#include    "TypeIdTarget.h"
 
 namespace Training
 {

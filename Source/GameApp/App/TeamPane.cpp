@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "training.h"
-#include "badwords.h"
+#include "Training.h"
+#include "BadWords.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

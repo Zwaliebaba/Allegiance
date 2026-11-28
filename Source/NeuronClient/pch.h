@@ -25,10 +25,10 @@
 #include <windows.h>
 #include <xaudio2.h>
 
-#include "zlib.h"
-#include "engine.h"
-#include "enginep.h"
-#include "effect.h"
-#include "efart.h"
+#include "ZLib.h"
+#include "Engine.h"
+#include "EngineP.h"
+#include "Effect.h"
+#include "EfArt.h"
 
 #endif

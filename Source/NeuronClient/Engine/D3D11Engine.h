@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Private to the D3D11 backend (d3d11device.cpp, d3d11raster.cpp)
+// Private to the D3D11 backend (D3D11Device.cpp, D3D11Raster.cpp)
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -68,8 +68,8 @@ void D3D11BoundRasterizerChanged();
 //////////////////////////////////////////////////////////////////////////////
 //
 // GPU copy of a surface the GPU draws into (the window frame and 3D panes).
-// The surface owns it and decides when it is current (surface.cpp); the
-// functions below create, fill and draw into it (d3d11draw2d.cpp).
+// The surface owns it and decides when it is current (Surface.cpp); the
+// functions below create, fill and draw into it (D3D11Draw2D.cpp).
 //
 //////////////////////////////////////////////////////////////////////////////
 

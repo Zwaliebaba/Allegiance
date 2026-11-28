@@ -2,7 +2,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// The server's settings file (see zsettings.h and MODERNIZATION.md,
+// The server's settings file (see ZSettings.h and MODERNIZATION.md,
 // "Settings: a JSON file replaces the registry"): server.json in
 // %ProgramData%\Allegiance, or next to the executable. main() makes it the
 // process's settings file before anything else runs; code that runs during

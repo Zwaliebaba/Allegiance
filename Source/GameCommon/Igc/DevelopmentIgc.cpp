@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	developmentIGC.cpp
+**  File:	DevelopmentIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// developmentIGC.cpp : Implementation of CdevelopmentIGC
+// DevelopmentIgc.cpp : Implementation of CdevelopmentIGC
 #include "pch.h"
-#include "developmentIGC.h"
+#include "DevelopmentIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CdevelopmentIGC

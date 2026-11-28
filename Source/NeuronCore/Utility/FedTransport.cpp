@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 // FedTransport on MsQuic, and the UDP session discovery beside it.
-// See fedtransport.h and MODERNIZATION.md, "Networking".
+// See FedTransport.h and MODERNIZATION.md, "Networking".
 //
 // Built without the module's precompiled header: msquic.h needs Winsock 2,
 // which can't be included after the plain <windows.h> the PCH brings in.
@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include "fedtransport.h"
+#include "FedTransport.h"
 
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "crypt32.lib")

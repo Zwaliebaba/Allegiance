@@ -6,7 +6,7 @@
     <ClCompile Include="AccountRightsTests.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="ServiceArgsTests.cpp" />
-    <ClCompile Include="SWMRGTests.cpp" />
+    <ClCompile Include="SwmrgTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

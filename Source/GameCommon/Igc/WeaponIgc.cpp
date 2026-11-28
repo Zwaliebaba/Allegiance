@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    weaponIGC.cpp
+**  File:    WeaponIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// weaponIGC.cpp : Implementation of CweaponIGC
+// WeaponIgc.cpp : Implementation of CweaponIGC
 #include "pch.h"
-#include "weaponIGC.h"
+#include "WeaponIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CweaponIGC

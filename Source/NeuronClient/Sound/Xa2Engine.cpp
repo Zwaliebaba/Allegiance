@@ -1,19 +1,19 @@
 //
-// xa2engine.cpp
+// Xa2Engine.cpp
 //
 // The XAudio2 implementation of the sound engine. See MODERNIZATION.md,
 // "Sound: XAudio2 replaces DirectSound".
 //
 
 #include "pch.h"
-#include "soundbase.h"
+#include "SoundBase.h"
 
-#include "soundmath.h"
-#include "x3dpan.h"
-#include "xa2voice.h"
-#include "virtualbuffer.h"
-#include "xa2engine.h"
-#include "soundutil.h"
+#include "SoundMath.h"
+#include "X3DPan.h"
+#include "Xa2Voice.h"
+#include "VirtualBuffer.h"
+#include "Xa2Engine.h"
+#include "SoundUtil.h"
 
 namespace SoundEngine {
 

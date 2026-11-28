@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "consoledata.h"
-#include "training.h"
-#include "badwords.h"
+#include "ConsoleData.h"
+#include "Training.h"
+#include "BadWords.h"
 
 const int   c_iRecipientOther   = -1;
 const int   c_iRecipientMe      =  0;

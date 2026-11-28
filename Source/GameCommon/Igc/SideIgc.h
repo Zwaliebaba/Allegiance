@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    sideIGC.h
+**  File:    SideIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// sideIGC.h : Declaration of the CsideIGC
+// SideIgc.h : Declaration of the CsideIGC
 
 #ifndef __SIDEIGC_H_
 #define __SIDEIGC_H_

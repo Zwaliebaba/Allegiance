@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    modelIGC.cpp
+**  File:    ModelIgc.cpp
 **
 **  Author: 
 **
@@ -12,7 +12,7 @@
 **  History:
 */
 #include "pch.h"
-#include "modelIGC.h"
+#include "ModelIgc.h"
 #include <stdio.h>
 #include <math.h>
 

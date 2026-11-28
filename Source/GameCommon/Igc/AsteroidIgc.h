@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	asteroidIGC.h
+**  File:	AsteroidIgc.h
 **
 **  Author: 
 **
@@ -11,12 +11,12 @@
 **
 **  History:
 */
-// asteroidIGC.h : Declaration of the CasteroidIGC
+// AsteroidIgc.h : Declaration of the CasteroidIGC
 
 #ifndef __ASTEROIDIGC_H_
 #define __ASTEROIDIGC_H_
 
-#include    "modelIGC.h"
+#include    "ModelIgc.h"
 
 class   CasteroidIGC : public TmodelIGC<IasteroidIGC>
 {

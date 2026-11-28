@@ -4,33 +4,33 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Server\allsrvmodule.cpp" />
+    <ClCompile Include="Server\AllSrvModule.cpp" />
     <ClCompile Include="Server\FedSrv.cpp" />
-    <ClCompile Include="Server\fscluster.cpp" />
-    <ClCompile Include="Server\fslobby.cpp" />
-    <ClCompile Include="Server\fsmission.cpp" />
-    <ClCompile Include="Server\fsship.cpp" />
-    <ClCompile Include="Server\fsside.cpp" />
-    <ClCompile Include="Server\serverevents.cpp" />
+    <ClCompile Include="Server\FsCluster.cpp" />
+    <ClCompile Include="Server\FsLobby.cpp" />
+    <ClCompile Include="Server\FsMission.cpp" />
+    <ClCompile Include="Server\FsShip.cpp" />
+    <ClCompile Include="Server\FsSide.cpp" />
+    <ClCompile Include="Server\ServerEvents.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameLogic.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Server\allsrvmodule.h" />
-    <ClInclude Include="Server\counters.h" />
-    <ClInclude Include="Server\dbgutil.h" />
-    <ClInclude Include="Server\eventsite.h" />
+    <ClInclude Include="Server\AllSrvModule.h" />
+    <ClInclude Include="Server\Counters.h" />
+    <ClInclude Include="Server\DbgUtil.h" />
+    <ClInclude Include="Server\EventSite.h" />
     <ClInclude Include="Server\FedSrv.h" />
     <ClInclude Include="Server\FedSrvApp.h" />
-    <ClInclude Include="Server\fscluster.h" />
-    <ClInclude Include="Server\fsmission.h" />
-    <ClInclude Include="Server\fsship.h" />
-    <ClInclude Include="Server\fsside.h" />
-    <ClInclude Include="Server\gameparamdata.h" />
-    <ClInclude Include="Server\messagesLS.h" />
+    <ClInclude Include="Server\FsCluster.h" />
+    <ClInclude Include="Server\FsMission.h" />
+    <ClInclude Include="Server\FsShip.h" />
+    <ClInclude Include="Server\FsSide.h" />
+    <ClInclude Include="Server\GameParamData.h" />
+    <ClInclude Include="Server\MessagesLs.h" />
     <ClInclude Include="Server\resource.h" />
-    <ClInclude Include="Server\serverevents.h" />
-    <ClInclude Include="Server\serverevents_defs.h" />
-    <ClInclude Include="Server\serversettings.h" />
+    <ClInclude Include="Server\ServerEvents.h" />
+    <ClInclude Include="Server\ServerEventsDefs.h" />
+    <ClInclude Include="Server\ServerSettings.h" />
   </ItemGroup>
 </Project>

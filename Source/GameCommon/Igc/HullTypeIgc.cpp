@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	hullTypeIGC.cpp
+**  File:	HullTypeIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// hullTypeIGC.cpp : Implementation of ChullTypeIGC
+// HullTypeIgc.cpp : Implementation of ChullTypeIGC
 #include "pch.h"
-#include "hullTypeIGC.h"
+#include "HullTypeIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // ChullTypeIGC

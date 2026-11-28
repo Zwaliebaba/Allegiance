@@ -1,8 +1,8 @@
 /*-------------------------------------------------------------------------
- * fedsrv\AllSrvModule.H
+ * fedsrv\AllSrvModule.h
  *
  * The game server as NeuronServer's ServiceHost runs it, as a console
- * program or as a Windows service (servicehost.h), and the training server
+ * program or as a Windows service (ServiceHost.h), and the training server
  * the client starts.
  *
  * AllSrv used to be a DCOM server and an AGC host as well; both are gone.
@@ -17,12 +17,12 @@
 #ifndef _ALLSRV_MOD_
 #define _ALLSRV_MOD_
 
-#include "servicehost.h"
+#include "ServiceHost.h"
 
 class CServiceModule : public IServiceApp
 {
 public:
-  void         InitEvents();        // the server event log (serverevents.h)
+  void         InitEvents();        // the server event log (ServerEvents.h)
   void         TermEvents();
 
   void         RunAsExecutable();   // in this console, or as the client's training server

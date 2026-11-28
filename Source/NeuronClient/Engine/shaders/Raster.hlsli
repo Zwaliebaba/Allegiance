@@ -3,7 +3,7 @@
 // D3D11 replacement for the DirectX 6 fixed-function rasterizer state the
 // engine used: pre-transformed screen vertices (D3DTLVERTEX layout), one
 // texture, DECAL or MODULATE, colour-key cut-outs, Gouraud or flat shading.
-// Transform and lighting stay on the CPU (device3d.cpp) for these vertices.
+// Transform and lighting stay on the CPU (Device3D.cpp) for these vertices.
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ SamplerState g_sampler : register(s0);
 
 //
 // Soft particles: a blended draw replayed after the scene's opaque geometry
-// (d3d11raster.cpp) reads the scene's depth, read-only, and fades out as it
+// (D3D11Raster.cpp) reads the scene's depth, read-only, and fades out as it
 // nears what is behind it, instead of cutting a hard line where a glow or a
 // trail meets a hull. Reversed depth is (1 + a) - b / d for view distance d,
 // for screen vertices and model-space ones alike, so d = b / ((1 + a) - z).
@@ -93,7 +93,7 @@ float SoftFade(float4 position)
 }
 
 //
-// RASTER_PIXEL: included by another stage's pixel shader (tl_ps.hlsl) for
+// RASTER_PIXEL: included by another stage's pixel shader (TlPs.hlsl) for
 // Shade only
 //
 
@@ -261,7 +261,7 @@ float4 Shade(float4 color, float2 uv, float4 position)
 // 2013). A translucent fragment adds its premultiplied colour and alpha,
 // weighted by its distance, to the accumulation target, and multiplies the
 // revealage target (what still shows through, from 1) by 1 - alpha. The
-// composite (oit_composite_ps.hlsl) divides out the weights and lays the
+// composite (OitCompositePs.hlsl) divides out the weights and lays the
 // average over the scene by 1 - revealage. Order does not matter; nearer
 // surfaces weigh more, so the front one dominates where layers stack.
 //

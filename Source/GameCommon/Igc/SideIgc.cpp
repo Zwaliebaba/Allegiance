@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	sideIGC.cpp
+**  File:	SideIgc.cpp
 **
 **  Author: 
 **
@@ -11,9 +11,9 @@
 **
 **  History:
 */
-// sideIGC.cpp : Implementation of CsideIGC
+// SideIgc.cpp : Implementation of CsideIGC
 #include "pch.h"
-#include "sideIGC.h"
+#include "SideIgc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CsideIGC

@@ -1,4 +1,4 @@
-#include "bloom.hlsli"
+#include "Bloom.hlsli"
 
 //
 // Dual-filter downsample: the centre and four diagonal taps half a source

@@ -1,14 +1,14 @@
 //
-// xa2spatial.cpp: the head model (spatializer.h) as an XAudio2 effect. A
+// Xa2Spatial.cpp: the head model (Spatializer.h) as an XAudio2 effect. A
 // plain IXAPO and IXAPOParameters, without the XAPO base classes
 // (xapobase.lib): one input buffer of one or two float channels, one stereo
 // output buffer at the same rate.
 //
 
 #include "pch.h"
-#include "spatializer.h"
-#include "xa2objects.h"
-#include "xa2spatial.h"
+#include "Spatializer.h"
+#include "Xa2Objects.h"
+#include "Xa2Spatial.h"
 
 #include <xapo.h>
 #include <atomic>

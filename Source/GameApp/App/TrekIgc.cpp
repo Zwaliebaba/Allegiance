@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:    trekigc.cpp
+**  File:    TrekIgc.cpp
 **
 **  Author: 
 **
@@ -13,8 +13,8 @@
 
 #include "pch.h"
 #include <stddef.h>
-#include "training.h"
-#include "badwords.h"
+#include "Training.h"
+#include "BadWords.h"
 
 class ClusterSiteImpl : public ClusterSite
 {

@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	chaffIGC.cpp
+**  File:	ChaffIgc.cpp
 **
 **  Author: 
 **
@@ -14,9 +14,9 @@
 **
 **  History:
 */
-// chaffIGC.cpp : Implementation of CchaffIGC
+// ChaffIgc.cpp : Implementation of CchaffIGC
 #include "pch.h"
-#include "chaffIGC.h"
+#include "ChaffIgc.h"
 
 
 const float c_fLifespan = 5.0f;

@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1996, 1997 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	cloakIGC.h
+**  File:	CloakIgc.h
 **
 **  Author: 
 **
@@ -11,7 +11,7 @@
 **
 **  History:
 */
-// cloakIGC.h : Declaration of the CcloakIGC
+// CloakIgc.h : Declaration of the CcloakIGC
 
 #ifndef __CLOAKIGC_H_
 #define __CLOAKIGC_H_

@@ -1,7 +1,7 @@
 /*
 **  Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
 **
-**  File:	objectwithinradiuscondition.cpp
+**  File:	ObjectWithinRadiusCondition.cpp
 **
 **  Author:  
 **
@@ -12,7 +12,7 @@
 */
 #include    "pch.h"
 #include    "ObjectWithinRadiusCondition.h"
-#include    "TypeIDTarget.h"
+#include    "TypeIdTarget.h"
 
 namespace Training
 {

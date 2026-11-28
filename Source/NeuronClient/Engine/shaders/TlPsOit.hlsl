@@ -1,7 +1,7 @@
 #define OIT_PASS
-#include "tl_pixel.hlsli"
+#include "TlPixel.hlsli"
 
-// The translucent pass (raster.hlsli, Oit)
+// The translucent pass (Raster.hlsli, Oit)
 
 OitOut main(VertexOut input)
 {
