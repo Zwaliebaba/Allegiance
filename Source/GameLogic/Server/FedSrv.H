@@ -219,7 +219,6 @@ struct LogonDetails
 struct Global
 { 
   Global() :
-    ssh(0),
     hInst(0),
     trekCore(NULL),
 
@@ -256,7 +255,6 @@ struct Global
     strArtPath.clear();
   }
 
-  SERVICE_STATUS_HANDLE ssh;
 
   HINSTANCE           hInst;
   SWMRG               swmrg;

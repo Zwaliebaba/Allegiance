@@ -63,7 +63,7 @@ table says where each went.
 |---|---|---|---|
 | `NeuronCore` | everything | `Base`, `Utility` | `zlib` (but `main.h`), `_Utility` (but `allegdb.cpp`), `Inc/messagecore.h` (and `guids`, since deleted) |
 | `NeuronClient` | client, mdlc | `Engine` (with `shaders`), `Effect`, `Sound`, `App` | `engine`, `effect`, `soundengine`, `zlib/main.h` |
-| `NeuronServer` | server | `TCLib`, `TCAtl`, `Base` | `test/TCLib`, `test/TCAtl`, `test/Inc`, `FedSrv/SWMRG.*` |
+| `NeuronServer` | server | `Base`, `Service` | `FedSrv/SWMRG.*`, the generic half of `FedSrv/allsrvmodule.*` (and `test/TCLib`, `test/TCAtl`, `test/Inc`, since deleted) |
 | `GameCommon` | client, server | `Igc`, `Protocol`, `Version` | `Igc`, the session kinds (were `guids`), `Inc/Messages.h`, `messagesAll.h`, `Parts.h`, `trainingserver.h`, `VerRes.rc`, `SlmVer.h` |
 | `GameLogic` | server | `Server` | `FedSrv` (but its resources and `main()`), `Inc/messagesLS.h` (and the SQL layer, since deleted) |
 | `GameApp` | client | `App`, `ClientLib`, `Training` | `WinTrek` (but its resources and `main()`), `clintlib`, `training`, `Inc/messagesLC.h`, `quickchat.h` |
@@ -90,6 +90,18 @@ is refused with "The server runs a different version of Allegiance". Four of the
 rest of `guids.cpp` instantiated OLE DB's GUIDs for the server's SQL layer (`allegdb`, `srvqueries.h`),
 which no longer reached a database: the logon used one query class as a data holder, now the plain
 `LogonDetails` (`FedSrv.H`), and the rest went with it, with the two database error events.
+
+**ATL removed.** The server reached ATL and the 1999 TCLib and TCAtl libraries built on it (about 4,000
+lines) for two things: `TCUserAccount`, with which `-install user password` gave the account the right
+to log on as a service, and one `TCAutoCriticalSection`. The first is now `Service/accountrights.*` in
+NeuronServer (`LookupAccountName` and LSA), the second NeuronCore's `ZAutoCriticalSection`; TCLib, TCAtl,
+the ATL includes and their `new`-macro workarounds, and the `statreg.h` of the COM registration are
+gone, so building needs neither the ATL nor the MFC component. The rest of the server's way of running
+(install and remove, the service control dispatcher, the console's Q/P/C, `-install`, `-remove` and
+`-service`) moved from `FedSrv/allsrvmodule.cpp` to `Service/servicehost.*` in NeuronServer, behind
+`IServiceApp`, which the game server implements (`allsrvmodule.*`). One change of behaviour:
+`-install <user>` without a password is now a usage error; it used to install the service as
+LocalSystem and ignore the account.
 
 **Precompiled headers.** One per library, `Source/<Library>/pch.h`, the union of what its sources'
 precompiled headers held before (GameApp's is WinTrek's plus what ClientLib and Training added).
@@ -615,9 +627,10 @@ server's COM start-up (`CoInitialize`, the ATL module) are gone. In their place:
 | Ship events | `CAGCSite` became `FedSrv/eventsite.h`; the "ship killed" positions are text instead of `AGCVector` objects |
 | Game parameters | `gameparamdata.h` moved to `FedSrv/` |
 
-ATL is still included for a few helpers (`CComBSTR`, `test/TCLib`, `test/TCAtl`), but there is no ATL
-module, COM server, COM class or COM registration of the repository's own left in the built code (the
-client still uses DirectX's COM interfaces, which need none of that).
+ATL was still included for a few helpers (`CComBSTR`, `test/TCLib`, `test/TCAtl`), with no ATL module,
+COM server, COM class or COM registration of the repository's own left in the built code (the client
+still uses DirectX's COM interfaces, which need none of that). Since the restructure ATL is gone
+altogether; see "Source layout", "ATL removed".
 
 #### Movies
 
@@ -1116,8 +1129,8 @@ the run as `asan-logs`).
 
 ## Building
 
-Open `Allegiance.slnx` in Visual Studio 2026 (Desktop development with C++, plus the C++ ATL and MFC
-components) and build `Debug|x64`. From the command line:
+Open `Allegiance.slnx` in Visual Studio 2026 (Desktop development with C++; ATL and MFC are not
+needed) and build `Debug|x64`. From the command line:
 
 ```
 msbuild Allegiance.slnx -p:Configuration=Debug -p:Platform=x64

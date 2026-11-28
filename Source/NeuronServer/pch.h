@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// NeuronServer: the engine's server half (TCLib's threads and COM helpers,
-// TCAtl's user accounts, the server's locks and bit arrays), used by the
-// server. Its precompiled header (the headers its sources use).
+// NeuronServer: the engine's server half (running as a Windows service or a
+// console program, account rights, the server's reader/writer lock), used by
+// the server. Its precompiled header (the headers its sources use).
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -10,26 +10,16 @@
 #define _PCH_H_
 
 #define WIN32_LEAN_AND_MEAN   // Exclude rarely-used stuff from Windows headers
-#define _WIN32_DCOM
 
 // __MODULE__ is used by ZAssert
 #define __MODULE__ "NeuronServer"
 
-#include <stdexcept>
-#include <algorithm>
 #include <string>
 #include <vector>
-#include <map>
-#include <crtdbg.h>
+#include <stdio.h>
 #include <windows.h>
 #include <tchar.h>
-#include <malloc.h>
-#include <comcat.h>
-#include <comdef.h>
-#include <commctrl.h>
-#include <atlconv.h>
 #include <process.h> // for _beginthreadex and _endthreadex
-#include <mmsystem.h>
 
 #include "zlib.h"
 

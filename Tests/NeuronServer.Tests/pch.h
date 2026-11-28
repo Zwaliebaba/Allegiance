@@ -22,6 +22,7 @@
 #include "zlib.h"
 
 #include <string>
+#include <vector>
 #include <thread>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

@@ -5058,15 +5058,11 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 HANDLE CreateUniqueMutex()
 {
   // Create a NULL dacl to give "everyone" access
-  SECURITY_ATTRIBUTES* psa = NULL;
   SECURITY_DESCRIPTOR   sd;
   SECURITY_ATTRIBUTES   sa = {sizeof(sa), &sd, false};
-  if (IsWinNT())
-  {
-    InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
-    SetSecurityDescriptorDacl(&sd, true, NULL, FALSE);
-    psa = &sa;
-  }
+  InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
+  SetSecurityDescriptorDacl(&sd, true, NULL, FALSE);
+  SECURITY_ATTRIBUTES* psa = &sa;
 
   // Create the mutex using the global name first
   HANDLE hMutex = ::CreateMutex(psa, false, szAllSrvRunningGlobal);
@@ -5655,7 +5651,6 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
  */
 DWORD ProcessMsgPump(int dwSleep, DWORD nCount, LPHANDLE pHandles)
 {
-  static bool s_fWinNT = ::IsWinNT();
   Time timeBegin = Time::Now();
   DWORD dwSleep1 = dwSleep;
   DWORD dwEnd = timeBegin.clock() + dwSleep; // don't wanna use Time, because it forces use of floats
@@ -5920,7 +5915,8 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
   HRESULT hr = S_OK;
 
   // Create a uniquely-named mutex to indicate that the server is running
-  TCHandle shMutexRunning = CreateUniqueMutex();
+  // (held until this function returns, when the server stops)
+  std::unique_ptr<void, decltype(&CloseHandle)> shMutexRunning(CreateUniqueMutex(), &CloseHandle);
 
   // A training server stops when the client that started it says so
   HANDLE hwaitTrainingStop = NULL;
@@ -8710,7 +8706,7 @@ IshipIGC*   PickNewLeader(const ShipListIGC*    pships,
 
     void FedSrvApp::DebugOutput(const char *psz)
     {
-        static TCAutoCriticalSection critsec;
+        static ZAutoCriticalSection critsec;
         Time    tStart = Time::Now();
         critsec.Lock();
           if (m_dwDebug & FED_DEBUG_FILE)

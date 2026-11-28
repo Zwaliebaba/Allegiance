@@ -5,39 +5,13 @@
   <ItemGroup>
     <ClCompile Include="Base\SWMRG.CPP" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="TCAtl\UserAcct.cpp" />
-    <ClCompile Include="TCLib\DynaLib.cpp" />
-    <ClCompile Include="TCLib\ExcepInfo.cpp" />
-    <ClCompile Include="TCLib\InvokeArgs.cpp" />
-    <ClCompile Include="TCLib\PropertyPageSite.cpp" />
-    <ClCompile Include="TCLib\RelPath.cpp" />
-    <ClCompile Include="TCLib\StrManip.cpp" />
-    <ClCompile Include="TCLib\TCLib.cpp" />
-    <ClCompile Include="TCLib\TCThread.cpp" />
-    <ClCompile Include="TCLib\UtilImpl.cpp" />
-    <ClCompile Include="TCLib\UtilityThread.cpp" />
-    <ClCompile Include="TCLib\WorkerThread.cpp" />
+    <ClCompile Include="Service\accountrights.cpp" />
+    <ClCompile Include="Service\servicehost.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\SWMRG.H" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="TCAtl\TCAtl.h" />
-    <ClInclude Include="TCAtl\UserAcct.h" />
-    <ClInclude Include="TCLib\AsyncDebugOutput.h" />
-    <ClInclude Include="TCLib\AutoCriticalSection.h" />
-    <ClInclude Include="TCLib\AutoHandle.h" />
-    <ClInclude Include="TCLib\DynaLib.h" />
-    <ClInclude Include="TCLib\ExcepInfo.h" />
-    <ClInclude Include="TCLib\InvokeArgs.h" />
-    <ClInclude Include="TCLib\NetApi.h" />
-    <ClInclude Include="TCLib\ObjectLock.h" />
-    <ClInclude Include="TCLib\PropertyPageSite.h" />
-    <ClInclude Include="TCLib\RelPath.h" />
-    <ClInclude Include="TCLib\StrManip.h" />
-    <ClInclude Include="TCLib\TCLib.h" />
-    <ClInclude Include="TCLib\TCThread.h" />
-    <ClInclude Include="TCLib\UtilImpl.h" />
-    <ClInclude Include="TCLib\UtilityThread.h" />
-    <ClInclude Include="TCLib\WorkerThread.h" />
+    <ClInclude Include="Service\accountrights.h" />
+    <ClInclude Include="Service\servicehost.h" />
   </ItemGroup>
 </Project>
