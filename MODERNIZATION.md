@@ -1106,6 +1106,39 @@ switch would need conversions at every interface, since `ZString` is in all of t
    - Two `_TRACE`-only uses of the old constructors (`zlib/Win32app.cpp`) that no build compiles were
      converted too.
 
+#### override everywhere (done)
+
+clang-tidy's `modernize-use-override` fix-its over every translation unit (destructors left alone): 4,043
+declarations gained `override` and 1,869 lost the `virtual` it makes redundant, so a function that stops
+overriding, because a base signature changed, is a compile error instead of a silent new virtual. The sweep is
+one commit marked `Mechanical:` (AGENTS.md section 1). One fix-it was left out: `TmodelIGC<T>::MakeUnhitable`
+overrides for some `T` only. One fix-it that was not the check's (a compile error's typo correction, from parsing
+with mingw-w64's headers) slipped in and was reverted; the sweeps now apply their own check's fix-its only.
+
+clang's `-Woverloaded-virtual` over the result listed 20 functions that hide a base virtual of the same name.
+Most are deliberate overloads. Five were meant to override and never did:
+
+| Function | What it broke |
+|---|---|
+| `BaseClient::DamageStationEvent`, `KillStationEvent` | They took a `leakage` argument that `IIgcSite` no longer passes, so the site's empty defaults ran: no hull or shield sound for a station hit in your sector, and offline a destroyed station was neither blown up nor removed |
+| `Slideshow`'s picture `HitTest` | Without `bCaptured`, `Image::HitTest` on the picture's empty bounds answered, and a click never reached the `Button` that advances the slideshow |
+| A menu item's `MouseLeave` | It took a point `IMouseInput`'s does not; the menu's handler is empty, so nothing changed |
+| `CprojectileIGC::Export` | Not `const`, as `IbaseIGC`'s is; projectiles are not exported through the base today |
+
+Not fixed, for a decision: `CbuoyIGC::SetVisibleF` and `CchaffIGC::SetVisibleF` are empty, meant to keep
+buoys and chaff out of the client's visibility pass, but `const` by mistake, so they do not override, and
+the pass hides and shows them like everything else. Fixing it would make them always visible, a
+fog-of-war change to try in play first.
+
+#### NULL to nullptr (done)
+
+clang-tidy's `modernize-use-nullptr` fix-its: 3,571 null pointer constants (`NULL`, and 45 literal `0`s used
+as pointers) on 3,419 lines are `nullptr`, one `Mechanical:` commit per library (NeuronCore, NeuronClient,
+NeuronServer, GameCommon, GameLogic, GameApp, and the executables, tests and tools together). A script checked
+that every changed line differs from the old one only in those constants. `NULL` inside macro definitions, and
+where an integer is meant, is left alone, as the check leaves it; so are the few files clang could not parse
+on Linux (those using Media Foundation, X3DAudio and MsQuic headers mingw-w64 lacks).
+
 #### Unit tests and AddressSanitizer
 
 Each library has a Microsoft CppUnitTest project, `Tests/<Library>.Tests` (a DLL that links the
