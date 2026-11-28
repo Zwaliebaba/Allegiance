@@ -190,7 +190,7 @@ class CmapMakerIGC : public ImapMakerIGC
     public:
         static const char*  IsValid(const MissionParams* pmp)
         {
-            return NULL;
+            return nullptr;
         }
 
         CmapMakerIGC();
@@ -259,7 +259,7 @@ class   CmapMakerSingleRingIGC  :   public CmapMakerIGC
     public:
         static const char*  IsValid(const MissionParams* pmp)
         {
-            return NULL;
+            return nullptr;
         }
 };
 
@@ -279,7 +279,7 @@ class CmapMakerDoubleRingIGC : public CmapMakerIGC
     public:
         static const char*  IsValid(const MissionParams* pmp)
         {
-            return NULL;
+            return nullptr;
         }
 
         CmapMakerDoubleRingIGC();
@@ -304,7 +304,7 @@ class CmapMakerHiLoIGC : public CmapMakerIGC
     public:
         static const char*  IsValid(const MissionParams* pmp)
         {
-            return NULL;
+            return nullptr;
         }
 
         CmapMakerHiLoIGC();
@@ -329,7 +329,7 @@ class CmapMakerHiHigherIGC : public CmapMakerIGC
     public:
         static const char*  IsValid(const MissionParams* pmp)
         {
-            return NULL;
+            return nullptr;
         }
 
         CmapMakerHiHigherIGC();
@@ -354,7 +354,7 @@ class CmapMakerStarIGC : public CmapMakerIGC
     public:
         static const char*  IsValid(const MissionParams* pmp)
         {
-            return NULL;
+            return nullptr;
         }
 
         CmapMakerStarIGC();
@@ -381,7 +381,7 @@ class CmapMakerBigRingIGC : public CmapMakerIGC
     public:
         static const char*  IsValid(const MissionParams* pmp)
         {
-            return NULL;
+            return nullptr;
         }
 
         CmapMakerBigRingIGC();
@@ -490,7 +490,7 @@ class CmapMakerSnowFlakeIGC : public CmapMakerIGC
     public:
         static const char*  IsValid(const MissionParams* pmp)
         {
-            return NULL;
+            return nullptr;
         }
 
         CmapMakerSnowFlakeIGC();
@@ -528,7 +528,7 @@ class CmapMakerInsideOutIGC : public CmapMakerHiHigherIGC
     public:
         static const char*  IsValid(const MissionParams* pmp)
         {
-            return NULL;
+            return nullptr;
         }
 
         CmapMakerInsideOutIGC();
@@ -539,7 +539,7 @@ class CmapMakerGridIGC : public CmapMakerIGC
     public:
         static const char*  IsValid(const MissionParams* pmp)
         {
-            return NULL;
+            return nullptr;
         }
 
         CmapMakerGridIGC();

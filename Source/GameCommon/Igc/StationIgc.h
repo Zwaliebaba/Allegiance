@@ -26,7 +26,7 @@ class       MyStationType : public IstationTypeIGC
         MyStationType(CstationIGC*  pstation)
         :
             m_pstation(pstation),
-            m_pStationType(NULL)
+            m_pStationType(nullptr)
         {
         }
 
@@ -125,7 +125,7 @@ class       MyStationType : public IstationTypeIGC
                 m_pStationData = (const DataStationTypeIGC*)(m_pStationType->GetData());
             }
             else
-                m_pStationData = NULL;
+                m_pStationData = nullptr;
         }
 
         CstationIGC*                m_pstation;
@@ -167,13 +167,13 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
                 //NYI terminate all of the ships docked at the station?
                 ShipLinkIGC*    l;
                 while (l = m_shipsDocked.first())   //intentional assignment
-                    l->data()->SetStation(NULL);
+                    l->data()->SetStation(nullptr);
             }
 
             GetMyMission()->DeleteStation(this);
             TmodelIGC<IstationIGC>::Terminate();
 
-            m_myStationType.SetStationType(NULL);
+            m_myStationType.SetStationType(nullptr);
             Release();
         }
         void    Update(Time now) override
@@ -247,7 +247,7 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
             {
                 IclusterIGC*    pcluster = GetCluster();
 
-                if (psideOld != NULL)
+                if (psideOld != nullptr)
                 {
                     //Remove the station from previous side's list of stations
                     if (pcluster)
@@ -257,7 +257,7 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
 
                 TmodelIGC<IstationIGC>::SetSide(psideNew);
 
-                if (psideNew != NULL)
+                if (psideNew != nullptr)
                 {
                     //Add the station to the new side's list of stations
                     psideNew->AddStation(this);
@@ -267,7 +267,7 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
                     GetHitTest()->SetUseTrueShapeSelf(psideNew);
                 }
 
-                if (pcluster != NULL)
+                if (pcluster != nullptr)
                     pcluster->GetClusterSite()->MoveStation();
             }
         }
@@ -405,11 +405,11 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
                         break;
                         default:
                         {
-                            pNext = NULL;
+                            pNext = nullptr;
                         }
                     }
 
-                    if (pNext == NULL)
+                    if (pNext == nullptr)
                         break;
 
                     if (CanBuy(pNext))
@@ -426,7 +426,7 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
         {
             //Walk through the predecessor parts until one is found that can be bought
             //We need to make only a single pass because sucessors always precede their predecessors
-            for (PartTypeLinkIGC*   pptl = GetMission()->GetPartTypes()->first(); (pptl != NULL); pptl = pptl->next())
+            for (PartTypeLinkIGC*   pptl = GetMission()->GetPartTypes()->first(); (pptl != nullptr); pptl = pptl->next())
             {
                 IpartTypeIGC*   pptTry = pptl->data();
                 if (pptTry->GetSuccessorPartType() == ppt)
@@ -438,7 +438,7 @@ class       CstationIGC : public TmodelIGC<IstationIGC>
                 }
             }
 
-            return NULL;
+            return nullptr;
         }
         
         void                    AddShip(IshipIGC* s) override;

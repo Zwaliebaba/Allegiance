@@ -204,7 +204,7 @@ void                CstationIGC::SetBaseStationType(IstationTypeIGC*    pst)
 {
     assert (pst);
 
-    IclusterIGC*    pclusterOld = NULL;
+    IclusterIGC*    pclusterOld = nullptr;
     Vector          positionOld;
     Orientation     orientationOld;
     Rotation        rotationOld;
@@ -220,7 +220,7 @@ void                CstationIGC::SetBaseStationType(IstationTypeIGC*    pst)
         rotationOld = GetRotation();
 
         //Move the station to the null cluster while all the black magic happens
-        SetCluster(NULL);
+        SetCluster(nullptr);
 
         FreeThingSite();
     }
@@ -275,7 +275,7 @@ void                CstationIGC::AddShip(IshipIGC*    pship)
     AddIbaseIGC((BaseListIGC*)&m_shipsDocked, pship);
 
     //At a station implies not in a cluster
-    pship->SetCluster(NULL);
+    pship->SetCluster(nullptr);
 }
 void                CstationIGC::DeleteShip(IshipIGC* s)
 {
@@ -434,7 +434,7 @@ void    CstationIGC::RepairAndRefuel(IshipIGC* pship) const
     //Fully mount all parts
     {
         for (PartLinkIGC*   ppl = pship->GetParts()->first();
-             (ppl != NULL);
+             (ppl != nullptr);
              ppl = ppl->next())
         {
             ppl->data()->SetMountedFraction(1.0f);
@@ -474,7 +474,7 @@ void    CstationIGC::RepairAndRefuel(IshipIGC* pship) const
         pship->SetFuel(maxFuel);
 
         for (PartLinkIGC*   ppl = pship->GetParts()->first();
-             (ppl != NULL);
+             (ppl != nullptr);
              ppl = ppl->next())
         {
             IpartIGC*   ppart = ppl->data();

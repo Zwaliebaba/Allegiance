@@ -41,63 +41,63 @@ class   CstaticIGC
         {
             {
                 DroneTypeLinkIGC*  l;
-                while ((l = m_droneTypes.first()) != NULL)
+                while ((l = m_droneTypes.first()) != nullptr)
                 {
                     l->data()->Terminate();
                 }
             }
             {
                 StationTypeLinkIGC*  l;
-                while ((l = m_stationTypes.first()) != NULL)
+                while ((l = m_stationTypes.first()) != nullptr)
                 {
                     l->data()->Terminate();
                 }
             }
             {
                 HullTypeLinkIGC*  l;
-                while ((l = m_hullTypes.first()) != NULL)
+                while ((l = m_hullTypes.first()) != nullptr)
                 {
                     l->data()->Terminate();
                 }
             }
             {
                 ExpendableTypeLinkIGC*  l;
-                while ((l = m_expendableTypes.first()) != NULL)
+                while ((l = m_expendableTypes.first()) != nullptr)
                 {
                     l->data()->Terminate();
                 }
             }
             {
                 PartTypeLinkIGC*  l;
-                while ((l = m_partTypes.first()) != NULL)
+                while ((l = m_partTypes.first()) != nullptr)
                 {
                     l->data()->Terminate();
                 }
             }
             {
                 ProjectileTypeLinkIGC*  l;
-                while ((l = m_projectileTypes.first()) != NULL)
+                while ((l = m_projectileTypes.first()) != nullptr)
                 {
                     l->data()->Terminate();
                 }
             }
             {
                 DevelopmentLinkIGC*  l;
-                while ((l = m_developments.first()) != NULL)
+                while ((l = m_developments.first()) != nullptr)
                 {
                     l->data()->Terminate();
                 }
             }
             {
                 CivilizationLinkIGC*  l;
-                while ((l = m_civilizations.first()) != NULL)
+                while ((l = m_civilizations.first()) != nullptr)
                 {
                     l->data()->Terminate();
                 }
             }
             {
                 TreasureSetLinkIGC*  l;
-                while ((l = m_treasureSets.first()) != NULL)
+                while ((l = m_treasureSets.first()) != nullptr)
                 {
                     l->data()->Terminate();
                 }
@@ -114,13 +114,13 @@ class   CstaticIGC
             if (m_pptAmmoPack)
             {
                 m_pptAmmoPack->Release();
-                m_pptAmmoPack = NULL;
+                m_pptAmmoPack = nullptr;
             }
 
             if (m_pptFuelPack)
             {
                 m_pptFuelPack->Release();
-                m_pptFuelPack = NULL;
+                m_pptFuelPack = nullptr;
             }
         }
         virtual float                   GetFloatConstant(FloatConstantID fcid) const
@@ -280,7 +280,7 @@ class   CstaticIGC
                 DataPackTypeIGC*    pdpt = (DataPackTypeIGC*)(pt->GetData());
                 if (pdpt->packType == c_packAmmo)
                 {
-                    if (m_pptAmmoPack == NULL)
+                    if (m_pptAmmoPack == nullptr)
                     {
                         m_pptAmmoPack = pt;
                         pt->AddRef();
@@ -288,7 +288,7 @@ class   CstaticIGC
                 }
                 else if (pdpt->packType == c_packFuel)
                 {
-                    if (m_pptFuelPack == NULL)
+                    if (m_pptFuelPack == nullptr)
                     {
                         m_pptFuelPack = pt;
                         pt->AddRef();
@@ -377,7 +377,7 @@ class   CmissionIGC : public ImissionIGC
     public:
         CmissionIGC(void)
         :
-            m_pIgcSite(NULL),
+            m_pIgcSite(nullptr),
             m_dwPrivate(0),
             m_nextBuoyID(0),
             m_nextShipID(0),
@@ -389,7 +389,7 @@ class   CmissionIGC : public ImissionIGC
             m_nextStationID(0),
             m_stageMission(STAGE_NOTSTARTED),
             m_missionID(0),
-            m_pStatic(NULL),
+            m_pStatic(nullptr),
             m_bHasGenerated(false),
             m_nReplayCount(0)
         {
@@ -546,7 +546,7 @@ class   CmissionIGC : public ImissionIGC
 
             {
                 //Preload the art for the corresponding model
-                m_pIgcSite->Preload(pt->GetModelName(), NULL);
+                m_pIgcSite->Preload(pt->GetModelName(), nullptr);
             }
         }
         void                            DeletePartType(IpartTypeIGC*                pt) override
@@ -748,7 +748,7 @@ class   CmissionIGC : public ImissionIGC
 
                 assert (m_missionParams.fGoalTeamMoney > 0);
 
-                for (SideLinkIGC*   psl = m_sides.first(); (psl != NULL); psl = psl->next())
+                for (SideLinkIGC*   psl = m_sides.first(); (psl != nullptr); psl = psl->next())
                 {
                     //It is something we might be able to build and it will actually
                     //do something useful
@@ -767,11 +767,11 @@ class   CmissionIGC : public ImissionIGC
 
             //Go through all sides and create the prosperity development (adjusting the price as needed)
             //Go through all the treasures and reset their expiration time
-            for (TreasureLinkIGC*   ptl = m_treasures.first(); (ptl != NULL); ptl = ptl->next())
+            for (TreasureLinkIGC*   ptl = m_treasures.first(); (ptl != nullptr); ptl = ptl->next())
                 ptl->data()->ResetExpiration(m_lastUpdate);
 
             //Go through all stations and reset their start time
-            for (StationLinkIGC*  psl = m_stations.first(); (psl != NULL); psl = psl->next())
+            for (StationLinkIGC*  psl = m_stations.first(); (psl != nullptr); psl = psl->next())
                 psl->data()->SetLastUpdate(m_lastUpdate);
         }
 

@@ -30,11 +30,11 @@ HRESULT     CmissileTypeIGC::Initialize(ImissionIGC* pMission, Time now, const v
         {
             pMission->GetIgcSite()->Preload(m_data.modelName, iswalpha(m_data.textureName[0])
                                                               ? m_data.textureName
-                                                              : NULL);
+                                                              : nullptr);
             HitTest::Load(m_data.modelName);
         }
         else
-            pMission->GetIgcSite()->Preload(NULL, m_data.textureName);
+            pMission->GetIgcSite()->Preload(nullptr, m_data.textureName);
 
         pMission->AddExpendableType(this);
     }

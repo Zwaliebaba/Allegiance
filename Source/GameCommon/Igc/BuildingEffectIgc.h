@@ -115,19 +115,19 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
 
             if (m_pasteroid)
             {
-                m_pasteroid->SetBuildingEffect(NULL);
-                m_pasteroid = NULL;
+                m_pasteroid->SetBuildingEffect(nullptr);
+                m_pasteroid = nullptr;
             }
 
             if (m_pshipBuilder)
             {
-                GetMyMission()->GetIgcSite()->KillShipEvent(GetMyLastUpdate(), m_pshipBuilder, NULL,
+                GetMyMission()->GetIgcSite()->KillShipEvent(GetMyLastUpdate(), m_pshipBuilder, nullptr,
                                                             0.0f, m_pshipBuilder->GetPosition(), Vector::GetZero());
-                m_pshipBuilder = NULL;
+                m_pshipBuilder = nullptr;
             }
 
-            m_pside = NULL;
-            m_pstationType = NULL;
+            m_pside = nullptr;
+            m_pstationType = nullptr;
 
 	        TmodelIGC<IbuildingEffectIGC>::Terminate();
             Release();
@@ -293,7 +293,7 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
     // IbuildingEffectIGC
         void    BuilderTerminated(void) override
         {
-            m_pshipBuilder = NULL;
+            m_pshipBuilder = nullptr;
         }
 
         IasteroidIGC*    GetAsteroid(void) const override
@@ -304,7 +304,7 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
         void    MakeUnhitable(void) override
         {
             assert (m_pasteroid);
-            m_pasteroid = NULL;
+            m_pasteroid = nullptr;
 
             TmodelIGC<IbuildingEffectIGC>::MakeUnhitable();        //Virtual wrapper for a non-virtual function
         }
@@ -332,12 +332,12 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
                 m_pshipBuilder->SetFuel(0.0f);
 
                 m_pshipBuilder->SetStateM(0);
-                GetMyMission()->GetIgcSite()->KillShipEvent(now, m_pshipBuilder, NULL, 0.0f, m_pshipBuilder->GetPosition(), Vector::GetZero());
+                GetMyMission()->GetIgcSite()->KillShipEvent(now, m_pshipBuilder, nullptr, 0.0f, m_pshipBuilder->GetPosition(), Vector::GetZero());
 
-                m_pshipBuilder = NULL;
+                m_pshipBuilder = nullptr;
 
                 IasteroidIGC*   pasteroid = m_pasteroid;
-                m_pasteroid->SetBuildingEffect(NULL);     //Clear the building effect so it isn't nuked along with the asteroid
+                m_pasteroid->SetBuildingEffect(nullptr);     //Clear the building effect so it isn't nuked along with the asteroid
                 assert (m_pasteroid == NULL);
 
                 GetMyMission()->GetIgcSite()->BuildStation(pasteroid,

@@ -30,7 +30,7 @@ HRESULT         CstationTypeIGC::Initialize(ImissionIGC* pMission,
 
     pMission->GetIgcSite()->Preload(m_data.modelName, iswalpha(m_data.textureName[0])
                                                       ? m_data.textureName
-                                                      : NULL);
+                                                      : nullptr);
 
     m_pdtConstruction = pMission->GetDroneType(m_data.constructionDroneTypeID);
     assert (m_pdtConstruction);
@@ -160,12 +160,12 @@ void            CstationTypeIGC::Terminate(void)
     if (m_pstSuccessor)
     {
         m_pstSuccessor->Release();
-        m_pstSuccessor = NULL;
+        m_pstSuccessor = nullptr;
     }
 
     assert (m_pdtConstruction);
     m_pdtConstruction->Release();
-    m_pdtConstruction = NULL;
+    m_pdtConstruction = nullptr;
 
     m_pMission->DeleteStationType(this);
 }

@@ -23,7 +23,7 @@ class       ChullTypeIGC : public IhullTypeIGC
     public:
         ChullTypeIGC(void)
         :
-            m_data(NULL)
+            m_data(nullptr)
         {
         }
 

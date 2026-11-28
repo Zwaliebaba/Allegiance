@@ -56,10 +56,10 @@ void        ClauncherTypeIGC::Terminate(void)
 {
     assert (m_pMission);
 
-    if (m_pexpendabletype != NULL)
+    if (m_pexpendabletype != nullptr)
     {
         m_pexpendabletype->Release();
-        m_pexpendabletype = NULL;
+        m_pexpendabletype = nullptr;
     }
 
     m_pMission->DeletePartType(this);

@@ -19,8 +19,8 @@
 // CshieldIGC
 CshieldIGC::CshieldIGC(void)
 :
-    m_partType(NULL),
-    m_ship(NULL),
+    m_partType(nullptr),
+    m_ship(nullptr),
     m_fraction(0.0f),
     m_mountID(c_mountNA)
 {
@@ -46,12 +46,12 @@ void        CshieldIGC::Terminate(void)
 {
     AddRef();
 
-    SetShip(NULL, NA);
+    SetShip(nullptr, NA);
 
     if (m_partType)
     {
         m_partType->Release();
-        m_partType = NULL;
+        m_partType = nullptr;
     }
 
     Release();

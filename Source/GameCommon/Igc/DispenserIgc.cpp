@@ -19,9 +19,9 @@
 // CdispenserIGC
 CdispenserIGC::CdispenserIGC(void)
 :
-    m_ship(NULL),
-    m_partType(NULL),
-    m_expendableType(NULL),
+    m_ship(nullptr),
+    m_partType(nullptr),
+    m_expendableType(nullptr),
     m_mountID(c_mountNA)
 {
 }
@@ -58,18 +58,18 @@ void        CdispenserIGC::Terminate(void)
 {
     AddRef();
 
-    SetShip(NULL, NA);
+    SetShip(nullptr, NA);
 
     if (m_partType)
     {
         m_partType->Release();
-        m_partType = NULL;
+        m_partType = nullptr;
     }
 
     if (m_expendableType)
     {
         m_expendableType->Release();
-        m_expendableType = NULL;
+        m_expendableType = nullptr;
     }
 
     Release();
@@ -108,7 +108,7 @@ void        CdispenserIGC::Update(Time   now)
         EquipmentType   et = m_expendableType->GetEquipmentType();
         
         if ((m_ship->GetStateM() & c_maskFire[et]) &&
-            ((et == ET_ChaffLauncher) || (m_ship->GetRipcordModel() == NULL)))
+            ((et == ET_ChaffLauncher) || (m_ship->GetRipcordModel() == nullptr)))
         {
             m_timeLoaded = now + m_expendableType->GetLoadTime();
 

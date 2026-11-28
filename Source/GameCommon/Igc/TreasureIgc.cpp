@@ -59,7 +59,7 @@ HRESULT     CtreasureIGC::Initialize(ImissionIGC* pMission, Time now, const void
                     case ET_ChaffLauncher:
                     case ET_Magazine:
                     {
-                        m_data.amount = randomInt(1, pt->GetAmount(NULL));
+                        m_data.amount = randomInt(1, pt->GetAmount(nullptr));
                     }
                     break;
 
@@ -87,7 +87,7 @@ HRESULT     CtreasureIGC::Initialize(ImissionIGC* pMission, Time now, const void
         }
         else
         {
-            m_buyable = NULL;
+            m_buyable = nullptr;
 
             if (m_data.treasureCode == c_tcCash)
                 m_data.amount = m_data.treasureID;                
@@ -119,7 +119,7 @@ HRESULT     CtreasureIGC::Initialize(ImissionIGC* pMission, Time now, const void
         static const char*  cName = "acs14";
 
         const char* name;
-        const char* texture = NULL;
+        const char* texture = nullptr;
         const char* icon;
         if (m_buyable)
         {
@@ -130,7 +130,7 @@ HRESULT     CtreasureIGC::Initialize(ImissionIGC* pMission, Time now, const void
         {
             if (m_data.treasureID != SIDE_TEAMLOBBY)
             {
-                name = NULL;
+                name = nullptr;
                 texture = "biosflag";
                 icon = "flag";
 

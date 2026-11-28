@@ -23,7 +23,7 @@ class CtreasureSetIGC : public ItreasureSetIGC
     public:
         CtreasureSetIGC(void)
         :
-            m_data(NULL)
+            m_data(nullptr)
         {
         }
 

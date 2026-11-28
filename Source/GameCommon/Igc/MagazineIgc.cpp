@@ -19,9 +19,9 @@
 // CmagazineIGC
 CmagazineIGC::CmagazineIGC(void)
 :
-    m_ship(NULL),
-    m_partType(NULL),
-    m_missileType(NULL),
+    m_ship(nullptr),
+    m_partType(nullptr),
+    m_missileType(nullptr),
     m_mountID(c_mountNA),
     m_lock(0.0f)
 {
@@ -56,18 +56,18 @@ void        CmagazineIGC::Terminate(void)
 {
     AddRef();
 
-    SetShip(NULL, NA);
+    SetShip(nullptr, NA);
 
     if (m_partType)
     {
         m_partType->Release();
-        m_partType = NULL;
+        m_partType = nullptr;
     }
 
     if (m_missileType)
     {
         m_missileType->Release();
-        m_missileType = NULL;
+        m_missileType = nullptr;
     }
 
     Release();
@@ -100,7 +100,7 @@ void        CmagazineIGC::Update(Time   now)
     assert (m_ship);
     if ((m_timeLoaded < now) && (m_amount > 0))
     {
-        if (m_ship->GetRipcordModel() != NULL)
+        if (m_ship->GetRipcordModel() != nullptr)
             m_lock = 0.0f;
         else
         {

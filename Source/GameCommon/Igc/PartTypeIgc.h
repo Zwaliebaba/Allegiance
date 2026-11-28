@@ -24,7 +24,7 @@ class   CpartTypeIGC : public IpartTypeIGC
     public:
         CpartTypeIGC(void)
         :
-            m_data(NULL)
+            m_data(nullptr)
         {
         }
 
