@@ -1418,11 +1418,10 @@ void    BaseClient::BuyLoadout(IshipIGC*    pshipLoadout, bool bLaunch)
     {
         // I'm training here
         short   size = pshipLoadout->ExportShipLoadout(nullptr);
-        void*   ptr = new char[size];
-        pshipLoadout->ExportShipLoadout (static_cast <ShipLoadout*> (ptr));
-        m_ship->PurchaseShipLoadout (size, static_cast <ShipLoadout*> (ptr));
+        std::unique_ptr<char[]> ptr (new char[size]);
+        pshipLoadout->ExportShipLoadout (reinterpret_cast <ShipLoadout*> (ptr.get ()));
+        m_ship->PurchaseShipLoadout (size, reinterpret_cast <ShipLoadout*> (ptr.get ()));
         m_pClientEventSource->OnPurchaseCompleted (true);
-        delete ptr;
     }
 }
 
@@ -2836,7 +2835,7 @@ void BaseClient::FireMissile(IshipIGC* pShip,
         //Don't bother to set the ship, missile or missile type ID ... the server will set them
     }
 
-    delete missileLaunchData;
+    delete [] missileLaunchData;   // FM_VAR_PARM names it, so it stays a raw array
 
     pMagazine->SetAmount (iNumRemainingMissiles);
     if (0 == iNumRemainingMissiles)

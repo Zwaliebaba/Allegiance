@@ -8625,7 +8625,7 @@ IshipIGC*   PickNewLeader(const ShipListIGC*    pships,
         int       nVotes;
     };
 
-    Contender*    pcontenders = new Contender[pships->n()];
+    std::unique_ptr<Contender[]> pcontenders(new Contender[pships->n()]);
     int           nContenders = 0;
 
     IshipIGC*     pshipMax = nullptr;
@@ -8657,7 +8657,6 @@ IshipIGC*   PickNewLeader(const ShipListIGC*    pships,
             }
         }
     }
-    delete pcontenders;
 
     return pshipMax;
 }
