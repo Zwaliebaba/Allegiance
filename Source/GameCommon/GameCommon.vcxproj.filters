@@ -94,6 +94,6 @@
     <ClInclude Include="Version\SlmVer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Version\VerRes.rc" />
+    <None Include="Version\VerRes.rc" />
   </ItemGroup>
 </Project>

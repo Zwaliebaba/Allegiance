@@ -81,7 +81,6 @@
   <ItemGroup>
     <ClInclude Include="App\main.h" />
     <ClInclude Include="Effect\combopane.h" />
-    <ClInclude Include="Effect\debrisgeo.h" />
     <ClInclude Include="Effect\efapp.h" />
     <ClInclude Include="Effect\efart.h" />
     <ClInclude Include="Effect\effect.h" />
@@ -113,7 +112,6 @@
     <ClInclude Include="Engine\enginep.h" />
     <ClInclude Include="Engine\enginewindow.h" />
     <ClInclude Include="Engine\font.h" />
-    <ClInclude Include="Engine\framedata.h" />
     <ClInclude Include="Engine\frameimage.h" />
     <ClInclude Include="Engine\geometry.h" />
     <ClInclude Include="Engine\image.h" />
@@ -128,17 +126,14 @@
     <ClInclude Include="Engine\palette.h" />
     <ClInclude Include="Engine\pane.h" />
     <ClInclude Include="Engine\paneimage.h" />
-    <ClInclude Include="Engine\panewindow.h" />
     <ClInclude Include="Engine\pixel.h" />
     <ClInclude Include="Engine\pixelformat.h" />
     <ClInclude Include="Engine\popup.h" />
-    <ClInclude Include="Engine\stdafx.h" />
     <ClInclude Include="Engine\surface.h" />
     <ClInclude Include="Engine\toppane.h" />
     <ClInclude Include="Engine\transform.h" />
     <ClInclude Include="Engine\value.h" />
     <ClInclude Include="Engine\viewport.h" />
-    <ClInclude Include="Engine\xfile.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Sound\redbooksound.h" />
     <ClInclude Include="Sound\soundbase.h" />

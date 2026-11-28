@@ -3,6 +3,14 @@
 //
 
 #include "pch.h"
+
+// CRegKey; zlib.h's debug "new" macro must not meet ATL's new(std::nothrow)
+#pragma push_macro("new")
+#undef new
+#include <atlbase.h>
+#pragma pop_macro("new")
+
+#include <TCLib/TCLib.h>   // RETURN_FAILED, _VERIFYE, IsWin9x
 #include "UserAcct.h"
 
 
