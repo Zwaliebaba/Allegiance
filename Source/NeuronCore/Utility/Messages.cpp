@@ -131,8 +131,7 @@ FedMessaging::FedMessaging(IFedMessagingSite * pfmSite) :
 FedMessaging::~FedMessaging()
 {
   Shutdown();
-  delete m_pimpl->m_pdiscovery;
-  delete m_pimpl;
+  delete m_pimpl->m_pdiscovery;   // before the pimpl itself goes, after this body
 }
 
 

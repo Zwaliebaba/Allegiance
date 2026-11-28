@@ -28,8 +28,6 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  ConditionalAction::~ConditionalAction (void)
     {
-        delete m_pCondition;
-        delete m_pAction;
     }
 
     //------------------------------------------------------------------------------

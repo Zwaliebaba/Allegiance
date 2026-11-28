@@ -572,8 +572,8 @@ void    ChatInfo::ClearTarget(void)
 MissionInfo::MissionInfo(DWORD dwCookie) :
     m_sideLobby(SIDE_TEAMLOBBY)
 {
-    m_pfmMissionDef = new FMD_S_MISSIONDEF;
-    memset(m_pfmMissionDef, 0, sizeof(FMD_S_MISSIONDEF));
+    m_pfmMissionDef.reset(new FMD_S_MISSIONDEF);
+    memset(m_pfmMissionDef.get(), 0, sizeof(FMD_S_MISSIONDEF));
     m_pfmMissionDef->dwCookie = dwCookie;
     m_fGuaranteedSlotsAvailable = false;
     m_fAnySlotsAvailable = false;
@@ -583,9 +583,6 @@ MissionInfo::MissionInfo(DWORD dwCookie) :
 
 MissionInfo::~MissionInfo()
 {
-    if (m_pfmMissionDef)
-        delete m_pfmMissionDef;
-
     TMapListWrapper<SideID, SideInfo*>::Iterator iterSideInfo(m_mapSideInfo);
 
     while (!iterSideInfo.End())
@@ -598,7 +595,7 @@ MissionInfo::~MissionInfo()
 void MissionInfo::Update(FMD_S_MISSIONDEF* pfmMissionDef)
 {
     int numSidesOld = NumSides();
-    memcpy(m_pfmMissionDef, pfmMissionDef, sizeof(FMD_S_MISSIONDEF));
+    memcpy(m_pfmMissionDef.get(), pfmMissionDef, sizeof(FMD_S_MISSIONDEF));
 
     // create or destroy sides, as needed.
     if (NumSides() > numSidesOld)
@@ -919,17 +916,11 @@ PlayerInfo::PlayerInfo(void) :
 
 PlayerInfo::~PlayerInfo()
 {
-    if (m_vPersistPlayerScores)
-        delete m_vPersistPlayerScores;
-
     ResetShipStatus();
 }
 
 void PlayerInfo::Set(FMD_S_PLAYERINFO* pfmPlayerInfo)
 {
-    if (m_vPersistPlayerScores)
-        delete m_vPersistPlayerScores;
-
     memcpy(&m_fmPlayerInfo, pfmPlayerInfo, sizeof(m_fmPlayerInfo));
 
     m_cPersistPlayerScores = pfmPlayerInfo->cbrgPersistPlayerScores / sizeof(PersistPlayerScoreObject);
@@ -938,14 +929,14 @@ void PlayerInfo::Set(FMD_S_PLAYERINFO* pfmPlayerInfo)
     {
         PersistPlayerScoreObject* vSrcScores 
             = (PersistPlayerScoreObject*)FM_VAR_REF(pfmPlayerInfo, rgPersistPlayerScores);
-        m_vPersistPlayerScores = new PersistPlayerScoreObject[m_cPersistPlayerScores];
+        m_vPersistPlayerScores.reset(new PersistPlayerScoreObject[m_cPersistPlayerScores]);
 
         for (int i = 0; i < m_cPersistPlayerScores; i++)
             m_vPersistPlayerScores[i] = vSrcScores[i];
     }
     else
     {
-        m_vPersistPlayerScores = nullptr;
+        m_vPersistPlayerScores.reset();
     }
 }
 
@@ -984,10 +975,7 @@ void        PlayerInfo::UpdateScore(PersistPlayerScoreObject& ppso)
             for (int i = 0; i < m_cPersistPlayerScores; ++i)
                 vppsoNew[i] = m_vPersistPlayerScores[i];
 
-            if (m_vPersistPlayerScores)
-                delete m_vPersistPlayerScores;
-
-            m_vPersistPlayerScores = vppsoNew;
+            m_vPersistPlayerScores.reset(vppsoNew);
 
             ++m_cPersistPlayerScores;
         }
@@ -1433,11 +1421,10 @@ void    BaseClient::BuyLoadout(IshipIGC*    pshipLoadout, bool bLaunch)
     {
         // I'm training here
         short   size = pshipLoadout->ExportShipLoadout(nullptr);
-        void*   ptr = new char[size];
-        pshipLoadout->ExportShipLoadout (static_cast <ShipLoadout*> (ptr));
-        m_ship->PurchaseShipLoadout (size, static_cast <ShipLoadout*> (ptr));
+        std::unique_ptr<char[]> ptr (new char[size]);
+        pshipLoadout->ExportShipLoadout (reinterpret_cast <ShipLoadout*> (ptr.get ()));
+        m_ship->PurchaseShipLoadout (size, reinterpret_cast <ShipLoadout*> (ptr.get ()));
         m_pClientEventSource->OnPurchaseCompleted (true);
-        delete ptr;
     }
 }
 
@@ -2851,7 +2838,7 @@ void BaseClient::FireMissile(IshipIGC* pShip,
         //Don't bother to set the ship, missile or missile type ID ... the server will set them
     }
 
-    delete missileLaunchData;
+    delete [] missileLaunchData;   // FM_VAR_PARM names it, so it stays a raw array
 
     pMagazine->SetAmount (iNumRemainingMissiles);
     if (0 == iNumRemainingMissiles)

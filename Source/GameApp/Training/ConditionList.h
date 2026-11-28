@@ -32,7 +32,7 @@ namespace Training
                     void                AddCondition (Condition* pCondition);
 
         protected:
-                    std::list<Condition*>   m_conditionList;
+                    std::list<std::unique_ptr<Condition>> m_conditionList;
     };
 
     //------------------------------------------------------------------------------

@@ -31,7 +31,7 @@ namespace Training
             void                Stop (void) override;
 
         protected:
-                    Action*             m_pAction;
+                    std::unique_ptr<Action> m_pAction;
                     bool                m_bHasExecuted;
     };
 

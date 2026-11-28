@@ -28,7 +28,6 @@ namespace Training
     /* void */  PeriodicCondition::~PeriodicCondition (void)
     {
         // assume no one else will be cleaning this up
-        delete m_pCondition;
     }
 
     //------------------------------------------------------------------------------

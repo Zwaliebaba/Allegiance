@@ -32,7 +32,7 @@ namespace Training
             bool                Evaluate (void) override;
 
         protected:
-                    Condition*          m_pCondition;
+                    std::unique_ptr<Condition> m_pCondition;
                     bool                m_bExpectedValue;
     };
 

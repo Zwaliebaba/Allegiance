@@ -48,8 +48,6 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  ObjectPointingAtCondition::~ObjectPointingAtCondition (void)
     {
-        delete m_pObject;
-        delete m_pTarget;
     }
 
     //------------------------------------------------------------------------------

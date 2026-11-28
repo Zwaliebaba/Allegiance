@@ -42,8 +42,6 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  ShipSeesObjectCondition::~ShipSeesObjectCondition (void)
     {
-        delete m_pShip;
-        delete m_pTarget;
     }
 
     //------------------------------------------------------------------------------

@@ -1167,6 +1167,31 @@ rather than each caller's care. What they turned up:
 `UTL::SearchAndReplace` (no callers, a destination with no size, and replacements that can lengthen the result)
 and the unbounded `Strcpy` / `Strncpy` wrappers are deleted.
 
+#### Ownership: unique_ptr where it is clear (in progress)
+
+Owned pointers become `std::unique_ptr` where one object plainly owns another; the rest of the tree's
+`delete`s (about 150: game objects whose lifetime IGC's intrusive lists manage, messages allocated as byte
+buffers, nodes freed by `Terminate` methods) are left for case-by-case work.
+
+- **Training.** A mission is a tree of conditions and actions, each node owning the nodes passed to its
+  constructor: 34 members in 23 classes, and the action, condition, goal and wait-condition lists, hold
+  `unique_ptr`. The constructors still take raw pointers, so the missions that build the trees are unchanged.
+  Two places that replaced a held object without freeing it now free it, and a second `Stop` no longer leaks
+  the parked mission tree. `TrainingMission`'s destructor frees its conditions before the player leaves the
+  mission, as before: they point at the ships and stations that leaving tears down.
+- **The client.** `MissionInfo`'s mission definition, and `PlayerInfo`'s scores, which were allocated with
+  `new[]` and freed with `delete`. (`BaseClient::m_pMissionInfo` stays a raw pointer: it is a public member,
+  and changing its declaration would hold its legacy name to the convention, a rename across three files.)
+- **Pimpls.** `ZSettingsFile` and `FedMessaging`.
+- **Array deletes.** Seven `new[]` allocations were freed with `delete` (found by matching every `delete`
+  against its pointer's allocation): the training loadout purchase buffer, missile launch data, the server's
+  leader vote count, DirectInput's data format and state buffer, a font's glyph data, and the frame image's
+  XOR buffer.
+
+Not converted: `SuspendedSoundFinishedCondition` (owns its sound action only when told to), `g_pMission`
+(nulled before its `delete` on purpose), `CmissionIGC::m_pStatic` (owned only in some missions) and
+`CFSMission::m_pMission` (terminated, in order, before it is freed).
+
 #### Unit tests and AddressSanitizer
 
 Each library has a Microsoft CppUnitTest project, `Tests/<Library>.Tests` (a DLL that links the

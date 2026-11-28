@@ -28,7 +28,6 @@ namespace Training
     /* void */  ResetShipAction::~ResetShipAction (void)
     {
         m_ship = nullptr;
-        delete m_pState;
     }
 
     //------------------------------------------------------------------------------
@@ -51,7 +50,7 @@ namespace Training
         else if (m_ship->GetMission ())
         {
             // allocate a state pointer, and fill it in with needed info
-            m_pState = new State;
+            m_pState.reset (new State);
             m_pState->position = m_ship->GetPosition ();
             m_pState->velocity = m_ship->GetVelocity ();
             m_pState->orientation = m_ship->GetOrientation ();

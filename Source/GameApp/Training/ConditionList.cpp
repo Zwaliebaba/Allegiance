@@ -20,11 +20,7 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  ConditionList::~ConditionList (void)
     {
-        // assume that no one else is managing the memory for these conditions, and delete
-        // them myself.
-        std::list<Condition*>::iterator    iterator = m_conditionList.begin ();
-        for (; iterator != m_conditionList.end (); iterator++)
-            delete *iterator;
+        // the list owns its conditions
     }
 
     //------------------------------------------------------------------------------
@@ -36,7 +32,7 @@ namespace Training
         // Loop over the condition list. If any condition evaluates to false, then
         // the condition list evaluates to false. We need to traverse all of the
         // conditions, however, since they may have actions associated with them.
-        std::list<Condition*>::iterator    iterator = m_conditionList.begin ();
+        auto    iterator = m_conditionList.begin ();
         for (; iterator != m_conditionList.end (); iterator++)
             if ((*iterator)->Start () == false)
                 result = false;
@@ -49,7 +45,7 @@ namespace Training
     void        ConditionList::Stop (void)
     {
         // Loop over the condition list, calling stop on all of them.
-        std::list<Condition*>::iterator    iterator = m_conditionList.begin ();
+        auto    iterator = m_conditionList.begin ();
         for (; iterator != m_conditionList.end (); iterator++)
             (*iterator)->Stop ();
     }
@@ -63,7 +59,7 @@ namespace Training
         // Loop over the condition list. If any condition evaluates to false, then
         // the condition list evaluates to false. We need to traverse all of the 
         // conditions, however, since they may have actions associated with them.
-        std::list<Condition*>::iterator    iterator = m_conditionList.begin ();
+        auto    iterator = m_conditionList.begin ();
         for (; iterator != m_conditionList.end (); iterator++)
             if ((*iterator)->Evaluate () == false)
                 result = false;
@@ -77,7 +73,7 @@ namespace Training
     {
         // Store the conditions in the order they are added. This gives the
         // author some modicum of control over playback order.
-        m_conditionList.push_back (pCondition);
+        m_conditionList.emplace_back (pCondition);
     }
 
     //------------------------------------------------------------------------------

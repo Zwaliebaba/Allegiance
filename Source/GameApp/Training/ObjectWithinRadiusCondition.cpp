@@ -57,8 +57,6 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  ObjectWithinRadiusCondition::~ObjectWithinRadiusCondition (void)
     {
-        delete m_pObject;
-        delete m_pTarget;
     }
 
     //------------------------------------------------------------------------------

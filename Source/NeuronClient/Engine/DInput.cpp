@@ -764,8 +764,8 @@ public:
         didf.dwDataSize = m_sizeData;
         didf.dwNumObjs  = countValues + countButtons;
 
-        DIObjectDataFormat* pdiodf = new DIObjectDataFormat[didf.dwNumObjs];
-        didf.rgodf      =  pdiodf;
+        std::unique_ptr<DIObjectDataFormat[]> pdiodf(new DIObjectDataFormat[didf.dwNumObjs]);
+        didf.rgodf      =  pdiodf.get();
 
         for (index = 0; index < countValues; index++) {
             ValueDDInputObject* pobject = m_vvalueObject[index];
@@ -789,7 +789,6 @@ public:
 
         DDCall(m_pdid->SetDataFormat(&didf));
 
-        delete pdiodf;
 
         //
         // Allocate a data receptical
@@ -812,7 +811,7 @@ public:
 
     ~JoystickInputStreamImpl()
     {
-        delete m_pbyteData;
+        delete [] m_pbyteData;
     }
 
     //////////////////////////////////////////////////////////////////////////////

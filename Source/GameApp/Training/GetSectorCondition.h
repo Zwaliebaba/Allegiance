@@ -36,7 +36,7 @@ namespace Training
             bool                Evaluate (void) override;
 
         protected:
-                    AbstractTarget*     m_pModel;
+                    std::unique_ptr<AbstractTarget> m_pModel;
                     SectorID            m_sector;
     };
 

@@ -27,8 +27,6 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  AndCondition::~AndCondition (void)
     {
-        delete m_pConditionA;
-        delete m_pConditionB;
     }
 
     //------------------------------------------------------------------------------

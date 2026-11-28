@@ -327,7 +327,7 @@ public:
         pdwOffsets    = new DWORD[m_nframes];
         pdwOffsets[0] = 0;
 
-        BYTE*  pd     = new BYTE[length];
+        std::unique_ptr<BYTE[]> pd(new BYTE[length]);
         BYTE*  prle   = prleStart;
 
         for (int frame = 0; frame < m_nframes - 1; frame++) {
@@ -341,18 +341,17 @@ public:
             const BYTE* p0 = psurface0->GetPointer();
             const BYTE* p1 = psurface1->GetPointer();
 
-            DoXOR(p0, p1, pd, length);
+            DoXOR(p0, p1, pd.get(), length);
 
             //
             // Calculate the difference
             //
 
-            DoRLE(pd, length, prle);
+            DoRLE(pd.get(), length, prle);
             pdwOffsets[frame + 1 ] = prle - prleStart;
         }
 
         ZAssert(prle - prleStart <= size);
-        delete pd;
     }
 
     void GetFrame(Surface* psurface, int frame)

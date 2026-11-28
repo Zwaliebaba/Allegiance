@@ -32,8 +32,8 @@ namespace Training
             bool                Evaluate (void) override;
 
         protected:
-                    Condition*          m_pConditionA;
-                    Condition*          m_pConditionB;
+                    std::unique_ptr<Condition> m_pConditionA;
+                    std::unique_ptr<Condition> m_pConditionB;
     };
 
     //------------------------------------------------------------------------------

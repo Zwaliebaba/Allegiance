@@ -471,7 +471,7 @@ private:
   GUID                m_guidInstance;
   FedApplication      m_application;                // given to HostSession() or JoinSession()
   DWORD               m_idGroupNext;
-  FedMessagingImpl *  m_pimpl;
+  std::unique_ptr<FedMessagingImpl> m_pimpl;
   IFedMessagingSite * m_pfmSite;
   ListConnections     m_listCnxns; 
   ListGroups          m_listGroups; 

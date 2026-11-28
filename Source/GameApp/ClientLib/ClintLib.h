@@ -244,7 +244,7 @@ class PlayerInfo : public IObject
     ImissionIGC*                m_pmission;
 
     ShipStatus                  m_shipStatus;
-    PersistPlayerScoreObject*   m_vPersistPlayerScores;
+    std::unique_ptr<PersistPlayerScoreObject[]> m_vPersistPlayerScores;
     int                         m_cPersistPlayerScores;
     PersistPlayerScoreObject    m_persist; // default new score
 
@@ -432,7 +432,7 @@ class MissionInfo
 {
 protected: 
  
-    FMD_S_MISSIONDEF* m_pfmMissionDef;
+    std::unique_ptr<FMD_S_MISSIONDEF> m_pfmMissionDef;
     TMapListWrapper<SideID, SideInfo*> m_mapSideInfo;
     SideInfo m_sideLobby;
     int m_nNumPlayers;

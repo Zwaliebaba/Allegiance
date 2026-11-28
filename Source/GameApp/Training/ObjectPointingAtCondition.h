@@ -42,8 +42,8 @@ namespace Training
                     Vector              MaskedVector (const Vector& vector);
 
         protected:
-                    AbstractTarget*     m_pObject;
-                    AbstractTarget*     m_pTarget;
+                    std::unique_ptr<AbstractTarget> m_pObject;
+                    std::unique_ptr<AbstractTarget> m_pTarget;
                     Vector              m_vectorMask;
                     float               m_fMinimumAngle;
     };

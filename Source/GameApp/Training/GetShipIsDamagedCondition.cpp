@@ -42,7 +42,6 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  GetShipIsDamagedCondition::~GetShipIsDamagedCondition (void)
     {
-        delete m_pTarget;
     }
 
     //------------------------------------------------------------------------------

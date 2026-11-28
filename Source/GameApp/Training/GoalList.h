@@ -33,8 +33,8 @@ namespace Training
                     void                AddGoal (Goal* pGoal);
 
         protected:
-                    std::list<Goal*>            m_goalList;
-                    std::list<Goal*>::iterator  m_iterator;
+                    std::list<std::unique_ptr<Goal>> m_goalList;
+                    std::list<std::unique_ptr<Goal>>::iterator m_iterator;
     };
 
     //------------------------------------------------------------------------------

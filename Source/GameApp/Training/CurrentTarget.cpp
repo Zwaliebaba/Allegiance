@@ -29,8 +29,6 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  CurrentTarget::~CurrentTarget (void)
     {
-        delete m_pTarget;
-        delete m_pFetched;
     }
 
     //------------------------------------------------------------------------------
@@ -50,7 +48,7 @@ namespace Training
             if (not m_pFetched)
             {
                 // we haven't cached a target yet, so we need to get the target
-                m_pFetched = new TypeIDTarget (pTarget ? pTarget->GetObjectType () : NA, pTarget ? pTarget->GetObjectID () : NA);
+                m_pFetched.reset (new TypeIDTarget (pTarget ? pTarget->GetObjectType () : NA, pTarget ? pTarget->GetObjectID () : NA));
             }
             else
             {
@@ -64,8 +62,7 @@ namespace Training
                 if ((pFetched != pTarget) and pFetched and pTarget)
                 {
                     // there has been such a change, so set up a new abstract target
-                    delete m_pFetched;
-                    m_pFetched = new TypeIDTarget (pTarget ? pTarget->GetObjectType () : NA, pTarget ? pTarget->GetObjectID () : NA);
+                    m_pFetched.reset (new TypeIDTarget (pTarget ? pTarget->GetObjectType () : NA, pTarget ? pTarget->GetObjectID () : NA));
                 }
             }
             return (*m_pFetched);
