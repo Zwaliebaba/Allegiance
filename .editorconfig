@@ -1,6 +1,6 @@
 # Baseline whitespace, so an editor gets it right before clang-format runs.
 #
-# /.clang-format is the AUTHORITY for C++ layout (AGENTS.md §4). This file exists for the formats
+# /.clang-format is the AUTHORITY for C++ layout (AGENTS.md section 4). This file exists for the formats
 # clang-format does not cover — HLSL, Python, shell, YAML, MSBuild XML, JSON content — and, for
 # C++, repeats only the two numbers an editor needs before the first save. Where the two disagree,
 # clang-format wins; keep IndentWidth and ColumnLimit in step with it.
@@ -20,7 +20,7 @@ indent_size = 2
 indent_size = 2
 max_line_length = 140
 
-# Shaders (<Lib>/Shader/, AGENTS.md §2) are compiled into the executable, but they are still
+# Shaders (Source/NeuronClient/Engine/shaders) are compiled into the library, but they are still
 # hand-written source and read best at the same width as the C++ that drives them.
 [*.hlsl]
 indent_size = 2
@@ -29,18 +29,27 @@ max_line_length = 140
 [*.{vcxproj,filters,slnx,props,targets}]
 indent_size = 2
 
-# The Visual Studio resource editor writes .rc and .rc2 as UTF-16 and rewrites them wholesale.
-# Declaring utf-8 here would make every editor that honours this file corrupt them on save.
-[*.{rc,rc2}]
-charset = utf-16le
+# The resource scripts here are 8-bit text, not the UTF-16 the resource editor writes for new
+# ones: allegiance.rc2 and VerRes.rc carry Latin-1 (the copyright sign). Declaring utf-8 or
+# utf-16le would make an editor that honours this file re-encode them on save.
+[*.{rc,RC,rc2}]
+charset = latin1
 trim_trailing_whitespace = false
 insert_final_newline = false
+
+# The same for the five sources with Latin-1 bytes in their comments: left as they are, rather
+# than re-encoded by whichever editor touches them next.
+[Source/GameApp/Training/mission{3,4,5}.cpp]
+charset = latin1
+
+[Source/GameCommon/Igc/{igc,sounds}.h]
+charset = latin1
 
 # Config and content authored by hand.
 [*.json]
 indent_size = 2
 
-# LF for the formats read by non-Windows tooling — the format checker runs in a Linux container.
+# LF for the formats read by non-Windows tooling.
 [*.{yml,yaml}]
 end_of_line = lf
 indent_size = 2

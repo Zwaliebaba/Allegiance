@@ -58,7 +58,7 @@
 #include "fsside.h"
 #include "fscluster.h"
 #include "fsmission.h"
-#include "fedsrv.h"
+#include "FedSrv.h"
 
 extern Global g;
 

@@ -1029,7 +1029,7 @@ struct MissionParams
 {
     //------------------------------------------------------------------------------
     // If you add or remove properties, please update training mission 7's game
-    // (CreateTrainingGame in FedSrv.CPP) if it needs them.
+    // (CreateTrainingGame in FedSrv.cpp) if it needs them.
     // 
     //------------------------------------------------------------------------------
     char        strGameName[c_cbGameName];              //Name of game

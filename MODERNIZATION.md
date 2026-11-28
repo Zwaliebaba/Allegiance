@@ -89,7 +89,7 @@ The hello and discovery frames carry the ID, so the transport's protocol version
 is refused with "The server runs a different version of Allegiance". Four of the GUIDs had no users. The
 rest of `guids.cpp` instantiated OLE DB's GUIDs for the server's SQL layer (`allegdb`, `srvqueries.h`),
 which no longer reached a database: the logon used one query class as a data holder, now the plain
-`LogonDetails` (`FedSrv.H`), and the rest went with it, with the two database error events.
+`LogonDetails` (`FedSrv.h`), and the rest went with it, with the two database error events.
 
 **ATL removed.** The server reached ATL and the 1999 TCLib and TCAtl libraries built on it (about 10,900
 lines) for two things: `TCUserAccount`, with which `-install user password` gave the account the right
@@ -1224,6 +1224,14 @@ substitutes Courier New for it (the menu titles then look garbled). `Art.proj` p
 `eurosti.ttf` and `eurostib.ttf` there, or set `-p:ArtFontDir=<folder>`. When a font is still
 missing, the build prints `mdlc : warning : font '...' is not installed, Windows substituted '...'`.
 The CI art job has no fonts, so its `font.mdl` uses the substitute.
+
+### Conventions
+
+New code follows the naming and layout rules in [AGENTS.md](AGENTS.md), carried over from the sibling
+repositories with one exception (constants are `UPPER_CASE`). The legacy tree is exempt and is not renamed
+or reformatted. CI's `naming` job runs clang-tidy's identifier-naming check on the lines a change adds,
+through `Tools/ci/check-naming.py`. The four files with upper-case extensions (`FedSrv.CPP/.H`,
+`SWMRG.CPP/.H`) were renamed to `.cpp`/`.h`, because a case-sensitive `*.cpp` glob missed them.
 
 ## Conformance fix log
 
