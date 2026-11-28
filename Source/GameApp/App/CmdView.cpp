@@ -110,7 +110,7 @@ void CommandGeo::DrawShips(Context* pcontext)
                   trekClient.GetShip()->GetCommandTarget(c_cmdQueued)
                 };
 
-    for (ModelLinkIGC* l = models->first(); (l != NULL); l = l->next()) 
+    for (ModelLinkIGC* l = models->first(); (l != nullptr); l = l->next()) 
     {
         ImodelIGC* pmodel = l->data();
 

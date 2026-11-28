@@ -9,8 +9,8 @@
 
 class Screen : public IObject {
 public:
-    virtual Image*   GetImage() { return NULL; }
-    virtual Pane*    GetPane()  { return NULL; }
+    virtual Image*   GetImage() { return nullptr; }
+    virtual Pane*    GetPane()  { return nullptr; }
     virtual WinPoint GetSize()  { return WinPoint(800, 600); }
     virtual void     OnFrame()  {}
 };

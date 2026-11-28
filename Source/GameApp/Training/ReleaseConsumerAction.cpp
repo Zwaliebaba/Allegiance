@@ -26,7 +26,7 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  ReleaseConsumerAction::~ReleaseConsumerAction (void)
     {
-        m_buoy = 0;
+        m_buoy = nullptr;
     }
 
     //------------------------------------------------------------------------------

@@ -131,7 +131,7 @@ public:
                 // If we can't find the right bitmap load the default bitmap.
                 //
 
-                if (m_pimage == NULL) {
+                if (m_pimage == nullptr) {
                     ZString str = StrToLower((ZString("l") + ZString(ppartType->GetModelName()) + "bmp"));
                     m_pimage = GetModeler()->LoadImage(str, false);
                 }
@@ -245,7 +245,7 @@ public:
 
         void OnBoardShip(IshipIGC* pshipChild, IshipIGC* pshipParent) override
         {
-            if (pshipParent == trekClient.GetShip() || pshipParent == NULL)
+            if (pshipParent == trekClient.GetShip() || pshipParent == nullptr)
             {
                 NeedPaint();
             }
@@ -506,8 +506,8 @@ public:
     LoadoutImpl(Modeler* pmodeler, Number* ptime) :
         m_pmodeler(pmodeler),
         m_ptime(ptime),
-        m_phullType(NULL),
-        m_phullTypeBase(NULL)
+        m_phullType(nullptr),
+        m_phullTypeBase(nullptr)
     {
         // calculate the mass and signature of the default loadout
         IshipIGC*   pshipSource = trekClient.GetShip()->GetSourceShip();
@@ -531,7 +531,7 @@ public:
         InitializePanes();
         UpdateHullType();
         UpdateCivBitmap();
-        UpdatePartInfo(NULL, NULL, NULL);
+        UpdatePartInfo(nullptr, nullptr, nullptr);
         UpdateNextAndPrevButtons();
         m_psubmenuEventSink = ISubmenuEventSink::CreateDelegate(this);
     }
@@ -1347,7 +1347,7 @@ public:
 
         UpdatePartInfo(
             pslot, ppart,
-            ppart ? ppart->GetPartType() : NULL
+            ppart ? ppart->GetPartType() : nullptr
         );
         //UpdateCone(pslot);
     }
@@ -1355,7 +1355,7 @@ public:
     void SlotLeft(Slot* pslot)
     {   
         //CloseMenu();
-        UpdatePartInfo(NULL, NULL, NULL);
+        UpdatePartInfo(nullptr, nullptr, nullptr);
         //UpdateCone(NULL);
     }
 
@@ -1387,7 +1387,7 @@ public:
             iter.Next();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -1406,10 +1406,10 @@ public:
     void SellPart(Slot* pslot)
     {
         IpartIGC* ppart = pslot->GetPart();
-        if (ppart != NULL)
+        if (ppart != nullptr)
         {
             ppart->Terminate();
-            pslot->SetPart(NULL);
+            pslot->SetPart(nullptr);
         }
 
         UpdateHullType();
@@ -1446,7 +1446,7 @@ public:
                 if (pslot->GetPart())
                 {
                     pslot->GetPart()->Terminate();
-                    pslot->SetPart(NULL);
+                    pslot->SetPart(nullptr);
                 }
 
                 iter.Next();
@@ -1476,7 +1476,7 @@ public:
     {
         if ((trekClient.GetShip()->GetValue() + trekClient.GetMoney()) >= m_pship->GetValue())
         {
-            if (trekClient.GetShip()->GetParentShip() != NULL)
+            if (trekClient.GetShip()->GetParentShip() != nullptr)
                 trekClient.DisembarkAndBuy(m_pship, true);
             else
                 trekClient.BuyLoadout(m_pship, true);
@@ -1496,7 +1496,7 @@ public:
             pfmRequest->amount = cost;
             pfmRequest->hidFor = m_pship->GetBaseHullType()->GetObjectID();
         }
-        else if (trekClient.GetShip()->GetParentShip() != NULL)
+        else if (trekClient.GetShip()->GetParentShip() != nullptr)
             trekClient.DisembarkAndBuy(m_pship, false);
         else
             trekClient.BuyLoadout(m_pship, false);
@@ -1543,7 +1543,7 @@ public:
     {
         IhullTypeIGC* phtCurrent = m_pship->GetBaseHullType();
         IstationIGC* pstation = trekClient.GetShip()->GetStation();
-        if (pstation != NULL)
+        if (pstation != nullptr)
         {
             const HullTypeListIGC* phullList         = trekClient.m_pCoreIGC->GetHullTypes();
 
@@ -1561,13 +1561,13 @@ public:
                 if (bForward)
                 {
                     phtlNow = phtlNow->next();
-                    if (phtlNow == NULL)
+                    if (phtlNow == nullptr)
                         phtlNow = phullList->first();
                 }
                 else
                 {
                     phtlNow = phtlNow->txen();
-                    if (phtlNow == NULL)
+                    if (phtlNow == nullptr)
                         phtlNow = phullList->last();
                 }
 
@@ -1656,7 +1656,7 @@ public:
 
         if (m_phullMenu) {
             GetWindow()->GetPopupContainer()->ClosePopup(m_phullMenu);
-            m_phullMenu = NULL;
+            m_phullMenu = nullptr;
             
         }
         m_pmenu =
@@ -1681,7 +1681,7 @@ public:
 
         const PartTypeListIGC* plist = trekClient.m_pCoreIGC->GetPartTypes();
         for (PartTypeLinkIGC* ppartTypeNode = plist->first();
-             ppartTypeNode != NULL; 
+             ppartTypeNode != nullptr; 
              ppartTypeNode = ppartTypeNode->next())
         {
             IpartTypeIGC* ppartType     = ppartTypeNode->data();
@@ -1739,7 +1739,7 @@ public:
         IstationIGC* pstation  = trekClient.GetShip()->GetStation();
         const PartTypeListIGC* plist = trekClient.m_pCoreIGC->GetPartTypes();
         for (PartTypeLinkIGC* ppartTypeNode = plist->first();
-             ppartTypeNode != NULL; 
+             ppartTypeNode != nullptr; 
              ppartTypeNode = ppartTypeNode->next())
         {
             IpartTypeIGC* ppartType     = ppartTypeNode->data();
@@ -1767,8 +1767,8 @@ public:
 
         if (m_pmenu) {
             GetWindow()->GetPopupContainer()->ClosePopup(m_pmenu);
-            m_pmenu     = NULL;
-            m_pslotMenu = NULL;
+            m_pmenu     = nullptr;
+            m_pslotMenu = nullptr;
         }
         m_phullMenu = 
             CreateMenu(
@@ -1781,7 +1781,7 @@ public:
         
         for (
             HullTypeLinkIGC* phullTypeNode = phullList->first();
-            phullTypeNode != NULL; 
+            phullTypeNode != nullptr; 
             phullTypeNode = phullTypeNode->next()
         ) {
             IhullTypeIGC* phullType = phullTypeNode->data();
@@ -1806,13 +1806,13 @@ public:
     {
         if (m_pmenu) {
             GetWindow()->GetPopupContainer()->ClosePopup(m_pmenu);
-            m_pmenu     = NULL;
-            m_pslotMenu = NULL;
+            m_pmenu     = nullptr;
+            m_pslotMenu = nullptr;
         }
 
         if (m_phullMenu) {
             GetWindow()->GetPopupContainer()->ClosePopup(m_phullMenu);
-            m_phullMenu = NULL;
+            m_phullMenu = nullptr;
         }
     }
 
@@ -1821,7 +1821,7 @@ public:
         //  , I don't know why this is getting called twice for the same
         //             menu
 
-        if (m_pslotMenu != NULL) {
+        if (m_pslotMenu != nullptr) {
             SellPart(m_pslotMenu);
             IpartTypeIGC* ppartType =
                     trekClient.m_pCoreIGC->GetPartType(
@@ -1844,10 +1844,10 @@ public:
             } else {
                 trekClient.PlaySoundEffect(unmountSound);
             }
-            UpdatePartInfo(NULL, NULL, ppartType);
+            UpdatePartInfo(nullptr, nullptr, ppartType);
             CloseMenu();
             
-        } else if (m_phullMenu !=NULL) {
+        } else if (m_phullMenu !=nullptr) {
             IhullTypeIGC* phullType = trekClient.m_pCoreIGC->GetHullType(pitem->GetID());
             if (phullType != m_pship->GetBaseHullType()) {
                 BuyHull(phullType);
@@ -1860,23 +1860,23 @@ public:
 
     void OnMenuSelect(IMenuItem* pitem) override
     {
-        if (m_pslotMenu != NULL) {
+        if (m_pslotMenu != nullptr) {
             if (pitem->GetID() == -1) {
-                UpdatePartInfo(NULL, NULL, NULL);
+                UpdatePartInfo(nullptr, nullptr, nullptr);
             } else {
                 IpartTypeIGC* ppartType =
                     trekClient.m_pCoreIGC->GetPartType(
                         pitem->GetID()
                     );
 
-                UpdatePartInfo(NULL, NULL, ppartType);
+                UpdatePartInfo(nullptr, nullptr, ppartType);
             }
         }
     }
 
     void OnMenuClose(IMenu* pmenu) override
     {
-        UpdatePartInfo(NULL, NULL, NULL);
+        UpdatePartInfo(nullptr, nullptr, nullptr);
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -1917,7 +1917,7 @@ public:
 
             if (pns) {
                 TRef<ThingGeo> pthing = ThingGeo::Create(m_pmodeler, m_ptime);
-                pthing->LoadMDL(0, pns, NULL);
+                pthing->LoadMDL(0, pns, nullptr);
                 pthing->SetShadeAlways(true);
 
                 SetGeo(pthing->GetGeo());
@@ -1936,7 +1936,7 @@ public:
                 + ZString("overlay");
             TRef<Image> pimage = m_pnsLoadout->FindImage(str);
 
-            if (pimage != NULL) {
+            if (pimage != nullptr) {
                 m_pwrapImageGeo->SetImage(pimage);
             } else {
                 m_pwrapImageGeo->SetImage(Image::GetEmpty());
@@ -1954,7 +1954,7 @@ public:
             ZString str = ZString("loadout") + StrFromInt(m_phullType->GetObjectID());
             TRef<IObjectList> plist = m_pnsLoadout->FindList(str);
 
-            if (plist == NULL) {
+            if (plist == nullptr) {
                 plist = m_pnsLoadout->FindList("loadoutDefault");
             }
 
@@ -1963,7 +1963,7 @@ public:
             //
 
             plist->GetFirst();
-            while (plist->GetCurrent() != NULL) {
+            while (plist->GetCurrent() != nullptr) {
                 TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
                 EquipmentType     equipmentType = (EquipmentType)(int)GetNumber(ppair->GetNth(0));
@@ -2015,7 +2015,7 @@ public:
         const PartListIGC* plist = m_pship->GetParts();
         for(
             const PartLinkIGC* ppartLink = plist->first(); 
-            ppartLink != NULL; 
+            ppartLink != nullptr; 
             ppartLink = ppartLink->next()
         ) {                   
             IpartIGC*     ppart         = ppartLink->data();
@@ -2053,7 +2053,7 @@ public:
             m_phullType     = m_pship->GetHullType();
             m_phullTypeBase = m_pship->GetBaseHullType();
 
-            if (m_phullTypeBase == NULL)
+            if (m_phullTypeBase == nullptr)
             {
                 //
                 // Don't have a hull the game must be exiting
@@ -2078,7 +2078,7 @@ public:
 
                 while (!iter.End()) {
                     Slot* pslot = iter.Value();
-                    pslot->SetPart(NULL);
+                    pslot->SetPart(nullptr);
                     iter.Next();
                 }
 
@@ -2108,7 +2108,7 @@ public:
         if (!bCanBuy)
         {
             //Can anyone on the team afford it?
-            for (ShipLinkIGC*   psl = trekClient.GetSide()->GetShips()->first(); (psl != NULL); psl = psl->next())
+            for (ShipLinkIGC*   psl = trekClient.GetSide()->GetShips()->first(); (psl != nullptr); psl = psl->next())
             {
                 if (psl->data() != trekClient.GetShip())
                 {

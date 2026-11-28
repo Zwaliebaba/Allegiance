@@ -60,10 +60,10 @@ namespace Training
     // class methods
     //------------------------------------------------------------------------------
     /* void */  TrainingMission::TrainingMission (void) :
-    m_pCondition (0),
-    m_pDeadCondition (0),
+    m_pCondition (nullptr),
+    m_pDeadCondition (nullptr),
     m_commanderID (NA),
-    m_pChatCondition (0),
+    m_pChatCondition (nullptr),
     m_bSkipPostSlideShow (false),
     m_bShuttingDown (false)
     {
@@ -233,7 +233,7 @@ namespace Training
         if (m_pCondition)
         {
             m_pDeadCondition = m_pCondition;
-            m_pCondition = 0;
+            m_pCondition = nullptr;
         }
     }
 
@@ -376,7 +376,7 @@ namespace Training
         trekClient.EjectPlayer (pLauncher);
 
         // move the ship to empty space
-        pShip->SetCluster (NULL);
+        pShip->SetCluster (nullptr);
     }
 
     //------------------------------------------------------------------------------
@@ -391,7 +391,7 @@ namespace Training
         pShip->SetFraction (1.0f);
 
         // set the view cluster to end the camera override
-        trekClient.SetViewCluster (NULL);
+        trekClient.SetViewCluster (nullptr);
 
         // Set the ship cluster back to what it was before dying
         pShip->SetCluster (pMission->GetCluster (m_deadSectorID));
@@ -651,13 +651,13 @@ namespace Training
     {
         // install all the preferred part types
         const IhullTypeIGC* pHullType = pShip->GetHullType ();
-        for (PartTypeLinkIGC* pPartTypeLink = pHullType->GetPreferredPartTypes()->first (); pPartTypeLink != NULL; pPartTypeLink = pPartTypeLink->next ())
+        for (PartTypeLinkIGC* pPartTypeLink = pHullType->GetPreferredPartTypes()->first (); pPartTypeLink != nullptr; pPartTypeLink = pPartTypeLink->next ())
         {
             IpartTypeIGC*   pPartType = pPartTypeLink->data ();
             EquipmentType   equipmentType = pPartType->GetEquipmentType();
             Mount           mountMax = (equipmentType == ET_Weapon) ? pHullType->GetMaxWeapons () : 1;
             for (Mount i = 0; i < mountMax; i++)
-                if ((pShip->GetMountedPart (equipmentType, i) == NULL) && pHullType->CanMount (pPartType, i))
+                if ((pShip->GetMountedPart (equipmentType, i) == nullptr) && pHullType->CanMount (pPartType, i))
                     pShip->CreateAndAddPart (pPartType, i, 0x7fff);
         }
 
@@ -689,7 +689,7 @@ namespace Training
         if (pSide)
         {
             assert (static_cast<SideID> (pSide->GetObjectID ()) == side);
-            pShip->SetSide (NULL);
+            pShip->SetSide (nullptr);
         }
 
         // create the player info

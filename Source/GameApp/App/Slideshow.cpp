@@ -86,7 +86,7 @@ void    Slideshow::NextSlide (void)
     CleanUpTimers ();
 
     // check to see if there are any more slides to show
-    if (m_pSlideList->GetCurrent() != NULL)
+    if (m_pSlideList->GetCurrent() != nullptr)
     {
         // get the image and sound id for the slide
         TRef<IObjectPair> pPair;

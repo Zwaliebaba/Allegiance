@@ -53,10 +53,10 @@ public:
         void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
         {
             ImodelIGC* pDestination = (ImodelIGC*)pitemArg;
-            IshipIGC* pship = NULL;
-            IstationIGC* pstation = NULL;
+            IshipIGC* pship = nullptr;
+            IstationIGC* pstation = nullptr;
 
-            if (pDestination == NULL || trekClient.MyMission() == NULL)
+            if (pDestination == nullptr || trekClient.MyMission() == nullptr)
                 return;
 
             if (pDestination->GetObjectType() == OT_ship)
@@ -154,12 +154,12 @@ public:
 
 public:
     TeleportPane(Modeler* pmodeler)
-        : m_peventDestinations(NULL), m_sortDestination(sortName)
+        : m_peventDestinations(nullptr), m_sortDestination(sortName)
     {
         TRef<IObject> pobjColumns;
 
         // a team pane is meaningless without a team
-        if (trekClient.MyMission() == NULL)
+        if (trekClient.MyMission() == nullptr)
             return;
 
         // Load the members from MDL
@@ -273,7 +273,7 @@ public:
 
     void OnBoardFailed(IshipIGC* pshipRequestedParent) override
     {
-        if (trekClient.GetShip()->GetCluster() == NULL)
+        if (trekClient.GetShip()->GetCluster() == nullptr)
         {
             if (pshipRequestedParent 
                 && MannedTurrets(pshipRequestedParent) < NumTurrets(pshipRequestedParent))
@@ -294,10 +294,10 @@ public:
     bool OnButtonTeleport()
     {
         ImodelIGC* pDestination = (ImodelIGC*)(m_plistPaneDestinations->GetSelection());
-        IstationIGC* pstation = NULL;
+        IstationIGC* pstation = nullptr;
 
-        if (pDestination == NULL || trekClient.MyMission() == NULL 
-            || trekClient.GetShip()->GetCluster() != NULL)
+        if (pDestination == nullptr || trekClient.MyMission() == nullptr 
+            || trekClient.GetShip()->GetCluster() != nullptr)
             return true;
 
 
@@ -307,7 +307,7 @@ public:
             IshipIGC* pship;
             CastTo(pship, pDestination);
 
-            if (trekClient.GetShip()->GetParentShip() != NULL)
+            if (trekClient.GetShip()->GetParentShip() != nullptr)
             {
                 trekClient.DisembarkAndBoard(pship);
             }
@@ -323,12 +323,12 @@ public:
             IstationIGC* pstation;
             CastTo(pstation, pDestination);
 
-            if (trekClient.GetShip()->GetParentShip() != NULL)
+            if (trekClient.GetShip()->GetParentShip() != nullptr)
             {
                 // if they are already there, just get off of the ship
                 if (pstation == trekClient.GetShip()->GetParentShip()->GetStation())
                 {
-                    trekClient.BoardShip(NULL);
+                    trekClient.BoardShip(nullptr);
                 }
                 else
                 {
@@ -394,7 +394,7 @@ public:
         return false;
     }
 
-    void RebuildList(ImodelIGC* pmodelExclude = NULL)
+    void RebuildList(ImodelIGC* pmodelExclude = nullptr)
     {
         TRef<TListListWrapper<ImodelIGC*> > plistNew = new TListListWrapper<ImodelIGC*>();
 
@@ -403,7 +403,7 @@ public:
         if (pside && trekClient.GetSideID() != SIDE_TEAMLOBBY)
         {
             for (ShipLinkIGC*   pshiplink = pside->GetShips()->first();
-                 (pshiplink != NULL);
+                 (pshiplink != nullptr);
                  pshiplink = pshiplink->next())
             {
                 IshipIGC* pship = pshiplink->data();
@@ -415,7 +415,7 @@ public:
             }
 
             for (StationLinkIGC*   pstationlink = pside->GetStations()->first();
-                 (pstationlink != NULL);
+                 (pstationlink != nullptr);
                  pstationlink = pstationlink->next())
             {
                 IstationIGC* pstation = pstationlink->data();
@@ -440,7 +440,7 @@ public:
 
             IhullTypeIGC* phull = trekClient.GetCore()->GetHullType(pPlayer->LastSeenShipType());
    
-            if (phull == NULL)
+            if (phull == nullptr)
                 return "<bug>";
             else
                 return phull->GetName();
@@ -456,7 +456,7 @@ public:
         if (pmodel->GetObjectType() == OT_ship)
         {
             // they can keep their ship only if they don't have one or are in a lifepod
-            return trekClient.GetShip()->GetParentShip() != NULL
+            return trekClient.GetShip()->GetParentShip() != nullptr
                 || trekClient.GetShip()->GetBaseHullType()->HasCapability(c_habmLifepod);
         }
         else
@@ -488,7 +488,7 @@ public:
         }
 
 
-        if (psector == NULL)
+        if (psector == nullptr)
             return "unknown";
         else
             return psector->GetName();

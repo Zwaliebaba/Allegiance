@@ -13,7 +13,7 @@ ImodelIGC* ModelData::GetModel()
            ? ((m_pmodel->GetObjectType() == OT_ship)
               ? ((IshipIGC*)(ImodelIGC*)m_pmodel)->GetSourceShip()
               : m_pmodel)
-           : NULL;
+           : nullptr;
 }
 
 ObjectType ModelData::GetModelTypeInternal()
@@ -278,7 +278,7 @@ float ModelData::GetVectorLock()
 {
     float   vl = 0.0f;
     if (m_pmodel && m_pmodel->GetObjectType() == OT_ship && 
-        (((IshipIGC*)(ImodelIGC*)m_pmodel)->GetParentShip() == NULL))
+        (((IshipIGC*)(ImodelIGC*)m_pmodel)->GetParentShip() == nullptr))
     {
         vl = ((IshipIGC*)(ImodelIGC*)m_pmodel)->GetVectorLock();
     }
@@ -290,7 +290,7 @@ float ModelData::GetCloaking()
 {
     float   vl = 0.0f;
     if (m_pmodel && m_pmodel->GetObjectType() == OT_ship && 
-        (((IshipIGC*)(ImodelIGC*)m_pmodel)->GetParentShip() == NULL))
+        (((IshipIGC*)(ImodelIGC*)m_pmodel)->GetParentShip() == nullptr))
     {
         vl = 100.0f * (1.0f - ((IshipIGC*)(ImodelIGC*)m_pmodel)->GetCloaking());
     }
@@ -307,7 +307,7 @@ float ModelData::GetNumObservers()
         {
             int nObservers = 0;
 
-            for (ShipLinkIGC*  psl = GetShip()->GetChildShips()->first(); (psl != NULL); psl = psl->next())
+            for (ShipLinkIGC*  psl = GetShip()->GetChildShips()->first(); (psl != nullptr); psl = psl->next())
             {
                 IshipIGC*   pship = psl->data();
                 if (pship->GetTurretID() == NA)
@@ -403,7 +403,7 @@ float ModelData::IsRipcording()
 
 bool ModelData::IsNotNull()
 {
-    return m_pmodel != NULL;
+    return m_pmodel != nullptr;
 }
 bool ModelData::IsVisible()
 {

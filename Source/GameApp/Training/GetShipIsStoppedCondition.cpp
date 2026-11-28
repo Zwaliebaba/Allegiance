@@ -26,7 +26,7 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  GetShipIsStoppedCondition::~GetShipIsStoppedCondition (void)
     {
-        m_ship = 0;
+        m_ship = nullptr;
     }
 
     //------------------------------------------------------------------------------

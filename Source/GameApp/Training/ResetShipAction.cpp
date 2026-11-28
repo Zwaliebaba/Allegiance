@@ -20,14 +20,14 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  ResetShipAction::ResetShipAction (const TRef<IshipIGC>& ship) :
     m_ship (ship),
-    m_pState (0)
+    m_pState (nullptr)
     {
     }
 
     //------------------------------------------------------------------------------
     /* void */  ResetShipAction::~ResetShipAction (void)
     {
-        m_ship = 0;
+        m_ship = nullptr;
         delete m_pState;
     }
 

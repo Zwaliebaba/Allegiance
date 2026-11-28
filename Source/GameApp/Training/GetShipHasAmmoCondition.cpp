@@ -27,7 +27,7 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  GetShipHasAmmoCondition::~GetShipHasAmmoCondition (void)
     {
-        m_ship = 0;
+        m_ship = nullptr;
     }
 
     //------------------------------------------------------------------------------

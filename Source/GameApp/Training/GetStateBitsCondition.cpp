@@ -27,7 +27,7 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  GetStateBitsCondition::~GetStateBitsCondition (void)
     {
-        m_ship = 0;
+        m_ship = nullptr;
     }
 
     //------------------------------------------------------------------------------

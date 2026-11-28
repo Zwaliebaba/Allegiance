@@ -26,7 +26,7 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  GetAutopilotCondition::~GetAutopilotCondition (void)
     {
-        m_ship = 0;
+        m_ship = nullptr;
     }
 
     //------------------------------------------------------------------------------

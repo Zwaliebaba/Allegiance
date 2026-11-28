@@ -44,10 +44,10 @@ private:
 
 public:
     LobbyScreen(Modeler* pmodeler, Number* ptime) :
-        m_pSession(NULL),
+        m_pSession(nullptr),
         m_bErrorOccured(false),
         m_bMessageStage(false),
-        m_pmsgBox(NULL),
+        m_pmsgBox(nullptr),
         m_pmodeler(pmodeler),
         m_screenPostConnect(ScreenIDGameScreen)
     {
@@ -87,7 +87,7 @@ public:
         if (m_pSession)
         {
             delete m_pSession;
-            m_pSession = NULL;
+            m_pSession = nullptr;
         }
     }
 
@@ -171,7 +171,7 @@ public:
 
         m_pSession = CreateHTTPSession(this);
 
-        const char * szFileList[] = { m_szConfig, "temp.cfg", NULL };
+        const char * szFileList[] = { m_szConfig, "temp.cfg", nullptr };
 
         m_pSession->InitiateDownload(szFileList, "."); // . means EXE path
     }
@@ -190,7 +190,7 @@ public:
         PathString path(trekClient.GetArtPath());
         path = path + szMessageOfTheDayFileName;
 
-        int crc = FileCRC(path.c_str(), NULL);
+        int crc = FileCRC(path.c_str(), nullptr);
 
         if (crc != 0 && crc == trekClient.GetCfgInfo().crcPublicMessageFile)
         {
@@ -212,7 +212,7 @@ public:
 
         m_pSession = CreateHTTPSession(this);
 
-        const char * szFileList[3] = { szMessageOfTheDayURL, szMessageOfTheDayFileName, NULL };
+        const char * szFileList[3] = { szMessageOfTheDayURL, szMessageOfTheDayFileName, nullptr };
 
         m_pSession->InitiateDownload(szFileList, trekClient.GetArtPath());
     }
@@ -238,7 +238,7 @@ public:
 
             if (m_bMessageStage)
             {
-                if (strstr(pData, szValidMotd) == NULL)
+                if (strstr(pData, szValidMotd) == nullptr)
                 {
                     debugf("File %s is not a valid messageoftheday file.\n", szFileName);
 #ifdef DEBUG
@@ -251,7 +251,7 @@ public:
             }
             else
             {
-                if (strstr(pData, szValidCfg) == NULL)
+                if (strstr(pData, szValidCfg) == nullptr)
                 {
                     debugf("File %s is not a valid config file.\n", szFileName);
 #ifdef DEBUG
@@ -313,7 +313,7 @@ public:
         if (m_pSession)
         {
             delete m_pSession;
-            m_pSession = NULL;
+            m_pSession = nullptr;
         }
 
         if (bUseEXEFolder)
@@ -363,7 +363,7 @@ public:
         if (m_pSession)
         {
             delete m_pSession;
-            m_pSession = NULL;
+            m_pSession = nullptr;
         }
 
         m_pbuttonMainMenu->SetEnabled(true);
@@ -409,7 +409,7 @@ public:
         trekClient.SaveCharacterName(strName);
 
         GetWindow()->SetWaitCursor();
-        TRef<IMessageBox> pmsgBox = CreateMessageBox("Connecting...", NULL, false);
+        TRef<IMessageBox> pmsgBox = CreateMessageBox("Connecting...", nullptr, false);
         Point point(c_PopupX, c_PopupY);
         Rect rect(point, point);
         GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, rect, false);

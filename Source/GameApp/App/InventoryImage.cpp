@@ -57,7 +57,7 @@ namespace {
         };
 
         TRef<Pane> CreatePartPane(const ZString& strNamespace, IpartIGC* ppart, const char* szKey,
-            IshipIGC* gunner = NULL, const char* szLocation = "")
+            IshipIGC* gunner = nullptr, const char* szLocation = "")
         {
             TRef<PartWrapper> ppartWrapper = new PartWrapper();
             ppartWrapper->SetPart(ppart);
@@ -99,7 +99,7 @@ namespace {
         }
 
         void ProcessPart(Pane* paneParent, IshipIGC* pship, EquipmentType et, Mount mount, const char* szKey,
-            IshipIGC* gunner = NULL, const char* szLocation = "")
+            IshipIGC* gunner = nullptr, const char* szLocation = "")
         {
             const IhullTypeIGC* pht = pship->GetHullType();
 
@@ -144,7 +144,7 @@ namespace {
 
             int nObservers = 0;
 
-            for (ShipLinkIGC*  psl = pship->GetChildShips()->first(); (psl != NULL); psl = psl->next())
+            for (ShipLinkIGC*  psl = pship->GetChildShips()->first(); (psl != nullptr); psl = psl->next())
             {
                 IshipIGC*   pship = psl->data();
                 if (pship->GetTurretID() == NA)
@@ -156,7 +156,7 @@ namespace {
             if (nObservers > 0)
             {
                 TRef<Pane> ppane;
-                InventorySlotDesc desc(NA, NA, NULL, pship, szKey);
+                InventorySlotDesc desc(NA, NA, nullptr, pship, szKey);
 
                 if (!pcachePrevious->Find(desc, ppane))
                 {
@@ -178,16 +178,16 @@ namespace {
                 return false;
 
             IpartIGC* ppart = pship->GetMountedPart(NA, mount);
-            IpartTypeIGC *ppartType = ppart ? ppart->GetPartType() : NULL;
+            IpartTypeIGC *ppartType = ppart ? ppart->GetPartType() : nullptr;
 
             // If this is ammo/missiles/etc, only show the first instance of this part
             ObjectType ot = ppart ? ppart->GetObjectType() : NA;
-            if (ppart == NULL || ot == OT_pack || ot == OT_magazine || ot == OT_dispenser)
+            if (ppart == nullptr || ot == OT_pack || ot == OT_magazine || ot == OT_dispenser)
             {
                 for (Mount mountPrev = mount + 1; mountPrev < 0; ++mountPrev)
                 {
                     IpartIGC *ppartPrev = pship->GetMountedPart(NA, mountPrev);
-                    IpartTypeIGC *ppartTypePrev = ppartPrev ? ppartPrev->GetPartType() : NULL;
+                    IpartTypeIGC *ppartTypePrev = ppartPrev ? ppartPrev->GetPartType() : nullptr;
 
                     if (ppartType == ppartTypePrev)
                     {
@@ -208,7 +208,7 @@ namespace {
 
                 // create an empty slot
                 TRef<Pane> ppane;
-                InventorySlotDesc desc(NA, NA, ppart, NULL, szKey);
+                InventorySlotDesc desc(NA, NA, ppart, nullptr, szKey);
 
                 if (pcachePrevious->Find(desc, ppane))
                 {
@@ -218,12 +218,12 @@ namespace {
                 {
                     ppane = CreatePartPane(
                         ppart->GetPartType()->GetInventoryLineMDLName(), 
-                        ppart, szKey, NULL, "Cargo"
+                        ppart, szKey, nullptr, "Cargo"
                         );
                 }
                 else
                 {                    
-                    ppane = CreatePartPane("invEmptyCargo", ppart, szKey, NULL, "Cargo");
+                    ppane = CreatePartPane("invEmptyCargo", ppart, szKey, nullptr, "Cargo");
                 }
 
                 pcacheCurrent->Set(desc, ppane);
@@ -268,7 +268,7 @@ namespace {
             ProcessPart(ppaneParent, pship, ET_Weapon, mount, szKey,
                 pshipGunner, pht->GetHardpointData(mount).locationAbreviation);
 
-            if (pshipGunner != NULL)
+            if (pshipGunner != nullptr)
             {
                 TRef<Pane> ppaneTurret;
                 InventorySlotDesc desc(NA, mount, ppart, pshipGunner, szKey);
@@ -289,7 +289,7 @@ namespace {
         {
             IshipIGC* pship = trekClient.GetShip()->GetSourceShip();
             const IhullTypeIGC* pht = pship->GetHullType();
-            bool bIsPilot = trekClient.GetShip()->GetParentShip() == NULL;
+            bool bIsPilot = trekClient.GetShip()->GetParentShip() == nullptr;
 
             // swap the old and the new cache
             LineMDLCache *pcacheTemp = pcachePrevious;
@@ -395,7 +395,7 @@ namespace {
 
         void OnClusterChanged(IclusterIGC* pcluster) override
         {
-            if (pcluster != NULL)
+            if (pcluster != nullptr)
             {
                 // this should be safe even if we are just flying from aleph 
                 // to aleph because nothing should have changed.

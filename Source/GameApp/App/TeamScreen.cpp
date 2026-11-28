@@ -161,7 +161,7 @@ private:
             SideInfo* pitem = (SideInfo*)pitemArg;
 
             Color color;
-            IsideIGC* pside = NULL;
+            IsideIGC* pside = nullptr;
             
             if (trekClient.GetCore())
                 pside = trekClient.GetCore()->GetSide(pitem->GetSideID());
@@ -315,7 +315,7 @@ private:
                 );
             }
 
-            if (pplayer == NULL)
+            if (pplayer == nullptr)
                 return;
 
             bool bRequesting = m_sideCurrent != NA && pplayer->SideID() != m_sideCurrent;
@@ -687,7 +687,7 @@ private:
 
             int index = g_civStart;
             for (CivilizationLinkIGC* linkCiv = trekClient.GetCore()->GetCivilizations()->first(); 
-                linkCiv != NULL; linkCiv = linkCiv->next())
+                linkCiv != nullptr; linkCiv = linkCiv->next())
             {
                 if (index == 0) {
                     g_civIDStart = linkCiv->data()->GetObjectID();    
@@ -760,7 +760,7 @@ private:
         {
             if (m_pkeyboardInputOldFocus)
                 GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-            m_pkeyboardInputOldFocus = NULL;
+            m_pkeyboardInputOldFocus = nullptr;
             m_pparent->m_bTeamSettingsPopupOpen = false;
 
             IPopup::OnClose();
@@ -874,7 +874,7 @@ public:
     {
         PlayerInfo* pplayer = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitem));
 
-        if (pplayer == NULL || trekClient.MyMission() == NULL)
+        if (pplayer == nullptr || trekClient.MyMission() == nullptr)
             return false;
 
         return pplayer->IsHuman();
@@ -1116,7 +1116,7 @@ public:
             GetWindow()->GetTimer()->RemoveSink(m_peventSinkTimer);
 
         GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-        GetWindow()->SetChatListPane(NULL);
+        GetWindow()->SetChatListPane(nullptr);
     }
 
     SideID GetCurrentSide()
@@ -1137,7 +1137,7 @@ public:
             trekClient.SendChat(trekClient.GetShip(), CHAT_ADMIN, NA,
                                 NA, StrRightOf(strChat, ":").c_str());
         }
-        else if (NULL != (pplayer = trekClient.FindPlayer(StrLeftOf(strChat, ":").c_str())))
+        else if (nullptr != (pplayer = trekClient.FindPlayer(StrLeftOf(strChat, ":").c_str())))
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_INDIVIDUAL, pplayer->ShipID(),
                                 NA, StrRightOf(strChat, ":").c_str());
@@ -1153,7 +1153,7 @@ public:
     {
         OnSelPlayer(m_plistPanePlayers->GetSelection());
 
-        if (trekClient.GetPlayerInfo() != NULL)
+        if (trekClient.GetPlayerInfo() != nullptr)
         {
             /*m_pbuttonReady->SetEnabled(!m_pMission->InProgress() 
                 && trekClient.GetSideID() != SIDE_TEAMLOBBY);
@@ -1298,7 +1298,7 @@ public:
             if (m_pmissionBriefPopup && !m_pmsgBox)
             {
                 GetWindow()->GetPopupContainer()->ClosePopup(m_pmissionBriefPopup);
-                m_pmissionBriefPopup = NULL;
+                m_pmissionBriefPopup = nullptr;
                 GetWindow()->RestoreCursor();
             }
         }
@@ -1338,7 +1338,7 @@ public:
             while (true)
             {
                 psl = psl->next();
-                if (psl == NULL)
+                if (psl == nullptr)
                     break;
 
                 int n = psl->data()->GetShips()->n();
@@ -1364,11 +1364,11 @@ public:
             else
             {
                 SideID  idBlockingSide = NA;
-                const char* szBlockingReason = NULL;
+                const char* szBlockingReason = nullptr;
 
                 for (SideID id = 0; id < m_pMission->NumSides(); id++)
                 {
-                    const char* szReason = NULL;
+                    const char* szReason = nullptr;
 
                     if (m_pMission->SideNumPlayers(id) < m_pMission->MinPlayersPerTeam())
                         szReason = "BELOW MINIMUM SIZE";
@@ -1379,7 +1379,7 @@ public:
 
                     if (szReason)
                     {
-                        if (szBlockingReason == NULL)
+                        if (szBlockingReason == nullptr)
                         {
                             idBlockingSide = id;
                             szBlockingReason = szReason;
@@ -1393,7 +1393,7 @@ public:
                     }
                 }
 
-                if (szBlockingReason == NULL)
+                if (szBlockingReason == nullptr)
                 {
                     m_ptextStatus->SetString("READY TO START");
                     m_ptextStatus2->SetString("");
@@ -1645,7 +1645,7 @@ public:
         bool bEnableReject = false; 
         bool bEnableMakeLeader = false;
 
-        if (pitem != NULL && trekClient.GetPlayerInfo())
+        if (pitem != nullptr && trekClient.GetPlayerInfo())
         {
             PlayerInfo* pplayer = trekClient.FindPlayer(IntItemIDWrapper<ShipID>(pitem));
 
@@ -1690,7 +1690,7 @@ public:
 
     bool OnSelTeam(ItemID pitem)
     {
-        if (pitem == NULL)
+        if (pitem == nullptr)
         {
             // default the selection to the lobby side
             m_plistPaneTeams->SetSelection(m_pMission->GetSideInfo(SIDE_TEAMLOBBY));
@@ -1847,7 +1847,7 @@ public:
             GetWindow()->GetPopupContainer()->ClosePopup(m_pmsgBox);
             GetWindow()->RestoreCursor();
         }
-        m_pmsgBox = NULL;
+        m_pmsgBox = nullptr;
 
         GetWindow()->StartQuitMission();
 
@@ -1950,7 +1950,7 @@ public:
             GetWindow()->RestoreCursor();
         }
         GetWindow()->SetWaitCursor();
-        m_pmsgBox = CreateMessageBox("Canceling request...", NULL, false, false, 1.0f);
+        m_pmsgBox = CreateMessageBox("Canceling request...", nullptr, false, false, 1.0f);
         GetWindow()->GetPopupContainer()->OpenPopup(m_pmsgBox, false);
         m_sideToJoin = NA;
 
@@ -1989,7 +1989,7 @@ public:
             m_pmsgBox = 
                 CreateMessageBox(
                     "Quitting current team...",
-                    NULL,
+                    nullptr,
                     false
                 );
 
@@ -2012,7 +2012,7 @@ public:
             m_pmsgBox = 
                 CreateMessageBox(
                     "Waiting to be accepted to the new team...",
-                    NULL,
+                    nullptr,
                     false
                 );
 
@@ -2301,7 +2301,7 @@ public:
                     GetWindow()->GetPopupContainer()->ClosePopup(m_pmsgBox);
                     GetWindow()->RestoreCursor();
                 }
-                m_pmsgBox = NULL;
+                m_pmsgBox = nullptr;
             }
 
             // if I'm in the team leader chat and am no longer a team leader, 
@@ -2459,7 +2459,7 @@ public:
                 GetWindow()->GetPopupContainer()->ClosePopup(m_pmsgBox);
                 GetWindow()->RestoreCursor();
             }
-            m_pmsgBox = CreateMessageBox("The game is starting...", NULL, false, false, 1.0f);
+            m_pmsgBox = CreateMessageBox("The game is starting...", nullptr, false, false, 1.0f);
             GetWindow()->GetPopupContainer()->OpenPopup(m_pmsgBox, false);
         }
         UpdateStatusText();
@@ -2474,7 +2474,7 @@ public:
                 GetWindow()->GetPopupContainer()->ClosePopup(m_pmsgBox);
                 GetWindow()->RestoreCursor();
             }
-            m_pmsgBox = NULL;
+            m_pmsgBox = nullptr;
 
             if (reason != DPR_Canceled)
             {

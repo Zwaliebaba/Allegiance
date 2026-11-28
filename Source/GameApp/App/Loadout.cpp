@@ -60,7 +60,7 @@ public:
         
         int nCount = 0;
         for (PlayerLink*    ppl = trekClient.GetPlayerList()->first();
-        (ppl != NULL);
+        (ppl != nullptr);
         ppl = ppl->next())
         {
             //We only know about drones in our mission so only check the side
@@ -83,7 +83,7 @@ public:
         StationClassID classID = pStationtypeTest->GetClassID();
         int nCount = 0;
         
-        for (StationLinkIGC* stationLink = (stationList ? stationList->first() : NULL); 
+        for (StationLinkIGC* stationLink = (stationList ? stationList->first() : nullptr); 
         stationLink; stationLink=stationLink->next())
         {
             IstationTypeIGC* pstationtype = stationLink->data()->GetBaseStationType();
@@ -102,7 +102,7 @@ public:
         AsteroidAbilityBitMask aabm = pStationtype->GetBuildAABM();
         
         for (AsteroidLinkIGC* asteriodLink = trekClient.GetCore()->GetAsteroids()->first(); 
-        asteriodLink != NULL; asteriodLink = asteriodLink->next())
+        asteriodLink != nullptr; asteriodLink = asteriodLink->next())
         {
             if (asteriodLink->data()->HasCapability(aabm))
                 return true;
@@ -116,14 +116,14 @@ public:
         if (trekClient.GetSide())
         {
             for (ShipLinkIGC* shipLink = trekClient.GetSide()->GetShips()->first(); 
-            shipLink != NULL; shipLink = shipLink->next())
+            shipLink != nullptr; shipLink = shipLink->next())
             {
                 if (shipLink->data()->GetBaseData() == pStationtype)
                     return shipLink->data();
             }
         }
         
-        return NULL;
+        return nullptr;
     }
     
     ZString GetBuildingStatusText()
@@ -420,8 +420,8 @@ public:
           m_nTabSel(-1),
           m_nLastHoverIndex(-1),
           m_pPartInfoPane(pPartInfoPane),
-          m_pStation(NULL),
-          m_pPaneWindow(NULL)
+          m_pStation(nullptr),
+          m_pPaneWindow(nullptr)
       {
           TRef<ImagePane> pImagePane = new ImagePane(GetModeler()->LoadImage(
               AWF_LOADOUT_FLIGHT_PURCHASE_PANEL, false));
@@ -622,7 +622,7 @@ public:
       void OnModelTerminated(ImodelIGC* pmodel) override 
       {
           // make sure we correct the number of existing stations on the investment list
-          if ((pmodel->GetObjectType() == OT_station) && (pmodel->GetSide() != NULL)
+          if ((pmodel->GetObjectType() == OT_station) && (pmodel->GetSide() != nullptr)
               && (pmodel->GetSide()->GetObjectID() == trekClient.GetSideID()))
           {   
               m_pListPane->UpdateAll();
@@ -668,7 +668,7 @@ public:
           {
               const BucketListIGC* pList = pSide->GetBuckets();
               for (BucketLinkIGC* pBucketNode = pList->first();
-              pBucketNode != NULL; pBucketNode = pBucketNode->next())
+              pBucketNode != nullptr; pBucketNode = pBucketNode->next())
               {
                   IbucketIGC*   pBucket  = pBucketNode->data();
 
@@ -677,7 +677,7 @@ public:
                       if (pSide->CanBuy(pBucket))
                       {
                           IbucketIGC*   pbucketPredecessor = pBucket->GetPredecessor();
-                          if ((pbucketPredecessor == NULL) || pbucketPredecessor->GetCompleteF())
+                          if ((pbucketPredecessor == nullptr) || pbucketPredecessor->GetCompleteF())
                           {
                               int nExistingIndex = m_pListPane->GetItemIdxByData((LONG_PTR)pBucket);
                           
@@ -712,7 +712,7 @@ public:
           {
               const BucketListIGC* pList = pSide->GetBuckets();
               for (BucketLinkIGC* pBucketNode = pList->first();
-              pBucketNode != NULL; pBucketNode = pBucketNode->next())
+              pBucketNode != nullptr; pBucketNode = pBucketNode->next())
               {
                   IbucketIGC*  pBucket  = pBucketNode->data();
                   if (pBucket->GetGroupID() == group)
@@ -720,7 +720,7 @@ public:
                       if (pSide->CanBuy(pBucket))
                       {
                           IbucketIGC*   pbucketPredecessor = pBucket->GetPredecessor();
-                          if ((pbucketPredecessor == NULL) || pbucketPredecessor->GetCompleteF())
+                          if ((pbucketPredecessor == nullptr) || pbucketPredecessor->GetCompleteF())
                           {
                               return true;
                           }
@@ -769,7 +769,7 @@ public:
               IstationTypeIGC* pStationtype; 
               CastTo(pStationtype, pBucket->GetBuyable());
               if (!PartListItem::BuildSpotFoundForStationType(pStationtype)
-                  || PartListItem::FindBuilderForStationType(pStationtype) != NULL)
+                  || PartListItem::FindBuilderForStationType(pStationtype) != nullptr)
                   return false;
           }
 
@@ -1028,8 +1028,8 @@ public:
           if (m_pConnectorPanePurchases)
               m_pConnectorPanePurchases->SetVisible(!bPartInInventory);
           
-          m_pPartType = NULL;
-          m_pHullType = NULL;
+          m_pPartType = nullptr;
+          m_pHullType = nullptr;
           m_pBuyable = pBucket;
           
           InternalSetSize(m_pImageBkgnd->GetSurface()->GetSize());
@@ -1057,11 +1057,11 @@ public:
           if (m_pConnectorPanePurchases)
               m_pConnectorPanePurchases->SetVisible(false);
           
-          m_pImagePart = NULL;
-          m_pPartType = NULL;
-          m_pHullType = NULL;
-          m_pBuyable = NULL;
-          m_szModel = NULL;
+          m_pImagePart = nullptr;
+          m_pPartType = nullptr;
+          m_pHullType = nullptr;
+          m_pBuyable = nullptr;
+          m_szModel = nullptr;
           NeedPaint();
       }
       
@@ -1153,5 +1153,5 @@ TRef<PartInfoPane> PartInfoPane::Create(ConnectorPane* pConnectorPanePurchases, 
 
 TRef<IObject> PartInfoPaneFactory::Apply(ObjectStack& stack)
 {
-    return (Pane*)PartInfoPane::Create(NULL, NULL);
+    return (Pane*)PartInfoPane::Create(nullptr, nullptr);
 }
