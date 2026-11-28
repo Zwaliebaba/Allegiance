@@ -1,17 +1,19 @@
-# Runs the CppUnitTest DLL (tests/UnitTests) with vstest.console and writes a
-# summary of the results.
+# Runs the CppUnitTest DLLs (Tests/<Library>.Tests, one per library) in one
+# vstest.console run and writes a summary of the results.
 #
-#   pwsh tools/ci/unit-tests.ps1 -Dll out/bin/x64/Debug/UnitTests.dll -Out out/logs -Label Debug
+#   pwsh Tools/ci/unit-tests.ps1 -Dll out/bin/x64/Debug/NeuronCore.Tests.dll,out/bin/x64/Debug/GameApp.Tests.dll -Out out/logs -Label Debug
 
 param(
-    [Parameter(Mandatory)] [string] $Dll,
+    [Parameter(Mandatory)] [string[]] $Dll,
     [Parameter(Mandatory)] [string] $Out,
     [string] $Label = ''
 )
 
 $ErrorActionPreference = 'Stop'
-if (-not (Test-Path $Dll)) { throw "$Dll was not built" }
-$Dll = (Resolve-Path $Dll).Path
+$Dll = foreach ($d in $Dll) {
+    if (-not (Test-Path $d)) { throw "$d was not built" }
+    (Resolve-Path $d).Path
+}
 New-Item -ItemType Directory -Force $Out | Out-Null
 $Out = (Resolve-Path $Out).Path
 
@@ -24,7 +26,7 @@ if (-not (Test-Path $vstest)) { throw "vstest.console.exe not found at $vstest" 
 Write-Host "vstest: $vstest"
 
 $trx = "unit-tests$(if ($Label) { "-$Label" }).trx"
-& $vstest $Dll /Platform:x64 "/logger:trx;LogFileName=$trx" "/logger:console;verbosity=normal" "/ResultsDirectory:$Out"
+& $vstest @Dll /Platform:x64 "/logger:trx;LogFileName=$trx" "/logger:console;verbosity=normal" "/ResultsDirectory:$Out"
 $code = $LASTEXITCODE
 
 # The summary: counts, and each failed test with its message

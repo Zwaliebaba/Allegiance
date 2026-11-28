@@ -7,7 +7,7 @@
 # counting a file as used when a used thing names it:
 #
 #   - the code (client, server, mdlc, xmunge): every string literal, outside
-#     comments; "<name>bmp" names an image. Of WinTrek\artwork.h, only the
+#     comments; "<name>bmp" names an image. Of Source\GameApp\App\artwork.h, only the
 #     constants that are used. And the names it builds (CODE_BUILT);
 #   - core files and maps (Data\*.igc) the code names: every name in them, as
 #     a file of any type, and the images the code derives from one ("i", "l"
@@ -17,7 +17,7 @@
 #   - help pages (.mml): the pages and images their tags name (one-word fields);
 #   - models (Artwork\Models.props): a used model's .x files (<name>.x,
 #     _static, -low, _bound) and template, or its text MDL and .x files; the
-#     textures a used .x file names (.ppm or .bmp: engine/xfile.cpp);
+#     textures a used .x file names (.ppm or .bmp: Source/NeuronClient/Engine/xfile.cpp);
 #   - animations (Art.proj): the strip image; font.mdl: fontsource.mdl;
 #     Music: tracks.lst and the tracks it lists.
 #
@@ -25,7 +25,7 @@
 # list errs toward keeping a file. Names the code builds at run time beyond
 # the rules above are not seen: check a file before deleting it.
 #
-#   python tools/ci/art-unused.py [repository root]
+#   python Tools/ci/art-unused.py [repository root]
 
 import os
 import re
@@ -35,7 +35,7 @@ from collections import defaultdict
 ROOT = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), '..', '..'))
 ART = os.path.join(ROOT, 'Artwork')
 FOLDERS = ['Audio', 'Data', 'Fonts', 'Interface', 'Models', 'Movies', 'Music', 'Textures', 'tools']
-CODE_DIRS = ['FedSrv', 'Igc', 'Inc', 'Lang', 'WinTrek', '_Utility', 'clintlib', 'effect', 'engine', 'mdlc', 'soundengine', 'training', 'xmunge', 'zlib']
+CODE_DIRS = ['Source', 'Tools/mdlc', 'Tools/xmunge']
 
 IGC_PREFIXES = ['i', 'l', 'icon']                     # loadout.cpp, load.cpp, teampane.cpp
 IGC_SUFFIXES = ['loadoutpane', 'hullinfo', 'lobby']   # load.cpp, teamscreen.cpp (civilization icon names)
@@ -130,7 +130,7 @@ def resolve():
             use(('gen', n))
 
 # Roots: the code
-artwork_h = os.path.join(ROOT, 'WinTrek', 'artwork.h')
+artwork_h = os.path.join(ROOT, 'Source', 'GameApp', 'App', 'artwork.h')
 code = {}
 for d in CODE_DIRS:
     for dirpath, _, fs in os.walk(os.path.join(ROOT, d)):
@@ -151,7 +151,7 @@ for f, text in code.items():
 for n in CODE_BUILT:
     name_any(n)
 
-# Music: the player reads Music\tracks.lst (soundengine/redbooksound.cpp)
+# Music: the player reads Music\tracks.lst (Source/NeuronClient/Sound/redbooksound.cpp)
 use(('Music', 'tracks', 'lst'))
 
 resolve()

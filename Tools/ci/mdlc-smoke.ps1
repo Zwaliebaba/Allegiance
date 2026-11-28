@@ -3,7 +3,7 @@
 # It also checks a few of the DDS source images (Artwork/256) and loads an
 # animation from one.
 #
-#   pwsh tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/Debug/mdlc.exe -Art Artwork/256 -Out out/art-smoke
+#   pwsh Tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/Debug/mdlc.exe -Art Artwork/256 -Out out/art-smoke
 #
 # mdlc reports failure by printing a message and exiting 0, and a failed device
 # init or a debug assert can show a modal dialog, so every call runs with a

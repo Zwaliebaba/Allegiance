@@ -4,9 +4,9 @@ The one-time conversion of Artwork/256's BMP sources to the DDS files the repo
 now holds as source art (see MODERNIZATION.md, "Textures: 32-bit DDS"), and the
 tool to rebuild a model texture's mip levels after editing it.
 
-    python tools/art/bmp2dds.py convert Artwork/256          # every *.bmp -> *.dds
-    python tools/art/bmp2dds.py mips Artwork/256/foo.dds     # redo foo.dds's mip chain
-    python tools/art/bmp2dds.py premultiply Artwork/256/foo.dds
+    python Tools/art/bmp2dds.py convert Artwork/256          # every *.bmp -> *.dds
+    python Tools/art/bmp2dds.py mips Artwork/256/foo.dds     # redo foo.dds's mip chain
+    python Tools/art/bmp2dds.py premultiply Artwork/256/foo.dds
                                     # straight alpha -> premultiplied (and its mips)
 
 The output is what mdlc -dds / -ddsmips wrote, byte for byte (the art build
@@ -112,7 +112,7 @@ def bgra_from_bmp(path):
 
 
 # --------------------------------------------------------------------------
-# Mip levels and the DDS file (engine/dds.cpp's layout)
+# Mip levels and the DDS file (Source/NeuronClient/Engine/dds.cpp's layout)
 # --------------------------------------------------------------------------
 
 def mip_chain(level0):

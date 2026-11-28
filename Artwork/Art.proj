@@ -147,7 +147,7 @@
   </Target>
 
   <!--
-    Images: the DDS files are the source art (engine/dds.h, tools\art\bmp2dds.py),
+    Images: the DDS files are the source art (Source/NeuronClient/Engine/dds.h, Tools\art\bmp2dds.py),
     copied as they are: Textures\ to Textures\, the model textures to Models\.
   -->
 
