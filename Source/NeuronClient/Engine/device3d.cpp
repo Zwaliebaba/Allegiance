@@ -2108,7 +2108,19 @@ public:
             }
 
             tl.m_zrev[3] = (float)((1.0 + a) * matFull[3][3] - b);
+
+            //
+            // The other way, for soft particles: depth = (1 + a) - b / d, so
+            // d = b / ((1 + a) - depth). (Screen vertices' conventional depth,
+            // reversed, is the same function of d.)
+            //
+
+            tl.m_depth[0] = (float)(1.0 + a);
+            tl.m_depth[1] = (float)b;
         } else {
+            tl.m_depth[0] = 0;
+            tl.m_depth[1] = 0;
+
             for (int col = 0; col < 4; col++) {
                 tl.m_zrev[col] = (float)((double)matFull[3][col] - (double)matFull[2][col]);
             }

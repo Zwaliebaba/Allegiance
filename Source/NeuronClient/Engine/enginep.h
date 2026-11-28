@@ -121,6 +121,7 @@ struct TransformAndLight {
     float m_planes[c_maxTLClipPlanes][4];
     float m_eye[4];         // model-space eye position (per-pixel specular)
     float m_zrev[4];        // model -> reversed clip-space z (1 at the near plane, 0 at the far), for float depth
+    float m_depth[2];       // reversed depth -> view distance d = m_depth[1] / (m_depth[0] - depth); 0, 0 if not a perspective
 };
 
 //////////////////////////////////////////////////////////////////////////////

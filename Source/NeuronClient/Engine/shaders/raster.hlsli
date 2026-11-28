@@ -9,12 +9,14 @@
 
 cbuffer RasterConstants : register(b0)
 {
-    float4 g_screen;    // x: 2 / width, y: 2 / height
-    uint4  g_flags;     // x: bit 0 textured, bit 1 decal, bit 2 colour key, bit 3 key by black,
+    float4 g_screen;    // x: 2 / width, y: 2 / height; zw: the scene's depth to view distance (SoftFade)
+    uint4  g_flags;     // y: soft fade distance (a float), z, w: 0
+                        // x: bit 0 textured, bit 1 decal, bit 2 colour key, bit 3 key by black,
                         //    bit 4 blended (BlendModeAdd or BlendModeSourceAlpha),
                         //    bit 5 linear light (drawing into a 3D layer's HDR scene),
                         //    bit 6 reversed depth (the scene's float depth buffer),
-                        //    bit 7 alpha to coverage (an opaque cut-out in a multisampled scene)
+                        //    bit 7 alpha to coverage (an opaque cut-out in a multisampled scene),
+                        //    bit 8 soft fade against the scene's depth, bit 9 that depth is multisampled
 };
 
 //
@@ -41,6 +43,54 @@ float4 VertexColor(float4 color)
 
 Texture2D    g_texture : register(t0);
 SamplerState g_sampler : register(s0);
+
+//
+// Soft particles: a blended draw replayed after the scene's opaque geometry
+// (d3d11raster.cpp) reads the scene's depth, read-only, and fades out as it
+// nears what is behind it, instead of cutting a hard line where a glow or a
+// trail meets a hull. Reversed depth is (1 + a) - b / d for view distance d,
+// for screen vertices and model-space ones alike, so d = b / ((1 + a) - z).
+//
+
+Texture2DMS<float, 4> g_depthSamples : register(t1);
+Texture2D<float>      g_depth        : register(t2);
+
+float ViewDistance(float depth)
+{
+    float den = g_screen.z - depth;
+    float d   = den != 0.0 ? g_screen.w / den : 0.0;
+
+    return d > 0.0 ? d : 1.0e30;
+}
+
+float SoftFade(float4 position)
+{
+    float fade = 1.0;
+
+    if (g_flags.x & 256) {
+        int2  pixel = int2(position.xy);
+        float depth;
+
+        //
+        // The nearest of the samples (reversed: the largest), so the fade
+        // follows the front of an edge
+        //
+
+        if (g_flags.x & 512) {
+            depth = max(
+                max(g_depthSamples.Load(pixel, 0), g_depthSamples.Load(pixel, 1)),
+                max(g_depthSamples.Load(pixel, 2), g_depthSamples.Load(pixel, 3))
+            );
+        } else {
+            depth = g_depth.Load(int3(pixel, 0));
+        }
+
+        float gap = ViewDistance(depth) - ViewDistance(position.z);
+        fade      = saturate(gap / asfloat(g_flags.y));
+    }
+
+    return fade;
+}
 
 //
 // RASTER_PIXEL: included by another stage's pixel shader (tl_ps.hlsl) for
@@ -83,7 +133,7 @@ float4 ScreenToClip(float4 p)
 
 #endif
 
-float4 Shade(float4 color, float2 uv)
+float4 Shade(float4 color, float2 uv, float4 position)
 {
     float4 result   = color;
     bool   bBlend   = (g_flags.x & 16) != 0;
@@ -178,6 +228,9 @@ float4 Shade(float4 color, float2 uv)
 
     if (!bBlend) {
         result.a = coverage;
+    } else {
+        // Premultiplied fading: the draw adds and hides less
+        result *= SoftFade(position);
     }
 
     return result;

@@ -21,7 +21,7 @@ float4 main(VertexOut input) : SV_Target
 {
     float3 n = normalize(input.normal);
 
-    float4 result = Shade(Light(n), input.uv);
+    float4 result = Shade(Light(n), input.uv, input.position);
 
     bool bLit =
            g_tlmode.x == TLModeDirectional
