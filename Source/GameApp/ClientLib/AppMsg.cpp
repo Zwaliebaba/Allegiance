@@ -2101,7 +2101,8 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 Disconnect();
                 
                 // not logged on yet, so we have to do this part manually
-                m_pMissionInfo.reset();
+                delete m_pMissionInfo;
+                m_pMissionInfo = nullptr;
 
                 OnLogonAck(false, false, "The client and server data files are out of sync. "
                   "Both need the same version of the game.");
@@ -2223,14 +2224,14 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
         case FM_CS_PLAYER_READY:
         {
-            ZAssert(m_pMissionInfo.get());
+            ZAssert(m_pMissionInfo);
             CASTPFM(pfmPlayerReady, CS, PLAYER_READY, pfm);
             PlayerInfo* pPlayerInfo = FindPlayer(pfmPlayerReady->shipID);
             if (pPlayerInfo)
                 {
                 pPlayerInfo->Update(pfmPlayerReady);
                 if (pPlayerInfo->IsHuman())
-                    m_pClientEventSource->OnPlayerStatusChange(m_pMissionInfo.get(), pPlayerInfo->SideID(), pPlayerInfo);
+                    m_pClientEventSource->OnPlayerStatusChange(m_pMissionInfo, pPlayerInfo->SideID(), pPlayerInfo);
 
                 // mark the player list as having changed
                 m_pMissionInfo->GetSideInfo(pPlayerInfo->SideID())->GetMembers().GetSink()();
@@ -2251,13 +2252,13 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                     m_pMissionInfo->SetInProgress(false);
                     m_pMissionInfo->SetCountdownStarted(false);
                     m_bWaitingForGameRestart = false;
-                    m_pClientEventSource->OnMissionEnded(m_pMissionInfo.get());
+                    m_pClientEventSource->OnMissionEnded(m_pMissionInfo);
                     break;
                 }
                 case STAGE_STARTING:
                 {
                     m_pMissionInfo->SetCountdownStarted(true);
-                    m_pClientEventSource->OnMissionCountdown(m_pMissionInfo.get());
+                    m_pClientEventSource->OnMissionCountdown(m_pMissionInfo);
                     break;
                 }
                 case STAGE_STARTED:
@@ -2270,7 +2271,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                                    sizeof(m_pMissionInfo->GetMissionParams())) == 0);
 
                     m_pCoreIGC->SetMissionStage(STAGE_STARTED);
-                    m_pClientEventSource->OnMissionStarted(m_pMissionInfo.get());
+                    m_pClientEventSource->OnMissionStarted(m_pMissionInfo);
 
                     break;
                 }
@@ -2278,7 +2279,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 {
                     m_pMissionInfo->SetInProgress(false);
                     m_bWaitingForGameRestart = false;
-                    m_pClientEventSource->OnMissionEnded(m_pMissionInfo.get());
+                    m_pClientEventSource->OnMissionEnded(m_pMissionInfo);
                     break;
                 }
                 case STAGE_TERMINATE:
@@ -2340,7 +2341,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
             if (m_pMissionInfo == nullptr)
             {
-                m_pMissionInfo.reset(new MissionInfo(pfmMissionDef->dwCookie));
+                m_pMissionInfo = new MissionInfo(pfmMissionDef->dwCookie);
                 m_pMissionInfo->Update(pfmMissionDef);
             }
             else
@@ -2350,7 +2351,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 m_pCoreIGC->UpdateSides(Time::Now(), &(m_pMissionInfo->GetMissionParams()), pfmMissionDef->rgszName);
             }
 
-            m_pClientEventSource->OnAddMission(m_pMissionInfo.get());
+            m_pClientEventSource->OnAddMission(m_pMissionInfo);
             break;
         }
 
@@ -2399,7 +2400,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             PlayerInfo* ppi = FindPlayer(pfmPosReq->shipID);
 
             m_pMissionInfo->AddRequest(pfmPosReq->iSide, pfmPosReq->shipID);
-            m_pClientEventSource->OnAddRequest(m_pMissionInfo.get(), pfmPosReq->iSide, ppi);
+            m_pClientEventSource->OnAddRequest(m_pMissionInfo, pfmPosReq->iSide, ppi);
 
             if (MyPlayerInfo()->IsTeamLeader() && (pfmPosReq->iSide == GetSideID()))
                 PostText(true, "%s wishes to join your team", ppi->CharacterName());
@@ -2420,13 +2421,13 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             {
                 m_pMissionInfo->RemoveRequest(pfmDelPositionReq->iSide, pfmDelPositionReq->shipID);
             }
-            m_pClientEventSource->OnDelRequest(m_pMissionInfo.get(), pfmDelPositionReq->iSide, pPlayerInfo, pfmDelPositionReq->reason);
+            m_pClientEventSource->OnDelRequest(m_pMissionInfo, pfmDelPositionReq->iSide, pPlayerInfo, pfmDelPositionReq->reason);
             break;
         }
 
         case FM_CS_QUIT_MISSION:
         {
-            if (m_pMissionInfo.get())
+            if (m_pMissionInfo)
             {
                 // someone is quiting...
                 CASTPFM(pfmQuitMission, CS, QUIT_MISSION, pfm);
@@ -2448,7 +2449,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 RemovePlayerFromMission(pPlayerInfo, pfmQuitMission->reason, FM_VAR_REF(pfmQuitMission, szMessageParam));
 
                 // review: use a new message
-                m_pClientEventSource->OnDelRequest(m_pMissionInfo.get(), sideIDOld, pPlayerInfo, DPR_Canceled);
+                m_pClientEventSource->OnDelRequest(m_pMissionInfo, sideIDOld, pPlayerInfo, DPR_Canceled);
             }
             break;
         }
@@ -2459,7 +2460,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             //m_pMissionInfo->SetSideCivID(pfmChangeCiv->iSide, pfmChangeCiv->civID);
 
             m_pCoreIGC->GetSide(pfmChangeCiv->iSide)->SetCivilization(m_pCoreIGC->GetCivilization(pfmChangeCiv->civID));
-            m_pClientEventSource->OnTeamCivChange(m_pMissionInfo.get(), pfmChangeCiv->iSide, pfmChangeCiv->civID);
+            m_pClientEventSource->OnTeamCivChange(m_pMissionInfo, pfmChangeCiv->iSide, pfmChangeCiv->civID);
             break;
         }
 
@@ -2471,7 +2472,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             pside->SetSquadID(pfmSetTeamInfo->squadID);
             pside->SetName(pfmSetTeamInfo->SideName);
             m_pMissionInfo->SetSideName(pfmSetTeamInfo->sideID, pfmSetTeamInfo->SideName);
-            m_pClientEventSource->OnTeamNameChange(m_pMissionInfo.get(), pfmSetTeamInfo->sideID);
+            m_pClientEventSource->OnTeamNameChange(m_pMissionInfo, pfmSetTeamInfo->sideID);
             break;
         }
 
@@ -2479,7 +2480,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
         {
             CASTPFM(pfmTeamReady, S, TEAM_READY, pfm);
             m_pMissionInfo->SetSideReady(pfmTeamReady->iSide, pfmTeamReady->fReady);
-            m_pClientEventSource->OnTeamReadyChange(m_pMissionInfo.get(), pfmTeamReady->iSide, pfmTeamReady->fReady);
+            m_pClientEventSource->OnTeamReadyChange(m_pMissionInfo, pfmTeamReady->iSide, pfmTeamReady->fReady);
             break;
         }
 
@@ -2488,7 +2489,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             CASTPFM(pfmSideInactive, S, SIDE_INACTIVE, pfm);
             debugf("Side inactive, side=%d\n", pfmSideInactive->sideID);
             m_pMissionInfo->SetSideActive(pfmSideInactive->sideID, false);
-            m_pClientEventSource->OnTeamInactive(m_pMissionInfo.get(), pfmSideInactive->sideID);
+            m_pClientEventSource->OnTeamInactive(m_pMissionInfo, pfmSideInactive->sideID);
             m_mapMissions.GetSink()();
             break;
         }
@@ -2497,7 +2498,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
         {
             CASTPFM(pfmTeamForceReady, CS, FORCE_TEAM_READY, pfm);
             m_pMissionInfo->SetSideForceReady(pfmTeamForceReady->iSide, pfmTeamForceReady->fForceReady);
-            m_pClientEventSource->OnTeamForceReadyChange(m_pMissionInfo.get(), pfmTeamForceReady->iSide, pfmTeamForceReady->fForceReady);
+            m_pClientEventSource->OnTeamForceReadyChange(m_pMissionInfo, pfmTeamForceReady->iSide, pfmTeamForceReady->fForceReady);
         }
         break;
 
@@ -2505,7 +2506,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
         {
             CASTPFM(pfmAutoAccept, CS, AUTO_ACCEPT, pfm);
             m_pMissionInfo->SetSideAutoAccept(pfmAutoAccept->iSide, pfmAutoAccept->fAutoAccept);
-            m_pClientEventSource->OnTeamAutoAcceptChange(m_pMissionInfo.get(), pfmAutoAccept->iSide, pfmAutoAccept->fAutoAccept);
+            m_pClientEventSource->OnTeamAutoAcceptChange(m_pMissionInfo, pfmAutoAccept->iSide, pfmAutoAccept->fAutoAccept);
             m_mapMissions.GetSink()();
         }
         break;
@@ -2894,7 +2895,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
         case FM_CS_QUIT_SIDE:
         {
-            if (m_pMissionInfo.get())
+            if (m_pMissionInfo)
             {
                 CASTPFM(pfmQuitSide, CS, QUIT_SIDE, pfm);
 
@@ -3282,7 +3283,8 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 }
                 else
                 {
-                    m_pMissionInfo.reset();
+                    delete m_pMissionInfo;
+                    m_pMissionInfo = nullptr;
                 }
             }
 

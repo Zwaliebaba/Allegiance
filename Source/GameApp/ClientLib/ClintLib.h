@@ -677,7 +677,7 @@ public: //todo: make protected
     ImissionIGC*        m_pCoreIGC;
 
     // client state information
-    std::unique_ptr<MissionInfo> m_pMissionInfo;
+    MissionInfo*        m_pMissionInfo;
     DWORD               m_dwCookieToJoin;
     char                m_strPasswordToJoin[c_cbGamePassword];
     Mount               m_selectedWeapon;
@@ -800,7 +800,7 @@ public:
     // game state
     inline ImissionIGC* GetCore()               { return m_pCoreIGC; }
     PlayerInfo*         MyPlayerInfo()          { return m_pPlayerInfo; }
-    MissionInfo*        MyMission()             { return m_pMissionInfo.get(); }
+    MissionInfo*        MyMission()             { return m_pMissionInfo; }
     bool                MyMissionInProgress();
 
     inline bool         IsInGame(void) const    { return m_bInGame; };

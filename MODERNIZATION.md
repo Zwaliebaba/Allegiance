@@ -1179,8 +1179,9 @@ buffers, nodes freed by `Terminate` methods) are left for case-by-case work.
   Two places that replaced a held object without freeing it now free it, and a second `Stop` no longer leaks
   the parked mission tree. `TrainingMission`'s destructor frees its conditions before the player leaves the
   mission, as before: they point at the ships and stations that leaving tears down.
-- **The client.** `BaseClient`'s mission, `MissionInfo`'s mission definition, and `PlayerInfo`'s scores, which
-  were allocated with `new[]` and freed with `delete`.
+- **The client.** `MissionInfo`'s mission definition, and `PlayerInfo`'s scores, which were allocated with
+  `new[]` and freed with `delete`. (`BaseClient::m_pMissionInfo` stays a raw pointer: it is a public member,
+  and changing its declaration would hold its legacy name to the convention, a rename across three files.)
 - **Pimpls.** `ZSettingsFile` and `FedMessaging`.
 - **Array deletes.** Seven `new[]` allocations were freed with `delete` (found by matching every `delete`
   against its pointer's allocation): the training loadout purchase buffer, missile launch data, the server's
