@@ -230,8 +230,25 @@ def main():
         print("check-naming: no C++ lines added since %s" % args.base)
         return 0
 
-    line_filter = json.dumps([{"name": os.path.join(ROOT, f).replace("\\", "/"), "lines": r} for f, r in ranges.items()]
-                             + [{"name": f, "lines": r} for f, r in ranges.items()])
+    #
+    # clang-tidy matches a filter entry by the end of the diagnostic's path, and
+    # on Windows that path has backslashes: an entry spelled with '/' matches
+    # nothing there, and the gate would pass every change unseen. So each file
+    # goes in with both separators.
+    #
+
+    canary = os.path.join("out", "check-naming", "Canary.cpp").replace(os.sep, "/")
+    os.makedirs(os.path.join(ROOT, os.path.dirname(canary)), exist_ok=True)
+    with open(os.path.join(ROOT, canary), "w") as f:
+        f.write("int CanaryNotAGlobalName = 0;\n")
+    ranges_with_canary = dict(ranges)
+    ranges_with_canary[canary] = [[1, 1]]
+
+    entries = []
+    for f, r in ranges_with_canary.items():
+        for name in {f, f.replace("/", "\\")}:
+            entries.append({"name": name, "lines": r})
+    line_filter = json.dumps(entries)
 
     projects, units = {}, {}
     for path in sorted(ranges):
@@ -249,19 +266,35 @@ def main():
             continue
         units.setdefault(unit, project)
 
-    findings, broken = set(), 0
-    for unit, project in sorted(units.items()):
+    def tidy(unit, compiler):
         cmd = [args.clang_tidy, unit, "--quiet",
                "--config-file=" + args.config,
                "--checks=-*,readability-identifier-naming",
                "--warnings-as-errors=-*",
                "--header-filter=.*",
                "--line-filter=" + line_filter,
-               "--"] + compiler_args(project, args.driver, args.extra_arg)
+               "--"] + compiler
         if args.verbose:
             print(" ".join('"%s"' % c if " " in c else c for c in cmd))
-        result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace")
-        errors, recognised = 0, False
+        return subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace")
+
+    #
+    # The canary: a known violation through the same filter. If clang-tidy does
+    # not report it, the gate cannot see anything and must not say "clean".
+    #
+
+    canary_args = ["--driver-mode=cl", "/TP"] if args.driver == "cl" else ["-x", "c++"]
+    result = tidy(os.path.join(ROOT, canary), canary_args)
+    output = (result.stdout + result.stderr).splitlines()
+    if not any(FINDING.match(line.strip()) and "CanaryNotAGlobalName" in line for line in output):
+        print("check-naming: the canary was not reported, so the gate cannot see findings; clang-tidy said:")
+        print("\n".join(output)[-2000:] or "(nothing)")
+        return 2
+
+    findings, broken = set(), 0
+    for unit, project in sorted(units.items()):
+        result = tidy(unit, compiler_args(project, args.driver, args.extra_arg))
+        errors, recognised, first_error = 0, False, ""
         for line in (result.stdout + result.stderr).splitlines():
             m = FINDING.match(line.strip())
             if m:
