@@ -840,6 +840,15 @@ public:
         SetClipping(true);
 
         //
+        // A layer with a z-buffer gets its own HDR scene target (the
+        // rasterizer composites it when the layer ends); push the clip rect
+        // first, which the composite covers
+        //
+
+        UpdateState();
+        m_pdevice3D->Begin3DLayer(bZBuffer);
+
+        //
         // Initialize state
         //
 
@@ -922,6 +931,8 @@ public:
         //
 
         PopState();
+
+        m_pdevice3D->End3DLayer();
 
         m_bIn3DLayer = false;
     }

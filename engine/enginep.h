@@ -67,7 +67,7 @@ public:
     //
 
     virtual int                  GetGeneration()    = 0;
-    virtual void                 CheckDeviceLost(long hr) = 0;
+    virtual bool                 CheckDeviceLost(long hr) = 0; // true if lost (and re-created)
 
     //
     // Textures: a GPU copy of a surface, refreshed when the surface changes
@@ -119,6 +119,8 @@ struct TransformAndLight {
     int   m_mode;           // TLMode
     int   m_countPlanes;    // extra clip planes beyond the frustum
     float m_planes[c_maxTLClipPlanes][4];
+    float m_eye[4];         // model-space eye position (per-pixel specular)
+    float m_zrev[4];        // model -> reversed clip-space z (1 at the near plane, 0 at the far), for float depth
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -151,6 +153,15 @@ public:
     virtual void  EndScene()                                            = 0;
     virtual void  ClearZBuffer()                                        = 0;
     virtual void  SetClipRect(const Rect& rectClip)                     = 0;
+
+    //
+    // A 3D layer (Context::Begin3DLayer / End3DLayer), inside a scene. One
+    // with a z-buffer is drawn into an HDR scene target and composited over
+    // the surface when it ends.
+    //
+
+    virtual void  Begin3DLayer(bool bZBuffer)                           = 0;
+    virtual void  End3DLayer()                                          = 0;
 
     //
     // Attributes
@@ -235,6 +246,8 @@ public:
     virtual void BeginScene()                                          = 0;
     virtual void EndScene()                                            = 0;
     virtual void ClearZBuffer()                                        = 0;
+    virtual void Begin3DLayer(bool bZBuffer)                           = 0;
+    virtual void End3DLayer()                                          = 0;
 
     //
     // VertexBuffer

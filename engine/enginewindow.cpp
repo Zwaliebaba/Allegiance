@@ -934,7 +934,8 @@ void EngineWindow::UpdatePerformanceCounters(Context* pcontext, Time timeCurrent
                     + " readbacks "             + StrFromFloat((float)((now.m_readbacks - g_statsLast.m_readbacks) / frames), 4, 1)
                     + " textures "              + StrFromFloat((float)((now.m_textureUploads - g_statsLast.m_textureUploads) / frames), 4, 1)
                     + " 2D draws "              + StrFromInt(MakeInt((now.m_draws2D - g_statsLast.m_draws2D) / frames))
-                    + " 3D draws "              + StrFromInt(MakeInt((now.m_draws3D - g_statsLast.m_draws3D) / frames));
+                    + " 3D draws "              + StrFromInt(MakeInt((now.m_draws3D - g_statsLast.m_draws3D) / frames))
+                    + " scenes "                + StrFromFloat((float)((now.m_scenes - g_statsLast.m_scenes) / frames), 4, 1);
 
                 g_statsLast = now;
             }

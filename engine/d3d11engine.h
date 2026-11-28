@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <d3d11.h>
-#include <dxgi1_2.h>
+#include <dxgi1_3.h>      // IDXGISwapChain2 (frame latency waitable object)
 
 #include <vector>
 
@@ -171,6 +171,7 @@ struct D3D11Stats {
     int m_textureUploads;   // texture cache refreshes
     int m_draws2D;
     int m_draws3D;
+    int m_scenes;           // 3D layers drawn through an HDR scene target
 };
 
 extern D3D11Stats g_d3d11Stats;

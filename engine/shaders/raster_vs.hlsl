@@ -11,7 +11,7 @@ VertexOut main(VertexIn input)
 {
     VertexOut output;
     output.position = ScreenToClip(input.position);
-    output.color    = input.color;
+    output.color    = VertexColor(input.color);
     output.uv       = input.uv;
     return output;
 }

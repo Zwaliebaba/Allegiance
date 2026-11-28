@@ -361,6 +361,16 @@ public:
         m_prasterizer->ClearZBuffer();
     }
 
+    void Begin3DLayer(bool bZBuffer)
+    {
+        m_prasterizer->Begin3DLayer(bZBuffer);
+    }
+
+    void End3DLayer()
+    {
+        m_prasterizer->End3DLayer();
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //
     // View Rect
@@ -2076,6 +2086,46 @@ public:
         }
 
         tl.m_ambient = m_brightAmbient;
+
+        //
+        // Reversed depth for the scene targets' float depth buffers: clip z
+        // is w at the near plane and 0 at the far one. Built from the
+        // perspective's constants and the full matrix's w row (exactly minus
+        // the eye-space z) in double, not as w - z per vertex, which would
+        // cancel at the far plane and lose the precision reversed-Z is for.
+        //
+        // With P's z row (0, 0, a, b) and w row (0, 0, -1, 0):
+        // zrev = w - z = -(1 + a) * zeye - b = (1 + a) * wrow . p - b.
+        // GetFullMatrix's clip-rect mapping only touches the x and y rows.
+        //
+
+        if (m_matPerspective[3][2] != 0) {
+            double a = m_matPerspective[2][2];
+            double b = m_matPerspective[2][3];
+
+            for (int col = 0; col < 4; col++) {
+                tl.m_zrev[col] = (float)((1.0 + a) * matFull[3][col]);
+            }
+
+            tl.m_zrev[3] = (float)((1.0 + a) * matFull[3][3] - b);
+        } else {
+            for (int col = 0; col < 4; col++) {
+                tl.m_zrev[col] = (float)((double)matFull[3][col] - (double)matFull[2][col]);
+            }
+        }
+
+        //
+        // The eye is the origin of the space m_mat maps into
+        //
+
+        {
+            Vector eye = GetInverseModelMatrix().Transform(Vector(0, 0, 0));
+
+            tl.m_eye[0] = eye.X();
+            tl.m_eye[1] = eye.Y();
+            tl.m_eye[2] = eye.Z();
+            tl.m_eye[3] = 1;
+        }
 
         if (!bNormal) {
             tl.m_mode = TLModeVertexColor;
