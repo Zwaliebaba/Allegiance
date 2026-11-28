@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{D22EB4B3-054E-57AB-B0CF-37B311F3B7F5}</ProjectGuid>
+    <RootNamespace>Server</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <!-- Link $(TargetDir)Artwork to out\Artwork after build (Directory.Build.targets). -->
+    <AllegianceLinkArtwork>true</AllegianceLinkArtwork>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <!-- AllSrv32.exe, the game server: its entry point and resources; the server is GameLogic -->
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(AllegianceRoot)msbuild\Allegiance.Cpp.props" />
+  </ImportGroup>
+  <PropertyGroup>
+    <TargetName>AllSrv32</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\Server;$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <DelayLoadDLLs>netapi32.dll;advapi32.dll</DelayLoadDLLs>
+      <!-- Every object of GameLogic, as when its sources were the executable's own:
+           this keeps the server as it was linked, with no object left out because
+           only a static initializer refers to it. -->
+      <AdditionalOptions>/WHOLEARCHIVE:"$(OutDir)GameLogic.lib" %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\Server;$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AllSrv.build.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="fedsrv.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="FedSrv.RC" />
+    <None Include="fedsrv.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameLogic\GameLogic.vcxproj">
+      <Project>{26CFE4AF-DF5D-5A4C-9A3D-879FF9A03BD4}</Project>
+      <!-- linked with /WHOLEARCHIVE instead (see Link) -->
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <ProjectReference Include="..\NeuronServer\NeuronServer.vcxproj">
+      <Project>{15A5124B-6CFB-5994-837D-351BB657F70E}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\GameCommon\GameCommon.vcxproj">
+      <Project>{83B45092-097A-509B-9B38-A76D9F8820DF}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\NeuronCore\NeuronCore.vcxproj">
+      <Project>{D6BA1D66-6693-54B0-9BA9-788192EE921E}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

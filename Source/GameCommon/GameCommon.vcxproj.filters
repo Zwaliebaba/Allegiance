@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Igc\afterburnerIGC.cpp" />
+    <ClCompile Include="Igc\asteroidigc.cpp" />
+    <ClCompile Include="Igc\bucketigc.cpp" />
+    <ClCompile Include="Igc\buoyigc.cpp" />
+    <ClCompile Include="Igc\chaffigc.cpp" />
+    <ClCompile Include="Igc\chafftypeigc.cpp" />
+    <ClCompile Include="Igc\civilizationigc.cpp" />
+    <ClCompile Include="Igc\cloakigc.cpp" />
+    <ClCompile Include="Igc\clusterIGC.cpp" />
+    <ClCompile Include="Igc\common.cpp" />
+    <ClCompile Include="Igc\developmentigc.cpp" />
+    <ClCompile Include="Igc\dispenserigc.cpp" />
+    <ClCompile Include="Igc\dronetypeigc.cpp" />
+    <ClCompile Include="Igc\hullTypeIGC.cpp" />
+    <ClCompile Include="Igc\launchertypeigc.cpp" />
+    <ClCompile Include="Igc\magazineigc.cpp" />
+    <ClCompile Include="Igc\mapmakerigc.cpp" />
+    <ClCompile Include="Igc\mineigc.cpp" />
+    <ClCompile Include="Igc\minetypeigc.cpp" />
+    <ClCompile Include="Igc\missileigc.cpp" />
+    <ClCompile Include="Igc\missiletypeigc.cpp" />
+    <ClCompile Include="Igc\missionigc.cpp" />
+    <ClCompile Include="Igc\modelIGC.cpp" />
+    <ClCompile Include="Igc\packigc.cpp" />
+    <ClCompile Include="Igc\partTypeIGC.cpp" />
+    <ClCompile Include="Igc\private.cpp" />
+    <ClCompile Include="Igc\probeigc.cpp" />
+    <ClCompile Include="Igc\probetypeigc.cpp" />
+    <ClCompile Include="Igc\projectileIGC.cpp" />
+    <ClCompile Include="Igc\projectileTypeIGC.cpp" />
+    <ClCompile Include="Igc\shieldIGC.cpp" />
+    <ClCompile Include="Igc\shipIGC.cpp" />
+    <ClCompile Include="Igc\sideigc.cpp" />
+    <ClCompile Include="Igc\stationIGC.cpp" />
+    <ClCompile Include="Igc\stationtypeigc.cpp" />
+    <ClCompile Include="Igc\treasureIGC.cpp" />
+    <ClCompile Include="Igc\treasuresetigc.cpp" />
+    <ClCompile Include="Igc\warpIGC.cpp" />
+    <ClCompile Include="Igc\weaponIGC.cpp" />
+    <ClCompile Include="pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Igc\afterburnerIGC.h" />
+    <ClInclude Include="Igc\asteroidigc.h" />
+    <ClInclude Include="Igc\bucketigc.h" />
+    <ClInclude Include="Igc\buildingeffectigc.h" />
+    <ClInclude Include="Igc\buoyigc.h" />
+    <ClInclude Include="Igc\chaffigc.h" />
+    <ClInclude Include="Igc\chafftypeigc.h" />
+    <ClInclude Include="Igc\civilizationigc.h" />
+    <ClInclude Include="Igc\cloakigc.h" />
+    <ClInclude Include="Igc\clusterIGC.h" />
+    <ClInclude Include="Igc\developmentigc.h" />
+    <ClInclude Include="Igc\dispenserigc.h" />
+    <ClInclude Include="Igc\dronetypeigc.h" />
+    <ClInclude Include="Igc\hullTypeIGC.h" />
+    <ClInclude Include="Igc\igc.h" />
+    <ClInclude Include="Igc\launchertypeigc.h" />
+    <ClInclude Include="Igc\magazineigc.h" />
+    <ClInclude Include="Igc\mapmakerigc.h" />
+    <ClInclude Include="Igc\mineigc.h" />
+    <ClInclude Include="Igc\minetypeigc.h" />
+    <ClInclude Include="Igc\missileigc.h" />
+    <ClInclude Include="Igc\missiletypeigc.h" />
+    <ClInclude Include="Igc\missionigc.h" />
+    <ClInclude Include="Igc\modelIGC.h" />
+    <ClInclude Include="Igc\packigc.h" />
+    <ClInclude Include="Igc\partTypeIGC.h" />
+    <ClInclude Include="Igc\private.h" />
+    <ClInclude Include="Igc\probeigc.h" />
+    <ClInclude Include="Igc\probetypeigc.h" />
+    <ClInclude Include="Igc\projectileIGC.h" />
+    <ClInclude Include="Igc\projectileTypeIGC.h" />
+    <ClInclude Include="Igc\shieldIGC.h" />
+    <ClInclude Include="Igc\shipIGC.h" />
+    <ClInclude Include="Igc\sideigc.h" />
+    <ClInclude Include="Igc\sounds.h" />
+    <ClInclude Include="Igc\stationIGC.h" />
+    <ClInclude Include="Igc\stationtypeigc.h" />
+    <ClInclude Include="Igc\treasureIGC.h" />
+    <ClInclude Include="Igc\treasuresetigc.h" />
+    <ClInclude Include="Igc\warpIGC.h" />
+    <ClInclude Include="Igc\weaponIGC.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Protocol\Messages.h" />
+    <ClInclude Include="Protocol\messagesAll.h" />
+    <ClInclude Include="Protocol\Parts.h" />
+    <ClInclude Include="Protocol\trainingserver.h" />
+    <ClInclude Include="Version\SlmVer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Version\VerRes.rc" />
+  </ItemGroup>
+</Project>

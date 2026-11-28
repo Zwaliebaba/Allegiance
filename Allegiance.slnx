@@ -2,29 +2,29 @@
   <Configurations>
     <Platform Name="x64" />
   </Configurations>
-  <Folder Name="/Libraries/">
-    <Project Path="zlib/ZLib.vcxproj" Id="34f19e78-c3ad-4eec-8f42-c823d58200c8" />
-    <Project Path="guids/Guids.vcxproj" Id="cb4a5507-7890-4d3e-acab-cd2b1e126d40" />
-    <Project Path="_Utility/Utility.vcxproj" Id="b7b60918-2ec7-4b11-98e6-15ee459965e1" />
-    <Project Path="engine/Engine.vcxproj" Id="598956d4-4c9c-46f6-a768-151834bcd97f" />
-    <Project Path="effect/Effect.vcxproj" Id="ef7f71bc-e8e5-4ef8-819d-6ab78f3eeb97" />
-    <Project Path="soundengine/SoundEngine.vcxproj" Id="6b95d240-3c2a-4f62-b1f8-fddca6d0c984" />
-    <Project Path="Igc/Igc.vcxproj" Id="436bd701-cd33-4132-ac9d-e4a34252e55f" />
-    <Project Path="clintlib/ClintLib.vcxproj" Id="5b164402-491e-404e-ab26-c6b1590ebabe" />
-    <Project Path="training/Training.vcxproj" Id="1dc45108-9797-4f75-9891-60197544974b" />
-    <Project Path="test/TCLib/TCLib.vcxproj" Id="cb0673c1-d288-4824-ba88-17230f780ded" />
+  <Folder Name="/Engine/">
+    <Project Path="Source/NeuronCore/NeuronCore.vcxproj" Id="d6ba1d66-6693-54b0-9ba9-788192ee921e" />
+    <Project Path="Source/NeuronClient/NeuronClient.vcxproj" Id="17efb152-f918-5928-8af1-d28ba863a9a3" />
+    <Project Path="Source/NeuronServer/NeuronServer.vcxproj" Id="15a5124b-6cfb-5994-837d-351bb657f70e" />
   </Folder>
-  <Folder Name="/Server/">
-    <Project Path="FedSrv/AllSrv32.vcxproj" Id="482b8658-01bb-4af0-bafc-15476eeffbb4" />
-  </Folder>
-  <Folder Name="/Tools/">
-    <Project Path="mdlc/mdlc.vcxproj" Id="9ad007c5-0636-4425-b3b2-f87402b1eab5" />
-    <Project Path="cvh/cvh.vcxproj" Id="3a560e39-9c83-4111-80c1-f45c03dada91" />
-    <Project Path="xmunge/xmunge.vcxproj" Id="53945a79-12a3-5f2f-9aad-8b56c4d111f9" />
-    <Project Path="qhull/qhull.vcxproj" Id="e2a5b571-a7e6-42d8-bac9-a222c711e632" />
+  <Folder Name="/Game/">
+    <Project Path="Source/GameCommon/GameCommon.vcxproj" Id="83b45092-097a-509b-9b38-a76d9f8820df" />
+    <Project Path="Source/GameLogic/GameLogic.vcxproj" Id="26cfe4af-df5d-5a4c-9a3d-879ff9a03bd4" />
+    <Project Path="Source/GameApp/GameApp.vcxproj" Id="8a9e1169-30e2-5a72-a528-cb6cc3fad76c" />
   </Folder>
   <Folder Name="/Tests/">
-    <Project Path="tests/UnitTests/UnitTests.vcxproj" Id="bd35be37-e50c-4059-b4f9-40ea8015712b" />
+    <Project Path="Tests/NeuronCore.Tests/NeuronCore.Tests.vcxproj" Id="c8a82967-1710-5cfb-a43d-698b0a7072e3" />
+    <Project Path="Tests/NeuronClient.Tests/NeuronClient.Tests.vcxproj" Id="c9e9c4d3-dfb3-50ad-b286-b1957142133b" />
+    <Project Path="Tests/NeuronServer.Tests/NeuronServer.Tests.vcxproj" Id="b4fc1646-a565-55a3-98ea-3892382dbc3d" />
+    <Project Path="Tests/GameCommon.Tests/GameCommon.Tests.vcxproj" Id="b5d51a0d-5f30-5b7c-9565-ad1848356db0" />
+    <Project Path="Tests/GameLogic.Tests/GameLogic.Tests.vcxproj" Id="0c044cf9-4a3d-5ee7-b4ff-abd086510a76" />
+    <Project Path="Tests/GameApp.Tests/GameApp.Tests.vcxproj" Id="9aaad935-7f67-5e3f-8f5e-991b1476ab31" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="Tools/mdlc/mdlc.vcxproj" Id="9ad007c5-0636-4425-b3b2-f87402b1eab5" />
+    <Project Path="Tools/cvh/cvh.vcxproj" Id="3a560e39-9c83-4111-80c1-f45c03dada91" />
+    <Project Path="Tools/xmunge/xmunge.vcxproj" Id="53945a79-12a3-5f2f-9aad-8b56c4d111f9" />
+    <Project Path="Tools/qhull/qhull.vcxproj" Id="e2a5b571-a7e6-42d8-bac9-a222c711e632" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
@@ -32,5 +32,6 @@
     <File Path="msbuild/Allegiance.Cpp.props" />
     <File Path="MODERNIZATION.md" />
   </Folder>
-  <Project Path="WinTrek/Allegiance.vcxproj" Id="95d21128-1f14-455f-982d-e20d69eb7eb1" />
+  <Project Path="Source/Client/Client.vcxproj" Id="be51dfe7-037b-5af8-bcb6-c1aa36cf0702" />
+  <Project Path="Source/Server/Server.vcxproj" Id="d22eb4b3-054e-57ab-b0cf-37b311f3b7f5" />
 </Solution>

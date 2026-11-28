@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{0C044CF9-4A3D-5EE7-B4FF-ABD086510A76}</ProjectGuid>
+    <RootNamespace>GameLogic_Tests</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectSubType>NativeUnitTestProject</ProjectSubType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <!-- The unit tests of GameLogic. A CppUnitTest test project is a DLL the test adapter loads (vstest.console in CI). -->
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(AllegianceRoot)msbuild\Allegiance.Cpp.props" />
+  </ImportGroup>
+  <PropertyGroup>
+    <TargetName>GameLogic.Tests</TargetName>
+    <UnitTestDir>$(VCInstallDir)Auxiliary\VS\UnitTest\</UnitTestDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(UnitTestDir)include;$(AllegianceRoot)Tests\GameLogic.Tests;$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZLIB_SKIP_NEW_REDEF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(UnitTestDir)lib;$(UnitTestDir)lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ServerEventTests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\GameLogic\GameLogic.vcxproj">
+      <Project>{26CFE4AF-DF5D-5A4C-9A3D-879FF9A03BD4}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\NeuronServer\NeuronServer.vcxproj">
+      <Project>{15A5124B-6CFB-5994-837D-351BB657F70E}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\GameCommon\GameCommon.vcxproj">
+      <Project>{83B45092-097A-509B-9B38-A76D9F8820DF}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\NeuronCore\NeuronCore.vcxproj">
+      <Project>{D6BA1D66-6693-54B0-9BA9-788192EE921E}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

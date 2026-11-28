@@ -29,23 +29,26 @@ jobs:
       # so a failure in one project does not hide the compile errors of the
       # projects that depend on it. (Their link step will still fail.)
       PROJECTS: >-
-        zlib/ZLib.vcxproj
-        guids/Guids.vcxproj
-        _Utility/Utility.vcxproj
-        engine/Engine.vcxproj
-        effect/Effect.vcxproj
-        soundengine/SoundEngine.vcxproj
-        Igc/Igc.vcxproj
-        clintlib/ClintLib.vcxproj
-        training/Training.vcxproj
-        test/TCLib/TCLib.vcxproj
-        FedSrv/AllSrv32.vcxproj
-        WinTrek/Allegiance.vcxproj
-        mdlc/mdlc.vcxproj
-        cvh/cvh.vcxproj
-        xmunge/xmunge.vcxproj
-        qhull/qhull.vcxproj
-        tests/UnitTests/UnitTests.vcxproj
+        Source/NeuronCore/NeuronCore.vcxproj
+        Source/NeuronClient/NeuronClient.vcxproj
+        Source/NeuronServer/NeuronServer.vcxproj
+        Source/GameCommon/GameCommon.vcxproj
+        Source/GameLogic/GameLogic.vcxproj
+        Source/GameApp/GameApp.vcxproj
+        Source/Server/Server.vcxproj
+        Source/Client/Client.vcxproj
+        Tools/mdlc/mdlc.vcxproj
+        Tools/cvh/cvh.vcxproj
+        Tools/xmunge/xmunge.vcxproj
+        Tools/qhull/qhull.vcxproj
+        Tests/NeuronCore.Tests/NeuronCore.Tests.vcxproj
+        Tests/NeuronClient.Tests/NeuronClient.Tests.vcxproj
+        Tests/NeuronServer.Tests/NeuronServer.Tests.vcxproj
+        Tests/GameCommon.Tests/GameCommon.Tests.vcxproj
+        Tests/GameLogic.Tests/GameLogic.Tests.vcxproj
+        Tests/GameApp.Tests/GameApp.Tests.vcxproj
+      # The test DLLs, one per library (Tests/<Library>.Tests)
+      TESTS: NeuronCore.Tests NeuronClient.Tests NeuronServer.Tests GameCommon.Tests GameLogic.Tests GameApp.Tests
 
     steps:
       - name: Checkout (code only, Artwork excluded)
@@ -78,9 +81,9 @@ jobs:
         run: |
           # packages.config restore into packages\, the folder Visual Studio uses for the solution
           if (Get-Command nuget -ErrorAction SilentlyContinue) {
-            nuget restore _Utility\packages.config -PackagesDirectory packages -NonInteractive
+            nuget restore Source\NeuronCore\packages.config -PackagesDirectory packages -NonInteractive
           } else {
-            & $env:MSBUILD _Utility/Utility.vcxproj -nologo -t:restore -p:RestorePackagesConfig=true "-p:SolutionDir=$pwd\" -p:Platform=x64
+            & $env:MSBUILD Source/NeuronCore/NeuronCore.vcxproj -nologo -t:restore -p:RestorePackagesConfig=true "-p:SolutionDir=$pwd\" -p:Platform=x64
           }
           if (-not (Test-Path packages/Microsoft.Native.Quic.MsQuic.Schannel.*/build/native/include/msquic.h)) { throw "MsQuic was not restored" }
 
@@ -110,7 +113,9 @@ jobs:
         continue-on-error: true
         timeout-minutes: 10
         shell: pwsh
-        run: ./tools/ci/unit-tests.ps1 -Dll out/bin/x64/${{ matrix.configuration }}/UnitTests.dll -Out out/logs -Label ${{ matrix.configuration }}
+        run: |
+          $dlls = $env:TESTS -split '\s+' | Where-Object { $_ } | ForEach-Object { "out/bin/x64/${{ matrix.configuration }}/$_.dll" }
+          ./Tools/ci/unit-tests.ps1 -Dll $dlls -Out out/logs -Label ${{ matrix.configuration }}
 
       # Art toolchain smoke test (Phase 4): mdlc starts the engine with its software
       # DirectDraw path. This tells us whether art can be converted on a headless
@@ -131,7 +136,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 10
         shell: pwsh
-        run: ./tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/${{ matrix.configuration }}/mdlc.exe -Art out/smoke-src -Out out/art-smoke
+        run: ./Tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/${{ matrix.configuration }}/mdlc.exe -Art out/smoke-src -Out out/art-smoke
 
       - name: Error summary
         if: always()
@@ -182,7 +187,7 @@ jobs:
         shell: pwsh
         run: exit 1
 
-  # AddressSanitizer: the libraries the unit tests and mdlc need, built with
+  # AddressSanitizer: the libraries, their tests and mdlc, built with
   # /fsanitize=address, then the unit tests (which include a loopback QUIC
   # session) and the mdlc smoke test (which loads MDL, the code path of the
   # ObjectStack use-after-free). Release, since
@@ -193,13 +198,21 @@ jobs:
     env:
       CONFIGURATION: Release
       PROJECTS: >-
-        zlib/ZLib.vcxproj
-        guids/Guids.vcxproj
-        _Utility/Utility.vcxproj
-        engine/Engine.vcxproj
-        effect/Effect.vcxproj
-        mdlc/mdlc.vcxproj
-        tests/UnitTests/UnitTests.vcxproj
+        Source/NeuronCore/NeuronCore.vcxproj
+        Source/NeuronClient/NeuronClient.vcxproj
+        Source/NeuronServer/NeuronServer.vcxproj
+        Source/GameCommon/GameCommon.vcxproj
+        Source/GameLogic/GameLogic.vcxproj
+        Source/GameApp/GameApp.vcxproj
+        Tools/mdlc/mdlc.vcxproj
+        Tests/NeuronCore.Tests/NeuronCore.Tests.vcxproj
+        Tests/NeuronClient.Tests/NeuronClient.Tests.vcxproj
+        Tests/NeuronServer.Tests/NeuronServer.Tests.vcxproj
+        Tests/GameCommon.Tests/GameCommon.Tests.vcxproj
+        Tests/GameLogic.Tests/GameLogic.Tests.vcxproj
+        Tests/GameApp.Tests/GameApp.Tests.vcxproj
+      # The test DLLs, one per library (Tests/<Library>.Tests)
+      TESTS: NeuronCore.Tests NeuronClient.Tests NeuronServer.Tests GameCommon.Tests GameLogic.Tests GameApp.Tests
     steps:
       - name: Checkout (code only, Artwork excluded)
         uses: actions/checkout@v5
@@ -227,7 +240,7 @@ jobs:
       - name: Restore NuGet packages (MsQuic)
         shell: pwsh
         run: |
-          & $env:MSBUILD _Utility/Utility.vcxproj -nologo -t:restore -p:RestorePackagesConfig=true "-p:SolutionDir=$pwd\" -p:Platform=x64
+          & $env:MSBUILD Source/NeuronCore/NeuronCore.vcxproj -nologo -t:restore -p:RestorePackagesConfig=true "-p:SolutionDir=$pwd\" -p:Platform=x64
           if (-not (Test-Path packages/Microsoft.Native.Quic.MsQuic.Schannel.*/build/native/include/msquic.h)) { throw "MsQuic was not restored" }
 
       - name: Build with AddressSanitizer
@@ -255,7 +268,7 @@ jobs:
         if: steps.build.outcome == 'success'
         shell: pwsh
         run: |
-          foreach ($f in 'mdlc.exe', 'UnitTests.dll') {
+          foreach ($f in @('mdlc.exe') + ($env:TESTS -split '\s+' | Where-Object { $_ } | ForEach-Object { "$_.dll" })) {
             $deps = dumpbin /nologo /dependents "out/bin/x64/$env:CONFIGURATION/$f" | Out-String
             if ($deps -notmatch 'clang_rt\.asan_dynamic-x86_64\.dll') { Write-Host $deps; throw "$f is not built with AddressSanitizer" }
             "$f links clang_rt.asan_dynamic-x86_64.dll"
@@ -267,7 +280,9 @@ jobs:
         continue-on-error: true
         timeout-minutes: 10
         shell: pwsh
-        run: ./tools/ci/unit-tests.ps1 -Dll out/bin/x64/$env:CONFIGURATION/UnitTests.dll -Out out/logs -Label asan
+        run: |
+          $dlls = $env:TESTS -split '\s+' | Where-Object { $_ } | ForEach-Object { "out/bin/x64/$env:CONFIGURATION/$_.dll" }
+          ./Tools/ci/unit-tests.ps1 -Dll $dlls -Out out/logs -Label asan
 
       - name: Fetch smoke-test art
         if: always()
@@ -286,7 +301,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 10
         shell: pwsh
-        run: ./tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/$env:CONFIGURATION/mdlc.exe -Art out/smoke-src -Out out/art-smoke
+        run: ./Tools/ci/mdlc-smoke.ps1 -Mdlc out/bin/x64/$env:CONFIGURATION/mdlc.exe -Art out/smoke-src -Out out/art-smoke
 
       - name: Upload logs
         if: always()
@@ -329,13 +344,13 @@ jobs:
       # Every art reference (MDL, core files, code) resolves in the art folders
       - name: Check art references
         shell: pwsh
-        run: python tools/ci/art-check.py
+        run: python Tools/ci/art-check.py
 
       # The art files nothing uses (report only; Music is not checked out)
       - name: Report unused art
         shell: pwsh
         run: |
-          $report = python tools/ci/art-unused.py
+          $report = python Tools/ci/art-unused.py
           $report
           $summary = @("<details><summary>$($report[0])</summary>", '', '```') + $report + @('```', '</details>')
           $summary >> $env:GITHUB_STEP_SUMMARY
@@ -369,7 +384,7 @@ jobs:
         timeout-minutes: 25
         shell: pwsh
         run: |
-          ./tools/ci/mdlc-crash-stack.ps1 -Mdlc out/bin/x64/${{ matrix.configuration }}/mdlc.exe `
+          ./Tools/ci/mdlc-crash-stack.ps1 -Mdlc out/bin/x64/${{ matrix.configuration }}/mdlc.exe `
             -Log out/logs/art.log -ArtSource Artwork -ArtOut out/Artwork -Out out/logs
 
       - name: Upload art

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{26CFE4AF-DF5D-5A4C-9A3D-879FF9A03BD4}</ProjectGuid>
+    <RootNamespace>GameLogic</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <!-- the game server (FedSrv) -->
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(AllegianceRoot)msbuild\Allegiance.Cpp.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <!-- Its own folders, then those of the libraries it may use (the layering) -->
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Server\allegdb.cpp" />
+    <ClCompile Include="Server\allsrvmodule.cpp" />
+    <ClCompile Include="Server\FedSrv.CPP" />
+    <ClCompile Include="Server\fscluster.cpp" />
+    <ClCompile Include="Server\fslobby.cpp" />
+    <ClCompile Include="Server\fsmission.cpp" />
+    <ClCompile Include="Server\fsship.cpp" />
+    <ClCompile Include="Server\fsside.cpp" />
+    <ClCompile Include="Server\serverevents.cpp" />
+    <ClCompile Include="Server\srvqguids.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameLogic.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Server\allegdb.h" />
+    <ClInclude Include="Server\allsrvmodule.h" />
+    <ClInclude Include="Server\counters.h" />
+    <ClInclude Include="Server\dbgutil.h" />
+    <ClInclude Include="Server\eventsite.h" />
+    <ClInclude Include="Server\FedSrv.H" />
+    <ClInclude Include="Server\FedSrvApp.h" />
+    <ClInclude Include="Server\fscluster.h" />
+    <ClInclude Include="Server\fsmission.h" />
+    <ClInclude Include="Server\fsship.h" />
+    <ClInclude Include="Server\fsside.h" />
+    <ClInclude Include="Server\gameparamdata.h" />
+    <ClInclude Include="Server\messagesLS.h" />
+    <ClInclude Include="Server\resource.h" />
+    <ClInclude Include="Server\serverevents.h" />
+    <ClInclude Include="Server\serverevents_defs.h" />
+    <ClInclude Include="Server\serversettings.h" />
+    <ClInclude Include="Server\srvqueries.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameCommon\GameCommon.vcxproj">
+      <Project>{83B45092-097A-509B-9B38-A76D9F8820DF}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\NeuronServer\NeuronServer.vcxproj">
+      <Project>{15A5124B-6CFB-5994-837D-351BB657F70E}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\NeuronCore\NeuronCore.vcxproj">
+      <Project>{D6BA1D66-6693-54B0-9BA9-788192EE921E}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

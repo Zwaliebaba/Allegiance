@@ -13,7 +13,7 @@ solution that compiles, runs on current Windows, and builds its art from source.
 | Art | Stage A: rebuild the original runtime format (binary MDL, 16-bit RGB565 images) through an MSBuild art project (done). Stage B: images as uncompressed 32-bit BGRA DDS files, converted once from the 24-bit source BMPs, which they replace as the source art; the colour key baked into alpha, mip levels for model textures; no MDL wrapper per image. Fonts stay in `font.mdl`; BC7 compression is not used (lossy, and UI code reads pixels on the CPU). |
 | Level of detail | Reduced LOD meshes are dropped. They were a 1999 performance optimisation (the models are hundreds to a few thousand triangles). Every LOD slot uses the full-detail mesh, which removes `xmunge -reduce`, the MSR progressive-mesh binaries and meshoptimizer. |
 | Networking | MsQuic (Schannel build) behind the existing `FedMessaging` interface, replacing DirectPlay 4. This replaced the first plan of an own Winsock UDP layer; with QUIC providing reliability and loss recovery, no loopback / packet-loss harness was built, and LAN play is verified by hand. Windows 11 or Server 2022 and later. |
-| Settings | JSON files instead of the registry: `settings.json` per user for the client, `server.json` for all users for the server, or either next to the executable. A small built-in reader and writer (`zlib/zsettings.*`), no third-party JSON library. Registry values are not imported. The only registry use left is the Windows service entry, if the server is installed as one. |
+| Settings | JSON files instead of the registry: `settings.json` per user for the client, `server.json` for all users for the server, or either next to the executable. A small built-in reader and writer (`NeuronCore/Base/zsettings.*`), no third-party JSON library. Registry values are not imported. The only registry use left is the Windows service entry, if the server is installed as one. |
 | AGC | Removed. Its event system became a small plain C++ module in the server that writes a daily log file (`logs\server-<date>.log`); `LogAllEvents` in `server.json` adds the game events (chat, kills, logins) to the default set. No database or Windows event log output. |
 | Server administration | The DCOM admin objects (`IAdminServer` and the rest) are removed with no replacement for now; a server is configured through `server.json`. A later admin protocol will run on the MsQuic listener. Training mission 7, the one in-repo user of the admin objects, starts its server as a child process. Windows performance counters are dropped. |
 | Scope | Tier 1 is built. Tier 2 stayed in the repo, outside the solution, until the dead code cleanup deleted it. Tier 3 is deleted once nothing in Tier 1 or 2 references it. |
@@ -52,6 +52,54 @@ interfaces that are gone, so they could not be revived without a rewrite, and th
 13 of the 23 `.cpp` files in `FedSrv` use AGC (the COM automation / admin event layer). Decision: AGC
 moves into Tier 1 and is ported with the server, keeping the admin and event features intact. (Later
 the DCOM admin objects were removed, and then AGC itself; see "Server administration" and "AGC removed".)
+
+## Source layout
+
+Since the restructure the code is six static libraries, two executables and a test DLL per library.
+The phase notes below keep the module names of their time (`zlib`, `_Utility`, `WinTrek`, ...); this
+table says where each went.
+
+| Library | Used by | Folders | Was |
+|---|---|---|---|
+| `NeuronCore` | everything | `Base`, `Utility`, `Guids` | `zlib` (but `main.h`), `_Utility` (but `allegdb.cpp`), `guids`, `Inc/messagecore.h` |
+| `NeuronClient` | client, mdlc | `Engine` (with `shaders`), `Effect`, `Sound`, `App` | `engine`, `effect`, `soundengine`, `zlib/main.h` |
+| `NeuronServer` | server | `TCLib`, `TCAtl`, `Base` | `test/TCLib`, `test/TCAtl`, `test/Inc`, `FedSrv/SWMRG.*` |
+| `GameCommon` | client, server | `Igc`, `Protocol`, `Version` | `Igc`, `Inc/Messages.h`, `messagesAll.h`, `Parts.h`, `trainingserver.h`, `VerRes.rc`, `SlmVer.h` |
+| `GameLogic` | server | `Server` | `FedSrv` (but its resources and `main()`), `Inc/allegdb.h`, `messagesLS.h`, `_Utility/allegdb.cpp` |
+| `GameApp` | client | `App`, `ClientLib`, `Training` | `WinTrek` (but its resources and `main()`), `clintlib`, `training`, `Inc/messagesLC.h`, `quickchat.h` |
+
+Everything is under `Source/<Library>/`; the executables are `Source/Client` (`Allegiance.exe`: `main.cpp`,
+the resource scripts, the icon, what was `Lang/Usa/allegiance`) and `Source/Server` (`AllSrv32.exe`). The
+tests are `Tests/<Library>.Tests`, the art tools and CI scripts `Tools/` (`mdlc`, `cvh`, `xmunge`, `qhull`,
+`ci`, `art`). There is no shared `Inc` folder.
+
+**Layering.** NeuronCore depends on nothing; NeuronClient and NeuronServer on NeuronCore; GameCommon on
+NeuronCore; GameApp on GameCommon and NeuronClient; GameLogic on GameCommon and NeuronServer. It is
+enforced by the include directories: a project lists its own folders, then those of the libraries it
+may use, and nothing else (`msbuild/Allegiance.Cpp.props` has no shared include directories), so a
+library cannot include a header above its layer. Three compromises remain. NeuronCore's
+`PortForApplication` (`Utility/messages.cpp`) knows the game's lobby GUIDs, so `guids` sits in NeuronCore.
+`Utility/utility.h` carries some game constants. Effect, the game's visual effects, depends only on the
+engine and is part of NeuronClient, because mdlc needs it to compile the art.
+
+**Precompiled headers.** One per library, `Source/<Library>/pch.h`, the union of what its sources'
+precompiled headers held before (GameApp's is WinTrek's plus what ClientLib and Training added).
+GameLogic's is `GameLogic.h`, which the server's `main.cpp` includes too. Compiled without it:
+`fedtransport.cpp` (msquic.h wants Winsock 2 before `windows.h`), `x3dpan.cpp` (X3DAudio's Direct3D
+types), `guids.cpp` (it defines the GUIDs) and the executables' `main.cpp`.
+
+**Linking.** The client's application object (`g_trekImpl`, `GameApp/App/trekapp.cpp`) registers
+itself when it is constructed and nothing refers to it, so the linker would leave it out of a static
+library. The executables link their game library with `/WHOLEARCHIVE`, which keeps every object, as
+when those sources were the executable's own.
+
+**Headers.** Deleted: 29 headers that no source reaches through `#include` (most of TCLib's unused
+templates, the engine's `stdafx.h`, `xfile.h`, `panewindow.h` and a second `framedata.h`, WinTrek's
+`TrekDlgs.h`, `hudimage.h`, `offline.h`, `sectorvw.h`, `speech.h`, effect's `debrisgeo.h`), the unused
+`CBitArray`, and 20 `#include` lines of headers the source's precompiled header already includes (a
+source's own header stays). The old projects' `WINTREK`, `FEDSRV`, `IGC_SHIP`, `igc_static`, `_USRDLL`,
+`DLL` and `_CONSOLE` defines are gone; nothing tested them except `VerRes.rc`, which marked
+`Allegiance.exe` as a DLL because of `DLL`.
 
 ## Findings that correct the first analysis
 
@@ -994,9 +1042,10 @@ switch would need conversions at every interface, since `ZString` is in all of t
 
 #### Unit tests and AddressSanitizer
 
-`tests/UnitTests` is a Microsoft CppUnitTest project (a DLL that links ZLib; Test Explorer in Visual
-Studio runs it, CI runs it with `vstest.console`). It covers what the library cleanup could break
-without the game noticing at once:
+Each library has a Microsoft CppUnitTest project, `Tests/<Library>.Tests` (a DLL that links the
+library and those below it; Test Explorer in Visual Studio runs them, CI runs all six in one
+`vstest.console` run). NeuronCore's and NeuronClient's tests are what was `tests/UnitTests`, which
+covered what the library cleanup could break without the game noticing at once:
 
 - `ZString`: null `const char*` gives the empty string; `ZString + int`, `int + ZString`, `+= int` and
   the conversion to `const char*` don't compile (checked with `static_assert`s on concepts, so a
@@ -1011,11 +1060,11 @@ without the game noticing at once:
   pinned as quirks, not fixed, since nothing depends on the broken cases: a network path's
   `GetDrive` drops the share name's last letter (and is empty with nothing after the share), and
   joining a root-relative path gives `c://x`.
-- Sound (`soundengine/soundmath.h`): gains, the distance and cone attenuation, the XAudio2 buffers
+- Sound (`NeuronClient/Sound/soundmath.h`): gains, the distance and cone attenuation, the XAudio2 buffers
   for every kind of sound and starting point, and the position tracker (see "Sound").
-- `ObjectStack` (moved to `engine/objectstack.h` so it can be tested without the engine): order,
+- `ObjectStack` (moved to `engine/objectstack.h`, now `NeuronClient/Engine`, so it can be tested without the engine): order,
   growth, and that a popped object lives until its slot is reused, the use-after-free fixed above.
-- Networking (`_Utility`): how `PFedMsgCreate` lays out a message (the `ib`/`cb` pairs right after
+- Networking (NeuronCore's `Utility`): how `PFedMsgCreate` lays out a message (the `ib`/`cb` pairs right after
   the header, the variable data after the fixed part, trailing spaces trimmed, an empty string left
   out so `FM_VAR_REF` gives null; a string of only spaces is sent as an empty one, pinned as a
   quirk), `FedParseHostPort`, and the session details `FMSessionDesc` reads. And a loopback session
@@ -1030,14 +1079,28 @@ without the game noticing at once:
 Not covered here: loading MDL needs an initialised engine (`EffectApp`), so the text-to-binary MDL
 round trip stays in the mdlc smoke test, which runs under ASan too.
 
-The project defines `ZLIB_SKIP_NEW_REDEF`, so the debug `#define new` stays out of the framework's
-headers. It links ZLib, Guids and Utility; `msquic.dll`, which the Utility build copies to the output
-directory, is loaded at run time.
+The restructure added tests for the other four libraries:
 
-The `asan` CI job builds zlib, guids, `_Utility`, engine, effect, mdlc and the tests in Release with
+- NeuronServer: the server's single-writer, multiple-reader guard (`SWMRG`: readers share, a writer
+  excludes readers and writers, the last reader lets a writer in; the waits that must fail are made
+  from another thread, since the writer's mutex is recursive) and TCLib's `TCReplaceText` (in place,
+  counting only, truncation, the case-insensitive form).
+- GameCommon: IGC's object type bits, which cluster warning a side's assets raise (and that
+  invulnerable stations ignore bombers and transports), and `solveForImpact`, the lead a shot needs.
+- GameLogic: the server event table, which is edited by hand since AGC's XML went: IDs and names
+  unique, every `%Name%` closed, every `%.Field%` one the log knows.
+- GameApp: the chat and name censor, including text with characters above 0x7F, which used to index
+  its lower-case table with a negative `char`. (`LoadBadWords`, which loads the word list from
+  `allbad.dll`, is never called, so the game doesn't censor anything today.)
+
+The test projects define `ZLIB_SKIP_NEW_REDEF`, so the debug `#define new` stays out of the framework's
+headers. `msquic.dll`, which the NeuronCore build copies to the output directory, is loaded at run
+time.
+
+The `asan` CI job builds the six libraries, their tests and mdlc in Release with
 `/fsanitize=address` (`-p:EnableASAN=true`; Debug's `/RTC` checks don't combine with it) and runs the
 unit tests and the mdlc smoke test, which loads text and binary MDL (the code that had the
-use-after-free). Before that it checks that `mdlc.exe` and the test DLL import the ASan runtime, so a clean
+use-after-free). Before that it checks that `mdlc.exe` and the test DLLs import the ASan runtime, so a clean
 run can't come from uninstrumented binaries. First run: 41 tests and the smoke test clean. The ASan runtime DLL comes from the Visual Studio installation and is put on `PATH`;
 a report goes to stderr, which the smoke script keeps in `out/art-smoke/<step>.log.err` (attached to
 the run as `asan-logs`).
@@ -1053,21 +1116,21 @@ msbuild Allegiance.slnx -p:Configuration=Debug -p:Platform=x64
 
 The output goes to `out\bin\x64\<Configuration>\`.
 
-CI builds each library on its own (`-p:BuildProjectReferences=false`), so one failure doesn't hide the
+CI builds each project on its own (`-p:BuildProjectReferences=false`), so one failure doesn't hide the
 errors of the others. The error summary is on the workflow run page, and the full logs are attached to
 the run.
 
-The unit tests (`tests/UnitTests`) run from Test Explorer, or from a Developer Command Prompt:
+The unit tests (`Tests/<Library>.Tests`) run from Test Explorer, or from a Developer Command Prompt:
 
 ```
-vstest.console out\bin\x64\Debug\UnitTests.dll /Platform:x64
+vstest.console out\bin\x64\Debug\NeuronCore.Tests.dll out\bin\x64\Debug\NeuronClient.Tests.dll out\bin\x64\Debug\NeuronServer.Tests.dll out\bin\x64\Debug\GameCommon.Tests.dll out\bin\x64\Debug\GameLogic.Tests.dll out\bin\x64\Debug\GameApp.Tests.dll /Platform:x64
 ```
 
-MsQuic comes from NuGet (`_Utility/packages.config`, into `packages\`). Visual Studio restores it on
+MsQuic comes from NuGet (`Source/NeuronCore/packages.config`, into `packages\`). Visual Studio restores it on
 build; from the command line, restore first:
 
 ```
-msbuild _Utility\Utility.vcxproj -t:restore -p:RestorePackagesConfig=true -p:SolutionDir=%CD%\
+msbuild Source\NeuronCore\NeuronCore.vcxproj -t:restore -p:RestorePackagesConfig=true -p:SolutionDir=%CD%\
 ```
 
 The build copies `msquic.dll` (for the build's platform) next to the exes. Networking needs Windows 11 or Windows Server 2022 or
