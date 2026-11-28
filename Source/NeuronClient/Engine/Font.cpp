@@ -108,21 +108,21 @@ private:
         BYTE*   pbits;
         HBITMAP hbitmap = 
             ::CreateDIBSection(
-                NULL,
+                nullptr,
                 (BITMAPINFO*)&bmih,
                 DIB_RGB_COLORS,
                 (void**)&pbits,
-                NULL,
+                nullptr,
                 0
             );
         ZAssert(hbitmap != NULL);
 
-        HDC hdcBitmap = ::CreateCompatibleDC(NULL);
+        HDC hdcBitmap = ::CreateCompatibleDC(nullptr);
         ZAssert(hdcBitmap != NULL);
         HBITMAP hbitmapOld = (HBITMAP)::SelectObject(hdcBitmap, hbitmap);
         ZAssert(hbitmapOld != NULL);
         HFONT hfontOld = (HFONT)::SelectObject(hdcBitmap, hfont);
-        ZVerify(hfontOld != NULL);
+        ZVerify(hfontOld != nullptr);
         ZVerify(::SetBkMode(hdcBitmap, TRANSPARENT));
         ZVerify(::SetTextColor(hdcBitmap, Color::White().MakeCOLORREF()) != CLR_INVALID);
         ZVerify(::SetBkColor  (hdcBitmap, Color::Black().MakeCOLORREF()) != CLR_INVALID);
@@ -186,11 +186,11 @@ private:
 
     void GetSizes(HFONT hfont)
 	{
-        HDC hdc = ::GetDC(NULL);
-        ZVerify(hdc != NULL);
+        HDC hdc = ::GetDC(nullptr);
+        ZVerify(hdc != nullptr);
 
         HFONT hfontOld = (HFONT)::SelectObject(hdc, hfont);
-        ZVerify(hfontOld != NULL);
+        ZVerify(hfontOld != nullptr);
 
         //
         // Get the character widths, offsets
@@ -222,7 +222,7 @@ private:
         //
 
         ZVerify(::SelectObject(hdc, hfontOld));
-        ZVerify(::ReleaseDC(NULL, hdc));
+        ZVerify(::ReleaseDC(nullptr, hdc));
     
         //
         // Make that all of the value GDI returned to us are good
@@ -246,8 +246,8 @@ private:
 
 public:
     FontImpl(HFONT hfont) :
-        m_pdata(NULL),
-        m_patlasDevice(NULL),
+        m_pdata(nullptr),
+        m_patlasDevice(nullptr),
         m_atlasGeneration(-1),
         m_cellWidth(0)
     {
@@ -257,7 +257,7 @@ public:
     }
 
     FontImpl(IBinaryReaderSite* psite) :
-        m_patlasDevice(NULL),
+        m_patlasDevice(nullptr),
         m_atlasGeneration(-1),
         m_cellWidth(0)
     {
@@ -467,14 +467,14 @@ public:
     bool EnsureAtlas(D3D11Device* pdevice)
     {
         if (
-               m_patlas != NULL
+               m_patlas != nullptr
             && m_patlasDevice == pdevice
             && m_atlasGeneration == pdevice->GetGeneration()
         ) {
             return true;
         }
 
-        m_patlas = NULL;
+        m_patlas = nullptr;
 
         int cellWidth = 8;
 
@@ -513,7 +513,7 @@ public:
 
         m_patlas = D3D11CreateAtlas(pdevice, pixels.data(), size);
 
-        if (m_patlas == NULL) {
+        if (m_patlas == nullptr) {
             return false;
         }
 
@@ -546,13 +546,13 @@ public:
         PrivateEngine* pengine; CastTo(pengine, psurface->GetEngine());
         D3D11Device*   pdevice = pengine->GetD3D11Device();
 
-        if (pdevice == NULL || !EnsureAtlas(pdevice)) {
+        if (pdevice == nullptr || !EnsureAtlas(pdevice)) {
             return false;
         }
 
         D3D11Target* ptarget = pprivate->BeginGpuDraw();
 
-        if (ptarget == NULL) {
+        if (ptarget == nullptr) {
             return false;
         }
 

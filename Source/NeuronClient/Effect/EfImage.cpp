@@ -144,7 +144,7 @@ public:
     ButtonEvent::Source* GetEventSource() override
     {
         ZUnimplemented();
-        return NULL;
+        return nullptr;
     }
 
     //////////////////////////////////////////////////////////////////////////////

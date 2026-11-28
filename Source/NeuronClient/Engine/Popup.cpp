@@ -156,7 +156,7 @@ public:
 
     MouseResult HitTest()
     {
-        return (m_pdata != NULL) ? MouseResultHit() : MouseResult();
+        return (m_pdata != nullptr) ? MouseResultHit() : MouseResult();
     }
 
     void Picked()
@@ -218,7 +218,7 @@ public:
         pdata->m_pdataNext = m_pdata;
         m_pdata = pdata;
 
-        if (ppopupOwner == NULL) {
+        if (ppopupOwner == nullptr) {
             pdata->m_ppickImage = new PickImage(this);
             m_pgroup->AddImageToTop(pdata->m_ppickImage);
         }
@@ -226,7 +226,7 @@ public:
 
         ppopup->SetContainer(this);
 
-        if (ppopupOwner != NULL) {
+        if (ppopupOwner != nullptr) {
             ppopup->SetOwner(ppopupOwner);
         }
 
@@ -359,7 +359,7 @@ public:
         // If this is the first popup start cascading to the right
         //
 
-        if (m_pdata == NULL) {
+        if (m_pdata == nullptr) {
             m_bCascadeRight = true;
         }
 
@@ -368,7 +368,7 @@ public:
 
     bool IsEmpty() override
 	{
-		return (m_pdata == NULL);
+		return (m_pdata == nullptr);
 	}
 
     Image* GetImage() override
@@ -384,7 +384,7 @@ public:
 
     bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
     {
-        if (m_pdata != NULL) {
+        if (m_pdata != nullptr) {
             m_pdata->m_ppopup->OnChar(pprovider, ks);
             return true;
         }
@@ -394,7 +394,7 @@ public:
 
     bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
-        if (m_pdata != NULL) {
+        if (m_pdata != nullptr) {
             m_pdata->m_ppopup->OnKey(pprovider, ks, fForceTranslate);
 
             //

@@ -86,7 +86,7 @@ public:
         if (pbuttonCancel) {
             m_pbuttonCancel = pbuttonCancel;
 
-            if (pbutton == NULL) {
+            if (pbutton == nullptr) {
                 pbutton = m_pbuttonCancel;
             }
         }
@@ -96,7 +96,7 @@ public:
             pbutton->GetEventSource()->AddSink(IEventSink::CreateDelegate(this));
             pbutton->SetOffset(WinPoint(140, 170));
 
-            if (m_pbuttonCancel != NULL && m_pbuttonCancel != pbutton) {
+            if (m_pbuttonCancel != nullptr && m_pbuttonCancel != pbutton) {
                 m_ppane->InsertAtBottom(m_pbuttonCancel);
                 m_pbuttonCancel->GetEventSource()->AddSink(IEventSink::CreateDelegate(this));
 
@@ -120,7 +120,7 @@ public:
 
     ~MessageBoxImpl()
     {
-        if (m_peventSink != NULL) {
+        if (m_peventSink != nullptr) {
             m_ptimerEventSource->RemoveSink(m_peventSink);
         }
     }
@@ -157,7 +157,7 @@ public:
 
             ZAssert(m_peventSink != NULL);
 
-            m_peventSink = NULL;
+            m_peventSink = nullptr;
             m_pwrapImage->SetImage(IPopup::GetImage(m_pmodeler->GetEngine()));
         }
 

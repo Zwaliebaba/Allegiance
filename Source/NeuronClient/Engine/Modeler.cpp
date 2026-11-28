@@ -609,7 +609,7 @@ public:
             return pns->FindMember("object");
         }
 
-        return NULL;
+        return nullptr;
     }
 };
 
@@ -661,7 +661,7 @@ public:
             m_pengine->CreateSurface(
                 pbsi->m_size,
                 ppf,
-                NULL,
+                nullptr,
                 pbsi->m_pitch,
                 pdata,
                 psite->GetMemoryObject()
@@ -696,7 +696,7 @@ public:
     TRef<IObject> Apply(ObjectStack& stack) override
     {
         ZUnimplemented();
-        return NULL;
+        return nullptr;
     }
 
     TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack) override
@@ -1436,7 +1436,7 @@ public:
 
         plist->GetFirst();
 
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             pgroup->AddImage(Image::Cast((Value*)plist->GetCurrent()));
             plist->GetNext();
         }
@@ -1462,7 +1462,7 @@ public:
 
         plist->GetFirst();
 
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             pgroup->AddGeo(Geo::Cast(plist->GetCurrent()));
             plist->GetNext();
         }
@@ -1490,7 +1490,7 @@ public:
 
         plistVertices->GetFirst();
 
-        while (plistVertices->GetCurrent() != NULL) {
+        while (plistVertices->GetCurrent() != nullptr) {
             float x = GetNumber(plistVertices->GetCurrent());
             float y = GetNumber(plistVertices->GetNext());
             float z = GetNumber(plistVertices->GetNext());
@@ -1509,7 +1509,7 @@ public:
 
         plistIndices->GetFirst();
 
-        while (plistIndices->GetCurrent() != NULL) {
+        while (plistIndices->GetCurrent() != nullptr) {
             indices.push_back((WORD)GetNumber(plistIndices->GetCurrent()));
             plistIndices->GetNext();
         }
@@ -1588,7 +1588,7 @@ public:
         TRef<KeyFramedTranslateTransform> ptrans = CreateKeyFramedTranslateTransform(pframe);
 
         plist->GetFirst();
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             float time = GetNumber(plist->GetCurrent());
             float x    = GetNumber(plist->GetNext());
             float y    = GetNumber(plist->GetNext());
@@ -1676,7 +1676,7 @@ public:
         TRef<KeyFramedScaleTransform> ptrans = CreateKeyFramedScaleTransform(pframe);
 
         plist->GetFirst();
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             float time = GetNumber(plist->GetCurrent());
             float x    = GetNumber(plist->GetNext());
             float y    = GetNumber(plist->GetNext());
@@ -1708,7 +1708,7 @@ public:
         TRef<KeyFramedRotateTransform> ptrans = CreateKeyFramedRotateTransform(pframe);
 
         plist->GetFirst();
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             float time = GetNumber(plist->GetCurrent());
             float s    = GetNumber(plist->GetNext());
             float x    = GetNumber(plist->GetNext());
@@ -1735,8 +1735,8 @@ public:
 // GetTextFace returns the family ("Verdana" for "Verdana Bold"): compare as a prefix.
 static void WarnIfFontSubstituted(HFONT hfont, const char* pszRequested)
 {
-    HDC hdc = CreateCompatibleDC(NULL);
-    if (hdc == NULL)
+    HDC hdc = CreateCompatibleDC(nullptr);
+    if (hdc == nullptr)
         return;
 
     HGDIOBJ hfontOld = SelectObject(hdc, hfont);
@@ -2019,8 +2019,8 @@ public:
     void Terminate() override
     {
         m_mapNameSpace.SetEmpty();
-        m_pengine = NULL;
-        m_psite   = NULL;
+        m_pengine = nullptr;
+        m_psite   = nullptr;
     }
 
     void InitializeNameSpace()
@@ -2261,7 +2261,7 @@ public:
         ZString strExtension = pathStr.GetExtension();
 
         if (!strExtension.empty() && strExtension != strExtensionArg) {
-            return NULL;
+            return nullptr;
         }
 
         ZString strToOpen = FindFile(pathStr, strExtensionArg);
@@ -2282,7 +2282,7 @@ public:
         }
         */
 
-        return pfile->IsValid() ? pfile : NULL;
+        return pfile->IsValid() ? pfile : nullptr;
     }
 
     TRef<ZFile> LoadFile(const PathString& pathStr, const ZString& strExtensionArg, bool bError) override
@@ -2298,7 +2298,7 @@ public:
             return pimage->GetSurface();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     TRef<Image> LoadImage(const ZString& str, bool bColorKey, bool bError)
@@ -2325,7 +2325,7 @@ public:
                 return pimage;
             }     
             
-            return NULL;       
+            return nullptr;       
         }
 
         //
@@ -2348,7 +2348,7 @@ public:
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     TRef<Geo> LoadGeo(const ZString& str, bool bError) override
@@ -2361,7 +2361,7 @@ public:
             return pgeo;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     TRef<Geo> LoadXFile(
@@ -2376,7 +2376,7 @@ public:
             return ::ImportXFile(this, pfile, pnumberFrame, bAnimation);
         }
 
-        return NULL;
+        return nullptr;
     }
 
     INameSpace* CreateNameSpace(const ZString& str) override
@@ -2405,7 +2405,7 @@ public:
             return pns;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     //
@@ -2417,13 +2417,13 @@ public:
     TRef<INameSpace> LoadDDSNameSpace(const ZString& str)
     {
         if ((int)str.size() <= 3 || StrRight(str, 3) != "bmp") {
-            return NULL;
+            return nullptr;
         }
 
         TRef<ZFile> pfile = GetFile(StrLeft(str, (int)str.size() - 3), "dds", false);
 
-        if (pfile == NULL) {
-            return NULL;
+        if (pfile == nullptr) {
+            return nullptr;
         }
 
         BYTE* pdata = pfile->GetPointer(false, false);
@@ -2431,7 +2431,7 @@ public:
 
         if (!ReadDDS(pdata, pfile->GetLength(), levels)) {
             ZDebugOutput(("Not a 32-bit BGRA DDS file: '" + StrLeft(str, (int)str.size() - 3) + ".dds'\n").c_str());
-            return NULL;
+            return nullptr;
         }
 
         TRef<PrivateEngine> pengine; CastTo(pengine, m_pengine);
@@ -2442,7 +2442,7 @@ public:
             m_pengine->CreateSurface(
                 WinPoint(levels[0].m_width, levels[0].m_height),
                 ppf,
-                NULL,
+                nullptr,
                 levels[0].m_width * 4,
                 (BYTE*)levels[0].m_pdata,
                 pfile
@@ -2495,7 +2495,7 @@ public:
 
         TRef<ZFile> pfile = GetFile(str, "mdl", bError);
 
-        if (pfile != NULL) {
+        if (pfile != nullptr) {
             if (*(DWORD*)pfile->GetPointer(false, false) == MDLMagic) {
                 if (g_bMDLLog) {
                     ZDebugOutput(("Reading Binary MDL file '" + str + "'\n").c_str());
@@ -2512,7 +2512,7 @@ public:
             return pns;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     void UnloadNameSpace(const ZString& str) override

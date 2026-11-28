@@ -14,7 +14,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
 
     // OleInitialize() is needed for Ole Drag and Drop
 
-    OleInitialize(NULL);
+    OleInitialize(nullptr);
     //CoInitialize(NULL);
 
     int result = Win32Main(hInstance, hPrevInstance, lpszCmdLine, nCmdShow);
@@ -43,5 +43,5 @@ int main( int argc, char *argv[ ])
         }
     }
 
-    return WinMain(GetModuleHandle(NULL), NULL, (char*)strCommandLine.c_str(), SW_SHOW);
+    return WinMain(GetModuleHandle(nullptr), nullptr, (char*)strCommandLine.c_str(), SW_SHOW);
 }

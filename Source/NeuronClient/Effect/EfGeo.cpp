@@ -589,7 +589,7 @@ public:
 
     void RenderCallback(Context* pcontext) override
     {
-        pcontext->SetMaterial(NULL);
+        pcontext->SetMaterial(nullptr);
         pcontext->SetShadeMode(ShadeModeGouraud);
         pcontext->SetCullMode(CullModeNone);
         pcontext->SetBlendMode(BlendModeAdd);

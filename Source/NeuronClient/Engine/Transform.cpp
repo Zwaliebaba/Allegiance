@@ -18,7 +18,7 @@ TRef<Value> Transform::Fold()
         return new Transform(GetValue());
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -27,9 +27,9 @@ const float c_fFilterOneOverQ = 1.4142f;
 /////////////////////////////////////////////////////////////////////////////
 
 XA2Device::XA2Device() :
-    m_pxaudio2(NULL),
-    m_pmaster(NULL),
-    m_preverb(NULL),
+    m_pxaudio2(nullptr),
+    m_pmaster(nullptr),
+    m_preverb(nullptr),
     m_dwChannelMask(0),
     m_nChannels(0),
     m_nSampleRate(48000),
@@ -47,7 +47,7 @@ XA2Device::XA2Device() :
 XA2Device::~XA2Device()
 {
     // the render thread stops (the voices, holding the device, are gone)
-    m_pobjects = NULL;
+    m_pobjects = nullptr;
 
     if (m_preverb) {
         m_preverb->DestroyVoice();
@@ -107,7 +107,7 @@ HRESULT XA2Device::Init()
 
     if (m_pobjects && m_nSampleRate != m_pobjects->GetSampleRate()) {
         debugf("Windows Spatial Sound not used: XAudio2 runs at %u Hz\n", m_nSampleRate);
-        m_pobjects = NULL;
+        m_pobjects = nullptr;
     }
 
     m_preverb = CreateReverbVoice(m_pxaudio2, m_nSampleRate, m_nChannels);
@@ -181,7 +181,7 @@ static std::shared_ptr<const std::vector<BYTE>> GetSoundBytes(ISoundPCMData* pda
 }
 
 XA2Voice::XA2Voice() :
-    m_pvoice(NULL),
+    m_pvoice(nullptr),
     m_nChannels(1),
     m_nOutChannels(1),
     m_bSpatial(false),
@@ -270,31 +270,31 @@ HRESULT XA2Voice::Init(XA2Device* pdevice, ISoundPCMData* pdata, bool bLooping,
     XAUDIO2_VOICE_SENDS voiceSends = { pdevice->m_preverb ? 2u : 1u, sends };
     UINT32              flags      = bSupport3D ? XAUDIO2_VOICE_USEFILTER : 0;
 
-    IUnknown* peffect = NULL;
+    IUnknown* peffect = nullptr;
 
     if (bSupport3D && (pdevice->m_bHeadphones || pdevice->m_pobjects)
         && FAILED(CreateSpatialEffect(&peffect, pdevice->m_pobjects))
     ) {
-        peffect = NULL;
+        peffect = nullptr;
     }
 
     XAUDIO2_EFFECT_DESCRIPTOR effect = { peffect, TRUE, 2 };
     XAUDIO2_EFFECT_CHAIN      chain  = { 1, &effect };
 
     HRESULT hr = pdevice->m_pxaudio2->CreateSourceVoice(&m_pvoice, &format, flags, c_fMaxFrequencyRatio,
-        NULL, &voiceSends, peffect ? &chain : NULL);
+        nullptr, &voiceSends, peffect ? &chain : nullptr);
 
     if (FAILED(hr) && peffect) {
         debugf("CreateSourceVoice with the head model failed: %X\n", hr);
         hr = pdevice->m_pxaudio2->CreateSourceVoice(&m_pvoice, &format, flags, c_fMaxFrequencyRatio,
-            NULL, &voiceSends, NULL);
+            nullptr, &voiceSends, nullptr);
         peffect->Release();
-        peffect = NULL;
+        peffect = nullptr;
     }
 
     if (FAILED(hr)) {
         debugf("CreateSourceVoice failed: %X\n", hr);
-        m_pvoice = NULL;
+        m_pvoice = nullptr;
         return hr;
     }
 
@@ -303,7 +303,7 @@ HRESULT XA2Voice::Init(XA2Device* pdevice, ISoundPCMData* pdata, bool bLooping,
         peffect->Release();
     }
 
-    m_bSpatial     = peffect != NULL;
+    m_bSpatial     = peffect != nullptr;
     m_nOutChannels = m_bSpatial ? 2 : m_nChannels;
 
     m_pbytes = GetSoundBytes(pdata);

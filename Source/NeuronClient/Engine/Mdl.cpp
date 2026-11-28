@@ -96,7 +96,7 @@ public:
 
     void Destruct(BYTE*& pbyte) override
     {
-        *(TRef<IObject>*)pbyte = NULL;
+        *(TRef<IObject>*)pbyte = nullptr;
         pbyte += sizeof(TRef<IObject>);
     }
 
@@ -155,7 +155,7 @@ public:
 
     void Destruct(BYTE*& pbyte) override
     {
-        *(TRef<IObjectList>*)pbyte = NULL;
+        *(TRef<IObjectList>*)pbyte = nullptr;
         pbyte += sizeof(TRef<IObjectList>);
     }
 
@@ -546,7 +546,7 @@ public:
 TRef<IObject> IFunction::Read(IBinaryReaderSite* psite, ObjectStack& stack)
 {
     ZUnimplemented();
-    return NULL;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -766,7 +766,7 @@ public:
             }
         } else if (m_ptoken->IsSymbol(strType, bError)) {
             ptype = pns->FindType(strType);
-            if (ptype != NULL) {
+            if (ptype != nullptr) {
                 return true;
             }
             ZError(("Undefined indentifier " + strType).c_str());
@@ -925,7 +925,7 @@ public:
             //
 
             pobject = pns->FindMember(str);
-            if (pobject != NULL) {
+            if (pobject != nullptr) {
                 return true;
             }
 
@@ -1194,5 +1194,5 @@ TRef<INameSpace> CreateNameSpace(const ZString& str, Modeler* pmodeler, ZFile* p
         }
     }
 
-    return NULL;
+    return nullptr;
 }

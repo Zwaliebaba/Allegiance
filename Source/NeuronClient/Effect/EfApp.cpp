@@ -274,7 +274,7 @@ public:
 
         TRef<IObjectList> plist;  CastTo(plist, (IObject*)stack.Pop());
 
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             IObjectPair* ppair; CastTo(ppair, plist->GetCurrent());
 
             Color  color    =  GetColor(ppair->GetNth(0));
@@ -567,7 +567,7 @@ public:
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     void ReportTriangles(const Matrix& mat, const std::vector<Vertex>&  vertices, const std::vector<WORD>& indices) override
@@ -684,7 +684,7 @@ HRESULT EffectApp::Initialize(const ZString& strCommandLine)
 
 void EffectApp::Terminate()
 {
-    m_pns = NULL;
+    m_pns = nullptr;
     EngineApp::Terminate();
 }
 
@@ -703,7 +703,7 @@ TRef<INameSpace> EffectApp::OptimizeThingGeo(const ZString& str, Geo* pgeo, Numb
 
     TRef<INameSpace> pns = GetModeler()->CreateNameSpace(str, m_pns);
 
-    if (pnumber != NULL) {
+    if (pnumber != nullptr) {
         pns->AddMember("frame", pnumber);
     }
 

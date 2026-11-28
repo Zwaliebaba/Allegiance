@@ -43,13 +43,13 @@ template<class T> void SafeRelease(T*& p)
 {
     if (p) {
         p->Release();
-        p = NULL;
+        p = nullptr;
     }
 }
 
 bool IsFloatMono(const WAVEFORMATEX* pformat)
 {
-    return pformat != NULL
+    return pformat != nullptr
         && pformat->nChannels == 1
         && pformat->wBitsPerSample == 32
         && (pformat->wFormatTag == WAVE_FORMAT_IEEE_FLOAT || pformat->wFormatTag == WAVE_FORMAT_EXTENSIBLE);
@@ -67,7 +67,7 @@ class SpatialObjectsImpl : public SpatialObjects
 
         Slot() :
             m_state(SlotFree),
-            m_pobject(NULL)
+            m_pobject(nullptr)
         {
         }
     };
@@ -92,23 +92,23 @@ class SpatialObjectsImpl : public SpatialObjects
 
     void ThreadMain()
     {
-        HRESULT hrCom = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
+        HRESULT hrCom = ::CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-        IMMDeviceEnumerator*             penumerator = NULL;
-        IMMDevice*                       pendpoint   = NULL;
-        ISpatialAudioClient*             pclient     = NULL;
-        IAudioFormatEnumerator*          pformats    = NULL;
-        ISpatialAudioObjectRenderStream* pstream     = NULL;
-        HANDLE                           hevent      = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+        IMMDeviceEnumerator*             penumerator = nullptr;
+        IMMDevice*                       pendpoint   = nullptr;
+        ISpatialAudioClient*             pclient     = nullptr;
+        IAudioFormatEnumerator*          pformats    = nullptr;
+        ISpatialAudioObjectRenderStream* pstream     = nullptr;
+        HANDLE                           hevent      = ::CreateEvent(nullptr, FALSE, FALSE, nullptr);
         WAVEFORMATEX                     format      = {};
         UINT32                           nMaxObjects = 0;
         bool                             bOk         = false;
 
-        HRESULT hr = ::CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL,
+        HRESULT hr = ::CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
             __uuidof(IMMDeviceEnumerator), (void**)&penumerator);
 
         if (SUCCEEDED(hr)) hr = penumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pendpoint);
-        if (SUCCEEDED(hr)) hr = pendpoint->Activate(__uuidof(ISpatialAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&pclient);
+        if (SUCCEEDED(hr)) hr = pendpoint->Activate(__uuidof(ISpatialAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&pclient);
 
         //
         // No dynamic objects: spatial sound is off for this endpoint
@@ -130,7 +130,7 @@ class SpatialObjectsImpl : public SpatialObjects
             bool bFound = false;
 
             for (UINT32 index = 0; SUCCEEDED(hr) && index < nFormats && !bFound; index++) {
-                WAVEFORMATEX* pformat = NULL;
+                WAVEFORMATEX* pformat = nullptr;
 
                 if (SUCCEEDED(pformats->GetFormat(index, &pformat)) && IsFloatMono(pformat)) {
                     format = *pformat;
@@ -145,7 +145,7 @@ class SpatialObjectsImpl : public SpatialObjects
 
         if (SUCCEEDED(hr)) hr = pclient->IsAudioObjectFormatSupported(&format);
 
-        if (SUCCEEDED(hr) && hevent == NULL) hr = E_OUTOFMEMORY;
+        if (SUCCEEDED(hr) && hevent == nullptr) hr = E_OUTOFMEMORY;
 
         if (SUCCEEDED(hr)) {
             m_nSlots = nMaxObjects < c_nMaxSlots ? nMaxObjects : c_nMaxSlots;
@@ -157,7 +157,7 @@ class SpatialObjectsImpl : public SpatialObjects
             params.MaxDynamicObjectCount = m_nSlots;
             params.Category              = AudioCategory_GameEffects;
             params.EventHandle           = hevent;
-            params.NotifyObject          = NULL;
+            params.NotifyObject          = nullptr;
 
             PROPVARIANT activation;
             PropVariantInit(&activation);
@@ -269,7 +269,7 @@ class SpatialObjectsImpl : public SpatialObjects
             if (SUCCEEDED(hr)) {
                 state = SlotGranted;
             } else {
-                slot.m_pobject = NULL;
+                slot.m_pobject = nullptr;
                 state = SlotDenied;
             }
 
@@ -296,7 +296,7 @@ class SpatialObjectsImpl : public SpatialObjects
         //
 
         if (slot.m_pobject) {
-            BYTE*  pbuffer = NULL;
+            BYTE*  pbuffer = nullptr;
             UINT32 cb      = 0;
 
             if (SUCCEEDED(slot.m_pobject->GetBuffer(&pbuffer, &cb)) && pbuffer) {
@@ -386,7 +386,7 @@ public:
 
     ObjectStream* GetStream(int nSlot) override
     {
-        return nSlot >= 0 && nSlot < (int)m_nSlots ? &m_slots[nSlot].m_stream : NULL;
+        return nSlot >= 0 && nSlot < (int)m_nSlots ? &m_slots[nSlot].m_stream : nullptr;
     }
 };
 
@@ -395,7 +395,7 @@ TRef<SpatialObjects> SpatialObjects::Create()
     TRef<SpatialObjectsImpl> pobjects = new SpatialObjectsImpl();
 
     if (!pobjects->Start()) {
-        return NULL;
+        return nullptr;
     }
 
     return (SpatialObjects*)pobjects;

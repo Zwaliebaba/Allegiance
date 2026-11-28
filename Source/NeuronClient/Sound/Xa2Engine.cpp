@@ -144,11 +144,11 @@ XA2SoundEngine::XA2SoundEngine() :
 
 XA2SoundEngine::~XA2SoundEngine()
 {
-    m_peventsourceUpdate = NULL;
+    m_peventsourceUpdate = nullptr;
 
     // the voices go with the sounds; the device with the last of them
     m_listActiveSounds.clear();
-    m_pdevice = NULL;
+    m_pdevice = nullptr;
 }
 
 
@@ -366,7 +366,7 @@ HRESULT XA2SoundEngine::SetQuality(Quality quality)
 // Sets the listener to use for the current sounds
 HRESULT XA2SoundEngine::SetListener(ISoundListener* plistener)
 {
-    if (plistener == NULL)
+    if (plistener == nullptr)
     {
         ZAssert(false);
         return E_POINTER;
@@ -456,7 +456,7 @@ HRESULT XA2SoundEngine::CreateStaticBuffer(TRef<ISoundInstance>& psoundNew,
 {
     TRef<VirtualSoundBuffer> pvirtualsound;
 
-    if (psource != NULL)
+    if (psource != nullptr)
     {
         pvirtualsound = new VirtualSoundBuffer3D(pcmdata, bLooping, psource);
     }
@@ -480,7 +480,7 @@ HRESULT XA2SoundEngine::CreateASRBuffer(TRef<ISoundInstance>& psoundNew,
     ISoundPositionSource* psource)
 {
     // check the parameters
-    if (pcmdata == NULL)
+    if (pcmdata == nullptr)
     {
         ZAssert(false);
         return E_POINTER;
@@ -495,7 +495,7 @@ HRESULT XA2SoundEngine::CreateASRBuffer(TRef<ISoundInstance>& psoundNew,
 
     TRef<VirtualSoundBuffer> pvirtualsound;
 
-    if (psource != NULL)
+    if (psource != nullptr)
     {
         pvirtualsound = new VirtualSoundBuffer3D(pcmdata, uLoopStart, uLoopLength, psource);
     }

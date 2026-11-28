@@ -165,11 +165,11 @@ public:
 
     void MakeWritable()
     {
-        if (m_pobjectMemory != NULL) {
+        if (m_pobjectMemory != nullptr) {
             BYTE* pbits = new BYTE[m_pitch * m_size.Y()];
             memcpy(pbits, m_pbits, m_pitch * m_size.Y());
             m_pbits         = pbits;
-            m_pobjectMemory = NULL;
+            m_pobjectMemory = nullptr;
         }
     }
 
@@ -192,7 +192,7 @@ public:
         m_bDeviceFormat(true),
         m_stype(stype),
         m_psite(psite),
-        m_pbits(NULL)
+        m_pbits(nullptr)
     {
         Initialize();
         AllocateSurface();
@@ -282,7 +282,7 @@ public:
     ~PrivateSurfaceImpl()
     {
         m_pengine->RemovePrivateSurface(this);
-        if (m_pobjectMemory == NULL && m_pbits != NULL) {
+        if (m_pobjectMemory == nullptr && m_pbits != nullptr) {
             delete[] m_pbits;
         }
     }
@@ -309,11 +309,11 @@ public:
         ZAssert(m_pobjectMemory == NULL);
         DropMipLevels();
 
-        m_pcontext      = NULL;
+        m_pcontext      = nullptr;
 
         if (m_pbits) {
             delete[] m_pbits;
-            m_pbits = NULL;
+            m_pbits = nullptr;
         }
 
         m_ppf = ppf;
@@ -359,7 +359,7 @@ public:
     {
         if (!m_vmipLevels.empty()) {
             m_vmipLevels.clear();
-            m_pobjectMipMemory = NULL;
+            m_pobjectMipMemory = nullptr;
         }
     }
 
@@ -387,7 +387,7 @@ public:
 
     Palette* GetPalette() override
     {
-        return NULL;
+        return nullptr;
     }
 
     void SetName(const ZString& str) override
@@ -463,7 +463,7 @@ public:
 
 		m_bInContext = true;
 
-        if (m_pcontext == NULL) {
+        if (m_pcontext == nullptr) {
             m_pcontext = CreateContextImpl(this);
         }
 
@@ -482,9 +482,9 @@ public:
             return m_pcontext;
         }
 
-        m_pcontext   = NULL;
+        m_pcontext   = nullptr;
         m_bInContext = false;
-        return NULL;
+        return nullptr;
     }
 
     void ReleaseContext(Context* pcontext) override
@@ -518,7 +518,7 @@ public:
                         ppf,
                         m_size,
                         m_stype,
-                        NULL
+                        nullptr
                 
                     );
                 }
@@ -566,7 +566,7 @@ public:
     D3D11Device* GetGpuDevice()
     {
         if (!m_bDeviceFormat || !m_stype.Test(SurfaceType3D())) {
-            return NULL;
+            return nullptr;
         }
 
         return m_pengine->GetD3D11Device();
@@ -574,7 +574,7 @@ public:
 
     void DropGpu()
     {
-        m_pgpu        = NULL;
+        m_pgpu        = nullptr;
         m_bGpuCurrent = false;
         m_bCpuCurrent = true;
     }
@@ -589,11 +589,11 @@ public:
     {
         D3D11Device* pdevice = GetGpuDevice();
 
-        if (pdevice == NULL) {
-            return NULL;
+        if (pdevice == nullptr) {
+            return nullptr;
         }
 
-        if (m_pgpu == NULL) {
+        if (m_pgpu == nullptr) {
             m_pgpu = new D3D11Target();
         }
 
@@ -601,7 +601,7 @@ public:
 
         if (!D3D11EnsureTarget(pdevice, m_pgpu, m_size, bRecreated)) {
             DropGpu();
-            return NULL;
+            return nullptr;
         }
 
         if (bRecreated) {
@@ -629,8 +629,8 @@ public:
 
         D3D11Device* pdevice = EnsureGpuTarget();
 
-        if (pdevice == NULL) {
-            return NULL;
+        if (pdevice == nullptr) {
+            return nullptr;
         }
 
         if (!m_bGpuCurrent && !bDiscard) {
@@ -646,7 +646,7 @@ public:
 
     bool UsesGpu() override
     {
-        return GetGpuDevice() != NULL;
+        return GetGpuDevice() != nullptr;
     }
 
     D3D11Target* BeginGpuDraw() override
@@ -656,14 +656,14 @@ public:
 
     ID3D11ShaderResourceView* GetGpuSource() override
     {
-        if (m_pgpu == NULL) {
-            return NULL;
+        if (m_pgpu == nullptr) {
+            return nullptr;
         }
 
         D3D11Device* pdevice = EnsureGpuTarget();
 
-        if (pdevice == NULL) {
-            return NULL;
+        if (pdevice == nullptr) {
+            return nullptr;
         }
 
         if (!m_bGpuCurrent) {
@@ -677,7 +677,7 @@ public:
     {
         D3D11Device* pdevice = EnsureGpuTarget();
 
-        if (pdevice == NULL) {
+        if (pdevice == nullptr) {
             return false;
         }
 
@@ -698,7 +698,7 @@ public:
 
         D3D11Device* pdevice = m_pengine->GetD3D11Device();
 
-        if (m_pgpu != NULL && pdevice != NULL && m_pgpu->IsValid(pdevice, m_size)) {
+        if (m_pgpu != nullptr && pdevice != nullptr && m_pgpu->IsValid(pdevice, m_size)) {
             MakeWritable();
             D3D11Readback(pdevice, m_pgpu, m_pbits, m_pitch, m_ppf);
         }
@@ -723,7 +723,7 @@ public:
         D3D11KeyMode              keyMode = D3D11KeyNone;
         ID3D11ShaderResourceView* psrv    = psurfaceSource->GetGpuSource();
 
-        if (psrv != NULL) {
+        if (psrv != nullptr) {
             if (psurfaceSource->HasColorKey()) {
                 keyMode = D3D11KeyBlack;
             }
@@ -735,13 +735,13 @@ public:
             }
         }
 
-        if (psrv == NULL) {
+        if (psrv == nullptr) {
             return false;
         }
 
         D3D11Target* ptarget = BeginGpuDraw(false);
 
-        if (ptarget == NULL) {
+        if (ptarget == nullptr) {
             return false;
         }
 
@@ -761,7 +761,7 @@ public:
 
         D3D11Target* ptarget = BeginGpuDraw(bAll);
 
-        if (ptarget == NULL) {
+        if (ptarget == nullptr) {
             return false;
         }
 
