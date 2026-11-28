@@ -59,6 +59,7 @@
   <ItemGroup>
     <ClInclude Include="soundmath.h" />
     <ClInclude Include="spatializer.h" />
+    <ClInclude Include="spatialstream.h" />
     <ClInclude Include="virtualbuffer.h" />
     <ClInclude Include="xa2engine.h" />
     <ClInclude Include="x3dpan.h" />
