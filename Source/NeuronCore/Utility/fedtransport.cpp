@@ -37,18 +37,18 @@ namespace {
 // Stream: frames of [uint32 length][uint8 type][length - 1 bytes].
 // Datagram: [uint8 type = Packet][packet].
 //
-// The hello carries the application GUID (which session the client wants)
+// The hello carries the application ID (which session the client wants)
 // and a protocol version; a mismatch is refused with a reason.
 //
 //////////////////////////////////////////////////////////////////////////////
 
 const DWORD c_dwMagic           = 0x31514c41; // "ALQ1"
-const DWORD c_dwProtocolVersion = 1;
+const DWORD c_dwProtocolVersion = 2; // 2: a 32-bit application ID in place of a GUID
 const char  c_szAlpn[]          = "allegiance";
 
 enum FrameType
 {
-    FrameHello   = 1,   // client -> server: magic, version, application GUID, name
+    FrameHello   = 1,   // client -> server: magic, version, application ID, name
     FrameWelcome = 2,   // server -> client: session instance GUID
     FrameRefuse  = 3,   // server -> client: reason
     FramePacket  = 4    // either way: a FedMessaging packet
@@ -61,7 +61,7 @@ struct HelloFrame
 {
     DWORD m_dwMagic;
     DWORD m_dwVersion;
-    GUID  m_guidApplication;
+    DWORD m_idApplication;
     // followed by the zero-terminated name
 };
 
@@ -69,14 +69,14 @@ struct ProbeFrame   // discovery request
 {
     DWORD m_dwMagic;
     BYTE  m_type;   // 1
-    GUID  m_guidApplication;
+    DWORD m_idApplication;
 };
 
 struct ReplyFrame   // discovery reply
 {
     DWORD          m_dwMagic;
     BYTE           m_type;   // 2
-    GUID           m_guidApplication;
+    DWORD          m_idApplication;
     GUID           m_guidInstance;
     unsigned short m_port;
     // followed by the zero-terminated session details
@@ -439,7 +439,7 @@ public:
     HQUIC                    m_hlistener;
     PCCERT_CONTEXT           m_pcert;
 
-    GUID                     m_guidApplication;
+    DWORD                    m_idApplication;
     GUID                     m_guidInstance;
     unsigned short           m_port;
 
@@ -462,7 +462,7 @@ public:
         m_hconfigClient(NULL),
         m_hlistener(NULL),
         m_pcert(NULL),
-        m_guidApplication(),
+        m_idApplication(0),
         m_guidInstance(),
         m_port(0),
         m_idNext(1),
@@ -797,7 +797,7 @@ public:
 
                 if (phello->m_dwVersion != c_dwProtocolVersion) {
                     szRefuse = "The server runs a different version of Allegiance.";
-                } else if (phello->m_guidApplication != m_guidApplication) {
+                } else if (phello->m_idApplication != m_idApplication) {
                     szRefuse = "The server is not hosting that kind of session.";
                 }
 
@@ -1136,11 +1136,11 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    HRESULT Listen(REFGUID guidApplication, REFGUID guidInstance, unsigned short port)
+    HRESULT Listen(DWORD idApplication, REFGUID guidInstance, unsigned short port)
     {
         std::string strError;
 
-        m_guidApplication = guidApplication;
+        m_idApplication = idApplication;
         m_guidInstance    = guidInstance;
         m_port            = port;
         m_fServer         = true;
@@ -1222,7 +1222,7 @@ public:
                    cb < (int)sizeof(ProbeFrame)
                 || pprobe->m_dwMagic != c_dwMagic
                 || pprobe->m_type != c_probeRequest
-                || pprobe->m_guidApplication != m_guidApplication
+                || pprobe->m_idApplication != m_idApplication
             ) {
                 continue;
             }
@@ -1235,7 +1235,7 @@ public:
             ReplyFrame* preply = (ReplyFrame*)reply.data();
             preply->m_dwMagic         = c_dwMagic;
             preply->m_type            = c_probeReply;
-            preply->m_guidApplication = m_guidApplication;
+            preply->m_idApplication = m_idApplication;
             preply->m_guidInstance    = m_guidInstance;
             preply->m_port            = m_port;
             memcpy(preply + 1, strDetails.c_str(), strDetails.size() + 1);
@@ -1244,11 +1244,11 @@ public:
         }
     }
 
-    HRESULT Connect(REFGUID guidApplication, const char* szHost, unsigned short port, const char* szName, DWORD* pidPeer)
+    HRESULT Connect(DWORD idApplication, const char* szHost, unsigned short port, const char* szName, DWORD* pidPeer)
     {
         std::string strError;
 
-        m_guidApplication = guidApplication;
+        m_idApplication = idApplication;
 
         if (m_hconfigClient == NULL) {
             m_hconfigClient = OpenConfiguration(false, strError);
@@ -1288,7 +1288,7 @@ public:
         HelloFrame* phello = (HelloFrame*)ppeer->m_vhello.data();
         phello->m_dwMagic         = c_dwMagic;
         phello->m_dwVersion       = c_dwProtocolVersion;
-        phello->m_guidApplication = guidApplication;
+        phello->m_idApplication = idApplication;
         memcpy(phello + 1, strName.c_str(), strName.size() + 1);
 
         if (QUIC_FAILED(g_pquic->ConnectionStart(hconnection, m_hconfigClient, QUIC_ADDRESS_FAMILY_UNSPEC, szHost, port))) {
@@ -1444,7 +1444,7 @@ class Discovery : public FedDiscovery
 {
 public:
     SOCKET                      m_socket;
-    GUID                        m_guidApplication;
+    DWORD                       m_idApplication;
     sockaddr_in                 m_sinTarget;
     bool                        m_fTarget;
     DWORD                       m_timeProbe;
@@ -1452,7 +1452,7 @@ public:
 
     Discovery() :
         m_socket(INVALID_SOCKET),
-        m_guidApplication(),
+        m_idApplication(0),
         m_fTarget(false),
         m_timeProbe(0)
     {
@@ -1468,9 +1468,9 @@ public:
         WSACleanup();
     }
 
-    void Start(REFGUID guidApplication, const char* szHost, unsigned short portDiscovery)
+    void Start(DWORD idApplication, const char* szHost, unsigned short portDiscovery)
     {
-        m_guidApplication = guidApplication;
+        m_idApplication = idApplication;
         m_sessions.clear();
         m_fTarget = false;
 
@@ -1519,7 +1519,7 @@ public:
         ProbeFrame probe;
         probe.m_dwMagic         = c_dwMagic;
         probe.m_type            = c_probeRequest;
-        probe.m_guidApplication = m_guidApplication;
+        probe.m_idApplication = m_idApplication;
 
         sendto(m_socket, (const char*)&probe, sizeof(probe), 0, (sockaddr*)&m_sinTarget, sizeof(m_sinTarget));
         m_timeProbe = GetTickCount();
@@ -1546,7 +1546,7 @@ public:
                        cb < (int)sizeof(ReplyFrame)
                     || preply->m_dwMagic != c_dwMagic
                     || preply->m_type != c_probeReply
-                    || preply->m_guidApplication != m_guidApplication
+                    || preply->m_idApplication != m_idApplication
                 ) {
                     continue;
                 }

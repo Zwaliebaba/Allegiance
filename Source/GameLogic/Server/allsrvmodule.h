@@ -1,7 +1,9 @@
 /*-------------------------------------------------------------------------
  * fedsrv\AllSrvModule.H
  *
- * How AllSrv runs: as a console program, or as a Windows service.
+ * The game server as NeuronServer's ServiceHost runs it, as a console
+ * program or as a Windows service (servicehost.h), and the training server
+ * the client starts.
  *
  * AllSrv used to be a DCOM server and an AGC host as well; both are gone.
  * See MODERNIZATION.md, "Server administration: the DCOM admin layer is
@@ -15,52 +17,27 @@
 #ifndef _ALLSRV_MOD_
 #define _ALLSRV_MOD_
 
-#ifndef STRICT
-  #define STRICT
-#endif
+#include "servicehost.h"
 
-#ifndef _WIN32_WINNT
-  #define _WIN32_WINNT 0x0400
-#endif
-
-#define _ATL_APARTMENT_THREADED
-
-// zlib/alloc.h defines "new" as a macro in debug builds; ATL uses
-// new(std::nothrow), which the macro breaks. Suspend it for the ATL headers.
-// (ATL is still used for a few helpers, e.g. CComBSTR and TCLib; there is no
-// ATL module, COM registration or COM server any more.)
-#pragma push_macro("new")
-#undef new
-#include <atlbase.h>
-#include <atlcom.h>
-#pragma pop_macro("new")
-
-class CServiceModule
+class CServiceModule : public IServiceApp
 {
-// Construction / Destruction
 public:
-  void         InitEvents();
+  void         InitEvents();        // the server event log (serverevents.h)
   void         TermEvents();
 
-// Operations
-public:
-  VOID         RunAsExecutable();
-  BOOL         InstallService(int argc, char * argv[]);
-  BOOL         RemoveService(void);
-  static void  WINAPI ServiceMain(DWORD dwArgc, LPTSTR* lpszArgv);
-  void         StopAllsrv();
+  void         RunAsExecutable();   // in this console, or as the client's training server
+  void         StopAllsrv();        // from inside the server
 
-// Implementation
-protected:
-  static void  WINAPI StartServerTerminateThread();
-  static void  WINAPI ServiceControl(DWORD dwCode);
-  static void  SetSvcStatus(DWORD state, DWORD exitcode);
-  static DWORD WINAPI ServerTerminateThread(DWORD dwUnused);
+// IServiceApp
+  HRESULT      Start();
+  void         Stop();
+  void         Pause();
+  void         Continue();
+  HANDLE       StopEvent();
 };
 
 extern CServiceModule g_service;
 
 void PrintSystemErrorMessage(LPCTSTR szBuf, DWORD dwErrorCode);
-void WINAPI _ServiceMain(DWORD dwArgc, LPTSTR* lpszArgv);
 
 #endif

@@ -52,7 +52,6 @@
 //
 
 #include <dinput.h>
-#include "guids.h"
 
 //
 // NeuronClient, NeuronCore and GameCommon

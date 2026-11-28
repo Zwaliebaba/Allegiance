@@ -3,8 +3,9 @@
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AccountRightsTests.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="StrManipTests.cpp" />
+    <ClCompile Include="ServiceArgsTests.cpp" />
     <ClCompile Include="SWMRGTests.cpp" />
   </ItemGroup>
   <ItemGroup>

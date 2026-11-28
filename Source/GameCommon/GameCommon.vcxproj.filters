@@ -90,6 +90,7 @@
     <ClInclude Include="Protocol\Messages.h" />
     <ClInclude Include="Protocol\messagesAll.h" />
     <ClInclude Include="Protocol\Parts.h" />
+    <ClInclude Include="Protocol\sessions.h" />
     <ClInclude Include="Protocol\trainingserver.h" />
     <ClInclude Include="Version\SlmVer.h" />
   </ItemGroup>

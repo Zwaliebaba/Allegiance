@@ -36,7 +36,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\Server;$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\Server;$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronServer\Service;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -48,7 +48,7 @@
       <AdditionalOptions>/WHOLEARCHIVE:"$(OutDir)GameLogic.lib" %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\Server;$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\Server;$(AllegianceRoot)Source\GameLogic;$(AllegianceRoot)Source\GameLogic\Server;$(AllegianceRoot)Source\GameCommon;$(AllegianceRoot)Source\GameCommon\Igc;$(AllegianceRoot)Source\GameCommon\Protocol;$(AllegianceRoot)Source\GameCommon\Version;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronServer\Service;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -18,7 +18,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
-    <!-- the engine base, used by the client and the server: zlib (strings, math, files, windows), Utility (messaging, networking, collision), the GUIDs -->
+    <!-- the engine base, used by the client and the server: zlib (strings, math, files, windows), Utility (messaging, networking, collision) -->
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
     <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
@@ -33,7 +33,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <!-- Its own folders, then those of the libraries it may use (the layering) -->
-      <AdditionalIncludeDirectories>$(MsQuicDir)include;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MsQuicDir)include;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -56,10 +56,6 @@
     <ClCompile Include="Base\zsettings.cpp" />
     <ClCompile Include="Base\zstring.cpp" />
     <ClCompile Include="Base\ztime.cpp" />
-    <ClCompile Include="Guids\guids.cpp">
-      <!-- defines the GUIDs (INITGUID), so it must see guids.h first -->
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -114,7 +110,6 @@
     <ClInclude Include="Base\zsettings.h" />
     <ClInclude Include="Base\zstring.h" />
     <ClInclude Include="Base\ztime.h" />
-    <ClInclude Include="Guids\guids.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Utility\CRC.h" />
     <ClInclude Include="Utility\fedtransport.h" />

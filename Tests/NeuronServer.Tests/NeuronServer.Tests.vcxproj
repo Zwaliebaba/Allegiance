@@ -37,7 +37,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(UnitTestDir)include;$(AllegianceRoot)Tests\NeuronServer.Tests;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(UnitTestDir)include;$(AllegianceRoot)Tests\NeuronServer.Tests;$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronServer\Service;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ZLIB_SKIP_NEW_REDEF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -46,10 +46,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AccountRightsTests.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="StrManipTests.cpp" />
+    <ClCompile Include="ServiceArgsTests.cpp" />
     <ClCompile Include="SWMRGTests.cpp" />
   </ItemGroup>
   <ItemGroup>

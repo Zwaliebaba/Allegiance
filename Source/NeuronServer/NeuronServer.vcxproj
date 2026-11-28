@@ -18,7 +18,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
-    <!-- the engine, server half: TCLib, TCAtl, the server's locks and bit arrays -->
+    <!-- the engine, server half: running as a Windows service or a console program, account rights, the reader/writer lock -->
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
     <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
@@ -33,7 +33,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <!-- Its own folders, then those of the libraries it may use (the layering) -->
-      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\TCLib;$(AllegianceRoot)Source\NeuronServer\TCAtl;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(AllegianceRoot)Source\NeuronServer;$(AllegianceRoot)Source\NeuronServer\Base;$(AllegianceRoot)Source\NeuronServer\Service;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -41,40 +41,14 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TCAtl\UserAcct.cpp" />
-    <ClCompile Include="TCLib\DynaLib.cpp" />
-    <ClCompile Include="TCLib\ExcepInfo.cpp" />
-    <ClCompile Include="TCLib\InvokeArgs.cpp" />
-    <ClCompile Include="TCLib\PropertyPageSite.cpp" />
-    <ClCompile Include="TCLib\RelPath.cpp" />
-    <ClCompile Include="TCLib\StrManip.cpp" />
-    <ClCompile Include="TCLib\TCLib.cpp" />
-    <ClCompile Include="TCLib\TCThread.cpp" />
-    <ClCompile Include="TCLib\UtilImpl.cpp" />
-    <ClCompile Include="TCLib\UtilityThread.cpp" />
-    <ClCompile Include="TCLib\WorkerThread.cpp" />
+    <ClCompile Include="Service\accountrights.cpp" />
+    <ClCompile Include="Service\servicehost.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\SWMRG.H" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="TCAtl\TCAtl.h" />
-    <ClInclude Include="TCAtl\UserAcct.h" />
-    <ClInclude Include="TCLib\AsyncDebugOutput.h" />
-    <ClInclude Include="TCLib\AutoCriticalSection.h" />
-    <ClInclude Include="TCLib\AutoHandle.h" />
-    <ClInclude Include="TCLib\DynaLib.h" />
-    <ClInclude Include="TCLib\ExcepInfo.h" />
-    <ClInclude Include="TCLib\InvokeArgs.h" />
-    <ClInclude Include="TCLib\NetApi.h" />
-    <ClInclude Include="TCLib\ObjectLock.h" />
-    <ClInclude Include="TCLib\PropertyPageSite.h" />
-    <ClInclude Include="TCLib\RelPath.h" />
-    <ClInclude Include="TCLib\StrManip.h" />
-    <ClInclude Include="TCLib\TCLib.h" />
-    <ClInclude Include="TCLib\TCThread.h" />
-    <ClInclude Include="TCLib\UtilImpl.h" />
-    <ClInclude Include="TCLib\UtilityThread.h" />
-    <ClInclude Include="TCLib\WorkerThread.h" />
+    <ClInclude Include="Service\accountrights.h" />
+    <ClInclude Include="Service\servicehost.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NeuronCore\NeuronCore.vcxproj">

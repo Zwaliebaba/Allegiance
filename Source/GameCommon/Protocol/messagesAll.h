@@ -12,6 +12,7 @@
 #define _MESSAGES_ALL_ 
 
 #include "MessageCore.h"
+#include "sessions.h"
 
 /*
   *************************************************

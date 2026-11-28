@@ -9,6 +9,19 @@
 
 #define OBLIVION_CLIENT_REG_KEY "Allegiance"
 
+//
+// What kind of session a host offers, and where. The game defines its own
+// (GameCommon/Protocol/sessions.h). A client's hello carries the ID, and a
+// host refuses one that asks for another; the host listens on the port and
+// answers discovery on port + 1.
+//
+
+struct FedApplication
+{
+  DWORD          m_id;
+  unsigned short m_port;
+};
+
 #define FEDMSGID unsigned short
 #define CFEDMSGID const FEDMSGID
 
@@ -227,12 +240,12 @@ public:
   // is set whenever something arrives.
   //
 
-  HRESULT             HostSession(GUID guidApplication, bool fKeepAlive, HANDLE hEventServer, bool fProtocol);
-  HRESULT             JoinSession(GUID guidApplication, const char * szServer, const char * szName); // szServer: host or host:port
+  HRESULT             HostSession(const FedApplication & app, bool fKeepAlive, HANDLE hEventServer, bool fProtocol);
+  HRESULT             JoinSession(const FedApplication & app, const char * szServer, const char * szName); // szServer: host or host:port
   HRESULT             JoinSessionInstance(GUID guidInstance, const char * szName); // one EnumSessions found
-  GUID                GetHostApplicationGuid()
+  DWORD               GetHostApplication()  // the FedApplication's ID given to HostSession()
   {
-    return m_guidApplication;
+    return m_application.m_id;
   }
   GUID                GetSessionGuid()    
   {
@@ -414,7 +427,7 @@ public:
   HRESULT GetLinkDetails(CFMConnection * pcnxn, OUT DWORD * pdwHundredbpsG, OUT DWORD * pdwmsLatencyG, 
                                                   OUT DWORD * pdwHundredbpsU, OUT DWORD * pdwmsLatencyU);
 
-  HRESULT EnumSessions(GUID guidApplication, const char * szServer); // NULL: keep polling the last search; "": broadcast on the LAN
+  HRESULT EnumSessions(const FedApplication & app, const char * szServer); // NULL: keep polling the last search; "": broadcast on the LAN
 
   void SetSessionDetails(char * szDetails); // tokenized name/value pairs: Name\tValue\nName\tValue...
 
@@ -432,7 +445,7 @@ private:
   FEDMESSAGE *    PfmGetNext(FEDMESSAGE * pfm); // Use to run through all messages in a received packet
       // returns NULL if no more messages in packet
   int             SendToDefault(FMFlush fmf);
-  HRESULT         JoinServer(GUID guidApplication, const char * szHost, unsigned short port, const char * szName);
+  HRESULT         JoinServer(const FedApplication & app, const char * szHost, unsigned short port, const char * szName);
   void            DispatchPacket(CFMConnection * pcnxnFrom);
 
   BYTE                m_rgbbuffInPacket[c_cbBuff];
@@ -455,7 +468,7 @@ private:
   CFMConnection *     m_pcnxnServer;               // same as above, used only by GetServerConnection
   CFMGroup *          m_pgrpEveryone;
   GUID                m_guidInstance;
-  GUID                m_guidApplication;            // guid given to HostSession()
+  FedApplication      m_application;                // given to HostSession() or JoinSession()
   DWORD               m_idGroupNext;
   FedMessagingImpl *  m_pimpl;
   IFedMessagingSite * m_pfmSite;

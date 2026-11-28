@@ -66,10 +66,8 @@ enum ServerEventIDs
     AllsrvEventID_ConnectedLobby = 2033,
     AllsrvEventID_DisconnectingLobby = 2034,
     AllsrvEventID_DisconnectedLobby = 2035,
-    AllsrvEventID_DatabaseErrorSQL = 2036,
     AllsrvEventID_Pause = 2037,
     AllsrvEventID_Continue = 2038,
-    AllsrvEventID_DatabaseErrorOLEDB = 2039,
 
     // Admin
     EventID_ServerShutdown = 4001,
@@ -134,10 +132,8 @@ enum ServerEventIDs
     { AllsrvEventID_ConnectedLobby, "ConnectedLobby", EventSeverity_Info, true, "Game server connected to lobby.\nLobby = %LobbyServer%" }, \
     { AllsrvEventID_DisconnectingLobby, "DisconnectingLobby", EventSeverity_Info, true, "Game server disconnecting from lobby.\nLobby = %LobbServer%" }, \
     { AllsrvEventID_DisconnectedLobby, "DisconnectedLobby", EventSeverity_Warning, true, "Game server disconnected from lobby.\nLobby = %LobbServer%" }, \
-    { AllsrvEventID_DatabaseErrorSQL, "DatabaseErrorSQL", EventSeverity_Warning, true, "SQL Error Record:\nMessage:   %Message%\nProcedure: %Procedure%\nNative:    %Native%\nLine:      %Line%\nOleDB:     %OleDB%" }, \
     { AllsrvEventID_Pause, "Pause", EventSeverity_Warning, true, "Server paused." }, \
     { AllsrvEventID_Continue, "Continue", EventSeverity_Warning, true, "Server continued." }, \
-    { AllsrvEventID_DatabaseErrorOLEDB, "DatabaseErrorOLEDB", EventSeverity_Warning, true, "OLE DB Error Record:\nDescription: %Desc%\nGuid:        %Guid%\nHelpID:      %HelpID%\nHelpFile:    %HelpFile%\nSource:      %Source%" }, \
     { EventID_ServerShutdown, "ServerShutdown", EventSeverity_Info, true, "Server shut down." }, \
     { EventID_NewSession, "NewSession", EventSeverity_Info, false, "New Admin Session Started." }, \
     { EventID_LoginServer, "LoginServer", EventSeverity_Info, false, "%.SubjectName%(%.SubjectID%) logged onto Server." }, \

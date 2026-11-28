@@ -80,23 +80,23 @@ int __cdecl main(int argc, char *argv[])
     g.hInst = GetModuleHandle(NULL);
 
     //
-    // Service installation needs neither COM nor AGC
+    // -install, -remove and -service are NeuronServer's (servicehost.h);
+    // -training is the client's training server
     //
-    const char * szSwitch = (argc > 1 && (*argv[1]=='-' || *argv[1]=='/')) ? argv[1] + 1 : NULL;
+    ServiceArgs args = ParseServiceArgs(argc, argv);
 
-    if (szSwitch && !lstrcmpi("install", szSwitch))
-      return g_service.InstallService(argc, argv) ? 0 : 1;
+    if (args.m_command == ServiceCommand::Install)
+      return ServiceHost::Install(c_szSvcName, "Allegiance Game Server", args.m_szUser, args.m_szPassword) ? 0 : 1;
 
-    if (szSwitch && (!lstrcmpi("remove", szSwitch) || !lstrcmpi("uninstall", szSwitch)))
-      return g_service.RemoveService() ? 0 : 1;
-
+    if (args.m_command == ServiceCommand::Remove)
+      return ServiceHost::Remove(c_szSvcName) ? 0 : 1;
 
     bool fRun = false;
-    if (argc == 1)
+    if (args.m_command == ServiceCommand::Console)
       fRun = true;
-    else if (szSwitch && !lstrcmpi("service", szSwitch) && argc == 2)
+    else if (args.m_command == ServiceCommand::Service)
       fRun = g.fService = true;
-    else if (szSwitch && !lstrcmpi("training", szSwitch))
+    else if (!lstrcmpi("-training", argv[1]) || !lstrcmpi("/training", argv[1]))
       fRun = ParseTrainingArgs(argc, argv);
 
     if (!fRun)
@@ -109,25 +109,9 @@ int __cdecl main(int argc, char *argv[])
     g_service.InitEvents();
 
     if (g.fService)
-    {
-      char szSvcName[64];
-      strcpy(szSvcName, c_szSvcName);
-      SERVICE_TABLE_ENTRY rgSTE[] =
-      {
-          { szSvcName, (LPSERVICE_MAIN_FUNCTION)_ServiceMain },
-          { NULL, NULL }
-      };
-
-      if (!StartServiceCtrlDispatcher(rgSTE))
-      {
-        PrintSystemErrorMessage("-service is for the service control manager; use -install to install the service.\n",
-          GetLastError());
-      }
-    }
+      ServiceHost::RunAsService(c_szSvcName, &g_service);
     else
-    {
       g_service.RunAsExecutable();
-    }
 
     // Stop the event log
     g_service.TermEvents();

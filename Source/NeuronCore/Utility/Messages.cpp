@@ -33,37 +33,18 @@ static bool g_fConnectionDeleted = false;
 const DWORD c_idGroupFirst = 0x80000000;
 const DWORD c_idMe         = 0x7fffffff;
 
-//
-// UDP ports per application; discovery answers on port + 1
-//
-
-const unsigned short c_portGameServer   = 47700;
-const unsigned short c_portLobbyClients = 47710;
-const unsigned short c_portLobbyServers = 47720;
-
-static unsigned short PortForApplication(REFGUID guid)
-{
-  if (guid == FEDFREELOBBYCLIENTS_GUID || guid == FEDLOBBYCLIENTS_GUID)
-    return c_portLobbyClients;
-
-  if (guid == FEDFREELOBBYSERVERS_GUID || guid == FEDLOBBYSERVERS_GUID)
-    return c_portLobbyServers;
-
-  return c_portGameServer;
-}
-
 struct FedMessagingImpl
 {
   FedTransport *              m_ptransport;   // while hosting or joined
   FedDiscovery *              m_pdiscovery;   // EnumSessions
-  GUID                        m_guidEnum;
+  FedApplication              m_appEnum;
   bool                        m_fEnumStarted;
   std::vector<FedSessionInfo> m_sessions;     // what the last EnumSessions found
 
   FedMessagingImpl() :
     m_ptransport(NULL),
     m_pdiscovery(NULL),
-    m_guidEnum(GUID_NULL),
+    m_appEnum(),
     m_fEnumStarted(false)
   {
   }
@@ -136,7 +117,7 @@ FedMessaging::FedMessaging(IFedMessagingSite * pfmSite) :
   m_fSecondaryOut(false),
   m_pbFMNextT(m_rgbbuffSecondaryOutPacket),
   m_guidInstance(GUID_NULL),
-  m_guidApplication(GUID_NULL),
+  m_application(),
   m_timeMsgLast(Time::Now()),
   m_priority(c_mcpDefault),
   m_dwcbPacket(0),
@@ -679,7 +660,7 @@ void FedMessaging::DispatchPacket(CFMConnection * pcnxnFrom)
  *    Start a session and be the host (server): listen on the application's
  *    port and answer discovery probes on the next one
  */
-HRESULT FedMessaging::HostSession(GUID guidApplication, bool fKeepAlive, HANDLE hEventServer, bool fProtocol)
+HRESULT FedMessaging::HostSession(const FedApplication & app, bool fKeepAlive, HANDLE hEventServer, bool fProtocol)
 {
   assert(!m_fConnected);
   Shutdown();
@@ -696,8 +677,8 @@ HRESULT FedMessaging::HostSession(GUID guidApplication, bool fKeepAlive, HANDLE 
   GUID guidInstance;
   CoCreateGuid(&guidInstance);
 
-  unsigned short port = PortForApplication(guidApplication);
-  HRESULT        hr   = ptransport->Listen(guidApplication, guidInstance, port);
+  unsigned short port = app.m_port;
+  HRESULT        hr   = ptransport->Listen(app.m_id, guidInstance, port);
 
   if (FAILED(hr))
   {
@@ -711,7 +692,7 @@ HRESULT FedMessaging::HostSession(GUID guidApplication, bool fKeepAlive, HANDLE 
   }
 
   m_pimpl->m_ptransport = ptransport;
-  m_guidApplication     = guidApplication;
+  m_application         = app;
   m_guidInstance        = guidInstance;
   m_fConnected          = true;
 
@@ -771,12 +752,12 @@ void FedMessaging::Shutdown()
  *    what application, what server (host or host:port; empty to take the
  *    first one that answers on the LAN), and the player's name
  */
-HRESULT FedMessaging::JoinSession(GUID guidApplication, const char * szServer, const char * szCharName)
+HRESULT FedMessaging::JoinSession(const FedApplication & app, const char * szServer, const char * szCharName)
 {
   std::string    strHost;
   unsigned short port;
 
-  FedParseHostPort(szServer, PortForApplication(guidApplication), strHost, port);
+  FedParseHostPort(szServer, app.m_port, strHost, port);
 
   if (strHost.empty())
   {
@@ -788,7 +769,7 @@ HRESULT FedMessaging::JoinSession(GUID guidApplication, const char * szServer, c
     std::vector<FedSessionInfo> sessions;
     DWORD timeStart = GetTickCount();
 
-    pdiscovery->Start(guidApplication, "", port + 1);
+    pdiscovery->Start(app.m_id, "", port + 1);
 
     do
     {
@@ -805,7 +786,7 @@ HRESULT FedMessaging::JoinSession(GUID guidApplication, const char * szServer, c
     port    = sessions[0].m_port;
   }
 
-  return JoinServer(guidApplication, strHost.c_str(), port, szCharName);
+  return JoinServer(app, strHost.c_str(), port, szCharName);
 }
 
 
@@ -822,7 +803,7 @@ HRESULT FedMessaging::JoinSessionInstance(GUID guidInstance, const char * szName
     const FedSessionInfo & info = m_pimpl->m_sessions[index];
 
     if (info.m_guidInstance == guidInstance)
-      return JoinServer(m_pimpl->m_guidEnum, info.m_strHost.c_str(), info.m_port, szName);
+      return JoinServer(m_pimpl->m_appEnum, info.m_strHost.c_str(), info.m_port, szName);
   }
 
   debugf("JoinSessionInstance: that session has not answered recently\n");
@@ -837,7 +818,7 @@ HRESULT FedMessaging::JoinSessionInstance(GUID guidInstance, const char * szName
       Connect, and wait for the server's welcome (or refusal), as the
       DirectPlay join did before it returned
  */
-HRESULT FedMessaging::JoinServer(GUID guidApplication, const char * szHost, unsigned short port, const char * szName)
+HRESULT FedMessaging::JoinServer(const FedApplication & app, const char * szHost, unsigned short port, const char * szName)
 {
   static CTempTimer tt("in FedMessaging::JoinServer", 0.5f);
   tt.Start();
@@ -855,7 +836,7 @@ HRESULT FedMessaging::JoinServer(GUID guidApplication, const char * szHost, unsi
   }
 
   DWORD       idServer  = 0;
-  HRESULT     hr        = ptransport->Connect(guidApplication, szHost, port, szName, &idServer);
+  HRESULT     hr        = ptransport->Connect(app.m_id, szHost, port, szName, &idServer);
   std::string strReason = "the server did not answer";
 
   if (SUCCEEDED(hr))
@@ -914,7 +895,7 @@ HRESULT FedMessaging::JoinServer(GUID guidApplication, const char * szHost, unsi
   }
 
   m_pimpl->m_ptransport = ptransport;
-  m_guidApplication     = guidApplication;
+  m_application         = app;
   m_fConnected          = true;
 
   m_pcnxnMe     = new CFMConnection(this, szName, c_idMe);
@@ -1019,22 +1000,22 @@ HRESULT FedMessaging::GetLinkDetails(CFMConnection * pcnxn, OUT DWORD * pdwHundr
       szServer: a host (or host:port) to ask, "" to broadcast on the LAN,
                 NULL to keep polling the current search
  */
-HRESULT FedMessaging::EnumSessions(GUID guidApplication, const char * szServer)
+HRESULT FedMessaging::EnumSessions(const FedApplication & app, const char * szServer)
 {
   m_fSessionCallback = true;
 
   if (!m_pimpl->m_pdiscovery)
     m_pimpl->m_pdiscovery = CreateFedDiscovery();
 
-  if (szServer || !m_pimpl->m_fEnumStarted || guidApplication != m_pimpl->m_guidEnum)
+  if (szServer || !m_pimpl->m_fEnumStarted || app.m_id != m_pimpl->m_appEnum.m_id)
   {
     std::string    strHost;
     unsigned short port;
 
-    FedParseHostPort(szServer, PortForApplication(guidApplication), strHost, port);
+    FedParseHostPort(szServer, app.m_port, strHost, port);
 
-    m_pimpl->m_pdiscovery->Start(guidApplication, strHost.c_str(), port + 1);
-    m_pimpl->m_guidEnum     = guidApplication;
+    m_pimpl->m_pdiscovery->Start(app.m_id, strHost.c_str(), port + 1);
+    m_pimpl->m_appEnum      = app;
     m_pimpl->m_fEnumStarted = true;
   }
 

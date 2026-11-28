@@ -35,7 +35,7 @@ END_FEDMSG
 namespace NetworkTests
 {
     // {6A0C9C3E-1F4B-4E39-9B53-6F1D2C0A7E41}: not a lobby, so the game server's port
-    const GUID c_guidTestApp = { 0x6a0c9c3e, 0x1f4b, 0x4e39, { 0x9b, 0x53, 0x6f, 0x1d, 0x2c, 0x0a, 0x7e, 0x41 } };
+    const FedApplication c_appTest = { 0x7e57, 47700 };
 
     //
     // Records what FedMessaging reports
@@ -283,10 +283,10 @@ namespace NetworkTests
             std::unique_ptr<FedMessaging> pserver = std::make_unique<FedMessaging>(&siteServer);
             std::unique_ptr<FedMessaging> pclient = std::make_unique<FedMessaging>(&siteClient);
 
-            HRESULT hr = pserver->HostSession(c_guidTestApp, true, NULL, false);
+            HRESULT hr = pserver->HostSession(c_appTest, true, NULL, false);
             Assert::IsTrue(SUCCEEDED(hr), Wide("HostSession: " + siteServer.m_strMessageBox).c_str());
 
-            hr = pclient->JoinSession(c_guidTestApp, "127.0.0.1:47700", "tester");
+            hr = pclient->JoinSession(c_appTest, "127.0.0.1:47700", "tester");
             Assert::IsTrue(SUCCEEDED(hr), Wide("JoinSession: " + siteClient.m_strMessageBox).c_str());
             Assert::IsTrue(pclient->GetSessionGuid() == pserver->GetSessionGuid(), L"the welcome carries the session instance");
 
@@ -354,7 +354,7 @@ namespace NetworkTests
             RecordingSite                 site;
             std::unique_ptr<FedMessaging> pclient = std::make_unique<FedMessaging>(&site);
 
-            HRESULT hr = pclient->JoinSession(c_guidTestApp, "127.0.0.1:47790", "tester");
+            HRESULT hr = pclient->JoinSession(c_appTest, "127.0.0.1:47790", "tester");
 
             Assert::IsTrue(FAILED(hr));
             Assert::IsFalse(pclient->IsConnected());
