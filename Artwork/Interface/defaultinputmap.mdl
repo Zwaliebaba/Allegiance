@@ -162,35 +162,3 @@ mouseButtonCommandMap =
         (1, CommandFireMissile),
         (2, CommandFireBooster)
     ];
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// button commands
-//
-//////////////////////////////////////////////////////////////////////////////
-
-buttonCommandMap =
-    [   // (joystick #, button #, command)
-        (0,  0, CommandFireWeapon ),
-        (0,  1, CommandFireMissile),
-        (0,  2, CommandFireBooster),
-        (0,  3, CommandRipcord    ),
-        (0,  4, CommandDropChaff  )
-    ];
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// numberic Values
-//
-//////////////////////////////////////////////////////////////////////////////
-
-// there must be exactly five pairs in this list
-
-numericValuesNew =
-    [   // (joystick #, value #)
-        (0, 0),
-        (0, 1),
-        (0, 3),
-        (0, 2),
-        (0, 4)
-    ];

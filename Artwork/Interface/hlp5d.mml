@@ -152,28 +152,15 @@ this option,
 or press the F key, to toggle between filtering and not filtering all
 messages that come from players in the Team Lobby.<p><p>
 
-<Font|smallBoldFont>Control Response -- <Font|smallFont>Click this
-option, or press the L key, to toggle between Quadratic
-and Linear control response. If your joystick is too sensitive, try
-the quadratic response.<p><p>
-
-<Font|smallBoldFont>Dead Zone -- <Font|smallFont>Click this option,
-or press the Z key, to toggle between a normal and a large
-area around which your joystick is considered centered in the middle of your screen.<p><p>
-
 <Font|smallBoldFont>Virtual Joystick -- <Font|smallFont>Click this option,
-or press the J key, to toggle between using your mouse as a virtual and a
-nonvirtual joystick. <p><p>
+or press the J key, to toggle flying with the mouse (the virtual joystick)
+on and off.<p><p>
 
 <Font|smallBoldFont>Y Axis -- <Font|smallFont>Click this option,
 or press the Y key, to toggle between a normal and a flipped Y axis
-on your joystick. When the Y axis is flipped, pushing the joystick
+for the virtual joystick. When the Y axis is flipped, moving the mouse
 forward will point the nose of your craft upward instead of
 downward.<p><p>
-
-<Font|smallBoldFont>Force Feedback -- <Font|smallFont>Click this option,
-or press the E key, to toggle between turning on and off the
-feedback on a joystick that has this feature.<p><p>
 
 <Font|smallBoldFont>Map Keys and Controls -- <Font|smallFont>Click or
 press C to

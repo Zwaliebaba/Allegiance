@@ -53,7 +53,7 @@ out. It is very
 important to use the motion indicator when you are maneuvering through asteroids, turning
 quickly into an aleph, or trying to set up a landing into a hangar.
 To lock your course, turn your directional lock on by pressing L on
-your keyboard or button 5 on your joystick.<p><p>
+your keyboard.<p><p>
 
 <Font|smallBoldFont>Target in Range Indicator --<Font|smallFont>Appears once you are within weapons
 range of your intended target. When the target is not in correct alignment, this indicator is gray;
@@ -79,10 +79,8 @@ It will reappear if you turn too far off alignment.<p><p>
 
 <Font|smallBoldFont>Autopilot --<Font|smallFont>Indicates that
 your autopilot is on. To toggle autopilot, press P. To disengage
-autopilot at any time, simply move your joystick. If you have a
-joystick that is not self-centering, make sure it stays centered
-while in autopilot; otherwise, autopilot will automatically
-disengage.<p><p>
+autopilot at any time, simply steer: press a flight key, or move the
+mouse while the virtual joystick is on.<p><p>
 
 <Font|smallBoldFont>Cloak --<Font|smallFont>Indicates that your cloak is
 on. You need to be piloting a ship that has the cloak ability and one
@@ -96,7 +94,7 @@ that you are being scanned by an enemy.<p><p>
 <Font|smallBoldFont>Directional Lock --<Font|smallFont>Indicates
 that your directional lock is on, which locks your course on the current
 location of the motion indicator. To toggle directional lock, press
-L on your keyboard or press button 5 on your joystick.<p><p>
+L on your keyboard.<p><p>
 
 Directional lock allows you to keep heading on course while pointing
 your guns at a target for straffing.<p><p>

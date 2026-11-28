@@ -89,7 +89,6 @@ topics =
             "CONTROLS", "hlp5", "hlp5main",
             [
                 ("Keyboard", "hlp5a", "hlp5adef", []),
-                ("Joystick", "hlp5b", "hlp5bdef", []),
                 ("Configure Controls", "hlp5c", "hlp5cdef", []),
                 ("Options", "hlp5d", "hlp5ddef", [])
             ]

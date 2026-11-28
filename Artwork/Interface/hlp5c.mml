@@ -1,10 +1,10 @@
 <Font|promptFont>CONFIGURE CONTROLS<Font|smallFont><p><p>
 
 The Configure Controls dialog box allows you to completely customize and
-remap your keyboard and joystick controls.<p><p>
+remap your keyboard and mouse controls.<p><p>
 
 Be aware that the training missions will ignore any controls you reconfigure and use the
-default settings for your keyboard and joystick, not your customized ones, so you may wish
+default settings for your keyboard and mouse, not your customized ones, so you may wish
 to learn the game with the default controls first and then switch over to your new control
 settings.<p><p>
 
@@ -29,9 +29,8 @@ desired key.><p><p>
 
 <Bullet|hlpblank|-or-><p><p>
 
-<Bullet|hlpblank|To assign the action to a joystick control, press the
-desired joystick button or move the joystick in the direction you
-want.><p><p>
+<Bullet|hlpblank|To assign the action to a mouse button, click the
+desired button.><p><p>
 
 <Bullet|hlpblank|If the control you selected is already
 mapped to another action and you

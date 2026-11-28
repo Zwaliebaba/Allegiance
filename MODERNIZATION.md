@@ -229,7 +229,7 @@ source's own header stays). The old projects' `WINTREK`, `FEDSRV`, `IGC_SHIP`, `
 | Subsystem | Today | Target |
 |---|---|---|
 | Rendering | DirectDraw 4 + Direct3D 3 (DirectX 6), software rasterizer | D3D11 backend. Stage 1 (below): a D3D11 rasterizer with the engine's CPU transform and lighting. Stage 2: transform and lighting in shaders. Stage 3: HDR, MSAA, bloom, per-pixel lighting and native widescreen |
-| Input | DirectInput 2/7 | DirectInput 8 |
+| Input | DirectInput 2/7 | Done: DirectInput 8 for the mouse only, the keyboard through window messages; physical joysticks and force feedback removed (see "Input" below) |
 | Audio | DirectSound / DS3D | Done: XAudio2 2.9 (in Windows 10 and later) with X3DAudio for the pan and doppler; on headphones a parametric head model, plus a distance low-pass and station reverb (see "Sound: 3D audio for headphones" below) |
 | Music | Audio-CD tracks through MCI (`redbooksound.cpp`) | Done: the same `IDiskPlayer` interface plays the WAVs from `Artwork/Music` (copied to `out\Artwork\Music` by `Art.proj`; CD track n is line n - 1 of `tracks.lst`) through the Media Foundation Media Engine, audio only. The music gain sets the player's volume instead of the system mixer's CD line |
 | Networking | DirectPlay 4 inside `FedMessaging` | MsQuic: a reliable ordered stream and unreliable datagrams per connection, plus a UDP probe for LAN discovery (see "Networking" below) |
@@ -664,6 +664,34 @@ mission specifications (`training/specification`, `training/spec.html`): nothing
 of them, the `.igc` files in `Artwork` are the game's source of truth, and the data was a SQL Server
 bulk-copy export (with `bcp.exe` and `osql.exe` bundled) for the Zone database the server no longer has.
 They remain in the git history.
+
+#### Input: keyboard and mouse (done)
+
+Physical joysticks and force feedback are removed (an owner decision). DirectInput 8 keeps the mouse, created
+directly as the system mouse (`GUID_SysMouse`) rather than found in the device scan that also found the
+joysticks. What went:
+
+- **The devices.** The DirectInput joystick stream with its force-feedback effects, and `InputEngine`'s joystick
+  enumeration (`JoystickInputStream` with it).
+- **The bindings.** `TrekInput`'s joystick button and axis bindings and the hat; the key-mapping screen's axis
+  rows, axis and hat capture and "Joy n" buttons (its button bindings are mouse buttons). `defaultinputmap.mdl`
+  lost its `buttonCommandMap` and `numericValuesNew`; a player's saved map that still has them loads as before,
+  since nothing reads those lists any more.
+- **Force feedback through the game.** `IIgcSite::PlayFFEffect`, the effect IDs, and the calls from ships,
+  weapons, missiles and the client. (`effectJiggle`, the camera shake, was typed as a force effect; it is a
+  `VisualEffectID`.)
+- **The window's physical-stick paths.** The axes (zero without a stick), the joystick throttle (cleared on each
+  mission's first frame without one), the hat's head turning (level without one), and the menu options that only
+  shaped a physical stick: linear/quadratic response, dead zone and force feedback.
+- **The training missions' joystick instructions**, which played only when a joystick was attached. Two on-screen
+  messages that offered the joystick throttle are keyboard-only; recorded voice-overs that mention a joystick
+  are as they were.
+- **Help.** The Joystick page and the index entries that led to it; the other pages say keyboard and mouse.
+
+What stays: mouse flight (the "virtual joystick", `JoystickImage`, now a plain `InputStream` fed by the mouse),
+keyboard flight, Flip Y (which flips the mouse's pitch), and the autopilot's disengage threshold, 0.2, which was
+twice the default dead zone. Found on the way, and not changed: the Virtual Joystick menu option saves its
+setting as `VirtualJoystick` but loads `EnableVirtualJoystick`, so it does not survive a restart.
 
 #### x64
 
@@ -1185,7 +1213,7 @@ buffers, nodes freed by `Terminate` methods) are left for case-by-case work.
 - **Pimpls.** `ZSettingsFile` and `FedMessaging`.
 - **Array deletes.** Seven `new[]` allocations were freed with `delete` (found by matching every `delete`
   against its pointer's allocation): the training loadout purchase buffer, missile launch data, the server's
-  leader vote count, DirectInput's data format and state buffer, a font's glyph data, and the frame image's
+  leader vote count, DirectInput's data format and state buffer (since removed with the joysticks), a font's glyph data, and the frame image's
   XOR buffer.
 
 Not converted: `SuspendedSoundFinishedCondition` (owns its sound action only when told to), `g_pMission`
