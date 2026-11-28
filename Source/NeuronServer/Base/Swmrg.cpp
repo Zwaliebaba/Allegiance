@@ -26,15 +26,15 @@ static LPCTSTR ConstructObjName (LPCTSTR lpszPrefix, LPCTSTR lpszSuffix,
 {
 	*pfOk = true;	// Assume success.
 
-	if (lpszSuffix == NULL)
-		return(NULL);
+	if (lpszSuffix == nullptr)
+		return(nullptr);
 
 	if ((_tcslen(lpszPrefix) + _tcslen(lpszSuffix)) >= cbFullName) 
 	{
 		// If the strings will overflow the buffer,
 		// indicate an error.
 		*pfOk = false;
-		return NULL;
+		return nullptr;
 	}
 
 	_tcscpy(lpszFullName, lpszPrefix);
@@ -66,9 +66,9 @@ bool FSWMRGInitialize(PSWMRG pSWMRG, LPCTSTR lpszName)
 
 	// Initialize all data members to NULL so that we can
 	// accurately check whether an error has occured.
-	pSWMRG->hMutexNoWriter  = NULL;
-	pSWMRG->hEventNoReaders = NULL;
-	pSWMRG->hSemNumReaders  = NULL;
+	pSWMRG->hMutexNoWriter  = nullptr;
+	pSWMRG->hEventNoReaders = nullptr;
+	pSWMRG->hSemNumReaders  = nullptr;
 
 	// This mutex guards access to the other objects
 	// managed by this data structure and also indicates 
@@ -77,7 +77,7 @@ bool FSWMRGInitialize(PSWMRG pSWMRG, LPCTSTR lpszName)
 	lpszObjName = ConstructObjName(__TEXT("SWMRGMutexNoWriter"), lpszName, 
 	                               szFullObjName, ARRAY_SIZE(szFullObjName), &fOk);
 	if (fOk)		
-		pSWMRG->hMutexNoWriter = CreateMutex(NULL, FALSE, lpszObjName);
+		pSWMRG->hMutexNoWriter = CreateMutex(nullptr, FALSE, lpszObjName);
 
 	// Create the manual-reset event that is signalled when 
 	// no reader threads are reading.
@@ -85,7 +85,7 @@ bool FSWMRGInitialize(PSWMRG pSWMRG, LPCTSTR lpszName)
 	lpszObjName = ConstructObjName(__TEXT("SWMRGEventNoReaders"), lpszName,
 		                             szFullObjName, ARRAY_SIZE(szFullObjName), &fOk);
 	if (fOk)
-		pSWMRG->hEventNoReaders = CreateEvent(NULL, TRUE, TRUE, lpszObjName);
+		pSWMRG->hEventNoReaders = CreateEvent(nullptr, TRUE, TRUE, lpszObjName);
 
 	// Initialize the variable that indicates the number of 
 	// reader threads that are reading.
@@ -93,12 +93,12 @@ bool FSWMRGInitialize(PSWMRG pSWMRG, LPCTSTR lpszName)
 	lpszObjName = ConstructObjName(__TEXT("SWMRGSemNumReaders"), lpszName,
 		                             szFullObjName, ARRAY_SIZE(szFullObjName), &fOk);
 	if (fOk)
-		pSWMRG->hSemNumReaders = CreateSemaphore(NULL, 0, 0x7FFFFFFF, lpszObjName);
+		pSWMRG->hSemNumReaders = CreateSemaphore(nullptr, 0, 0x7FFFFFFF, lpszObjName);
 
 
-	if (NULL == pSWMRG->hMutexNoWriter || 
-	    NULL == pSWMRG->hEventNoReaders || 
-	    NULL == pSWMRG->hSemNumReaders) 
+	if (nullptr == pSWMRG->hMutexNoWriter || 
+	    nullptr == pSWMRG->hEventNoReaders || 
+	    nullptr == pSWMRG->hSemNumReaders) 
 	{
 		// If a synchronization object could not be created,
 		// destroy any created objects and return failure.
@@ -270,7 +270,7 @@ void SWMRGDoneReading(PSWMRG pSWMRG)
 		// waited on the semaphore. We must release the semaphore
 		// so that the count accurately reflects the number
 		// of reader threads.
-		ReleaseSemaphore(pSWMRG->hSemNumReaders, 1, NULL);
+		ReleaseSemaphore(pSWMRG->hSemNumReaders, 1, nullptr);
 	}
 
 	// Allow other writer/reader threads to use
