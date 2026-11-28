@@ -48,6 +48,16 @@ def native(path):
     return path.replace("\\", os.sep).replace("/", os.sep)
 
 
+# The tree's own files, for --header-filter: not the SDK, not the generated headers in out/
+HEADERS = r"(Source|Tests|Tools)[/\\\\]"
+
+
+def key(path):
+    """A path as the gate compares it: '/' separated, and case-insensitive on Windows"""
+    path = path.replace("\\", "/")
+    return path.lower() if os.name == "nt" else path
+
+
 def rel(path):
     return os.path.relpath(os.path.abspath(path), ROOT).replace("\\", "/")
 
@@ -231,24 +241,22 @@ def main():
         return 0
 
     #
-    # clang-tidy matches a filter entry by the end of the diagnostic's path, and
-    # on Windows that path has backslashes: an entry spelled with '/' matches
-    # nothing there, and the gate would pass every change unseen. So each file
-    # goes in with both separators.
+    # Which lines count is decided here, not by clang-tidy's --line-filter: its
+    # JSON names every changed file, and a large change (a rename across the
+    # tree) makes it longer than a Windows command line may be. clang-tidy
+    # reports every naming finding in the tree's own files, and only those on
+    # added lines are kept.
     #
 
     canary = os.path.join("out", "check-naming", "Canary.cpp").replace(os.sep, "/")
     os.makedirs(os.path.join(ROOT, os.path.dirname(canary)), exist_ok=True)
     with open(os.path.join(ROOT, canary), "w") as f:
         f.write("int CanaryNotAGlobalName = 0;\n")
-    ranges_with_canary = dict(ranges)
-    ranges_with_canary[canary] = [[1, 1]]
+    wanted = {key(f): r for f, r in ranges.items()}
+    wanted[key(canary)] = [[1, 1]]
 
-    entries = []
-    for f, r in ranges_with_canary.items():
-        for name in {f, f.replace("/", "\\")}:
-            entries.append({"name": name, "lines": r})
-    line_filter = json.dumps(entries)
+    def on_added_line(file, line):
+        return any(start <= line <= end for start, end in wanted.get(key(rel(file)), []))
 
     projects, units = {}, {}
     for path in sorted(ranges):
@@ -271,8 +279,7 @@ def main():
                "--config-file=" + args.config,
                "--checks=-*,readability-identifier-naming",
                "--warnings-as-errors=-*",
-               "--header-filter=.*",
-               "--line-filter=" + line_filter,
+               "--header-filter=" + HEADERS,
                "--"] + compiler
         if args.verbose:
             print(" ".join('"%s"' % c if " " in c else c for c in cmd))
@@ -286,7 +293,8 @@ def main():
     canary_args = ["--driver-mode=cl", "/TP"] if args.driver == "cl" else ["-x", "c++"]
     result = tidy(os.path.join(ROOT, canary), canary_args)
     output = (result.stdout + result.stderr).splitlines()
-    if not any(FINDING.match(line.strip()) and "CanaryNotAGlobalName" in line for line in output):
+    if not any((m := FINDING.match(line.strip())) and "CanaryNotAGlobalName" in line and on_added_line(m.group("file"), int(m.group("line")))
+               for line in output):
         print("check-naming: the canary was not reported, so the gate cannot see findings; clang-tidy said:")
         print("\n".join(output)[-2000:] or "(nothing)")
         return 2
@@ -298,7 +306,8 @@ def main():
         for line in (result.stdout + result.stderr).splitlines():
             m = FINDING.match(line.strip())
             if m:
-                findings.add((rel(m.group("file")), int(m.group("line")), int(m.group("col")), m.group("msg")))
+                if on_added_line(m.group("file"), int(m.group("line"))):
+                    findings.add((rel(m.group("file")), int(m.group("line")), int(m.group("col")), m.group("msg")))
                 recognised = True
             elif CLANG_ERROR.search(line):
                 errors += 1
