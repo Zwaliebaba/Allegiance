@@ -24,105 +24,105 @@ class CshieldIGC : public IshieldIGC
         CshieldIGC(void);
 
 // IbaseIGC
-        virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void    Terminate(void);
-        virtual void    Update(Time now);
+        HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void    Terminate(void) override;
+        void    Update(Time now) override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_shield;
         }
 
-        virtual ImissionIGC*    GetMission(void) const
+        ImissionIGC*    GetMission(void) const override
         {
             return m_pMission;
         }
 
 // IpartIGC
-        virtual EquipmentType    GetEquipmentType(void) const
+        EquipmentType    GetEquipmentType(void) const override
         {
             return ET_Shield;
         }
 
-        virtual IpartTypeIGC*    GetPartType(void) const
+        IpartTypeIGC*    GetPartType(void) const override
         {
             return m_partType;
         }
 
-        virtual IshipIGC*        GetShip(void) const
+        IshipIGC*        GetShip(void) const override
         {
             return m_ship;
         }
-        virtual void             SetShip(IshipIGC* newVal, Mount mount);
+        void             SetShip(IshipIGC* newVal, Mount mount) override;
 
-        virtual Mount            GetMountID(void) const
+        Mount            GetMountID(void) const override
         {
             return m_mountID;
         }
-        virtual void             SetMountID(Mount newVal);
+        void             SetMountID(Mount newVal) override;
 
-        virtual bool             fActive(void) const
+        bool             fActive(void) const override
         {
             return (m_mountID == 0);
         }
 
-        virtual void             Activate(void)
+        void             Activate(void) override
         {
             m_ship->ChangeSignature(m_typeData->signature);
         }
-        virtual void             Deactivate(void)
+        void             Deactivate(void) override
         {
             m_ship->ChangeSignature(-m_typeData->signature);
             m_ship->GetHitTest()->SetShape(c_htsConvexHullMax);
         }
-        virtual float            GetMass(void) const
+        float            GetMass(void) const override
         {
             return m_typeData->mass;
         }
 
-        virtual Money            GetPrice(void) const
+        Money            GetPrice(void) const override
         {
             return m_typeData->price;
         }
 
-        virtual float           GetMountedFraction(void) const
+        float           GetMountedFraction(void) const override
         {
             return m_mountedFraction;
         }
 
-        virtual void            SetMountedFraction(float f)
+        void            SetMountedFraction(float f) override
         {
             m_mountedFraction = f;
         }
 
-        virtual void            Arm(void)
+        void            Arm(void) override
         {
             m_mountedFraction = 1.0f;
             m_fraction = 1.0f;
         }
 
     // IshieldIGC
-        virtual float           GetRegeneration(void) const
+        float           GetRegeneration(void) const override
         {
             return m_ship 
                    ? (m_typeData->rateRegen * m_ship->GetSide()->GetGlobalAttributeSet().GetAttribute(c_gaShieldRegenerationShip))
                    : m_typeData->rateRegen;
         }
-	    virtual float           GetMaxStrength(void) const
+	    float           GetMaxStrength(void) const override
         {
             return m_ship 
                    ? (m_typeData->maxStrength * m_ship->GetSide()->GetGlobalAttributeSet().GetAttribute(c_gaMaxShieldShip))
                    : m_typeData->maxStrength;
         }
-        virtual DefenseTypeID   GetDefenseType(void) const
+        DefenseTypeID   GetDefenseType(void) const override
         {
             return m_typeData->defenseType;
         }
-	    virtual float           GetFraction(void) const
+	    float           GetFraction(void) const override
         {
             return m_fraction;
         }
-	    virtual void           SetFraction(float newVal)
+	    void           SetFraction(float newVal) override
         {
             float down = m_pMission->GetFloatConstant(c_fcidDownedShield);
             if (newVal <= down)
@@ -145,10 +145,10 @@ class CshieldIGC : public IshieldIGC
             m_fraction = newVal;
         }
 
-	    virtual float           ApplyDamage(Time           timeCollision,
+	    float           ApplyDamage(Time           timeCollision,
                                             DamageTypeID   type,
                                             float          amount,
-                                            const Vector&  deltaP);
+                                            const Vector&  deltaP) override;
 
     private:
         const DataShieldTypeIGC*    m_typeData;

@@ -26,7 +26,7 @@ namespace Training
     {
         public:
             virtual /* void */          ~PlayerShipTarget (void);
-            virtual /* ImodelIGC* */    operator ImodelIGC* (void);
+            /* ImodelIGC* */    operator ImodelIGC* (void) override;
     };
 
     //------------------------------------------------------------------------------

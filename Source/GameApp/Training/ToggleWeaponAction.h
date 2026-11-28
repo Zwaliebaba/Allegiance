@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          ToggleWeaponAction (Mount mount);
             virtual /* void */          ~ToggleWeaponAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     Mount               m_mount;

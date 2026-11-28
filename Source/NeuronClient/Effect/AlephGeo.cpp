@@ -54,7 +54,7 @@ public:
     // Members
     //
 
-    bool OnEvent(TEvent<float>::Source* pevent, float fExplodeTime)
+    bool OnEvent(TEvent<float>::Source* pevent, float fExplodeTime) override
     {
         m_fExplodeDuration = fExplodeTime;
         m_fExplodeTime = m_fExplodeDuration + m_time;
@@ -130,18 +130,18 @@ public:
         }
     }
 
-    void Evaluate()
+    void Evaluate() override
     {
         m_time = GetTime()->GetValue();
 
     }
 
-    float GetRadius(const Matrix& mat)
+    float GetRadius(const Matrix& mat) override
     {
         return 1;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         float   fScale = 0.1f;  // the size of the star on the aleph by default
         float   fExplodeDelta = m_fExplodeTime - m_time; // how long 'til an explosion occurs
@@ -197,7 +197,7 @@ public:
         pcontext->DrawCallbackGeo(this, false);
     }
 
-    void RenderCallback(Context* pcontext)
+    void RenderCallback(Context* pcontext) override
     {
         UpdateTextureCoordinates();
 
@@ -219,7 +219,7 @@ public:
     // Value methods
     //
 
-    ZString GetFunctionName() { return "AlephGeo"; }
+    ZString GetFunctionName() override { return "AlephGeo"; }
 };
 
 TRef<Geo> CreateAlephGeo(Modeler* pmodeler, TEvent<float>::Source* pevent, Number* ptime)

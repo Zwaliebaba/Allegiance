@@ -25,7 +25,7 @@ protected:
     {
     }
 
-    TRef<Value> Fold();
+    TRef<Value> Fold() override;
 
 public:
     Transform() :
@@ -60,7 +60,7 @@ public:
         GetValueInternal() = mat;
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         return "MatrixTransform(" + ::GetString(indent, GetValue()) +")";
     }
@@ -110,7 +110,7 @@ public:
         GetValueInternal() = mat;
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         return "MatrixTransform2(" + ::GetString(indent, GetValue()) +")";
     }
@@ -135,7 +135,7 @@ class TranslateTransform : public Transform {
 private:
     Vector m_vec;
 
-    void Evaluate();
+    void Evaluate() override;
 
 public:
     TranslateTransform(const Vector& vec);
@@ -153,7 +153,7 @@ public:
 
 class TranslateTransform2 : public Transform2 {
 private:
-    void Evaluate();
+    void Evaluate() override;
 
 public:
     TranslateTransform2(PointValue* ppoint);
@@ -167,7 +167,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "TranslateTransform2"; }
+    ZString GetFunctionName() override { return "TranslateTransform2"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -178,7 +178,7 @@ public:
 
 class ScaleTransform2 : public Transform2 {
 private:
-    void Evaluate();
+    void Evaluate() override;
 
 public:
     ScaleTransform2(PointValue* ppoint);
@@ -192,7 +192,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "ScaleTransform2"; }
+    ZString GetFunctionName() override { return "ScaleTransform2"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -203,7 +203,7 @@ public:
 
 class RotateTransform2 : public Transform2 {
 private:
-    void Evaluate();
+    void Evaluate() override;
 
 public:
     RotateTransform2(Number* pangle);
@@ -217,7 +217,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "RotateTransform2"; }
+    ZString GetFunctionName() override { return "RotateTransform2"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -231,7 +231,7 @@ private:
     Vector m_axis;
     float  m_angle;
 
-    void Evaluate();
+    void Evaluate() override;
 
 public:
     RotateTransform(const Vector& axis, float angle);
@@ -246,7 +246,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "RotateTransform"; }
+    ZString GetFunctionName() override { return "RotateTransform"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -259,7 +259,7 @@ class ScaleTransform : public Transform {
 private:
     Vector m_vec;
 
-    void Evaluate();
+    void Evaluate() override;
 
 public:
     ScaleTransform(float scale);
@@ -273,7 +273,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "ScaleTransform"; }
+    ZString GetFunctionName() override { return "ScaleTransform"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -289,7 +289,7 @@ private:
     Vector  m_vecForward;
     Vector  m_vecUp;
 
-    void Evaluate();
+    void Evaluate() override;
 
 public:
     ComponentTransform();
@@ -313,7 +313,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "ComponentTransform"; }
+    ZString GetFunctionName() override { return "ComponentTransform"; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -324,7 +324,7 @@ public:
 
 class AnimateRotateTransform : public Transform {
 private:
-    void Evaluate();
+    void Evaluate() override;
 
 public:
     AnimateRotateTransform(VectorValue* paxis, Number* pangle) :
@@ -342,7 +342,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "AnimateRotateTransform"; }
+    ZString GetFunctionName() override { return "AnimateRotateTransform"; }
 };
 
 #endif

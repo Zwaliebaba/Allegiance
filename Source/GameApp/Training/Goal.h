@@ -34,9 +34,9 @@ namespace Training
         public:
                     /* void */          Goal (Condition* pSuccessCondition);
             virtual /* void */          ~Goal (void);
-            virtual bool                Start (void);
-            virtual void                Stop (void);
-            virtual bool                Evaluate (void);
+            bool                Start (void) override;
+            void                Stop (void) override;
+            bool                Evaluate (void) override;
                     void                AddStartAction (Action* pStartAction);
                     void                AddConstraintCondition (Condition* pConstraintCondition);
 

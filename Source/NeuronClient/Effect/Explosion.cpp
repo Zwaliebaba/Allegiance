@@ -81,7 +81,7 @@ public:
         int                           countDecals,
         std::vector<TRef<AnimatedImage>>  vpimage,
         Image*                        pimageShockwave
-    ) {
+    ) override {
         //
         // Add the shockwave
         //
@@ -132,7 +132,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetFunctionName() { return "ExplosionGeo"; }
+    ZString GetFunctionName() override { return "ExplosionGeo"; }
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -213,7 +213,7 @@ public:
         return fill;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         float fill = 0;
         

@@ -79,17 +79,17 @@ private:
         GameItemPainter(const std::vector<int>& viColumns, GameScreen* pparent)
             : m_viColumns(viColumns), m_pparent(pparent) {};
 
-        int GetXSize()
+        int GetXSize() override
         {
             return m_viColumns[8];
         }
 
-        int GetYSize()
+        int GetYSize() override
         {
             return 28;
         }
 
-        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
         {
             MissionInfo* game = (MissionInfo*)pitemArg;
             char cbTemp[256];
@@ -337,7 +337,7 @@ private:
         // IPopup methods
         //
 
-        virtual void OnClose()
+        void OnClose() override
         {
             if (m_pkeyboardInputOldFocus)
                 GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
@@ -347,7 +347,7 @@ private:
             IPopup::OnClose();
         }
 
-        virtual void SetContainer(IPopupContainer* pcontainer)
+        void SetContainer(IPopupContainer* pcontainer) override
         {
             // initialize the check boxes
             m_pcomboDevelopments->SetSelection(m_pparent->m_sFilterDevelopments);
@@ -371,19 +371,19 @@ private:
             IPopup::SetContainer(pcontainer);
         }
 
-        Pane* GetPane()
+        Pane* GetPane() override
         {
             return m_ppane;
         }
 
-        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
         {
             // we need to make sure we get OnChar calls to pass on to the edit box
             fForceTranslate = true;
             return false;
         }
 
-        bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+        bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
         {
             if (ks.vk == 13)
             {
@@ -467,12 +467,12 @@ private:
         // IPopup methods
         //
 
-        Pane* GetPane()
+        Pane* GetPane() override
         {
             return m_ppane;
         }
 
-        virtual void OnClose()
+        void OnClose() override
         {
             if (m_pkeyboardInputOldFocus)
                 GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
@@ -482,7 +482,7 @@ private:
             IPopup::OnClose();
         }
 
-        virtual void SetContainer(IPopupContainer* pcontainer)
+        void SetContainer(IPopupContainer* pcontainer) override
         {
             m_pkeyboardInputOldFocus = GetWindow()->GetFocus();
             GetWindow()->SetFocus(m_peditPane);
@@ -490,14 +490,14 @@ private:
             IPopup::SetContainer(pcontainer);
         }
 
-        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
         {
             // we need to make sure we get OnChar calls to pass on to the edit box
             fForceTranslate = true;
             return false;
         }
 
-        bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+        bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
         {
             if (ks.vk == 13)
             {
@@ -689,7 +689,7 @@ public:
     //////////////////////////////////////////////////////////////////////////////
 
     
-    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem)
+    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem) override
     {
         if (pevent == m_peventGames) {
             MissionInfo* pmission = (MissionInfo*)pitem;
@@ -1156,7 +1156,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
@@ -1167,7 +1167,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void OnMissionEnded(MissionInfo* pmission)
+    void OnMissionEnded(MissionInfo* pmission) override
     {
         MissionInfo* pmissionSelected = (MissionInfo*)m_plistPaneGames->GetSelection();
 
@@ -1178,7 +1178,7 @@ public:
         }
     }
 
-    void OnFoundPlayer(MissionInfo* pMissionInfo)
+    void OnFoundPlayer(MissionInfo* pMissionInfo) override
     {
         if (!GetWindow()->GetPopupContainer()->IsEmpty())
             GetWindow()->GetPopupContainer()->ClosePopup(NULL);
@@ -1202,7 +1202,7 @@ public:
         }
     }
 
-    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         if (pMissionInfo && pPlayerInfo == trekClient.MyPlayerInfo())
         {
@@ -1211,7 +1211,7 @@ public:
         }
     }
 
-    void OnDelRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason)
+    void OnDelRequest(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason) override
     {
         if (pPlayerInfo == trekClient.MyPlayerInfo())
         {
@@ -1286,12 +1286,12 @@ public:
         }
     }
 
-    virtual void OnCancelPassword()
+    void OnCancelPassword() override
     {
         trekClient.Disconnect();
     }
 
-    virtual void OnPassword(ZString strPassword)
+    void OnPassword(ZString strPassword) override
     {
         MissionInfo* pmissionSelected = (MissionInfo*)m_plistPaneGames->GetSelection();
         JoinMission(pmissionSelected, strPassword.c_str());
@@ -1366,7 +1366,7 @@ public:
         return indexClosest;
     };
 
-    void OnLogonGameServer()
+    void OnLogonGameServer() override
     {
         // wait for a join message.
         GetWindow()->SetWaitCursor();
@@ -1375,20 +1375,20 @@ public:
         GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
     }
 
-    void OnLogonGameServerFailed(bool bRetry, const char* szReason)
+    void OnLogonGameServerFailed(bool bRetry, const char* szReason) override
     {
         // tell the user why the logon failed
         TRef<IMessageBox> pmsgBox = CreateMessageBox(szReason);
         GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
     }
 
-    void OnLogonLobby()
+    void OnLogonLobby() override
     {
         // display any pending logoff error messages.
         trekClient.FlushSessionLostMessage();
     }
 
-    void OnLogonLobbyFailed(bool bRetry, const char* szReason)
+    void OnLogonLobbyFailed(bool bRetry, const char* szReason) override
     {
         // send the user back to the intro screen and tell them why it failed.
         GetWindow()->screen(ScreenIDIntroScreen);

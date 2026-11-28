@@ -44,19 +44,19 @@ public:
     {
     }
 
-    Color GetDiffuse()  const { return GetDiffuseValue()->GetValue();  }
-    Color GetSpecular() const { return GetSpecularValue()->GetValue(); }
-    Color GetEmissive() const { return GetEmissiveValue()->GetValue(); }
+    Color GetDiffuse()  const override { return GetDiffuseValue()->GetValue();  }
+    Color GetSpecular() const override { return GetSpecularValue()->GetValue(); }
+    Color GetEmissive() const override { return GetEmissiveValue()->GetValue(); }
 
-    void SetDiffuse(const Color& color)  {  SetDiffuse(new ColorValue(color));  }
-    void SetSpecular(const Color& color) { SetSpecular(new ColorValue(color)); }
-    void SetEmissive(const Color& color) { SetEmissive(new ColorValue(color)); }
+    void SetDiffuse(const Color& color) override  {  SetDiffuse(new ColorValue(color));  }
+    void SetSpecular(const Color& color) override { SetSpecular(new ColorValue(color)); }
+    void SetEmissive(const Color& color) override { SetEmissive(new ColorValue(color)); }
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "Material"; }
+    ZString GetFunctionName() override { return "Material"; }
 };
 
 TRef<Material> CreateMaterial(

@@ -89,7 +89,7 @@ private:
     Color           m_colorFlash;
     Color           m_colorEmpty;
 
-    void Paint(Surface* psurface);
+    void Paint(Surface* psurface) override;
 
 public:
     GaugePane(Surface*         psurface,

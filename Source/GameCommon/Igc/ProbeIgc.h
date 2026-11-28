@@ -26,23 +26,23 @@ class CprobeIGC : public TmodelIGC<IprobeIGC>
 
     public:
     // IbaseIGC
-	    virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-	    virtual void    Terminate(void);
-        virtual void    Update(Time now);
-        virtual int     Export(void*    data) const;
+	    HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+	    void    Terminate(void) override;
+        void    Update(Time now) override;
+        int     Export(void*    data) const override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_probe;
         }
 
-        virtual ObjectID    GetObjectID(void) const
+        ObjectID    GetObjectID(void) const override
         {
             return m_probeID;
         }
 
     // ImodelIGC
-        virtual void    SetCluster(IclusterIGC* cluster)
+        void    SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -61,12 +61,12 @@ class CprobeIGC : public TmodelIGC<IprobeIGC>
         }
 
     // IdamageIGC
-        virtual DamageResult        ReceiveDamage(DamageTypeID            type,
+        DamageResult        ReceiveDamage(DamageTypeID            type,
                                                   float                   amount,
                                                   Time                    timeCollision,
                                                   const Vector&           position1,
                                                   const Vector&           position2,
-                                                  ImodelIGC*              launcher)
+                                                  ImodelIGC*              launcher) override
         {
             IsideIGC*   pside = GetSide();
 
@@ -117,22 +117,22 @@ class CprobeIGC : public TmodelIGC<IprobeIGC>
 
             return dr;
         }
-        virtual float   GetFraction(void) const
+        float   GetFraction(void) const override
         {
             return m_fraction;
         }
-        virtual void    SetFraction(float newVal)
+        void    SetFraction(float newVal) override
         {
             m_fraction = newVal;
         }
 
-        virtual float               GetHitPoints(void) const
+        float               GetHitPoints(void) const override
         {
             return m_fraction * m_probeType->GetHitPoints();
         }
 
     // IscannerIGC
-        bool            InScannerRange(ImodelIGC*   pModel) const
+        bool            InScannerRange(ImodelIGC*   pModel) const override
         {
             assert (pModel);
 
@@ -162,7 +162,7 @@ class CprobeIGC : public TmodelIGC<IprobeIGC>
             return rc;
         }
 
-        bool             CanSee(ImodelIGC*   pModel) const
+        bool             CanSee(ImodelIGC*   pModel) const override
         {
             assert (pModel);
 
@@ -174,21 +174,21 @@ class CprobeIGC : public TmodelIGC<IprobeIGC>
         }
 
     //IprobeIGC
-        virtual IprobeTypeIGC*       GetProbeType(void) const
+        IprobeTypeIGC*       GetProbeType(void) const override
         {
             return m_probeType;
         }
 
-        virtual IprojectileTypeIGC*  GetProjectileType(void) const
+        IprojectileTypeIGC*  GetProjectileType(void) const override
         {
             return m_projectileType;
         }
-        virtual const Vector&        GetEmissionPt(void) const
+        const Vector&        GetEmissionPt(void) const override
         {
             return m_probeType->GetEmissionPt();
         }
 
-        virtual float               GetProjectileLifespan(void) const
+        float               GetProjectileLifespan(void) const override
         {
             float   ls;
             if (m_projectileType)
@@ -202,22 +202,22 @@ class CprobeIGC : public TmodelIGC<IprobeIGC>
 
             return ls;
         }
-        virtual float               GetLifespan(void) const
+        float               GetLifespan(void) const override
         {
             return m_probeType->GetLifespan();
         }
 
-        virtual float               GetDtBurst(void) const
+        float               GetDtBurst(void) const override
         {
             return m_probeType->GetDtBurst();
         }
 
-        virtual float               GetAccuracy(void) const
+        float               GetAccuracy(void) const override
         {
             return m_probeType->GetAccuracy();
         }
 
-        virtual bool                GetCanRipcord(float ripcordSpeed) const
+        bool                GetCanRipcord(float ripcordSpeed) const override
         {
             float   dt = m_probeType->GetRipcordDelay();
             return (dt >= 0.0f) &&
@@ -225,22 +225,22 @@ class CprobeIGC : public TmodelIGC<IprobeIGC>
                    ((GetMyLastUpdate() + (ripcordSpeed + 1.0f)) <= m_timeExpire);
         }
 
-        virtual float               GetRipcordDelay(void) const
+        float               GetRipcordDelay(void) const override
         {
             return m_probeType->GetRipcordDelay();
         }
 
-        virtual SoundID              GetAmbientSound(void) const
+        SoundID              GetAmbientSound(void) const override
         {
             return m_probeType->GetAmbientSound();
         }
 
-        virtual void            SetCreateNow (void)
+        void            SetCreateNow (void) override
         {
             m_bCreateNow = true;
         }
 
-        virtual float            GetTimeFraction(void) const
+        float            GetTimeFraction(void) const override
         {
             Time    timeNow = GetMyLastUpdate();
             float   f = (m_timeExpire - timeNow) / (m_timeExpire - m_time0);

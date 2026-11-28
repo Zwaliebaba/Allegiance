@@ -40,7 +40,7 @@ class Slideshow :
                     return MouseResultHit();
                 }
 
-                MouseResult Button (IInputProvider* pProvider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+                MouseResult Button (IInputProvider* pProvider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
                 {
                     if (bDown)
                         m_pSlideshow->Picked();
@@ -57,12 +57,12 @@ class Slideshow :
                 /* void */  Slideshow (Modeler* pmodeler, const ZString& strNamespace);
                 /* void */  ~Slideshow (void);
                 void        NextSlide (void);
-        virtual Image*      GetImage (void);
-        virtual void        OnFrame (void);
+        Image*      GetImage (void) override;
+        void        OnFrame (void) override;
         virtual void        Dismiss (void);
-        virtual bool        OnEvent (IEventSource* pevent);
+        bool        OnEvent (IEventSource* pevent) override;
         virtual void        Picked (void);
-        virtual bool        OnKey (IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate);
+        bool        OnKey (IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override;
         static  bool        IsInSlideShow (void);
 };
 

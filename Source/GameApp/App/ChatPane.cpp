@@ -58,31 +58,31 @@ public:
         // debugf("~ChatListItem\n");
     }
 
-    short GetItemHeight()
+    short GetItemHeight() override
     {
         return (int)m_vMsgLines.size();
     }
 
-    LONG_PTR GetItemData()
+    LONG_PTR GetItemData() override
     {
         return m_lData;
     };
 
-    bool Update()
+    bool Update() override
     {
         return true;
     }
 
-    void SetSortOrder(long lSortOrder)
+    void SetSortOrder(long lSortOrder) override
     {
     }
     
-    bool SetFilter(long lFilter)
+    bool SetFilter(long lFilter) override
     {
         return true;
     }
 
-    void DrawItem(Surface* pSurface, const WinRect& rect, bool fSelected, int iFirstSlot)
+    void DrawItem(Surface* pSurface, const WinRect& rect, bool fSelected, int iFirstSlot) override
     {
         IEngineFont* pfont = m_pchatInfo->IsFromLeader() ? TrekResources::SmallBoldFont() : TrekResources::SmallFont();
         WinPoint pt(rect.Min() + WinPoint(3,3));
@@ -175,12 +175,12 @@ public:
         return true;
     }
 
-    void OnClearChat()
+    void OnClearChat() override
     {
         m_pListPane->RemoveAll();
     }
 
-    void OnChatMessageChange()
+    void OnChatMessageChange() override
     {
         // save some info about the current state of the chat list
         int countOld = m_pListPane->GetCountItems();
@@ -203,14 +203,14 @@ public:
             && m_bPlayerChatsOnly;
     }
 
-    void OnDeleteChatMessage(ChatInfo* pchatInfo)
+    void OnDeleteChatMessage(ChatInfo* pchatInfo) override
     {
         m_bIgnoreScrollingEvents = true;
         m_pListPane->RemoveItemByData((LONG_PTR)pchatInfo);
         m_bIgnoreScrollingEvents = false;
     }
 
-    void OnNewChatMessage()
+    void OnNewChatMessage() override
     {
         ChatInfo * pchatinfo = &(trekClient.m_chatList.last()->data());
 
@@ -224,13 +224,13 @@ public:
         }
     }
 
-    void PageUp()
+    void PageUp() override
     {
         m_pListPane->ScrollPageUp();
         AutoscrollOff();
     }
 
-    void PageDown()
+    void PageDown() override
     {
         m_pListPane->ScrollPageDown();
         
@@ -309,25 +309,25 @@ public:
         }
     }
 
-    void AddChannel(ChatTarget channel)
+    void AddChannel(ChatTarget channel) override
     {
         m_listChannels.PushEnd(channel);
         UpdateContents();
     }
 
-    void RemoveChannel(ChatTarget channel)
+    void RemoveChannel(ChatTarget channel) override
     {
         m_listChannels.Remove(channel);
         UpdateContents();
     }
 
-    void ResetChannels()
+    void ResetChannels() override
     {
         m_listChannels.SetEmpty();
         UpdateContents();
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }

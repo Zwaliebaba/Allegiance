@@ -730,12 +730,12 @@ public:
     virtual const char* GetArtPath() { return NULL; } // This should be overridden in Wintrek/PIGS
     virtual bool ResetStaticData(const char * szIGCStaticFile, ImissionIGC** ppStaticIGC, Time tNow, bool bEncrypt);
 
-    virtual Time ServerTimeFromClientTime(Time   timeClient)
+    Time ServerTimeFromClientTime(Time   timeClient) override
     {
         ShouldBe(!GetNetwork() || m_serverOffsetValidF);
         return Time(timeClient.clock() + m_serverOffset);
     }
-    virtual Time ClientTimeFromServerTime(Time   timeServer)
+    Time ClientTimeFromServerTime(Time   timeServer) override
     {
         ShouldBe(!GetNetwork() || m_serverOffsetValidF);
         return Time(timeServer.clock() - m_serverOffset);
@@ -780,7 +780,7 @@ public:
     }
     virtual HRESULT     ReceiveMessages(void);
     virtual HRESULT     OnSessionLost(const char * szReason, FedMessaging * pthis);
-    virtual void        OnSessionFound(FedMessaging * pthis, FMSessionDesc * pSessionDesc);
+    void        OnSessionFound(FedMessaging * pthis, FMSessionDesc * pSessionDesc) override;
     virtual HRESULT     HandleMsg(FEDMESSAGE* pfm, Time lastUpdate, Time now);
     bool                GetIsLobbied()
     {
@@ -794,8 +794,8 @@ public:
     //HRESULT     HandleShipUpdate(Time timeUpdate, const HeavyShipUpdate& shipupdate);
 
     // FedMessagingSite
-    virtual HRESULT     OnSessionLost(FedMessaging * pthis);
-    virtual void        OnMessageNAK(FedMessaging * pthis, DWORD dwTime, CFMRecipient * prcp);
+    HRESULT     OnSessionLost(FedMessaging * pthis) override;
+    void        OnMessageNAK(FedMessaging * pthis, DWORD dwTime, CFMRecipient * prcp) override;
     
     // game state
     inline ImissionIGC* GetCore()               { return m_pCoreIGC; }
@@ -843,7 +843,7 @@ public:
         return pcluster;
     }
 
-    void                CreateBuildingEffect(Time now, IasteroidIGC* pasteroid, IshipIGC* pshipBuilder)
+    void                CreateBuildingEffect(Time now, IasteroidIGC* pasteroid, IshipIGC* pshipBuilder) override
     {
         assert (pasteroid);
         assert (pshipBuilder);
@@ -861,7 +861,7 @@ public:
                                                          pasteroid->GetPosition());
     }
 
-    IclusterIGC*        GetCluster(IshipIGC* pship, ImodelIGC* pmodel)
+    IclusterIGC*        GetCluster(IshipIGC* pship, ImodelIGC* pmodel) override
     {
         IclusterIGC*    pcluster = pmodel->GetCluster();
 
@@ -880,7 +880,7 @@ public:
         return pcluster;
     }
 
-    IclusterIGC*        GetRipcordCluster(IshipIGC* pship, HullAbilityBitMask habm)
+    IclusterIGC*        GetRipcordCluster(IshipIGC* pship, HullAbilityBitMask habm) override
     {
         PlayerInfo* ppi = (PlayerInfo*)(pship->GetPrivateData());
         if (ppi->StatusIsCurrent() && (ppi->LastSeenState() == c_ssFlying))
@@ -919,7 +919,7 @@ public:
         }
     }
 
-    void RequestRipcord(IshipIGC*   pship, IclusterIGC*  pcluster)
+    void RequestRipcord(IshipIGC*   pship, IclusterIGC*  pcluster) override
     {
         if (pship == m_ship)
         {
@@ -991,7 +991,7 @@ public:
     // Chat message handling
     bool         ParseShellCommand(const char* pszCommand);
 
-    virtual void SendChat(IshipIGC*      pshipSender,
+    void SendChat(IshipIGC*      pshipSender,
                           ChatTarget     ctRecipient,
                           ObjectID       oidRecipient,
                           SoundID        soundID,
@@ -1000,7 +1000,7 @@ public:
                           ObjectType     otTarget = NA,
                           ObjectID       oidTarget = NA,
                           ImodelIGC*     pmodelTarget = NULL,
-                          bool           bObjectModel = false);
+                          bool           bObjectModel = false) override;
 
     virtual void  ReceiveChat(IshipIGC*   pshipSender,
                           ChatTarget  ctRecipient,
@@ -1032,26 +1032,26 @@ public:
     //
     // IGC Site Implementation
     //
-    virtual void TerminateModelEvent(ImodelIGC* model);
-    virtual void KillAsteroidEvent(IasteroidIGC* pasteroid, bool explodeF);
-    virtual void KillProbeEvent(IprobeIGC* pprobe);
-    virtual void KillMineEvent(ImineIGC*    pmine);
-    virtual void KillMissileEvent(ImissileIGC*    pmissile, const Vector& position);
-    virtual void KillShipEvent(Time now, IshipIGC* ship, ImodelIGC* launcher, float amount, const Vector& p1, const Vector& p2);
+    void TerminateModelEvent(ImodelIGC* model) override;
+    void KillAsteroidEvent(IasteroidIGC* pasteroid, bool explodeF) override;
+    void KillProbeEvent(IprobeIGC* pprobe) override;
+    void KillMineEvent(ImineIGC*    pmine) override;
+    void KillMissileEvent(ImissileIGC*    pmissile, const Vector& position) override;
+    void KillShipEvent(Time now, IshipIGC* ship, ImodelIGC* launcher, float amount, const Vector& p1, const Vector& p2) override;
     virtual void DamageStationEvent(IstationIGC* station, ImodelIGC* launcher, DamageTypeID type, float amount, float leakage);
     virtual void KillStationEvent(IstationIGC* station, ImodelIGC* launcher, float amount, float leakage);
-    virtual void FireMissile(IshipIGC* pship, ImagazineIGC* pmagazine,
-                    Time timeFired, ImodelIGC* pTarget, float lock);
-    virtual void FireExpendable(IshipIGC* pShip,
+    void FireMissile(IshipIGC* pship, ImagazineIGC* pmagazine,
+                    Time timeFired, ImodelIGC* pTarget, float lock) override;
+    void FireExpendable(IshipIGC* pShip,
                           IdispenserIGC* pDispenser,
-                          Time timeFired);
-    virtual void BucketChangeEvent(BucketChange bc, IbucketIGC* b);
-    virtual void SideBuildingTechChange(IsideIGC* s);
-    virtual void SideDevelopmentTechChange(IsideIGC* s);
-    virtual void StationTypeChange(IstationIGC* s);
-    virtual void LoadoutChangeEvent(IshipIGC* pship, IpartIGC* ppart, LoadoutChange lc);
+                          Time timeFired) override;
+    void BucketChangeEvent(BucketChange bc, IbucketIGC* b) override;
+    void SideBuildingTechChange(IsideIGC* s) override;
+    void SideDevelopmentTechChange(IsideIGC* s) override;
+    void StationTypeChange(IstationIGC* s) override;
+    void LoadoutChangeEvent(IshipIGC* pship, IpartIGC* ppart, LoadoutChange lc) override;
 
-    virtual bool Reload(IshipIGC* pship, IlauncherIGC* plauncher, EquipmentType type);
+    bool Reload(IshipIGC* pship, IlauncherIGC* plauncher, EquipmentType type) override;
 
     static short    BuyPartOnBudget(IshipIGC*       pship,
                                     IpartTypeIGC*   ppt,

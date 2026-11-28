@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          GetViewSectorCondition (SectorID sector);
             virtual /* void */          ~GetViewSectorCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     SectorID            m_sector;

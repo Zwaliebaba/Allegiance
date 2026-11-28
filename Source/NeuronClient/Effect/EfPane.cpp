@@ -179,7 +179,7 @@ public:
             m_psurface =pmodeler->LoadSurface("scrollthumbbmp", true);
     }
 
-    void Paint(Surface* psurface)
+    void Paint(Surface* psurface) override
     {
         if (m_bHorizontal)
         {
@@ -223,7 +223,7 @@ public:
         }
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         WinPoint size = GetExpand();
 
@@ -356,7 +356,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> ppoint;      CastTo(ppoint, (IObject*)stack.Pop());
 
@@ -422,7 +422,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> ppoint;      CastTo(ppoint, (IObject*)stack.Pop());
 
@@ -453,7 +453,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> ppoint; CastTo(ppoint, (IObject*)stack.Pop());
         TRef<FontValue>  pfont;  CastTo(pfont,  (IObject*)stack.Pop());
@@ -481,7 +481,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> ppoint;      CastTo(ppoint,      (IObject*)stack.Pop());
         TRef<ScrollPane> pscrollPane; CastTo(pscrollPane, (Pane*)(IObject*)stack.Pop());
@@ -520,7 +520,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> ppoint;      CastTo(ppoint,      (IObject*)stack.Pop());
         TRef<ScrollPane> pscrollPane; CastTo(pscrollPane, (Pane*)(IObject*)stack.Pop());
@@ -553,7 +553,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> ppoint;      CastTo(ppoint,      (IObject*)stack.Pop());
         TRef<ScrollPane> pscrollPane; CastTo(pscrollPane, (Pane*)(IObject*)stack.Pop());
@@ -609,7 +609,7 @@ public:
         }
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image> pimage; CastTo(pimage, (Value*)(IObject*)stack.Pop());
         TRef<Pane>  ppane = new ImagePane(pimage);
@@ -666,7 +666,7 @@ public:
         }
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image> pimage; CastTo(pimage, (Value*)(IObject*)stack.Pop());
         TRef<Pane>  ppane = new ScreenPane(g_pwindow, pimage);
@@ -693,17 +693,17 @@ public:
     {
     }
 
-    void Enter(float id) 
+    void Enter(float id) override 
     {
         m_pnumber->SetValue(id);
     }
 
-    void Leave(float id)
+    void Leave(float id) override
     {
         m_pnumber->SetValue(0);
     }
 
-    Number* GetID()
+    Number* GetID() override
     {
         return m_pnumber;
     }
@@ -716,7 +716,7 @@ TRef<HoverSite> CreateHoverSite(float initialID)
 
 class HoverSiteFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Number> pnumber; CastTo(pnumber, (IObject*)stack.Pop());
 
@@ -726,7 +726,7 @@ public:
 
 class GetHoverSiteIDFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<HoverSite>  psite;  CastTo(psite,  (IObject*)stack.Pop());
 
@@ -755,7 +755,7 @@ public:
     {
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }
@@ -766,7 +766,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void MouseEnter(IInputProvider* pprovider, const Point& point)
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override
     {
         if (!Child()->IsHidden()) {
             m_bEntered = true;
@@ -774,7 +774,7 @@ public:
         }
     }
 
-    void MouseLeave(IInputProvider* pprovider)
+    void MouseLeave(IInputProvider* pprovider) override
     {
         if (m_bEntered) {
             m_bEntered = false;
@@ -790,7 +790,7 @@ TRef<Pane> CreateHoverPane(HoverSite* psite, float id, Pane* ppane)
 
 class HoverPaneFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<HoverSite>  psite;  CastTo(psite,  (IObject*)stack.Pop());
         TRef<Number>     pid;    CastTo(pid,    (IObject*)stack.Pop());
@@ -831,7 +831,7 @@ public:
     {
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }
@@ -842,17 +842,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void MouseEnter(IInputProvider* pprovider, const Point& point)
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override
     {
         m_psite->Enter(m_id);
 	}
 
-    void MouseLeave(IInputProvider* pprovider)
+    void MouseLeave(IInputProvider* pprovider) override
     {
         m_psite->Leave(m_id);
     }
 
-	void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside)
+	void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override
 	{
 		int count = (int)m_vecColumns.size();
 		int xprev = 0;
@@ -880,7 +880,7 @@ TRef<Pane> CreateHoverPaneColumns(HoverSite* psite, float id, Pane* ppane, std::
 
 class HoverPaneColumnsFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<HoverSite>		psite;				CastTo(psite,			(IObject*)stack.Pop());
         TRef<Number>		pid;				CastTo(pid,				(IObject*)stack.Pop());
@@ -940,7 +940,7 @@ public:
         }
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Pane>  ppane; CastTo(ppane, (Pane*)(IObject*)stack.Pop());
 
@@ -967,7 +967,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Image>        pimage;       CastTo(pimage, (Value*)(IObject*)stack.Pop());
         TRef<Number>       pnumberFaces; CastTo(pnumberFaces, (IObject*)stack.Pop());
@@ -1005,7 +1005,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<Pane> ppane; CastTo(ppane, (Pane*)(IObject*)stack.Pop());
 

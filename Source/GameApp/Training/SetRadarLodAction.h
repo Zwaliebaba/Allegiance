@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          SetRadarLODAction (RadarImage::RadarLOD radarLOD);
             virtual /* void */          ~SetRadarLODAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     RadarImage::RadarLOD    m_radarLOD;

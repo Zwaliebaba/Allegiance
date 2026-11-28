@@ -14,13 +14,13 @@ private:
     TRef<Image> m_pimage;
     WinRect     m_rect;
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         InternalSetSize(m_rect.Size());
         Pane::UpdateLayout();
     }
 
-    void Paint(Surface* psurface)
+    void Paint(Surface* psurface) override
     {
         psurface->BitBlt(WinPoint(0, 0), m_pimage->GetSurface(), m_rect);
     }
@@ -84,7 +84,7 @@ public:
     {
     }
 
-    IIntegerEventSource* GetEventSource()
+    IIntegerEventSource* GetEventSource() override
     {
         return m_pEventSource;
     }
@@ -114,7 +114,7 @@ public:
         return true;
     }
 
-    void InsertPane(Pane* pPane, ButtonPane* pButtonPane, int nPaneID)
+    void InsertPane(Pane* pPane, ButtonPane* pButtonPane, int nPaneID) override
     {
         ZAssert(nPaneID != -1); // reserved
         ZAssert(!m_fShowSelPane);
@@ -127,7 +127,7 @@ public:
         m_pButtonBarPane->InsertButton(pButtonPane, nPaneID);
     }
 
-    void InsertSubTab(TabPane* pTabPane, ButtonPane* pButtonPane, int nPaneID)
+    void InsertSubTab(TabPane* pTabPane, ButtonPane* pButtonPane, int nPaneID) override
     {
         if (m_mapPanes.Count() == 0)
             m_pSubTabCurrent = pTabPane;
@@ -135,7 +135,7 @@ public:
         InsertPane(pTabPane, pButtonPane, nPaneID);
     }
     
-    void ShowSelPane(bool fVisible)
+    void ShowSelPane(bool fVisible) override
     {
         ZAssert(m_fShowSelPane != fVisible);
         m_fShowSelPane = fVisible;
@@ -152,7 +152,7 @@ public:
             m_pColumnPane->RemoveChild(m_pPaneCurrent);
     }
     
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }
@@ -173,12 +173,12 @@ TRef<TabPane> TabPane::Create()
 class TestListItem : public ListItem
 {
 public:
-    short GetItemHeight() {return 1;}
-    LONG_PTR GetItemData() {return 0;}
-    bool Update() {return false;}
-    void SetSortOrder(long lSortOrder) {}
-    bool SetFilter(long lFilter) {return true;}
-    void DrawItem(Surface* pSurface, const WinRect& rect, bool fSelected, int iFirstSlot)
+    short GetItemHeight() override {return 1;}
+    LONG_PTR GetItemData() override {return 0;}
+    bool Update() override {return false;}
+    void SetSortOrder(long lSortOrder) override {}
+    bool SetFilter(long lFilter) override {return true;}
+    void DrawItem(Surface* pSurface, const WinRect& rect, bool fSelected, int iFirstSlot) override
     {
         INT_PTR data = (INT_PTR)this;
         char buf[30];
@@ -280,27 +280,27 @@ public:
     {
     }
 
-    int GetCountItems()
+    int GetCountItems() override
     {
         return (int)m_vItems.size();
     }
 
-    IIntegerEventSource* GetEventSource()
+    IIntegerEventSource* GetEventSource() override
     {
         return m_pEventSource;
     }
 
-    IIntegerEventSource* GetMouseOverEvent()
+    IIntegerEventSource* GetMouseOverEvent() override
     {
         return m_pMouseOverEventSource;
     }
 
-    IEventSource* GetScrollEvent()
+    IEventSource* GetScrollEvent() override
     {
         return m_pEventScroll;
     }
 
-    void SetListSize(WinPoint size)
+    void SetListSize(WinPoint size) override
     {
         m_nItemWidth = size.X();
         m_cVisibleItems = size.Y()/m_nItemHeight;
@@ -310,14 +310,14 @@ public:
         m_pBlankPane->SetSize(size);
     }
 
-    void FillTestItems(int nItems)
+    void FillTestItems(int nItems) override
     {
         for (int i=0; i<nItems; i++) {
             AppendItem( new TestListItem());
         }
     }
 
-    void InsertItem(int iItem, ListItem* pListItem)
+    void InsertItem(int iItem, ListItem* pListItem) override
     {
         for (int i = 0; i < pListItem->GetItemHeight(); i++) {
             m_vItems.insert(m_vItems.begin() + iItem, pListItem);
@@ -336,19 +336,19 @@ public:
         NeedPaint();
     }
 
-    int AppendItem(ListItem* pListItem)
+    int AppendItem(ListItem* pListItem) override
     {
         int iItem = (int)m_vItems.size();
         InsertItem(iItem, pListItem);
         return iItem;
     }
 
-    void RemoveItem(ListItem* pListItem)
+    void RemoveItem(ListItem* pListItem) override
     {
         RemoveItemByIdx(GetItemIdx(pListItem));
     }
     
-    void RemoveItemByIdx(int iItem)
+    void RemoveItemByIdx(int iItem) override
     {
         int numRemoved = 0;
 
@@ -390,12 +390,12 @@ public:
         }
     }
     
-    void RemoveItemByData(LONG_PTR lItemData)
+    void RemoveItemByData(LONG_PTR lItemData) override
     {
         RemoveItemByIdx(GetItemIdxByData(lItemData));
     }
 
-    void RemoveAll()
+    void RemoveAll() override
     {
         m_vItems.clear();
         if (m_pScrollPane) {
@@ -406,12 +406,12 @@ public:
         NeedPaint();
     }
 
-    void UpdateItem(ListItem* pListItem)
+    void UpdateItem(ListItem* pListItem) override
     {
         UpdateItemByIdx(GetItemIdx(pListItem));
     }
     
-    void UpdateItemByIdx(int iItem)
+    void UpdateItemByIdx(int iItem) override
     {
         if (iItem != -1)
             {
@@ -424,12 +424,12 @@ public:
             }
     }
     
-    void UpdateItemByData(LONG_PTR lItemData)
+    void UpdateItemByData(LONG_PTR lItemData) override
     {
         UpdateItemByIdx(GetItemIdxByData(lItemData));
     }
 
-    void UpdateAll()
+    void UpdateAll() override
     {
         bool bNeedPaint = false;
         for (int iItem = 0; iItem < (int)m_vItems.size(); 
@@ -442,12 +442,12 @@ public:
             NeedPaint();
     }
     
-    void SetSelItem(ListItem* pListItem)     
+    void SetSelItem(ListItem* pListItem) override     
     {
         SetSelItemByIdx(GetItemIdx(pListItem));
     }
 
-    void SetSelItemByIdx(int iItem)
+    void SetSelItemByIdx(int iItem) override
     {
         if (iItem < 0)
             iItem = -1;
@@ -464,22 +464,22 @@ public:
         m_pEventSource->Trigger(m_iSelItem);
     }
 
-    void SetSelItemByData(LONG_PTR lItemData)     
+    void SetSelItemByData(LONG_PTR lItemData) override     
     {
         SetSelItemByIdx(GetItemIdxByData(lItemData));
     }
 
-    int GetSelItemIdx()
+    int GetSelItemIdx() override
     {
         return m_iSelItem;
     }
 
-    TRef<ListItem>  GetSelItem()
+    TRef<ListItem>  GetSelItem() override
     {
         return GetItemByIdx(m_iSelItem);
     }
 
-    TRef<ListItem>  GetItemByIdx(long iItem)
+    TRef<ListItem>  GetItemByIdx(long iItem) override
     {
         if ((-1 >= iItem) || (iItem >= (int)m_vItems.size()))
             return NULL;
@@ -487,12 +487,12 @@ public:
             return m_vItems[iItem];
     }
 
-    TRef<ListItem>  GetItemByData(LONG_PTR lItemData)
+    TRef<ListItem>  GetItemByData(LONG_PTR lItemData) override
     {
         return GetItemByIdx(GetItemIdxByData(lItemData));
     }
 
-    int GetItemIdx(ListItem* pListItem)
+    int GetItemIdx(ListItem* pListItem) override
     {
         int cItems = (int)m_vItems.size();
         for (int iItem = 0; iItem < cItems; iItem++)
@@ -503,7 +503,7 @@ public:
         return -1;
     }
     
-    int GetItemIdxByData(LONG_PTR lItemData)
+    int GetItemIdxByData(LONG_PTR lItemData) override
     {
         int cItems = (int)m_vItems.size();
         for (int iItem = 0; iItem < cItems; iItem++)
@@ -514,22 +514,22 @@ public:
         return -1;
     }
 
-    void SetSortOrder(long lSortOrder)
+    void SetSortOrder(long lSortOrder) override
     {
 
     }
 
-    void SetFilter(long lFilter)
+    void SetFilter(long lFilter) override
     {
 
     }
 
-    int GetScrollPosition()
+    int GetScrollPosition() override
     {
         return m_iTopItem;
     }
 
-    void SetScrollPosition(int iPosition)
+    void SetScrollPosition(int iPosition) override
     {
         m_iTopItem = iPosition;
 
@@ -548,7 +548,7 @@ public:
         NeedPaint();
     }
 
-    void ScrollToItemByIdx(int iItem)
+    void ScrollToItemByIdx(int iItem) override
     {        
         if ((int)m_vItems.size() == 0)
             {
@@ -577,42 +577,42 @@ public:
         NeedPaint();
     }
 
-    void ScrollPageUp()
+    void ScrollPageUp() override
     {
         SetScrollPosition(m_iTopItem - m_cVisibleItems);
     }
 
-    void ScrollPageDown()
+    void ScrollPageDown() override
     {
         SetScrollPosition(m_iTopItem + m_cVisibleItems);
     }
 
-    void ScrollTop()
+    void ScrollTop() override
     {
         SetScrollPosition(0);
     }
 
-    void ScrollBottom()
+    void ScrollBottom() override
     {
         SetScrollPosition((int)m_vItems.size() - m_cVisibleItems);
     }
 
-    bool IsItemVisible(ListItem* pListItem)
+    bool IsItemVisible(ListItem* pListItem) override
     {
         return IsItemVisibleByIdx(GetItemIdx(pListItem));
     }
 
-    bool IsItemVisibleByIdx(long iItem)
+    bool IsItemVisibleByIdx(long iItem) override
     {
         return (iItem >= m_iTopItem) && (iItem < m_iTopItem + m_cVisibleItems);
     }
 
-    bool IsItemVisibleByData(LONG_PTR lItemData)
+    bool IsItemVisibleByData(LONG_PTR lItemData) override
     {
         return IsItemVisibleByIdx(GetItemIdxByData(lItemData));
     }
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         if (point.X() < m_pBlankPane->GetSize().X())
             {
@@ -654,7 +654,7 @@ public:
             }
     }
 
-    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside)
+    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override
     { 
         if (bInside)
             MouseOverPoint(point);
@@ -662,20 +662,20 @@ public:
         Pane::MouseMove(pprovider, point, bCaptured, bInside); 
     }
 
-    void MouseEnter(IInputProvider* pprovider, const Point& point)
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override
     { 
         MouseOverPoint(point);
         Pane::MouseEnter(pprovider, point); 
     }
 
-    void MouseLeave(IInputProvider* pprovider)
+    void MouseLeave(IInputProvider* pprovider) override
     { 
         m_pMouseOverEventSource->Trigger(-1);
 
         Pane::MouseLeave(pprovider); 
     }
 
-    bool MouseSel()
+    bool MouseSel() override
     {
         // this is somewhat of a hack to allow things being notified by the
         // List to tell if it was from a mouse click or via something being added or deleted
@@ -704,12 +704,12 @@ private:
         return m_iTopItem + m_cVisibleItems - 1; 
     }
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }
 
-    void Paint(Surface* pSurface)
+    void Paint(Surface* pSurface) override
     {
 
         if (m_pImageBkgnd)
@@ -804,7 +804,7 @@ public:
         Evaluate();
     }
 
-    void MoveStart()
+    void MoveStart() override
     {
         m_timeStart  = GetTime()->GetValue();
         m_bGotoStart = true;
@@ -812,7 +812,7 @@ public:
         Changed();
     }
 
-    void MoveEnd()
+    void MoveEnd() override
     {
         m_timeStart  = GetTime()->GetValue();
         m_bGotoStart = false;
@@ -820,14 +820,14 @@ public:
         Changed();
     }
 
-    ZString GetFunctionName() 
+    ZString GetFunctionName() override 
     { 
         return "AnimatedTranslateTransform2"; 
     }
 
 private:
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal().SetTranslate(
             GetSidePoint(m_side) + GetAnimatedPoint()

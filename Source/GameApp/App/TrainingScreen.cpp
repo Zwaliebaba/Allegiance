@@ -79,13 +79,13 @@ public:
             //m_pcomboCiv->AddItem("Belters", 101);
         }
 
-        virtual void OnClose()
+        void OnClose() override
         {
             IPopup::OnClose();
             debugf("train live popup closed\n");
         }
 
-        Pane* GetPane()
+        Pane* GetPane() override
         {
             return m_ppane;
         }
@@ -220,7 +220,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem)
+    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem) override
     {
         return true;
     }
@@ -378,7 +378,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
@@ -668,7 +668,7 @@ public:
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    void OnLogonGameServer()
+    void OnLogonGameServer() override
     {
         // wait for a join message.
         GetWindow()->SetWaitCursor();
@@ -678,7 +678,7 @@ public:
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    void OnLogonGameServerFailed(bool bRetry, const char* szReason)
+    void OnLogonGameServerFailed(bool bRetry, const char* szReason) override
     {
         // tell the user why the logon failed
         TRef<IMessageBox> pmsgBox = CreateMessageBox(szReason);
@@ -686,7 +686,7 @@ public:
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         if ((Training::GetTrainingMissionID () == Training::c_TM_7_Live) && pMissionInfo && (pPlayerInfo == trekClient.MyPlayerInfo()))
         {
@@ -698,7 +698,7 @@ public:
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    void OnEnterMission (void)
+    void OnEnterMission (void) override
     {
         debugf ("Game has started!\n");
 

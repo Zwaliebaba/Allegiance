@@ -32,7 +32,7 @@ namespace Training
                     /* void */          GetCommandCondition (IshipIGC* pShip, CommandID command);
                     /* void */          GetCommandCondition (ObjectID shipID, CommandID command);
             virtual /* void */          ~GetCommandCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     AbstractTarget*     m_pShip;

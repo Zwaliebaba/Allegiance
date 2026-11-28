@@ -304,12 +304,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetHeight()
+    int GetHeight() override
     {
         return m_height;
     }
 
-    WinPoint GetTextExtent(const ZString& str)
+    WinPoint GetTextExtent(const ZString& str) override
     {
         int count = (int)str.size();
         int width = 0;
@@ -326,7 +326,7 @@ public:
         return WinPoint(width, m_height);
     }
 
-    WinPoint GetTextExtent(const char* sz)
+    WinPoint GetTextExtent(const char* sz) override
     {
         int count = strlen(sz);
         int width = 0;
@@ -343,7 +343,7 @@ public:
         return WinPoint(width, m_height);
     }
 
-    int GetMaxTextLength(const ZString& str, int maxWidth, bool bLeft)
+    int GetMaxTextLength(const ZString& str, int maxWidth, bool bLeft) override
     {
         int count = (int)str.size();
         int width = 0;
@@ -618,7 +618,7 @@ public:
         const WinRect&  rectClip,
         const ZString&  str, 
         const Color&    color
-    ) {
+    ) override {
         if ((int)str.size() == 0) {
             return;
         }

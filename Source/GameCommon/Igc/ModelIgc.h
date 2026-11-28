@@ -402,266 +402,266 @@ template<class T> class TmodelIGC : public T
         }
 
     // IbaseIGC
-        virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize)
+        HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override
         {
             return m_model.Initialize(pMission, now, data, dataSize);
         }
-        virtual void    Terminate(void)
+        void    Terminate(void) override
         {
             m_model.Terminate();
         }
-        virtual void    Update(Time now)
+        void    Update(Time now) override
         {
             m_model.Update(now);
         }
 
-        virtual ImissionIGC*        GetMission(void) const
+        ImissionIGC*        GetMission(void) const override
         {
             return m_model.GetMyMission();
         }
 
     // ImodelIGC
-        virtual Time                 GetLastUpdate(void) const
+        Time                 GetLastUpdate(void) const override
         {
             return m_model.GetMyLastUpdate();
         }
-        virtual void                 SetLastUpdate(Time now)
+        void                 SetLastUpdate(Time now) override
         {
             m_model.SetMyLastUpdate(now);
         }
 
-        virtual void        SetMission(ImissionIGC* pMission)
+        void        SetMission(ImissionIGC* pMission) override
         {
             m_model.SetMyMission(pMission);
         }
-        virtual void        LoadCVH(const char*     pszFileName,
+        void        LoadCVH(const char*     pszFileName,
                                     const char*     pszIconName,
                                     ModelAttributes attributes,
-                                    HitTestShape    htsDefault = c_htsSphere)
+                                    HitTestShape    htsDefault = c_htsSphere) override
         {
             m_model.LoadCVH(pszFileName, pszIconName, attributes, htsDefault);
         }
-        virtual HRESULT              LoadEffect(const Color& color, ModelAttributes attributes)
+        HRESULT              LoadEffect(const Color& color, ModelAttributes attributes) override
         {
             return m_model.LoadEffect(color, attributes);
         }
-        virtual HRESULT              LoadMine(const char* textureName, float strength, float radius, const char* icon, ModelAttributes attributes)
+        HRESULT              LoadMine(const char* textureName, float strength, float radius, const char* icon, ModelAttributes attributes) override
         {
             return m_model.LoadMine(textureName, strength, radius, icon, attributes);
         }
-        virtual HRESULT              LoadWarp(const char* textureName, const char* icon, ModelAttributes attributes)
+        HRESULT              LoadWarp(const char* textureName, const char* icon, ModelAttributes attributes) override
         {
             return m_model.LoadWarp(textureName, icon, attributes);
         }
 
-        virtual HRESULT              Load(int                  options,
+        HRESULT              Load(int                  options,
                                           const char*          model,
                                           const char*          texture,
                                           const char*          icon,
-                                          ModelAttributes      attributes)
+                                          ModelAttributes      attributes) override
         {
             return m_model.Load(options, model, texture, icon, attributes);
         }
 
-        virtual bool                 GetVisibleF(void) const
+        bool                 GetVisibleF(void) const override
         {
             return m_model.GetVisibleF();
         }
-        virtual void                 SetVisibleF(bool visibleF)
+        void                 SetVisibleF(bool visibleF) override
         {
             m_model.SetVisibleF(visibleF);
         }
-        virtual void                 SetRender(unsigned char render)
+        void                 SetRender(unsigned char render) override
         {
             m_model.SetRender(render);
         }
 
-        virtual bool                 SeenBySide(IsideIGC*  side) const
+        bool                 SeenBySide(IsideIGC*  side) const override
         {
             return m_model.SeenBySide(side);
         }
-        virtual void                 UpdateSeenBySide(void)
+        void                 UpdateSeenBySide(void) override
         {
             m_model.UpdateSeenBySide();
         }
-        virtual void                 SetSideVisibility(IsideIGC* side, bool fVisible)
+        void                 SetSideVisibility(IsideIGC* side, bool fVisible) override
         {
             m_model.SetSideVisibility(side, fVisible);
         }
 
-        virtual ThingSite*            GetThingSite(void) const
+        ThingSite*            GetThingSite(void) const override
         {
             return m_model.GetThingSite();
         }
 
-        virtual void                  FreeThingSite(void)
+        void                  FreeThingSite(void) override
         {
             m_model.FreeThingSite();
         }
 
-        virtual const Vector&        GetPosition(void) const
+        const Vector&        GetPosition(void) const override
         {
             return m_model.GetPosition();
         }
-        virtual void                 SetPosition(const Vector& newVal)
+        void                 SetPosition(const Vector& newVal) override
         {
             m_model.SetPosition(newVal);
         }
 
-        virtual const Vector&        GetVelocity(void) const
+        const Vector&        GetVelocity(void) const override
         {
             return m_model.GetVelocity();
         }
-        virtual void                 SetVelocity(const Vector& newVal)
+        void                 SetVelocity(const Vector& newVal) override
         {
             m_model.SetVelocity(newVal);
         }
 
-        virtual const Orientation&   GetOrientation(void) const
+        const Orientation&   GetOrientation(void) const override
         {
             return m_model.GetOrientation();
         }
-        virtual void                 SetOrientation(const Orientation& newVal)
+        void                 SetOrientation(const Orientation& newVal) override
         {
             m_model.SetOrientation(newVal);
         }
 
-        virtual const Rotation&      GetRotation(void) const
+        const Rotation&      GetRotation(void) const override
         {
             return m_model.GetRotation();
         }
-        virtual void                 SetRotation(const Rotation& newVal)
+        void                 SetRotation(const Rotation& newVal) override
         {
             m_model.SetRotation(newVal);
         }
-        virtual float                GetRadius(void) const
+        float                GetRadius(void) const override
         {
             return m_model.GetRadius();
         }
-        virtual void                 SetRadius(float newVal)
+        void                 SetRadius(float newVal) override
         {
             m_model.SetRadius(newVal);
         }
 
-        virtual ModelAttributes      GetAttributes(void) const
+        ModelAttributes      GetAttributes(void) const override
         {
             return m_model.GetAttributes();
         }
 
-        virtual IsideIGC*            GetSide(void) const
+        IsideIGC*            GetSide(void) const override
         {
             return m_model.GetSide();
         }
-        virtual void                 SetSide(IsideIGC* newVal)
+        void                 SetSide(IsideIGC* newVal) override
         {
             m_model.SetSide(newVal);
         }
 
-        virtual float                GetMass(void) const
+        float                GetMass(void) const override
         {
             return m_model.GetMass();
         }
-        virtual void                 SetMass(float newVal)
+        void                 SetMass(float newVal) override
         {
             m_model.SetMass(newVal);
         }
 
-        virtual IclusterIGC*         GetCluster(void) const
+        IclusterIGC*         GetCluster(void) const override
         {
             return m_model.GetCluster();
         }
-        virtual void                 SetCluster(IclusterIGC* newVal)
+        void                 SetCluster(IclusterIGC* newVal) override
         {
             m_model.SetCluster(newVal);
         }
 
-        virtual char const*          GetName(void) const
+        char const*          GetName(void) const override
         {
             return m_model.GetName();
         }
-        virtual void                 SetName(const char* newVal)
+        void                 SetName(const char* newVal) override
         {
             m_model.SetName(newVal);
         }
-        void                SetSecondaryName(const char* newVal)
+        void                SetSecondaryName(const char* newVal) override
         {
             m_model.SetSecondaryName(newVal);
         }
-        virtual float                GetSignature(void) const
+        float                GetSignature(void) const override
         {
             return m_model.GetSignature();
         }
-        virtual void                 SetSignature(float newVal)
+        void                 SetSignature(float newVal) override
         {
             m_model.SetSignature(newVal);
         }
 
-        virtual void                 ChangeSignature(float delta)
+        void                 ChangeSignature(float delta) override
         {
             m_model.ChangeSignature(delta);
         }
 
-        virtual void                SetTexture(const char* pszTextureName)
+        void                SetTexture(const char* pszTextureName) override
         {
             m_model.SetTexture(pszTextureName);
         }
 
-        virtual HRESULT              LoadDecal(const char*      textureName,
+        HRESULT              LoadDecal(const char*      textureName,
                                                const char*      iconName,
                                                const Color&     color,
                                                bool             bDirectional,
                                                float            width,
                                                ModelAttributes  attributes,
-                                               HitTestShape     htsDefault = c_htsPoint)
+                                               HitTestShape     htsDefault = c_htsPoint) override
         {
             return m_model.LoadDecal(textureName, iconName, color, bDirectional, width, attributes, htsDefault);
         }
 
-        virtual void                 Move(float t)
+        void                 Move(float t) override
         {
             m_model.Move(t);
         }
-        virtual void                 Move(void)
+        void                 Move(void) override
         {
             m_model.Move();
         }
-        virtual void                 SetBB(Time tStart, Time tStop, float dt)
+        void                 SetBB(Time tStart, Time tStop, float dt) override
         {
             m_model.SetBB(tStart, tStop, dt);
         }
-        virtual HitTest*             GetHitTest(void) const
+        HitTest*             GetHitTest(void) const override
         {
             return m_model.GetHitTest();
         }
 
-        virtual void                 HandleCollision(Time       timeCollision,
+        void                 HandleCollision(Time       timeCollision,
                                                      float                  tCollision,
                                                      const CollisionEntry&  entry,
-                                                     ImodelIGC* pModel)
+                                                     ImodelIGC* pModel) override
         {
             //Should never be called
             assert (false);
         }
 
-        virtual IObject*            GetIcon(void) const
+        IObject*            GetIcon(void) const override
         {
             return m_model.GetIcon();
         }
 
-        virtual void                    SetIcon(IObject* picon)
+        void                    SetIcon(IObject* picon) override
         {
             m_model.SetIcon(picon);
         }
 
-        virtual const DamageBucketList*  GetDamageBuckets(void) const
+        const DamageBucketList*  GetDamageBuckets(void) const override
         {
             return m_model.GetDamageBuckets();
         }
-        virtual void                     AddDamageBucket(DamageBucket*   pdb)
+        void                     AddDamageBucket(DamageBucket*   pdb) override
         {
             m_model.AddDamageBucket(pdb);
         }
-        virtual void                     DeleteDamageBucket(DamageBucket*   pdb)
+        void                     DeleteDamageBucket(DamageBucket*   pdb) override
         {
             m_model.DeleteDamageBucket(pdb);
         }

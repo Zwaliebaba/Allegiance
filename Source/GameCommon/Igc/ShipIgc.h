@@ -39,95 +39,95 @@ class       MyHullType : public IhullTypeIGC
         }
 
         //IbaseIGC
-        virtual HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int length);
-        virtual void            Terminate(void);
-        virtual void            Update(Time   now);
+        HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int length) override;
+        void            Terminate(void) override;
+        void            Update(Time   now) override;
 
-        virtual ObjectType      GetObjectType(void) const;
-        virtual ObjectID        GetObjectID(void) const;
+        ObjectType      GetObjectType(void) const override;
+        ObjectID        GetObjectID(void) const override;
 
         //ItypeIGC
-        virtual const void*     GetData(void) const;
+        const void*     GetData(void) const override;
 
         //IbuyableIGC
-        virtual const char*             GetName(void) const;
-        virtual const char*             GetDescription(void) const;
-        virtual const char*             GetModelName(void) const;
-        virtual const TechTreeBitMask&  GetRequiredTechs(void) const;
-        virtual const TechTreeBitMask&  GetEffectTechs(void) const;
+        const char*             GetName(void) const override;
+        const char*             GetDescription(void) const override;
+        const char*             GetModelName(void) const override;
+        const TechTreeBitMask&  GetRequiredTechs(void) const override;
+        const TechTreeBitMask&  GetEffectTechs(void) const override;
 
-        virtual Money                   GetPrice(void) const;
-        virtual DWORD                   GetTimeToBuild(void) const;
-        virtual BuyableGroupID          GetGroupID(void) const;
+        Money                   GetPrice(void) const override;
+        DWORD                   GetTimeToBuild(void) const override;
+        BuyableGroupID          GetGroupID(void) const override;
 
         //IhullTypeIGC
-        virtual float                GetLength(void) const;
-        virtual float                GetMaxSpeed(void) const;
-        virtual float                GetMaxTurnRate(Axis        axis) const;
-        virtual float                GetTurnTorque(Axis   axis) const;
-        virtual float                GetThrust(void) const;
-        virtual float                GetSideMultiplier(void) const;
-        virtual float                GetBackMultiplier(void) const;
-        virtual float                GetScannerRange(void) const;
+        float                GetLength(void) const override;
+        float                GetMaxSpeed(void) const override;
+        float                GetMaxTurnRate(Axis        axis) const override;
+        float                GetTurnTorque(Axis   axis) const override;
+        float                GetThrust(void) const override;
+        float                GetSideMultiplier(void) const override;
+        float                GetBackMultiplier(void) const override;
+        float                GetScannerRange(void) const override;
 
-        virtual float                GetMaxEnergy(void) const;
-        virtual float                GetRechargeRate(void) const;
+        float                GetMaxEnergy(void) const override;
+        float                GetRechargeRate(void) const override;
 
-        virtual HitPoints            GetHitPoints(void) const;
-        virtual DefenseTypeID        GetDefenseType(void) const;
-        virtual bool                 CanMount(IpartTypeIGC* ppt, Mount  mountID) const;
-        virtual PartMask             GetPartMask(EquipmentType et, Mount mountID) const;
-        virtual short                GetCapacity(EquipmentType et) const;
-        virtual Mount                GetMaxWeapons(void) const;
-        virtual Mount                GetMaxFixedWeapons(void) const;
-        virtual const HardpointData& GetHardpointData(Mount hardpointID) const;                       
+        HitPoints            GetHitPoints(void) const override;
+        DefenseTypeID        GetDefenseType(void) const override;
+        bool                 CanMount(IpartTypeIGC* ppt, Mount  mountID) const override;
+        PartMask             GetPartMask(EquipmentType et, Mount mountID) const override;
+        short                GetCapacity(EquipmentType et) const override;
+        Mount                GetMaxWeapons(void) const override;
+        Mount                GetMaxFixedWeapons(void) const override;
+        const HardpointData& GetHardpointData(Mount hardpointID) const override;                       
 
-        virtual const char*          GetTextureName(void) const;
-        virtual const char*          GetIconName(void) const;
+        const char*          GetTextureName(void) const override;
+        const char*          GetIconName(void) const override;
 
-        virtual float                GetMass(void) const;
-        virtual float                GetSignature(void) const;
+        float                GetMass(void) const override;
+        float                GetSignature(void) const override;
 
-        virtual HullAbilityBitMask   GetCapabilities(void) const;
-        virtual bool                 HasCapability(HullAbilityBitMask habm) const;
+        HullAbilityBitMask   GetCapabilities(void) const override;
+        bool                 HasCapability(HullAbilityBitMask habm) const override;
 
-        virtual const Vector&        GetCockpit(void) const;
+        const Vector&        GetCockpit(void) const override;
 
-        virtual const Vector&        GetWeaponPosition(Mount mount) const;
-        virtual const Orientation&   GetWeaponOrientation(Mount mount) const;
-        virtual float                GetScale() const;
+        const Vector&        GetWeaponPosition(Mount mount) const override;
+        const Orientation&   GetWeaponOrientation(Mount mount) const override;
+        float                GetScale() const override;
 
-        virtual short                GetMaxAmmo(void) const;
-        virtual float                GetMaxFuel(void) const;
-        virtual float                GetECM(void) const;
-        virtual float                GetRipcordSpeed(void) const;
-        virtual float                GetRipcordCost(void) const;
+        short                GetMaxAmmo(void) const override;
+        float                GetMaxFuel(void) const override;
+        float                GetECM(void) const override;
+        float                GetRipcordSpeed(void) const override;
+        float                GetRipcordCost(void) const override;
 
-        virtual IhullTypeIGC*        GetSuccessorHullType(void) const;
+        IhullTypeIGC*        GetSuccessorHullType(void) const override;
         /*
         virtual const char*          GetPilotHUDName(void) const;
         virtual const char*          GetObserverHUDName(void) const;
         */
 
-        virtual SoundID              GetInteriorSound(void) const;
-        virtual SoundID              GetExteriorSound(void) const;
-        virtual SoundID              GetMainThrusterInteriorSound(void) const;
-        virtual SoundID              GetMainThrusterExteriorSound(void) const;
-        virtual SoundID              GetManuveringThrusterInteriorSound(void) const;
-        virtual SoundID              GetManuveringThrusterExteriorSound(void) const;
+        SoundID              GetInteriorSound(void) const override;
+        SoundID              GetExteriorSound(void) const override;
+        SoundID              GetMainThrusterInteriorSound(void) const override;
+        SoundID              GetMainThrusterExteriorSound(void) const override;
+        SoundID              GetManuveringThrusterInteriorSound(void) const override;
+        SoundID              GetManuveringThrusterExteriorSound(void) const override;
 
-        virtual const PartTypeListIGC*      GetPreferredPartTypes(void) const;
+        const PartTypeListIGC*      GetPreferredPartTypes(void) const override;
 
-        virtual IObject*            GetIcon(void) const;
+        IObject*            GetIcon(void) const override;
 
-        virtual int                     GetLaunchSlots(void) const;
-        virtual const Vector&           GetLaunchPosition(int   slotID) const;
-        virtual const Vector&           GetLaunchDirection(int   slotID) const;
+        int                     GetLaunchSlots(void) const override;
+        const Vector&           GetLaunchPosition(int   slotID) const override;
+        const Vector&           GetLaunchDirection(int   slotID) const override;
 
-        virtual int                     GetLandSlots(void) const;
-        virtual int                     GetLandPlanes(int   slotID) const;
-        virtual const Vector&           GetLandPosition(int slotID, int planeID) const;
-        virtual const Vector&           GetLandDirection(int slotID, int planeID) const;
+        int                     GetLandSlots(void) const override;
+        int                     GetLandPlanes(int   slotID) const override;
+        const Vector&           GetLandPosition(int slotID, int planeID) const override;
+        const Vector&           GetLandDirection(int slotID, int planeID) const override;
 
     private:
         IhullTypeIGC*         GetHullType(void) const
@@ -177,23 +177,23 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
 
     public:
     // IbaseIGC
-        virtual HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int length);
-        virtual void                Terminate(void);
-        virtual void                Update(Time now);
-        virtual int                 Export(void* data) const;
+        HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int length) override;
+        void                Terminate(void) override;
+        void                Update(Time now) override;
+        int                 Export(void* data) const override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_ship;
         }
 
-        virtual ObjectID            GetObjectID(void) const
+        ObjectID            GetObjectID(void) const override
         {
             return m_shipID;
         }
 
     // ImodelIGC
-        virtual void    SetCluster(IclusterIGC* cluster)
+        void    SetCluster(IclusterIGC* cluster) override
         {
             IclusterIGC*    pclusterOld = GetCluster();
 
@@ -251,57 +251,57 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             }
         }
 
-        virtual void                 HandleCollision(Time       timeCollision,
+        void                 HandleCollision(Time       timeCollision,
                                                      float                  tCollision,
                                                      const CollisionEntry&  entry,
-                                                     ImodelIGC* pModel);
+                                                     ImodelIGC* pModel) override;
 
-        virtual void                SetSide(IsideIGC*   pside);  //override the default SetSide method
+        void                SetSide(IsideIGC*   pside) override;  //override the default SetSide method
 
-        virtual float               GetSignature(void) const
+        float               GetSignature(void) const override
         {
             return TmodelIGC<IshipIGC>::GetSignature() * m_cloaking;
         }
 
-        virtual void                 Move(float t)
+        void                 Move(float t) override
         {
             if (m_pshipParent == NULL)
                 TmodelIGC<IshipIGC>::Move(t);
         }
-        virtual void                 Move(void)
+        void                 Move(void) override
         {
             if (m_pshipParent == NULL)
                 TmodelIGC<IshipIGC>::Move();
         }
-        virtual void                 SetBB(Time tStart, Time tStop, float dt)
+        void                 SetBB(Time tStart, Time tStop, float dt) override
         {
             if (m_pshipParent == NULL)
                 TmodelIGC<IshipIGC>::SetBB(tStart, tStop, dt);
         }
 
-        virtual SideID              GetFlag(void) const
+        SideID              GetFlag(void) const override
         {
             return m_sidFlag;
         }
 
-        virtual void                 SetFlag(SideID sid)
+        void                 SetFlag(SideID sid) override
         {
             m_sidFlag = sid;
         }
 
     // IdamageIGC
-        virtual DamageResult        ReceiveDamage(DamageTypeID            type,
+        DamageResult        ReceiveDamage(DamageTypeID            type,
                                                   float                   amount,
                                                   Time                    timeCollision,
                                                   const Vector&           position1,
                                                   const Vector&           position2,
-                                                  ImodelIGC*              launcher);
+                                                  ImodelIGC*              launcher) override;
 
-        virtual float               GetFraction(void) const
+        float               GetFraction(void) const override
         {
             return m_fraction;
         }
-        virtual void                SetFraction(float newVal)
+        void                SetFraction(float newVal) override
         {
             assert (newVal >= 0.0f);
             assert (newVal <= 1.0f);
@@ -311,13 +311,13 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             GetThingSite ()->RemoveDamage (m_fraction);
         }
 
-        virtual float               GetHitPoints(void) const
+        float               GetHitPoints(void) const override
         {
             return m_fraction * m_myHullType.GetHitPoints();
         }
 
         // IscannerIGC
-        bool            InScannerRange(ImodelIGC*   pModel) const
+        bool            InScannerRange(ImodelIGC*   pModel) const override
         {
             assert (pModel);
 
@@ -356,7 +356,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return rc;
         }
 
-        bool             CanSee(ImodelIGC*   pModel) const
+        bool             CanSee(ImodelIGC*   pModel) const override
         {
             assert (pModel);
 
@@ -368,11 +368,11 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
         }
 
     // IshipIGC
-        virtual void                SetObjectID(ObjectID id)
+        void                SetObjectID(ObjectID id) override
         {
             m_shipID = id;
         }
-        virtual Money               GetValue(void) const
+        Money               GetValue(void) const override
         {
             //Money for the hull
             Money money = m_myHullType.GetHullType() ? m_myHullType.GetPrice() : 0;
@@ -384,20 +384,20 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return money;
         }
 
-        virtual void                SetMission(ImissionIGC* pMission);
+        void                SetMission(ImissionIGC* pMission) override;
 
-        virtual void                ReInitialize(DataShipIGC * dataShip, Time now);
+        void                ReInitialize(DataShipIGC * dataShip, Time now) override;
 
         virtual void                SetShipID(ShipID    shipID)
         {
             m_shipID = shipID;
         }
 
-        virtual IstationIGC*         GetStation(void) const
+        IstationIGC*         GetStation(void) const override
         {
             return m_station;
         }
-        virtual void                 SetStation(IstationIGC* s)
+        void                 SetStation(IstationIGC* s) override
         {
             IstationIGC*    pstationOld = m_station;
             if (pstationOld != s)
@@ -463,7 +463,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             }
         }
 
-        virtual void                 Reset(bool bFull)
+        void                 Reset(bool bFull) override
         {
             m_nKills = 0;
             if (bFull)
@@ -518,7 +518,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             SetBaseHullType(GetSide()->GetCivilization()->GetLifepod());
         }
 
-        virtual float               GetTorqueMultiplier(void) const
+        float               GetTorqueMultiplier(void) const override
         {
             static const float  c_fMultiplierAtZero = 0.50f;
 
@@ -527,47 +527,47 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return  c_fMultiplierAtZero + (1.0f - c_fMultiplierAtZero) * 2.0f * fraction / (fraction + 1.0f);
         }
 
-        virtual float               GetCurrentTurnRate(Axis axis) const
+        float               GetCurrentTurnRate(Axis axis) const override
         {
             return m_turnRates[axis];
         }
-        virtual void                SetCurrentTurnRate(Axis axis, float newVal)
+        void                SetCurrentTurnRate(Axis axis, float newVal) override
         {
             m_turnRates[axis] = newVal;
         }
 
-        virtual const IhullTypeIGC*       GetHullType(void) const
+        const IhullTypeIGC*       GetHullType(void) const override
         {
             return &m_myHullType;
         }
 
-        virtual IhullTypeIGC*       GetBaseHullType(void) const
+        IhullTypeIGC*       GetBaseHullType(void) const override
         {
             return m_myHullType.GetHullType();
         }
-        virtual void                SetBaseHullType(IhullTypeIGC* newVal);
+        void                SetBaseHullType(IhullTypeIGC* newVal) override;
 
-        virtual void                AddPart(IpartIGC*    part);
-        virtual void                DeletePart(IpartIGC* part);
-        virtual const PartListIGC*  GetParts(void) const
+        void                AddPart(IpartIGC*    part) override;
+        void                DeletePart(IpartIGC* part) override;
+        const PartListIGC*  GetParts(void) const override
         {
             return &m_parts;
         }
 
-        virtual IpartIGC*           GetMountedPart(EquipmentType type, Mount mount) const;
-        virtual void                MountPart(IpartIGC* p, Mount mountNew, Mount* pmountOld);
+        IpartIGC*           GetMountedPart(EquipmentType type, Mount mount) const override;
+        void                MountPart(IpartIGC* p, Mount mountNew, Mount* pmountOld) override;
 
         virtual const Vector&       GetCockpit(void) const
         {
             return m_cockpit;
         }
 
-        virtual short                 GetAmmo(void) const
+        short                 GetAmmo(void) const override
         {
             return m_ammo;
         }
 
-        virtual void                SetAmmo(short newVal)
+        void                SetAmmo(short newVal) override
         {
             short   maxAmmo = m_myHullType.GetMaxAmmo();
             if (newVal > maxAmmo)
@@ -593,11 +593,11 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             }
         }
 
-        virtual float               GetFuel(void) const
+        float               GetFuel(void) const override
         {
             return m_fuel;
         }
-        virtual void                SetFuel(float newVal)
+        void                SetFuel(float newVal) override
         {
             float   maxFuel = m_myHullType.GetMaxFuel();
             if (newVal > maxFuel)
@@ -623,29 +623,29 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             }
         }
 
-        virtual float               GetEnergy(void) const
+        float               GetEnergy(void) const override
         {
             return m_energy;
         }
-        virtual void                SetEnergy(float newVal)
+        void                SetEnergy(float newVal) override
         {
             m_energy = newVal;
         }
 
-        virtual float                GetCloaking(void) const
+        float                GetCloaking(void) const override
         {
             return m_cloaking;
         }
-        virtual void                 SetCloaking(float newVal)
+        void                 SetCloaking(float newVal) override
         {
             m_cloaking = newVal;
         }
 
-        virtual bool                GetVectorLock(void) const
+        bool                GetVectorLock(void) const override
         {
             return (m_stateM & coastButtonIGC) ? true : false;
         }
-        virtual void                SetVectorLock(bool bVectorLock)
+        void                SetVectorLock(bool bVectorLock) override
         {
             if (bVectorLock)
                 m_stateM |= coastButtonIGC;
@@ -653,45 +653,45 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
                 m_stateM &= ~coastButtonIGC;
         }
 
-        virtual const ControlData&  GetControls(void) const
+        const ControlData&  GetControls(void) const override
         {
             return m_controls;
         }
-        virtual void                SetControls(const ControlData&  newVal)
+        void                SetControls(const ControlData&  newVal) override
         {
             m_controls = newVal;
         }
 
-        virtual const Vector&       GetEngineVector(void) const
+        const Vector&       GetEngineVector(void) const override
         {
             return m_engineVector;
         }
 
-        virtual int                 GetStateM(void) const
+        int                 GetStateM(void) const override
         {
             return m_stateM;
         }
-        virtual void                SetStateM(int newVal);
-        virtual void                SetStateBits(int mask, int newBits)
+        void                SetStateM(int newVal) override;
+        void                SetStateBits(int mask, int newBits) override
         {
             SetStateM((m_stateM & (~mask)) | (newBits & mask));
         }
 
-        virtual ImodelIGC*           GetCommandTarget(Command i)  const
+        ImodelIGC*           GetCommandTarget(Command i)  const override
         {
             assert (i >= 0);
             assert (i < c_cmdMax);
 
             return m_commandTargets[i];
         }
-        virtual CommandID            GetCommandID(Command i) const
+        CommandID            GetCommandID(Command i) const override
         {
             assert (i >= 0);
             assert (i < c_cmdMax);
 
             return m_commandIDs[i];
         }
-        virtual void                 SetCommand(Command i, ImodelIGC* target, CommandID cid)
+        void                 SetCommand(Command i, ImodelIGC* target, CommandID cid) override
         {
             assert (i >= 0);
             assert (i < c_cmdMax);
@@ -756,19 +756,19 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             }
         }
 
-        virtual void                 ExecuteTurretMove(Time          timeStart,
+        void                 ExecuteTurretMove(Time          timeStart,
                                                       Time          timeStop,
-                                                      Orientation*  pOrientation);
+                                                      Orientation*  pOrientation) override;
 
-        virtual void                 PreplotShipMove(Time          timeStop);
-        virtual void                 PlotShipMove(Time          timeStop);
-        virtual void                 ExecuteShipMove(Time          timeStop);
+        void                 PreplotShipMove(Time          timeStop) override;
+        void                 PlotShipMove(Time          timeStop) override;
+        void                 ExecuteShipMove(Time          timeStop) override;
 
-        virtual void                 ExecuteShipMove(Time          timeStart,
+        void                 ExecuteShipMove(Time          timeStart,
                                                      Time          timeStop,
                                                      Vector*       pVelocity,
-                                                     Orientation*  pOrientation);
-        virtual short               ExportShipLoadout(ShipLoadout*  ploadout)
+                                                     Orientation*  pOrientation) override;
+        short               ExportShipLoadout(ShipLoadout*  ploadout) override
         {
             if (ploadout)
             {
@@ -789,7 +789,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return sizeof(ShipLoadout) + sizeof(ExpandedPartData) * m_parts.n();
         }
 
-        virtual bool                EquivalentShip(IshipIGC* pship) const
+        bool                EquivalentShip(IshipIGC* pship) const override
         {
             if (m_myHullType.GetHullType() != pship->GetBaseHullType())
                 return false;
@@ -846,9 +846,9 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
 
             return true;
         }
-        virtual void                ProcessShipLoadout(short                cbLoadout,
+        void                ProcessShipLoadout(short                cbLoadout,
                                                        const ShipLoadout*   ploadout,
-                                                       bool                 bReady)
+                                                       bool                 bReady) override
         {
             //Did the hull change?
             {
@@ -953,8 +953,8 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
                 }
             }
         }
-        virtual bool                PurchaseShipLoadout(short                cbLoadout,
-                                                        const ShipLoadout*   ploadout)
+        bool                PurchaseShipLoadout(short                cbLoadout,
+                                                        const ShipLoadout*   ploadout) override
         {
             assert (m_station);
 
@@ -1079,7 +1079,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return bComplete;
         }
 
-        virtual void                ExportFractions(CompactShipFractions* pfractions) const
+        void                ExportFractions(CompactShipFractions* pfractions) const override
         {
             pfractions->SetHullFraction(m_fraction);
             {                                                                   
@@ -1112,15 +1112,15 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
                         pshipupdate->fractions.SetAmmo(m_myHullType.GetMaxAmmo(), m_ammo);              \
                         pshipupdate->fractions.SetEnergy(m_myHullType.GetMaxEnergy(), m_energy);
 
-        virtual void                ExportShipUpdate(ServerLightShipUpdate*     pshipupdate) const
+        void                ExportShipUpdate(ServerLightShipUpdate*     pshipupdate) const override
         {
             pshipupdate->shipID = m_shipID;
 
             SetSC;
         }
-        virtual void                ExportShipUpdate(Time                       timeReference,
+        void                ExportShipUpdate(Time                       timeReference,
                                                      const Vector&              positionReference,
-                                                     ServerHeavyShipUpdate*     pshipupdate) const
+                                                     ServerHeavyShipUpdate*     pshipupdate) const override
         {
             assert (GetPosition().LengthSquared() != 0.0f);
             pshipupdate->shipID = m_shipID;
@@ -1135,7 +1135,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             SetF;
         }
 
-        virtual void                ExportShipUpdate(ClientShipUpdate*     pshipupdate) const
+        void                ExportShipUpdate(ClientShipUpdate*     pshipupdate) const override
         {
             assert (GetPosition().LengthSquared() != 0.0f);
 
@@ -1150,7 +1150,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             pshipupdate->orientation.Validate();
         }
 
-        virtual void                ExportShipUpdate(ServerSingleShipUpdate*     pshipupdate) const
+        void                ExportShipUpdate(ServerSingleShipUpdate*     pshipupdate) const override
         {
             pshipupdate->shipID = m_shipID;
 
@@ -1168,7 +1168,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
 #undef  SetOVTP
 #undef  SetF
 
-        virtual void                ExportShipUpdate(ClientActiveTurretUpdate*  pshipupdate) const
+        void                ExportShipUpdate(ClientActiveTurretUpdate*  pshipupdate) const override
         {
             pshipupdate->time = GetMyMission()->GetIgcSite()->ServerTimeFromClientTime(GetMyLastUpdate());
 
@@ -1176,32 +1176,32 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             pshipupdate->orientation.Set(GetOrientation());
         }
 
-        virtual void                ProcessFractions(const CompactShipFractions& fractions);
+        void                ProcessFractions(const CompactShipFractions& fractions) override;
 
-        virtual ShipUpdateStatus    ProcessShipUpdate(const ServerLightShipUpdate&      shipupdate);
-        virtual ShipUpdateStatus    ProcessShipUpdate(Time                              timeReference,
+        ShipUpdateStatus    ProcessShipUpdate(const ServerLightShipUpdate&      shipupdate) override;
+        ShipUpdateStatus    ProcessShipUpdate(Time                              timeReference,
                                                       Vector                            positionReference,
-                                                      const ServerHeavyShipUpdate&      shipupdate);
+                                                      const ServerHeavyShipUpdate&      shipupdate) override;
 
-        virtual ShipUpdateStatus    ProcessShipUpdate(const ClientShipUpdate&           shipupdate);
-        virtual ShipUpdateStatus    ProcessShipUpdate(const ServerSingleShipUpdate&     shipupdate, bool bOrient = true);
+        ShipUpdateStatus    ProcessShipUpdate(const ClientShipUpdate&           shipupdate) override;
+        ShipUpdateStatus    ProcessShipUpdate(const ServerSingleShipUpdate&     shipupdate, bool bOrient = true) override;
 
-        virtual ShipUpdateStatus    ProcessShipUpdate(Time                              timeReference,
-                                                      const ServerActiveTurretUpdate&   shipupdate);
-        virtual ShipUpdateStatus    ProcessShipUpdate(const ClientActiveTurretUpdate&   shipupdate);
+        ShipUpdateStatus    ProcessShipUpdate(Time                              timeReference,
+                                                      const ServerActiveTurretUpdate&   shipupdate) override;
+        ShipUpdateStatus    ProcessShipUpdate(const ClientActiveTurretUpdate&   shipupdate) override;
 
 
-        virtual void                SetPrivateData(DWORD_PTR dwPrivate)
+        void                SetPrivateData(DWORD_PTR dwPrivate) override
         {
             m_dwPrivate = dwPrivate;
         }
 
-        virtual DWORD_PTR           GetPrivateData(void) const
+        DWORD_PTR           GetPrivateData(void) const override
         {
             return m_dwPrivate;
         }
 
-        Mount   HitTreasure(TreasureCode treasureCode, ObjectID objectID, short amount)
+        Mount   HitTreasure(TreasureCode treasureCode, ObjectID objectID, short amount) override
         {
             assert (m_myHullType.GetHullType());
 
@@ -1322,11 +1322,11 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return c_mountNA;
         }
 
-        virtual ImissileIGC*        GetLastMissileFired(void) const
+        ImissileIGC*        GetLastMissileFired(void) const override
         {
             return m_pmissileLast;
         }
-        virtual void                SetLastMissileFired(ImissileIGC* pmissile)
+        void                SetLastMissileFired(ImissileIGC* pmissile) override
         {
             if (m_pmissileLast)
                 m_pmissileLast->Release();
@@ -1337,18 +1337,18 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
                 pmissile->AddRef();
         }
 
-        virtual void                Promote(void);
+        void                Promote(void) override;
 
-        virtual void                SetParentShip(IshipIGC* pship);
-        virtual IshipIGC*           GetParentShip(void) const
+        void                SetParentShip(IshipIGC* pship) override;
+        IshipIGC*           GetParentShip(void) const override
         {
             return m_pshipParent;
         }
-        virtual Mount               GetTurretID(void) const
+        Mount               GetTurretID(void) const override
         {
             return m_turretID;
         }
-        virtual void                SetTurretID(Mount   turretID)
+        void                SetTurretID(Mount   turretID) override
         {
             if (m_turretID != turretID)
             {
@@ -1383,7 +1383,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             }
         }
 
-        virtual IshipIGC*           GetGunner(Mount turretID) const
+        IshipIGC*           GetGunner(Mount turretID) const override
         {
             IweaponIGC* pweapon = (IweaponIGC*)*PartLocation(ET_Weapon, turretID);
 
@@ -1408,32 +1408,32 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             }
         }
 
-        virtual const ShipListIGC*  GetChildShips(void) const
+        const ShipListIGC*  GetChildShips(void) const override
         {
             return &m_shipsChildren;
         }
 
-        virtual void                AddChildShip(IshipIGC* pship)
+        void                AddChildShip(IshipIGC* pship) override
         {
             assert (pship);
             AddIbaseIGC((BaseListIGC*)&m_shipsChildren, pship);
         }
-        virtual void                DeleteChildShip(IshipIGC* pship)
+        void                DeleteChildShip(IshipIGC* pship) override
         {
             assert (pship);
             DeleteIbaseIGC((BaseListIGC*)&m_shipsChildren, pship);
         }
 
-        virtual IshipIGC*           GetSourceShip(void)
+        IshipIGC*           GetSourceShip(void) override
         {
             return m_pshipParent ? m_pshipParent : this;
         }
-        virtual IpartIGC*          CreateAndAddPart(const PartData* ppd)
+        IpartIGC*          CreateAndAddPart(const PartData* ppd) override
         {
             return CreateAndAddPart(GetMyMission()->GetPartType(ppd->partID), ppd->mountID, ppd->amount);
         }
 
-        virtual IpartIGC*           CreateAndAddPart(IpartTypeIGC*  ppt, Mount mount, short amount)
+        IpartIGC*           CreateAndAddPart(IpartTypeIGC*  ppt, Mount mount, short amount) override
         {
             assert (ppt);
 
@@ -1454,51 +1454,51 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return part;        //Bad form to return after a release but it is not dead since the ship holds a pointer
         }
 
-        virtual WingID              GetWingID(void) const
+        WingID              GetWingID(void) const override
         {
             return m_wingID;
         }
 
-        virtual void                SetWingID(WingID    wid)
+        void                SetWingID(WingID    wid) override
         {
             m_wingID = wid;
         }
 
-        virtual bool                fRipcordActive(void) const 
+        bool                fRipcordActive(void) const override 
         {
             return m_pmodelRipcord != NULL;
         }
 
-        virtual float               GetRipcordTimeLeft(void) const
+        float               GetRipcordTimeLeft(void) const override
         {
             assert(fRipcordActive());
 
             return m_dtRipcordCountdown;
         }
-        virtual void                ResetRipcordTimeLeft(void)
+        void                ResetRipcordTimeLeft(void) override
         {
             assert (m_myHullType.GetHullType());
             m_dtRipcordCountdown = m_myHullType.GetRipcordSpeed();
         }
 
-        virtual PilotType           GetPilotType(void) const
+        PilotType           GetPilotType(void) const override
         {
             return m_pilotType;
         }
 
-        virtual AbilityBitMask      GetOrdersABM(void) const
+        AbilityBitMask      GetOrdersABM(void) const override
         {
             return m_abmOrders;
         }
 
-        virtual bool                GetAutopilot(void) const
+        bool                GetAutopilot(void) const override
         {
             return m_bAutopilot;
         }
         
-        virtual void                SetAutopilot(bool bAutopilot);
+        void                SetAutopilot(bool bAutopilot) override;
 
-        virtual bool                LegalCommand(CommandID          cid) const
+        bool                LegalCommand(CommandID          cid) const override
         {
             bool    bLegal = true;
             switch (m_pilotType)
@@ -1542,8 +1542,8 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return bLegal;
         }
 
-        virtual bool                LegalCommand(CommandID    cid,
-                                                 ImodelIGC*   pmodel) const
+        bool                LegalCommand(CommandID    cid,
+                                                 ImodelIGC*   pmodel) const override
         {
             bool    bLegal = true;
             if ((pmodel == NULL) || 
@@ -1656,7 +1656,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return bLegal;
         }
 
-        virtual void    Complain(SoundID    sid, const char* pszMsg)
+        void    Complain(SoundID    sid, const char* pszMsg) override
         {
             if (GetMyLastUpdate() >= m_timeLastComplaint + m_dtTimeBetweenComplaints)
             {
@@ -1670,11 +1670,11 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             }
         }
 
-        virtual IshipIGC*           GetAutoDonate(void) const
+        IshipIGC*           GetAutoDonate(void) const override
         {
             return m_pshipAutoDonate;
         }
-        virtual void                SetAutoDonate(IshipIGC* pship)
+        void                SetAutoDonate(IshipIGC* pship) override
         {
             assert (pship != this);
 
@@ -1699,73 +1699,73 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             m_pshipAutoDonate = pship;
         }
 
-        virtual short                      GetKills(void) const
+        short                      GetKills(void) const override
         {
             return m_nKills;
         }
-        virtual void                       SetKills(short n)
+        void                       SetKills(short n) override
         {
             m_nKills = n;
         }
-        virtual void                        AddKill(void)
+        void                        AddKill(void) override
         {
             m_nKills++;
             GetSide()->AddKill();
         }
 
-        virtual short                       GetDeaths(void) const
+        short                       GetDeaths(void) const override
         {
             return m_nDeaths;
         }
-        virtual void                       SetDeaths(short n)
+        void                       SetDeaths(short n) override
         {
             m_nDeaths = n;
         }
-        virtual void                        AddDeath(void)
+        void                        AddDeath(void) override
         {
             m_nDeaths++;
             GetSide()->AddDeath();
         }
 
-        virtual short                       GetEjections(void) const
+        short                       GetEjections(void) const override
         {
             return m_nEjections;
         }
-        virtual void                       SetEjections(short n)
+        void                       SetEjections(short n) override
         {
             m_nEjections = n;
         }
-        virtual void                        AddEjection(void)
+        void                        AddEjection(void) override
         {
             m_nEjections++;
             GetSide()->AddEjection();
         }
 
-        virtual float               GetExperienceMultiplier(void) const
+        float               GetExperienceMultiplier(void) const override
         {
             const float c_maxBonus = 0.5f;
             const float c_halfExperience = 4.0f;
 
             return 1.0f + c_maxBonus * m_experience / (m_experience + c_halfExperience);
         }
-        virtual float               GetExperience(void) const
+        float               GetExperience(void) const override
         {
             return m_experience;
         }
-        virtual void                SetExperience(float f)
+        void                SetExperience(float f) override
         {
             m_experience = f;
         }
-        virtual void                AddExperience(void)
+        void                AddExperience(void) override
         {
             m_experience += 1.0f;
         }
 
-        virtual ImodelIGC*          GetRipcordModel(void) const
+        ImodelIGC*          GetRipcordModel(void) const override
         {
             return m_pmodelRipcord;
         }
-        virtual void                SetRipcordModel(ImodelIGC*  pmodel)
+        void                SetRipcordModel(ImodelIGC*  pmodel) override
         {
             //Turn off cloak if ripcording
             if (pmodel && (m_stateM & cloakActiveIGC))
@@ -1779,18 +1779,18 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             if (m_pmodelRipcord && (m_pmodelRipcord->GetObjectType() == OT_ship))
                 ((IshipIGC*)(ImodelIGC*)m_pmodelRipcord)->AdjustRipcordDebt(m_ripcordCost);
         }
-        virtual ImodelIGC*          FindRipcordModel(IclusterIGC*   pcluster);
+        ImodelIGC*          FindRipcordModel(IclusterIGC*   pcluster) override;
 
-        virtual float               GetRipcordDebt(void) const
+        float               GetRipcordDebt(void) const override
         {
             return m_ripcordDebt;
         }
-        virtual void                AdjustRipcordDebt(float delta)
+        void                AdjustRipcordDebt(float delta) override
         {
             m_ripcordDebt += delta;
         }
 
-        virtual bool                OkToLaunch(Time now)
+        bool                OkToLaunch(Time now) override
         {
             //Spend 10 seconds docked (MyLastUpdate is not being updated while docked)
             if (now > GetMyLastUpdate() + 10.0f)
@@ -1851,32 +1851,32 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return false;
         }
 
-        virtual DamageTrack*    GetDamageTrack(void)
+        DamageTrack*    GetDamageTrack(void) override
         {
             return m_damageTrack;
         }
-        virtual void            CreateDamageTrack(void)
+        void            CreateDamageTrack(void) override
         {
             delete m_damageTrack;
             m_damageTrack = GetMyMission()->CreateDamageTrack();
         }
-        virtual void            DeleteDamageTrack(void)
+        void            DeleteDamageTrack(void) override
         {
             delete m_damageTrack;
             m_damageTrack = NULL;
         }
-        virtual void            ResetDamageTrack(void)
+        void            ResetDamageTrack(void) override
         {
             if (m_damageTrack)
                 m_damageTrack->Reset();
         }
 
-        virtual void                AddMineDamage(DamageTypeID            type,
+        void                AddMineDamage(DamageTypeID            type,
                                                   float                   amount,
                                                   Time                    timeCollision,
                                                   ImodelIGC*              pmodelLauncher,
                                                   const Vector&           position1,
-                                                  const Vector&           position2)
+                                                  const Vector&           position2) override
         {
             if (amount > m_maxMineAmount)
             {
@@ -1890,7 +1890,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
 
             }
         }
-        virtual void                ApplyMineDamage(void)
+        void                ApplyMineDamage(void) override
         {
             if (m_maxMineAmount > 0.0f)
             {
@@ -1910,21 +1910,21 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             }
         }
 
-        virtual WarningMask         GetWarningMask(void) const
+        WarningMask         GetWarningMask(void) const override
         {
             return m_warningMask;
         }
-        virtual void                SetWarningMaskBit(WarningMask wm)
+        void                SetWarningMaskBit(WarningMask wm) override
         {
             m_warningMask |= wm;
         }
-        virtual void                ClearWarningMaskBit(WarningMask wm)
+        void                ClearWarningMaskBit(WarningMask wm) override
         {
             m_warningMask &= ~wm;
         }
 
         //Builders ...
-        virtual void                SetBaseData(IbaseIGC*  pbase)
+        void                SetBaseData(IbaseIGC*  pbase) override
         {
             m_pbaseData = pbase;
             if (m_pilotType == c_ptBuilder)
@@ -1939,12 +1939,12 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
                         (pbase->GetObjectType() == OT_probeType));
             }
         }
-        virtual IbaseIGC*           GetBaseData(void) const
+        IbaseIGC*           GetBaseData(void) const override
         {
             return m_pbaseData;
         }
 
-        virtual CommandID           GetDefaultOrder(ImodelIGC*  pmodel)
+        CommandID           GetDefaultOrder(ImodelIGC*  pmodel) override
         {
             IsideIGC*   psideHim = pmodel->GetSide();
             ObjectType  type = pmodel->GetObjectType();
@@ -2040,7 +2040,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return cid;
         }
 
-        virtual short               GetLaunchSlot(void)
+        short               GetLaunchSlot(void) override
         {
             m_nextLaunchSlot = (m_nextLaunchSlot + 1) % m_myHullType.GetHullType()->GetLaunchSlots();
 
@@ -2048,14 +2048,14 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
         }
 
         //Miners
-        virtual float               GetOre(void) const
+        float               GetOre(void) const override
         {
             return m_fOre;
         }
 
         bool                PickDefaultOrder(IclusterIGC*   pcluster,
                                              const Vector&  position,
-                                             bool           bDocked)
+                                             bool           bDocked) override
         {
             bool fGaveOrder = false;
 
@@ -2177,15 +2177,15 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return (m_commandIDs[c_cmdAccepted] != c_cidNone);
         }
 
-        bool    IsGhost(void) const
+        bool    IsGhost(void) const override
         {
             assert (GetMyMission());
             return m_nDeaths > GetMyMission()->GetMissionParams()->iLives;
         }
 
-        virtual bool                InGarage(IshipIGC*  pship, float tCollision) const;
+        bool                InGarage(IshipIGC*  pship, float tCollision) const override;
 
-        float   GetEndurance(void) const
+        float   GetEndurance(void) const override
         {
             float   e;
 
@@ -2205,7 +2205,7 @@ class       CshipIGC : public TmodelIGC<IshipIGC>
             return e;
         }
 
-        bool IsUsingAreaOfEffectWeapon(void) const
+        bool IsUsingAreaOfEffectWeapon(void) const override
         {
             if (m_pshipParent != NULL)
             {

@@ -52,7 +52,7 @@ public:
     {
     }
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         if (ks.bDown && ks.bAlt) {
             switch(ks.vk) {
@@ -97,7 +97,7 @@ public:
         return false;
     }
 
-    bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+    bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
     {
         return false;
     }

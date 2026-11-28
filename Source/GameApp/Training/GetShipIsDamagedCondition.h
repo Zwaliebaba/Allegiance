@@ -33,7 +33,7 @@ namespace Training
                     /* void */          GetShipIsDamagedCondition (ObjectType objectType, ObjectID objectID, float fFraction = 1.0f);
                     /* void */          GetShipIsDamagedCondition (AbstractTarget* pTarget, float fFraction = 1.0f);
             virtual /* void */          ~GetShipIsDamagedCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     AbstractTarget*     m_pTarget;

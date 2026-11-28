@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          SetControlsAction (void);
             virtual /* void */          ~SetControlsAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
                     void                SetInputAction (int inputAction, int iMask = 0);
                     void                SetInputControl (Axis axis, float fScalar);
 

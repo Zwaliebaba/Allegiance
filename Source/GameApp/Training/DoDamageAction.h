@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          DoDamageAction (bool bHull);
             virtual /* void */          ~DoDamageAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     bool                m_bHull;

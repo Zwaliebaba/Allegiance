@@ -128,12 +128,12 @@ public:
     // Geo members
     //
 
-    float GetRadius(const Matrix& mat)
+    float GetRadius(const Matrix& mat) override
     {
         return 1;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         TRef<Surface> psurface =  m_pimage->GetSurface();
 
@@ -190,17 +190,17 @@ public:
     // Value members
     //
 
-    void Evaluate()
+    void Evaluate() override
     {
         m_time = GetTime()->GetValue();
     }
 
-    ZString GetFunctionName()
+    ZString GetFunctionName() override
     {
         return "LightsGeo";
     }
 
-    ZString GetString(int indent)
+    ZString GetString(int indent) override
     {
         ZString str = "Lights([\n";
 
@@ -232,7 +232,7 @@ public:
         return str + Indent(indent) + "])";
     }
 
-    void Write(IMDLBinaryFile* pmdlFile)
+    void Write(IMDLBinaryFile* pmdlFile) override
     {
         pmdlFile->WriteReference("LightsGeo");
         TRef<ZFile> pfile = pmdlFile->WriteBinary();
@@ -268,7 +268,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<LightsGeo> plights = new LightsGeo(m_pmodeler, m_ptime);
 
@@ -293,7 +293,7 @@ public:
         return plights;
     }
 
-    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
+    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         TRef<LightsGeo> plights = new LightsGeo(m_pmodeler, m_ptime);
         DWORD count = psite->GetDWORD();
@@ -316,7 +316,7 @@ public:
 
 class FrameDataFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<FrameDataListValue> plistValue = new FrameDataListValue();
 
@@ -345,7 +345,7 @@ public:
         return plistValue;
     }
 
-    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack)
+    TRef<IObject> Read(IBinaryReaderSite* psite, ObjectStack& stack) override
     {
         TRef<FrameDataListValue> plistValue = new FrameDataListValue();
 
@@ -388,7 +388,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<FontValue>  pfontTitles; CastTo(pfontTitles, (IObject*)stack.Pop());
         TRef<FontValue>  pfontTime;   CastTo(pfontTime,   (IObject*)stack.Pop());
@@ -412,7 +412,7 @@ public:
 
 class GameStateImageFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<GameStateContainer> pgsc; CastTo(pgsc, (IObject*)stack.Pop());
 
@@ -493,7 +493,7 @@ public:
         );
     }
 
-    TRef<Geo> Execute(const Matrix& mat, GroupGeo* pgroup)
+    TRef<Geo> Execute(const Matrix& mat, GroupGeo* pgroup) override
     {
         ZString strName = pgroup->GetName();
 
@@ -570,20 +570,20 @@ public:
         return NULL;
     }
 
-    void ReportTriangles(const Matrix& mat, const std::vector<Vertex>&  vertices, const std::vector<WORD>& indices)
+    void ReportTriangles(const Matrix& mat, const std::vector<Vertex>&  vertices, const std::vector<WORD>& indices) override
     {
         // we don't care about triangles here but might be nice to count for LOD analysis
     }
 
-    void ReportTriangles(const Matrix& mat, const std::vector<VertexL>& vertices, const std::vector<WORD>& indices)
+    void ReportTriangles(const Matrix& mat, const std::vector<VertexL>& vertices, const std::vector<WORD>& indices) override
     {
     }
 
-    void ReportTriangles(const Matrix& mat, const std::vector<D3DLVertex>& vertices, const std::vector<WORD>& indices)
+    void ReportTriangles(const Matrix& mat, const std::vector<D3DLVertex>& vertices, const std::vector<WORD>& indices) override
     {
     }
 
-    void ReportTriangles(const Matrix& mat, const std::vector<D3DVertex>& vertices, const std::vector<WORD>& indices)
+    void ReportTriangles(const Matrix& mat, const std::vector<D3DVertex>& vertices, const std::vector<WORD>& indices) override
     {
     }
 
@@ -614,7 +614,7 @@ public:
 
 class BlendColorImageFactory : public IFunction {
 public:
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<ColorValue> pcolor = ColorValue::Cast((IObject*)stack.Pop());
         TRef<Image>      pimage =      Image::Cast((Value*)(IObject*)stack.Pop());

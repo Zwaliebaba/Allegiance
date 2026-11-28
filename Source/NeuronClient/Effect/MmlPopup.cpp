@@ -129,7 +129,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }
@@ -140,7 +140,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         if (ks.bDown) {
             if (ks.vk == VK_ESCAPE || ks.vk == VK_RETURN) {

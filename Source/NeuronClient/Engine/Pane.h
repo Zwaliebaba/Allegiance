@@ -216,10 +216,10 @@ public:
     // IMouseInput methods
     //
 
-    virtual void        RemoveCapture();
-    virtual MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
-    virtual void        MouseLeave(IInputProvider* pprovider);
-    virtual MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown);
+    void        RemoveCapture() override;
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
+    void        MouseLeave(IInputProvider* pprovider) override;
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override;
 };
 
 #endif

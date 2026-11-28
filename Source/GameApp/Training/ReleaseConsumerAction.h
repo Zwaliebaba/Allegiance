@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          ReleaseConsumerAction (const TRef<IbuoyIGC>& buoy);
             virtual /* void */          ~ReleaseConsumerAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     TRef<IbuoyIGC>      m_buoy;

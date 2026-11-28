@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          CreateProbeAction (ProbeID probeID, ExpendableTypeID typeID, const Vector& position, SideID sideID, SectorID sectorID);
             virtual /* void */          ~CreateProbeAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     ProbeID             m_probeID;

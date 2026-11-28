@@ -29,7 +29,7 @@ public:
         SetCount(0, count);
     }
 
-    void SetCount(unsigned int seed, short count)
+    void SetCount(unsigned int seed, short count) override
     {
         count = count * 4;
         m_data.resize(count);
@@ -52,7 +52,7 @@ public:
         }
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         int count = (int)m_data.size();
 

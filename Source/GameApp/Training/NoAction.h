@@ -26,7 +26,7 @@ namespace Training
     {
         public:
             virtual /* void */          ~NoAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
     };
 
     //------------------------------------------------------------------------------

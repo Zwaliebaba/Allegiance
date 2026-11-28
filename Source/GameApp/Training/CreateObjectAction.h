@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          CreateObjectAction (ObjectType objectType, const void* pData, int iDataSize);
             virtual /* void */          ~CreateObjectAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     ObjectType          m_objectType;

@@ -33,7 +33,7 @@ namespace Training
                     /* void */          SetSignatureAction (ObjectType objectType, ObjectID objectID, float fSignature);
                     /* void */          SetSignatureAction (AbstractTarget* pTarget, float fSignature);
             virtual /* void */          ~SetSignatureAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     AbstractTarget*     m_pTarget;

@@ -9,17 +9,17 @@
 class DefaultItemPainter : public ItemPainter {
 public:
 
-    int   GetXSize()
+    int   GetXSize() override
     {
         return 1;
     }
 
-    int   GetYSize()
+    int   GetYSize() override
     {
         return 1;
     }
 
-    void Paint(ItemID pitem, Surface* psurface, bool bSelected, bool bFocus)
+    void Paint(ItemID pitem, Surface* psurface, bool bSelected, bool bFocus) override
     {
     }
 };
@@ -136,12 +136,12 @@ public:
         }
     }
 
-    int GetScrollPos()
+    int GetScrollPos() override
     {
         return m_posScroll;
     }
 
-    void SetScrollPos(int pos)
+    void SetScrollPos(int pos) override
     {
         m_posScroll = 
             max(min(pos, m_plist->GetCount() * GetSignificantSize(*m_ppainter) - GetSignificantSize()), 0);
@@ -162,7 +162,7 @@ public:
         }
     }
 
-    ScrollPane * GetScrollPane()
+    ScrollPane * GetScrollPane() override
     {
         return m_pscroll;
     }
@@ -258,7 +258,7 @@ public:
     // ListPane Methods
     //
 
-    void SetList(List* plist)
+    void SetList(List* plist) override
     {
         if (plist != m_plist) {
             if (m_plist != NULL) {
@@ -278,7 +278,7 @@ public:
         }
     }
 
-    void SetItemPainter(ItemPainter* ppainter)
+    void SetItemPainter(ItemPainter* ppainter) override
     {
         if (ppainter == NULL) {
             m_ppainter = new DefaultItemPainter();
@@ -292,7 +292,7 @@ public:
         this->NeedPaint();
     }
 
-    void SetSelection(ItemID pitem)
+    void SetSelection(ItemID pitem) override
     {
         if (pitem != m_pitemSelection)
         {
@@ -324,27 +324,27 @@ public:
         SetSelection(m_plist->GetItem(nIndex));
     }
 
-    virtual ItemID GetSelection()
+    ItemID GetSelection() override
     {
         return m_pitemSelection;
     }
 
-    IItemEvent::Source* GetSelectionEventSource()
+    IItemEvent::Source* GetSelectionEventSource() override
     {
         return m_peventSelection;
     }
 
-    IEventSource* GetDoubleClickEventSource()
+    IEventSource* GetDoubleClickEventSource() override
     {
         return m_peventDoubleClick;
     }
 
-    IEventSource* GetSingleClickEventSource()
+    IEventSource* GetSingleClickEventSource() override
     {
         return m_peventSingleClick;
     }
 
-    void ScrollToItem(ItemID pitem)
+    void ScrollToItem(ItemID pitem) override
     {
         int index = 0;
         
@@ -355,7 +355,7 @@ public:
         SetScrollPos(((2 * index + 1) * GetSignificantSize(*m_ppainter) - GetSignificantSize())/2);
     }
 
-    void ForceRefresh()
+    void ForceRefresh() override
     {
         this->NeedPaint();
     }
@@ -364,13 +364,13 @@ public:
     // IEventSink Methods
     //
 
-    bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         ListChanged();
         return true;
     }
 
-    bool OnEvent(IIntegerEventSource* pevent, int value)
+    bool OnEvent(IIntegerEventSource* pevent, int value) override
     {
         ScrollBarChanged();
         return true;
@@ -380,7 +380,7 @@ public:
     // Pane Methods
     //
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         this->InternalSetSize(
             WinPoint(
@@ -529,7 +529,7 @@ public:
         return nNewIndex;
     }
 
-    void Paint(Surface* psurface)
+    void Paint(Surface* psurface) override
     {
         VerifyScrollPos();
 
@@ -578,7 +578,7 @@ public:
         bool bCaptured,
         bool bInside,
         bool bDown
-    ) {
+    ) override {
         VerifyScrollPos();
 
         if (button == 0 && bDown) {
@@ -607,7 +607,7 @@ public:
     // IKeyboardInput
     //
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         VerifyScrollPos();
 
@@ -708,7 +708,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void AddItem(const ZString& str)
+    void AddItem(const ZString& str) override
     {
         m_count++;
         m_pitem = new StringListItem(str, m_pitem);
@@ -716,7 +716,7 @@ public:
         m_peventSource->Trigger();
     }
 
-    void SetEmpty()
+    void SetEmpty() override
     {
         m_count = 0;
         m_pitem = NULL;
@@ -730,12 +730,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetCount()
+    int GetCount() override
     {
         return m_count;
     }
 
-    ItemID GetItem(int index)
+    ItemID GetItem(int index) override
     {
         ZAssert(index >= 0);
 
@@ -753,7 +753,7 @@ public:
         }
     }
 
-    int GetIndex(ItemID pitemFind)
+    int GetIndex(ItemID pitemFind) override
     {
         StringListItem* pitem = m_pitem;
         int index = 0;
@@ -769,12 +769,12 @@ public:
         return -1;
     }
 
-    ItemID GetNext(ItemID pitem)
+    ItemID GetNext(ItemID pitem) override
     {
         return ((StringListItem*)pitem)->GetNext();
     }
 
-    IEventSource* GetChangedEvent()
+    IEventSource* GetChangedEvent() override
     {
         return m_peventSource;
     }
@@ -785,17 +785,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetXSize()
+    int GetXSize() override
     {
         return m_xsize;
     }
 
-    int GetYSize()
+    int GetYSize() override
     {
         return m_pfont->GetHeight();
     }
 
-    void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+    void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
     {
         StringListItem* pitem = (StringListItem*)pitemArg;
 
@@ -853,7 +853,7 @@ public:
         SetItemPainter(m_pStringList);
     }
 
-    TRef<StringList> GetStringList()
+    TRef<StringList> GetStringList() override
     {
         return m_pStringList;
     }

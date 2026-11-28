@@ -45,143 +45,143 @@ class       CstationTypeIGC : public IstationTypeIGC
 
     public:
     // IbaseIGC
-        virtual HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void                Terminate(void);
+        HRESULT             Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void                Terminate(void) override;
 
-        virtual int                 Export(void* data) const;
+        int                 Export(void* data) const override;
 
-        virtual ObjectType          GetObjectType(void) const
+        ObjectType          GetObjectType(void) const override
         {
             return OT_stationType;
         }
 
-        virtual ObjectID            GetObjectID(void) const
+        ObjectID            GetObjectID(void) const override
         {
             return m_data.stationTypeID;
         }
 
     // ItypeIGC
-        virtual const void*         GetData(void) const
+        const void*         GetData(void) const override
         {
             return &m_data;
         }
 
     // IbuyableIGC
-        virtual const char*          GetModelName(void) const
+        const char*          GetModelName(void) const override
         {
             return m_data.modelName;
         }
 
-        virtual const char*          GetName(void) const
+        const char*          GetName(void) const override
         {
             return m_data.name;
         }
-        virtual const char*          GetDescription(void) const
+        const char*          GetDescription(void) const override
         {
             return m_data.description;
         }
-        virtual Money                GetPrice(void) const
+        Money                GetPrice(void) const override
         {
             return m_data.price;
         }
-        virtual BuyableGroupID       GetGroupID(void) const 
+        BuyableGroupID       GetGroupID(void) const override 
         { 
             return m_data.groupID; 
         };
 
-        virtual const TechTreeBitMask&  GetRequiredTechs(void) const
+        const TechTreeBitMask&  GetRequiredTechs(void) const override
         {
             return m_data.ttbmRequired;
         }
 
-        virtual const TechTreeBitMask&  GetEffectTechs(void) const
+        const TechTreeBitMask&  GetEffectTechs(void) const override
         {
             return m_data.ttbmEffects;
         }
 
-        virtual DWORD                   GetTimeToBuild(void) const
+        DWORD                   GetTimeToBuild(void) const override
         {
             return m_data.timeToBuild;
         }
 
         // IstationTypeIGC
-        virtual float               GetSignature(void) const
+        float               GetSignature(void) const override
         {
             return m_data.signature;
         }
 
-        virtual float                GetRadius(void) const
+        float                GetRadius(void) const override
         {
             return m_data.radius;
         }
 
-        virtual float                GetScannerRange(void) const
+        float                GetScannerRange(void) const override
         {
             return m_data.scannerRange;
         }
 
-        virtual HitPoints            GetMaxArmorHitPoints(void) const
+        HitPoints            GetMaxArmorHitPoints(void) const override
         {
             return m_data.maxArmorHitPoints;
         }
 
-        virtual DefenseTypeID        GetArmorDefenseType(void) const
+        DefenseTypeID        GetArmorDefenseType(void) const override
         {
             return m_data.defenseTypeArmor;
         }
 
-        virtual HitPoints                GetMaxShieldHitPoints(void) const
+        HitPoints                GetMaxShieldHitPoints(void) const override
         {
             return m_data.maxShieldHitPoints;
         }
 
-        virtual DefenseTypeID        GetShieldDefenseType(void) const
+        DefenseTypeID        GetShieldDefenseType(void) const override
         {
             return m_data.defenseTypeShield;
         }
 
-        virtual float                GetArmorRegeneration(void) const
+        float                GetArmorRegeneration(void) const override
         {
             return m_data.armorRegeneration;
         }
 
-        virtual float                GetShieldRegeneration(void) const
+        float                GetShieldRegeneration(void) const override
         {
             return m_data.shieldRegeneration;
         }
 
-        virtual Money                GetIncome(void) const
+        Money                GetIncome(void) const override
         {
             return m_data.income;
         }
 
-        virtual const TechTreeBitMask&  GetLocalTechs(void) const
+        const TechTreeBitMask&  GetLocalTechs(void) const override
         {
             return m_data.ttbmLocal;
         }
 
-        virtual StationAbilityBitMask   GetCapabilities(void) const
+        StationAbilityBitMask   GetCapabilities(void) const override
         {
             return m_data.sabmCapabilities;
         }
-        bool                            HasCapability(StationAbilityBitMask sabm) const
+        bool                            HasCapability(StationAbilityBitMask sabm) const override
         {
             return (m_data.sabmCapabilities & sabm) != 0;
         }
-        virtual const char*             GetTextureName(void) const
+        const char*             GetTextureName(void) const override
         {
             return m_data.textureName;
         }
-        virtual const char*             GetBuilderName(void) const
+        const char*             GetBuilderName(void) const override
         {
             return m_data.builderName;
         }
-        virtual const char*             GetIconName(void) const
+        const char*             GetIconName(void) const override
         {
             return m_data.iconName;
         }
 
-        virtual IstationTypeIGC*        GetSuccessorStationType(const IsideIGC*   pside)
+        IstationTypeIGC*        GetSuccessorStationType(const IsideIGC*   pside) override
         {
             //The successor can be built if:
             //    we have one, and
@@ -196,23 +196,23 @@ class       CstationTypeIGC : public IstationTypeIGC
 
             return this;
         }
-        virtual AsteroidAbilityBitMask   GetBuildAABM(void) const
+        AsteroidAbilityBitMask   GetBuildAABM(void) const override
         {
             return m_data.aabmBuild;
         }
 
-        virtual int                     GetLaunchSlots(void) const
+        int                     GetLaunchSlots(void) const override
         {
             return m_nLaunchSlots;
         }
-        virtual const Vector&           GetLaunchPosition(int   slotID) const
+        const Vector&           GetLaunchPosition(int   slotID) const override
         {
             assert (slotID >= 0);
             assert (slotID < m_nLaunchSlots);
 
             return m_positionLaunches[slotID];
         }
-        virtual const Vector&           GetLaunchDirection(int   slotID) const
+        const Vector&           GetLaunchDirection(int   slotID) const override
         {
             assert (slotID >= 0);
             assert (slotID < m_nLaunchSlots);
@@ -220,22 +220,22 @@ class       CstationTypeIGC : public IstationTypeIGC
             return m_directionLaunches[slotID];
         }
 
-        virtual int                     GetLandSlots(void) const
+        int                     GetLandSlots(void) const override
         {
             return m_nLandSlots;
         }
-        virtual int                     GetCapLandSlots(void) const
+        int                     GetCapLandSlots(void) const override
         {
             return m_nCapLandSlots;
         }
-        virtual int                     GetLandPlanes(int   slotID) const
+        int                     GetLandPlanes(int   slotID) const override
         {
             assert (slotID >= 0);
             assert (slotID < m_nLandSlots);
 
             return m_nLandPlanes[slotID];
         }
-        virtual const Vector&           GetLandPosition(int slotID, int planeID) const
+        const Vector&           GetLandPosition(int slotID, int planeID) const override
         {
             assert (slotID >= 0);
             assert (slotID < m_nLandSlots);
@@ -244,7 +244,7 @@ class       CstationTypeIGC : public IstationTypeIGC
 
             return m_positionLandPlanes[slotID][planeID];
         }
-        virtual const Vector&           GetLandDirection(int slotID, int planeID) const
+        const Vector&           GetLandDirection(int slotID, int planeID) const override
         {
             assert (slotID >= 0);
             assert (slotID < m_nLandSlots);
@@ -254,75 +254,75 @@ class       CstationTypeIGC : public IstationTypeIGC
             return m_directionLandPlanes[slotID][planeID];
         }
 
-        virtual SoundID                 GetInteriorSound() const
+        SoundID                 GetInteriorSound() const override
         {
             return m_data.interiorSound;
         }
-        virtual SoundID                 GetInteriorAlertSound() const
+        SoundID                 GetInteriorAlertSound() const override
         {
             return m_data.interiorAlertSound;
         }
-        virtual SoundID                 GetExteriorSound() const
+        SoundID                 GetExteriorSound() const override
         {
             return m_data.exteriorSound;
         }
 
-        virtual SoundID                 GetConstructorNeedRockSound() const
+        SoundID                 GetConstructorNeedRockSound() const override
         {
             return m_data.constructorNeedRockSound;
         }
 
-        virtual SoundID                 GetConstructorUnderAttackSound() const
+        SoundID                 GetConstructorUnderAttackSound() const override
         {
             return m_data.constructorUnderAttackSound;
         }
 
-        virtual SoundID                 GetConstructorDestroyedSound() const
+        SoundID                 GetConstructorDestroyedSound() const override
         {
             return m_data.constructorDestroyedSound;
         }
 
-        virtual SoundID                 GetCompletionSound() const
+        SoundID                 GetCompletionSound() const override
         {
             return m_data.completionSound;
         }
 
-        virtual SoundID                 GetUnderAttackSound() const
+        SoundID                 GetUnderAttackSound() const override
         {
             return m_data.underAttackSound;
         }
 
-        virtual SoundID                 GetCriticalSound() const
+        SoundID                 GetCriticalSound() const override
         {
             return m_data.criticalSound;
         }
 
-        virtual SoundID                 GetDestroyedSound() const
+        SoundID                 GetDestroyedSound() const override
         {
             return m_data.destroyedSound;
         }
 
-        virtual SoundID                 GetCapturedSound() const
+        SoundID                 GetCapturedSound() const override
         {
             return m_data.capturedSound;
         }
 
-        virtual SoundID                 GetEnemyCapturedSound() const
+        SoundID                 GetEnemyCapturedSound() const override
         {
             return m_data.enemyCapturedSound;
         }
 
-        virtual SoundID                 GetEnemyDestroyedSound() const
+        SoundID                 GetEnemyDestroyedSound() const override
         {
             return m_data.enemyDestroyedSound;
         }
 
-        virtual StationClassID          GetClassID() const
+        StationClassID          GetClassID() const override
         {
             return m_data.classID;
         }
 
-        virtual IdroneTypeIGC*              GetConstructionDroneType(void) const
+        IdroneTypeIGC*              GetConstructionDroneType(void) const override
         {
             return m_pdtConstruction;
         }

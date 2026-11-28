@@ -26,80 +26,80 @@ class CprojectileTypeIGC : public IprojectileTypeIGC
         }
 
     // IbaseIGC
-        virtual HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void            Terminate(void)
+        HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void            Terminate(void) override
         {
             m_pMission->DeleteProjectileType(this);
         }
 
-        virtual int             Export(void* data) const;
+        int             Export(void* data) const override;
 
-        virtual ObjectType      GetObjectType(void) const
+        ObjectType      GetObjectType(void) const override
         {
             return OT_projectileType;
         }
 
-        virtual ObjectID        GetObjectID(void) const
+        ObjectID        GetObjectID(void) const override
         {
             return m_data.projectileTypeID;
         }
     // ItypeIGC
-        virtual const void*     GetData(void) const
+        const void*     GetData(void) const override
         {
             return &m_data;
         }
 
     // IprojectileTypeIGC
-        virtual float           GetPower(void) const
+        float           GetPower(void) const override
         {
             return m_data.power;
         }
-        virtual float           GetBlastPower(void) const
+        float           GetBlastPower(void) const override
         {
             return m_data.blastPower;
         }
-        virtual float           GetBlastRadius(void) const
+        float           GetBlastRadius(void) const override
         {
             return m_data.blastRadius;
         }
-        virtual float           GetSpeed(void) const
+        float           GetSpeed(void) const override
         {
             return m_data.speed;
         }
-        virtual bool            GetAbsoluteF(void) const
+        bool            GetAbsoluteF(void) const override
         {
             return m_data.absoluteF;
         }
-        virtual const char*     GetModelName(void) const
+        const char*     GetModelName(void) const override
         {
             return m_data.modelName;
         }
-        virtual const char*     GetModelTexture(void) const
+        const char*     GetModelTexture(void) const override
         {
             return m_data.textureName;
         }
-        virtual float           GetLifespan(void) const
+        float           GetLifespan(void) const override
         {
             return m_data.lifespan;
         }
-        virtual float           GetRadius(void) const
+        float           GetRadius(void) const override
         {
             return m_data.radius;
         }
-        virtual float           GetRotation(void) const
+        float           GetRotation(void) const override
         {
             return m_data.rotation;
         }
-        virtual D3DCOLORVALUE   GetColor(void) const
+        D3DCOLORVALUE   GetColor(void) const override
         {
             return m_data.color;
         }
-        virtual DamageTypeID    GetDamageType(void) const
+        DamageTypeID    GetDamageType(void) const override
         {
             return m_data.damageType;
         }
 
-        virtual SoundID          GetAmbientSound(void) const
+        SoundID          GetAmbientSound(void) const override
         {
             return m_data.ambientSound;
         }

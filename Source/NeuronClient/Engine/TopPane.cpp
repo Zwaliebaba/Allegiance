@@ -16,7 +16,7 @@ public:
     {
     }
 
-    void UpdateSurface(Surface* psurface)
+    void UpdateSurface(Surface* psurface) override
     {
         m_ptopPane->RepaintSurface();
     }

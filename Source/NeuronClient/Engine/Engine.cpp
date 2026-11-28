@@ -70,12 +70,12 @@ private:
     }
 
 public:
-    bool IsValid()
+    bool IsValid() override
     {
         return true;
     }
 
-    void Terminate()
+    void Terminate() override
     {
         if (m_pdevice != NULL && m_hwndFocus != NULL) {
             m_pdevice->ReleaseSwapChain(m_hwndFocus);
@@ -90,7 +90,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    D3D11Device* GetD3D11Device()
+    D3D11Device* GetD3D11Device() override
     {
         if (m_pdevice == NULL && !m_bDeviceFailed) {
             m_pdevice = CreateD3D11Device();
@@ -109,7 +109,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetFocusWindow(Window* pwindow, bool bStartFullscreen)
+    void SetFocusWindow(Window* pwindow, bool bStartFullscreen) override
     {
         //
         // This function can only be called once
@@ -129,12 +129,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetGammaLevel(float value)
+    void SetGammaLevel(float value) override
     {
         m_gamma = bound(value, 1.0f, 2.0f);
     }
 
-    float GetGammaLevel()
+    float GetGammaLevel() override
     {
         return m_gamma;
     }
@@ -145,7 +145,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DebugSetWindowed()
+    void DebugSetWindowed() override
     {
     }
 
@@ -155,7 +155,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetAllowSecondary(bool bAllowSecondary)
+    void SetAllowSecondary(bool bAllowSecondary) override
     {
         //
         // Secondary (3dfx-style add-on) adapters no longer exist as a
@@ -168,7 +168,7 @@ public:
         }
     }
 
-    void SetAllow3DAcceleration(bool bAllow3DAcceleration)
+    void SetAllow3DAcceleration(bool bAllow3DAcceleration) override
     {
         //
         // Rendering always goes through D3D11 (hardware, or WARP when there
@@ -181,12 +181,12 @@ public:
         }
     }
 
-    void Set3DAccelerationImportant(bool b3DAccelerationImportant)
+    void Set3DAccelerationImportant(bool b3DAccelerationImportant) override
     {
         m_b3DAccelerationImportant = b3DAccelerationImportant;
     }
 
-    void SetFullscreen(bool bFullscreen)
+    void SetFullscreen(bool bFullscreen) override
     {
         if (m_bFullscreen != bFullscreen) {
             m_bFullscreen = bFullscreen;
@@ -194,7 +194,7 @@ public:
         }
     }
 
-    void SetFullscreenSize(const WinPoint& pointIn)
+    void SetFullscreenSize(const WinPoint& pointIn) override
     {
         //
         // A size of zero (no saved preference) means the native one
@@ -298,7 +298,7 @@ public:
         }
     }
 
-    void ChangeFullscreenSize(bool bLarger)
+    void ChangeFullscreenSize(bool bLarger) override
     {
         std::vector<WinPoint> modes;
         GetModes(modes);
@@ -333,19 +333,19 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool GetAllowSecondary()          { return m_bAllowSecondary;          }
-    bool GetAllow3DAcceleration()     { return m_bAllow3DAcceleration;     }
-    bool Get3DAccelerationImportant() { return m_b3DAccelerationImportant; }
-    bool IsFullscreen()               { return m_bFullscreen;              }
-    bool PrimaryHas3DAcceleration()   { return true;                       }
-    bool GetUsing3DAcceleration()     { return true;                       }
+    bool GetAllowSecondary() override          { return m_bAllowSecondary;          }
+    bool GetAllow3DAcceleration() override     { return m_bAllow3DAcceleration;     }
+    bool Get3DAccelerationImportant() override { return m_b3DAccelerationImportant; }
+    bool IsFullscreen() override               { return m_bFullscreen;              }
+    bool PrimaryHas3DAcceleration() override   { return true;                       }
+    bool GetUsing3DAcceleration() override     { return true;                       }
 
-    const WinPoint& GetFullscreenSize()
+    const WinPoint& GetFullscreenSize() override
     {
         return m_pointFullscreen;
     }
 
-    ZString GetDeviceName()
+    ZString GetDeviceName() override
     {
         D3D11Device* pdevice = GetD3D11Device();
 
@@ -363,7 +363,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool IsDeviceReady(bool& bChanges)
+    bool IsDeviceReady(bool& bChanges) override
     {
         bChanges = false;
 
@@ -381,7 +381,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Flip()
+    void Flip() override
     {
         //
         // There is no flipping chain any more; EngineWindow presents through
@@ -389,7 +389,7 @@ public:
         //
     }
 
-    void BltToWindow(Window* pwindow, const WinPoint& point, Surface* psurface, const WinRect& rectSource)
+    void BltToWindow(Window* pwindow, const WinPoint& point, Surface* psurface, const WinRect& rectSource) override
     {
         D3D11Device* pdevice = GetD3D11Device();
 
@@ -412,7 +412,7 @@ public:
         DWORD greenMask,
         DWORD blueMask,
         DWORD alphaMask
-    ) {
+    ) override {
         int count = (int)m_ppfs.size();
 
         for(int index = 0; index < count; index++) {
@@ -428,7 +428,7 @@ public:
         return ppf;
     }
 
-    PixelFormat* GetPrimaryPixelFormat()
+    PixelFormat* GetPrimaryPixelFormat() override
     {
         return m_ppf;
     }
@@ -439,11 +439,11 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetTotalTextureMemory()     { return GetTotalVideoMemory(); }
-    int GetAvailableTextureMemory() { return GetTotalVideoMemory(); }
-    int GetAvailableVideoMemory()   { return GetTotalVideoMemory(); }
+    int GetTotalTextureMemory() override     { return GetTotalVideoMemory(); }
+    int GetAvailableTextureMemory() override { return GetTotalVideoMemory(); }
+    int GetAvailableVideoMemory() override   { return GetTotalVideoMemory(); }
 
-    int GetTotalVideoMemory()
+    int GetTotalVideoMemory() override
     {
         return m_pdevice != NULL ? m_pdevice->GetTotalVideoMemory() : 0;
     }
@@ -454,7 +454,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void RemovePrivateSurface(PrivateSurface* psurface)
+    void RemovePrivateSurface(PrivateSurface* psurface) override
     {
         m_listDeviceFormatSurfaces.Remove(psurface);
         m_listSurfaces.Remove(psurface);
@@ -498,7 +498,7 @@ public:
         Palette*        ppalette,
         SurfaceType     stype,
         SurfaceSite*    psite
-    ) {
+    ) override {
         ZAssert(ppalette == NULL);
 
         return
@@ -512,7 +512,7 @@ public:
         const WinPoint& size, 
         SurfaceType stype, 
         SurfaceSite* psite
-    ) {
+    ) override {
         return 
             AddSurface(
                 CreatePrivateSurface(this, m_ppf, size, WithoutVideo(stype), psite),
@@ -525,7 +525,7 @@ public:
         const WinPoint& size,
         SurfaceType     stype, 
         SurfaceSite*    psite
-    ) {
+    ) override {
         return
             AddSurface(
                 CreatePrivateSurface(this, psurface->GetPixelFormat(), size, WithoutVideo(stype), psite),
@@ -540,7 +540,7 @@ public:
           int          pitch,
           BYTE*        pdata,
           IObject*     pobjectMemory
-    ) {
+    ) override {
         ZAssert(ppalette == NULL);
 
         return

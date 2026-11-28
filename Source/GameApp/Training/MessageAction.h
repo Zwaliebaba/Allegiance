@@ -28,7 +28,7 @@ namespace Training
                     /* void */          MessageAction (void);
                     /* void */          MessageAction (const ZString message);
             virtual /* void */          ~MessageAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
                     void                AddMessage (const ZString message);
 
         protected:

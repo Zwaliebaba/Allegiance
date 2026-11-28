@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          GetStateBitsCondition (const TRef<IshipIGC>& ship, int iBits);
             virtual /* void */          ~GetStateBitsCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     TRef<IshipIGC>      m_ship;

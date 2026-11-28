@@ -26,8 +26,8 @@ namespace Training
     {
         public:
             virtual /* void */          ~TrueCondition (void);
-            virtual bool                Start (void);
-            virtual bool                Evaluate (void);
+            bool                Start (void) override;
+            bool                Evaluate (void) override;
     };
 
     //------------------------------------------------------------------------------

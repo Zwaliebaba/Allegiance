@@ -402,145 +402,145 @@ class   CmissionIGC : public ImissionIGC
         virtual ~CmissionIGC(void);
 
     // IstaticIGC
-        virtual void                            Initialize(void)
+        void                            Initialize(void) override
         {
             //Never called ... should use the initialize of ImissionIGC
             assert (false);
         }
-        virtual void                            Terminate(void);
+        void                            Terminate(void) override;
 
-        virtual float                           GetFloatConstant(FloatConstantID fcid) const
+        float                           GetFloatConstant(FloatConstantID fcid) const override
         {
             return m_pStatic->GetFloatConstant(fcid);
         }
-        virtual void                    SetFloatConstant(FloatConstantID fcid, float f)
+        void                    SetFloatConstant(FloatConstantID fcid, float f) override
         {
             m_pStatic->SetFloatConstant(fcid, f);
         }
 
-        virtual float                           GetDamageConstant(DamageTypeID dmgid, DefenseTypeID defid) const
+        float                           GetDamageConstant(DamageTypeID dmgid, DefenseTypeID defid) const override
         {
             return  m_pStatic->GetDamageConstant(dmgid, defid);
         }
-        virtual void                            SetDamageConstant(DamageTypeID dmgid, DefenseTypeID defid, float f)
+        void                            SetDamageConstant(DamageTypeID dmgid, DefenseTypeID defid, float f) override
         {
              m_pStatic->SetDamageConstant(dmgid, defid, f);
         }
-        virtual const void*                     GetConstants(void) const
+        const void*                     GetConstants(void) const override
         {
             return m_pStatic->GetConstants();
         }
-        virtual void                            SetConstants(const void* pf)
+        void                            SetConstants(const void* pf) override
         {
             m_pStatic->SetConstants(pf);
         }
-        virtual int                             GetSizeOfConstants(void) const
+        int                             GetSizeOfConstants(void) const override
         {
             return m_pStatic->GetSizeOfConstants();
         }
-        virtual void                            AddDroneType(IdroneTypeIGC*                 dt)
+        void                            AddDroneType(IdroneTypeIGC*                 dt) override
         {
             m_pStatic->AddDroneType(dt);
         }
-        virtual void                            DeleteDroneType(IdroneTypeIGC*              dt)
+        void                            DeleteDroneType(IdroneTypeIGC*              dt) override
         {
             m_pStatic->DeleteDroneType(dt);
         }
-        virtual IdroneTypeIGC*                  GetDroneType(DroneTypeID                    id) const
+        IdroneTypeIGC*                  GetDroneType(DroneTypeID                    id) const override
         {
             return m_pStatic->GetDroneType(id);
         }
-        virtual const DroneTypeListIGC*         GetDroneTypes(void) const
+        const DroneTypeListIGC*         GetDroneTypes(void) const override
         {
             return m_pStatic->GetDroneTypes();
         }
 
-        virtual void                            AddDevelopment(IdevelopmentIGC*             d)
+        void                            AddDevelopment(IdevelopmentIGC*             d) override
         {
             m_pStatic->AddDevelopment(d);
         }
-        virtual void                            DeleteDevelopment(IdevelopmentIGC*          d)
+        void                            DeleteDevelopment(IdevelopmentIGC*          d) override
         {
             m_pStatic->DeleteDevelopment(d);
         }
-        virtual IdevelopmentIGC*                GetDevelopment(DevelopmentID                id) const
+        IdevelopmentIGC*                GetDevelopment(DevelopmentID                id) const override
         {
             return m_pStatic->GetDevelopment(id);
         }
-        virtual const DevelopmentListIGC*       GetDevelopments(void) const
+        const DevelopmentListIGC*       GetDevelopments(void) const override
         {
             return m_pStatic->GetDevelopments();
         }
 
-        virtual void                            AddStationType(IstationTypeIGC*             st)
+        void                            AddStationType(IstationTypeIGC*             st) override
         {
             m_pStatic->AddStationType(st);
         }
-        virtual void                            DeleteStationType(IstationTypeIGC*          st)
+        void                            DeleteStationType(IstationTypeIGC*          st) override
         {
             m_pStatic->DeleteStationType(st);
         }
-        virtual IstationTypeIGC*                GetStationType(StationTypeID                id) const
+        IstationTypeIGC*                GetStationType(StationTypeID                id) const override
         {
             return m_pStatic->GetStationType(id);
         }
-        virtual const StationTypeListIGC*       GetStationTypes(void) const
+        const StationTypeListIGC*       GetStationTypes(void) const override
         {
             return m_pStatic->GetStationTypes();
         }
 
-        virtual void                            AddCivilization(IcivilizationIGC*           c)
+        void                            AddCivilization(IcivilizationIGC*           c) override
         {
             m_pStatic->AddCivilization(c);
         }
-        virtual void                            DeleteCivilization(IcivilizationIGC*        c)
+        void                            DeleteCivilization(IcivilizationIGC*        c) override
         {
             m_pStatic->DeleteCivilization(c);
         }
-        virtual IcivilizationIGC*               GetCivilization(CivID                       id) const
+        IcivilizationIGC*               GetCivilization(CivID                       id) const override
         {
             return m_pStatic->GetCivilization(id);
         }
-        virtual const CivilizationListIGC*      GetCivilizations(void) const
+        const CivilizationListIGC*      GetCivilizations(void) const override
         {
             return m_pStatic->GetCivilizations();
         }
 
-        virtual void                            AddHullType(IhullTypeIGC*                   ht)
+        void                            AddHullType(IhullTypeIGC*                   ht) override
         {
             m_pStatic->AddHullType(ht);
         }
-        virtual void                            DeleteHullType(IhullTypeIGC*                ht)
+        void                            DeleteHullType(IhullTypeIGC*                ht) override
         {
             m_pStatic->DeleteHullType(ht);
         }
-        virtual IhullTypeIGC*                   GetHullType(HullID                          id) const
+        IhullTypeIGC*                   GetHullType(HullID                          id) const override
         {
             return m_pStatic->GetHullType(id);
         }
-        virtual const HullTypeListIGC*          GetHullTypes(void) const
+        const HullTypeListIGC*          GetHullTypes(void) const override
         {
             return m_pStatic->GetHullTypes();
         }
 
-        virtual void                            AddExpendableType(IexpendableTypeIGC*             mt)
+        void                            AddExpendableType(IexpendableTypeIGC*             mt) override
         {
             m_pStatic->AddExpendableType(mt);
         }
-        virtual void                            DeleteExpendableType(IexpendableTypeIGC*          mt)
+        void                            DeleteExpendableType(IexpendableTypeIGC*          mt) override
         {
             m_pStatic->DeleteExpendableType(mt);
         }
-        virtual IexpendableTypeIGC*             GetExpendableType(ExpendableTypeID                id) const
+        IexpendableTypeIGC*             GetExpendableType(ExpendableTypeID                id) const override
         {
             return m_pStatic->GetExpendableType(id);
         }
-        virtual const ExpendableTypeListIGC*    GetExpendableTypes(void) const
+        const ExpendableTypeListIGC*    GetExpendableTypes(void) const override
         {
             return m_pStatic->GetExpendableTypes();
         }
 
-        virtual void                            AddPartType(IpartTypeIGC*                   pt)
+        void                            AddPartType(IpartTypeIGC*                   pt) override
         {
             m_pStatic->AddPartType(pt);
 
@@ -549,162 +549,162 @@ class   CmissionIGC : public ImissionIGC
                 m_pIgcSite->Preload(pt->GetModelName(), NULL);
             }
         }
-        virtual void                            DeletePartType(IpartTypeIGC*                pt)
+        void                            DeletePartType(IpartTypeIGC*                pt) override
         {
             m_pStatic->DeletePartType(pt);
         }
-        virtual IpartTypeIGC*                   GetPartType(PartID                          id) const
+        IpartTypeIGC*                   GetPartType(PartID                          id) const override
         {
             return m_pStatic->GetPartType(id);
         }
-        virtual const PartTypeListIGC*          GetPartTypes(void) const
+        const PartTypeListIGC*          GetPartTypes(void) const override
         {
             return m_pStatic->GetPartTypes();
         }
 
-        virtual void                            AddTreasureSet(ItreasureSetIGC*                   pt)
+        void                            AddTreasureSet(ItreasureSetIGC*                   pt) override
         {
             m_pStatic->AddTreasureSet(pt);
         }
-        virtual void                            DeleteTreasureSet(ItreasureSetIGC*                pt)
+        void                            DeleteTreasureSet(ItreasureSetIGC*                pt) override
         {
             m_pStatic->DeleteTreasureSet(pt);
         }
-        virtual ItreasureSetIGC*                GetTreasureSet(TreasureSetID                      id) const
+        ItreasureSetIGC*                GetTreasureSet(TreasureSetID                      id) const override
         {
             return m_pStatic->GetTreasureSet(id);
         }
-        virtual const TreasureSetListIGC*       GetTreasureSets(void) const
+        const TreasureSetListIGC*       GetTreasureSets(void) const override
         {
             return m_pStatic->GetTreasureSets();
         }
 
-        virtual void                            AddProjectileType(IprojectileTypeIGC*       pt)
+        void                            AddProjectileType(IprojectileTypeIGC*       pt) override
         {
             m_pStatic->AddProjectileType(pt);
         }
-        virtual void                            DeleteProjectileType(IprojectileTypeIGC*    pt)
+        void                            DeleteProjectileType(IprojectileTypeIGC*    pt) override
         {
             m_pStatic->DeleteProjectileType(pt);
         }
-        virtual IprojectileTypeIGC*             GetProjectileType(ProjectileTypeID              id) const
+        IprojectileTypeIGC*             GetProjectileType(ProjectileTypeID              id) const override
         {
             return m_pStatic->GetProjectileType(id);
         }
-        virtual const ProjectileTypeListIGC*    GetProjectileTypes(void) const
+        const ProjectileTypeListIGC*    GetProjectileTypes(void) const override
         {
             return m_pStatic->GetProjectileTypes();
         }
 
     // ImissionIGC
-        virtual void                            Initialize(Time now, IIgcSite* pIgcSite);
-        virtual void                            Update(Time now);
+        void                            Initialize(Time now, IIgcSite* pIgcSite) override;
+        void                            Update(Time now) override;
 
-        virtual MissionID                       GetMissionID(void) const
+        MissionID                       GetMissionID(void) const override
         {
             return m_missionID;
         }
 
-        virtual int                     Export(__int64  maskTypes,
-                                               char*    pdata) const;
-        virtual void                    Import(Time     now,
+        int                     Export(__int64  maskTypes,
+                                               char*    pdata) const override;
+        void                    Import(Time     now,
                                                __int64  maskTypes,
                                                char*    pdata,
-                                               int      datasize);
+                                               int      datasize) override;
 
-        virtual void                            SetMissionID(MissionID mid)
+        void                            SetMissionID(MissionID mid) override
         {
             m_missionID = mid;
         }
 
-        virtual IIgcSite*                       GetIgcSite(void) const
+        IIgcSite*                       GetIgcSite(void) const override
         {
             return m_pIgcSite;
         }
 
-        virtual IbaseIGC*                       CreateObject(Time now, ObjectType objecttype,
-                                                             const void* data, int dataSize);
+        IbaseIGC*                       CreateObject(Time now, ObjectType objecttype,
+                                                             const void* data, int dataSize) override;
 
-        virtual ImodelIGC*                      GetModel(ObjectType type, ObjectID id) const;
+        ImodelIGC*                      GetModel(ObjectType type, ObjectID id) const override;
 
-        virtual IbaseIGC*                       GetBase(ObjectType type, ObjectID id) const;
+        IbaseIGC*                       GetBase(ObjectType type, ObjectID id) const override;
 
-        virtual DamageTrack*                    CreateDamageTrack(void)
+        DamageTrack*                    CreateDamageTrack(void) override
         {
             return m_damageTracks.Create();
         }
         
         //Global list of stations
-        virtual void                            AddStation(IstationIGC* s);
-        virtual void                            DeleteStation(IstationIGC* s);
-        virtual IstationIGC*                    GetStation(StationID stationID) const;
-        virtual const StationListIGC*           GetStations(void) const;
+        void                            AddStation(IstationIGC* s) override;
+        void                            DeleteStation(IstationIGC* s) override;
+        IstationIGC*                    GetStation(StationID stationID) const override;
+        const StationListIGC*           GetStations(void) const override;
 
         //Global list of warps
-        virtual void                            AddWarp(IwarpIGC* w);
-        virtual void                            DeleteWarp(IwarpIGC* w);
-        virtual IwarpIGC*                       GetWarp(WarpID warpID) const;
-        virtual const WarpListIGC*              GetWarps(void) const;
+        void                            AddWarp(IwarpIGC* w) override;
+        void                            DeleteWarp(IwarpIGC* w) override;
+        IwarpIGC*                       GetWarp(WarpID warpID) const override;
+        const WarpListIGC*              GetWarps(void) const override;
 
         //Global list of asteroids
-        virtual void                            AddAsteroid(IasteroidIGC* s);
-        virtual void                            DeleteAsteroid(IasteroidIGC* s);
-        virtual IasteroidIGC*                   GetAsteroid(AsteroidID id) const;
-        virtual const AsteroidListIGC*          GetAsteroids(void) const;
+        void                            AddAsteroid(IasteroidIGC* s) override;
+        void                            DeleteAsteroid(IasteroidIGC* s) override;
+        IasteroidIGC*                   GetAsteroid(AsteroidID id) const override;
+        const AsteroidListIGC*          GetAsteroids(void) const override;
 
         //Global list of mines
-        virtual void                            AddMine(ImineIGC* ms);
-        virtual void                            DeleteMine(ImineIGC* m);
-        virtual ImineIGC*                       GetMine(MineID mineID) const;
-        virtual const MineListIGC*              GetMines(void) const;
+        void                            AddMine(ImineIGC* ms) override;
+        void                            DeleteMine(ImineIGC* m) override;
+        ImineIGC*                       GetMine(MineID mineID) const override;
+        const MineListIGC*              GetMines(void) const override;
 
         //Global list of probes
-        virtual void                            AddProbe(IprobeIGC* ms);
-        virtual void                            DeleteProbe(IprobeIGC* m);
-        virtual IprobeIGC*                      GetProbe(ProbeID probeID) const;
-        virtual const ProbeListIGC*             GetProbes(void) const;
+        void                            AddProbe(IprobeIGC* ms) override;
+        void                            DeleteProbe(IprobeIGC* m) override;
+        IprobeIGC*                      GetProbe(ProbeID probeID) const override;
+        const ProbeListIGC*             GetProbes(void) const override;
 
         //Global list of treasures
-        virtual void                            AddTreasure(ItreasureIGC* t);
-        virtual void                            DeleteTreasure(ItreasureIGC* t);
-        virtual ItreasureIGC*                   GetTreasure(TreasureID treasureID) const;
-        virtual const TreasureListIGC*          GetTreasures(void) const;
+        void                            AddTreasure(ItreasureIGC* t) override;
+        void                            DeleteTreasure(ItreasureIGC* t) override;
+        ItreasureIGC*                   GetTreasure(TreasureID treasureID) const override;
+        const TreasureListIGC*          GetTreasures(void) const override;
 
         //Global list of sides
-        virtual void                            AddSide(IsideIGC* s);
-        virtual void                            DeleteSide(IsideIGC* s);
-        virtual IsideIGC*                       GetSide(SideID sideID) const;
-        virtual const SideListIGC*              GetSides(void) const;
+        void                            AddSide(IsideIGC* s) override;
+        void                            DeleteSide(IsideIGC* s) override;
+        IsideIGC*                       GetSide(SideID sideID) const override;
+        const SideListIGC*              GetSides(void) const override;
 
         //Global list of clusters
-        virtual void                            AddCluster(IclusterIGC* c);
-        virtual void                            DeleteCluster(IclusterIGC* c);
-        virtual IclusterIGC*                    GetCluster(SectorID clusterID) const;
-        virtual const ClusterListIGC*           GetClusters(void) const;
+        void                            AddCluster(IclusterIGC* c) override;
+        void                            DeleteCluster(IclusterIGC* c) override;
+        IclusterIGC*                    GetCluster(SectorID clusterID) const override;
+        const ClusterListIGC*           GetClusters(void) const override;
 
         //Global list of ships
-        virtual void                            AddShip(IshipIGC* s);
-        virtual void                            DeleteShip(IshipIGC* s);
-        virtual IshipIGC*                       GetShip(ShipID shipID) const;
-        virtual const ShipListIGC*              GetShips(void) const;
+        void                            AddShip(IshipIGC* s) override;
+        void                            DeleteShip(IshipIGC* s) override;
+        IshipIGC*                       GetShip(ShipID shipID) const override;
+        const ShipListIGC*              GetShips(void) const override;
 
         //Global list of buoys
-        virtual void                            AddBuoy(IbuoyIGC* s);
-        virtual void                            DeleteBuoy(IbuoyIGC* s);
-        virtual IbuoyIGC*                       GetBuoy(BuoyID buoyID) const;
-        virtual const BuoyListIGC*              GetBuoys(void) const;
+        void                            AddBuoy(IbuoyIGC* s) override;
+        void                            DeleteBuoy(IbuoyIGC* s) override;
+        IbuoyIGC*                       GetBuoy(BuoyID buoyID) const override;
+        const BuoyListIGC*              GetBuoys(void) const override;
 
-        virtual IpartTypeIGC*                   GetAmmoPack(void) const
+        IpartTypeIGC*                   GetAmmoPack(void) const override
         {
             return m_pStatic->GetAmmoPack();
         }
-        virtual IpartTypeIGC*                   GetFuelPack(void) const
+        IpartTypeIGC*                   GetFuelPack(void) const override
         {
             return m_pStatic->GetFuelPack();
         }
 
         IpartIGC*   CreatePart(Time             now,
-                               IpartTypeIGC*    ppt)
+                               IpartTypeIGC*    ppt) override
         {
             static const ObjectType    objectTypes[ET_MAX] =
                                         {OT_dispenser,        
@@ -729,17 +729,17 @@ class   CmissionIGC : public ImissionIGC
             return (IpartIGC*)CreateObject(now, objectTypes[ppt->GetEquipmentType()], &ppt, sizeof(ppt));
         }
 
-        void                    SetMissionStage(STAGE  st)
+        void                    SetMissionStage(STAGE  st) override
         {
             m_stageMission = st;
         }
 
-        STAGE                   GetMissionStage()
+        STAGE                   GetMissionStage() override
         {
             return m_stageMission;
         }
 
-        void    EnterGame(void)
+        void    EnterGame(void) override
         {
             if (m_missionParams.IsProsperityGame())
             {
@@ -777,88 +777,88 @@ class   CmissionIGC : public ImissionIGC
 
         void                    UpdateSides(Time now,
                                             const MissionParams * pmp,
-                                            const char  sideNames[c_cSidesMax][c_cbSideName]);
-        void                    ResetMission();
+                                            const char  sideNames[c_cSidesMax][c_cbSideName]) override;
+        void                    ResetMission() override;
 
         void                    GenerateMission(Time                   now,
                                                 const MissionParams *  pmp,
                                                 TechTreeBitMask *      pttbmShouldOverride,
-                                                TechTreeBitMask *      pttbmOverrideValue);
+                                                TechTreeBitMask *      pttbmOverrideValue) override;
 
         void                    GenerateTreasure(Time           now,
                                                  IclusterIGC*   pcluster,
-                                                 short          tsi);
-        virtual void            SetPrivateData(DWORD_PTR dwPrivate)
+                                                 short          tsi) override;
+        void            SetPrivateData(DWORD_PTR dwPrivate) override
         {
             m_dwPrivate = dwPrivate;
         }
 
-        virtual DWORD_PTR       GetPrivateData(void) const
+        DWORD_PTR       GetPrivateData(void) const override
         {
             return m_dwPrivate;
         }
 
-        BuoyID                  GenerateNewBuoyID(void)
+        BuoyID                  GenerateNewBuoyID(void) override
         {
             return m_nextBuoyID++;
         }
 
-        ShipID                  GenerateNewShipID(void)
+        ShipID                  GenerateNewShipID(void) override
         {
             return m_nextShipID++;
         }
 
-        AsteroidID              GenerateNewAsteroidID(void)
+        AsteroidID              GenerateNewAsteroidID(void) override
         {
             return m_nextAsteroidID++;
         }
 
-        TreasureID              GenerateNewTreasureID(void)
+        TreasureID              GenerateNewTreasureID(void) override
         {
             return m_nextTreasureID++;
         }
 
-        MineID                  GenerateNewMineID(void)
+        MineID                  GenerateNewMineID(void) override
         {
             return m_nextMineID++;
         }
-        ProbeID                 GenerateNewProbeID(void)
+        ProbeID                 GenerateNewProbeID(void) override
         {
             return m_nextProbeID++;
         }
-        MissileID                  GenerateNewMissileID(void)
+        MissileID                  GenerateNewMissileID(void) override
         {
             return m_nextMissileID++;
         }
-        StationID                  GenerateNewStationID(void)
+        StationID                  GenerateNewStationID(void) override
         {
             return m_nextStationID++;
         }
 
-        Time                    GetLastUpdate(void) const
+        Time                    GetLastUpdate(void) const override
         {
             return m_lastUpdate;
         }
 
-        const MissionParams*    GetMissionParams(void) const
+        const MissionParams*    GetMissionParams(void) const override
         {
             return &m_missionParams;
         }
-        void                    SetMissionParams(const MissionParams* pmp)
+        void                    SetMissionParams(const MissionParams* pmp) override
         {
             m_missionParams = *pmp;
         }
-        virtual void                    SetStartTime(Time timeStart)
+        void                    SetStartTime(Time timeStart) override
         {
             m_missionParams.timeStart = timeStart;
         }
 
-        CstaticIGC*             GetStaticCore(void) const
+        CstaticIGC*             GetStaticCore(void) const override
         {
             return m_pStatic;
         }
 
-        void                    SetStaticCore(CstaticIGC*   pStatic)
+        void                    SetStaticCore(CstaticIGC*   pStatic) override
         {
             assert (m_pStatic == NULL);
 
@@ -871,8 +871,8 @@ class   CmissionIGC : public ImissionIGC
             }
         }
 
-        short                   GetReplayCount(void) const;
-        const char*             GetContextName(void);
+        short                   GetReplayCount(void) const override;
+        const char*             GetContextName(void) override;
 
     private:
         MissionParams            m_missionParams;

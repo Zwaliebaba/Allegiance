@@ -24,17 +24,17 @@ private:
         {
         }
 
-        Point TransformLocalToImage(const Point& point)
+        Point TransformLocalToImage(const Point& point) override
         {
             return m_pimage->TransformLocalToImage(point);
         }
 
-        void SurfaceChanged()
+        void SurfaceChanged() override
         {
             m_pimage->PaneChanged();
         }
 
-        void SizeChanged()
+        void SizeChanged() override
         {
             m_pimage->PaneChanged();
         }
@@ -85,7 +85,7 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    void CalcBounds()
+    void CalcBounds() override
     {
         m_bounds.SetRect(
             Rect(
@@ -95,7 +95,7 @@ public:
         );
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         ZEnter("PaneImage::Render()");
 
@@ -105,7 +105,7 @@ public:
         ZExit("PaneImage::Render()");
     }
 
-    TRef<Surface> GetSurface()
+    TRef<Surface> GetSurface() override
     {
         return m_ptopPane->GetSurface();
     }
@@ -116,13 +116,13 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    void Evaluate()
+    void Evaluate() override
     {
         m_ptopPane->Evaluate();
         Image::Evaluate();
     }
 
-    ZString GetFunctionName() 
+    ZString GetFunctionName() override 
     { 
         return "PaneImage"; 
     }
@@ -138,32 +138,32 @@ public:
     //
     /////////////////////////////////////////////////////////////////////////////
 
-    void RemoveCapture()
+    void RemoveCapture() override
     {
         m_ptopPane->RemoveCapture();
     }
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
     {
         return m_ptopPane->HitTest(pprovider, point, bCaptured);
     }
 
-    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside)
+    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override
     {
         m_ptopPane->MouseMove(pprovider, point, bCaptured, bInside);
     }
 
-    void MouseEnter(IInputProvider* pprovider, const Point& point)
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override
     {
         m_ptopPane->MouseEnter(pprovider, point);
     }
 
-    void MouseLeave(IInputProvider* pprovider)
+    void MouseLeave(IInputProvider* pprovider) override
     {
         m_ptopPane->MouseLeave(pprovider);
     }
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         return m_ptopPane->Button(pprovider, point, button, bCaptured, bInside, bDown);
     }

@@ -31,7 +31,7 @@ namespace Training
         public:
                     /* void */          GetPickedCondition (ObjectType targetType, ObjectID targetID);
             virtual /* void */          ~GetPickedCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     AbstractTarget*     m_pTarget;

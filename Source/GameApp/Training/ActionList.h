@@ -27,8 +27,8 @@ namespace Training
         public:
                     /* void */          ActionList (void);
             virtual /* void */          ~ActionList (void);
-            virtual void                Execute (void);
-            virtual void                Stop (void);
+            void                Execute (void) override;
+            void                Stop (void) override;
                     void                AddAction (Action* pAction);
 
         protected:

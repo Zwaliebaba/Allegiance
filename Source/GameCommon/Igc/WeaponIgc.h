@@ -24,9 +24,9 @@ class CweaponIGC : public IweaponIGC
         CweaponIGC(void);
 
     // IbaseIGC
-        virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void    Terminate(void);
-        virtual void    Update(Time now)
+        HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void    Terminate(void) override;
+        void    Update(Time now) override
         {
 
             if (m_mountedFraction < 1.0f)
@@ -61,45 +61,45 @@ class CweaponIGC : public IweaponIGC
             }
         }
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_weapon;
         }
 
-        virtual ImissionIGC*    GetMission(void) const
+        ImissionIGC*    GetMission(void) const override
         {
             return m_pMission;
         }
 
     // IpartIGC
-        virtual EquipmentType    GetEquipmentType(void) const
+        EquipmentType    GetEquipmentType(void) const override
         {
             return ET_Weapon;
         }
 
-        virtual IpartTypeIGC*    GetPartType(void) const
+        IpartTypeIGC*    GetPartType(void) const override
         {
             return m_partType;
         }
 
-        virtual IshipIGC*        GetShip(void) const
+        IshipIGC*        GetShip(void) const override
         {
             return m_ship;
         }
-        virtual void             SetShip(IshipIGC* newVal, Mount mount);
+        void             SetShip(IshipIGC* newVal, Mount mount) override;
 
-        virtual Mount            GetMountID(void) const
+        Mount            GetMountID(void) const override
         {
             return m_mountID;
         }
-        virtual void             SetMountID(Mount newVal);
+        void             SetMountID(Mount newVal) override;
 
-        virtual bool             fActive(void) const
+        bool             fActive(void) const override
         {
             return m_fActive;
         }
 
-        virtual void             Activate(void)
+        void             Activate(void) override
         {
             assert (m_ship);
 
@@ -112,7 +112,7 @@ class CweaponIGC : public IweaponIGC
                 m_fActive = true;
             }
         }
-        virtual void             Deactivate(void)
+        void             Deactivate(void) override
         {
             assert (m_ship);
 
@@ -125,43 +125,43 @@ class CweaponIGC : public IweaponIGC
             m_fFiringBurst = false;
             m_fFiringShot = false;  // REVIEW: this may lead to a silent shot
         }
-        virtual float            GetMass(void) const
+        float            GetMass(void) const override
         {
             return m_typeData->mass;
         }
 
-        virtual Money            GetPrice(void) const
+        Money            GetPrice(void) const override
         {
             return m_typeData->price;
         }
 
-        virtual float           GetMountedFraction(void) const
+        float           GetMountedFraction(void) const override
         {
             return m_mountedFraction;
         }
 
-        virtual void            SetMountedFraction(float f)
+        void            SetMountedFraction(float f) override
         {
             m_mountedFraction = f;
         }
 
-        virtual void            Arm(void)
+        void            Arm(void) override
         {
             m_mountedFraction = 1.0f;
             m_nextFire = m_ship->GetLastUpdate();
         }
 
     // IweaponIGC
-        virtual IprojectileTypeIGC*  GetProjectileType(void) const
+        IprojectileTypeIGC*  GetProjectileType(void) const override
         {
             return m_projectileType;
         }
-        virtual short                GetAmmoPerShot(void) const
+        short                GetAmmoPerShot(void) const override
         {
             return m_typeData->cAmmoPerShot;
         }
 
-        virtual float               GetLifespan(void) const
+        float               GetLifespan(void) const override
         {
             float   ls = m_projectileType->GetLifespan();
             if (m_ship && (m_typeData->energyPerShot != 0.0f))
@@ -170,17 +170,17 @@ class CweaponIGC : public IweaponIGC
             return ls;
         }
 
-        virtual const Vector&       GetPosition(void) const
+        const Vector&       GetPosition(void) const override
         {
             return *m_pposition;
         }
 
-        virtual float               GetDtBurst(void) const
+        float               GetDtBurst(void) const override
         {
             return m_typeData->dtimeBurst;
         }
 
-        virtual void                 SetGunner(IshipIGC* pship)
+        void                 SetGunner(IshipIGC* pship) override
         {
             Deactivate();
 
@@ -201,32 +201,32 @@ class CweaponIGC : public IweaponIGC
             }
         }
 
-        virtual IshipIGC*            GetGunner(void) const
+        IshipIGC*            GetGunner(void) const override
         {
             return m_pshipGunner;
         }
 
-        virtual bool                 fFiringShot(void) const
+        bool                 fFiringShot(void) const override
         {
             return m_fFiringShot;
         }
 
-        virtual bool                 fFiringBurst(void) const
+        bool                 fFiringBurst(void) const override
         {
             return m_fFiringBurst;
         }
 
-        virtual SoundID              GetActivateSound(void) const
+        SoundID              GetActivateSound(void) const override
         {
             return m_typeData->activateSound;
         }
 
-        virtual SoundID              GetSingleShotSound(void) const
+        SoundID              GetSingleShotSound(void) const override
         {
             return m_typeData->singleShotSound;
         }
 
-        virtual SoundID              GetBurstSound(void) const
+        SoundID              GetBurstSound(void) const override
         {
             return m_typeData->burstSound;
         }

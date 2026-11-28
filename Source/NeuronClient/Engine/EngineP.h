@@ -339,7 +339,7 @@ public:
     //
 
     virtual int  GetChangeID()                      = 0;
-    virtual void SetPixelFormat(PixelFormat* ppf)   = 0;
+    void SetPixelFormat(PixelFormat* ppf)   override = 0;
 
     //
     // GPU residency. A 3D surface (the window frame, 3D panes) keeps a GPU

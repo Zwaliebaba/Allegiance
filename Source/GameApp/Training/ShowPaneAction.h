@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          ShowPaneAction (OverlayMask overlayMask = 0);
             virtual /* void */          ~ShowPaneAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     OverlayMask         m_overlayMask;

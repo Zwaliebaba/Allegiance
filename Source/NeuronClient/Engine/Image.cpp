@@ -16,17 +16,17 @@ public:
     // Value members
     //
 
-	ZString GetString(int indent) 
+	ZString GetString(int indent) override 
     { 
         return "emptyImage"; 
     }
 
-    ZString GetFunctionName() 
+    ZString GetFunctionName() override 
     { 
         return "emptyImage"; 
     }
 
-    void Write(IMDLBinaryFile* pfile)
+    void Write(IMDLBinaryFile* pfile) override
     {
         pfile->WriteReference("emptyImage");
     }
@@ -200,13 +200,13 @@ public:
     {
     }
 
-    const Bounds2& GetBounds()
+    const Bounds2& GetBounds() override
     {
         CalcBounds();
         return m_bounds;
     }
 
-    void CalcBounds()
+    void CalcBounds() override
     {
         m_bounds.SetRect(
             Rect(
@@ -216,17 +216,17 @@ public:
         );
     }
 
-    TRef<Surface> GetSurface()
+    TRef<Surface> GetSurface() override
     {
         return m_psurface;
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->DrawImage3D(m_psurface, GetColor()->GetValue());
     }
 
-    ZString GetFunctionName()
+    ZString GetFunctionName() override
     {
         return "ImportImage3D";
     }
@@ -360,7 +360,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void CalcBounds()
+    void CalcBounds() override
     {
         ZString str    = GetString()->GetValue();
         int     xsize  = 0;
@@ -379,7 +379,7 @@ public:
         m_bounds.SetRect(Rect(0, (float)(-ysize), (float)m_width, 0));
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         ZString     str    = GetString()->GetValue();
         const Rect& rect   = m_bounds.GetRect();
@@ -425,7 +425,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetFunctionName() { return "StringImage"; }
+    ZString GetFunctionName() override { return "StringImage"; }
 };
 
 TRef<Image> CreateStringImage(
@@ -494,12 +494,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void CalcBounds()
+    void CalcBounds() override
     {
         m_bounds = GetImage()->GetBounds();
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         TRef<Surface> psurface = GetImage()->GetSurface();
         float         number   = GetNumber()->GetValue();
@@ -555,7 +555,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetFunctionName() { return "GaugeImage"; }
+    ZString GetFunctionName() override { return "GaugeImage"; }
 };
 
 TRef<Image> CreateGaugeImage(Justification justification, Image* pimage, bool b3D, Number* pnumber)
@@ -770,7 +770,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
     {
         return MouseResult();
     }
@@ -781,7 +781,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetFunctionName() { return "UndetectableImage"; }
+    ZString GetFunctionName() override { return "UndetectableImage"; }
 };
 
 TRef<Image> CreateUndetectableImage(Image* pimage)
@@ -1282,7 +1282,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void AddImage(float number, Image* pimage)
+    void AddImage(float number, Image* pimage) override
     {
         m_list.PushFront();
         m_list.GetFront().m_number = number;
@@ -1295,7 +1295,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Evaluate()
+    void Evaluate() override
     {
         float number = GetNumber()->GetValue();
 
@@ -1343,7 +1343,7 @@ public:
     // Image methods
     //
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         GetGeo()->Render(pcontext);
     }
@@ -1352,13 +1352,13 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "GeoImage2D"; }
+    ZString GetFunctionName() override { return "GeoImage2D"; }
 
     //
     // IMouseInput methods
     //
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
     {
         return MouseResult();
     }
@@ -1388,12 +1388,12 @@ public:
     // Image methods
     //
 
-    void CalcBounds()
+    void CalcBounds() override
     {
         m_bounds = Intersect(GetImage()->GetBounds(), GetRect()->GetValue());
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->Clip(GetRect()->GetValue());
         WrapImage::Render(pcontext);
@@ -1403,7 +1403,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "ClipImage"; }
+    ZString GetFunctionName() override { return "ClipImage"; }
 
 };
 
@@ -1433,7 +1433,7 @@ public:
     // PickImage
     //
 
-    IEventSource* GetEventSource()
+    IEventSource* GetEventSource() override
     {
         return m_peventSource;
     }
@@ -1442,7 +1442,7 @@ public:
     // IMouseInput
     //
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         if (button == 0 && bDown) {
             m_peventSource->Trigger();
@@ -1455,7 +1455,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "PickImage"; }
+    ZString GetFunctionName() override { return "PickImage"; }
 };
 
 TRef<PickImage> CreatePickImage(Image* pimage)
@@ -1484,7 +1484,7 @@ public:
     // Image methods
     //
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->SetBlendMode(m_blendMode);
         WrapImage::Render(pcontext);
@@ -1494,7 +1494,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "BlendImage"; }
+    ZString GetFunctionName() override { return "BlendImage"; }
 
 };
 
@@ -1523,11 +1523,11 @@ public:
     // Image methods
     //
 
-    void CalcBounds()
+    void CalcBounds() override
     {
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->FillInfinite(GetColor()->GetValue());
     }
@@ -1536,7 +1536,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "ColorImage"; }
+    ZString GetFunctionName() override { return "ColorImage"; }
 
 };
 
@@ -1565,12 +1565,12 @@ public:
     // Image methods
     //
 
-    void CalcBounds()
+    void CalcBounds() override
     {
         m_bounds = GetRect()->GetValue();
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->FillRect(GetRect()->GetValue(), GetColor()->GetValue());
     }
@@ -1579,7 +1579,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "ExtentImage"; }
+    ZString GetFunctionName() override { return "ExtentImage"; }
 
 };
 
@@ -1605,11 +1605,11 @@ public:
     // Image methods
     //
 
-    void CalcBounds()
+    void CalcBounds() override
     {
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
     }
 
@@ -1617,7 +1617,7 @@ public:
     // Value members
     //
 
-    ZString GetFunctionName() { return "TransparentImage"; }
+    ZString GetFunctionName() override { return "TransparentImage"; }
 };
 
 TRef<Image> CreateTransparentImage()
@@ -1646,7 +1646,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         if (GetVisible()->GetValue())
         {
@@ -1660,7 +1660,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetFunctionName() { return "VisibleImage"; }
+    ZString GetFunctionName() override { return "VisibleImage"; }
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -1668,7 +1668,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
     {
         MouseResult mouseResult = WrapImage::HitTest(pprovider, point, bCaptured);
 
@@ -1719,7 +1719,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void CalcBounds()
+    void CalcBounds() override
     {
         Rect rect = GetImage()->GetBounds().GetRect();
 
@@ -1747,7 +1747,7 @@ public:
         m_bounds.SetRect(rect);
     }
 
-    void Render(Context* pcontext)
+    void Render(Context* pcontext) override
     {
         pcontext->Translate(m_point);
         WrapImage::Render(pcontext);
@@ -1759,22 +1759,22 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
     {
         return GetImage()->HitTest(pprovider, TransformPoint(point), bCaptured);
     }
 
-    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside)
+    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override
     {
         GetImage()->MouseMove(pprovider, TransformPoint(point), bCaptured, bInside);
     }
 
-    void MouseEnter(IInputProvider* pprovider, const Point& point)
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override
     {
         GetImage()->MouseEnter(pprovider, TransformPoint(point));
     }
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     {
         return GetImage()->Button(pprovider, TransformPoint(point), button, bCaptured, bInside, bDown);
     }
@@ -1785,7 +1785,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetFunctionName() { return "JustifyImage"; }
+    ZString GetFunctionName() override { return "JustifyImage"; }
 };
 
 TRef<Image> CreateJustifyImage(Image* pimage, Justification justification)
@@ -1818,7 +1818,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Load(const ZString& str)
+    void Load(const ZString& str) override
     {
         TRef<INameSpace> pns = m_pmodeler->GetNameSpace(str, false);
 
@@ -1833,7 +1833,7 @@ public:
         }
     }
 
-    void Reload()
+    void Reload() override
     {
         Load(m_str);
     }
@@ -1844,7 +1844,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetFunctionName() { return "MDLFileImage"; }
+    ZString GetFunctionName() override { return "MDLFileImage"; }
 };
 
 TRef<MDLFileImage> CreateMDLFileImage(Modeler* pmodeler, const ZString& str)

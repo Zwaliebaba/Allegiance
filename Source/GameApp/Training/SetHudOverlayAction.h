@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          SetHUDOverlayAction (TrainingOverlay overlay);
             virtual /* void */          ~SetHUDOverlayAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     TrainingOverlay     m_overlay;

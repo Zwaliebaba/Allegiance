@@ -27,9 +27,9 @@ namespace Training
         public:
                     /* void */          OrCondition (Condition* pConditionA, Condition* pConditionB);
             virtual /* void */          ~OrCondition (void);
-            virtual bool                Start (void);
-            virtual void                Stop (void);
-            virtual bool                Evaluate (void);
+            bool                Start (void) override;
+            void                Stop (void) override;
+            bool                Evaluate (void) override;
 
         protected:
                     Condition*          m_pConditionA;

@@ -599,7 +599,7 @@ public:
     //
 
     // get the "up" vector for the listener
-    HRESULT GetUpDirection(Vector& vectUp)
+    HRESULT GetUpDirection(Vector& vectUp) override
     {
         vectUp = m_camera.GetCameraOrientation().GetUp();
         return S_OK;
@@ -611,14 +611,14 @@ public:
     //
 
     // Gets the position of the sound in space
-    HRESULT GetPosition(Vector& vectPosition)
+    HRESULT GetPosition(Vector& vectPosition) override
     {
         vectPosition = m_camera.GetCameraPosition();
         return S_OK;
     }
 
     // Gets the velocity of the sound in space
-    HRESULT GetVelocity(Vector& vectVelocity)
+    HRESULT GetVelocity(Vector& vectVelocity) override
     {
         // REVIEW: the camera's velocity is not the same as the ships!
         vectVelocity = trekClient.GetShip()->GetCluster() ?
@@ -627,7 +627,7 @@ public:
     }
 
     // Gets the orientation of the sound in space, used for sound cones.
-    HRESULT GetOrientation(Vector& vectOrientation)
+    HRESULT GetOrientation(Vector& vectOrientation) override
     {
         vectOrientation = m_camera.GetCameraOrientation().GetForward();
         return S_OK;
@@ -635,7 +635,7 @@ public:
 
     // Returns S_OK if the position, velocity and orientation reported are 
     // relative to the listener, S_FALSE otherwise.  
-    HRESULT IsListenerRelative()
+    HRESULT IsListenerRelative() override
     {
         return S_FALSE; // Of course
     }
@@ -644,7 +644,7 @@ public:
     // otherwise.  This might be false if a sound emitter is destroyed, for
     // example, in which case the sound might fade out.  Once it returns
     // S_FALSE once, it should never return S_OK again.
-    HRESULT IsPlaying()
+    HRESULT IsPlaying() override
     {
         return S_OK;
     }
@@ -727,17 +727,17 @@ public:
         {
         }
 
-        bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+        bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
         { 
             return false;
         }
 
-        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
         { 
             return m_pwindow->OnSuperKeyFilter(pprovider, ks, fForceTranslate);
         }
 
-        void SetFocusState(bool bFocus) 
+        void SetFocusState(bool bFocus) override 
         {
         }
     };
@@ -780,17 +780,17 @@ public:
         {
         }
 
-        bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+        bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
         { 
             return false;
         }
 
-        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+        bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
         { 
             return m_pwindow->OnKeyFilter(pprovider, ks, fForceTranslate);
         }
 
-        void SetFocusState(bool bFocus) 
+        void SetFocusState(bool bFocus) override 
         {
         }
     };
@@ -841,21 +841,21 @@ public:
         {
         }
 
-        void OnMenuCommand(IMenuItem* pitem)
+        void OnMenuCommand(IMenuItem* pitem) override
         {
             m_pwindow->OnQuickChatMenuCommand(m_pqcmenu, pitem);
         }
 
-        void OnMenuSelect(IMenuItem* pitem)
+        void OnMenuSelect(IMenuItem* pitem) override
         {
         }
 
-        void OnMenuClose(IMenu* pmenu) 
+        void OnMenuClose(IMenu* pmenu) override 
         {
             m_pwindow->OnQuickChatMenuClose(pmenu);
         }
 
-        TRef<IPopup> GetSubMenu(IMenuItem* pitem)
+        TRef<IPopup> GetSubMenu(IMenuItem* pitem) override
         {
             return m_pwindow->OnQuickChatMenuCommand(m_pqcmenu, pitem);
         }
@@ -937,7 +937,7 @@ public:
         }
     }
 
-    void OpenMainQuickChatMenu()
+    void OpenMainQuickChatMenu() override
     {
         if (m_pconsoleImage)
             m_pconsoleImage->StartQuickChat(CHAT_NOSELECTION, NA, NULL);
@@ -1014,7 +1014,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void PlaySonicChat(int id, int voice)
+    void PlaySonicChat(int id, int voice) override
     {
         if ((id >= 0) && (id < (int)m_vsonicChats.size()))
         {
@@ -1035,7 +1035,7 @@ public:
         }
     }
 
-    ZString GetSonicChatText(int id, int voice)
+    ZString GetSonicChatText(int id, int voice) override
     {
         if ((id >= 0) && (id < (int)m_vsonicChats.size()))
         {
@@ -1347,7 +1347,7 @@ protected:
     TMap<ZString, TRef<AnimatedImage> > m_mapAnimatedImages;
 
 public:
-    TRef<AnimatedImage> LoadAnimatedImage(Number* ptime, const ZString& str)
+    TRef<AnimatedImage> LoadAnimatedImage(Number* ptime, const ZString& str) override
     {
         TRef<AnimatedImage> pimage;
 
@@ -1391,7 +1391,7 @@ public:
             m_pevent->RemoveSink(this);
         }
 
-        bool OnEvent(IEventSource* pevent)
+        bool OnEvent(IEventSource* pevent) override
         {
             m_pwindow->OnGameStateClose();
             return true;
@@ -1583,7 +1583,7 @@ public:
 
     class WinConditionInfo3 : public WinConditionInfo {
     public:
-        void ClearLine(StringGridImage* pgrid, int row)
+        void ClearLine(StringGridImage* pgrid, int row) override
         {
             pgrid->SetString(row, 2, ZString());
         }
@@ -1591,7 +1591,7 @@ public:
 
     class WinConditionInfo4 : public WinConditionInfo {
     public:
-        void ClearLine(StringGridImage* pgrid, int row)
+        void ClearLine(StringGridImage* pgrid, int row) override
         {
             pgrid->SetString(row, 2, ZString());
             pgrid->SetString(row, 3, ZString());
@@ -1622,7 +1622,7 @@ public:
 
     class ConquestWinConditionInfo : public WinConditionInfo3 {
     public:
-        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside)
+        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside) override
         {
             pgrid->SetString(
                 row,
@@ -1631,7 +1631,7 @@ public:
             );
         }
 
-        bool Greater(IsideIGC* pside1, IsideIGC* pside2)
+        bool Greater(IsideIGC* pside1, IsideIGC* pside2) override
         {
             return pside1->GetConquestPercent() > pside2->GetConquestPercent();
         }
@@ -1648,7 +1648,7 @@ public:
 
     class TerritoryWinConditionInfo : public WinConditionInfo3 {
     public:
-        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside)
+        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside) override
         {
             unsigned char   c = pside->GetTerritoryCount();
             pgrid->SetString(
@@ -1658,7 +1658,7 @@ public:
             );
         }
 
-        bool Greater(IsideIGC* pside1, IsideIGC* pside2)
+        bool Greater(IsideIGC* pside1, IsideIGC* pside2) override
         {
             return pside1->GetTerritoryCount() > pside2->GetTerritoryCount();
         }
@@ -1675,14 +1675,14 @@ public:
 
     class DeathMatchWinConditionInfo : public WinConditionInfo4 {
     public:
-        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside)
+        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside) override
         {
             pgrid->SetString(row, 2, StrFromInt(pside->GetKills() ) + " kills" );
             pgrid->SetString(row, 3, StrFromInt(pside->GetEjections()) + " ejects");
             pgrid->SetString(row, 4, StrFromInt(pside->GetDeaths()) + " deaths");
         }
 
-        bool Greater(IsideIGC* pside1, IsideIGC* pside2)
+        bool Greater(IsideIGC* pside1, IsideIGC* pside2) override
         {
             if (pside1->GetKills() == pside2->GetKills()) {
                 return pside1->GetDeaths() < pside2->GetDeaths();
@@ -1694,20 +1694,20 @@ public:
 
     class DeathMatchShipWinConditionInfo : public ShipWinConditionInfo {
     public:
-        void FillLine(StringGridImage* pgrid, int row, IshipIGC* pship)
+        void FillLine(StringGridImage* pgrid, int row, IshipIGC* pship) override
         {
             pgrid->SetString(row, 2, StrFromInt(pship->GetKills() ) + " kills" );
             pgrid->SetString(row, 3, StrFromInt(pship->GetEjections()) + " ejects");
             pgrid->SetString(row, 4, StrFromInt(pship->GetDeaths()) + " deaths");
         }
-        virtual void ClearLine(StringGridImage* pgrid, int row) 
+        void ClearLine(StringGridImage* pgrid, int row) override 
         {
             pgrid->SetString(row, 2, ZString());
             pgrid->SetString(row, 3, ZString());
             pgrid->SetString(row, 4, ZString());
         }
 
-        bool Greater(IshipIGC* pship1, IshipIGC* pship2)
+        bool Greater(IshipIGC* pship1, IshipIGC* pship2) override
         {
             if (pship1->GetKills() == pship2->GetKills()) {
                 return pship1->GetDeaths() < pship2->GetDeaths();
@@ -1716,7 +1716,7 @@ public:
             }
         }
 
-        bool AnyInfo() { return true; }
+        bool AnyInfo() override { return true; }
     };
 
     static DeathMatchWinConditionInfo     s_deathMatchWinConditionInfo;
@@ -1730,7 +1730,7 @@ public:
 
     class ProsperityWinConditionInfo : public WinConditionInfo3 {
     public:
-        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside)
+        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside) override
         {
             int prosperity = 0; //Actually get from the status of the prosperity project
 
@@ -1752,7 +1752,7 @@ public:
             );
         }
 
-        bool Greater(IsideIGC* pside1, IsideIGC* pside2)
+        bool Greater(IsideIGC* pside1, IsideIGC* pside2) override
         {
             return false;
             //return pside1->GetProsperityPercent() > pside2->GetProsperityPercent();
@@ -1770,7 +1770,7 @@ public:
 
     class ArtifactsWinConditionInfo : public WinConditionInfo3 {
     public:
-        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside)
+        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside) override
         {
             pgrid->SetString(
                 row,
@@ -1779,7 +1779,7 @@ public:
             );
         }
 
-        bool Greater(IsideIGC* pside1, IsideIGC* pside2)
+        bool Greater(IsideIGC* pside1, IsideIGC* pside2) override
         {
             return pside1->GetArtifacts() > pside2->GetArtifacts();
         }
@@ -1796,7 +1796,7 @@ public:
 
     class FlagsWinConditionInfo : public WinConditionInfo3 {
     public:
-        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside)
+        void FillLine(StringGridImage* pgrid, int row, IsideIGC* pside) override
         {
             pgrid->SetString(
                 row,
@@ -1805,7 +1805,7 @@ public:
             );
         }
 
-        bool Greater(IsideIGC* pside1, IsideIGC* pside2)
+        bool Greater(IsideIGC* pside1, IsideIGC* pside2) override
         {
             return pside1->GetFlags() > pside2->GetFlags();
         }
@@ -1960,7 +1960,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void UpdateGameStateContainer()
+    void UpdateGameStateContainer() override
     {
         if (m_pgsc) {
             if (m_pstringGridImageConquest) {
@@ -2066,7 +2066,7 @@ public:
         m_pscreen = pscreen;
     }
 
-    ScreenID screen(void) const
+    ScreenID screen(void) const override
     {
         return m_screen;
     }
@@ -2074,7 +2074,7 @@ public:
     // review: this gets messy because it can be recursively called by a screen's
     // constructor.
 
-    void screen(ScreenID s)
+    void screen(ScreenID s) override
     {
         static bool bSwitchingScreens = false;
         static ScreenID sNextScreen;
@@ -2937,7 +2937,7 @@ public:
         SetImage(m_pgroupImage);
     }
 
-    void SetCursor(const char* pszCursor)
+    void SetCursor(const char* pszCursor) override
     {
         if (m_pszCursor != pszCursor)       //Assume they are all static strings that are combined so pointers are all we need
         {
@@ -2948,7 +2948,7 @@ public:
         }
     }
 
-    void RestoreCursor()
+    void RestoreCursor() override
     {
         TRef<Image> pimageCursor;
         CastTo(pimageCursor, (Value*)GetModeler()->GetNameSpace("cursor")->FindMember(m_pszCursor));
@@ -2956,7 +2956,7 @@ public:
         SetCursorImage(pimageCursor);
     }
 
-    void SetWaitCursor()
+    void SetWaitCursor() override
     {
         TRef<Image> pimageCursor;
         CastTo(pimageCursor, (Value*)GetModeler()->GetNameSpace("cursor")->FindMember(AWF_CURSOR_WAIT));
@@ -2988,7 +2988,7 @@ public:
         return ZString(ZSettings::GetString(szName.c_str(), strDefault.c_str()).c_str());
     }
 
-    void Terminate()
+    void Terminate() override
     {
         //
         // Save the screen resolution
@@ -3081,7 +3081,7 @@ public:
         m_ptrekInput = NULL;
     }
 
-    void OnClose()
+    void OnClose() override
     {
         Terminate();
         EngineWindow::OnClose();
@@ -3106,7 +3106,7 @@ public:
         {
         }
 
-        bool OnEvent(IIntegerEventSource* pevent, int value)
+        bool OnEvent(IIntegerEventSource* pevent, int value) override
         {
             if (value == IDOK)
                 m_pwindow->DoClose();
@@ -3118,7 +3118,7 @@ public:
 
     TRef<IMessageBox> m_pmessageBox;
 
-    void StartClose()
+    void StartClose() override
     {
         if (m_pmessageBox == NULL) {
             m_pmessageBox = CreateMessageBox("Quit Allegiance?", NULL, true, true);
@@ -3136,7 +3136,7 @@ public:
         }
     }
 
-    bool OnEvent(IIntegerEventSource* pevent, int value)
+    bool OnEvent(IIntegerEventSource* pevent, int value) override
     {
         if (pevent == m_peventLOD) {
             ThingGeo::SetLODBias(((float)value) / 100);
@@ -3174,7 +3174,7 @@ public:
         {
         }
 
-        bool OnEvent(IIntegerEventSource* pevent, int value)
+        bool OnEvent(IIntegerEventSource* pevent, int value) override
         {
             if (value == IDOK) {
                 m_pwindow->DoQuitMission();
@@ -3183,7 +3183,7 @@ public:
         }
     };
 
-    void StartQuitMission()
+    void StartQuitMission() override
     {
         TRef<IMessageBox> pmessageBox;
         if (Training::IsTraining () || Slideshow::IsInSlideShow ())
@@ -3194,18 +3194,18 @@ public:
         GetPopupContainer()->OpenPopup(pmessageBox, false);
     }
 
-    TrekInput*  GetInput (void)
+    TrekInput*  GetInput (void) override
     {
         return m_ptrekInput;
     }
 
-    void SetLightDirection(const Vector& direction)
+    void SetLightDirection(const Vector& direction) override
     {
         m_pimageLensFlare->SetLightDirection(direction);
         m_pimageScene->SetLightDirection(direction);
     }
 
-    void SetCluster(IclusterIGC*   pcluster)
+    void SetCluster(IclusterIGC*   pcluster) override
     {
         if (pcluster)
         {
@@ -3269,7 +3269,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Error(const ZString& str)
+    void Error(const ZString& str) override
     {
         SetFullscreen(false);
         MessageBox(str, "Error", MB_OK);
@@ -3281,28 +3281,28 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Camera*          GetCamera()                    { return m_pcamera;                         }
-    Orientation      GetCameraOrientation()         { return m_cameraControl.GetHeadOrientation() * m_cameraControl.GetOrientation();    }
-    void             ResetCameraFOV()               { m_cameraControl.SetFOV(s_fDefaultFOV);    }
-    Camera*          GetCameraPosters()             { return m_pcameraPosters;                  }
-    ConsoleImage*    GetConsoleImage()              { return m_pconsoleImage;                   }
-    Viewport*        GetViewport()                  { return m_pviewport;                       }
-    Viewport*        GetPosterViewport()            { return m_pviewportPosters;                }
-    int              GetRadarMode(void) const       { return int(m_pradarImage->GetRadarLOD()); }
-    void             SetRadarMode(int radarMode)
+    Camera*          GetCamera() override                    { return m_pcamera;                         }
+    Orientation      GetCameraOrientation() override         { return m_cameraControl.GetHeadOrientation() * m_cameraControl.GetOrientation();    }
+    void             ResetCameraFOV() override               { m_cameraControl.SetFOV(s_fDefaultFOV);    }
+    Camera*          GetCameraPosters() override             { return m_pcameraPosters;                  }
+    ConsoleImage*    GetConsoleImage() override              { return m_pconsoleImage;                   }
+    Viewport*        GetViewport() override                  { return m_pviewport;                       }
+    Viewport*        GetPosterViewport() override            { return m_pviewportPosters;                }
+    int              GetRadarMode(void) const override       { return int(m_pradarImage->GetRadarLOD()); }
+    void             SetRadarMode(int radarMode) override
     {
         m_pradarImage->SetRadarLOD (static_cast<RadarImage::RadarLOD> (radarMode));
         m_radarCockpit = radarMode;
     }
 
-    AsteroidAbilityBitMask  GetInvestAsteroid(void) const { return m_aabmInvest; }
-    void                    SetInvestAsteroid(AsteroidAbilityBitMask aabm)  { m_aabmInvest = aabm; }
+    AsteroidAbilityBitMask  GetInvestAsteroid(void) const override { return m_aabmInvest; }
+    void                    SetInvestAsteroid(AsteroidAbilityBitMask aabm) override  { m_aabmInvest = aabm; }
 
-    AsteroidAbilityBitMask  GetCommandAsteroid(void) const { return m_aabmCommand; }
-    void                    SetCommandAsteroid(AsteroidAbilityBitMask aabm)  { m_aabmCommand = aabm; }
+    AsteroidAbilityBitMask  GetCommandAsteroid(void) const override { return m_aabmCommand; }
+    void                    SetCommandAsteroid(AsteroidAbilityBitMask aabm) override  { m_aabmCommand = aabm; }
 
-    bool             GetRoundRadarMode(void) const  { return m_bRoundRadar;                     }
-    CameraMode       GetCameraMode(void) const      { return m_cm;                              }
+    bool             GetRoundRadarMode(void) const override  { return m_bRoundRadar;                     }
+    CameraMode       GetCameraMode(void) const override      { return m_cm;                              }
 
     /*
     void             TurretChange(void)
@@ -3336,12 +3336,12 @@ public:
     }
     */
 
-    bool IsValid()
+    bool IsValid() override
     {
         return EngineWindow::IsValid();
     }
 
-    void ShowWebPage(const char* szURL)
+    void ShowWebPage(const char* szURL) override
     {
         if (szURL[0] == '\0')
             szURL = "http://www.zone.com/allegiance";
@@ -3459,7 +3459,7 @@ public:
         OpenPopup(m_pmenu, Point(10, 10));
     }
 
-    void ShowOptionsMenu()
+    void ShowOptionsMenu() override
     {
         m_pmenu =
             CreateMenu(
@@ -3476,7 +3476,7 @@ public:
         OpenPopup(m_pmenu, Point(10, 10));
     }
 
-    TRef<IPopup> GetSubMenu(IMenuItem* pitem)
+    TRef<IPopup> GetSubMenu(IMenuItem* pitem) override
     {
         TRef<IMenu> pmenu =
             CreateMenu(
@@ -3885,7 +3885,7 @@ public:
         TriggerMusic(newMusicSound);
     }
 
-    void TriggerMusic(SoundID newMusicSound)
+    void TriggerMusic(SoundID newMusicSound) override
     {
         if (newMusicSound != m_musicId || m_psoundMusic == NULL || m_psoundMusic->IsPlaying() == S_FALSE)
         {
@@ -3901,12 +3901,12 @@ public:
         }
     }
 
-    bool GetMusicIsOn (void)
+    bool GetMusicIsOn (void) override
     {
         return m_bMusic;
     }
 
-    void SetMusicOn (bool bMusicOn)
+    void SetMusicOn (bool bMusicOn) override
     {
         m_bMusic = bMusicOn;
         UpdateMusic ();
@@ -4069,7 +4069,7 @@ public:
         }
     }
 
-    void RenderSizeChanged(bool bSmaller)
+    void RenderSizeChanged(bool bSmaller) override
     {
         if (bSmaller && GetFullscreen()) {
             m_pwrapNumberStyleHUD->SetWrappedValue(new Number(1.0f));
@@ -4387,7 +4387,7 @@ public:
         return strResult;
     }
 
-    void DoInputConfigure()
+    void DoInputConfigure() override
     {
         CloseMenu();
         TRef<IPopup> ppopup = 
@@ -4414,7 +4414,7 @@ public:
         );
     }
 
-    void OnMenuCommand(IMenuItem* pitem)
+    void OnMenuCommand(IMenuItem* pitem) override
     {
         switch (pitem->GetID()) {
             case idmConfigure:
@@ -4583,12 +4583,12 @@ public:
         }
     }
 
-    void SetJiggle(float jiggle)
+    void SetJiggle(float jiggle) override
     {
         m_cameraControl.SetJiggle(jiggle);
     }
 
-    void OverrideCamera(Time now, ImodelIGC* pmodelTarget, bool bOverridePosition)
+    void OverrideCamera(Time now, ImodelIGC* pmodelTarget, bool bOverridePosition) override
     {
         m_viewmode = vmOverride;
         m_pwrapImageBackdrop->SetImage(trekClient.GetCluster() ? m_pgroupImage3D : Image::GetEmpty());
@@ -4680,7 +4680,7 @@ public:
         }
     }
 
-    void SetCameraMode(CameraMode cm)
+    void SetCameraMode(CameraMode cm) override
     {
         // Ignore the set display mode.
         if (m_cm == cmExternalOverride)
@@ -4744,7 +4744,7 @@ public:
         }
     }
 
-    ViewMode    GetViewMode(void) const
+    ViewMode    GetViewMode(void) const override
     {
         return m_viewmode;
     }
@@ -4788,7 +4788,7 @@ public:
         }
     }
 
-    void SetViewMode(ViewMode vm, bool bForce = false)
+    void SetViewMode(ViewMode vm, bool bForce = false) override
     {
         ZDebugOutput(("SetViewMode(" + StrFromInt((int)vm) + ")\n").c_str());
 
@@ -4931,17 +4931,17 @@ public:
         }
     }
 
-    void EnableDisplacementCommandView(bool bEnable)
+    void EnableDisplacementCommandView(bool bEnable) override
     {
         m_bEnableDisplacementCommandView = bEnable;
     }
 
-    OverlayMask GetOverlayFlags() const
+    OverlayMask GetOverlayFlags() const override
     {
         return m_voverlaymask[m_viewmode];
     }
 
-    void SetOverlayFlags(OverlayMask om)
+    void SetOverlayFlags(OverlayMask om) override
     {
         m_voverlaymask[m_viewmode] = om;
         if (m_pconsoleImage)
@@ -4960,17 +4960,17 @@ public:
 
     // the normal set & clear were ambiguous
 
-    void TurnOnOverlayFlags(OverlayMask om) 
+    void TurnOnOverlayFlags(OverlayMask om) override 
     {
         SetOverlayFlags(m_voverlaymask[m_viewmode] | om);
     }
 
-    void TurnOffOverlayFlags(OverlayMask om)
+    void TurnOffOverlayFlags(OverlayMask om) override
     {
         SetOverlayFlags(m_voverlaymask[m_viewmode] & ~om);
     }
 
-    void ToggleOverlayFlags(OverlayMask om)
+    void ToggleOverlayFlags(OverlayMask om) override
     {
         SetOverlayFlags(m_voverlaymask[m_viewmode] ^ om);
     }
@@ -5468,7 +5468,7 @@ public:
         }
     }
 
-    void AddMuzzleFlare(const Vector& vecDirection, float duration)
+    void AddMuzzleFlare(const Vector& vecDirection, float duration) override
     {
         /*  , doesn't work
         if (vecDirection.LengthSquared() != 0) {
@@ -5487,7 +5487,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetFPSString(float fps, float mspf, Context* pcontext)
+    ZString GetFPSString(float fps, float mspf, Context* pcontext) override
     {
         ZString strPosition;
 
@@ -5562,7 +5562,7 @@ public:
         //return m_ptrekInput->GetFPSString();
     }
 
-    void StartTraining (int iMissionIndex)
+    void StartTraining (int iMissionIndex) override
     {
         if (Training::StartMission (iMissionIndex))
         {
@@ -5629,7 +5629,7 @@ public:
         }
     }
 
-    void PositionCommandView(const Vector*  pposition, float dt)
+    void PositionCommandView(const Vector*  pposition, float dt) override
     {
         if (CommandCamera(m_cm))
         {
@@ -5712,7 +5712,7 @@ public:
         m_cameraControl.SetPosition(m_positionCommandView + (myOrientation.GetBackward() * m_distanceCommandCamera));
     }
   
-    virtual void ChangeChatMessage(void)
+    void ChangeChatMessage(void) override
     {
     }
 
@@ -5751,16 +5751,16 @@ public:
     }
     */
 
-    void OnPaint(HDC hdc, const WinRect& rect)
+    void OnPaint(HDC hdc, const WinRect& rect) override
     {
     }
 
-    float   GetDeltaTime (void) const
+    float   GetDeltaTime (void) const override
     {
         return m_fDeltaTime;
     }
 
-    void EvaluateFrame(Time time)
+    void EvaluateFrame(Time time) override
     {
         static bool bFirstFrame = true;
 
@@ -6302,7 +6302,7 @@ public:
         }
     }
 
-    void OnEnterMission (void)
+    void OnEnterMission (void) override
     {
         if (!(Training::IsTraining () || (Training::GetTrainingMissionID () == Training::c_TM_7_Live)))
         {
@@ -6317,7 +6317,7 @@ public:
         }
     }
 
-    void PlayFFEffect(ForceEffectID effectID, LONG lDirection = 0)
+    void PlayFFEffect(ForceEffectID effectID, LONG lDirection = 0) override
     {
         if (m_bEnableFeedback) {
             m_ptrekInput->PlayFFEffect(effectID, lDirection);
@@ -6793,7 +6793,7 @@ public:
         */
     }
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& bForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& bForceTranslate) override
     {
         if (IsInputEnabled (ks.vk)) {
             m_ptrekInput->SetFocus(true);
@@ -6822,7 +6822,7 @@ public:
         return false;
     }
 
-    bool OnChar(IInputProvider* pprovider, const KeyState& ks)
+    bool OnChar(IInputProvider* pprovider, const KeyState& ks) override
     {
         if (!GetUI()) {
             return m_pconsoleImage->OnChar(ks);
@@ -6831,7 +6831,7 @@ public:
         }
     }
 
-    void SetTargetGeo(ImodelIGC* pmodel)
+    void SetTargetGeo(ImodelIGC* pmodel) override
     {
         const float alpha = 0.5f;
         Color colorTargetHUD(alpha, alpha, alpha, alpha);
@@ -6871,7 +6871,7 @@ public:
         m_pcolorTargetHUD->SetValue(colorTargetHUD);
     }
 
-    void SetTarget(ImodelIGC* pmodel, CommandID cid)
+    void SetTarget(ImodelIGC* pmodel, CommandID cid) override
     {
         if (pmodel && trekClient.GetShip()->GetCommandTarget(c_cmdCurrent) != pmodel)
         {
@@ -6925,7 +6925,7 @@ public:
         }
 
     }
-    void SetAccepted(ImodelIGC* pmodel, CommandID cid)
+    void SetAccepted(ImodelIGC* pmodel, CommandID cid) override
     {
         if ((cid != c_cidNone) && m_pconsoleImage)
         {
@@ -6970,7 +6970,7 @@ public:
         }
     }
 
-    void    SetTimeDamaged(Time now)
+    void    SetTimeDamaged(Time now) override
     {
         if (now <= m_timeLastDamage + c_dtFlashingDuration)
         {
@@ -7039,7 +7039,7 @@ public:
         SetTarget(m, c_cidDefault);
     }
 
-    void ToggleWeapon(Mount mount)
+    void ToggleWeapon(Mount mount) override
     {
         IshipIGC* pship = trekClient.GetShip();
 
@@ -7087,7 +7087,7 @@ public:
         return index;
     }
 
-    void SwapPart(EquipmentType et, Mount mount)
+    void SwapPart(EquipmentType et, Mount mount) override
     {
         IshipIGC* pship = trekClient.GetShip();
 
@@ -7170,12 +7170,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    float   GetHUDStyle (void) const
+    float   GetHUDStyle (void) const override
     {
         return m_pnumberStyleHUD->GetValue ();
     }
 
-    void    SetHUDStyle (float newStyle)
+    void    SetHUDStyle (float newStyle) override
     {
         m_pnumberStyleHUD->SetValue (newStyle);
     }
@@ -7213,7 +7213,7 @@ public:
             peventSource->AddSink(this);
         }
 
-        bool OnEvent(IEventSource* pevent)
+        bool OnEvent(IEventSource* pevent) override
         {
             m_bOn        = false;
             m_timeStart  = GetTime();
@@ -7228,7 +7228,7 @@ public:
             m_valueStart = m_value;
         }
 
-        void Evaluate()
+        void Evaluate() override
         {
             if (m_bOn) {
                 m_value = min(1, m_valueStart + (GetTime() - m_timeStart));
@@ -7245,7 +7245,7 @@ public:
 
     class PagePaneIncluderImpl : public PagePaneIncluder {
     public:
-        TRef<ZFile> Include(const ZString& str)
+        TRef<ZFile> Include(const ZString& str) override
         {
             //
             // Help pages can include a file named by a setting
@@ -7298,7 +7298,7 @@ public:
         );
     }
 
-    void OnHelp(bool bOn)
+    void OnHelp(bool bOn) override
     {
         trekClient.PlaySoundEffect(positiveButtonClickSound);
         m_phelpPosition->Toggle(bOn);
@@ -7405,7 +7405,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void OnTrekKey(TrekKey tk)
+    void OnTrekKey(TrekKey tk) override
     {
         bool suicideF = false;
 
@@ -8479,7 +8479,7 @@ public:
         }
     }
 
-    void    RejectQueuedCommand(bool    bClear = true, bool bNegative = false)
+    void    RejectQueuedCommand(bool    bClear = true, bool bNegative = false) override
     {
         if (trekClient.GetLastMoneyRequest() != 0)
         {
@@ -8523,7 +8523,7 @@ public:
     }
 
 
-    void    AcceptQueuedCommand(bool    bExecute)
+    void    AcceptQueuedCommand(bool    bExecute) override
     {
         IshipIGC*   pshipSender = trekClient.GetLastSender();
 
@@ -8611,7 +8611,7 @@ public:
 
     void    SetQueuedCommand(IshipIGC*  pshipSender,
                              CommandID  cid,
-                             ImodelIGC* pmodelTarget)
+                             ImodelIGC* pmodelTarget) override
     {
         if (pshipSender != trekClient.GetLastSender())
             RejectQueuedCommand();
@@ -8626,7 +8626,7 @@ public:
 
     void    SetQueuedCommand(IshipIGC*  pshipSender,
                              Money      money,
-                             HullID     hid)
+                             HullID     hid) override
     {
         if (pshipSender != trekClient.GetLastSender())
             RejectQueuedCommand();
@@ -8656,17 +8656,17 @@ public:
 
     TRef<ChatListPane> m_pchatListPane;
 
-    void SetChatListPane(ChatListPane* pchatListPane)
+    void SetChatListPane(ChatListPane* pchatListPane) override
     {
         m_pchatListPane = pchatListPane;
     }
 
-    void SetLobbyChatTarget(ChatTarget ct)
+    void SetLobbyChatTarget(ChatTarget ct) override
     {
         m_ctLobbyChat = ct;
     }
 
-    ChatTarget GetLobbyChatTarget() 
+    ChatTarget GetLobbyChatTarget() override 
     {
         return m_ctLobbyChat;
     }
@@ -8896,7 +8896,7 @@ public:
         return bThrottleChange;
     }
 
-    HRESULT HandleMsg(FEDMESSAGE* pfm, Time lastUpdate, Time now)
+    HRESULT HandleMsg(FEDMESSAGE* pfm, Time lastUpdate, Time now) override
     {
         HRESULT hr = S_OK;  //handled by default
 
@@ -8973,7 +8973,7 @@ public:
     }
 
 
-    void OnDelPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam)
+    void OnDelPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam) override
     {
         if (pPlayerInfo->ShipID() == trekClient.GetShipID() && trekClient.GetSideID() == SIDE_TEAMLOBBY)
         {
@@ -8981,7 +8981,7 @@ public:
         }
     }
 
-    virtual void OnMissionCountdown(MissionInfo* pMissionDef)
+    void OnMissionCountdown(MissionInfo* pMissionDef) override
     {
         m_nLastCountdown = c_nCountdownMax;
         trekClient.PlaySoundEffect(countdownStartingSound);
@@ -9070,7 +9070,7 @@ public:
         }
     }
 
-    void OnChatMessageChange()
+    void OnChatMessageChange() override
     {
         this->ChangeChatMessage();
     }
@@ -9085,7 +9085,7 @@ public:
     // VT functions.
     //
 
-    VOID VTSetText(LPCSTR szFormat, ...)
+    VOID VTSetText(LPCSTR szFormat, ...) override
     {
         TCHAR szText[1024];
         va_list vaList;
@@ -9102,12 +9102,12 @@ public:
         }
     }
 
-    void  SoundEngineUpdate (void)
+    void  SoundEngineUpdate (void) override
     {
         ZSucceeded(m_pSoundEngine->Update ());
     }
 
-    TRef<ISoundInstance>  StartSound(ISoundTemplate* ptemplate, ISoundPositionSource* psource = NULL)
+    TRef<ISoundInstance>  StartSound(ISoundTemplate* ptemplate, ISoundPositionSource* psource = NULL) override
     {
         if (ptemplate)
         {
@@ -9125,7 +9125,7 @@ public:
         }
     };
 
-    TRef<ISoundInstance>  StartSound(SoundID soundId, ISoundPositionSource* psource = NULL)
+    TRef<ISoundInstance>  StartSound(SoundID soundId, ISoundPositionSource* psource = NULL) override
     {
         if (soundId < 0 || soundId > (int)m_vSoundMap.size())
         {
@@ -9137,7 +9137,7 @@ public:
         return StartSound(m_vSoundMap[soundId], psource);
     };
 
-    void      StartLockDown(const ZString& strReason)
+    void      StartLockDown(const ZString& strReason) override
     {
         ZAssert(m_pmessageBoxLockdown == NULL || trekClient.IsLockedDown());
         
@@ -9152,7 +9152,7 @@ public:
         }
     }
 
-    void      EndLockDown()
+    void      EndLockDown() override
     {
         if (!trekClient.IsLockedDown())
         {

@@ -604,7 +604,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = Get0()->GetValue() - Get1()->GetValue();
     }
@@ -620,7 +620,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = Get0()->GetValue() + Get1()->GetValue();
     }
@@ -636,7 +636,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = Get0()->GetValue() * Get1()->GetValue();
     }
@@ -652,7 +652,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = Get0()->GetValue() / Get1()->GetValue();
     }
@@ -667,7 +667,7 @@ public:
 
     Number* Get0() { return Number::Cast(GetChild(0)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = sin(Get0()->GetValue());
     }
@@ -682,7 +682,7 @@ public:
 
     Number* Get0() { return Number::Cast(GetChild(0)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = cos(Get0()->GetValue());
     }
@@ -698,7 +698,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() =
             (float)(
@@ -718,7 +718,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() =
             (float)(
@@ -738,7 +738,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() =
             (float)(
@@ -758,7 +758,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = mod(Get0()->GetValue(), Get1()->GetValue());
     }
@@ -774,7 +774,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = min(Get0()->GetValue(), Get1()->GetValue());
     }
@@ -790,7 +790,7 @@ public:
     Number* Get0() { return Number::Cast(GetChild(0)); }
     Number* Get1() { return Number::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = max(Get0()->GetValue(), Get1()->GetValue());
     }
@@ -878,7 +878,7 @@ public:
     Boolean* Get0() { return Boolean::Cast(GetChild(0)); }
     Boolean* Get1() { return Boolean::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() =
                Get0()->GetValue()
@@ -896,7 +896,7 @@ public:
     Boolean* Get0() { return Boolean::Cast(GetChild(0)); }
     Boolean* Get1() { return Boolean::Cast(GetChild(1)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() =
                Get0()->GetValue()
@@ -913,7 +913,7 @@ public:
 
     Boolean* Get0() { return Boolean::Cast(GetChild(0)); }
 
-    void Evaluate()
+    void Evaluate() override
     {
         GetValueInternal() = !(Get0()->GetValue());
     }

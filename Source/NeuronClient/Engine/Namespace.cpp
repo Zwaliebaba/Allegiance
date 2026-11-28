@@ -12,12 +12,12 @@ public:
     {
     }
 
-    INameSpace* GetNameSpace()
+    INameSpace* GetNameSpace() override
     {
         return m_pns;
     }
 
-    const ZString& GetName()
+    const ZString& GetName() override
     {
         return m_str;
     }
@@ -115,12 +115,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    const ZString& GetName()
+    const ZString& GetName() override
     {
         return m_strName;
     }
 
-    void AddMember(const ZString& strName, IObject* pobject)
+    void AddMember(const ZString& strName, IObject* pobject) override
     {
         ZAssert(FindMemberLocal(strName) == NULL);
 
@@ -141,7 +141,7 @@ public:
         #endif
     }
 
-    IObject* FindMemberLocal(const ZString& str)
+    IObject* FindMemberLocal(const ZString& str) override
     {
         SymbolList::Iterator iter(m_listSymbols);
 
@@ -158,7 +158,7 @@ public:
         return NULL;
     }
 
-    IObject* FindMemberAndNameSpace(const ZString& str, INameSpace*& pns)
+    IObject* FindMemberAndNameSpace(const ZString& str, INameSpace*& pns) override
     {
         IObject* pobject = FindMemberLocal(str);
 
@@ -181,7 +181,7 @@ public:
         return NULL;
     }
 
-    IObject* FindMember(const ZString& str)
+    IObject* FindMember(const ZString& str) override
     {
         INameSpace* pns;
 
@@ -194,7 +194,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void AddType(const ZString& strName, MDLType* ptype)
+    void AddType(const ZString& strName, MDLType* ptype) override
     {
         ZAssert(FindTypeLocal(strName) == NULL);
 
@@ -203,7 +203,7 @@ public:
         m_listTypes.GetEnd().m_ptype   = ptype;
     }
 
-    MDLType* FindTypeLocal(const ZString& strName)
+    MDLType* FindTypeLocal(const ZString& strName) override
     {
         TypeList::Iterator iter(m_listTypes);
 
@@ -244,14 +244,14 @@ public:
         return NULL;
     }
 
-    MDLType* FindType(const ZString& strName)
+    MDLType* FindType(const ZString& strName) override
     {
         NameSpaceImpl* pns;
 
         return FindTypeAndNameSpace(strName, pns);
     }
 
-    void WriteTypeHeader(ZFile* pfile)
+    void WriteTypeHeader(ZFile* pfile) override
     {
         TypeList::Iterator iter(m_listTypes);
 
@@ -336,7 +336,7 @@ public:
             data.m_str                 = str;
         }
 
-        void AddImport(const ZString& str)
+        void AddImport(const ZString& str) override
         {
             int index = FindImport(str);
 
@@ -359,7 +359,7 @@ public:
         // or false if it's in our own namespace.
         //
 
-        bool AddImport(INameSpaceInfo* pnsInfo)
+        bool AddImport(INameSpaceInfo* pnsInfo) override
         {
             ZString str = pnsInfo->GetName();
             int index = FindImport(pnsInfo->GetName());
@@ -381,13 +381,13 @@ public:
             return true;
         }
 
-        void WriteString(const ZString& str)
+        void WriteString(const ZString& str) override
         {
             m_pfile->Write(ObjectString);
             m_pfile->WriteAlignedString(str);
         }
 
-        void WriteReference(const ZString& str)
+        void WriteReference(const ZString& str) override
         {
             int index = FindImport(str);
 
@@ -411,30 +411,30 @@ public:
             }
         }
 
-        void WriteApply()
+        void WriteApply() override
         {
             m_pfile->Write(ObjectApply);
         }
 
-        ZFile* WriteBinary()
+        ZFile* WriteBinary() override
         {
             m_pfile->Write(ObjectBinary);
             return m_pfile;
         }
 
-        void WriteList(DWORD count)
+        void WriteList(DWORD count) override
         {
             m_pfile->Write(ObjectList);
             m_pfile->Write(count);
         }
 
-        void WriteNumber(float value)
+        void WriteNumber(float value) override
         {
             m_pfile->Write(ObjectFloat);
             m_pfile->Write(value);
         }
 
-        void WriteBoolean(bool value)
+        void WriteBoolean(bool value) override
         {
             if (value) {
                 m_pfile->Write(ObjectTrue);
@@ -443,12 +443,12 @@ public:
             }
         }
 
-        void WritePair()
+        void WritePair() override
         {
             m_pfile->Write(ObjectPair);
         }
 
-        void WriteEnd()
+        void WriteEnd() override
         {
             m_pfile->Write(ObjectEnd);
         }
@@ -548,7 +548,7 @@ public:
 
     friend class MDLBinaryFile;
 
-    void WriteToBinaryFile(ZFile* pfile)
+    void WriteToBinaryFile(ZFile* pfile) override
     {
         TRef<MDLBinaryFile> pmdlFile = new MDLBinaryFile(this, pfile);
 
@@ -561,7 +561,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void WriteToTextFile(int indent, ZFile* pfile)
+    void WriteToTextFile(int indent, ZFile* pfile) override
     {
         //
         // write out used libraries

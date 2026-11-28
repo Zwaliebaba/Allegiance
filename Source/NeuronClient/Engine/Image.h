@@ -57,24 +57,24 @@ public:
     // Image methods
     //
 
-    const Bounds2&      GetBounds();
-          void          CalcBounds();
-          void          Render(Context* pcontext);
-          TRef<Surface> GetSurface();
+    const Bounds2&      GetBounds() override;
+          void          CalcBounds() override;
+          void          Render(Context* pcontext) override;
+          TRef<Surface> GetSurface() override;
 
     //
     // Value methods
     //
 
-    ZString GetFunctionName();
-    ZString GetString(int indent);
-    void    Write(IMDLBinaryFile* pfile);
+    ZString GetFunctionName() override;
+    ZString GetString(int indent) override;
+    void    Write(IMDLBinaryFile* pfile) override;
 
     //
     // IMouseInput methods
     //
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ private:
 
     Number* GetTime() { return Number::Cast(GetChild(0)); }
 
-    void Evaluate();
+    void Evaluate() override;
 
 public:
     AnimatedImage(Number* ptime, AnimatedImage* pimage);
@@ -110,19 +110,19 @@ public:
     // Image methods
     //
 
-    TRef<Surface> GetSurface();
+    TRef<Surface> GetSurface() override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "AnimatedImage"; }
+    ZString GetFunctionName() override { return "AnimatedImage"; }
 
     //
     // IMouseInput methods
     //
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -158,26 +158,26 @@ public:
     // Image methods
     //
 
-    void CalcBounds();
-    void Render(Context* pcontext);
-    TRef<Surface> GetSurface();
+    void CalcBounds() override;
+    void Render(Context* pcontext) override;
+    TRef<Surface> GetSurface() override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "WrapImage"; }
+    ZString GetFunctionName() override { return "WrapImage"; }
 
     //
     // IMouseInput methods
     //
 
-    void RemoveCapture();
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
-    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside);
-    void MouseEnter(IInputProvider* pprovider, const Point& point);
-    void MouseLeave(IInputProvider* pprovider);
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown);
+    void RemoveCapture() override;
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
+    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override;
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override;
+    void MouseLeave(IInputProvider* pprovider) override;
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -234,23 +234,23 @@ public:
     // Image members
     //
 
-    void CalcBounds();
-    void Render(Context* pcontext);
+    void CalcBounds() override;
+    void Render(Context* pcontext) override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "TransformImage"; }
+    ZString GetFunctionName() override { return "TransformImage"; }
 
     //
     // IMouseInput methods
     //
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
-    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside);
-    void MouseEnter(IInputProvider* pprovider, const Point& point);
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown);
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
+    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override;
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override;
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -274,23 +274,23 @@ public:
     // Image members
     //
 
-    void CalcBounds();
-    void Render(Context* pcontext);
+    void CalcBounds() override;
+    void Render(Context* pcontext) override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "TranslateImage"; }
+    ZString GetFunctionName() override { return "TranslateImage"; }
 
     //
     // IMouseInput methods
     //
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
-    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside);
-    void MouseEnter(IInputProvider* pprovider, const Point& point);
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown);
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
+    void MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override;
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override;
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -306,7 +306,7 @@ private:
 
     ValueList* GetValueList() { return ValueList::Cast(GetChild(0)); }
 
-    bool RemoveValue(Value* pvalue);
+    bool RemoveValue(Value* pvalue) override;
 
 public:
     GroupImage();
@@ -323,23 +323,23 @@ public:
     // Image Methods
     //
 
-    void CalcBounds();
-    void Render(Context* pcontext);
+    void CalcBounds() override;
+    void Render(Context* pcontext) override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "GroupImage"; }
+    ZString GetFunctionName() override { return "GroupImage"; }
 
     //
     // IMouseInput methods
     //
 
-    void RemoveCapture();
-    void MouseLeave(IInputProvider* pprovider);
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown);
+    void RemoveCapture() override;
+    void MouseLeave(IInputProvider* pprovider) override;
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -409,22 +409,22 @@ public:
     // Image methods
     //
 
-    void CalcBounds();
-    void Render(Context* pcontext);
+    void CalcBounds() override;
+    void Render(Context* pcontext) override;
 
     //
     // Value members
     //
 
-    ZString GetFunctionName() { return "GeoImage"; }
+    ZString GetFunctionName() override { return "GeoImage"; }
 
     //
     // IMouseInput methods
     //
 
-    void RemoveCapture();
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown);
+    void RemoveCapture() override;
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -14,7 +14,7 @@ public:
     {
     }
 
-    int GetAlignedXSize(int xPos)
+    int GetAlignedXSize(int xPos) override
     {
         int tabs = (xPos / 16) + 1;
         int size = tabs * 16 - xPos;
@@ -56,19 +56,19 @@ public:
         SetTextColor(m_color);
     }
 
-    void MouseEnter(IInputProvider* pprovider, const Point& point)
+    void MouseEnter(IInputProvider* pprovider, const Point& point) override
     { 
         m_bInside = true;
         SetTextColor(m_colorSelected);
     }
 
-    void MouseLeave(IInputProvider* pprovider)
+    void MouseLeave(IInputProvider* pprovider) override
     { 
         m_bInside = false;
         SetTextColor(m_color);
     }
 
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown)
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override
     { 
         if (button == 0 && bDown) {
             m_peventSource->Trigger(m_strTopic);
@@ -575,7 +575,7 @@ public:
         const Color& colorMain,
         const Color& colorSecondary,
         const Color& colorHighlight
-    ) {
+    ) override {
         m_pfontDefault   = pfont;
         m_colorDefault   = color;
         m_colorMain      = colorMain;
@@ -583,17 +583,17 @@ public:
         m_colorHighlight = colorHighlight;
     }
 
-    TRef<IStringEventSource> GetMainLinkEventSource()
+    TRef<IStringEventSource> GetMainLinkEventSource() override
     {
         return m_peventSourceMain;
     }
 
-    TRef<IStringEventSource> GetSecondaryLinkEventSource()
+    TRef<IStringEventSource> GetSecondaryLinkEventSource() override
     {
         return m_peventSourceSecondary;
     }
 
-    void SetTopic(INameSpace* pns, const ZString& str)
+    void SetTopic(INameSpace* pns, const ZString& str) override
     {
         RemoveAllChildren();
 
@@ -614,7 +614,7 @@ public:
         }
     }
 
-    void SetTopicText(INameSpace* pns, const ZString& str)
+    void SetTopicText(INameSpace* pns, const ZString& str) override
     {
         RemoveAllChildren();
 
@@ -625,7 +625,7 @@ public:
         Parse(pns, pcc, pcc + (int)str.size());
     }
 
-    void SetPagePaneIncluder(PagePaneIncluder* ppagePaneIncluder)
+    void SetPagePaneIncluder(PagePaneIncluder* ppagePaneIncluder) override
     {
         m_ppagePaneIncluder = ppagePaneIncluder;
     }
@@ -636,7 +636,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         //
         // Update the size of all the children
@@ -772,7 +772,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool OnEvent(IIntegerEventSource* pevent, int value)
+    bool OnEvent(IIntegerEventSource* pevent, int value) override
     {
         NeedPaint();
         NeedLayout();
@@ -785,7 +785,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         InternalSetOffset(m_ppane, WinPoint(0, -m_pscroll->GetPos()));
         m_ppane->UpdateLayout();
@@ -797,7 +797,7 @@ public:
         );
     }
 
-    void Paint(Surface* psurface)
+    void Paint(Surface* psurface) override
     {
     }
 };
@@ -848,7 +848,7 @@ public:
         const Color& colorMain,
         const Color& colorSecondary,
         const Color& colorHighlight
-    ) {
+    ) override {
         m_ppagePane->SetAttributes(
             pfont,
             color,
@@ -858,27 +858,27 @@ public:
         );
     }
 
-    TRef<IStringEventSource> GetMainLinkEventSource()
+    TRef<IStringEventSource> GetMainLinkEventSource() override
     {
         return m_ppagePane->GetMainLinkEventSource();
     }
 
-    TRef<IStringEventSource> GetSecondaryLinkEventSource()
+    TRef<IStringEventSource> GetSecondaryLinkEventSource() override
     {
         return m_ppagePane->GetSecondaryLinkEventSource();
     }
 
-    void SetTopic(INameSpace* pns, const ZString& str)
+    void SetTopic(INameSpace* pns, const ZString& str) override
     {
         m_ppagePane->SetTopic(pns, str);
     }
 
-    void SetTopicText(INameSpace* pns, const ZString& str)
+    void SetTopicText(INameSpace* pns, const ZString& str) override
     {
         m_ppagePane->SetTopicText(pns, str);
     }
 
-    void SetPagePaneIncluder(PagePaneIncluder* ppagePaneIncluder)
+    void SetPagePaneIncluder(PagePaneIncluder* ppagePaneIncluder) override
     {
         m_ppagePane->SetPagePaneIncluder(ppagePaneIncluder);
     }
@@ -889,7 +889,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }
@@ -911,7 +911,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<PointValue> psize;       CastTo(psize,              (IObject*)stack.Pop());
         TRef<ScrollPane> pscrollPane; CastTo(pscrollPane, (Pane*)(IObject*)stack.Pop());

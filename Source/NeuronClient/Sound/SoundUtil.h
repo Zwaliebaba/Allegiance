@@ -63,23 +63,23 @@ public:
     //
 
     // Gets the position of the sound in space
-    HRESULT GetPosition(Vector& vectPosition);
+    HRESULT GetPosition(Vector& vectPosition) override;
     
     // Gets the velocity of the sound in space
-    HRESULT GetVelocity(Vector& vectVelocity);
+    HRESULT GetVelocity(Vector& vectVelocity) override;
     
     // Gets the orientation of the sound in space, used for sound cones.
-    HRESULT GetOrientation(Vector& vectOrientation);
+    HRESULT GetOrientation(Vector& vectOrientation) override;
 
     // Returns S_OK if the position, velocity and orientation reported are 
     // relative to the listener, S_FALSE otherwise.  
-    HRESULT IsListenerRelative();
+    HRESULT IsListenerRelative() override;
 
     // Returns S_OK if this source is still playing the sound, S_FALSE 
     // otherwise.  This might be false if a sound emitter is destroyed, for 
     // example, in which case the sound might fade out.  Once it returns
     // S_FALSE once, it should never return S_OK again.
-    HRESULT IsPlaying();
+    HRESULT IsPlaying() override;
 };
 
 
@@ -103,19 +103,19 @@ public:
     //
 
     // Gets the position of the sound in space
-    HRESULT GetPosition(Vector& vectPosition);
+    HRESULT GetPosition(Vector& vectPosition) override;
     
     // Gets the velocity of the sound in space
-    HRESULT GetVelocity(Vector& vectVelocity);
+    HRESULT GetVelocity(Vector& vectVelocity) override;
     
     // Gets the orientation of the sound in space, used for sound cones.
-    HRESULT GetOrientation(Vector& vectOrientation);
+    HRESULT GetOrientation(Vector& vectOrientation) override;
 
     // Returns S_OK if this source is still playing the sound, S_FALSE 
     // otherwise.  This might be false if a sound emitter is destroyed, for 
     // example, in which case the sound might fade out.  Once it returns
     // S_FALSE once, it should never return S_OK again.
-    HRESULT IsPlaying();
+    HRESULT IsPlaying() override;
 };
 
 
@@ -144,7 +144,7 @@ public:
     //
 
     // get the "up" vector for the listener
-    HRESULT GetUpDirection(Vector& vectUp);
+    HRESULT GetUpDirection(Vector& vectUp) override;
 
 
     //
@@ -152,19 +152,19 @@ public:
     //
 
     // Gets the position of the sound in space
-    HRESULT GetPosition(Vector& vectPosition);
+    HRESULT GetPosition(Vector& vectPosition) override;
     
     // Gets the velocity of the sound in space
-    HRESULT GetVelocity(Vector& vectVelocity);
+    HRESULT GetVelocity(Vector& vectVelocity) override;
     
     // Gets the orientation of the sound in space, used for sound cones.
-    HRESULT GetOrientation(Vector& vectOrientation);
+    HRESULT GetOrientation(Vector& vectOrientation) override;
 
     // Returns S_OK if this source is still playing the sound, S_FALSE 
     // otherwise.  This might be false if a sound emitter is destroyed, for 
     // example, in which case the sound might fade out.  Once it returns
     // S_FALSE once, it should never return S_OK again.
-    HRESULT IsPlaying();
+    HRESULT IsPlaying() override;
 };
 
 
@@ -183,18 +183,18 @@ public:
     // Stops the sound.  If bForceNow is true the sound will stop ASAP, 
     // possibly popping.  If it is false some sounds may play a trail-off 
     // sound or fade away.  
-    virtual HRESULT Stop(bool bForceNow = false);
+    HRESULT Stop(bool bForceNow = false) override;
 
     // returns S_OK if the sound is currently playing, S_FALSE otherwise.
-    virtual HRESULT IsPlaying();
+    HRESULT IsPlaying() override;
 
     // Gets an event which fires when the sound finishes playing (for any 
     // reason)
-    virtual IEventSource* GetFinishEventSource();
+    IEventSource* GetFinishEventSource() override;
 
     // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-    virtual TRef<ISoundTweakable> GetISoundTweakable();
-    virtual TRef<ISoundTweakable3D> GetISoundTweakable3D();
+    TRef<ISoundTweakable> GetISoundTweakable() override;
+    TRef<ISoundTweakable3D> GetISoundTweakable3D() override;
 };
 
 
@@ -212,15 +212,15 @@ public:
       m_pBase(pBase) { ZAssert(pBase != NULL); };
 
     // Sets the gain, from 0 to -100 dB
-    virtual HRESULT SetGain(float fGain);
+    HRESULT SetGain(float fGain) override;
 
     // Sets the pitch shift, where 1.0 is normal, 0.5 is half of normal speed, 
     // and 2.0 is twice normal speed.  
-    virtual HRESULT SetPitch(float fPitch);
+    HRESULT SetPitch(float fPitch) override;
 
     // sets the priority - used as a addition to volume when choosing which 
     // sounds are most important to play.
-    virtual HRESULT SetPriority(float fPriority);
+    HRESULT SetPriority(float fPriority) override;
 };
 
 
@@ -303,7 +303,7 @@ public:
 
     // calls Stop(true) if m_pposSource has stopped. calls Update, 
     // returns IsPlaying()
-    virtual bool OnEvent(IIntegerEventSource* pevent, int value);
+    bool OnEvent(IIntegerEventSource* pevent, int value) override;
 
     // copies any tweaks that have been made to the given sound instance
     void UpdateSound(ISoundInstance* psound);
@@ -316,18 +316,18 @@ public:
     // Stops the sound.  If bForceNow is true the sound will stop ASAP, 
     // possibly popping.  If it is false some sounds may play a trail-off 
     // sound or fade away.  
-    virtual HRESULT Stop(bool bForceNow = false);
+    HRESULT Stop(bool bForceNow = false) override;
 
     // returns S_OK if the sound is currently playing, S_FALSE otherwise.
-    virtual HRESULT IsPlaying();
+    HRESULT IsPlaying() override;
 
     // Gets an event which fires when the sound finishes playing (for any 
     // reason)
-    virtual IEventSource* GetFinishEventSource();
+    IEventSource* GetFinishEventSource() override;
 
     // Gets an interface for tweaking the sound, if supported, NULL otherwise.
-    virtual TRef<ISoundTweakable> GetISoundTweakable();
-    virtual TRef<ISoundTweakable3D> GetISoundTweakable3D();
+    TRef<ISoundTweakable> GetISoundTweakable() override;
+    TRef<ISoundTweakable3D> GetISoundTweakable3D() override;
 
 
     //
@@ -335,16 +335,16 @@ public:
     //
 
     // toggles 3D Positioning on and off for the given sound.
-    virtual HRESULT Set3D(bool b3D);
+    HRESULT Set3D(bool b3D) override;
 
     // Sets the distance at which the sound will be at max volume.  This
     // effects how quickly the sound drops off with distance.  
-    virtual HRESULT SetMinimumDistance(float fMinimumDistance);
+    HRESULT SetMinimumDistance(float fMinimumDistance) override;
 
     // Sets a sound cone of size fInnerAngle (in degrees) where the volume is at 
     // normal levels, outside of which it fades down by fOutsideGain 
     // (range of 0 to -100 db) at fOuterAngle (degrees) and beyond.  
-    virtual HRESULT SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain);
+    HRESULT SetCone(float fInnerAngle, float fOuterAngle, float fOutsideGain) override;
 
 
     //
@@ -352,15 +352,15 @@ public:
     //
 
     // Sets the gain, from 0 to -100 dB
-    virtual HRESULT SetGain(float fGain);
+    HRESULT SetGain(float fGain) override;
 
     // Sets the pitch shift, where 1.0 is normal, 0.5 is half of normal speed, 
     // and 2.0 is twice normal speed.  
-    virtual HRESULT SetPitch(float fPitch);
+    HRESULT SetPitch(float fPitch) override;
 
     // sets the priority - used as a addition to volume when choosing which 
     // sounds are most important to play.
-    virtual HRESULT SetPriority(float fPriority);
+    HRESULT SetPriority(float fPriority) override;
 };
 
 
@@ -377,19 +377,19 @@ public:
 
     // Creates a static sound buffer of the given wave file.  If bLooping is 
     // true, the sound will loop until stopped.
-    virtual HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
-        ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource = NULL);
+    HRESULT CreateStaticBuffer(TRef<ISoundInstance>& psoundNew, 
+        ISoundPCMData* pcmdata, bool bLooping, ISoundPositionSource* psource = NULL) override;
 
     // Creates a sound buffer with a loop in the middle.  The sound will play
     // the start sound, play the loop sound until it gets a soft stop, then
     // play the rest of the sound.  
-    virtual HRESULT CreateASRBuffer(TRef<ISoundInstance>& psoundNew, 
+    HRESULT CreateASRBuffer(TRef<ISoundInstance>& psoundNew, 
         ISoundPCMData* pcmdata, unsigned uLoopStart, unsigned uLoopLength, 
-        ISoundPositionSource* psource = NULL);
+        ISoundPositionSource* psource = NULL) override;
 
     // Gets an event which fires each time update is called.  This can be used
     // for some of the trickier sounds that change with time.
-    virtual IIntegerEventSource* GetUpdateEventSource();
+    IIntegerEventSource* GetUpdateEventSource() override;
 };
 
 

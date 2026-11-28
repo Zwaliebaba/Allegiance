@@ -27,8 +27,8 @@ namespace Training
         public:
             /* void */                  TurnShipAboutCondition (const TRef<ImodelIGC>& ship);
             virtual /* void */          ~TurnShipAboutCondition (void);
-            virtual bool                Start (void);
-            virtual bool                Evaluate (void);
+            bool                Start (void) override;
+            bool                Evaluate (void) override;
 
         protected:
                     TRef<ImodelIGC>     m_ship;

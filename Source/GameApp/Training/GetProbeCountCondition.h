@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          GetProbeCountCondition (int iProbeCount);
             virtual /* void */          ~GetProbeCountCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     int                 m_iProbeCount;

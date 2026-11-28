@@ -22,7 +22,7 @@
 
 class ModelerSiteImpl : public ModelerSite {
 public:
-    void Error(const ZString& str)
+    void Error(const ZString& str) override
     {
         printf(str.c_str());
         printf("\n");
@@ -49,7 +49,7 @@ public:
     // Engine warnings (e.g. a substituted font) go to the build log, in the
     // "origin : warning : text" form MSBuild picks up; other debug output stays
     // in the debugger.
-    void DebugOutput(const char* psz)
+    void DebugOutput(const char* psz) override
     {
         EffectApp::DebugOutput(psz);
         if (strncmp(psz, "warning: ", 9) == 0)
@@ -190,7 +190,7 @@ public:
         }
     }
 
-    HRESULT Initialize(const ZString& strCommandLine)
+    HRESULT Initialize(const ZString& strCommandLine) override
     {
         // Unbuffered, so the last line printed before a crash shows how far a
         // batch got (stdout is a pipe under MSBuild, hence fully buffered).
@@ -316,7 +316,7 @@ public:
         return E_FAIL;
     }
 
-    void Terminate()
+    void Terminate() override
     {
         EffectApp::Terminate();
     }

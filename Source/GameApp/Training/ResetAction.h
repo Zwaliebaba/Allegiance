@@ -38,7 +38,7 @@ namespace Training
         public:
                     /* void */          ResetAction (Goal* pGoal, SoundID soundID = NA);
             virtual /* void */          ~ResetAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
             static  void                Initialize (void);
 
         protected:

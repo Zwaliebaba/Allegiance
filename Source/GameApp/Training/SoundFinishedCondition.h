@@ -31,7 +31,7 @@ namespace Training
         public:
             /* void */                  SoundFinishedCondition (PlaySoundAction* pPlaySoundAction);
             virtual /* void */          ~SoundFinishedCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     PlaySoundAction*    m_pPlaySoundAction;

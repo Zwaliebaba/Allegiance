@@ -319,17 +319,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    const ZString& GetName()
+    const ZString& GetName() override
     {
         return m_strName;
     }
 
-    void AddMember(const ZString& strName, IObject* pobject)
+    void AddMember(const ZString& strName, IObject* pobject) override
     {
         ZUnimplemented();
     }
 
-    IObject* FindMemberAndNameSpace(const ZString& strName, INameSpace*& pns)
+    IObject* FindMemberAndNameSpace(const ZString& strName, INameSpace*& pns) override
     {
         IObject* pobject = FindMemberLocal(strName);
 
@@ -351,14 +351,14 @@ public:
         return NULL;
     }
 
-    IObject* FindMember(const ZString& strName)
+    IObject* FindMember(const ZString& strName) override
     {
         INameSpace* pns;
 
         return FindMemberAndNameSpace(strName, pns);
     }
 
-    IObject* FindMemberLocal(const ZString& strName)
+    IObject* FindMemberLocal(const ZString& strName) override
     {
         int count = (int)m_strExportNames.size();
 
@@ -371,34 +371,34 @@ public:
         return NULL;
     }
 
-    void AddType(const ZString& strName, MDLType* ptype)
+    void AddType(const ZString& strName, MDLType* ptype) override
     {
         ZUnimplemented();
     }
 
-    MDLType* FindType(const ZString& strName)               
-    {
-        ZUnimplemented();
-        return NULL;
-    }
-
-    MDLType* FindTypeLocal(const ZString& strName)          
+    MDLType* FindType(const ZString& strName) override               
     {
         ZUnimplemented();
         return NULL;
     }
 
-    void WriteTypeHeader(ZFile* pfile)
+    MDLType* FindTypeLocal(const ZString& strName) override          
+    {
+        ZUnimplemented();
+        return NULL;
+    }
+
+    void WriteTypeHeader(ZFile* pfile) override
     {
         ZUnimplemented();
     }
 
-    void WriteToTextFile(int indent, ZFile* pfile)
+    void WriteToTextFile(int indent, ZFile* pfile) override
     {
         ZUnimplemented();
     }
 
-    void WriteToBinaryFile(ZFile* pfile)
+    void WriteToBinaryFile(ZFile* pfile) override
     {
         ZUnimplemented();
     }
@@ -409,29 +409,29 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ZString GetString()
+    ZString GetString() override
     {
         return ReadString();
     }
 
-    DWORD GetDWORD()
+    DWORD GetDWORD() override
     {
         return ReadDWORD();
     }
 
-    BYTE* GetPointer()
+    BYTE* GetPointer() override
     {
         ZAssert(m_pdata);
         return m_pdata;
     }
 
-    void  MovePointer(int count)
+    void  MovePointer(int count) override
     {
         ZAssert(m_pdata);
         m_pdata += count;
     }
 
-    IObject* GetMemoryObject()
+    IObject* GetMemoryObject() override
     {
         ZAssert(m_pfile);
         return m_pfile;

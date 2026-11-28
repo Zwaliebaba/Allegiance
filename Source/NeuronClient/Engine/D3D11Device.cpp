@@ -380,7 +380,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool CheckDeviceLost(long hr) // true if the device was lost and re-created
+    bool CheckDeviceLost(long hr) override // true if the device was lost and re-created
     {
         if (
                hr == DXGI_ERROR_DEVICE_REMOVED
@@ -418,13 +418,13 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool IsValid()                     { return m_pdevice != NULL; }
-    ID3D11Device*        GetDevice()   { return m_pdevice;         }
-    ID3D11DeviceContext* GetContext()  { return m_pcontext;        }
-    ZString GetName()                  { return m_strName;         }
-    bool IsHardware()                  { return m_bHardware;       }
-    int  GetGeneration()               { return m_generation;      }
-    int  GetTotalVideoMemory()         { return m_videoMemory;     }
+    bool IsValid() override                     { return m_pdevice != NULL; }
+    ID3D11Device*        GetDevice() override   { return m_pdevice;         }
+    ID3D11DeviceContext* GetContext() override  { return m_pcontext;        }
+    ZString GetName() override                  { return m_strName;         }
+    bool IsHardware() override                  { return m_bHardware;       }
+    int  GetGeneration() override               { return m_generation;      }
+    int  GetTotalVideoMemory() override         { return m_videoMemory;     }
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -435,7 +435,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    ID3D11ShaderResourceView* GetTexture(PrivateSurface* psurface)
+    ID3D11ShaderResourceView* GetTexture(PrivateSurface* psurface) override
     {
         if (m_pdevice == NULL) {
             return NULL;
@@ -558,12 +558,12 @@ public:
         return entry.m_psrv;
     }
 
-    bool IsTranslucent(PrivateSurface* psurface)
+    bool IsTranslucent(PrivateSurface* psurface) override
     {
         return GetTexture(psurface) != NULL && m_textures[psurface].m_bTranslucent;
     }
 
-    void RemoveSurface(PrivateSurface* psurface)
+    void RemoveSurface(PrivateSurface* psurface) override
     {
         m_textures.erase(psurface);
     }
@@ -665,12 +665,12 @@ public:
         return &entry;
     }
 
-    void ReleaseSwapChain(HWND hwnd)
+    void ReleaseSwapChain(HWND hwnd) override
     {
         m_swapChains.erase(hwnd);
     }
 
-    void Present(HWND hwnd, PrivateSurface* psurface, const WinRect& rectSource, float gamma)
+    void Present(HWND hwnd, PrivateSurface* psurface, const WinRect& rectSource, float gamma) override
     {
         if (m_pdevice == NULL || psurface == NULL || ::IsIconic(hwnd)) {
             return;

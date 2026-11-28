@@ -30,7 +30,7 @@ protected:
 public:
     JustifyPane(int layout = Center, const WinPoint& size = WinPoint(0, 0), Pane* pchild = NULL);
 
-    virtual void UpdateLayout();
+    void UpdateLayout() override;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -49,8 +49,8 @@ public:
 
     void SetColor(const Color& color);
 
-    virtual void UpdateLayout();
-    virtual void Paint(Surface* psurface);
+    void UpdateLayout() override;
+    void Paint(Surface* psurface) override;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -73,8 +73,8 @@ public:
     void SetColor(const Color& color);
     void SetColorSelected(const Color& color);
 
-    virtual void UpdateLayout();
-    virtual void Paint(Surface* psurface);
+    void UpdateLayout() override;
+    void Paint(Surface* psurface) override;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -90,8 +90,8 @@ protected:
 public:
     EdgePane(Pane* pchild = NULL, bool bUp = true);
 
-    virtual void UpdateLayout();
-    virtual void Paint(Surface* psurface);
+    void UpdateLayout() override;
+    void Paint(Surface* psurface) override;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -112,8 +112,8 @@ public:
 
     void ShowGrid(bool bShowGrid);
 
-    virtual void Paint(Surface* psurface);
-    virtual void UpdateLayout();
+    void Paint(Surface* psurface) override;
+    void UpdateLayout() override;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -133,8 +133,8 @@ public:
 
     void ShowGrid(bool bShowGrid);
 
-    virtual void Paint(Surface* psurface);
-    virtual void UpdateLayout();
+    void Paint(Surface* psurface) override;
+    void UpdateLayout() override;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -153,8 +153,8 @@ protected:
     WinPoint m_ptSize;
     Justification m_justification;
 
-    virtual void UpdateLayout();
-    virtual void Paint(Surface* psurface);
+    void UpdateLayout() override;
+    void Paint(Surface* psurface) override;
 
 public:
     StringPane(const ZString& str, IEngineFont* pfont);
@@ -217,14 +217,14 @@ TRef<EditPane> CreateEditPane(const ZString& str, IEngineFont* pfont, Number* pt
 
 class ImagePane : public Pane, public Value {
 private:
-    void UpdateLayout();
-    void Paint(Surface* psurface);
+    void UpdateLayout() override;
+    void Paint(Surface* psurface) override;
 
     //
     // Value members
     //
 
-    void ChildChanged(Value* pvalue, Value* pvalueNew);
+    void ChildChanged(Value* pvalue, Value* pvalueNew) override;
 
 public:
     ImagePane(Image* pimage);
@@ -255,24 +255,24 @@ private:
     // Pane methods
     //
 
-    void UpdateLayout();
-    void Paint(Surface* psurface);
+    void UpdateLayout() override;
+    void Paint(Surface* psurface) override;
 
     //
     // Value methods
     //
 
-    void ChildChanged(Value* pvalue, Value* pvalueNew);
+    void ChildChanged(Value* pvalue, Value* pvalueNew) override;
 
     //
     // IMouseInput methods
     //
 
-    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured);
-    void        MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside);
-    void        MouseEnter(IInputProvider* pprovider, const Point& point);
-    void        MouseLeave(IInputProvider* pprovider);
-    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown);
+    MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override;
+    void        MouseMove(IInputProvider* pprovider, const Point& point, bool bCaptured, bool bInside) override;
+    void        MouseEnter(IInputProvider* pprovider, const Point& point) override;
+    void        MouseLeave(IInputProvider* pprovider) override;
+    MouseResult Button(IInputProvider* pprovider, const Point& point, int button, bool bCaptured, bool bInside, bool bDown) override;
 
 public:
     AnimatedImagePane(Image* pimage, const Rect& rect);
@@ -292,7 +292,7 @@ class SurfacePane : public Pane {
 private:
     TRef<Surface> m_psurface;
 
-    void Paint(Surface* psurface);
+    void Paint(Surface* psurface) override;
 
 public:
     SurfacePane(Surface* psurface);

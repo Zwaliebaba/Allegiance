@@ -27,9 +27,9 @@ namespace Training
         public:
                     /* void */          NTimesCondition (Condition* pCondition, unsigned int iTimes, bool bSticky = false);
             virtual /* void */          ~NTimesCondition (void);
-            virtual bool                Start (void);
-            virtual void                Stop (void);
-            virtual bool                Evaluate (void);
+            bool                Start (void) override;
+            void                Stop (void) override;
+            bool                Evaluate (void) override;
 
         protected:
                     Condition*          m_pCondition;

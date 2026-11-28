@@ -51,11 +51,11 @@ private:
 public:
     FrameList& GetList() { return m_list; }
 
-    ZString GetFunctionName()
+    ZString GetFunctionName() override
     {
         return "FrameData";
     }
 
-    ZString GetString(int indent);
-    void Write(IMDLBinaryFile* pmdlFile);
+    ZString GetString(int indent) override;
+    void Write(IMDLBinaryFile* pmdlFile) override;
 };

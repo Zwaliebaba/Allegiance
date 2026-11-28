@@ -34,7 +34,7 @@ namespace Training
             /* void */                  ObjectWithinRadiusCondition (ImodelIGC* pObject, AbstractTarget* pTarget, float fRadius);
             /* void */                  ObjectWithinRadiusCondition (ObjectType objectType, ObjectID objectID, ObjectType targetType, ObjectID targetID, float fRadius);
             virtual /* void */          ~ObjectWithinRadiusCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
                     float               GetRadarRadius (void) const;
 
         protected:

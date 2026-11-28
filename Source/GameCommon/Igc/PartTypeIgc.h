@@ -34,96 +34,96 @@ class   CpartTypeIGC : public IpartTypeIGC
         }
 
 // IbaseIGC
-        virtual HRESULT                 Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void                    Terminate(void);
+        HRESULT                 Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void                    Terminate(void) override;
 
-        virtual int                     Export(void* data) const;    
+        int                     Export(void* data) const override;    
 
-        virtual ObjectType              GetObjectType(void) const
+        ObjectType              GetObjectType(void) const override
         {
             return OT_partType;
         }
 
-        virtual ObjectID                GetObjectID(void) const
+        ObjectID                GetObjectID(void) const override
         {
             return m_data->partID;
         }
 // ItypeIGC
-        virtual const void*             GetData(void) const
+        const void*             GetData(void) const override
         {
             return m_data;
         }
 
 // IbuyableIGC
-        virtual const char*             GetModelName(void) const
+        const char*             GetModelName(void) const override
         {
             return m_data->modelName;
         }
 
-        virtual const char*          GetIconName(void) const
+        const char*          GetIconName(void) const override
         {
             return m_data->iconName;
         }
 
-        virtual const char*             GetName(void) const
+        const char*             GetName(void) const override
         {
             return m_data->name;
         }
-        virtual const char*             GetDescription(void) const
+        const char*             GetDescription(void) const override
         {
             return m_data->description;
         }
-        virtual Money                   GetPrice(void) const
+        Money                   GetPrice(void) const override
         {
             return m_data->price;
         }
 
-        virtual DWORD                   GetTimeToBuild(void) const
+        DWORD                   GetTimeToBuild(void) const override
         {
             return m_data->timeToBuild;
         }
 
-        virtual BuyableGroupID          GetGroupID(void) const
+        BuyableGroupID          GetGroupID(void) const override
         {
             return m_data->groupID;
         }
 
         // IpartTypeIGC
-        virtual float                   GetMass(void) const
+        float                   GetMass(void) const override
         {
             return m_data->mass;
         }
 
-        virtual float                   GetSignature(void) const
+        float                   GetSignature(void) const override
         {
             return m_data->signature;
         }
 
-        virtual EquipmentType           GetEquipmentType(void) const
+        EquipmentType           GetEquipmentType(void) const override
         {
             return m_data->equipmentType;
         }
-        virtual PartMask                GetPartMask(void) const
+        PartMask                GetPartMask(void) const override
         {
             return m_data->partMask;
         }
 
-        virtual const TechTreeBitMask&  GetRequiredTechs(void) const
+        const TechTreeBitMask&  GetRequiredTechs(void) const override
         {
             return m_data->ttbmRequired;
         }
 
-        virtual const TechTreeBitMask&  GetEffectTechs(void) const
+        const TechTreeBitMask&  GetEffectTechs(void) const override
         {
             return m_data->ttbmEffects;
         }
 
-        virtual IpartTypeIGC*           GetSuccessorPartType(void) const
+        IpartTypeIGC*           GetSuccessorPartType(void) const override
         {
             return m_pptSuccessor;
         }
 
-        const char*             GetInventoryLineMDLName(void) const
+        const char*             GetInventoryLineMDLName(void) const override
         {
             return m_data->inventoryLineMDL;
         }

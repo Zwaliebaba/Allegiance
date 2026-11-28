@@ -31,86 +31,86 @@ class       CdevelopmentIGC : public IdevelopmentIGC
 
     public:
     // IbaseIGC
-        virtual HRESULT     Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void        Terminate(void);
+        HRESULT     Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void        Terminate(void) override;
 
-        virtual int         Export(void* data) const;
+        int         Export(void* data) const override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_development;
         }
-        virtual ObjectID    GetObjectID(void) const
+        ObjectID    GetObjectID(void) const override
         {
             return m_data.developmentID;
         }
 
     // ItypeIGC
-        virtual const void*   GetData(void) const
+        const void*   GetData(void) const override
         {
             return &m_data;
         }
 
     // IbuyableIGC
-        virtual const char*          GetModelName(void) const
+        const char*          GetModelName(void) const override
         {
             return m_data.modelName;
         }
 
-        virtual const char*          GetIconName(void) const
+        const char*          GetIconName(void) const override
         {
             return m_data.iconName;
         }
 
-        virtual const char*          GetName(void) const
+        const char*          GetName(void) const override
         {
             return m_data.name;
         }
-        virtual const char*          GetDescription(void) const
+        const char*          GetDescription(void) const override
         {
             return m_data.description;
         }
-        virtual Money                GetPrice(void) const
+        Money                GetPrice(void) const override
         {
             return m_data.price;
         }
-        virtual BuyableGroupID       GetGroupID(void) const 
+        BuyableGroupID       GetGroupID(void) const override 
         { 
             return m_data.groupID; 
         };
 
-        virtual const TechTreeBitMask&  GetRequiredTechs(void) const
+        const TechTreeBitMask&  GetRequiredTechs(void) const override
         {
             return m_data.ttbmRequired;
         }
 
-        virtual const TechTreeBitMask&  GetEffectTechs(void) const
+        const TechTreeBitMask&  GetEffectTechs(void) const override
         {
             return m_data.ttbmEffects;
         }
 
-        virtual DWORD                   GetTimeToBuild(void) const
+        DWORD                   GetTimeToBuild(void) const override
         {
             return m_data.timeToBuild;
         }
 
         // IdevelopmentIGC
-        virtual const GlobalAttributeSet&   GetGlobalAttributeSet(void) const
+        const GlobalAttributeSet&   GetGlobalAttributeSet(void) const override
         {
             return m_data.gas;
         }
 
-        virtual bool                        GetTechOnly(void) const
+        bool                        GetTechOnly(void) const override
         {
             return m_techOnly;
         }
 
-        virtual bool                        IsObsolete(const TechTreeBitMask&  ttbm) const
+        bool                        IsObsolete(const TechTreeBitMask&  ttbm) const override
         {
             return m_techOnly && (m_data.ttbmEffects <= ttbm);
         }
 
-        virtual SoundID                     GetCompletionSound() const
+        SoundID                     GetCompletionSound() const override
         {
             return m_data.completionSound;
         }

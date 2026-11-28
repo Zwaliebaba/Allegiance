@@ -22,7 +22,7 @@ public:
     {
     }
 
-    void    Dismiss (void)
+    void    Dismiss (void) override
     {
         Slideshow::Dismiss ();
         GetWindow ()->screen(ScreenIDTrainScreen);

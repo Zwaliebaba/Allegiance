@@ -25,85 +25,85 @@ class CmagazineIGC : public ImagazineIGC
         ~CmagazineIGC(void);
 
 // IbaseIGC
-        virtual HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void            Terminate(void);
-        virtual void            Update(Time now);
+        HRESULT         Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void            Terminate(void) override;
+        void            Update(Time now) override;
 
-        virtual ObjectType      GetObjectType(void) const
+        ObjectType      GetObjectType(void) const override
         {
             return OT_magazine;
         }
 
-        virtual ImissionIGC*    GetMission(void) const
+        ImissionIGC*    GetMission(void) const override
         {
             return m_pMission;
         }
 
 // IpartIGC
-        virtual EquipmentType    GetEquipmentType(void) const
+        EquipmentType    GetEquipmentType(void) const override
         {
             return ET_Magazine;
         }
 
-        virtual IpartTypeIGC*    GetPartType(void) const
+        IpartTypeIGC*    GetPartType(void) const override
         {
             return m_partType;
         }
 
-        virtual IshipIGC*        GetShip(void) const
+        IshipIGC*        GetShip(void) const override
         {
             return m_ship;
         }
-        virtual void             SetShip(IshipIGC* newVal, Mount mount);
+        void             SetShip(IshipIGC* newVal, Mount mount) override;
 
-        virtual Mount            GetMountID(void) const
+        Mount            GetMountID(void) const override
         {
             return m_mountID;
         }
-        virtual void             SetMountID(Mount newVal);
+        void             SetMountID(Mount newVal) override;
 
-        virtual bool             fActive(void) const
+        bool             fActive(void) const override
         {
             return (m_mountID == 0);
         }
 
-        virtual void             Activate(void)
+        void             Activate(void) override
         {
             m_timeLoaded = m_ship->GetLastUpdate() + ((1.0f/m_pMission->GetFloatConstant(c_fcidMountRate)) + m_missileType->GetLoadTime());
             m_ship->ChangeSignature(m_missileType->GetLauncherDef()->signature);
         }
-        virtual void             Deactivate(void)
+        void             Deactivate(void) override
         {
             m_ship->ChangeSignature(-m_missileType->GetLauncherDef()->signature);
         }
-        virtual float               GetMass(void) const
+        float               GetMass(void) const override
         {
             return m_amount * m_missileType->GetMass();
         }
 
-        virtual Money            GetPrice(void) const
+        Money            GetPrice(void) const override
         {
             return ((Money)m_amount) * m_missileType->GetLauncherDef()->price;
         }
 
-        virtual float           GetMountedFraction(void) const
+        float           GetMountedFraction(void) const override
         {
             return m_mountedFraction;
         }
 
-        virtual void           SetMountedFraction(float f)
+        void           SetMountedFraction(float f) override
         {
             m_mountedFraction = f;
         }
 
-        virtual void            Arm(void)
+        void            Arm(void) override
         {
             m_mountedFraction = 1.0f;
             m_timeLoaded = m_ship->GetLastUpdate();
         }
 
     // IlauncherIGC
-        virtual void                SetAmount(short a)
+        void                SetAmount(short a) override
         {
             {
                 short   maxAmount = m_partType->GetAmount(m_ship);
@@ -124,35 +124,35 @@ class CmagazineIGC : public ImagazineIGC
                 m_amount = a;
             }
         }
-        virtual short               GetAmount(void) const
+        short               GetAmount(void) const override
         {
             return m_amount;
         }
 
-        virtual void                SetTimeFired(Time   now)
+        void                SetTimeFired(Time   now) override
         {
             m_timeLoaded = now + m_missileType->GetLoadTime();
         }
 
-        virtual Time                GetTimeLoaded(void) const
+        Time                GetTimeLoaded(void) const override
         {
             return m_timeLoaded;
         }
-        virtual void                SetTimeLoaded(Time  tl)
+        void                SetTimeLoaded(Time  tl) override
         {
             m_timeLoaded = tl;
         }
-        virtual void                ResetTimeLoaded(void)
+        void                ResetTimeLoaded(void) override
         {
             assert (m_ship);
                 m_timeLoaded = m_ship->GetLastUpdate() + ((1.0f/m_pMission->GetFloatConstant(c_fcidMountRate)) + m_missileType->GetLoadTime());
         }
 
-        virtual const Vector&        GetEmissionPt(void) const
+        const Vector&        GetEmissionPt(void) const override
         {
             return m_emissionPt;
         }
-        virtual float               GetArmedFraction(void) 
+        float               GetArmedFraction(void) override 
         {
             if (GetMountedFraction() < 1.0f)
             {
@@ -165,19 +165,19 @@ class CmagazineIGC : public ImagazineIGC
         }
 
     // ImagazineIGC
-        virtual ImissileTypeIGC*    GetMissileType(void) const
+        ImissileTypeIGC*    GetMissileType(void) const override
         {
             return m_missileType;
         }
-        virtual short               GetLaunchCount (void) const
+        short               GetLaunchCount (void) const override
         {
             return m_partType->GetLaunchCount ();
         }
-        virtual float               GetLock(void) const
+        float               GetLock(void) const override
         {
             return m_lock;
         }
-        virtual void                SetLock(float l)
+        void                SetLock(float l) override
         {
             m_lock = l;
         }

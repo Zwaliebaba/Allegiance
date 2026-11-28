@@ -119,7 +119,7 @@ private:
 
     class WhiteSurfaceSite : public SurfaceSite {
     public:
-        void UpdateSurface(Surface* psurface) 
+        void UpdateSurface(Surface* psurface) override 
         {
             psurface->FillSurface(Color::White());
         }
@@ -352,7 +352,7 @@ public:
         m_pstateDevice->m_lineWidth              = 1;
     }
 
-    bool IsValid()
+    bool IsValid() override
     {
         return m_pdevice3D != NULL && m_pdevice3D->IsValid();
     }
@@ -380,7 +380,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool Has3DAcceleration()
+    bool Has3DAcceleration() override
     {
         return m_pdevice3D->Has3DAcceleration();
     }
@@ -391,7 +391,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void BeginRendering()
+    void BeginRendering() override
     {
         ZAssert(!m_bRendering);
         ZAssert(!m_bInScene);
@@ -402,7 +402,7 @@ public:
         PushState();
     }
 
-    void EndRendering()
+    void EndRendering() override
     {
         ZAssert(m_bRendering);
 
@@ -416,7 +416,7 @@ public:
         m_bRendering = false;
     }
 
-    PrivateSurface* GetSurface()
+    PrivateSurface* GetSurface() override
     {
         return m_psurface;
     }
@@ -427,12 +427,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool GetClipping()
+    bool GetClipping() override
     {
         return m_pdevice3D->GetClipping();
     }
 
-    void SetClipping(bool bClip)
+    void SetClipping(bool bClip) override
     {
         m_pdevice3D->SetClipping(bClip);
     }
@@ -441,7 +441,7 @@ public:
         const Vector& vecOrigin,
               float   radius,
               bool&   bNotClipped
-    ) {
+    ) override {
         //  , this code assumes there are no non-uniform scales
         //     actualy it doesn't handle scales at all since radius isn't
         //     scaled.
@@ -527,7 +527,7 @@ public:
         const Rect& rectSource,
         bool bCentered,
         const Point& point
-    ) {
+    ) override {
         // !!! should really look at the device mode and the current transform
         // !!! this uses upper left as (0, 0) on psurface and DrawImage3D() uses lower left as (0, 0)
         // !!! this doesn't scale or rotate the image
@@ -560,7 +560,7 @@ public:
         Surface* psurface,
         bool bCentered,
         const Point& point
-    ) {
+    ) override {
         DrawImage(
             psurface, 
             WinRect(
@@ -584,7 +584,7 @@ public:
         const Color&   color,
               bool     bCentered,
         const Point&   point
-    ) {
+    ) override {
         ZAssert(m_bRendering);
 
         if (!m_bInScene) {
@@ -673,7 +673,7 @@ public:
         const Color& color,
         bool bCentered,
         const Point& point
-    ) {
+    ) override {
         DrawImage3D(
             psurface, 
             Rect(
@@ -697,7 +697,7 @@ public:
         const Color&   color,
         const Point&   point,
         const ZString& str
-    ) {
+    ) override {
         #ifdef EnablePerformanceCounters
             m_countDrawString++;
             m_countDrawStringChars += (int)str.size();
@@ -715,7 +715,7 @@ public:
         };
     }
 
-    void DrawRectangle(const Rect& rect, const Color& color)
+    void DrawRectangle(const Rect& rect, const Color& color) override
     {
         Texture2D();
 
@@ -740,7 +740,7 @@ public:
         m_pdevice3D->DrawLines(vertices, 4, indices, 8);
     }
 
-    void FillRect(const Rect& rect, const Color& color)
+    void FillRect(const Rect& rect, const Color& color) override
     {
         Texture2D();
 
@@ -769,7 +769,7 @@ public:
         m_pdevice3D->SetShadeMode(m_pstateDevice->m_shadeMode);
     }
 
-    void FillInfinite(const Color& color)
+    void FillInfinite(const Color& color) override
     {
         DD2D();
         m_psurface->FillSurface(color);        
@@ -781,7 +781,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void Begin3DLayer(Camera* pcamera, bool bZBuffer)
+    void Begin3DLayer(Camera* pcamera, bool bZBuffer) override
     {
         ZEnter("Context::Begin3DLayer");
 
@@ -895,7 +895,7 @@ public:
         list.SetEmpty();
     }
 
-    void End3DLayer()
+    void End3DLayer() override
     {
         ZExit("Context::Begin3DLayer");
 
@@ -959,12 +959,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetLOD(float lod)
+    void SetLOD(float lod) override
     {
         m_lod = lod;
     }
 
-    float GetLOD()
+    float GetLOD() override
     {
         return m_lod;
     }
@@ -975,20 +975,20 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    const Color&         GetGlobalColor()           const { return m_pstateDevice->m_color                 ; }
-    bool                 GetZTest()                 const { return m_pstateDevice->m_bZTest                ; }
-    bool                 GetZWrite()                const { return m_pstateDevice->m_bZWrite               ; }
-    bool                 GetPerspectiveCorrection() const { return m_pstateDevice->m_bPerspectiveCorrection; }
-    bool                 GetDither()                const { return m_pstateDevice->m_bDither               ; }
-    bool                 GetColorKey()              const { return m_pstateDevice->m_bColorKey             ; }
-    bool                 GetLinearFilter()          const { return m_pstateDevice->m_bLinearFilter         ; }
-    ShadeMode            GetShadeMode()             const { return m_pstateDevice->m_shadeMode             ; }
-    BlendMode            GetBlendMode()             const { return m_pstateDevice->m_blendMode             ; }
+    const Color&         GetGlobalColor()           const override { return m_pstateDevice->m_color                 ; }
+    bool                 GetZTest()                 const override { return m_pstateDevice->m_bZTest                ; }
+    bool                 GetZWrite()                const override { return m_pstateDevice->m_bZWrite               ; }
+    bool                 GetPerspectiveCorrection() const override { return m_pstateDevice->m_bPerspectiveCorrection; }
+    bool                 GetDither()                const override { return m_pstateDevice->m_bDither               ; }
+    bool                 GetColorKey()              const override { return m_pstateDevice->m_bColorKey             ; }
+    bool                 GetLinearFilter()          const override { return m_pstateDevice->m_bLinearFilter         ; }
+    ShadeMode            GetShadeMode()             const override { return m_pstateDevice->m_shadeMode             ; }
+    BlendMode            GetBlendMode()             const override { return m_pstateDevice->m_blendMode             ; }
     WrapMode             GetWrapMode()              const { return m_pstateDevice->m_wrapMode              ; }
-    CullMode             GetCullMode()              const { return m_pstateDevice->m_cullMode              ; }
-    Surface*             GetTexture()               const { return m_pstateDevice->m_psurfaceTexture       ; }
-    Material*            GetMaterial()              const { return m_pstateDevice->m_pmaterial             ; }
-    Deformation*         GetDeformation()           const { return m_pstateDevice->m_pdeform               ; }
+    CullMode             GetCullMode()              const override { return m_pstateDevice->m_cullMode              ; }
+    Surface*             GetTexture()               const override { return m_pstateDevice->m_psurfaceTexture       ; }
+    Material*            GetMaterial()              const override { return m_pstateDevice->m_pmaterial             ; }
+    Deformation*         GetDeformation()           const override { return m_pstateDevice->m_pdeform               ; }
 
     //////////////////////////////////////////////////////////////////////////////
     //
@@ -1028,7 +1028,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void SetGlobalColor(const Color& color, bool bOverride)
+    void SetGlobalColor(const Color& color, bool bOverride) override
     {
         DoSetState(
             color,
@@ -1039,7 +1039,7 @@ public:
         );
     }
 
-    void SetLinearFilter(bool b, bool bOverride)
+    void SetLinearFilter(bool b, bool bOverride) override
     {
         DoSetState(
             b,
@@ -1050,7 +1050,7 @@ public:
         );
     }
 
-    void SetPerspectiveCorrection(bool b, bool bOverride)
+    void SetPerspectiveCorrection(bool b, bool bOverride) override
     {
         DoSetState(
             b,
@@ -1061,7 +1061,7 @@ public:
         );
     }
 
-    void SetDither(bool b, bool bOverride)
+    void SetDither(bool b, bool bOverride) override
     {
         DoSetState(
             b,
@@ -1072,7 +1072,7 @@ public:
         );
     }
 
-    void SetColorKey(bool b, bool bOverride)
+    void SetColorKey(bool b, bool bOverride) override
     {
         DoSetState(
             b,
@@ -1083,7 +1083,7 @@ public:
         );
     }
 
-    void SetZTest(bool b, bool bOverride)
+    void SetZTest(bool b, bool bOverride) override
     {
         DoSetState(
             b,
@@ -1094,7 +1094,7 @@ public:
         );
     }
 
-    void SetZWrite(bool b, bool bOverride)
+    void SetZWrite(bool b, bool bOverride) override
     {
         DoSetState(
             b,
@@ -1105,7 +1105,7 @@ public:
         );
     }
 
-    void SetShadeMode(ShadeMode shadeMode, bool bOverride)
+    void SetShadeMode(ShadeMode shadeMode, bool bOverride) override
     {
         DoSetState(
             shadeMode,
@@ -1116,7 +1116,7 @@ public:
         );
     }
 
-    void SetBlendMode(BlendMode blendMode, bool bOverride)
+    void SetBlendMode(BlendMode blendMode, bool bOverride) override
     {
         DoSetState(
             blendMode,
@@ -1127,7 +1127,7 @@ public:
         );
     }
 
-    void SetWrapMode(WrapMode wrapMode, bool bOverride)
+    void SetWrapMode(WrapMode wrapMode, bool bOverride) override
     {
         DoSetState(
             wrapMode,
@@ -1138,7 +1138,7 @@ public:
         );
     }
 
-    void SetCullMode(CullMode cullMode, bool bOverride)
+    void SetCullMode(CullMode cullMode, bool bOverride) override
     {
         DoSetState(
             cullMode,
@@ -1149,7 +1149,7 @@ public:
         );
     }
 
-    void SetMaterial(Material* pmaterial, bool bOverride)
+    void SetMaterial(Material* pmaterial, bool bOverride) override
     {
         DoSetState(
             TRef<Material>(pmaterial),
@@ -1160,7 +1160,7 @@ public:
         );
     }
 
-    void SetTexture(Surface* psurface, bool bOverride)
+    void SetTexture(Surface* psurface, bool bOverride) override
     {
         DoSetState(
             TRef<Surface>(psurface),
@@ -1171,7 +1171,7 @@ public:
         );
     }
 
-    void SetDeformation(Deformation* pdeform, bool bOverride)
+    void SetDeformation(Deformation* pdeform, bool bOverride) override
     {
         DoSetState(
             TRef<Deformation>(pdeform),
@@ -1182,7 +1182,7 @@ public:
         );
     }
 
-    void SetLineWidth(float width, bool bOverride = false)
+    void SetLineWidth(float width, bool bOverride = false) override
     {
         DoSetState(
             width,
@@ -1288,12 +1288,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void PushState()
+    void PushState() override
     {
         m_pstate = new State(m_pstate);
     }
 
-    void PopState()
+    void PopState() override
     {
         const StateChange& maskChanges = m_pstate->m_maskChanges;
 
@@ -1412,7 +1412,7 @@ public:
             );
     }
 
-    void Clip(const Rect& rect)
+    void Clip(const Rect& rect) override
     {
         ZAssert(!m_bIn3DLayer);
 
@@ -1437,7 +1437,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void AddClipPlane(const Plane& plane)
+    void AddClipPlane(const Plane& plane) override
     {
         if (!m_pstate->m_maskChanges.Test(StateChangeClipPlanes())) {
             m_pstate->m_countClipPlanes = m_pstateDevice->m_countClipPlanes;
@@ -1467,37 +1467,37 @@ public:
         m_pstateDevice->m_maskChanges.Set(StateChangeMatrix());
     }
 
-    void SetTransform(const Matrix& mat)
+    void SetTransform(const Matrix& mat) override
     {
         PreMatrixChanged();
         m_pstateDevice->m_mat = mat;
     }
 
-    void Multiply(const Matrix& mat)
+    void Multiply(const Matrix& mat) override
     {
         PreMatrixChanged();
         m_pstateDevice->m_mat.PreMultiply(mat);
     }
 
-    void Rotate(const Vector& vec, float angle)
+    void Rotate(const Vector& vec, float angle) override
     {
         PreMatrixChanged();
         m_pstateDevice->m_mat.PreRotate(vec, angle);
     }
 
-    void Translate(const Vector& vec)
+    void Translate(const Vector& vec) override
     {
         PreMatrixChanged();
         m_pstateDevice->m_mat.PreTranslate(vec);
     }
 
-    void Scale(const Vector& vec)
+    void Scale(const Vector& vec) override
     {
         PreMatrixChanged();
         m_pstateDevice->m_mat.PreScale(vec);
     }
 
-    void Scale3(float scale)
+    void Scale3(float scale) override
     {
         PreMatrixChanged();
         m_pstateDevice->m_mat.PreScale(scale);
@@ -1521,37 +1521,37 @@ public:
         m_pstateDevice->m_maskChanges.Set(StateChangePerspectiveMatrix());
     }
 
-    void SetMatrix(const Matrix2& mat)
+    void SetMatrix(const Matrix2& mat) override
     {
         PrePerspectiveMatrixChanged();
         m_pstateDevice->m_matPerspective = mat;
     }
 
-    void Multiply(const Matrix2& mat)
+    void Multiply(const Matrix2& mat) override
     {
         PrePerspectiveMatrixChanged();
         m_pstateDevice->m_matPerspective.PreMultiply(mat);
     }
 
-    void Rotate(float angle)
+    void Rotate(float angle) override
     {
         PrePerspectiveMatrixChanged();
         m_pstateDevice->m_matPerspective.PreRotate(Vector(0, 0, 1), angle);
     }
 
-    void Translate(const Point& point)
+    void Translate(const Point& point) override
     {
         PrePerspectiveMatrixChanged();
         m_pstateDevice->m_matPerspective.PreTranslate(Vector(point.X(), point.Y(), 0));
     }
 
-    void Scale(const Point& point)
+    void Scale(const Point& point) override
     {
         PrePerspectiveMatrixChanged();
         m_pstateDevice->m_matPerspective.PreScale(Vector(point.X(), point.Y(), 0));
     }
 
-    void Scale2(float scale)
+    void Scale2(float scale) override
     {
         PrePerspectiveMatrixChanged();
         m_pstateDevice->m_matPerspective.PreScale(Vector(scale, scale, 1));
@@ -1569,7 +1569,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    const Matrix& GetLocalToEyeMatrix()
+    const Matrix& GetLocalToEyeMatrix() override
     {
         return m_pstateDevice->m_mat;
     }
@@ -1580,23 +1580,23 @@ public:
         return m_pdevice3D->GetInverseModelMatrix();
     }
 
-    Vector TransformEyeToLocal(const Vector& vec)
+    Vector TransformEyeToLocal(const Vector& vec) override
     {
         return GetEyeToLocalMatrix().Transform(vec);
     }
 
-    Vector TransformLocalToEye(const Vector& vec)
+    Vector TransformLocalToEye(const Vector& vec) override
     {
         return GetLocalToEyeMatrix().Transform(vec);
     }
 
-    Vector TransformDirectionToEye(const Vector& vec)
+    Vector TransformDirectionToEye(const Vector& vec) override
     {
         HVector hvec = m_pstateDevice->m_mat.Transform(HVector(vec.X(), vec.Y(), vec.Z(), 0));
         return Vector(hvec.X(), hvec.Y(), hvec.Z());
     }
 
-    bool TransformEyeToImage(const Vector& vecEye, Point& point)
+    bool TransformEyeToImage(const Vector& vecEye, Point& point) override
     {
         HVector hvecImage = m_pstateDevice->m_matPerspective.Transform(HVector(vecEye));
 
@@ -1614,12 +1614,12 @@ public:
         return true;
     }
 
-    bool TransformDirectionToImage(const Vector& vec, Point& point)
+    bool TransformDirectionToImage(const Vector& vec, Point& point) override
     {
         return TransformEyeToImage(TransformDirectionToEye(vec), point);
     }
 
-    bool TransformLocalToImage(const Vector& vec, Point& point)
+    bool TransformLocalToImage(const Vector& vec, Point& point) override
     {
         return TransformEyeToImage(TransformLocalToEye(vec), point);
     }
@@ -1635,7 +1635,7 @@ public:
             );
     }
 
-    float GetImageRadius(const Vector& vec, float radius)
+    float GetImageRadius(const Vector& vec, float radius) override
     {
         Vector vecEye = TransformLocalToEye(vec);
 
@@ -1656,19 +1656,19 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DirectionalLight(const Vector& vec, const Color& color)
+    void DirectionalLight(const Vector& vec, const Color& color) override
     {
         UpdateState();
         m_pdevice3D->DirectionalLight(vec, color);
     }
 
-    void BidirectionalLight(const Vector& direction, const Color& color, const Color& colorAlt)
+    void BidirectionalLight(const Vector& direction, const Color& color, const Color& colorAlt) override
     {
         UpdateState();
         m_pdevice3D->BidirectionalLight(direction, color, colorAlt);
     }
 
-    void SetAmbientLevel(float ambientLevel)
+    void SetAmbientLevel(float ambientLevel) override
     {
         //  , this should be on the state stack
         m_pdevice3D->SetAmbientLevel(ambientLevel);
@@ -1680,7 +1680,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawCallbackGeo(IGeoCallback* pgeoCallback, bool bSortObject)
+    void DrawCallbackGeo(IGeoCallback* pgeoCallback, bool bSortObject) override
     {
         if (m_bIn3DLayer) {
             if (m_bRenderingCallbacks) {
@@ -1734,13 +1734,13 @@ public:
         }
     }
 
-    Vertex* GetVertexBuffer(int count)
+    Vertex* GetVertexBuffer(int count) override
     {
         SizeVertexBuffer(count);
         return m_pvertexBuffer;
     }
 
-    MeshIndex* GetIndexBuffer(int count)
+    MeshIndex* GetIndexBuffer(int count) override
     {
         SizeIndexBuffer(count);
         return m_pindexBuffer;
@@ -1752,12 +1752,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    VertexL* GetVertexLBuffer(int count)
+    VertexL* GetVertexLBuffer(int count) override
     {
         return m_pdevice3D->GetVertexLBuffer(count);
     }
 
-    VertexScreen* GetVertexScreenBuffer(int count)
+    VertexScreen* GetVertexScreenBuffer(int count) override
     {
         return m_pdevice3D->GetVertexScreenBuffer(count);
     }
@@ -1805,7 +1805,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawTriangles(const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         if (icount != 0) {
             Mode3D();
@@ -1813,7 +1813,7 @@ public:
         }
     }
 
-    void DrawTriangles(const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const VertexL* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         if (icount != 0) {
             Mode3D();
@@ -1821,7 +1821,7 @@ public:
         }
     }
 
-    void DrawTriangles(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const VertexScreen* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         if (icount != 0) {
             Mode3D();
@@ -1829,13 +1829,13 @@ public:
         }
     }
 
-    void DrawTriangles(const D3DVertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawTriangles(const D3DVertex* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         Mode3D();
         m_pdevice3D->DrawTriangles(pvertex, vcount, pindex, icount);
     }
 
-    void DrawLineStrip(const Vertex* pvertex, int vcount)
+    void DrawLineStrip(const Vertex* pvertex, int vcount) override
     {
         int icount = (vcount - 1) * 2;
         MeshIndex* pindex = GetIndexBuffer(icount);
@@ -1848,7 +1848,7 @@ public:
         DrawLines(pvertex, vcount, pindex, icount);
     }
 
-    void DrawLineStrip(const VertexL* pvertex, int vcount)
+    void DrawLineStrip(const VertexL* pvertex, int vcount) override
     {
         int icount = (vcount - 1) * 2;
         MeshIndex* pindex = GetIndexBuffer(icount);
@@ -1861,7 +1861,7 @@ public:
         DrawLines(pvertex, vcount, pindex, icount);
     }
 
-    void DrawLineStrip(const VertexScreen* pvertex, int vcount)
+    void DrawLineStrip(const VertexScreen* pvertex, int vcount) override
     {
         int icount = (vcount - 1) * 2;
         MeshIndex* pindex = GetIndexBuffer(icount);
@@ -1874,7 +1874,7 @@ public:
         DrawLines(pvertex, vcount, pindex, icount);
     }
 
-    void DrawLineStrip(const D3DVertex* pvertex, int vcount)
+    void DrawLineStrip(const D3DVertex* pvertex, int vcount) override
     {
         int icount = (vcount - 1) * 2;
         MeshIndex* pindex = GetIndexBuffer(icount);
@@ -1887,7 +1887,7 @@ public:
         DrawLines(pvertex, vcount, pindex, icount);
     }
 
-    void DrawLines(const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const Vertex* pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         if (icount != 0) {
             Mode3D();
@@ -1895,7 +1895,7 @@ public:
         }
     }
 
-    void DrawLines(const VertexL*  pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const VertexL*  pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         if (icount != 0) {
             Mode3D();
@@ -1903,7 +1903,7 @@ public:
         }
     }
 
-    void DrawLines(const VertexScreen*  pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const VertexScreen*  pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         if (icount != 0) {
             Mode3D();
@@ -1911,13 +1911,13 @@ public:
         }
     }
 
-    void DrawLines(const D3DVertex*  pvertex, int vcount, const MeshIndex* pindex, int icount)
+    void DrawLines(const D3DVertex*  pvertex, int vcount, const MeshIndex* pindex, int icount) override
     {
         Mode3D();
         m_pdevice3D->DrawLines(pvertex, vcount, pindex, icount);
     }
 
-    void DrawPoints(const Vertex* pvertex, int vcount)
+    void DrawPoints(const Vertex* pvertex, int vcount) override
     {
         if (vcount != 0) {
             Mode3D();
@@ -1925,7 +1925,7 @@ public:
         }
     }
 
-    void DrawPoints(const VertexL* pvertex, int vcount)
+    void DrawPoints(const VertexL* pvertex, int vcount) override
     {
         if (vcount != 0) {
             Mode3D();
@@ -1933,7 +1933,7 @@ public:
         }
     }
 
-    void DrawPoints(const VertexScreen* pvertex, int vcount)
+    void DrawPoints(const VertexScreen* pvertex, int vcount) override
     {
         if (vcount != 0) {
             Mode3D();
@@ -1941,7 +1941,7 @@ public:
         }
     }
 
-    void DrawPoints(const D3DVertex* pvertex, int vcount)
+    void DrawPoints(const D3DVertex* pvertex, int vcount) override
     {
         Mode3D();
         m_pdevice3D->DrawPoints(pvertex, vcount);
@@ -1953,32 +1953,32 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void DrawTriangles(const std::vector<Vertex>& vertices, const std::vector<MeshIndex>& indices)
+    void DrawTriangles(const std::vector<Vertex>& vertices, const std::vector<MeshIndex>& indices) override
     {
         DrawTriangles(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawTriangles(const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices)
+    void DrawTriangles(const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices) override
     {
         DrawTriangles(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawTriangles(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices)
+    void DrawTriangles(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices) override
     {
         DrawTriangles(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawLines(const std::vector<Vertex>& vertices, const std::vector<MeshIndex>& indices)
+    void DrawLines(const std::vector<Vertex>& vertices, const std::vector<MeshIndex>& indices) override
     {
         DrawLines(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawLines(const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices)
+    void DrawLines(const std::vector<VertexL>& vertices, const std::vector<MeshIndex>& indices) override
     {
         DrawLines(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
 
-    void DrawLines(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices)
+    void DrawLines(const std::vector<D3DVertex>& vertices, const std::vector<MeshIndex>& indices) override
     {
         DrawLines(&(vertices[0]), (int)vertices.size(), &(indices[0]), (int)indices.size());
     }
@@ -1988,7 +1988,7 @@ public:
         DrawPoints(&(vertices[0]), (int)vertices.size());
     }
 
-    void DrawPoints(const std::vector<VertexL>& vertices)
+    void DrawPoints(const std::vector<VertexL>& vertices) override
     {
         DrawPoints(&(vertices[0]), (int)vertices.size());
     }
@@ -2054,7 +2054,7 @@ public:
         float         scale,
         float         angle,
         BlendMode     blendMode
-    ) {
+    ) override {
         ZAssert(
                blendMode == BlendModeSource
             || blendMode == BlendModeAdd
@@ -2193,7 +2193,7 @@ public:
 
     #ifdef EnablePerformanceCounters
 
-        int GetPerformanceCounter(Counter counter)
+        int GetPerformanceCounter(Counter counter) override
         {
             if (counter == CounterDrawStrings)
                 return m_countDrawString;
@@ -2203,7 +2203,7 @@ public:
             return m_pdevice3D->GetPerformanceCounter(counter);
         }
 
-        void ResetPerformanceCounters()
+        void ResetPerformanceCounters() override
         {
             m_countDrawString = 0;
             m_countDrawStringChars = 0;

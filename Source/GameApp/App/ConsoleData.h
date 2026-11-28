@@ -63,7 +63,7 @@ public:
     {
     }
 
-    TRef<IObject> Apply(ObjectStack& stack)
+    TRef<IObject> Apply(ObjectStack& stack) override
     {
         TRef<ObjectClass> pobject; CastTo(pobject,            (IObject*)stack.Pop());
         TRef<IEventSource> peventSource; CastTo(peventSource, (IObject*)stack.Pop());
@@ -109,13 +109,13 @@ public:
         m_peventSourceOnChange->Trigger();
     }
 
-    void OnModelTerminated(ImodelIGC* pmodel)
+    void OnModelTerminated(ImodelIGC* pmodel) override
     {
         if (pmodel == m_pmodel)
             SetModel(NULL);            
     }
     
-    void OnTechTreeChanged(SideID sid)
+    void OnTechTreeChanged(SideID sid) override
     {
         if (m_pmodel && m_pmodel->GetSide() && m_pmodel->GetSide()->GetObjectID() == sid 
             && m_pmodel->GetObjectType() == OT_station)

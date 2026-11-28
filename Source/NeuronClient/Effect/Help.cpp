@@ -26,7 +26,7 @@ public:
         {
         }
 
-        bool OnEvent(IStringEventSource* pevent, ZString str)
+        bool OnEvent(IStringEventSource* pevent, ZString str) override
         {
             m_ppane->OnMainTopic(str);
             return true;
@@ -42,7 +42,7 @@ public:
         {
         }
 
-        bool OnEvent(IStringEventSource* pevent, ZString str)
+        bool OnEvent(IStringEventSource* pevent, ZString str) override
         {
             m_ppane->OnSecondaryTopic(str);
             return true;
@@ -240,19 +240,19 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    IEventSource* GetEventSourceClose()
+    IEventSource* GetEventSourceClose() override
     {
         return m_pbuttonClose->GetEventSource();
     }
 
-    void SetTopic(const ZString& str)
+    void SetTopic(const ZString& str) override
     {
         m_listHistory.SetEmpty();
         m_listHistory.PushFront(str);
         DoSetTopic();
     }
 
-    void SetString(const ZString& strIdentifier, const ZString& strValue)
+    void SetString(const ZString& strIdentifier, const ZString& strValue) override
     {
         m_pnsData->AddMember(strIdentifier, new StringValue(strValue));
     }
@@ -263,12 +263,12 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         DefaultUpdateLayout();
     }
 
-    void Paint(Surface* psurface)
+    void Paint(Surface* psurface) override
     {
         HelpPane::Paint(psurface);
     }

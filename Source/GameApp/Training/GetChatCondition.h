@@ -27,8 +27,8 @@ namespace Training
         public:
                     /* void */          GetChatCondition (ChatTarget expectedRecipient);
             virtual /* void */          ~GetChatCondition (void);
-            virtual bool                Start (void);
-            virtual bool                Evaluate (void);
+            bool                Start (void) override;
+            bool                Evaluate (void) override;
                     void                RecordChat (ChatTarget recipient);
 
         protected:

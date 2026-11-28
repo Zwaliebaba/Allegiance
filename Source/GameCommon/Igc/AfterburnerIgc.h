@@ -24,49 +24,49 @@ class CafterburnerIGC : public IafterburnerIGC
         CafterburnerIGC(void);
 
 // IbaseIGC
-        virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-        virtual void    Terminate(void);
-        virtual void    Update(Time now);
+        HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+        void    Terminate(void) override;
+        void    Update(Time now) override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_afterburner;
         }
 
-        virtual ImissionIGC*    GetMission(void) const
+        ImissionIGC*    GetMission(void) const override
         {
             return m_pMission;
         }
 
 // IpartIGC
-        virtual EquipmentType    GetEquipmentType(void) const
+        EquipmentType    GetEquipmentType(void) const override
         {
             return ET_Afterburner;
         }
 
-        virtual IpartTypeIGC*    GetPartType(void) const
+        IpartTypeIGC*    GetPartType(void) const override
         {
             return m_partType;
         }
 
-        virtual IshipIGC*        GetShip(void) const
+        IshipIGC*        GetShip(void) const override
         {
             return m_ship;
         }
-        virtual void             SetShip(IshipIGC* newVal, Mount mount);
+        void             SetShip(IshipIGC* newVal, Mount mount) override;
 
-        virtual Mount            GetMountID(void) const
+        Mount            GetMountID(void) const override
         {
             return m_mountID;
         }
-        virtual void             SetMountID(Mount newVal);
+        void             SetMountID(Mount newVal) override;
 
-        virtual bool             fActive(void) const
+        bool             fActive(void) const override
         {
             return m_fActive;
         }
 
-        virtual void             Activate(void)
+        void             Activate(void) override
         {
             assert (m_ship);
 
@@ -77,7 +77,7 @@ class CafterburnerIGC : public IafterburnerIGC
                 m_power = 0.0f;
             }
         }
-        virtual void             Deactivate(void)
+        void             Deactivate(void) override
         {
             assert (m_ship);
 
@@ -92,40 +92,40 @@ class CafterburnerIGC : public IafterburnerIGC
         {
         }
 
-        virtual float            GetMass(void) const
+        float            GetMass(void) const override
         {
             return m_typeData->mass;
         }
 
-        virtual Money            GetPrice(void) const
+        Money            GetPrice(void) const override
         {
             return m_typeData->price;
         }
 
     // IafterburnerIGC
-        virtual float    GetFuelConsumption(void) const
+        float    GetFuelConsumption(void) const override
         {
             return m_typeData->fuelConsumption;
         }
-        virtual float    GetMaxThrust(void) const
+        float    GetMaxThrust(void) const override
         {
             return m_typeData->maxThrust;
         }
-        virtual float    GetOnRate(void) const
+        float    GetOnRate(void) const override
         {
             return m_typeData->onRate;
         }
-        virtual float    GetOffRate(void) const
+        float    GetOffRate(void) const override
         {
             return m_typeData->offRate;
         }
 
-        virtual float    GetPower(void) const
+        float    GetPower(void) const override
         {
             return m_power;
         }
 
-        virtual void     SetPower(float p)
+        void     SetPower(float p) override
         {
             assert (p >= 0.0f);
             assert (p <= 1.0f);
@@ -135,29 +135,29 @@ class CafterburnerIGC : public IafterburnerIGC
             m_power = p;
         }
 
-        virtual void     IncrementalUpdate(Time lastUpdate, Time now, bool bUseFuel);
+        void     IncrementalUpdate(Time lastUpdate, Time now, bool bUseFuel) override;
 
-        virtual SoundID  GetInteriorSound(void) const
+        SoundID  GetInteriorSound(void) const override
         {
             return m_typeData->interiorSound;
         }
-        virtual SoundID  GetExteriorSound(void) const
+        SoundID  GetExteriorSound(void) const override
         {
             return m_typeData->exteriorSound;
         }
 
-        virtual float    GetMountedFraction(void) const
+        float    GetMountedFraction(void) const override
         {
             return m_mountedFraction;
         }
-        virtual void     SetMountedFraction(float f)
+        void     SetMountedFraction(float f) override
         {
             m_mountedFraction = f;
             if (f != 1.0f)
                 Deactivate();
         }
 
-        virtual void    Arm(void)
+        void    Arm(void) override
         {
             m_mountedFraction = 1.0f;
         }

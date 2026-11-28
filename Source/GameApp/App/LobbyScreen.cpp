@@ -217,7 +217,7 @@ public:
         m_pSession->InitiateDownload(szFileList, trekClient.GetArtPath());
     }
 
-    void OnError(char * szErrorMessage) // on HTTP download error
+    void OnError(char * szErrorMessage) override // on HTTP download error
     {
         // Errors are essentially ignored
         debugf("Error while downloading file.\n");
@@ -272,7 +272,7 @@ public:
         return true;
     }
 
-    bool OnFileCompleted(char * szFileName)
+    bool OnFileCompleted(char * szFileName) override
     {
         debugf("Downloaded file: %s\n", szFileName);
 
@@ -292,7 +292,7 @@ public:
         return true; // true means don't retry download
     }
 
-    void OnFrame()
+    void OnFrame() override
     {
         if (m_pSession)
         {
@@ -385,7 +385,7 @@ public:
     //
     ////////////////////////////////////////////////////////////////////
 
-    bool OnEvent(IIntegerEventSource* pevent, int value)
+    bool OnEvent(IIntegerEventSource* pevent, int value) override
     {
         //
         // User must have pressed Okay button after error
@@ -403,7 +403,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void OnLogon(const ZString& strName)
+    void OnLogon(const ZString& strName) override
     {
         lstrcpyn(m_szName, strName.c_str(), sizeof(m_szName));
         trekClient.SaveCharacterName(strName);
@@ -428,16 +428,16 @@ public:
         return false;
     }
 
-    void OnAbort()
+    void OnAbort() override
     {
     }
 
-    void OnLogonLobby()
+    void OnLogonLobby() override
     {
         GetWindow()->screen(m_screenPostConnect);
     }
 
-    void OnLogonLobbyFailed(bool bRetry, const char* szReason)
+    void OnLogonLobbyFailed(bool bRetry, const char* szReason) override
     {
         if (bRetry)
         {
@@ -456,7 +456,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Pane* GetPane()
+    Pane* GetPane() override
     {
         return m_ppane;
     }

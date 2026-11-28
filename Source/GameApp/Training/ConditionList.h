@@ -26,9 +26,9 @@ namespace Training
     {
         public:
             virtual /* void */          ~ConditionList (void);
-            virtual bool                Start (void);
-            virtual void                Stop (void);
-            virtual bool                Evaluate (void);
+            bool                Start (void) override;
+            void                Stop (void) override;
+            bool                Evaluate (void) override;
                     void                AddCondition (Condition* pCondition);
 
         protected:

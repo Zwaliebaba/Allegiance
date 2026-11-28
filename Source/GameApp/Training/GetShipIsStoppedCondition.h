@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          GetShipIsStoppedCondition (const TRef<IshipIGC>& ship);
             virtual /* void */          ~GetShipIsStoppedCondition (void);
-            virtual bool                Evaluate (void);
+            bool                Evaluate (void) override;
 
         protected:
                     TRef<IshipIGC>      m_ship;

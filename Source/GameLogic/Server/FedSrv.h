@@ -79,61 +79,61 @@ public:
     m_pfsMission(NULL)
   {}
 // IIgcSite  
-  void ClusterUpdateEvent(IclusterIGC* c);
-  TRef<ThingSite>   CreateThingSite(ImodelIGC* pModel);
-  TRef<ClusterSite>   CreateClusterSite(IclusterIGC* pCluster);
-  void KillAsteroidEvent(IasteroidIGC* pasteroid, bool explodeF);
-  void DrainAsteroidEvent(IasteroidIGC* pasteroid);
-  void KillProbeEvent(IprobeIGC* pprobe);
-  void KillMissileEvent(ImissileIGC* pmissile, const Vector& position);
-  void KillTreasureEvent(ItreasureIGC* ptreasure);
-  void KillBuildingEffectEvent(IbuildingEffectIGC* pbe);
-  void KillMineEvent(ImineIGC* pmine);
-  void KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIGC* plauncher, float amount, const Vector& p1, const Vector& p2);
+  void ClusterUpdateEvent(IclusterIGC* c) override;
+  TRef<ThingSite>   CreateThingSite(ImodelIGC* pModel) override;
+  TRef<ClusterSite>   CreateClusterSite(IclusterIGC* pCluster) override;
+  void KillAsteroidEvent(IasteroidIGC* pasteroid, bool explodeF) override;
+  void DrainAsteroidEvent(IasteroidIGC* pasteroid) override;
+  void KillProbeEvent(IprobeIGC* pprobe) override;
+  void KillMissileEvent(ImissileIGC* pmissile, const Vector& position) override;
+  void KillTreasureEvent(ItreasureIGC* ptreasure) override;
+  void KillBuildingEffectEvent(IbuildingEffectIGC* pbe) override;
+  void KillMineEvent(ImineIGC* pmine) override;
+  void KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIGC* plauncher, float amount, const Vector& p1, const Vector& p2) override;
 
-  void DamageShipEvent(Time now, IshipIGC* ship, ImodelIGC* launcher, DamageTypeID type, float amount, float leakage, const Vector& p1, const Vector& p2);
-  void DamageStationEvent(IstationIGC* station, ImodelIGC* launcher, DamageTypeID type, float amount);
+  void DamageShipEvent(Time now, IshipIGC* ship, ImodelIGC* launcher, DamageTypeID type, float amount, float leakage, const Vector& p1, const Vector& p2) override;
+  void DamageStationEvent(IstationIGC* station, ImodelIGC* launcher, DamageTypeID type, float amount) override;
 
-  void KillStationEvent(IstationIGC* pstation, ImodelIGC* plauncher, float amount);
-  bool DockWithStationEvent(IshipIGC* pship, IstationIGC* pstation);
-  void CaptureStationEvent(IshipIGC* pship, IstationIGC* pstation);
-  void WarpBombEvent(IwarpIGC* pwarp, ImissileIGC* pmissile);
-  bool RescueShipEvent(IshipIGC* pshipRescued, IshipIGC* pshipRescuer);
-  bool LandOnCarrierEvent(IshipIGC* pshipCarrier, IshipIGC* pship, float tCollision);
-  void ChangeStation(IshipIGC* pship, IstationIGC* pstationOld, IstationIGC* pstationNew);
-  void * GetDroneFromShip(IshipIGC * pship);
-  bool ContinueRipcord(IshipIGC* pship, ImodelIGC* pmodel);
-  bool UseRipcord(IshipIGC* pship, ImodelIGC* pmodel);
-  void RequestRipcord(IshipIGC* pship, IclusterIGC* pcluster);
-  void HitWarpEvent(IshipIGC* pship, IwarpIGC* pwarp);
-  bool HitTreasureEvent(Time now, IshipIGC* ship, ItreasureIGC* treasure);
-  void PaydayEvent(IsideIGC* pside, float money);
-  void DevelopmentCompleted(IbucketIGC*  b, IdevelopmentIGC*   d, Time now);
-  void HullTypeCompleted(IsideIGC* pside, IhullTypeIGC* pht);
-  void PartTypeCompleted(IsideIGC* pside, IpartTypeIGC* ppt);
-  void StationTypeCompleted(IbucketIGC * pbucket, IstationIGC* pstation, IstationTypeIGC * pstationtype, Time now);
-  void DroneTypeCompleted(IbucketIGC*  b, IstationIGC* pstation, IdroneTypeIGC*   dt, Time now);
+  void KillStationEvent(IstationIGC* pstation, ImodelIGC* plauncher, float amount) override;
+  bool DockWithStationEvent(IshipIGC* pship, IstationIGC* pstation) override;
+  void CaptureStationEvent(IshipIGC* pship, IstationIGC* pstation) override;
+  void WarpBombEvent(IwarpIGC* pwarp, ImissileIGC* pmissile) override;
+  bool RescueShipEvent(IshipIGC* pshipRescued, IshipIGC* pshipRescuer) override;
+  bool LandOnCarrierEvent(IshipIGC* pshipCarrier, IshipIGC* pship, float tCollision) override;
+  void ChangeStation(IshipIGC* pship, IstationIGC* pstationOld, IstationIGC* pstationNew) override;
+  void * GetDroneFromShip(IshipIGC * pship) override;
+  bool ContinueRipcord(IshipIGC* pship, ImodelIGC* pmodel) override;
+  bool UseRipcord(IshipIGC* pship, ImodelIGC* pmodel) override;
+  void RequestRipcord(IshipIGC* pship, IclusterIGC* pcluster) override;
+  void HitWarpEvent(IshipIGC* pship, IwarpIGC* pwarp) override;
+  bool HitTreasureEvent(Time now, IshipIGC* ship, ItreasureIGC* treasure) override;
+  void PaydayEvent(IsideIGC* pside, float money) override;
+  void DevelopmentCompleted(IbucketIGC*  b, IdevelopmentIGC*   d, Time now) override;
+  void HullTypeCompleted(IsideIGC* pside, IhullTypeIGC* pht) override;
+  void PartTypeCompleted(IsideIGC* pside, IpartTypeIGC* ppt) override;
+  void StationTypeCompleted(IbucketIGC * pbucket, IstationIGC* pstation, IstationTypeIGC * pstationtype, Time now) override;
+  void DroneTypeCompleted(IbucketIGC*  b, IstationIGC* pstation, IdroneTypeIGC*   dt, Time now) override;
   void BuildStation(IasteroidIGC*    pasteroid,
                     IsideIGC*        pside,
-                    IstationTypeIGC* pstationtype, Time now);
-  void SideDevelopmentTechChange(IsideIGC*    pside);
-  void SideGlobalAttributeChange(IsideIGC*    pside);
+                    IstationTypeIGC* pstationtype, Time now) override;
+  void SideDevelopmentTechChange(IsideIGC*    pside) override;
+  void SideGlobalAttributeChange(IsideIGC*    pside) override;
   void ChangeCluster(IshipIGC* pship,
                      IclusterIGC* pclusterOld,
-                     IclusterIGC* pclusterNew);
-  void LoadoutChangeEvent(IshipIGC* pship, IpartIGC* ppart, LoadoutChange lc);
-  void CreateSideEvent(IsideIGC * pIsideIGC);
-  void DestroySideEvent(IsideIGC * pIsideIGC);
-  void TerminateModelEvent(ImodelIGC* model);
-  void TerminateMissionEvent(ImissionIGC* pMission) {}
-  void CommandChangedEvent(Command i, IshipIGC * pship, ImodelIGC* ptarget, CommandID cid);
+                     IclusterIGC* pclusterNew) override;
+  void LoadoutChangeEvent(IshipIGC* pship, IpartIGC* ppart, LoadoutChange lc) override;
+  void CreateSideEvent(IsideIGC * pIsideIGC) override;
+  void DestroySideEvent(IsideIGC * pIsideIGC) override;
+  void TerminateModelEvent(ImodelIGC* model) override;
+  void TerminateMissionEvent(ImissionIGC* pMission) override {}
+  void CommandChangedEvent(Command i, IshipIGC * pship, ImodelIGC* ptarget, CommandID cid) override;
 
   void        CreateBuildingEffect(Time           now,
                                    IasteroidIGC*  pasteroid,
-                                   IshipIGC*      pshipBuilder);
+                                   IshipIGC*      pshipBuilder) override;
   void        LayExpendable(Time                   now,
                             IexpendableTypeIGC*    pet,
-                            IshipIGC*              pshipLayer);
+                            IshipIGC*              pshipLayer) override;
   void SendChat(IshipIGC*   pshipSender,
                 ChatTarget  ctRecipient,
                 ObjectID    oidRecipient,
@@ -143,22 +143,22 @@ public:
                 ObjectType  otTarget  = NA,
                 ObjectType  oidTarget = NA,
                 ImodelIGC*  pmodelTarget = NULL,
-                bool        bObjectModel = false);
+                bool        bObjectModel = false) override;
 
 // IMissionSite
-  void Create(CFSMission * pfsMission) {m_pfsMission = pfsMission; }
-  void Destroy(CFSMission * pfsMission);
+  void Create(CFSMission * pfsMission) override {m_pfsMission = pfsMission; }
+  void Destroy(CFSMission * pfsMission) override;
 
 // IFedMessagingSite
-  virtual HRESULT OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnFrom, FEDMESSAGE * pfm) ;
-  virtual int     OnMessageBox(FedMessaging * pthis, const char * strText, const char * strCaption, UINT nType) ;
-  virtual HRESULT OnNewConnection(FedMessaging * pthis, CFMConnection & cnxn) ;
-  virtual HRESULT OnDestroyConnection(FedMessaging * pthis, CFMConnection & cnxn) ;
-  virtual HRESULT OnSessionLost(FedMessaging * pthis) ;
-  virtual HRESULT OnSysMessage(FedMessaging * pthis);
-  virtual void    OnMessageSent(FedMessaging * pthis, CFMRecipient * precip, const void * pv, DWORD cb, FMGuaranteed fmg);
+  HRESULT OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnFrom, FEDMESSAGE * pfm) override ;
+  int     OnMessageBox(FedMessaging * pthis, const char * strText, const char * strCaption, UINT nType) override ;
+  HRESULT OnNewConnection(FedMessaging * pthis, CFMConnection & cnxn) override ;
+  HRESULT OnDestroyConnection(FedMessaging * pthis, CFMConnection & cnxn) override ;
+  HRESULT OnSessionLost(FedMessaging * pthis) override ;
+  HRESULT OnSysMessage(FedMessaging * pthis) override;
+  void    OnMessageSent(FedMessaging * pthis, CFMRecipient * precip, const void * pv, DWORD cb, FMGuaranteed fmg) override;
 #ifndef NO_MSG_CRC
-  virtual void    OnBadCRC(FedMessaging * pthis, CFMConnection & cnxn, BYTE * pMsg, DWORD cbMsg);
+  void    OnBadCRC(FedMessaging * pthis, CFMConnection & cnxn, BYTE * pMsg, DWORD cbMsg) override;
 #endif
 
   virtual int  OnMessageBox(const char * strText, const char * strCaption, UINT nType);
@@ -182,11 +182,11 @@ public:
   FedSrvLobbySite() 
   {}
 // IFedMessagingSite
-  virtual HRESULT OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnFrom, FEDMESSAGE * pfm) ;
-  virtual int     OnMessageBox(FedMessaging * pthis, const char * strText, const char * strCaption, UINT nType) ;
-  virtual HRESULT OnSessionLost(FedMessaging * pthis);
+  HRESULT OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnFrom, FEDMESSAGE * pfm) override ;
+  int     OnMessageBox(FedMessaging * pthis, const char * strText, const char * strCaption, UINT nType) override ;
+  HRESULT OnSessionLost(FedMessaging * pthis) override;
 #ifndef NO_MSG_CRC
-  virtual void    OnBadCRC(FedMessaging * pthis, CFMConnection & cnxn, BYTE * pMsg, DWORD cbMsg);
+  void    OnBadCRC(FedMessaging * pthis, CFMConnection & cnxn, BYTE * pMsg, DWORD cbMsg) override;
 #endif
 };
 

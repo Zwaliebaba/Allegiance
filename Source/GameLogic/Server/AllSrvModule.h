@@ -29,11 +29,11 @@ public:
   void         StopAllsrv();        // from inside the server
 
 // IServiceApp
-  HRESULT      Start();
-  void         Stop();
-  void         Pause();
-  void         Continue();
-  HANDLE       StopEvent();
+  HRESULT      Start() override;
+  void         Stop() override;
+  void         Pause() override;
+  void         Continue() override;
+  HANDLE       StopEvent() override;
 };
 
 extern CServiceModule g_service;

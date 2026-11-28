@@ -33,7 +33,7 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
 
     public:
     // IbaseIGC
-	    virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize)
+	    HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override
         {
             TmodelIGC<IbuildingEffectIGC>::Initialize(pMission, now, data, dataSize);
 
@@ -109,7 +109,7 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
 
             return S_OK;
         }
-	    virtual void    Terminate(void)
+	    void    Terminate(void) override
         {
             AddRef();
 
@@ -133,7 +133,7 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
             Release();
         }
 
-        int        Export(void*  data) const
+        int        Export(void*  data) const override
         {
             if (data)
             {
@@ -157,7 +157,7 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
             return sizeof(DataBuildingEffectExport);
         }
 
-        virtual void        Update(Time now)
+        void        Update(Time now) override
         {
             if (now >= m_timeComplete)
             {
@@ -224,13 +224,13 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
             }
         }
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_buildingEffect;
         }
 
     // ImodelIGC
-        virtual void    SetCluster(IclusterIGC* cluster)
+        void    SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -247,10 +247,10 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
 
             Release();
         }
-        virtual void                 HandleCollision(Time       timeCollision,
+        void                 HandleCollision(Time       timeCollision,
                                                      float                  tCollision,
                                                      const CollisionEntry&  entry,
-                                                     ImodelIGC* pModel)
+                                                     ImodelIGC* pModel) override
         {
             ObjectType  type = pModel->GetObjectType();
             if ((type != OT_buildingEffect) &&
@@ -263,12 +263,12 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
         }
 
     // IdamageIGC
-        virtual DamageResult        ReceiveDamage(DamageTypeID            type,
+        DamageResult        ReceiveDamage(DamageTypeID            type,
                                                   float                   amount,
                                                   Time                    timeCollision,
                                                   const Vector&           position1,
                                                   const Vector&           position2,
-                                                  ImodelIGC*              launcher)
+                                                  ImodelIGC*              launcher) override
         {
             if (m_pasteroid)
             {
@@ -277,31 +277,31 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
 
             return c_drNoDamage;
         }
-        virtual float   GetFraction(void) const
+        float   GetFraction(void) const override
         {
             return 1.0f;
         }
-        virtual void    SetFraction(float newVal)
+        void    SetFraction(float newVal) override
         {
         }
 
-        virtual float   GetHitPoints(void) const
+        float   GetHitPoints(void) const override
         {
             return m_pasteroid ? m_pasteroid->GetHitPoints() : 1.0f;
         }
 
     // IbuildingEffectIGC
-        virtual void    BuilderTerminated(void)
+        void    BuilderTerminated(void) override
         {
             m_pshipBuilder = NULL;
         }
 
-        virtual IasteroidIGC*    GetAsteroid(void) const
+        IasteroidIGC*    GetAsteroid(void) const override
         {
             return m_pasteroid;
         }
 
-        virtual void    MakeUnhitable(void)
+        void    MakeUnhitable(void) override
         {
             assert (m_pasteroid);
             m_pasteroid = NULL;
@@ -309,7 +309,7 @@ class CbuildingEffectIGC : public TmodelIGC<IbuildingEffectIGC>
             TmodelIGC<IbuildingEffectIGC>::MakeUnhitable();        //Virtual wrapper for a non-virtual function
         }
 
-        virtual void                AsteroidUpdate(Time now)
+        void                AsteroidUpdate(Time now) override
         {
             if ((now >= m_timeShrink) && m_pshipBuilder)
             {

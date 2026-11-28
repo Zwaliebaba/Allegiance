@@ -33,7 +33,7 @@ namespace Training
             /* void */                  TurnToAction (ImodelIGC* pObject, ObjectType targetType, ObjectID targetID);
             /* void */                  TurnToAction (ImodelIGC* pObject, AbstractTarget* pTarget);
             virtual /* void */          ~TurnToAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     AbstractTarget*     m_pObject;

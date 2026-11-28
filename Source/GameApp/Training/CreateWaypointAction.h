@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          CreateWaypointAction (BuoyID buoyID, const Vector& position, SectorID sectorID);
             virtual /* void */          ~CreateWaypointAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     BuoyID              m_buoyID;

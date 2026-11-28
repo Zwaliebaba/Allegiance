@@ -541,29 +541,29 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
     
-    void SetClipRect(const Rect& rect)
+    void SetClipRect(const Rect& rect) override
     {
         m_rect = rect;
         DoClip();
     }
 
-    void SetPosition(const Point& point)
+    void SetPosition(const Point& point) override
     {
         m_point = point;
         DoClip();
     }
 
-    void SetWheelPosition(float pos)
+    void SetWheelPosition(float pos) override
     {
         m_z = pos;
     }
 
-    const Point& GetPosition()
+    const Point& GetPosition() override
     {
         return m_point;
     }
 
-    void SetEnabled(bool bEnabled)
+    void SetEnabled(bool bEnabled) override
     {
         if (m_bEnabled != bEnabled) {
             m_bEnabled = bEnabled;
@@ -583,17 +583,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
     
-    int GetValueCount()
+    int GetValueCount() override
     {
         return (int)m_vvalueObject.size();
     }
 
-    int GetButtonCount()
+    int GetButtonCount() override
     {
         return (int)m_vbuttonObject.size();
     }
 
-    Boolean* IsDown(int id)
+    Boolean* IsDown(int id) override
     {
         if (id < (int)m_vbuttonObject.size()) {
             return m_vbuttonObject[id]->GetValue();
@@ -602,7 +602,7 @@ public:
         }
     }
 
-    Number* GetValue(int id)
+    Number* GetValue(int id) override
     {
         if (id < (int)m_vvalueObject.size()) {
             return m_vvalueObject[id]->GetValue();
@@ -611,7 +611,7 @@ public:
         }
     }
 
-    ButtonEvent::Source* GetEventSource()
+    ButtonEvent::Source* GetEventSource() override
     {
         return m_pbuttonEventSource;
     }
@@ -967,7 +967,7 @@ public:
         return DIENUM_STOP;
     }
 
-    void CreateEffects()
+    void CreateEffects() override
     {
 	    GUID            guidEffect;
         DIEFFECT        diEffect;
@@ -1108,7 +1108,7 @@ public:
         );
     }
 
-    void PlayFFEffect(short effectID, LONG lDirection)
+    void PlayFFEffect(short effectID, LONG lDirection) override
     {
         //
         // !!! Don't check for errors here.  Sometimes these functions will return error
@@ -1153,22 +1153,22 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool HasForceFeedback()
+    bool HasForceFeedback() override
     {
         return (m_didc.dwFlags & DIDC_FORCEFEEDBACK) != 0;
     }
 
-    ZString GetShortDescription(int index)
+    ZString GetShortDescription(int index) override
     {
         return "Joy " + StrFromInt(index);
     }
 
-    ZString GetDescription()
+    ZString GetDescription() override
     {
         return m_didi.tszInstanceName;
     }
 
-    ZString GetValueDescription(int id)
+    ZString GetValueDescription(int id) override
     {
         return m_vvalueObject[id]->GetName();
     }
@@ -1179,17 +1179,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    int GetValueCount()
+    int GetValueCount() override
     {
         return (int)m_vvalueObject.size();
     }
 
-    int GetButtonCount()
+    int GetButtonCount() override
     {
         return (int)m_vbuttonObject.size();
     }
 
-    Boolean* IsDown(int id)
+    Boolean* IsDown(int id) override
     {
         if (id < (int)m_vbuttonObject.size()) {
             return m_vbuttonObject[id]->GetValue();
@@ -1198,7 +1198,7 @@ public:
         }
     }
 
-    Number* GetValue(int id)
+    Number* GetValue(int id) override
     {
         if (id < (int)m_vvalueObject.size()) {
             return m_vvalueObject[id]->GetValue();
@@ -1207,7 +1207,7 @@ public:
         }
     }
 
-    ButtonEvent::Source* GetEventSource()
+    ButtonEvent::Source* GetEventSource() override
     {
         ZUnimplemented();
         return NULL;
@@ -1337,7 +1337,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    void EnumerateJoysticks()
+    void EnumerateJoysticks() override
     {
         //
         // Free up the old devices
@@ -1357,12 +1357,12 @@ public:
         ));
     }
 
-    int GetJoystickCount()
+    int GetJoystickCount() override
     {
         return (int)m_vjoystickInputStream.size();
     }
 
-    JoystickInputStream* GetJoystick(int index)
+    JoystickInputStream* GetJoystick(int index) override
     {
         if (
                index >= 0
@@ -1374,12 +1374,12 @@ public:
         }
     }
 
-    MouseInputStream* GetMouse()
+    MouseInputStream* GetMouse() override
     {
         return m_pmouseInputStream;
     }
 
-    void Update()
+    void Update() override
     {
         if (m_bFocus) {
             m_pmouseInputStream->Update();
@@ -1392,7 +1392,7 @@ public:
         }
     }
 
-    void SetFocus(bool bFocus)
+    void SetFocus(bool bFocus) override
     {
         if (m_bFocus != bFocus) {
             m_bFocus = bFocus;

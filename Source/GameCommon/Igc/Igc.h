@@ -2712,7 +2712,7 @@ class ImissionIGC : public IstaticIGC
         virtual void                    SetMissionID(MissionID  mid) = 0;
 
         virtual void                    Initialize(Time now, IIgcSite* pIgcSite) = 0;
-        virtual void                    Terminate(void) = 0;
+        void                    Terminate(void) override = 0;
         virtual void                    Update(Time now) = 0;
 
         virtual IIgcSite*               GetIgcSite(void) const = 0;
@@ -3083,7 +3083,7 @@ class IshipIGC : public IscannerIGC
         virtual IhullTypeIGC*        GetBaseHullType(void) const = 0;
         virtual void                 SetBaseHullType(IhullTypeIGC* newVal) = 0;
 
-        virtual void                 SetMission(ImissionIGC* pMission) = 0;
+        void                 SetMission(ImissionIGC* pMission) override = 0;
 
         //Note ... the next two methods should never be called from outside IGC
         virtual void                 AddPart(IpartIGC*        part) = 0;

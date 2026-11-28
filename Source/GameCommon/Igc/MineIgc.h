@@ -30,23 +30,23 @@ class CmineIGC : public TmodelIGC<ImineIGC>
 
     public:
     // IbaseIGC
-	    virtual HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize);
-	    virtual void    Terminate(void);
-        virtual void    Update(Time now);
-        virtual int     Export(void*    data) const;
+	    HRESULT Initialize(ImissionIGC* pMission, Time now, const void* data, int dataSize) override;
+	    void    Terminate(void) override;
+        void    Update(Time now) override;
+        int     Export(void*    data) const override;
 
-        virtual ObjectType  GetObjectType(void) const
+        ObjectType  GetObjectType(void) const override
         {
             return OT_mine;
         }
 
-        virtual ObjectID    GetObjectID(void) const
+        ObjectID    GetObjectID(void) const override
         {
             return m_mineID;
         }
 
     // ImodelIGC
-        virtual void    SetCluster(IclusterIGC* cluster)
+        void    SetCluster(IclusterIGC* cluster) override
         {
             AddRef();
 
@@ -64,10 +64,10 @@ class CmineIGC : public TmodelIGC<ImineIGC>
             Release();
         }
 
-        virtual void                 HandleCollision(Time                   timeCollision,
+        void                 HandleCollision(Time                   timeCollision,
                                                      float                  tCollision,
                                                      const CollisionEntry&  entry,
-                                                     ImodelIGC*             pmodel)
+                                                     ImodelIGC*             pmodel) override
         {
             if (pmodel->GetObjectType() == OT_ship)
             {
@@ -147,26 +147,26 @@ class CmineIGC : public TmodelIGC<ImineIGC>
         }
 
     // ImineIGC
-        virtual ImineTypeIGC*   GetMineType(void) const
+        ImineTypeIGC*   GetMineType(void) const override
         {
             return m_mineType;
         }
-        virtual IshipIGC*       GetLauncher(void) const
+        IshipIGC*       GetLauncher(void) const override
         {
             return m_launcher;
         }
 
-        virtual void            SetCreateNow (void)
+        void            SetCreateNow (void) override
         {
             m_bCreateNow = true;
         }
 
-        virtual float            GetStrength(void) const
+        float            GetStrength(void) const override
         {
             return m_fraction;
         }
 
-        virtual void            ReduceStrength(float    amount)
+        void            ReduceStrength(float    amount) override
         {
             float   endurance = m_mineType->GetEndurance();
             float   newEndurance = endurance * m_fraction * float(exp(-amount / endurance));
@@ -179,7 +179,7 @@ class CmineIGC : public TmodelIGC<ImineIGC>
                 GetThingSite()->SetMineStrength(m_fraction);
         }
 
-        virtual float           GetTimeFraction(void) const
+        float           GetTimeFraction(void) const override
         {
             Time    timeNow = GetMyLastUpdate();
             float   f = (m_timeExpire - timeNow) / (m_timeExpire - m_time0);

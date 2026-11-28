@@ -40,17 +40,17 @@ public:
         DestinationPainter(const std::vector<int>& viColumns)
             : m_viColumns(viColumns) {};
 
-        int GetXSize()
+        int GetXSize() override
         {
             return m_viColumns[3];
         }
 
-        int GetYSize()
+        int GetYSize() override
         {
             return 14;
         }
 
-        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus)
+        void Paint(ItemID pitemArg, Surface* psurface, bool bSelected, bool bFocus) override
         {
             ImodelIGC* pDestination = (ImodelIGC*)pitemArg;
             IshipIGC* pship = NULL;
@@ -210,7 +210,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem)
+    bool OnEvent(IItemEvent::Source *pevent, ItemID pitem) override
     {
         if (pevent == m_peventDestinations) {
             OnSelectDestination(pitem);
@@ -219,31 +219,31 @@ public:
         return true;
     }
 
-    void OnShipStatusChange(PlayerInfo* pPlayer)
+    void OnShipStatusChange(PlayerInfo* pPlayer) override
     {
         // this might have been someone buying a ship with turrets.
         RebuildList();
     }
 
-    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+    void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
     {
         // this might become someone in our list.
         RebuildList();
     }
 
-    void OnDelPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam)
+    void OnDelPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam) override
     {
         // this might be someone in our list.
         RebuildList(pPlayerInfo->GetShip());
     }
 
-    void OnStationCaptured(StationID stationID, SideID sideID)
+    void OnStationCaptured(StationID stationID, SideID sideID) override
     {
         // this might be or have been one of our stations
         RebuildList();
     }
 
-    void OnTechTreeChanged(SideID sideID)
+    void OnTechTreeChanged(SideID sideID) override
     {
         if (sideID == trekClient.GetSideID())
         {
@@ -251,14 +251,14 @@ public:
         }
     }
 
-    void OnModelTerminated(ImodelIGC* pmodel)
+    void OnModelTerminated(ImodelIGC* pmodel) override
     {
         // this might a station being destroyed
         if (pmodel->GetSide() == trekClient.GetSide())
             RebuildList(pmodel);
     }
 
-    void OnDiscoveredStation(IstationIGC* pstation)
+    void OnDiscoveredStation(IstationIGC* pstation) override
     {
         // this might be a new station we have built
         if (pstation->GetSide() == trekClient.GetSide())
@@ -271,7 +271,7 @@ public:
     }
 
 
-    void OnBoardFailed(IshipIGC* pshipRequestedParent)
+    void OnBoardFailed(IshipIGC* pshipRequestedParent) override
     {
         if (trekClient.GetShip()->GetCluster() == NULL)
         {

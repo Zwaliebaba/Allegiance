@@ -40,7 +40,7 @@ public:
 
     typedef Slink_utl<T, ListEventSource> Link;
 
-    virtual int           GetCount()
+    int           GetCount() override
     {
         // review: we could change this to O(1)
         int nCount = 0;
@@ -55,12 +55,12 @@ public:
         return nCount;
     }
 
-    virtual ItemID        GetItem(int index)
+    ItemID        GetItem(int index) override
     {
         return (*this)[index];
     }
 
-    virtual int           GetIndex(ItemID pitem)
+    int           GetIndex(ItemID pitem) override
     {
         int nIndex = 0;
 // VSNet 2003 port: resolve error C2475
@@ -78,12 +78,12 @@ public:
         return -1;
     }
 
-    virtual ItemID        GetNext(ItemID pitem)
+    ItemID        GetNext(ItemID pitem) override
     {
         return ((Link*)pitem)->next();
     }
 
-    virtual IEventSource* GetChangedEvent()
+    IEventSource* GetChangedEvent() override
     {
         return this->sink.GetEvent();
     }
@@ -148,12 +148,12 @@ public:
     {
     }
 
-    virtual int           GetCount()
+    int           GetCount() override
     {
         return TList<T, EqualsType, CompareType, ListEventSource>::GetCount();
     }
 
-    virtual ItemID        GetItem(int index)
+    ItemID        GetItem(int index) override
     {
         if (index < 0 || index >= GetCount())
             return NULL;
@@ -161,7 +161,7 @@ public:
             return (ItemID)((*this)[index]);
     }
 
-    virtual int           GetIndex(ItemID pitem)
+    int           GetIndex(ItemID pitem) override
     {
         // review: returning the key may be more efficient than returning the value.
         int nIndex = 0;
@@ -176,7 +176,7 @@ public:
         return -1;
     }
 
-    virtual ItemID        GetNext(ItemID pitem)
+    ItemID        GetNext(ItemID pitem) override
     {
         for (Iterator iter(*this); !iter.End(); iter.Next())
         {
@@ -194,7 +194,7 @@ public:
         return NULL;
     }
 
-    virtual IEventSource* GetChangedEvent()
+    IEventSource* GetChangedEvent() override
     {
         return GetSink().GetEvent();
     }
@@ -217,12 +217,12 @@ public:
     using MapType::Count;
     using MapType::GetSink;
 
-    virtual int           GetCount()
+    int           GetCount() override
     {
         return Count();
     }
 
-    virtual ItemID        GetItem(int index)
+    ItemID        GetItem(int index) override
     {
         Iterator iter(*this);
 
@@ -237,7 +237,7 @@ public:
             return (ItemID)iter.Value();
     }
 
-    virtual int           GetIndex(ItemID pitem)
+    int           GetIndex(ItemID pitem) override
     {
         // review: returning the key may be more efficient than returning the value.
         int nIndex = 0;
@@ -252,7 +252,7 @@ public:
         return -1;
     }
 
-    virtual ItemID        GetNext(ItemID pitem)
+    ItemID        GetNext(ItemID pitem) override
     {
         for (Iterator iter(*this); !iter.End(); iter.Next())
         {
@@ -270,7 +270,7 @@ public:
         return NULL;
     }
 
-    virtual IEventSource* GetChangedEvent()
+    IEventSource* GetChangedEvent() override
     {
         return GetSink().GetEvent();
     }
@@ -302,7 +302,7 @@ public:
         m_filter = filter;
     }
 
-    virtual int           GetCount()
+    int           GetCount() override
     {
         // this could be O(n) if we hooked the "changed" event
         int nCount = 0;
@@ -318,7 +318,7 @@ public:
         return nCount;
     }
 
-    virtual ItemID        GetItem(int index)
+    ItemID        GetItem(int index) override
     {
         int nCurrentIndex = 0;
         ItemID currentItem = m_list->GetItem(0);
@@ -338,7 +338,7 @@ public:
         return currentItem;
     }
 
-    virtual int           GetIndex(ItemID pitem)
+    int           GetIndex(ItemID pitem) override
     {
         // review: returning the key may be more efficient than returning the value.
         int nIndex = 0;
@@ -359,7 +359,7 @@ public:
         return -1;
     }
 
-    virtual ItemID        GetNext(ItemID pitem)
+    ItemID        GetNext(ItemID pitem) override
     {
         ItemID currentItem = m_list->GetNext(pitem);
 
@@ -375,7 +375,7 @@ public:
         return NULL;
     }
 
-    virtual IEventSource* GetChangedEvent()
+    IEventSource* GetChangedEvent() override
     {
         return m_list->GetChangedEvent();
     }
@@ -398,27 +398,27 @@ public:
     ListDelegate(List* plist, IObject* pcontainer = NULL)
         : m_plist(plist), m_pcontainer(pcontainer) {}
 
-    virtual int           GetCount()
+    int           GetCount() override
     {
         return m_plist->GetCount();
     }
 
-    virtual ItemID        GetItem(int index)
+    ItemID        GetItem(int index) override
     {
         return m_plist->GetItem(index);
     }
 
-    virtual int           GetIndex(ItemID pitem)
+    int           GetIndex(ItemID pitem) override
     {
         return m_plist->GetIndex(pitem);
     }
 
-    virtual ItemID        GetNext(ItemID pitem)
+    ItemID        GetNext(ItemID pitem) override
     {
         return m_plist->GetNext(pitem);
     }
 
-    virtual IEventSource* GetChangedEvent()
+    IEventSource* GetChangedEvent() override
     {
         return m_plist->GetChangedEvent();
     }
@@ -457,12 +457,12 @@ public:
         m_list2->GetChangedEvent()->RemoveSink(m_sinkDelegate);
     }
 
-    virtual int           GetCount()
+    int           GetCount() override
     {
         return m_list1->GetCount() + m_list2->GetCount();
     }
 
-    virtual ItemID        GetItem(int index)
+    ItemID        GetItem(int index) override
     {
         int nList1Count = m_list1->GetCount();
 
@@ -472,7 +472,7 @@ public:
             return m_list2->GetItem(index - nList1Count);
     }
 
-    virtual int           GetIndex(ItemID pitem)
+    int           GetIndex(ItemID pitem) override
     {
         int index = m_list1->GetIndex(pitem);
 
@@ -487,7 +487,7 @@ public:
         return index;
     }
 
-    virtual ItemID        GetNext(ItemID pitem)
+    ItemID        GetNext(ItemID pitem) override
     {
         // case 1: pitem and pitem->next are in list1
         ItemID next = m_list1->GetNext(pitem);
@@ -507,12 +507,12 @@ public:
         return next;
     }
 
-    virtual IEventSource* GetChangedEvent()
+    IEventSource* GetChangedEvent() override
     {
         return m_pfnChanged.GetEvent();
     }
 
-    virtual bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         m_pfnChanged();
         return true;
@@ -575,12 +575,12 @@ public:
         m_list->GetChangedEvent()->RemoveSink(m_sinkDelegate);
     }
 
-    virtual int           GetCount()
+    int           GetCount() override
     {
         return m_list->GetCount();
     }
 
-    virtual ItemID        GetItem(int index)
+    ItemID        GetItem(int index) override
     {
         CheckSorting();
 
@@ -597,7 +597,7 @@ public:
             return (ItemID)iter.Value();
     }
 
-    virtual int           GetIndex(ItemID pitem)
+    int           GetIndex(ItemID pitem) override
     {
         CheckSorting();
 
@@ -613,7 +613,7 @@ public:
         return -1;
     }
 
-    virtual ItemID        GetNext(ItemID pitem)
+    ItemID        GetNext(ItemID pitem) override
     {
         CheckSorting();
 
@@ -633,12 +633,12 @@ public:
         return NULL;
     }
 
-    virtual IEventSource* GetChangedEvent()
+    IEventSource* GetChangedEvent() override
     {
         return m_pfnChanged.GetEvent();
     }
 
-    virtual bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         m_fNeedsSort = true;
         m_pfnChanged();
@@ -676,12 +676,12 @@ public:
     // List interface:
     //
 
-    virtual int           GetCount()
+    int           GetCount() override
     {
         return 1;
     }
 
-    virtual ItemID        GetItem(int index)
+    ItemID        GetItem(int index) override
     {
         if (index == 0)
             return m_itemID;
@@ -689,7 +689,7 @@ public:
             return NULL;
     }
 
-    virtual int           GetIndex(ItemID pitem)
+    int           GetIndex(ItemID pitem) override
     {
         if (pitem = m_itemID)
             return 0;
@@ -697,12 +697,12 @@ public:
             return -1;
     }
 
-    virtual ItemID        GetNext(ItemID pitem)
+    ItemID        GetNext(ItemID pitem) override
     {
         return NULL;
     }
 
-    virtual IEventSource* GetChangedEvent()
+    IEventSource* GetChangedEvent() override
     {
         return m_pfnChanged.GetEvent();
     }

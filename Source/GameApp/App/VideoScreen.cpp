@@ -28,7 +28,7 @@ public:
         {
         }
 
-        MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured)
+        MouseResult HitTest(IInputProvider* pprovider, const Point& point, bool bCaptured) override
         {
             return MouseResultHit();
         }
@@ -40,7 +40,7 @@ public:
             bool bCaptured,
             bool bInside,
             bool bDown
-        ) {
+        ) override {
             if (bDown) {
                 m_pobject->Picked();
             }
@@ -137,7 +137,7 @@ public:
         }
     }
 
-    bool OnEvent(IEventSource* pevent)
+    bool OnEvent(IEventSource* pevent) override
     {
         m_bNextVideo = true;
         return false;
@@ -154,7 +154,7 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate)
+    bool OnKey(IInputProvider* pprovider, const KeyState& ks, bool& fForceTranslate) override
     {
         if (ks.bDown) {
             NextVideo();
@@ -168,17 +168,17 @@ public:
     //
     //////////////////////////////////////////////////////////////////////////////
 
-    Image* GetImage()
+    Image* GetImage() override
     {
         return m_pimage;
     }
 
-    WinPoint GetSize()
+    WinPoint GetSize() override
     {
         return WinPoint(640, 480);
     }
 
-    void OnFrame() 
+    void OnFrame() override 
     {
         if (m_bNextVideo) {
             m_bNextVideo = false;

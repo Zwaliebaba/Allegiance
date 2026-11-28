@@ -316,31 +316,31 @@ public:
         }
     }
     
-    short GetItemHeight()
+    short GetItemHeight() override
     {
         return 1;
     }
     
-    LONG_PTR GetItemData()
+    LONG_PTR GetItemData() override
     {
         return m_lData;
     };
     
-    bool Update()
+    bool Update() override
     {
         return true;
     }
     
-    void SetSortOrder(long lSortOrder)
+    void SetSortOrder(long lSortOrder) override
     {
     }
     
-    bool SetFilter(long lFilter)
+    bool SetFilter(long lFilter) override
     {
         return true;
     }
     
-    void DrawItem(Surface* pSurface, const WinRect& rect, bool fSelected, int iFirstSlot)
+    void DrawItem(Surface* pSurface, const WinRect& rect, bool fSelected, int iFirstSlot) override
     {   if (m_pImagePart) {
             pSurface->BitBlt(rect.Min() + WinPoint(10, 2), m_pImagePart->GetSurface());
         } else {
@@ -609,7 +609,7 @@ public:
         return true;
      }
       
-      void OnBucketChange(BucketChange bc, IbucketIGC* b)
+      void OnBucketChange(BucketChange bc, IbucketIGC* b) override
       {
           if (bc == c_bcTerminated)
               m_pListPane->RemoveItemByData((LONG_PTR)b);
@@ -619,7 +619,7 @@ public:
           UpdateSpendButtons();
       }
       
-      void OnModelTerminated(ImodelIGC* pmodel) 
+      void OnModelTerminated(ImodelIGC* pmodel) override 
       {
           // make sure we correct the number of existing stations on the investment list
           if ((pmodel->GetObjectType() == OT_station) && (pmodel->GetSide() != NULL)
@@ -631,7 +631,7 @@ public:
           }
       }
       
-      void OnStationCaptured(StationID stationID, SideID sideID) 
+      void OnStationCaptured(StationID stationID, SideID sideID) override 
       {
           // this may change our station count
           m_pListPane->UpdateAll();
@@ -639,7 +639,7 @@ public:
           UpdateSpendButtons();
       }
       
-      void OnDiscoveredStation(IstationIGC* pstation)
+      void OnDiscoveredStation(IstationIGC* pstation) override
       {
           // this may change our station count
           m_pListPane->UpdateAll();
@@ -647,7 +647,7 @@ public:
           UpdateSpendButtons();
       }
       
-      void OnDiscoveredAsteroid(IasteroidIGC* pasteroid)
+      void OnDiscoveredAsteroid(IasteroidIGC* pasteroid) override
       {
           // this may change our station status text
           m_pListPane->UpdateAll();
@@ -732,7 +732,7 @@ public:
           return false;
       }
       
-      void OnTechTreeChanged(SideID sid)
+      void OnTechTreeChanged(SideID sid) override
       {
           if (trekClient.GetSideID() == sid)
           {
@@ -803,7 +803,7 @@ public:
           }
       }
       
-      void OnMoneyChange(PlayerInfo* pPlayerInfo)
+      void OnMoneyChange(PlayerInfo* pPlayerInfo) override
       {
           UpdateSpendButtons();
       }
@@ -845,7 +845,7 @@ public:
           return true;
       }
       
-      void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo)
+      void OnAddPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo) override
       {
           // update the drone counts
           m_pListPane->UpdateAll();
@@ -853,7 +853,7 @@ public:
           UpdateSpendButtons();
       }
       
-      void OnDelPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam)
+      void OnDelPlayer(MissionInfo* pMissionInfo, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam) override
       {
           // update the drone counts
           m_pListPane->UpdateAll();
@@ -951,12 +951,12 @@ public:
           return true;     
       }
       
-      void UpdateLayout()
+      void UpdateLayout() override
       {
           DefaultUpdateLayout();
       }
       
-      void SetPaneWindow(Window* pWindow)
+      void SetPaneWindow(Window* pWindow) override
       {
           m_pPaneWindow = pWindow;
       }
@@ -1020,7 +1020,7 @@ public:
           DisplayNothing();
       }
       
-      void DisplayTeamPurchase(IbucketIGC* pBucket, bool bPartInInventory)
+      void DisplayTeamPurchase(IbucketIGC* pBucket, bool bPartInInventory) override
       {
           if (m_pConnectorPaneInventory)
               m_pConnectorPaneInventory->SetVisible(bPartInInventory);
@@ -1047,7 +1047,7 @@ public:
           } 
       }
       
-      void DisplayNothing()
+      void DisplayNothing() override
       {
           GetWindow()->SetInvestAsteroid(0);
 
@@ -1067,7 +1067,7 @@ public:
       
 private:
     
-    void UpdateLayout()
+    void UpdateLayout() override
     {
         InternalSetSize(m_pImageBkgnd->GetSurface()->GetSize());
         Pane::UpdateLayout();
@@ -1130,7 +1130,7 @@ private:
         }
     }
     
-    void Paint(Surface* pSurface)
+    void Paint(Surface* pSurface) override
     {
         pSurface->BitBlt(WinPoint(0, 0), 
             m_pImageBkgnd->GetSurface(),

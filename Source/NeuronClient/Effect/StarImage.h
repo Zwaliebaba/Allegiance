@@ -18,13 +18,13 @@ public:
     static TRef<StarImage> Create(Viewport* pviewport, short count);
 
     virtual void SetCount(unsigned int seed, short count) = 0;
-    virtual void Render(Context* pcontext) = 0;
+    void Render(Context* pcontext) override = 0;
 
     //
     // Value methods
     //
 
-    ZString GetFunctionName() { return "StarImage"; }
+    ZString GetFunctionName() override { return "StarImage"; }
 };
 
 

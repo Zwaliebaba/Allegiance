@@ -137,7 +137,7 @@ public:
     // Value methods
     //
 
-    ZString GetFunctionName() { return "BitsGeo"; }
+    ZString GetFunctionName() override { return "BitsGeo"; }
 };
 
 TRef<BitsGeo> CreateBitsGeo(Modeler* pmodeler, Number* ptime);

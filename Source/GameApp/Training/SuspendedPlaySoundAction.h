@@ -27,7 +27,7 @@ namespace Training
         public:
                     /* void */          SuspendedPlaySoundAction (SoundID soundID, bool bDeleteWhenDone = true);
             virtual /* void */          ~SuspendedPlaySoundAction (void);
-            virtual void                Execute (void);
+            void                Execute (void) override;
 
         protected:
                     bool                m_bDeleteWhenDone;

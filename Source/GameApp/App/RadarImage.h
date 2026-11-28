@@ -34,7 +34,7 @@ protected:
     Camera*    GetCamera()   { return GetViewport()->GetCamera();   }
     RectValue* GetViewRect() { return GetViewport()->GetViewRect(); }
 
-    virtual void        Evaluate (void) = 0;
+    void        Evaluate (void) override = 0;
 
 public:
     static TRef<RadarImage> Create(Modeler* pmodeler, Viewport* pviewport);
@@ -59,13 +59,13 @@ public:
     // Image methods
     //
 
-    virtual void        Render(Context* pcontext) = 0;
+    void        Render(Context* pcontext) override = 0;
 
     //
     // Value members
     //
 
-            ZString     GetFunctionName() { return "RadarImage"; }
+            ZString     GetFunctionName() override { return "RadarImage"; }
 };
 
 

@@ -153,7 +153,7 @@ class ResignBallot : public Ballot
   IsideIGC* m_pside;
 public:
   ResignBallot(CFSPlayer* pfsInitiator);
-  virtual void OnPassed();
+  void OnPassed() override;
 };
 
 // a ballot used when a player suggests offering a draw
@@ -162,7 +162,7 @@ class OfferDrawBallot : public Ballot
   CFSSide* m_pfside;
 public:
   OfferDrawBallot(CFSPlayer* pfsInitiator);
-  virtual void OnPassed();
+  void OnPassed() override;
 };
 
 // a ballot used when one team offers a draw
@@ -170,7 +170,7 @@ class AcceptDrawBallot : public Ballot
 {
 public:
   AcceptDrawBallot(CFSSide* pfsideInitiator);
-  virtual void OnPassed();
+  void OnPassed() override;
 };
 
 class CFSMission
