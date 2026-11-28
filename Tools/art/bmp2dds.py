@@ -24,8 +24,11 @@ only has alpha 0 and 255, where that is the same as straight alpha. Editors
 usually save straight alpha; run "premultiply" on such a file after saving it
 (it rebuilds the mip chain if the file has one). For a model texture saved
 without its mips, run "mips" afterwards. The box filter is the right one for
-premultiplied pixels. Model textures cut out at alpha 50%; soft alpha shows in
-the UI and in HUD images.
+premultiplied pixels. A model texture's alpha decides how it is drawn: only 0 and
+255 is a cut-out (antialiased, its mip levels keeping its coverage), any more than
+a trace in between is translucent (glass, shields), drawn in the scene's
+translucent pass; see MODERNIZATION.md, "Translucent surfaces". Soft alpha in UI
+and HUD images blends as before.
 
 Needs numpy.
 """

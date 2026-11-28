@@ -69,7 +69,7 @@ float SoftFade(float4 position)
 
     if (g_flags.x & 256) {
         int2  pixel = int2(position.xy);
-        float depth;
+        float depth = 0.0;
 
         //
         // The nearest of the samples (reversed: the largest), so the fade
@@ -133,8 +133,22 @@ float4 ScreenToClip(float4 p)
 
 #endif
 
+//
+// The translucent pass (OIT_PASS) does not discard: a fragment of alpha 0
+// adds nothing to the accumulation and leaves the revealage as it is, and
+// FXC fails internally ("invalid access of unbound variable") on a discard
+// ahead of a multiple-target struct output. It draws nothing instead.
+//
+
+#ifdef OIT_PASS
+#define SHADE_DISCARD bKilled = true
+#else
+#define SHADE_DISCARD discard
+#endif
+
 float4 Shade(float4 color, float2 uv, float4 position)
 {
+    bool   bKilled  = false;
     float4 result   = color;
     bool   bBlend   = (g_flags.x & 16) != 0;
     float  coverage = 1.0;
@@ -195,10 +209,10 @@ float4 Shade(float4 color, float2 uv, float4 position)
         if (g_flags.x & 4) {
             if (g_flags.x & 128) {
                 if (coverage <= 0.0) {
-                    discard;
+                    SHADE_DISCARD;
                 }
             } else if (texel.a <= 0.0 || (!bBlend && texel.a < 0.5)) {
-                discard;
+                SHADE_DISCARD;
             }
 
             if (bBlend) {
@@ -233,5 +247,45 @@ float4 Shade(float4 color, float2 uv, float4 position)
         result *= SoftFade(position);
     }
 
+    if (bKilled) {
+        result = float4(0, 0, 0, 0);
+    }
+
+    return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// The translucent pass: weighted blended order-independent transparency
+// (McGuire and Bavoil, "Weighted Blended Order-Independent Transparency",
+// 2013). A translucent fragment adds its premultiplied colour and alpha,
+// weighted by its distance, to the accumulation target, and multiplies the
+// revealage target (what still shows through, from 1) by 1 - alpha. The
+// composite (oit_composite_ps.hlsl) divides out the weights and lays the
+// average over the scene by 1 - revealage. Order does not matter; nearer
+// surfaces weigh more, so the front one dominates where layers stack.
+//
+//////////////////////////////////////////////////////////////////////////////
+
+struct OitOut
+{
+    float4 accum  : SV_Target0;
+    float4 reveal : SV_Target1;     // red only
+};
+
+OitOut Oit(float4 c, float depth)
+{
+    //
+    // The paper's equation 10, on depth: alpha times 3000 (1 - z)^3, at
+    // least 0.01. The scene's depth is reversed, so 1 - z is its depth
+    // itself (1 at the near plane).
+    //
+
+    float rev    = saturate(depth);
+    float weight = c.a * max(1e-2, 3e3 * rev * rev * rev);
+
+    OitOut result = (OitOut)0;
+    result.accum  = c * weight;
+    result.reveal = c.aaaa;
     return result;
 }

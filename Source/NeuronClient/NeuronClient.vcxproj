@@ -212,6 +212,9 @@
     <FxCompile Include="Engine\shaders\draw2d_vs.hlsl">
       <ShaderType>Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="Engine\shaders\oit_composite_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="Engine\shaders\present_ps.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
@@ -222,6 +225,12 @@
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Engine\shaders\raster_ps_flat.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\raster_ps_flat_oit.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\raster_ps_oit.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Engine\shaders\raster_vs.hlsl">
@@ -245,6 +254,12 @@
     <FxCompile Include="Engine\shaders\tl_ps_flat.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="Engine\shaders\tl_ps_flat_oit.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\tl_ps_oit.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="Engine\shaders\tl_vs.hlsl">
       <ShaderType>Vertex</ShaderType>
     </FxCompile>
@@ -264,6 +279,7 @@
     <None Include="Engine\shaders\raster.hlsli" />
     <None Include="Engine\shaders\scene.hlsli" />
     <None Include="Engine\shaders\tl.hlsli" />
+    <None Include="Engine\shaders\tl_pixel.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NeuronCore\NeuronCore.vcxproj">

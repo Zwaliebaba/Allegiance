@@ -156,10 +156,13 @@
     <FxCompile Include="Engine\shaders\bloom_up_ps.hlsl" />
     <FxCompile Include="Engine\shaders\draw2d_ps.hlsl" />
     <FxCompile Include="Engine\shaders\draw2d_vs.hlsl" />
+    <FxCompile Include="Engine\shaders\oit_composite_ps.hlsl" />
     <FxCompile Include="Engine\shaders\present_ps.hlsl" />
     <FxCompile Include="Engine\shaders\present_vs.hlsl" />
     <FxCompile Include="Engine\shaders\raster_ps.hlsl" />
     <FxCompile Include="Engine\shaders\raster_ps_flat.hlsl" />
+    <FxCompile Include="Engine\shaders\raster_ps_flat_oit.hlsl" />
+    <FxCompile Include="Engine\shaders\raster_ps_oit.hlsl" />
     <FxCompile Include="Engine\shaders\raster_vs.hlsl" />
     <FxCompile Include="Engine\shaders\raster_vs_flat.hlsl" />
     <FxCompile Include="Engine\shaders\scene_ps.hlsl" />
@@ -167,6 +170,8 @@
     <FxCompile Include="Engine\shaders\scene_vs.hlsl" />
     <FxCompile Include="Engine\shaders\tl_ps.hlsl" />
     <FxCompile Include="Engine\shaders\tl_ps_flat.hlsl" />
+    <FxCompile Include="Engine\shaders\tl_ps_flat_oit.hlsl" />
+    <FxCompile Include="Engine\shaders\tl_ps_oit.hlsl" />
     <FxCompile Include="Engine\shaders\tl_vs.hlsl" />
     <FxCompile Include="Engine\shaders\tl_vs_flat.hlsl" />
     <FxCompile Include="Engine\shaders\tl_vs_l.hlsl" />
@@ -178,5 +183,6 @@
     <None Include="Engine\shaders\raster.hlsli" />
     <None Include="Engine\shaders\scene.hlsli" />
     <None Include="Engine\shaders\tl.hlsli" />
+    <None Include="Engine\shaders\tl_pixel.hlsli" />
   </ItemGroup>
 </Project>
