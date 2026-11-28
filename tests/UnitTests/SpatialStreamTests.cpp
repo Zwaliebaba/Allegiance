@@ -172,14 +172,25 @@ namespace SpatialStreamTests
             bool               bOrdered = true;
             unsigned           nTotal   = 0;
 
-            while (!bDone || stream.GetQueued() >= c_nFrames) {
-                unsigned n = stream.Read(out.data(), c_nFrames);
+            //
+            // Read until the writer is done and a read gives nothing (what
+            // is left may be less than the margin, which the reader waits for)
+            //
+
+            for (;;) {
+                bool     bWriterDone = bDone;
+                unsigned n           = stream.Read(out.data(), c_nFrames);
 
                 for (unsigned i = 1; i < n; i++) {
                     bOrdered = bOrdered && out[i] == out[i - 1] + 1;
                 }
 
                 nTotal += n;
+
+                if (bWriterDone && n == 0) {
+                    break;
+                }
+
                 std::this_thread::yield();
             }
 
