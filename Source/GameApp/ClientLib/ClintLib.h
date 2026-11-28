@@ -50,7 +50,7 @@ public:
  
     // team events
     virtual void OnAddPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo) = 0;
-    virtual void OnDelPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam = NULL) = 0;
+    virtual void OnDelPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam = nullptr) = 0;
     virtual void OnAddRequest(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo) = 0;
     virtual void OnDelRequest(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason) = 0;
     virtual void OnTeamInactive(MissionInfo* pMissionDef, SideID sideID) = 0;
@@ -118,7 +118,7 @@ public:
 
     // team events
     virtual void OnAddPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo) {};
-    virtual void OnDelPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam = NULL) {};
+    virtual void OnDelPlayer(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam = nullptr) {};
     virtual void OnAddRequest(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo) {};
     virtual void OnDelRequest(MissionInfo* pMissionDef, SideID sideID, PlayerInfo* pPlayerInfo, DelPositionReqReason reason) {};
     virtual void OnTeamInactive(MissionInfo* pMissionDef, SideID sideID) {};
@@ -727,7 +727,7 @@ public:
     virtual void CreateMissionReq();
     virtual void JoinMission(MissionInfo * pMission, const char* szMissionPassword);
 
-    virtual const char* GetArtPath() { return NULL; } // This should be overridden in Wintrek/PIGS
+    virtual const char* GetArtPath() { return nullptr; } // This should be overridden in Wintrek/PIGS
     virtual bool ResetStaticData(const char * szIGCStaticFile, ImissionIGC** ppStaticIGC, Time tNow, bool bEncrypt);
 
     Time ServerTimeFromClientTime(Time   timeClient) override
@@ -826,7 +826,7 @@ public:
 
     inline IshipIGC*    GetShip() const         { return m_ship; }
 
-    inline IclusterIGC* GetCluster() const      {assert (m_ship); return m_viewCluster ? m_viewCluster : (m_ship ? m_ship->GetCluster() : NULL); }
+    inline IclusterIGC* GetCluster() const      {assert (m_ship); return m_viewCluster ? m_viewCluster : (m_ship ? m_ship->GetCluster() : nullptr); }
 
     IclusterIGC*        GetChatCluster() const
     {
@@ -853,7 +853,7 @@ public:
 
         IbuildingEffectIGC*    pbe = pshipBuilder->GetCluster()->CreateBuildingEffect(now,
                                                          pasteroid,
-                                                         NULL,
+                                                         nullptr,
                                                          pshipBuilder,
                                                          pasteroid->GetRadius(),
                                                          ((IstationTypeIGC*)(pshipBuilder->GetBaseData()))->GetRadius(),
@@ -865,7 +865,7 @@ public:
     {
         IclusterIGC*    pcluster = pmodel->GetCluster();
 
-        if (pcluster == NULL)
+        if (pcluster == nullptr)
         {
             if (pmodel->GetObjectType() == OT_ship)
             {
@@ -875,7 +875,7 @@ public:
             }
         }
         else if (!pship->CanSee(pmodel))
-            pcluster = NULL;
+            pcluster = nullptr;
 
         return pcluster;
     }
@@ -899,12 +899,12 @@ public:
             }                    
         }
 
-        return NULL;
+        return nullptr;
     }
 
-    void    SetWing(WingID  wid, IshipIGC*  pship = NULL)
+    void    SetWing(WingID  wid, IshipIGC*  pship = nullptr)
     {
-        if (pship == NULL)
+        if (pship == nullptr)
             pship = m_ship;
         pship->SetWingID(wid);
 
@@ -933,8 +933,8 @@ public:
 
     IclusterIGC* GetViewCluster() const         { return m_viewCluster; }
     
-    virtual void SetViewCluster(IclusterIGC* pcluster, const Vector*  pposition = NULL);
-    virtual void RequestViewCluster(IclusterIGC* pcluster, ImodelIGC* pmodelTarget = NULL) { SetViewCluster(pcluster); }
+    virtual void SetViewCluster(IclusterIGC* pcluster, const Vector*  pposition = nullptr);
+    virtual void RequestViewCluster(IclusterIGC* pcluster, ImodelIGC* pmodelTarget = nullptr) { SetViewCluster(pcluster); }
 
     virtual void            ResetShip(void);
     virtual void            ResetClusterScanners(IsideIGC*  pside);
@@ -951,8 +951,8 @@ public:
     bool                flyingF(void) const 
     { 
         return 
-               (m_ship != NULL)
-            && (m_ship->GetCluster() != NULL); 
+               (m_ship != nullptr)
+            && (m_ship->GetCluster() != nullptr); 
     }
         
     bool                autoPilot()             { return m_ship->GetAutopilot(); }
@@ -999,7 +999,7 @@ public:
                           CommandID      cid = c_cidNone,
                           ObjectType     otTarget = NA,
                           ObjectID       oidTarget = NA,
-                          ImodelIGC*     pmodelTarget = NULL,
+                          ImodelIGC*     pmodelTarget = nullptr,
                           bool           bObjectModel = false) override;
 
     virtual void  ReceiveChat(IshipIGC*   pshipSender,
@@ -1010,7 +1010,7 @@ public:
                           CommandID   cid,
                           ObjectType  otTarget,
                           ObjectID    oidTarget,
-                          ImodelIGC*  pmodelTarget = NULL,
+                          ImodelIGC*  pmodelTarget = nullptr,
                           bool        bObjectModel = false);
 
     void    ScrollChatUp(void);
@@ -1101,7 +1101,7 @@ public:
         assert (pship->GetBaseHullType() == pht);
 
         for (PartTypeLinkIGC*   ptl = ppartsShip->first();
-             (ptl != NULL);
+             (ptl != nullptr);
              ptl = ptl->next())
         {
             IpartTypeIGC*   ppt = ptl->data();
@@ -1119,7 +1119,7 @@ public:
                 for (Mount i = 0; (i < iMountMax); i++)
                 {
                     //If the slot is empty and we can mount the part in the slot
-                    if ((pship->GetMountedPart(et, i) == NULL) && pht->CanMount(ppt, i))
+                    if ((pship->GetMountedPart(et, i) == nullptr) && pht->CanMount(ppt, i))
                     {
                         if (BuyPartOnBudget(pship, ppt, i, pbudget) == 0)
                             break;      //Ran out of money ... don't try to mount any more instances of this part
@@ -1140,7 +1140,7 @@ public:
     void    DisembarkAndLaunch()
     {
         m_bLaunchAfterDisembark = true;
-        BoardShip(NULL);
+        BoardShip(nullptr);
     }
 
     void    DisembarkAndBuy(IshipIGC* pship, bool fLaunch)
@@ -1152,19 +1152,19 @@ public:
         m_loadouts.first(pcll);
 
         m_bLaunchAfterDisembark = fLaunch;
-        BoardShip(NULL);
+        BoardShip(nullptr);
     }
 
     void    DisembarkAndBoard(IshipIGC* pship)
     {
         m_sidBoardAfterDisembark = pship->GetObjectID();
-        BoardShip(NULL);
+        BoardShip(nullptr);
     }
 
     void    DisembarkAndTeleport(IstationIGC* pstation)
     {
         m_sidTeleportAfterDisembark = pstation->GetObjectID();
-        BoardShip(NULL);
+        BoardShip(nullptr);
     }
 
     void    SaveLoadout(void)
@@ -1193,7 +1193,7 @@ public:
         m_loadouts.first(pcll);
 
         {
-            for (PartLinkIGC*   ppl = pship->GetParts()->first(); (ppl != NULL); ppl = ppl->next())
+            for (PartLinkIGC*   ppl = pship->GetParts()->first(); (ppl != nullptr); ppl = ppl->next())
             {
                 CachedPartLink* cpl = new CachedPartLink;
                 cpl->data().ppt = ppl->data()->GetPartType();
@@ -1201,11 +1201,11 @@ public:
 
                 //Keep the parts sorted by mount
                 CachedPartLink* cplAfter;
-                for (cplAfter = pcll->data().cpl.first(); ((cplAfter != NULL) &&
+                for (cplAfter = pcll->data().cpl.first(); ((cplAfter != nullptr) &&
                                                            (cplAfter->data().mount < cpl->data().mount)); cplAfter = cplAfter->next())
                 {
                 }
-                if (cplAfter != NULL)
+                if (cplAfter != nullptr)
                     cplAfter->txen(cpl);
                 else
                     pcll->data().cpl.last(cpl);
@@ -1245,13 +1245,13 @@ public:
 
             {
                 //Mark all the parts in the cached loadout as not duplicated
-                for (CachedPartLink*  l = pcll->data().cpl.first(); (l != NULL); l = l->next())
+                for (CachedPartLink*  l = pcll->data().cpl.first(); (l != nullptr); l = l->next())
                     l->data().bDuplicated = false;
             }
 
             //Copy over the parts that were mounted on the old hull
             {
-                for (PartLinkIGC*  l = pparts->first(); (l != NULL); l = l->next())
+                for (PartLinkIGC*  l = pparts->first(); (l != nullptr); l = l->next())
                 {
                     IpartIGC*       ppart = l->data();
                     Mount           mount = ppart->GetMountID();
@@ -1294,7 +1294,7 @@ public:
 
                             //Mark the corresponding part in the cached loadout as having been duplicated
                             {
-                                for (CachedPartLink*  l = pcll->data().cpl.last(); (l != NULL); l = l->txen())
+                                for (CachedPartLink*  l = pcll->data().cpl.last(); (l != nullptr); l = l->txen())
                                 {
                                     if ((l->data().ppt == ppt) && !l->data().bDuplicated)
                                     {
@@ -1312,7 +1312,7 @@ public:
 
             //Fill all of the cargo slots with what was there before.
             Mount   cargo = -c_maxCargo;
-            for (CachedPartLink*  l = pcll->data().cpl.first(); (l != NULL); l = l->next())
+            for (CachedPartLink*  l = pcll->data().cpl.first(); (l != nullptr); l = l->next())
             {
                 CachedPart& cpl = l->data();
 
@@ -1333,7 +1333,7 @@ public:
                         EquipmentType   et =  ppt->GetEquipmentType();
                         if ((cpl.mount == 0) &&                             //Hack alert: all launchers are mountID 0
                             IlauncherTypeIGC::IsLauncherType(et) &&
-                            (pshipSink->GetMountedPart(et, 0) == NULL))     //Hack alert: see above
+                            (pshipSink->GetMountedPart(et, 0) == nullptr))     //Hack alert: see above
                         {
                             BuyPartOnBudget(pshipSink, ppt, 0, &budget);    //Hack alert: see above
                         }
@@ -1355,7 +1355,7 @@ public:
         else if (phtBase && !phtBase->HasCapability(c_habmLifepod))
             budget = ReplaceLoadout(pshipSink, pstation, phtBase, budget);
         else
-            budget = ReplaceLoadout(pshipSink, pstation, (CachedLoadout*)NULL, budget);
+            budget = ReplaceLoadout(pshipSink, pstation, (CachedLoadout*)nullptr, budget);
 
         return budget;
     }
@@ -1381,8 +1381,8 @@ public:
         assert (pship->GetChildShips()->n() == 0);
         assert (pship->GetParts()->n() == 0);
 
-        if (pcl == NULL)
-            pcl = m_loadouts.first() ? &(m_loadouts.first()->data()) : NULL;
+        if (pcl == nullptr)
+            pcl = m_loadouts.first() ? &(m_loadouts.first()->data()) : nullptr;
 
         if (pcl && pcl->pht && pstation->CanBuy(pcl->pht) && (pcl->pht->GetPrice() <= budget))
         {
@@ -1393,11 +1393,11 @@ public:
             pship->SetBaseHullType(pht);
 
             //Clone the previous loadout
-            for (CachedPartLink*  l = pcl->cpl.first(); (l != NULL); l = l->next())
+            for (CachedPartLink*  l = pcl->cpl.first(); (l != nullptr); l = l->next())
             {
                 CachedPart& cpl = l->data();
 
-                IpartTypeIGC*   ppt = NULL;
+                IpartTypeIGC*   ppt = nullptr;
                 if (pstation->CanBuy(cpl.ppt))
                 {
                     ppt = (IpartTypeIGC*)(pstation->GetSuccessor(cpl.ppt));
@@ -1456,7 +1456,7 @@ public:
     {
         IshipIGC*   pship = CreateEmptyShip(-3);
         assert (pship);
-        ReplaceLoadout(pship, pstation, (CachedLoadout*)NULL, GetMoney());
+        ReplaceLoadout(pship, pstation, (CachedLoadout*)nullptr, GetMoney());
 
         BuyLoadout(pship, bLaunch);
 
@@ -1502,17 +1502,17 @@ public:
         }
 
         IpartTypeIGC*   pptFuel;
-        if (pship->GetMountedPart(ET_Afterburner, 0) != NULL)
+        if (pship->GetMountedPart(ET_Afterburner, 0) != nullptr)
         {
             pptFuel = m_pCoreIGC->GetFuelPack();
             assert (pptFuel);
             assert (pptFuel->GetGroupID() >= 0);
 
             if (!pstation->CanBuy(pptFuel))
-                pptFuel = NULL;
+                pptFuel = nullptr;
         }
         else
-            pptFuel = NULL;
+            pptFuel = nullptr;
 
         IpartTypeIGC*   pptAmmo;
         {
@@ -1534,10 +1534,10 @@ public:
                 assert (pptAmmo->GetGroupID() >= 0);
 
                 if (!pstation->CanBuy(pptAmmo))
-                    pptAmmo = NULL;
+                    pptAmmo = nullptr;
             }
             else
-                pptAmmo = NULL;
+                pptAmmo = nullptr;
         }
 
 
@@ -1550,7 +1550,7 @@ public:
                 //Buying fuel packs
                 pship->CreateAndAddPart(pptFuel, cargo++, 0x7fff);
 
-                bBuyFuel = (pptAmmo == NULL);
+                bBuyFuel = (pptAmmo == nullptr);
             }
             else if (pptAmmo)
             {
@@ -1565,13 +1565,13 @@ public:
 
     CachedLoadoutLink*  GetLoadoutLink(IhullTypeIGC*    pht)
     {
-        for (CachedLoadoutLink* pcll = m_loadouts.first(); (pcll != NULL); pcll = pcll->next())
+        for (CachedLoadoutLink* pcll = m_loadouts.first(); (pcll != nullptr); pcll = pcll->next())
         {
             if (pcll->data().pht == pht)
                 return pcll;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     virtual void    DropPart(IpartIGC*  ppart)
@@ -1629,11 +1629,11 @@ public:
     virtual void OnQuitSide();
     virtual void OnJoinSide();
     virtual void OnEnterGame();
-    virtual void OnQuitMission(QuitSideReason reason, const char* szMessageParam = NULL);
+    virtual void OnQuitMission(QuitSideReason reason, const char* szMessageParam = nullptr);
     virtual void AddPlayerToMission(PlayerInfo* pPlayer);
     virtual void AddPlayerToSide(PlayerInfo* pPlayerInfo, SideID sideID);
-    virtual void RemovePlayerFromMission(PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam = NULL);
-    virtual void RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam = NULL);
+    virtual void RemovePlayerFromMission(PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam = nullptr);
+    virtual void RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason reason, const char* szMessageParam = nullptr);
 
     IshipIGC*   GetLastSender(void) const
     {

@@ -27,7 +27,7 @@ public:
        
     SwitchValuePane(Number* pvalue) :
         ValuePane(pvalue),
-        m_pPaneDefault(NULL)
+        m_pPaneDefault(nullptr)
     {
         pvalue->Update();
         NeedLayout();
@@ -335,7 +335,7 @@ public:
         TRef<SwitchValuePane> ppane = new SwitchValuePane(pnumber);
 
         plist->GetFirst();
-        while (plist->GetCurrent() != NULL)  {
+        while (plist->GetCurrent() != nullptr)  {
             IObjectPair* ppair; CastTo(ppair, plist->GetCurrent());
 
             TRef<Pane>   ppaneChild;  CastTo(ppaneChild, (Pane*)ppair->GetFirst());

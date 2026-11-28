@@ -13,7 +13,7 @@ private:
     void RemoveDeadSinks()
     {
         // remove all of the NULL elements from the list
-        while (m_listSinks.Remove(NULL)) 
+        while (m_listSinks.Remove(nullptr)) 
             {
             }
     }
@@ -28,7 +28,7 @@ public:
     {
         // in order to let us remove the current sync while walking the list of
         // sinks, just set the sink to NULL for the moment.  
-        m_listSinks.Replace(psink, NULL);
+        m_listSinks.Replace(psink, nullptr);
     }
 
 #define ForEachSink(fnc) \
@@ -562,7 +562,7 @@ void    ChatInfo::ClearTarget(void)
     {
         m_strMessage += " <dead>";
     }
-    m_pmodelTarget = NULL;
+    m_pmodelTarget = nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -628,7 +628,7 @@ void MissionInfo::Update(FMD_LS_LOBBYMISSIONINFO* pfmLobbyMissionInfo)
 
     Strncpy(m_pfmMissionDef->misparms.strGameName, FM_VAR_REF(pfmLobbyMissionInfo, szGameName), c_cbGameName);
     m_pfmMissionDef->misparms.strGameName[c_cbGameName - 1] = '\0';
-    m_strGameDetailsFiles = (FM_VAR_REF(pfmLobbyMissionInfo, szGameDetailsFiles) != NULL)
+    m_strGameDetailsFiles = (FM_VAR_REF(pfmLobbyMissionInfo, szGameDetailsFiles) != nullptr)
       ? FM_VAR_REF(pfmLobbyMissionInfo, szGameDetailsFiles) : "";
     m_pfmMissionDef->misparms.nTeams = pfmLobbyMissionInfo->nTeams;
     m_pfmMissionDef->misparms.nMinPlayersPerTeam = pfmLobbyMissionInfo->nMinPlayersPerTeam;
@@ -878,12 +878,12 @@ void MissionInfo::RemoveRequest(SideID sideID, ShipID shipID)
 SideInfo* MissionInfo::GetSideInfo(SideID sideID)
 {
     ZAssert(sideID != NA);
-    SideInfo* pSideInfo = NULL;
+    SideInfo* pSideInfo = nullptr;
     
     if (sideID >= m_pfmMissionDef->misparms.nTeams)
     {
         assert(false);
-        return NULL;
+        return nullptr;
     }
     else if (!m_mapSideInfo.Find(sideID, pSideInfo) && sideID != SIDE_TEAMLOBBY)
     {
@@ -911,8 +911,8 @@ List* MissionInfo::GetSideList()
 // PlayerInfo
 
 PlayerInfo::PlayerInfo(void) :
-    m_pship(NULL),
-    m_vPersistPlayerScores(NULL),
+    m_pship(nullptr),
+    m_vPersistPlayerScores(nullptr),
     m_cPersistPlayerScores(0),
     m_bMute(false)
 {
@@ -946,7 +946,7 @@ void PlayerInfo::Set(FMD_S_PLAYERINFO* pfmPlayerInfo)
     }
     else
     {
-        m_vPersistPlayerScores = NULL;
+        m_vPersistPlayerScores = nullptr;
     }
 }
 
@@ -1019,40 +1019,40 @@ BaseClient::BaseClient(void)
     m_selectedWeapon(0),
     m_messageType(c_mtNone),
     m_cookie(NA),
-    m_plinkSelectedChat(NULL),
-    m_pPlayerInfo(NULL),
-    m_pMissionInfo(NULL),
+    m_plinkSelectedChat(nullptr),
+    m_pPlayerInfo(nullptr),
+    m_pMissionInfo(nullptr),
     m_fLoggedOn(false),
     m_fLoggedOnToLobby(false),
     m_fm(this),
     m_fmLobby(this),
-    m_ship(NULL),
-    m_pshipLastSender(NULL),
+    m_ship(nullptr),
+    m_pshipLastSender(nullptr),
     m_moneyLastRequest(0),
     m_sync(1.0f),
-    m_viewCluster(NULL),
+    m_viewCluster(nullptr),
     m_cUnansweredPings(0),
     m_fIsLobbied(false),
     m_dwCookieToJoin(NA),    
     m_bInGame(false),
     m_bWaitingForGameRestart(false),
     m_cRankInfo(0),
-    m_vRankInfo(NULL),
+    m_vRankInfo(nullptr),
     m_cStaticMapInfo(0),
-    m_vStaticMapInfo(NULL),
+    m_vStaticMapInfo(nullptr),
     m_lockdownCriteria(0),
     m_lobbyServerOffset(0),
-    m_plistFindServerResults(NULL),
+    m_plistFindServerResults(nullptr),
     m_strCDKey("")
 {
-    CoInitialize(NULL);
+    CoInitialize(nullptr);
     m_timeLastPing = m_lastSend;
     m_plistMissions = new ListDelegate(&m_mapMissions);
     m_pClientEventSource = new ClientEventSource();
     m_szCharName[0] = '\0';
     m_szLobbyCharName[0] = '\0';
     m_szIGCStaticFile[0] = '\0';
-    m_pMissionInfo = NULL;
+    m_pMissionInfo = nullptr;
 }
 
 BaseClient::~BaseClient(void)
@@ -1073,11 +1073,11 @@ BaseClient::~BaseClient(void)
 
     if (m_vRankInfo)
         delete [] m_vRankInfo;
-    m_vRankInfo = NULL;
+    m_vRankInfo = nullptr;
 
     if (m_vStaticMapInfo)
         delete [] m_vStaticMapInfo;
-    m_vStaticMapInfo = NULL;
+    m_vStaticMapInfo = nullptr;
 }
 
 void    BaseClient::Initialize(Time timeNow)
@@ -1107,16 +1107,16 @@ void    BaseClient::Reinitialize(Time timeNow)
     m_selectedWeapon = NULL;
     m_messageType = c_mtNone;
     m_cookie = NA;
-    m_plinkSelectedChat = NULL;
-    m_pPlayerInfo = NULL;
+    m_plinkSelectedChat = nullptr;
+    m_pPlayerInfo = nullptr;
     if (m_pMissionInfo)
         delete m_pMissionInfo;
-    m_pMissionInfo = NULL;
+    m_pMissionInfo = nullptr;
     m_fLoggedOn = false;
 
-    m_pchaffLastCreated = NULL;
+    m_pchaffLastCreated = nullptr;
 
-    m_pshipLastSender = NULL;
+    m_pshipLastSender = nullptr;
     m_moneyLastRequest = 0;
 
     m_mapBucketStatusArray.SetEmpty();
@@ -1137,7 +1137,7 @@ void    BaseClient::Terminate(void)
 
 void BaseClient::FlushGameState()
 {
-    m_pchaffLastCreated = NULL;
+    m_pchaffLastCreated = nullptr;
 
     if (m_ship)
         m_ship->AddRef();
@@ -1145,7 +1145,7 @@ void BaseClient::FlushGameState()
     {
         const ShipListIGC*  ships = m_pCoreIGC->GetShips();
         ShipLinkIGC*  l;
-        while ((l = ships->first()) != NULL)
+        while ((l = ships->first()) != nullptr)
         {
             l->data()->Terminate();
         }
@@ -1160,11 +1160,11 @@ void BaseClient::FlushGameState()
     {
         DestroyDummyShip();
         m_ship->Release();
-        m_ship = NULL;
+        m_ship = nullptr;
     }
 
     delete m_pCoreIGC;
-    m_pCoreIGC = NULL;
+    m_pCoreIGC = nullptr;
 
     m_bInGame = false;
 }
@@ -1291,7 +1291,7 @@ void BaseClient::FindStandaloneServersByName(const char* szName, TList<TRef<LANS
 
     m_fm.EnumSessions(c_appGameServerPrivate, szName);
 
-    m_plistFindServerResults = NULL;
+    m_plistFindServerResults = nullptr;
 };
 
 void BaseClient::SetCDKey(const ZString& strCDKey)
@@ -1383,7 +1383,7 @@ void    BaseClient::ResetShip(void)
     m_ship->SetAmmo(0);
     m_ship->SetFuel(0.0f);
 
-    m_pmodelServerTarget = NULL;
+    m_pmodelServerTarget = nullptr;
 }
 
 void    BaseClient::ResetClusterScanners(IsideIGC*  pside)
@@ -1395,7 +1395,7 @@ void    BaseClient::ResetClusterScanners(IsideIGC*  pside)
     {
         //Stations ...
         for (StationLinkIGC*   l = pside->GetStations()->first();
-             (l != NULL);
+             (l != nullptr);
              l = l->next())
         {
             IstationIGC*    pstation = l->data();
@@ -1415,7 +1415,7 @@ void    BaseClient::BuyLoadout(IshipIGC*    pshipLoadout, bool bLaunch)
     {
         SetMessageType(c_mtGuaranteed);
         BEGIN_PFM_CREATE(m_fm, pfmBuyLoadout, C, BUY_LOADOUT)
-            FM_VAR_PARM(NULL, pshipLoadout->ExportShipLoadout(NULL))
+            FM_VAR_PARM(NULL, pshipLoadout->ExportShipLoadout(nullptr))
         END_PFM_CREATE
 
         assert (pshipLoadout->GetBaseHullType());
@@ -1432,7 +1432,7 @@ void    BaseClient::BuyLoadout(IshipIGC*    pshipLoadout, bool bLaunch)
     else
     {
         // I'm training here
-        short   size = pshipLoadout->ExportShipLoadout(NULL);
+        short   size = pshipLoadout->ExportShipLoadout(nullptr);
         void*   ptr = new char[size];
         pshipLoadout->ExportShipLoadout (static_cast <ShipLoadout*> (ptr));
         m_ship->PurchaseShipLoadout (size, static_cast <ShipLoadout*> (ptr));
@@ -1451,7 +1451,7 @@ IshipIGC*   BaseClient::CopyCurrentShip(void)
     pshipLoadout->SetBaseHullType(m_ship->GetBaseHullType());
 
     //Copy the parts
-    for (PartLinkIGC*   ppl = m_ship->GetParts()->first(); (ppl != NULL); ppl = ppl->next())
+    for (PartLinkIGC*   ppl = m_ship->GetParts()->first(); (ppl != nullptr); ppl = ppl->next())
     {
         IpartIGC*   ppart = ppl->data();
         pshipLoadout->CreateAndAddPart(ppart->GetPartType(), ppart->GetMountID(), ppart->GetAmount());
@@ -1510,7 +1510,7 @@ bool    BaseClient::SendUpdate(Time now)
 
     if (flyingF() && m_fm.IsConnected())
     {
-        if (m_ship->GetParentShip() == NULL)
+        if (m_ship->GetParentShip() == nullptr)
         {
             static const int    smSendUpdateNow = weaponsMaskIGC | selectedWeaponMaskIGC |
                                                   coastButtonIGC |
@@ -1612,7 +1612,7 @@ void    BaseClient::SendMessages(void)
 void BaseClient::NextWeapon(void)
 {
     assert (m_ship);
-    if (m_ship->GetParentShip() == NULL)
+    if (m_ship->GetParentShip() == nullptr)
     {
         Mount nHardpoints = m_ship->GetHullType()->GetMaxFixedWeapons();
         if (nHardpoints > 0)
@@ -1624,7 +1624,7 @@ void BaseClient::NextWeapon(void)
                 m_selectedWeapon = (m_selectedWeapon + 1) % nHardpoints;
                 p = m_ship->GetMountedPart(ET_Weapon, m_selectedWeapon);
             }
-            while ((p == NULL) && (m_selectedWeapon != startWeapon));
+            while ((p == nullptr) && (m_selectedWeapon != startWeapon));
         }
     }
 }
@@ -1632,7 +1632,7 @@ void BaseClient::NextWeapon(void)
 void BaseClient::PreviousWeapon(void)
 {
     assert (m_ship);
-    if (m_ship->GetParentShip() == NULL)
+    if (m_ship->GetParentShip() == nullptr)
     {
         Mount nHardpoints = m_ship->GetHullType()->GetMaxFixedWeapons();
 
@@ -1646,7 +1646,7 @@ void BaseClient::PreviousWeapon(void)
                     m_selectedWeapon ? (m_selectedWeapon - 1) : nHardpoints - 1;
                 p = m_ship->GetMountedPart(ET_Weapon, m_selectedWeapon);
             }
-            while ((p == NULL) && (m_selectedWeapon != startWeapon));
+            while ((p == nullptr) && (m_selectedWeapon != startWeapon));
         }
     }
 }
@@ -1656,7 +1656,7 @@ void BaseClient::SetSelectedWeapon(Mount id)
 {
     assert (m_ship);
 
-    if (m_ship->GetParentShip() == NULL)
+    if (m_ship->GetParentShip() == nullptr)
     {
         Mount nHardpoints = m_ship->GetHullType()->GetMaxFixedWeapons();
 
@@ -2003,14 +2003,14 @@ void    BaseClient::SendChat(IshipIGC*      pshipSender,
     if ((ctRecipient == CHAT_INDIVIDUAL) || (ctRecipient == CHAT_GROUP) || (ctRecipient == CHAT_GROUP_NOECHO))
     {
         IshipIGC*   pship = m_pCoreIGC->GetShip(oidRecipient);
-        if ((pship == NULL) || (pship->GetMission() == NULL))
+        if ((pship == nullptr) || (pship->GetMission() == nullptr))
             return;     //Don't bother to send to the dead
 
         // do the right thing for training missions
         PilotType   pilotType = pship->GetPilotType();
         if ((!m_fm.IsConnected ()) && (pilotType < c_ptPlayer) && (cid != c_cidNone))
         {
-            if ((cid == c_cidDefault) && (pmodelTarget != NULL))
+            if ((cid == c_cidDefault) && (pmodelTarget != nullptr))
             {
                 cid = c_cidGoto;
                 if (ctRecipient == CHAT_INDIVIDUAL)
@@ -2105,7 +2105,7 @@ void    BaseClient::SendChat(IshipIGC*      pshipSender,
 
 void BaseClient::ScrollChatUp(void)
 {
-    if (m_plinkSelectedChat == NULL)
+    if (m_plinkSelectedChat == nullptr)
         m_plinkSelectedChat = m_chatList.last();
     else if (m_plinkSelectedChat != m_chatList.first())
         m_plinkSelectedChat = m_plinkSelectedChat->txen();
@@ -2113,17 +2113,17 @@ void BaseClient::ScrollChatUp(void)
 
 void BaseClient::ScrollChatDown(void)
 {
-    if (m_plinkSelectedChat != NULL)
+    if (m_plinkSelectedChat != nullptr)
         m_plinkSelectedChat = m_plinkSelectedChat->next();
 }
 
 ChatInfo* BaseClient::GetCurrentMessage(void)
 {
-    ChatLink*   l = (m_plinkSelectedChat != NULL)
+    ChatLink*   l = (m_plinkSelectedChat != nullptr)
                     ? m_plinkSelectedChat
                     : m_chatList.last();
 
-    return l ? &(l->data()) : NULL;
+    return l ? &(l->data()) : nullptr;
 }
 
 BallotInfo* BaseClient::GetCurrentBallot()
@@ -2135,7 +2135,7 @@ BallotInfo* BaseClient::GetCurrentBallot()
         m_listBallots.PopFront();
 
     if (m_listBallots.IsEmpty())
-        return NULL;
+        return nullptr;
     else
         return &(m_listBallots.GetFront());
 }
@@ -2216,7 +2216,7 @@ void BaseClient::DonateMoney(PlayerInfo* pPlayerInfo, Money money)
 
 MissionInfo* BaseClient::GetLobbyMission(DWORD dwCookie)
 {
-    MissionInfo* pMissionInfo = NULL;
+    MissionInfo* pMissionInfo = nullptr;
     if (!m_mapMissions.Find(dwCookie, pMissionInfo))
     {
         pMissionInfo = new MissionInfo(dwCookie);
@@ -2228,7 +2228,7 @@ MissionInfo* BaseClient::GetLobbyMission(DWORD dwCookie)
 PlayerLink* BaseClient::FindPlayerLink(ShipID shipID)
 {
     PlayerLink* l = m_listPlayers.first();
-    while ((l != NULL) && (l->data().ShipID() != shipID))
+    while ((l != nullptr) && (l->data().ShipID() != shipID))
          l = l->next();
     return l;
 }
@@ -2237,7 +2237,7 @@ PlayerInfo* BaseClient::FindAndCreatePlayerLink(ShipID shipID)
 {
     PlayerLink* l = FindPlayerLink(shipID);
 
-    if (l == NULL)
+    if (l == nullptr)
     {
         l = new PlayerLink;
         m_listPlayers.last(l);
@@ -2249,14 +2249,14 @@ PlayerInfo* BaseClient::FindAndCreatePlayerLink(ShipID shipID)
 PlayerInfo* BaseClient::FindPlayer(ShipID shipID)
 {
     PlayerLink* l = FindPlayerLink(shipID);
-    return l ? &(l->data()) : NULL;
+    return l ? &(l->data()) : nullptr;
 }
 
 PlayerInfo* BaseClient::FindPlayer(const char* szName)
 {
-    PlayerInfo* p = NULL;
+    PlayerInfo* p = nullptr;
 
-    for (PlayerLink* l = m_listPlayers.first(); (l != NULL); l = l->next())
+    for (PlayerLink* l = m_listPlayers.first(); (l != nullptr); l = l->next())
         {
         if (_stricmp(l->data().CharacterName(), szName) == 0)
             {
@@ -2270,10 +2270,10 @@ PlayerInfo* BaseClient::FindPlayer(const char* szName)
 
 PlayerInfo* BaseClient::FindPlayerByPrefix(const char* szNamePrefix)
 {
-    PlayerInfo* p = NULL;
+    PlayerInfo* p = nullptr;
     int lenNamePrefix = strlen(szNamePrefix);
 
-    for (PlayerLink* l = m_listPlayers.first(); (l != NULL); l = l->next())
+    for (PlayerLink* l = m_listPlayers.first(); (l != nullptr); l = l->next())
     {
         PlayerInfo& player = l->data();
 
@@ -2436,7 +2436,7 @@ void BaseClient::TerminateModelEvent(ImodelIGC* pModel)
         {
             bool    fChanges = false;
             for (ChatLink*  l = m_chatList.first();
-                 (l != NULL);
+                 (l != nullptr);
                  l = l->next())
             {
                 ChatInfo&    cw = l->data();
@@ -2456,11 +2456,11 @@ void BaseClient::TerminateModelEvent(ImodelIGC* pModel)
         for (Command i = 0; (i < c_cmdMax); i++)
         {
             if (m_ship->GetCommandTarget(i) == pModel)
-                m_ship->SetCommand(i, NULL, c_cidNone);
+                m_ship->SetCommand(i, nullptr, c_cidNone);
         }
 
         if (pModel == m_pmodelServerTarget)
-            m_pmodelServerTarget = NULL;
+            m_pmodelServerTarget = nullptr;
     }
 
     m_pClientEventSource->OnModelTerminated(pModel);
@@ -2714,7 +2714,7 @@ void BaseClient::DamageStationEvent(IstationIGC* pStation,
                                     DamageTypeID type, 
                                     float _amount)
 {
-    if ((NULL != pStation->GetCluster()) &&
+    if ((nullptr != pStation->GetCluster()) &&
         (pStation->GetCluster() == GetCluster()))
     {
         if (pStation->GetShieldFraction() < 0.0f)
@@ -2747,7 +2747,7 @@ void BaseClient::FireMissile(IshipIGC* pShip,
     if (pTarget &&
         ((pTarget->GetCluster() != m_ship->GetCluster()) ||
          !m_ship->CanSee(pTarget)))
-        pTarget = NULL;
+        pTarget = nullptr;
 
     this->PlaySoundEffect(pMagazine->GetMissileType()->GetLaunchSound(), pShip);
     this->PlayFFEffect(effectFire);
@@ -2833,7 +2833,7 @@ void BaseClient::FireMissile(IshipIGC* pShip,
         FM_VAR_PARM(missileLaunchData, sizeof(MissileLaunchData) * iNumMissiles)
         END_PFM_CREATE
 
-        if (NULL != pTarget)
+        if (nullptr != pTarget)
         {
             pfmFM->targetType = pTarget->GetObjectType();
             pfmFM->targetID = pTarget->GetObjectID();
@@ -3101,7 +3101,7 @@ bool BaseClient::Reload(IshipIGC* pship, IlauncherIGC* plauncher, EquipmentType 
                     }
                     */
                     // Find the last ammo/fuel pack (avoids mysterious behavior in inventory pane)
-                    IpackIGC*   ppack = NULL;
+                    IpackIGC*   ppack = nullptr;
                     short       amount = 0x7fff;
                     {
                         for (Mount i = -1; (i >= -c_maxCargo); i--)
@@ -3190,14 +3190,14 @@ bool BaseClient::Reload(IshipIGC* pship, IlauncherIGC* plauncher, EquipmentType 
                 }
                 else
                 {
-                    pparttype = NULL;
+                    pparttype = nullptr;
                     ammo = 0;
                     maxAmmo = 0x7fff;
                 }
 
                 while (ammo < maxAmmo)
                 {
-                    IlauncherIGC*       plauncherReload = NULL;
+                    IlauncherIGC*       plauncherReload = nullptr;
                     IpartTypeIGC*       pptReload;
                     short               amount = 0x7fff;
 
@@ -3214,7 +3214,7 @@ bool BaseClient::Reload(IshipIGC* pship, IlauncherIGC* plauncher, EquipmentType 
                                     short           a = ((IlauncherIGC*)p)->GetAmount();
                                     assert (a > 0);
 
-                                    if (pparttype == NULL)
+                                    if (pparttype == nullptr)
                                     {
                                         //when one has nothing ... one will pick anything
                                         reloads[nReloads].amountTransfered = NA;
@@ -3277,7 +3277,7 @@ bool BaseClient::Reload(IshipIGC* pship, IlauncherIGC* plauncher, EquipmentType 
                         //try again being less picky
                         assert (plauncher);
 
-                        pparttype = NULL;
+                        pparttype = nullptr;
                         maxAmmo = 0x7fff;
                     }
                     else
@@ -3327,7 +3327,7 @@ void BaseClient::OnQuitSide()
 
     // clear any team chats, in case they join another team
     ChatLink*  lChat = m_chatList.first();
-    while (lChat != NULL)
+    while (lChat != nullptr)
     {
         ChatLink* lChatPrev = lChat;
         lChat = lChat->next();
@@ -3339,7 +3339,7 @@ void BaseClient::OnQuitSide()
     // (in case they rejoin this game on a different side)
     PlayerLink* l = m_listPlayers.first();
 
-    while (l != NULL)
+    while (l != nullptr)
     {
         PlayerInfo& playerCurrent = l->data();
 
@@ -3357,13 +3357,13 @@ void BaseClient::OnQuitSide()
         ShipLinkIGC*         plinkShip = m_pCoreIGC->GetShips()->first();
         while (plinkShip)
         {
-            plinkShip->data()->SetCluster(NULL);
+            plinkShip->data()->SetCluster(nullptr);
             plinkShip = plinkShip->next();
         }
     }
 
     // nuke all clusters
-    SetViewCluster(NULL);
+    SetViewCluster(nullptr);
     m_pCoreIGC->ResetMission();
 
     // nuke any pending votes
@@ -3386,7 +3386,7 @@ void BaseClient::OnJoinSide()
     }
 
     m_pClientEventSource->OnChatMessageChange();
-    m_plinkSelectedChat = NULL;
+    m_plinkSelectedChat = nullptr;
 
     // if this is the lobby side, we need to manually send the OnAddPlayer message
     if (m_pPlayerInfo->SideID() == SIDE_TEAMLOBBY)
@@ -3421,18 +3421,18 @@ void BaseClient::OnQuitMission(QuitSideReason reason, const char* szMessageParam
     {
         // and sides
         const SideListIGC * pSides = m_pCoreIGC->GetSides();
-        SideLinkIGC * pSidelink = NULL;
+        SideLinkIGC * pSidelink = nullptr;
         while (pSidelink = pSides->first())
             pSidelink->data()->Terminate();
     }
     {
         // and players...
         m_listPlayers.purge(true);
-        m_pPlayerInfo = NULL;
+        m_pPlayerInfo = nullptr;
     }
 
     delete m_pMissionInfo;
-    m_pMissionInfo = NULL;
+    m_pMissionInfo = nullptr;
 };
 
 void BaseClient::OnEnterGame()
@@ -3499,7 +3499,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
     m_pClientEventSource->OnDelPlayer(m_pMissionInfo, pPlayerInfo->SideID(), pPlayerInfo, reason);
 
     IshipIGC* pship = m_pCoreIGC->GetShip(pPlayerInfo->ShipID());
-    pship->SetSide(NULL);
+    pship->SetSide(nullptr);
 
     if (pPlayerInfo == m_pPlayerInfo)
     {
@@ -3518,17 +3518,17 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
                 {
                 case QSR_LeaderBooted:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted from the team by the team leader.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
+                    ReceiveChat(nullptr, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_OwnerBooted:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted from the game by the mission owner.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
+                    ReceiveChat(nullptr, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_AdminBooted:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted from the team by an admin.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
+                    ReceiveChat(nullptr, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_ServerShutdown:
@@ -3536,7 +3536,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
 
                 case QSR_SquadChange:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted because of a squad change.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
+                    ReceiveChat(nullptr, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_SideDestroyed:
@@ -3544,22 +3544,22 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
 
                 case QSR_RankLimits:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted because he/she did not meet the new rank limits.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
+                    ReceiveChat(nullptr, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_TeamSizeLimits:
                     msg = pPlayerInfo->CharacterName() + ZString(" was booted to reduce the team size within it's new limits.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
+                    ReceiveChat(nullptr, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_Quit:
                     msg = pPlayerInfo->CharacterName() + ZString(" has quit.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
+                    ReceiveChat(nullptr, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_SwitchingSides: 
                     msg = pPlayerInfo->CharacterName() + ZString(" is switching sides.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salChangeSidesSound, msg.c_str(), c_cidNone, NA, NA);
+                    ReceiveChat(nullptr, CHAT_TEAM, NA, salChangeSidesSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 case QSR_DuplicateLocalLogon:
@@ -3574,7 +3574,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
 
                 case QSR_DuplicateRemoteLogon:
                     msg = pPlayerInfo->CharacterName() + ZString(" has been booted due to a duplicate logon.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
+                    ReceiveChat(nullptr, CHAT_TEAM, NA, salQuitSound, msg.c_str(), c_cidNone, NA, NA);
                     break;
 
                 default:
@@ -3582,7 +3582,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
                     // intentional fallthrough
                 case QSR_LinkDead:
                     msg = pPlayerInfo->CharacterName() + ZString(" is MIA.");
-                    ReceiveChat(NULL, CHAT_TEAM, NA, salMIASound, msg.c_str(), c_cidNone, NA, NA);
+                    ReceiveChat(nullptr, CHAT_TEAM, NA, salMIASound, msg.c_str(), c_cidNone, NA, NA);
                     break;
                 };
             }
@@ -3590,7 +3590,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
             {
                 msg = pPlayerInfo->CharacterName() + ZString(" has left ") 
                     + GetCore()->GetSide(sideOld)->GetName() + ZString(".");
-                ReceiveChat(NULL, CHAT_TEAM, NA, salEnemyLeavesSound, msg.c_str(), c_cidNone, NA, NA);
+                ReceiveChat(nullptr, CHAT_TEAM, NA, salEnemyLeavesSound, msg.c_str(), c_cidNone, NA, NA);
             }
         }
     }
@@ -3608,7 +3608,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
         ResetShip();
 
         m_pClientEventSource->OnChatMessageChange();
-        m_plinkSelectedChat = NULL;
+        m_plinkSelectedChat = nullptr;
     }
     m_pMissionInfo->AddPlayer(pPlayerInfo);
 
@@ -3643,7 +3643,7 @@ void BaseClient::RemovePlayerFromMission(PlayerInfo* pPlayerInfo, QuitSideReason
 
     IshipIGC*   pship = pPlayerInfo->GetShip();
     
-    pship->SetSide(NULL);
+    pship->SetSide(nullptr);
 
     if (pPlayerInfo != m_pPlayerInfo)
     {
@@ -3730,14 +3730,14 @@ void BaseClient::AddPlayerToSide(PlayerInfo* pPlayerInfo, SideID sideID)
         {
             ZString msg = pPlayerInfo->CharacterName() + ZString(" has joined your team.");
 
-            ReceiveChat(NULL, CHAT_TEAM, NA, salRecruitsArrivedSound, msg.c_str(), c_cidNone, NA, NA);
+            ReceiveChat(nullptr, CHAT_TEAM, NA, salRecruitsArrivedSound, msg.c_str(), c_cidNone, NA, NA);
         }
         else if (m_pPlayerInfo && GetSide() && GetSideID() != SIDE_TEAMLOBBY)
         {
             ZString msg = pPlayerInfo->CharacterName() + ZString(" has joined ")
                 + pside->GetName() + ZString(".");
 
-            ReceiveChat(NULL, CHAT_TEAM, NA, salEnemyJoinersSound, msg.c_str(), c_cidNone, NA, NA);
+            ReceiveChat(nullptr, CHAT_TEAM, NA, salEnemyJoinersSound, msg.c_str(), c_cidNone, NA, NA);
         }
     }
 }
@@ -3797,7 +3797,7 @@ bool BaseClient::ResetStaticData(const char * szIGCStaticFile, ImissionIGC** ppS
     }
 
     // actually load the data
-    LoadIGCStaticCore (szIGCStaticFile, *ppStaticIGC, false,  bEncrypt ? DoDecrypt : NULL); // then actually load the data
+    LoadIGCStaticCore (szIGCStaticFile, *ppStaticIGC, false,  bEncrypt ? DoDecrypt : nullptr); // then actually load the data
 
     return true;
 }

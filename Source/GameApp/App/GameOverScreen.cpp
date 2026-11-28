@@ -88,7 +88,7 @@ public:
                 );
             }
 
-            if (pplayer == NULL)
+            if (pplayer == nullptr)
                 return;
 
             int nPosition = m_pparent->m_plistSortedStats->GetIndex(pitemArg);
@@ -219,7 +219,7 @@ public:
                 );
             }
 
-            if (pside == NULL)
+            if (pside == nullptr)
                 return;
 
             int nPosition = m_pparent->m_plistSortedStatsSide->GetIndex(pitemArg);
@@ -401,7 +401,7 @@ public:
         m_peventStatsSide->RemoveSink(m_psinkStatsSide);
 
         GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-        GetWindow()->SetChatListPane(NULL);
+        GetWindow()->SetChatListPane(nullptr);
     }
 
     void SendChat(const ZString& strChat)
@@ -417,7 +417,7 @@ public:
             trekClient.SendChat(trekClient.GetShip(), CHAT_ADMIN, NA,
                                 NA, StrRightOf(strChat, ":").c_str());
         }
-        else if (NULL != (pplayer = trekClient.FindPlayer(StrLeftOf(strChat, ":").c_str())))
+        else if (nullptr != (pplayer = trekClient.FindPlayer(StrLeftOf(strChat, ":").c_str())))
         {
             trekClient.SendChat(trekClient.GetShip(), CHAT_INDIVIDUAL, pplayer->ShipID(),
                                 NA, StrRightOf(strChat, ":").c_str());
@@ -520,7 +520,7 @@ public:
             GetWindow()->screen(ScreenIDTeamScreen);
             
             GetWindow()->SetWaitCursor();
-            TRef<IMessageBox> pmsgBox = CreateMessageBox("The game is starting...", NULL, false, false, 1.0f);
+            TRef<IMessageBox> pmsgBox = CreateMessageBox("The game is starting...", nullptr, false, false, 1.0f);
             GetWindow()->GetPopupContainer()->OpenPopup(pmsgBox, false);
         }
     }

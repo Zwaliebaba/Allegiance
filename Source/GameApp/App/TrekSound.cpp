@@ -359,7 +359,7 @@ public:
 
         plist->GetFirst();
 
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             IObjectPair*      ppair;       CastTo(ppair,       plist->GetCurrent());
             TRef<ISoundTemplate>    ptemplateBase;  CastTo(ptemplateBase,  ppair->GetFirst()  );
             TRef<Number>            pnumWeight; CastTo(pnumWeight, ppair->GetSecond() );

@@ -126,7 +126,7 @@ public:
         m_ptItemSize(ptSize.X(), 12), m_bAutoscroll(true), m_bIgnoreScrollingEvents(false)
     {
         m_bPlayerChatsOnly = true;
-        m_pListPane = ListPaneOld::Create(ptSize, 12, true, NULL),
+        m_pListPane = ListPaneOld::Create(ptSize, 12, true, nullptr),
         InsertAtBottom(m_pListPane);
         AddEventTarget(&ChatListPaneImpl::OnListSelect, m_pListPane->GetEventSource());
         AddEventTarget(&ChatListPaneImpl::OnScroll, m_pListPane->GetScrollEvent());

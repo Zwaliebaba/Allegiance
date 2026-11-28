@@ -68,7 +68,7 @@ public:
         if (m_pkeyboardInputOldFocus)
             GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
 
-        m_pkeyboardInputOldFocus = NULL;
+        m_pkeyboardInputOldFocus = nullptr;
 
         IPopup::OnClose();
     }
@@ -126,7 +126,7 @@ public:
         else
         {
             GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-            m_pkeyboardInputOldFocus = NULL;
+            m_pkeyboardInputOldFocus = nullptr;
 
             trekClient.SetCDKey(strCDKey);
 
@@ -143,7 +143,7 @@ public:
     bool OnButtonCancel()
     {
         GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-        m_pkeyboardInputOldFocus = NULL;
+        m_pkeyboardInputOldFocus = nullptr;
 
         if (m_ppopupOwner) {
             m_ppopupOwner->ClosePopup(this);

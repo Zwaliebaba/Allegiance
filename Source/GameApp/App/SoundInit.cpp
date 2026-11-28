@@ -16,7 +16,7 @@ namespace SoundInit {
         // load the training sound definitions
         TRef<ZFile>         pFile = pmodeler->LoadFile ("trainingsounddef", "mdl", false);
         TRef<INameSpace>    pnsTrainingSoundDef;
-        if (pFile == NULL)
+        if (pFile == nullptr)
         {
             // here we substitute a namespace that we will use
             pnsTrainingSoundDef = pmodeler->CreateNameSpace("trainingsounddef", pmodeler->GetNameSpace("notrainingsounddef"));

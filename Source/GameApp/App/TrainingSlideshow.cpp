@@ -35,7 +35,7 @@ public:
         GetWindow()->SetWaitCursor();
 
         // open up a dialog to let the player know the world hasn't ended
-        TRef<IMessageBox>   pMsgBox = CreateMessageBox ("Training simulation initiated...", NULL, false);            
+        TRef<IMessageBox>   pMsgBox = CreateMessageBox ("Training simulation initiated...", nullptr, false);            
         GetWindow ()->GetPopupContainer ()->OpenPopup (pMsgBox, false);
 
         // pause to let the "starting..." box draw itself

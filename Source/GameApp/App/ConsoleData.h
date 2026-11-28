@@ -112,7 +112,7 @@ public:
     void OnModelTerminated(ImodelIGC* pmodel) override
     {
         if (pmodel == m_pmodel)
-            SetModel(NULL);            
+            SetModel(nullptr);            
     }
     
     void OnTechTreeChanged(SideID sid) override

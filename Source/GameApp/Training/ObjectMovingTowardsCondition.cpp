@@ -27,8 +27,8 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  ObjectMovingTowardsCondition::~ObjectMovingTowardsCondition (void)
     {
-        m_object = 0;
-        m_target = 0;
+        m_object = nullptr;
+        m_target = nullptr;
     }
 
     //------------------------------------------------------------------------------

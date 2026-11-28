@@ -22,7 +22,7 @@ namespace Training
     /* void */  CurrentTarget::CurrentTarget (AbstractTarget* pTarget, bool bLockOnFirstFetch) :
     m_pTarget (pTarget),
     m_bLockOnFirstFetch (bLockOnFirstFetch),
-    m_pFetched (0)
+    m_pFetched (nullptr)
     {
     }
 

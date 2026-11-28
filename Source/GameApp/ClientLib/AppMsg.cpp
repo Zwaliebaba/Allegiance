@@ -22,7 +22,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
     // keep track of the last server message, but only count unreliable 
     // messages while the client is in flight.
-    if (!m_ship || !IsInGame() || GetCluster() == NULL || pfm->fmid == FM_CS_PING 
+    if (!m_ship || !IsInGame() || GetCluster() == nullptr || pfm->fmid == FM_CS_PING 
         || pfm->fmid == FM_S_HEAVY_SHIPS_UPDATE || pfm->fmid == FM_S_LIGHT_SHIPS_UPDATE)
     {
         m_timeLastServerMessage = now;
@@ -64,7 +64,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             // don't ack logon until done
             //
 
-            char * szFailureReason = pfmLogonAck->fValidated ? NULL : FM_VAR_REF(pfmLogonAck, CharName_OR_FailureReason);
+            char * szFailureReason = pfmLogonAck->fValidated ? nullptr : FM_VAR_REF(pfmLogonAck, CharName_OR_FailureReason);
 
             OnLogonAck(pfmLogonAck->fValidated, pfmLogonAck->fRetry, szFailureReason);
         }
@@ -140,7 +140,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 IshipIGC*   pshipParent = m_pCoreIGC->GetShip(pfmRelaunch->carrierID);
                 assert (pshipParent);
 
-                pShip->SetParentShip(NULL);
+                pShip->SetParentShip(nullptr);
 
                 pShip->ProcessShipLoadout(pfmRelaunch->cbloadout, (const ShipLoadout*)(FM_VAR_REF(pfmRelaunch, loadout)), true);
                 pShip->SetAmmo(SHRT_MAX);
@@ -180,8 +180,8 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 {
                     if (pShip->GetParentShip())
                     {
-                        pShip->SetParentShip(NULL);
-                        m_pClientEventSource->OnBoardShip(pShip, NULL);
+                        pShip->SetParentShip(nullptr);
+                        m_pClientEventSource->OnBoardShip(pShip, nullptr);
                     }
                     else
                     {
@@ -201,12 +201,12 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                     {
                         {
                             for (MissileLinkIGC*  pml = pcluster->GetMissiles()->first();
-                                 (pml != NULL);
+                                 (pml != nullptr);
                                  pml = pml->next())
                             {
                                 ImissileIGC*    pmissile = pml->data();
                                 if (pmissile->GetTarget() == pShip)
-                                    pmissile->SetTarget(NULL);
+                                    pmissile->SetTarget(nullptr);
                             }
                         }
 
@@ -228,7 +228,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                     if (pShip == m_ship)
                     {
                         SetCookie(pfmEject->cookie);
-                        ImodelIGC*  pNearestBase = FindTarget (pShip, c_ttStation | c_ttFriendly | c_ttAnyCluster | c_ttProbe, pShip->GetCommandTarget (c_cmdCurrent), pcluster, &pfmEject->position, NULL, c_sabmRescue | c_sabmRescueAny | c_sabmLand);
+                        ImodelIGC*  pNearestBase = FindTarget (pShip, c_ttStation | c_ttFriendly | c_ttAnyCluster | c_ttProbe, pShip->GetCommandTarget (c_cmdCurrent), pcluster, &pfmEject->position, nullptr, c_sabmRescue | c_sabmRescueAny | c_sabmLand);
                         pShip->SetCommand (c_cmdCurrent, pNearestBase, c_cidGoto);
                         SetAutoPilot (true);
                         bInitTrekJoyStick = true;
@@ -431,7 +431,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             CASTPFM(pfmViewCluster, S, VIEW_CLUSTER, pfm);
             IclusterIGC*    pcluster = m_pCoreIGC->GetCluster(pfmViewCluster->clusterID);
             assert (pcluster);
-            SetViewCluster(pcluster, pfmViewCluster->bUsePosition ? &(pfmViewCluster->position) : NULL);
+            SetViewCluster(pcluster, pfmViewCluster->bUsePosition ? &(pfmViewCluster->position) : nullptr);
         }
         break;
 
@@ -455,7 +455,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                         case SDR_TERMINATE:
                         case SDR_KILLED:
                         {
-                            ship->SetCluster(NULL);
+                            ship->SetCluster(nullptr);
                         }
                         break;
 
@@ -468,7 +468,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                             // by getting a docked or set cluster message for
                             // the parent.
                             if (m_ship->GetParentShip() != ship)
-                                ship->SetCluster(NULL);
+                                ship->SetCluster(nullptr);
                         }
                     }
                 }
@@ -706,7 +706,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                         assert (lsu.shipID != myShipID);
 
                         IshipIGC*   pship = m_pCoreIGC->GetShip(lsu.shipID);
-                        if (pship && (pship->GetParentShip() == NULL) && pship->GetCluster())
+                        if (pship && (pship->GetParentShip() == nullptr) && pship->GetCluster())
                         {
                             pship->ProcessShipUpdate(lsu);
                         }
@@ -792,7 +792,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                         assert (hsu.shipID != m_ship->GetObjectID());
 
                         IshipIGC*   pship = m_pCoreIGC->GetShip(hsu.shipID);
-                        if (pship && (pship->GetParentShip() == NULL) && pship->GetCluster())
+                        if (pship && (pship->GetParentShip() == nullptr) && pship->GetCluster())
                         {
                             pship->ProcessShipUpdate(pfmHeavy->timeReference, pfmHeavy->positionReference, hsu);
                         }
@@ -819,7 +819,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             {
                 pship->Promote();
 
-                m_pClientEventSource->OnBoardShip(pship, NULL);
+                m_pClientEventSource->OnBoardShip(pship, nullptr);
                 m_pClientEventSource->OnBoardShip(pshipParent, pship);
                 
                 if (pshipParent == m_ship)
@@ -898,7 +898,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
                 assert (pmodelRipcord);
                 IclusterIGC*    pclusterRipcord = pmodelRipcord->GetCluster();
-                if (pclusterRipcord == NULL)
+                if (pclusterRipcord == nullptr)
                 {
                     assert (pmodelRipcord->GetObjectType() == OT_ship);
 
@@ -961,7 +961,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             CASTPFM(pfmRipcordAborted, S, RIPCORD_ABORTED, pfm);
             IshipIGC*   pship = m_pCoreIGC->GetShip(pfmRipcordAborted->shipidRipcord);
             assert (pship);
-            pship->SetRipcordModel(NULL);
+            pship->SetRipcordModel(nullptr);
 
             if (pship == m_ship->GetSourceShip())
                 PlayNotificationSound(salRipcordAbortedSound, pship);
@@ -996,12 +996,12 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 assert (ships);
 
                 for (ShipLinkIGC*   l = ships->first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     IshipIGC*  s = l->data();
                     if ((s != pship) && (s != m_ship))
-                        s->SetCluster(NULL);
+                        s->SetCluster(nullptr);
                 }
             }
 
@@ -1010,11 +1010,11 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 assert (pship->GetThingSite());
                 pship->GetThingSite()->SetTrailColor(GetShip()->GetSide()->GetColor());
 
-                IclusterIGC*    pclusterOld = NULL;
+                IclusterIGC*    pclusterOld = nullptr;
                 Orientation     orientationOld;
                 if (pship != m_ship)
                 {
-                    pclusterOld = NULL;
+                    pclusterOld = nullptr;
                     orientationOld = pship->GetOrientation();
                 }
 
@@ -1024,15 +1024,15 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 pfmSetCluster->shipupdate.time = ClientTimeFromServerTime(pfmSetCluster->shipupdate.time);
                 pship->ProcessShipUpdate(pfmSetCluster->shipupdate);
 
-                if (m_ship->GetStation() != NULL)
+                if (m_ship->GetStation() != nullptr)
                 {
                     assert (m_ship->GetCluster() == NULL);
-                    m_ship->SetStation(NULL);           //This will call IIgcSite::ChangeStation()
+                    m_ship->SetStation(nullptr);           //This will call IIgcSite::ChangeStation()
                 }
                 else
                 {
                     pclusterOld = m_ship->GetCluster();
-                    if (pclusterOld != NULL)
+                    if (pclusterOld != nullptr)
                     {
                         //Hack ... play the sound effect for an aleph since the player
                         //did not undock.
@@ -1053,7 +1053,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                     Mount   tid = m_ship->GetTurretID();
                     if (tid != NA)
                     {
-                        if (pclusterOld == NULL)
+                        if (pclusterOld == nullptr)
                         {
                             Orientation oTurret = pship->GetHullType()->GetWeaponOrientation(tid) *
                                                   pship->GetOrientation();
@@ -1082,12 +1082,12 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 assert (ships);
 
                 for (ShipLinkIGC*   l = ships->first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     IshipIGC*  s = l->data();
                     if (s != m_ship)
-                        s->SetCluster(NULL);
+                        s->SetCluster(nullptr);
                 }
             }
 
@@ -1111,7 +1111,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 {
                     //Ignore single shup updates for our parent (this data comes via SetCluster).
                     IshipIGC*   pshipParent = m_ship->GetParentShip();
-                    if ((pshipParent == NULL) ||
+                    if ((pshipParent == nullptr) ||
                         (pshipParent->GetObjectID() != pfmSSU->shipupdate.shipID))
                     {
                         IshipIGC*   ship = m_pCoreIGC->GetShip(pfmSSU->shipupdate.shipID);
@@ -1132,14 +1132,14 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                         pfmSSU->shipupdate.time = ClientTimeFromServerTime(pfmSSU->shipupdate.time);
                         ship->ProcessShipUpdate(pfmSSU->shipupdate);
 
-                        ship->SetRipcordModel(pfmSSU->bIsRipcording ? ship : NULL); //Just has to be a valid pointer
+                        ship->SetRipcordModel(pfmSSU->bIsRipcording ? ship : nullptr); //Just has to be a valid pointer
 
                         {
                             ImodelIGC*  pmodel = m_pCoreIGC->GetModel(pfmSSU->otTarget, pfmSSU->oidTarget);
                             ship->SetCommand(c_cmdCurrent, pmodel, c_cidNone);
                         }
 
-                        if (ship->GetCluster() == NULL)
+                        if (ship->GetCluster() == nullptr)
                         {
                             // The ship has moved to the same cluster as the player
                             debugf("Moving %s/%d to %s\n",
@@ -1161,7 +1161,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
         {
             CASTPFM(pfmShipReset, S, SHIP_RESET, pfm);
 
-            if (m_ship->GetCluster() && (m_ship->GetParentShip() == NULL))
+            if (m_ship->GetCluster() && (m_ship->GetParentShip() == nullptr))
             {
                 pfmShipReset->shipupdate.time = ClientTimeFromServerTime(pfmShipReset->shipupdate.time);
                 m_ship->ProcessShipUpdate(pfmShipReset->shipupdate, false);
@@ -1177,7 +1177,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             IshipIGC*   pshipBy = m_ship->GetSide()->GetShip(pfmAutoDonate->sidDonateBy);
             assert (pshipBy);
             IshipIGC*   pshipTo = pfmAutoDonate->sidDonateTo == NA
-                                  ? NULL
+                                  ? nullptr
                                   : m_ship->GetSide()->GetShip(pfmAutoDonate->sidDonateTo);
 
             IshipIGC*   pshipOld = pshipBy->GetAutoDonate();
@@ -1208,7 +1208,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                     // count donors, and play the designated investor sound if we've gone from 0 to 1
                     int nNumDonors = 0;
                     for (ShipLinkIGC*   psl = GetSide()->GetShips()->first();
-                         (psl != NULL);
+                         (psl != nullptr);
                          psl = psl->next())
                     {
                         if (psl->data()->GetAutoDonate() == GetShip())
@@ -1269,7 +1269,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             Money   moneyReceived = 0;
 
             for (ShipLinkIGC*   psl = GetSide()->GetShips()->first();
-                 (psl != NULL);
+                 (psl != nullptr);
                  psl = psl->next())
             {
                 IshipIGC*   pship = psl->data();
@@ -1665,7 +1665,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
         case FM_S_END_SPOOFING:
         {
-            m_pchaffLastCreated = NULL;
+            m_pchaffLastCreated = nullptr;
         }
         break;
 
@@ -1688,7 +1688,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                     //If the server is really lagged (30 seconds or more), the building effect will terminate locally
                     //before we get the message. This isn't good, but we shouldn't crash.
                     if (pasteroid->GetBuildingEffect())
-                        pasteroid->SetBuildingEffect(NULL);
+                        pasteroid->SetBuildingEffect(nullptr);
                 }
                 pasteroid->Terminate();
             }
@@ -1822,8 +1822,8 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                         while (psl = pshipsChildren->first())   //intentional assignment
                         {
                             IshipIGC*   pshipChild = psl->data();
-                            pshipChild->SetParentShip(NULL);
-                            m_pClientEventSource->OnBoardShip(pshipChild, NULL);
+                            pshipChild->SetParentShip(nullptr);
+                            m_pClientEventSource->OnBoardShip(pshipChild, nullptr);
                         }
                     }
 
@@ -1865,8 +1865,8 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             IshipIGC*   pshipChild = m_pCoreIGC->GetShip(pfmLeave->sidChild);
             assert (pshipChild);
 
-            pshipChild->SetParentShip(NULL);
-            m_pClientEventSource->OnBoardShip(pshipChild, NULL);
+            pshipChild->SetParentShip(nullptr);
+            m_pClientEventSource->OnBoardShip(pshipChild, nullptr);
 
             if (pshipChild == m_ship)
             {
@@ -1898,8 +1898,8 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             assert (pship);
             */
 
-            m_ship->SetParentShip(NULL);
-            m_pClientEventSource->OnBoardShip(m_ship, NULL);
+            m_ship->SetParentShip(nullptr);
+            m_pClientEventSource->OnBoardShip(m_ship, nullptr);
 
             //If the ship had children, it doesn't now
             {
@@ -1909,8 +1909,8 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 while (psl = pshipsChildren->first())   //intentional assignment
                 {
                     IshipIGC*   pshipChild = psl->data();
-                    pshipChild->SetParentShip(NULL);
-                    m_pClientEventSource->OnBoardShip(pshipChild, NULL);
+                    pshipChild->SetParentShip(nullptr);
+                    m_pClientEventSource->OnBoardShip(pshipChild, nullptr);
                 }
             }
 
@@ -1946,8 +1946,8 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             //debugf("Loadout change for %s/%d\n", pship->GetName(), pfmLC->sidShip);
 
             //If the ship was a passenger, now it is not
-            pship->SetParentShip(NULL);
-            m_pClientEventSource->OnBoardShip(pship, NULL);
+            pship->SetParentShip(nullptr);
+            m_pClientEventSource->OnBoardShip(pship, nullptr);
 
             //If the ship had children, it doesn't now
             {
@@ -1957,8 +1957,8 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 while (psl = pshipsChildren->first())   //intentional assignment
                 {
                     IshipIGC*   pshipChild = psl->data();
-                    pshipChild->SetParentShip(NULL);
-                    m_pClientEventSource->OnBoardShip(pshipChild, NULL);
+                    pshipChild->SetParentShip(nullptr);
+                    m_pClientEventSource->OnBoardShip(pshipChild, nullptr);
                 }
             }
 
@@ -1966,7 +1966,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             if (pfmLC->sidShip != GetShipID())
             {
                 pship->ProcessShipLoadout(pfmLC->cbloadout,
-                                          (const ShipLoadout*)(FM_VAR_REF(pfmLC, loadout)), (pship->GetCluster() == NULL));
+                                          (const ShipLoadout*)(FM_VAR_REF(pfmLC, loadout)), (pship->GetCluster() == nullptr));
             }
 
             //But always process the passenger data (even for ourself)
@@ -1982,7 +1982,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                     {
                         SetAutoPilot(false);
 
-                        if ((ppd->turretID != NA) && (m_ship->GetCluster() != NULL) && (pshipChild->GetTurretID() != ppd->turretID))
+                        if ((ppd->turretID != NA) && (m_ship->GetCluster() != nullptr) && (pshipChild->GetTurretID() != ppd->turretID))
                         {
                             Orientation oTurret = pship->GetHullType()->GetWeaponOrientation(ppd->turretID) *
                                                   pship->GetOrientation();
@@ -1999,7 +1999,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                     assert (pshipChild->GetBaseHullType() == NULL);
                     assert (pshipChild->GetParts()->n() == 0);
 
-                    if (pship == m_ship && m_ship->GetCluster() == NULL)
+                    if (pship == m_ship && m_ship->GetCluster() == nullptr)
                     {
                         if (ppd->turretID != NA)
                             PostText(true, "%s has boarded your ship as a turret.", pshipChild->GetName());
@@ -2102,7 +2102,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 
                 // not logged on yet, so we have to do this part manually
                 delete m_pMissionInfo;
-                m_pMissionInfo = NULL;
+                m_pMissionInfo = nullptr;
 
                 OnLogonAck(false, false, "The client and server data files are out of sync. "
                   "Both need the same version of the game.");
@@ -2144,7 +2144,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
         case FM_S_PLAYERINFO:
         {
-            if (NULL == m_pCoreIGC->GetSide(SIDE_TEAMLOBBY))
+            if (nullptr == m_pCoreIGC->GetSide(SIDE_TEAMLOBBY))
             {
                 assert(false);
                 OnSessionLost("Unexpected message received.", &m_fm);
@@ -2159,7 +2159,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
             pfmPlayerInfo->iSide = NA;
 
-            if (l != NULL)
+            if (l != nullptr)
                 l->data().Set(pfmPlayerInfo);
             else
                 {
@@ -2190,7 +2190,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 strcpy(ds.name, pfmPlayerInfo->CharacterName);
 
                 IshipIGC*   pship = (IshipIGC*)(m_pCoreIGC->CreateObject(m_lastSend, OT_ship, &ds, sizeof(ds)));
-                if (pship != NULL)
+                if (pship != nullptr)
                 {
                     //Slightly bad form: releasing pship here and releasing it below but ships
                     //are never deleted on their first release (since they added to the side and
@@ -2322,7 +2322,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             CASTPFM(pfmGS, S, GAME_STATE, pfm);
 
             SideID  sid = 0;
-            for (SideLinkIGC*   l = m_pCoreIGC->GetSides()->first(); (l != NULL); l = l->next())
+            for (SideLinkIGC*   l = m_pCoreIGC->GetSides()->first(); (l != nullptr); l = l->next())
             {
                 assert (sid == l->data()->GetObjectID());
                 l->data()->SetConquestPercent(pfmGS->conquest[sid]);
@@ -2339,7 +2339,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
 
             pfmMissionDef->misparms.timeStart = ClientTimeFromServerTime(pfmMissionDef->misparms.timeStart);
 
-            if (m_pMissionInfo == NULL)
+            if (m_pMissionInfo == nullptr)
             {
                 m_pMissionInfo = new MissionInfo(pfmMissionDef->dwCookie);
                 m_pMissionInfo->Update(pfmMissionDef);
@@ -2554,7 +2554,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                             pfmChat->cd.commandID,
                             pfmChat->otTarget,
                             pfmChat->oidTarget,
-                            NULL,
+                            nullptr,
                             pfmChat->cd.bObjectModel);
             }
             break;
@@ -2656,7 +2656,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             ImodelIGC*  pmodelKiller = m_pCoreIGC->GetModel(pfmKillShip->typeCredit, pfmKillShip->idCredit);
             PlayerInfo* pLauncherInfo = ((pfmKillShip->typeCredit == OT_ship) && pmodelKiller)
                                         ? (PlayerInfo*)(((IshipIGC*)pmodelKiller)->GetPrivateData())
-                                        : NULL;
+                                        : nullptr;
 
             IsideIGC*   pside = GetSide();
             SideID      sideID = pside->GetObjectID();
@@ -2749,7 +2749,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             }
 
             IclusterIGC * pCluster = pship->GetCluster();
-            if (NULL != pCluster)
+            if (nullptr != pCluster)
             {
                 IhullTypeIGC*   pht = pship->GetBaseHullType();
                 if (pht)
@@ -2924,12 +2924,12 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             if (IsLockedDown())
                 EndLockDown(lockdownDonating | lockdownLoadout | lockdownTeleporting);
 
-            SetViewCluster(NULL);
-            GetShip()->SetCluster(NULL);
+            SetViewCluster(nullptr);
+            GetShip()->SetCluster(nullptr);
             
             // set all of the players to unready with 0 money
             for (PlayerLink*    ppl = GetPlayerList()->first();
-                (ppl != NULL);
+                (ppl != nullptr);
                 ppl = ppl->next())
             {
                 // review: since we are trying this silly away from keyboard thing,
@@ -2950,7 +2950,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             // nuke any pending votes
             m_listBallots.SetEmpty();
 
-            for (SideLinkIGC*   psl = GetCore()->GetSides()->first(); (psl != NULL); psl = psl->next())
+            for (SideLinkIGC*   psl = GetCore()->GetSides()->first(); (psl != nullptr); psl = psl->next())
                 psl->data()->Reset();
             
             GetCore()->ResetMission();
@@ -3190,7 +3190,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 memcpy(m_vStaticMapInfo, FM_VAR_REF(pfmStaticMapInfo, maps), m_cStaticMapInfo * sizeof(StaticMapInfo));
             }
             else
-                m_vStaticMapInfo = NULL;
+                m_vStaticMapInfo = nullptr;
         }
         break;
 
@@ -3273,7 +3273,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             CASTPFM(pfmMissionGone, LS, MISSION_GONE, pfm);
             MissionInfo * pMission = GetLobbyMission(pfmMissionGone->dwCookie);
  
-            if (m_pMissionInfo != NULL && pMission->GetCookie() == MyMission()->GetCookie())
+            if (m_pMissionInfo != nullptr && pMission->GetCookie() == MyMission()->GetCookie())
             {
                 if (GetSideID() != NA)
                 {
@@ -3284,7 +3284,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
                 else
                 {
                     delete m_pMissionInfo;
-                    m_pMissionInfo = NULL;
+                    m_pMissionInfo = nullptr;
                 }
             }
 
@@ -3299,7 +3299,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             CASTPFM(pfmLogonAck, L, LOGON_ACK, pfm);
             m_fLoggedOnToLobby = true;
             m_lobbyServerOffset = pfmLogonAck->dwTimeOffset;
-            OnLogonLobbyAck(true, false, NULL);
+            OnLogonLobbyAck(true, false, nullptr);
         }
         break;
 
@@ -3319,7 +3319,7 @@ HRESULT BaseClient::HandleMsg(FEDMESSAGE* pfm,
             MissionInfo* pMissionInfo;
 
             if (pfmFoundPlayer->dwCookie == NA)
-                pMissionInfo = NULL;
+                pMissionInfo = nullptr;
             else
                 pMissionInfo = GetLobbyMission(pfmFoundPlayer->dwCookie);
 

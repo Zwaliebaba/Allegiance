@@ -96,7 +96,7 @@ struct  JoystickResults
 float   GetThrottle(ImodelIGC*  pmodel)
 {
     assert (pmodel);
-    if (trekClient.GetShip()->GetParentShip() == NULL)
+    if (trekClient.GetShip()->GetParentShip() == nullptr)
     {
         float speed      = pmodel->GetVelocity().Length();
         float myMaxSpeed = trekClient.GetShip()->GetHullType()->GetMaxSpeed();
@@ -159,17 +159,17 @@ ImodelIGC*  GetCurrentTarget(void)
 {
     ImodelIGC*  pmodelTarget = trekClient.GetShip()->GetCommandTarget(c_cmdCurrent);
 
-    if (pmodelTarget != NULL)
+    if (pmodelTarget != nullptr)
     {
         if (pmodelTarget->GetObjectType() == OT_ship)
             pmodelTarget = ((IshipIGC*)pmodelTarget)->GetSourceShip();
 
         if ((pmodelTarget == trekClient.GetShip()->GetSourceShip()) ||
-            (pmodelTarget->GetHitTest() == NULL) ||
+            (pmodelTarget->GetHitTest() == nullptr) ||
             (pmodelTarget->GetCluster() != trekClient.GetCluster()) ||
             !trekClient.GetShip()->CanSee(pmodelTarget))
         {
-            pmodelTarget = NULL;
+            pmodelTarget = nullptr;
         }
     }
 
@@ -363,7 +363,7 @@ class   CameraControl
             {
                 ImodelIGC* pmodelTarget = GetCurrentTarget();
 
-                if (pmodelTarget != NULL)
+                if (pmodelTarget != nullptr)
                 {
                     Orientation orientTarget = *porientation;
 
@@ -960,7 +960,7 @@ public:
         plist->GetFirst();
 
         int index = 0;
-        while (plist->GetCurrent() != NULL) {
+        while (plist->GetCurrent() != nullptr) {
             QuickChatMenuItem* pitem = (QuickChatMenuItem*)plist->GetCurrent();
 
             QuickChatNode* pnode = pitem->GetNode();
@@ -1356,8 +1356,8 @@ public:
         } else {
             TRef<Surface> psurface = GetModeler()->LoadSurface(str, true);
 
-            if (psurface == NULL) {
-                return NULL;
+            if (psurface == nullptr) {
+                return nullptr;
             }
 
             pimage = new AnimatedImage(ptime, psurface);
@@ -1552,13 +1552,13 @@ public:
             m_pgameStateCloseSink = NULL;
         }
 
-        m_pstringPaneConquest   = NULL;
-        m_pstringPaneTerritory  = NULL;
-        m_pstringPaneDeathMatch = NULL;
-        m_pstringPaneCountdown  = NULL;
-        m_pstringPaneProsperity = NULL;
-        m_pstringPaneArtifacts  = NULL;
-        m_pstringPaneFlags  = NULL;
+        m_pstringPaneConquest   = nullptr;
+        m_pstringPaneTerritory  = nullptr;
+        m_pstringPaneDeathMatch = nullptr;
+        m_pstringPaneCountdown  = nullptr;
+        m_pstringPaneProsperity = nullptr;
+        m_pstringPaneArtifacts  = nullptr;
+        m_pstringPaneFlags  = nullptr;
 
         m_pstringGridImageConquest   = NULL;
         m_pstringGridImageTerritory  = NULL;
@@ -1841,18 +1841,18 @@ public:
         //
 
         {
-            IsideIGC* psideTop = NULL;
+            IsideIGC* psideTop = nullptr;
             int       myRank   = 1;
 
             for (SideLinkIGC* psl = trekClient.m_pCoreIGC->GetSides()->first();
-                 (psl != NULL);
+                 (psl != nullptr);
                  psl = psl->next())
             {
                 IsideIGC* pside = psl->data();
 
                 if (pside != psideMe)
                 {
-                    if ((psideTop == NULL) || info.Greater(pside, psideTop))
+                    if ((psideTop == nullptr) || info.Greater(pside, psideTop))
                         psideTop = pside;
 
                     if (info.Greater(pside, psideMe))
@@ -1895,18 +1895,18 @@ public:
 
         if (shipInfo.AnyInfo())
         {
-            IshipIGC* pshipTop = NULL;
+            IshipIGC* pshipTop = nullptr;
             int       myRank   = 1;
 
             for (ShipLinkIGC* psl = trekClient.m_pCoreIGC->GetShips()->first();
-                (psl != NULL);
+                (psl != nullptr);
                 psl = psl->next())
             {
                 IshipIGC* pship = psl->data();
 
                 if ((pship != pshipMe) && (pship->GetPilotType() >= c_ptPlayer))
                 {
-                    if ((pshipTop == NULL) || shipInfo.Greater(pship, pshipTop))
+                    if ((pshipTop == nullptr) || shipInfo.Greater(pship, pshipTop))
                         pshipTop = pship;
 
                     if (shipInfo.Greater(pship, pshipMe))
@@ -2038,7 +2038,7 @@ public:
     {
         m_pimageScreen = pscreen->GetImage();
 
-        if (m_pimageScreen == NULL) {
+        if (m_pimageScreen == nullptr) {
             TRef<Pane> ppane = pscreen->GetPane();
 
             //
@@ -2104,9 +2104,9 @@ public:
 
             // destroy the old windows
 
-            if (m_pimageScreen != NULL) {
+            if (m_pimageScreen != nullptr) {
                 m_pwrapImageTop->SetImage(m_pgroupImageGame);
-                m_pimageScreen = NULL;
+                m_pimageScreen = nullptr;
                 m_pscreen      = NULL;
                 SetCaption(NULL);
             }
@@ -2121,7 +2121,7 @@ public:
                 m_pwrapImageConsole->SetImage(Image::GetEmpty());
                 m_pconsoleImage = NULL;
                 TerminateGameStateContainer();
-                trekClient.RequestViewCluster(NULL);
+                trekClient.RequestViewCluster(nullptr);
                 m_pscreenBackdrop = NULL;
                 m_pimageBackdrop = NULL;
                 m_viewmode = vmUI;
@@ -2164,7 +2164,7 @@ public:
                     SetViewMode(trekClient.GetShip()->GetStation()
                         ? (trekClient.GetShip()->IsGhost() ? vmCommand : vmHangar)
                         : vmCombat, true);
-                    PositionCommandView(NULL, 0.0f);
+                    PositionCommandView(nullptr, 0.0f);
 
                     VTSetText("Screen=%d", ScreenIDCombat);
 
@@ -2430,10 +2430,10 @@ public:
         //SetIcon(LoadIcon(NULL, MAKEINTRESOURCE(0)));
 
         LPCTSTR pszRes = MAKEINTRESOURCE(10);
-        HICON hIcon = (HICON)::LoadImage(GetModuleHandle(NULL), pszRes, IMAGE_ICON, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR);
+        HICON hIcon = (HICON)::LoadImage(GetModuleHandle(nullptr), pszRes, IMAGE_ICON, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR);
         SendMessage(WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)hIcon);
 
-        HICON hIconSmall = (HICON)::LoadImage(GetModuleHandle(NULL), pszRes, IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
+        HICON hIconSmall = (HICON)::LoadImage(GetModuleHandle(nullptr), pszRes, IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
         SendMessage(WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
 
         //
@@ -2824,7 +2824,7 @@ public:
                                         0,
                                         TrekWindow::GetHWND(),
                                         NULL,
-                                        GetModuleHandle(NULL),
+                                        GetModuleHandle(nullptr),
                                         NULL);
 
         //
@@ -3008,10 +3008,10 @@ public:
         //
         // Terminate VT.
         //
-        if (NULL != m_hwndVTEdit)
+        if (nullptr != m_hwndVTEdit)
         {
             if (TRUE == ::DestroyWindow(m_hwndVTEdit))
-                m_hwndVTEdit = NULL;
+                m_hwndVTEdit = nullptr;
         }
 
         // close all popups (a potential circular reference)
@@ -3039,7 +3039,7 @@ public:
 
         TerminateGameStateContainer();
         m_pimageBackdrop   = NULL;
-        m_pimageScreen     = NULL;
+        m_pimageScreen     = nullptr;
         m_pscreen          = NULL;
         m_pscreenBackdrop  = NULL;
         SetCaption(NULL);
@@ -3048,29 +3048,29 @@ public:
         m_pwrapImageConsole->SetImage(Image::GetEmpty());
         m_pwrapImageTop->SetImage(Image::GetEmpty());
 
-        m_pgeoScene          = NULL;
+        m_pgeoScene          = nullptr;
         m_pcamera            = NULL;
         m_pcameraPosters     = NULL;
         //m_pcameraTurret      = NULL;
         m_pimageScene        = NULL;
-        m_pgeoDebris         = NULL;
+        m_pgeoDebris         = nullptr;
         m_pimageStars        = NULL;
         m_pimageEnvironment  = NULL;
-        m_pimageBlack        = NULL;
+        m_pimageBlack        = nullptr;
         //m_pimageTurret       = NULL;
         m_pimageLensFlare    = NULL;
-        m_pwrapImageHudGroup = NULL;
-        m_pwrapImageComm     = NULL;
-        m_pwrapImageRadar    = NULL;
-        m_pwrapImageConsole  = NULL;
-        m_pgroupImageHUD     = NULL;
+        m_pwrapImageHudGroup = nullptr;
+        m_pwrapImageComm     = nullptr;
+        m_pwrapImageRadar    = nullptr;
+        m_pwrapImageConsole  = nullptr;
+        m_pgroupImageHUD     = nullptr;
         m_pconsoleImage      = NULL;
         m_pradarImage        = NULL;
-        m_pgroupImage        = NULL;
-        m_pgroupImage3D      = NULL;
+        m_pgroupImage        = nullptr;
+        m_pgroupImage3D      = nullptr;
         m_pconsoleImage = NULL;
 
-        m_psoundMusic = NULL;
+        m_psoundMusic = nullptr;
         m_vSoundMap.clear();
         m_vsonicChats.clear();
         m_pqcmenuMain = NULL;
@@ -3354,7 +3354,7 @@ public:
             */
         }
 
-        ShellExecute(NULL, NULL, szURL, NULL, NULL, SW_SHOWNORMAL);
+        ShellExecute(nullptr, nullptr, szURL, nullptr, nullptr, SW_SHOWNORMAL);
     }
 
     #define idmConfigure         3
@@ -3447,7 +3447,7 @@ public:
         m_pmenu->AddMenuItem(idmSoundOptions , "Sound Options"   , 'S', m_psubmenuEventSink);
         m_pmenu->AddMenuItem(idmGameOptions  , "Game Options",     'G', m_psubmenuEventSink);
 
-        if (trekClient.MyMission() != NULL) {
+        if (trekClient.MyMission() != nullptr) {
             m_pmenu->AddMenuItem(idmGameDetails  , "Game Details",     'I');
         }
 
@@ -3554,7 +3554,7 @@ public:
             SavePreference("Debris", FALSE);
         }
 
-        if (m_pitemToggleDebris != NULL) {
+        if (m_pitemToggleDebris != nullptr) {
             m_pitemToggleDebris->SetString(GetDebrisMenuString());
         }
     }
@@ -3569,7 +3569,7 @@ public:
             SavePreference("Environment", TRUE);
         }
 
-        if (m_pitemToggleEnvironment != NULL) {
+        if (m_pitemToggleEnvironment != nullptr) {
             m_pitemToggleEnvironment->SetString(GetEnvironmentMenuString());
         }
     }
@@ -3587,7 +3587,7 @@ public:
             SavePreference("RoundRadarScreen", TRUE);
         }
 
-        if (m_pitemToggleRoundRadar != NULL) {
+        if (m_pitemToggleRoundRadar != nullptr) {
             m_pitemToggleRoundRadar->SetString(GetRoundRadarMenuString());
         }
     }
@@ -3601,7 +3601,7 @@ public:
 
         ToggleCensorDisplay ();
 
-        if (m_pitemToggleCensorChats != NULL) {
+        if (m_pitemToggleCensorChats != nullptr) {
             m_pitemToggleCensorChats->SetString(GetCensorChatsMenuString());
         }
     }
@@ -3619,7 +3619,7 @@ public:
             SavePreference ("PreferChaseView", TRUE);
         }
 
-        if (m_pitemToggleStickyChase != NULL)
+        if (m_pitemToggleStickyChase != nullptr)
             m_pitemToggleStickyChase->SetString (GetStickyChaseMenuString ());
     }
 
@@ -3636,7 +3636,7 @@ public:
             SavePreference("FilterChatsToAll", TRUE);
         }
 
-        if (m_pitemFilterChatsToAll != NULL) {
+        if (m_pitemFilterChatsToAll != nullptr) {
             m_pitemFilterChatsToAll->SetString(GetFilterChatsToAllMenuString());
         }
     }
@@ -3654,7 +3654,7 @@ public:
             SavePreference("FilterQuickComms", TRUE);
         }
 
-        if (m_pitemFilterQuickComms != NULL) {
+        if (m_pitemFilterQuickComms != nullptr) {
             m_pitemFilterQuickComms->SetString(GetFilterQuickCommsMenuString());
         }
     }
@@ -3672,7 +3672,7 @@ public:
             SavePreference("FilterLobbyChats", TRUE);
         }
 
-        if (m_pitemFilterLobbyChats != NULL) {
+        if (m_pitemFilterLobbyChats != nullptr) {
             m_pitemFilterLobbyChats->SetString(GetFilterLobbyChatsMenuString());
         }
     }
@@ -3690,7 +3690,7 @@ public:
             SavePreference("LinearControlResponse", TRUE);
         }
 
-        if (m_pitemToggleLinearControls != NULL) {
+        if (m_pitemToggleLinearControls != nullptr) {
             m_pitemToggleLinearControls->SetString(GetLinearControlsMenuString());
         }
     }
@@ -3705,7 +3705,7 @@ public:
             SavePreference("Stars", FALSE);
         }
 
-        if (m_pitemToggleStars != NULL) {
+        if (m_pitemToggleStars != nullptr) {
             m_pitemToggleStars->SetString(GetStarsMenuString());
         }
     }
@@ -3720,7 +3720,7 @@ public:
             SavePreference("Posters", FALSE);
         }
 
-        if (m_pitemTogglePosters != NULL) {
+        if (m_pitemTogglePosters != nullptr) {
             m_pitemTogglePosters->SetString(GetPostersMenuString());
         }
     }
@@ -3739,7 +3739,7 @@ public:
             }
         }
 
-        if (m_pitemToggleLensFlare != NULL) {
+        if (m_pitemToggleLensFlare != nullptr) {
             m_pitemToggleLensFlare->SetString(GetLensFlareMenuString());
         }
     }
@@ -3763,7 +3763,7 @@ public:
 
         UpdateBidirectionalLighting();
 
-        if (m_pitemToggleBidirectionalLighting != NULL) {
+        if (m_pitemToggleBidirectionalLighting != nullptr) {
             m_pitemToggleBidirectionalLighting->SetString(GetBidirectionalLightingMenuString());
         }
     }
@@ -3887,15 +3887,15 @@ public:
 
     void TriggerMusic(SoundID newMusicSound) override
     {
-        if (newMusicSound != m_musicId || m_psoundMusic == NULL || m_psoundMusic->IsPlaying() == S_FALSE)
+        if (newMusicSound != m_musicId || m_psoundMusic == nullptr || m_psoundMusic->IsPlaying() == S_FALSE)
         {
-            if (m_psoundMusic != NULL)
+            if (m_psoundMusic != nullptr)
                 m_psoundMusic->Stop(true);
 
             if (newMusicSound != NA)
                 m_psoundMusic = StartSound(newMusicSound);
             else
-                m_psoundMusic = NULL;
+                m_psoundMusic = nullptr;
 
             m_musicId = newMusicSound;
         }
@@ -3918,7 +3918,7 @@ public:
 
         SavePreference("Strobes", (DWORD)ThingGeo::GetShowLights());
 
-        if (m_pitemToggleStrobes != NULL) {
+        if (m_pitemToggleStrobes != nullptr) {
             m_pitemToggleStrobes->SetString(GetStrobesMenuString());
         }
     }
@@ -3929,7 +3929,7 @@ public:
 
         SavePreference("Trails", (DWORD)ThingGeo::GetShowTrails());
 
-        if (m_pitemToggleTrails != NULL) {
+        if (m_pitemToggleTrails != nullptr) {
             m_pitemToggleTrails->SetString(GetTrailsMenuString());
         }
     }
@@ -3940,7 +3940,7 @@ public:
 
         SavePreference("Bounds", (DWORD)ThingGeo::GetShowBounds());
 
-        if (m_pitemToggleBounds != NULL) {
+        if (m_pitemToggleBounds != nullptr) {
             m_pitemToggleBounds->SetString(GetBoundsMenuString());
         }
     }
@@ -3951,7 +3951,7 @@ public:
 
         SavePreference("TransparentObjects", (DWORD)ThingGeo::GetTransparentObjects());
 
-        if (m_pitemToggleTransparentObjects != NULL) {
+        if (m_pitemToggleTransparentObjects != nullptr) {
             m_pitemToggleTransparentObjects->SetString(GetTransparentObjectsMenuString());
         }
     }
@@ -3981,7 +3981,7 @@ public:
         ThingGeo::SetShowSmoke(iSmoke);
         SavePreference("SmokeEffects", (DWORD) iSmoke);
 
-        if (m_pitemToggleSmoke != NULL) {
+        if (m_pitemToggleSmoke != nullptr) {
             m_pitemToggleSmoke->SetString(GetSmokeMenuString());
         }
     }
@@ -3991,7 +3991,7 @@ public:
         m_pboolChatHistoryHUD->SetValue(!m_pboolChatHistoryHUD->GetValue());
         //SavePreference("ChatHistory", (DWORD)m_pboolChatHistoryHUD->GetValue());
 
-        if (m_pitemToggleChatHistoryHUD != NULL)
+        if (m_pitemToggleChatHistoryHUD != nullptr)
             m_pitemToggleChatHistoryHUD->SetString(GetChatHistoryHUDMenuString());
     }
 
@@ -4000,7 +4000,7 @@ public:
         m_pboolCenterHUD->SetValue(!m_pboolCenterHUD->GetValue());
         SavePreference("CenterHUD", (DWORD)m_pboolCenterHUD->GetValue());
 
-        if (m_pitemToggleCenterHUD != NULL)
+        if (m_pitemToggleCenterHUD != nullptr)
             m_pitemToggleCenterHUD->SetString(GetCenterHUDMenuString());
     }
 
@@ -4009,7 +4009,7 @@ public:
         m_pboolTargetHUD->SetValue(!m_pboolTargetHUD->GetValue());
         SavePreference("TargetHUD", (DWORD)m_pboolTargetHUD->GetValue());
 
-        if (m_pitemToggleTargetHUD != NULL)
+        if (m_pitemToggleTargetHUD != nullptr)
             m_pitemToggleTargetHUD->SetString(GetTargetHUDMenuString());
     }
 
@@ -4021,7 +4021,7 @@ public:
 
         SavePreference("SoftwareHUD", (DWORD)style);
 
-        if (m_pitemStyleHUD != NULL)
+        if (m_pitemStyleHUD != nullptr)
             m_pitemStyleHUD->SetString(GetStyleHUDMenuString());
     }
 
@@ -4032,7 +4032,7 @@ public:
 
         SavePreference("LargeDeadZone", g_fJoystickDeadZone > (g_fJoystickDeadZoneSmall + g_fJoystickDeadZoneLarge)/2.0f);
 
-        if (m_pitemToggleLargeDeadZone != NULL)
+        if (m_pitemToggleLargeDeadZone != nullptr)
             m_pitemToggleLargeDeadZone->SetString(GetLargeDeadZoneMenuString());
     }
 
@@ -4042,7 +4042,7 @@ public:
 
         SavePreference("VirtualJoystick", m_bEnableVirtualJoystick);
 
-        if (m_pitemToggleVirtualJoystick != NULL) {
+        if (m_pitemToggleVirtualJoystick != nullptr) {
             m_pitemToggleVirtualJoystick->SetString(GetVirtualJoystickMenuString());
         }
     }
@@ -4053,7 +4053,7 @@ public:
 
         SavePreference("FlipY", m_bFlipY);
 
-        if (m_pitemToggleFlipY != NULL) {
+        if (m_pitemToggleFlipY != nullptr) {
             m_pitemToggleFlipY->SetString(GetFlipYMenuString());
         }
     }
@@ -4064,7 +4064,7 @@ public:
 
         SavePreference("EnableFeedback", m_bEnableFeedback);
 
-        if (m_pitemToggleEnableFeedback != NULL) {
+        if (m_pitemToggleEnableFeedback != nullptr) {
             m_pitemToggleEnableFeedback->SetString(GetEnableFeedbackMenuString());
         }
     }
@@ -4120,7 +4120,7 @@ public:
         ZSucceeded(m_pSoundEngine->SetQuality(m_soundquality));
         SavePreference("SoundQuality", (DWORD)m_soundquality);
 
-        if (m_pitemSoundQuality != NULL)
+        if (m_pitemSoundQuality != nullptr)
             m_pitemSoundQuality->SetString(GetSoundQualityMenuString());
     };
 
@@ -4132,7 +4132,7 @@ public:
 
         UpdateMusic();
 
-        if (m_pitemToggleMusic != NULL)
+        if (m_pitemToggleMusic != nullptr)
             m_pitemToggleMusic->SetString(GetMusicMenuString());
     }
 
@@ -4143,12 +4143,12 @@ public:
 
         SavePreference("MusicGain", (DWORD)-fNewValue);
 
-        if (m_pitemMusicVolumeUp != NULL)
+        if (m_pitemMusicVolumeUp != nullptr)
         {
             m_pitemMusicVolumeUp->SetString(
                 GetGainMenuString("Music", m_pnumMusicGain->GetValue(), c_fVolumeDelta));
         }
-        if (m_pitemMusicVolumeDown != NULL)
+        if (m_pitemMusicVolumeDown != nullptr)
         {
             m_pitemMusicVolumeDown->SetString(
                 GetGainMenuString("Music", m_pnumMusicGain->GetValue(), -c_fVolumeDelta));
@@ -4163,12 +4163,12 @@ public:
 
         SavePreference("SFXGain", (DWORD)-fNewValue);
 
-        if (m_pitemSFXVolumeUp != NULL)
+        if (m_pitemSFXVolumeUp != nullptr)
         {
             m_pitemSFXVolumeUp->SetString(
                 GetGainMenuString("Sound Effect", m_pnumSFXGain->GetValue(), c_fVolumeDelta));
         }
-        if (m_pitemSFXVolumeDown != NULL)
+        if (m_pitemSFXVolumeDown != nullptr)
         {
             m_pitemSFXVolumeDown->SetString(
                 GetGainMenuString("Sound Effect", m_pnumSFXGain->GetValue(), -c_fVolumeDelta));
@@ -4182,12 +4182,12 @@ public:
 
         SavePreference("VoiceOverGain", (DWORD)-fNewValue);
 
-        if (m_pitemVoiceOverVolumeUp != NULL)
+        if (m_pitemVoiceOverVolumeUp != nullptr)
         {
             m_pitemVoiceOverVolumeUp->SetString(
                 GetGainMenuString("Voice Over", m_pnumVoiceOverGain->GetValue(), c_fVolumeDelta));
         }
-        if (m_pitemVoiceOverVolumeDown != NULL)
+        if (m_pitemVoiceOverVolumeDown != nullptr)
         {
             m_pitemVoiceOverVolumeDown->SetString(
                 GetGainMenuString("Voice Over", m_pnumVoiceOverGain->GetValue(), -c_fVolumeDelta));
@@ -4630,7 +4630,7 @@ public:
                 pPositionTarget = &positionBfr;
             }
 
-            trekClient.GetShip()->SetCluster(NULL);
+            trekClient.GetShip()->SetCluster(nullptr);
             trekClient.SetViewCluster(pcluster);
             TrackCamera(pshipSource->GetPosition(), *pPositionTarget,
                         offset * 3.0f);
@@ -4646,7 +4646,7 @@ public:
     void EndOverrideCamera(void)
     {
         if (m_bUseOverridePosition)
-            SetTarget(NULL, c_cidNone);
+            SetTarget(nullptr, c_cidNone);
 
         // end the overide camera's special status
         m_cm = cmExternal;
@@ -4673,7 +4673,7 @@ public:
             else
             {
                 SetViewMode(trekClient.GetShip()->IsGhost() ? vmCommand : vmHangar);
-                PositionCommandView(NULL, 0.0f);
+                PositionCommandView(nullptr, 0.0f);
                 StartSound(personalJumpSound);
                 assert (trekClient.GetShip()->IsGhost() || trekClient.GetViewCluster() == NULL);
             }
@@ -4849,7 +4849,7 @@ public:
 
                 if (m_pwrapImageBackdrop->GetImage() != m_pimageBackdrop)
                 {
-                    trekClient.RequestViewCluster(NULL);
+                    trekClient.RequestViewCluster(nullptr);
                     m_pwrapImageBackdrop->SetImage(m_pimageBackdrop);
 
                     m_pscreenBackdrop->GetPane()->UpdateLayout();
@@ -4878,7 +4878,7 @@ public:
 
                 if (m_pwrapImageBackdrop->GetImage() != m_pimageBackdrop)
                 {
-                    trekClient.RequestViewCluster(NULL);
+                    trekClient.RequestViewCluster(nullptr);
                     m_pwrapImageBackdrop->SetImage(m_pimageBackdrop);
 
                     m_pscreenBackdrop->GetPane()->UpdateLayout();
@@ -4996,7 +4996,7 @@ public:
     void UpdateOverlayFlags()
     {
         bool bInCommand = GetViewMode() == vmCommand;
-        bool bInFlight = trekClient.GetShip()->GetCluster() != NULL;
+        bool bInFlight = trekClient.GetShip()->GetCluster() != nullptr;
 
         CopyOverlayFlags(ofInHangar, GetViewMode() == vmHangar);
         CopyOverlayFlags(ofInLoadout, GetViewMode() == vmLoadout);
@@ -5246,8 +5246,8 @@ public:
                     Orientation         orientationBfr;
                     Vector              positionBfr;
 
-                    const Orientation*  pOrientation = NULL;
-                    const Vector*       pPosition = NULL;
+                    const Orientation*  pOrientation = nullptr;
+                    const Vector*       pPosition = nullptr;
                     float               offset = m_distanceExternalCamera;
 
                     switch (m_cm)
@@ -5296,7 +5296,7 @@ public:
                             //Basic algorithm:
                             //Aim the camera at the midpoint, back far enough so both are in view
                             ImodelIGC* pmodelTarget = GetCurrentTarget();
-                            if (pmodelTarget != NULL)
+                            if (pmodelTarget != nullptr)
                             {
                                 const Vector&   targetPosition = pmodelTarget->GetPosition();
 
@@ -5365,10 +5365,10 @@ public:
                         case cmExternalStation:
                         {
                             ImodelIGC*  myTarget = GetCurrentTarget();
-                            if ((myTarget != NULL) &&
+                            if ((myTarget != nullptr) &&
                                 (myTarget != pshipSource) &&
                                 (pshipSource->GetCluster() == myTarget->GetCluster()) &&
-                                (myTarget->GetHitTest() != NULL) &&
+                                (myTarget->GetHitTest() != nullptr) &&
                                 pshipSource->CanSee(myTarget))
                             {
                                 pPosition = &myPosition;
@@ -5667,7 +5667,7 @@ public:
             float   fMin = s_fCommandViewDistanceMin;
             Vector  positionTarget;
             ImodelIGC*  pmodelTarget = trekClient.GetShip()->GetCommandTarget(c_cmdCurrent);
-            if (pmodelTarget != NULL)
+            if (pmodelTarget != nullptr)
             {
                 if (m_bTrackCommandView)
                 {
@@ -5906,7 +5906,7 @@ public:
                 m_pconsoleImage->GetConsoleData()->SetTarget(pmodelTarget);
             }
 
-            IsideIGC*   psideMe = NULL;
+            IsideIGC*   psideMe = nullptr;
             bool        bAnyEnemyShips;
             if (pmodelTarget)
                 bAnyEnemyShips = true;
@@ -5919,8 +5919,8 @@ public:
             float   zMin{};
             float   zMax{};
 
-            const Vector*   pcameraPosition = NULL;
-            const Vector*   pcameraBackward = NULL;
+            const Vector*   pcameraPosition = nullptr;
+            const Vector*   pcameraBackward = nullptr;
             if (CommandCamera(m_cm))
             {
                 pcameraPosition = &(m_cameraControl.GetPosition());
@@ -5938,7 +5938,7 @@ public:
                 zMax = d+r;
             }
 
-            for (ModelLinkIGC*  l = models->first(); (l != NULL); l = l->next())
+            for (ModelLinkIGC*  l = models->first(); (l != nullptr); l = l->next())
             {
                 ImodelIGC*        pmodel = l->data();
 
@@ -5965,7 +5965,7 @@ public:
                      (pmodel != pshipParent)) || pmodel->GetVisibleF())
                 {
                     ObjectType        type   = pmodel->GetObjectType();
-                    if ((type != OT_ship) || (((IshipIGC*)pmodel)->GetParentShip() == NULL))
+                    if ((type != OT_ship) || (((IshipIGC*)pmodel)->GetParentShip() == nullptr))
                     {
                         ThingSitePrivate* psite; CastTo(psite, pmodel->GetThingSite());
 
@@ -6234,29 +6234,29 @@ public:
             else
                 m_cameraControl.SetZClip(5.0f, 10000.0f);
 
-            if ((pmodelTarget == NULL) && bAnyEnemyShips && (!Training::IsTraining ()))
+            if ((pmodelTarget == nullptr) && bAnyEnemyShips && (!Training::IsTraining ()))
             {
                 //We have no target and there are enemy ships ... select an appropriate ship
                 const Vector&   position = pshipSource->GetPosition();
 
                 ImodelIGC*  m = FindTarget(pshipSource,
                                            (c_ttShip | c_ttEnemy | c_ttNearest),
-                                           NULL,
+                                           nullptr,
                                            pcluster,
-                                           &position, NULL, c_habmRescue);
+                                           &position, nullptr, c_habmRescue);
 
-                if (m == NULL)
+                if (m == nullptr)
                 {
                     m = FindTarget(pshipSource,
                                    (c_ttShip | c_ttEnemy | c_ttNearest),
-                                   NULL,
+                                   nullptr,
                                    pcluster,
-                                   &position, NULL, c_habmMiner | c_habmBuilder);
+                                   &position, nullptr, c_habmMiner | c_habmBuilder);
 
-                    if (m == NULL)
+                    if (m == nullptr)
                         m = FindTarget(pshipSource,
                                        (c_ttShip | c_ttEnemy | c_ttNearest),
-                                       NULL,
+                                       nullptr,
                                        pcluster,
                                        &position);
                 }
@@ -6430,7 +6430,7 @@ public:
                     }
 
                     IshipIGC*   pshipParent = trekClient.GetShip()->GetParentShip();
-                    if (fAutoPilot && (pshipParent == NULL))
+                    if (fAutoPilot && (pshipParent == nullptr))
                     {
                         js.controls = trekClient.GetShip()->GetControls();
                         // use the controls decided by autoPilot.Update()
@@ -6497,7 +6497,7 @@ public:
                                 m_cameraControl.SetFOV(fov);
                             }
 
-                            if (trekClient.GetShip()->GetBaseHullType() != NULL)
+                            if (trekClient.GetShip()->GetBaseHullType() != nullptr)
                             {
                                 //What is the maximum desired rate of turn for this field of view?
                                 //Use the same calculation as for turrets.
@@ -6838,13 +6838,13 @@ public:
 
         m_cameraControl.m_pgeoTarget = Geo::GetEmpty();
 
-        if (pmodel != NULL)
+        if (pmodel != nullptr)
         {
             if (pmodel->GetObjectType() == OT_ship)
                 pmodel = ((IshipIGC*)pmodel)->GetSourceShip();
 
             if ((pmodel != trekClient.GetShip()->GetSourceShip()) &&
-                (pmodel->GetHitTest() != NULL) &&
+                (pmodel->GetHitTest() != nullptr) &&
                 (pmodel->GetCluster() == trekClient.GetCluster()) &&
                 trekClient.GetShip()->CanSee(pmodel))
             {
@@ -7034,7 +7034,7 @@ public:
                                    ttMask,
                                    trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
                                    trekClient.GetCluster(),
-                                   pposition, NULL, abm);
+                                   pposition, nullptr, abm);
 
         SetTarget(m, c_cidDefault);
     }
@@ -7043,7 +7043,7 @@ public:
     {
         IshipIGC* pship = trekClient.GetShip();
 
-        if (pship->GetParentShip() == NULL)
+        if (pship->GetParentShip() == nullptr)
         {
             Mount nHardpoints = pship->GetHullType()->GetMaxFixedWeapons();
             IweaponIGC* pweapon = (IweaponIGC*)pship->GetMountedPart(ET_Weapon, mount);
@@ -7091,12 +7091,12 @@ public:
     {
         IshipIGC* pship = trekClient.GetShip();
 
-        if ((pship->GetParentShip() == NULL) && trekClient.flyingF())
+        if ((pship->GetParentShip() == nullptr) && trekClient.flyingF())
         {
             PartMask maxPartMask = pship->GetHullType()->GetPartMask(et, mount);
             IpartIGC*   ppartOld = pship->GetMountedPart(et, mount);
 
-            if (trekClient.SelectCargoPartOfType(et, maxPartMask, ppartOld ? ppartOld->GetPartType() : NULL))
+            if (trekClient.SelectCargoPartOfType(et, maxPartMask, ppartOld ? ppartOld->GetPartType() : nullptr))
             {
                 Mount       mountNew = trekClient.GetSelectedCargoMount();
                 IpartIGC*   ppartNew = pship->GetMountedPart(et, mountNew);
@@ -7119,7 +7119,7 @@ public:
 
                     // set the inventory slot to the next item of that type
                     trekClient.NextCargoPart();
-                    trekClient.SelectCargoPartOfType(et, maxPartMask, ppartNew ? ppartNew->GetPartType() : NULL);
+                    trekClient.SelectCargoPartOfType(et, maxPartMask, ppartNew ? ppartNew->GetPartType() : nullptr);
 
                     trekClient.GetCore()->GetIgcSite()->LoadoutChangeEvent(pship, trekClient.GetCargoPart(), c_lcCargoSelectionChanged);
                 }
@@ -7135,7 +7135,7 @@ public:
     {
         IshipIGC* pship = trekClient.GetShip();
 
-        if ((pship->GetParentShip() == NULL) && trekClient.flyingF())
+        if ((pship->GetParentShip() == nullptr) && trekClient.flyingF())
         {
             Mount nHardpoints = pship->GetHullType()->GetMaxFixedWeapons();
 
@@ -7152,7 +7152,7 @@ public:
 
         IshipIGC* pship = trekClient.GetShip();
 
-        if ((pship->GetParentShip() == NULL) && trekClient.flyingF())
+        if ((pship->GetParentShip() == nullptr) && trekClient.flyingF())
         {
             Mount nFixedHardpoints = pship->GetHullType()->GetMaxFixedWeapons();
             int nTurrets = pship->GetHullType()->GetMaxWeapons() - nFixedHardpoints;
@@ -7467,7 +7467,7 @@ public:
 
             case TK_LockVector:
             {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
+                if (trekClient.GetShip()->GetParentShip() == nullptr)
                 {
                     trekClient.GetShip()->SetStateBits(coastButtonIGC, Training::ApproveActions (trekClient.GetShip()->GetStateM() ^ coastButtonIGC));
                     trekClient.PlaySoundEffect(vectorLockSound);
@@ -7477,7 +7477,7 @@ public:
 
             case TK_ToggleCloak:
             {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
+                if (trekClient.GetShip()->GetParentShip() == nullptr)
                     trekClient.GetShip()->SetStateBits(cloakActiveIGC, Training::ApproveActions (trekClient.GetShip()->GetStateM() ^ cloakActiveIGC));
             }
             break;
@@ -7486,7 +7486,7 @@ public:
             {
                 if (!Training::IsTraining ())
                 {
-                    if ((trekClient.GetShip()->GetParentShip() == NULL) &&
+                    if ((trekClient.GetShip()->GetParentShip() == nullptr) &&
                         trekClient.GetShip()->GetCluster())
                     {
                         if ((trekClient.GetShip()->GetFlag() != NA) ||
@@ -7496,7 +7496,7 @@ public:
                         }
                         else
                         {
-                            IclusterIGC*    pcluster = NULL;
+                            IclusterIGC*    pcluster = nullptr;
                             if (!trekClient.GetShip()->fRipcordActive())
                             {
                                 ImodelIGC*  pmodel = trekClient.GetShip()->GetCommandTarget(c_cmdCurrent);
@@ -7521,21 +7521,21 @@ public:
 
             case TK_PrevWeapon:
             {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
+                if (trekClient.GetShip()->GetParentShip() == nullptr)
                     trekClient.PreviousWeapon();
             }
             break;
 
             case TK_NextWeapon:
             {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
+                if (trekClient.GetShip()->GetParentShip() == nullptr)
                     trekClient.NextWeapon();
             }
             break;
 
             case TK_ToggleGroupFire:
             {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
+                if (trekClient.GetShip()->GetParentShip() == nullptr)
                     trekClient.fGroupFire = !trekClient.fGroupFire;
 
                 if (trekClient.fGroupFire)
@@ -7652,7 +7652,7 @@ public:
 
             case TK_NextCargo:
             {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
+                if (trekClient.GetShip()->GetParentShip() == nullptr)
                 {
                     trekClient.NextCargoPart();
                     trekClient.GetCore()->GetIgcSite()->LoadoutChangeEvent(trekClient.GetShip(), trekClient.GetCargoPart(), c_lcCargoSelectionChanged);
@@ -7686,15 +7686,15 @@ public:
 
             case TK_Reload:
             {
-                if (trekClient.GetShip()->GetParentShip() == NULL)
+                if (trekClient.GetShip()->GetParentShip() == nullptr)
                 {
                     int stateM = trekClient.GetShip()->GetStateM();
 
                     if ((stateM & (oneWeaponIGC | allWeaponsIGC)) == 0)
-                        trekClient.Reload(trekClient.GetShip(), NULL, ET_Weapon);
+                        trekClient.Reload(trekClient.GetShip(), nullptr, ET_Weapon);
 
                     if ((stateM & afterburnerButtonIGC) == 0)
-                        trekClient.Reload(trekClient.GetShip(), NULL, ET_Afterburner);
+                        trekClient.Reload(trekClient.GetShip(), nullptr, ET_Afterburner);
 
                     if ((stateM & missileFireIGC) == 0)
                         trekClient.Reload(trekClient.GetShip(), (IlauncherIGC*)(trekClient.GetShip()->GetMountedPart(ET_Magazine, 0)), ET_Magazine);
@@ -7710,7 +7710,7 @@ public:
 
             case TK_DropCargo:
             {
-                if (trekClient.flyingF() && (trekClient.GetShip()->GetParentShip() == NULL))
+                if (trekClient.flyingF() && (trekClient.GetShip()->GetParentShip() == nullptr))
                 {
                     IpartIGC* ppart = trekClient.GetCargoPart();
 
@@ -7724,7 +7724,7 @@ public:
                         for (Mount mount = -c_maxCargo; mount < 0; ++mount)
                         {
                             IpartIGC *ppartPrev = trekClient.GetShip()->GetMountedPart(NA, mount);
-                            IpartTypeIGC *ppartTypePrev = ppartPrev ? ppartPrev->GetPartType() : NULL;
+                            IpartTypeIGC *ppartTypePrev = ppartPrev ? ppartPrev->GetPartType() : nullptr;
 
                             if (ppartType == ppartTypePrev)
                             {
@@ -7918,7 +7918,7 @@ public:
                 }
                 else
                 {
-                    if ((trekClient.GetViewCluster() == NULL) && !trekClient.flyingF())
+                    if ((trekClient.GetViewCluster() == nullptr) && !trekClient.flyingF())
                     {
                         IstationIGC*    pstation = trekClient.GetShip()->GetStation();
                         assert (pstation);
@@ -7931,7 +7931,7 @@ public:
                     else
                     {
                         SetViewMode(vmCommand);
-                        PositionCommandView(NULL, 2.0f);
+                        PositionCommandView(nullptr, 2.0f);
                     }
                 }
             }
@@ -7951,7 +7951,7 @@ public:
                 if (CommandCamera(m_cm))
                 {
                     SetCameraMode(m_cmPreviousCommand);
-                    PositionCommandView(NULL, 2.0f);
+                    PositionCommandView(nullptr, 2.0f);
                 }
             }
             break;
@@ -8006,7 +8006,7 @@ public:
                         // do nothing 
                 } else if (trekClient.GetShip()->IsGhost()) {
                     TurnOffOverlayFlags(c_omBanishablePanes);
-                } else if (trekClient.GetShip()->GetStation() != NULL) {
+                } else if (trekClient.GetShip()->GetStation() != nullptr) {
                     if (GetViewMode() != vmLoadout)
                         SetViewMode(vmLoadout);
                     else if (GetOverlayFlags() & c_omBanishablePanes)
@@ -8139,7 +8139,7 @@ public:
                     ImodelIGC*  m = FindTarget(pship,
                                                (c_ttFront | c_ttAllTypes | c_ttAllSides),
                                                trekClient.GetShip()->GetCommandTarget(c_cmdCurrent),
-                                               NULL, NULL,
+                                               nullptr, nullptr,
                                                porientation);
 
                     SetTarget(m, c_cidDefault);
@@ -8332,7 +8332,7 @@ public:
                     SwitchToJoyThrottle();
                     trekClient.PlaySoundEffect(salAutopilotDisengageSound);
                 }
-                else if ((trekClient.GetShip()->GetParentShip() == NULL) && (trekClient.GetShip()->GetStation() == NULL))
+                else if ((trekClient.GetShip()->GetParentShip() == nullptr) && (trekClient.GetShip()->GetStation() == nullptr))
                 {
                     //m_timeAutopilotWarning = Time::Now();
                     trekClient.SetAutoPilot(true);
@@ -8369,7 +8369,7 @@ public:
 
             case TK_ClearCommand:     // clear accepted command
             {
-                SetAccepted(NULL, c_cidNone);
+                SetAccepted(nullptr, c_cidNone);
             }
             break;
 
@@ -8412,7 +8412,7 @@ public:
 
             case TK_TargetNothing:
             {
-                SetTarget(NULL, c_cidNone);
+                SetTarget(nullptr, c_cidNone);
             }
             break;
 
@@ -8470,7 +8470,7 @@ public:
                     END_PFM_CREATE
                 }
                 else
-                    trekClient.KillShipEvent(Time::Now(), trekClient.GetShip(), NULL, 1.0f, trekClient.GetShip()->GetPosition(), Vector::GetZero());
+                    trekClient.KillShipEvent(Time::Now(), trekClient.GetShip(), nullptr, 1.0f, trekClient.GetShip()->GetPosition(), Vector::GetZero());
             }
         }
         else
@@ -8496,13 +8496,13 @@ public:
                                             voNegativeSound, "Negative.");
                     }
                 }
-                trekClient.SetLastSender(NULL);
+                trekClient.SetLastSender(nullptr);
             }
         }
         else if (trekClient.GetShip()->GetCommandID(c_cmdQueued) != c_cidNone)
         {
             if (bClear)
-                trekClient.GetShip()->SetCommand(c_cmdQueued, NULL, c_cidNone);
+                trekClient.GetShip()->SetCommand(c_cmdQueued, nullptr, c_cidNone);
 
             IshipIGC*   pshipSender = trekClient.GetLastSender();
             if (pshipSender)
@@ -8515,7 +8515,7 @@ public:
                                             voNegativeSound, "Negative.");
                     }
                 }
-                trekClient.SetLastSender(NULL);
+                trekClient.SetLastSender(nullptr);
             }
         }
 
@@ -8571,7 +8571,7 @@ public:
                                                 CHAT_INDIVIDUAL, 
                                                 pmodel->GetObjectID(),
                                                 NA, 
-                                                NULL,
+                                                nullptr,
                                                 c_cidPickup,
                                                 OT_ship, 
                                                 trekClient.GetShipID(), 
@@ -8582,8 +8582,8 @@ public:
                         SetAccepted(pmodel, cid);
 
                         if (bExecute &&
-                            (trekClient.GetShip()->GetStation() == NULL) &&
-                            (trekClient.GetShip()->GetParentShip() == NULL) &&
+                            (trekClient.GetShip()->GetStation() == nullptr) &&
+                            (trekClient.GetShip()->GetParentShip() == nullptr) &&
                             trekClient.GetCluster(trekClient.GetShip(), pmodel))
                         {
                             trekClient.SetAutoPilot(true);
@@ -8592,7 +8592,7 @@ public:
                         }
                     }
 
-                    trekClient.GetShip()->SetCommand(c_cmdQueued, NULL, c_cidNone);
+                    trekClient.GetShip()->SetCommand(c_cmdQueued, nullptr, c_cidNone);
                 }
             }
         }
@@ -8603,7 +8603,7 @@ public:
             if (pshipSender != trekClient.GetShip())
                 trekClient.SendChat(trekClient.GetShip(), CHAT_INDIVIDUAL, pshipSender->GetObjectID(),
                                     voAffirmativeSound, "Affirmative.");
-            trekClient.SetLastSender(NULL);
+            trekClient.SetLastSender(nullptr);
         }
 
         m_timeRejectQueuedCommand = trekClient.m_now + (3600.0f * 24.0f * 20.0f);   //20 days in the future
@@ -8635,7 +8635,7 @@ public:
 
         trekClient.SetLastSender(pshipSender);
         trekClient.SetLastMoneyRequest(money);
-        trekClient.GetShip()->SetCommand(c_cmdQueued, NULL, c_cidNone);
+        trekClient.GetShip()->SetCommand(c_cmdQueued, nullptr, c_cidNone);
 
         if ((pshipSender != trekClient.GetShip()) && GetWindow()->GetConsoleImage())
         {
@@ -9091,7 +9091,7 @@ public:
         va_list vaList;
         INT cchText;
 
-        if (NULL != m_hwndVTEdit)
+        if (nullptr != m_hwndVTEdit)
         {
             cchText = sprintf(szText, "Version=%d,", ++m_cVTVersion);
             va_start(vaList, szFormat);
@@ -9107,7 +9107,7 @@ public:
         ZSucceeded(m_pSoundEngine->Update ());
     }
 
-    TRef<ISoundInstance>  StartSound(ISoundTemplate* ptemplate, ISoundPositionSource* psource = NULL) override
+    TRef<ISoundInstance>  StartSound(ISoundTemplate* ptemplate, ISoundPositionSource* psource = nullptr) override
     {
         if (ptemplate)
         {
@@ -9121,17 +9121,17 @@ public:
 
         {
             // may avoid some art crashes in retail builds
-            return NULL;
+            return nullptr;
         }
     };
 
-    TRef<ISoundInstance>  StartSound(SoundID soundId, ISoundPositionSource* psource = NULL) override
+    TRef<ISoundInstance>  StartSound(SoundID soundId, ISoundPositionSource* psource = nullptr) override
     {
         if (soundId < 0 || soundId > (int)m_vSoundMap.size())
         {
             // may avoid some art crashes in retail builds
             ZAssert(false);
-            return NULL;
+            return nullptr;
         }
 
         return StartSound(m_vSoundMap[soundId], psource);

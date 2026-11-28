@@ -104,7 +104,7 @@ namespace Training
                     ImodelIGC*          pTarget = FindTarget (  pShip, 
                                                                 c_ttFront | c_ttShip | c_ttEnemy,
                                                                 pShip->GetCommandTarget (c_cmdCurrent),
-                                                                NULL, NULL, pOrientation);
+                                                                nullptr, nullptr, pOrientation);
 
                     GetWindow ()->SetTarget(pTarget, c_cidNone);
                 }
@@ -194,8 +194,8 @@ namespace Training
         // put the commander ship in the station
         IshipIGC*       pCommander = pCore->GetShip (m_commanderID);
         pCommander->SetStation (static_cast<IstationIGC*> (pStation));
-        pCommander->SetCommand (c_cmdAccepted, NULL, c_cidDoNothing);
-        pCommander->SetCommand (c_cmdCurrent, NULL, c_cidDoNothing);
+        pCommander->SetCommand (c_cmdAccepted, nullptr, c_cidDoNothing);
+        pCommander->SetCommand (c_cmdCurrent, nullptr, c_cidDoNothing);
         pCommander->SetAutopilot (false);
 
         // create a bunch of derelict hulls in a sphere around the ship

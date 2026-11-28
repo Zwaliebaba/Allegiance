@@ -140,11 +140,11 @@ class  WinTrekClient :
         void      LayExpendable(Time now, IexpendableTypeIGC* pet, IshipIGC* pshipLayer) override;
         TRef<ThingSite>   CreateThingSite(ImodelIGC* pModel) override;
         TRef<ClusterSite> CreateClusterSite(IclusterIGC* pCluster) override;
-        void      PlaySoundEffect(SoundID soundID, ImodelIGC* model = NULL) override;
+        void      PlaySoundEffect(SoundID soundID, ImodelIGC* model = nullptr) override;
         void      PlaySoundEffect(SoundID soundID, ImodelIGC* model, const Vector& vectOffset) override;
         void      PlayNotificationSound(SoundID soundID, ImodelIGC* model) override;
-        void      PlayFFEffect(ForceEffectID effectID, ImodelIGC* model = NULL, LONG lDirection = 0) override;
-        void      PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model = NULL, float fIntensity = 1.0f) override;
+        void      PlayFFEffect(ForceEffectID effectID, ImodelIGC* model = nullptr, LONG lDirection = 0) override;
+        void      PlayVisualEffect(VisualEffectID effectID, ImodelIGC* model = nullptr, float fIntensity = 1.0f) override;
         void      TerminateModelEvent(ImodelIGC*    pmodel) override;
         bool      DockWithStationEvent(IshipIGC* ship, IstationIGC* station) override;
         void      KillShipEvent(Time now, IshipIGC* ship, ImodelIGC* launcher, float amount, const Vector& p1, const Vector& p2) override;
@@ -170,8 +170,8 @@ class  WinTrekClient :
         bool      UseRipcord(IshipIGC* pship, ImodelIGC* pmodel) override;
         bool      ContinueRipcord(IshipIGC* pship, ImodelIGC* pmodel) override;
 
-        void      SetViewCluster(IclusterIGC* pcluster, const Vector* pposition = NULL) override;
-        void      RequestViewCluster(IclusterIGC* pcluster, ImodelIGC* pmodelTarget = NULL) override;
+        void      SetViewCluster(IclusterIGC* pcluster, const Vector* pposition = nullptr) override;
+        void      RequestViewCluster(IclusterIGC* pcluster, ImodelIGC* pmodelTarget = nullptr) override;
         void      ReceiveChat(IshipIGC*   pshipSender,
                                       ChatTarget  ctRecipient,
                                       ObjectID    oidRecipient,
@@ -180,7 +180,7 @@ class  WinTrekClient :
                                       CommandID   cid,
                                       ObjectType  otTarget,
                                       ObjectID    oidTarget,
-                                      ImodelIGC*  pmodelTarget = NULL,
+                                      ImodelIGC*  pmodelTarget = nullptr,
                                       bool        bObjectModel = false) override;
 
         void      GetMoneyRequest(IshipIGC* pshipSender, Money amount, HullID hidFor) override;
@@ -239,9 +239,9 @@ class  WinTrekClient :
 
         WarningMask    wmOld; 
 
-        TRef<ISoundInstance>  StartSound(ISoundTemplate* ptemplate, ISoundPositionSource* psource = NULL) 
+        TRef<ISoundInstance>  StartSound(ISoundTemplate* ptemplate, ISoundPositionSource* psource = nullptr) 
             { return GetWindow()->StartSound(ptemplate, psource); };
-        TRef<ISoundInstance>  StartSound(SoundID soundId, ISoundPositionSource* psource = NULL)
+        TRef<ISoundInstance>  StartSound(SoundID soundId, ISoundPositionSource* psource = nullptr)
             { return GetWindow()->StartSound(soundId, psource); };
 
         SideID            GetLastWinner() { return m_sideidLastWinner; };
@@ -297,7 +297,7 @@ extern FrameDumpInfo g_fdInfo;
 
 TRef<IMessageBox> CreateMessageBox(
     const ZString& str, 
-    ButtonPane*    pbuttonIn         = NULL, 
+    ButtonPane*    pbuttonIn         = nullptr, 
     bool           fAddDefaultButton = true,
     bool           fAddCancelButton  = false,
     float          paintDelay        = 0.0f

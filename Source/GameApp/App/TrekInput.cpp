@@ -14,7 +14,7 @@ static ZString PlayerInputMapPath() // without ".mdl"
     std::wstring wstrSettings = ZSettings::PathFor("settings.json", ZSettings::PerUser);
     char         szSettings[MAX_PATH * 2];
 
-    if (WideCharToMultiByte(CP_ACP, 0, wstrSettings.c_str(), -1, szSettings, sizeof(szSettings), NULL, NULL) == 0) {
+    if (WideCharToMultiByte(CP_ACP, 0, wstrSettings.c_str(), -1, szSettings, sizeof(szSettings), nullptr, nullptr) == 0) {
         return ZString();
     }
 
@@ -408,7 +408,7 @@ public:
 
     Boolean* GetKeyDown(int vk)
     {
-        if (m_pboolKeyDown[vk] == NULL) {
+        if (m_pboolKeyDown[vk] == nullptr) {
             m_pboolKeyDown[vk] = new ModifiableBoolean(false);
         }
 
@@ -437,7 +437,7 @@ public:
 
         TRef<INameSpace> pns = GetModeler()->GetNameSpace(InputMapToLoad(str), false);
 
-        if (pns == NULL) {
+        if (pns == nullptr) {
             return false;
         }
 
@@ -476,12 +476,12 @@ public:
         }
 
         for (index = 0; index < TK_Max; index++) {
-            m_pboolTrekKeyDown[index]       = NULL;
-            m_ppboolTrekKeyButtonDown[index] = NULL;
+            m_pboolTrekKeyDown[index]       = nullptr;
+            m_ppboolTrekKeyButtonDown[index] = nullptr;
         }
 
         for (index = 0; index < (int)m_ppnumberAxis.size(); index++) {
-            m_ppnumberAxis[index] = NULL;
+            m_ppnumberAxis[index] = nullptr;
         }
 
         //
@@ -492,7 +492,7 @@ public:
             TRef<IObjectList> plist = pns->FindList("keyCommandMap");
 
             plist->GetFirst();
-            while (plist->GetCurrent() != NULL) {
+            while (plist->GetCurrent() != nullptr) {
                 TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
                 int vk        = (int)GetNumber(ppair->GetNth(0)    );
@@ -584,7 +584,7 @@ public:
                 // Or all of the key combinations together
                 //
 
-                if (m_pboolTrekKeyDown[tk] == NULL) {
+                if (m_pboolTrekKeyDown[tk] == nullptr) {
                     m_pboolTrekKeyDown[tk] = pbool;
                 } else {
                     m_pboolTrekKeyDown[tk] =
@@ -611,7 +611,7 @@ public:
 
             if (plist) {
                 plist->GetFirst();
-                while (plist->GetCurrent() != NULL) {
+                while (plist->GetCurrent() != nullptr) {
                     TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
                     int index = (int)GetNumber(ppair->GetFirst() );
@@ -628,7 +628,7 @@ public:
                         // Or all of the key combinations together
                         //
 
-                        if (m_ppboolTrekKeyButtonDown[tk] == NULL) {
+                        if (m_ppboolTrekKeyButtonDown[tk] == nullptr) {
                             m_ppboolTrekKeyButtonDown[tk] = pboolButton;
                         } else {
                             m_ppboolTrekKeyButtonDown[tk] =
@@ -652,7 +652,7 @@ public:
             TRef<IObjectList> plist = pns->FindList("buttonCommandMap");
 
             plist->GetFirst();
-            while (plist->GetCurrent() != NULL) {
+            while (plist->GetCurrent() != nullptr) {
                 TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
                 int indexJoystick = (int)GetNumber(ppair->GetNth(0)    );
@@ -687,7 +687,7 @@ public:
                     // Or all of the key combinations together
                     //
 
-                    if (m_ppboolTrekKeyButtonDown[tk] == NULL) {
+                    if (m_ppboolTrekKeyButtonDown[tk] == nullptr) {
                         m_ppboolTrekKeyButtonDown[tk] = pboolButton;
                     } else {
                         m_ppboolTrekKeyButtonDown[tk] =
@@ -709,7 +709,7 @@ public:
         {
             TRef<IObjectList> plist = pns->FindList("numericValuesNew");
 
-            bool bNew = (plist != NULL);
+            bool bNew = (plist != nullptr);
 
             if (!bNew) {
                 plist = pns->FindList("numericValues");
@@ -741,7 +741,7 @@ public:
                     if (pvalueInput) {
                         m_ppnumberAxis[indexValueOutput] = pvalueInput;    
                     } else {
-                        m_ppnumberAxis[indexValueOutput] = NULL;
+                        m_ppnumberAxis[indexValueOutput] = nullptr;
                     }
                 }
 
@@ -807,7 +807,7 @@ public:
 
             if (!m_bFocus) {
                 for (int index = 0; index < keyMax; index++) {
-                    if (m_pboolKeyDown[index] != NULL) {
+                    if (m_pboolKeyDown[index] != nullptr) {
                         m_pboolKeyDown[index]->SetValue(false);
                     }
                 }
@@ -876,7 +876,7 @@ public:
             // Update boolean value
             //
         
-            if (m_pboolKeyDown[ks.vk] != NULL) {
+            if (m_pboolKeyDown[ks.vk] != nullptr) {
                 m_pboolKeyDown[ks.vk]->SetValue(ks.bDown);
             }
 
@@ -902,7 +902,7 @@ public:
 
     float GetAxis(int index) override
     {
-        if (m_ppnumberAxis[index] != NULL) {
+        if (m_ppnumberAxis[index] != nullptr) {
             return m_ppnumberAxis[index]->GetValue();
         } else {
             return 0;
@@ -911,7 +911,7 @@ public:
 
     bool IsAxisValid(int index) override
     {
-        return m_ppnumberAxis[index] != NULL;
+        return m_ppnumberAxis[index] != nullptr;
     }
 
     void GetButtonTrekKeys(TrekInputSite* psite) override
@@ -920,7 +920,7 @@ public:
         // Update hat buttons
         //
 
-        if (m_ppnumberAxis[5] != NULL) {
+        if (m_ppnumberAxis[5] != nullptr) {
             float value = m_ppnumberAxis[5]->GetValue();
 
             //ZDebugOutput("hat: " + ZString(value) + "\n");
@@ -954,7 +954,7 @@ public:
 
         for (int index = 0; index < TK_Max; index++) {
             if (
-                   m_ppboolTrekKeyButtonDown[index] != NULL
+                   m_ppboolTrekKeyButtonDown[index] != nullptr
                 && m_ppboolTrekKeyButtonDown[index]->GetValue() != m_boolTrekKeyButtonDown[index]
             ) {
                 m_boolTrekKeyButtonDown[index] = m_ppboolTrekKeyButtonDown[index]->GetValue();
@@ -1013,39 +1013,39 @@ public:
 
 KeyInfo g_pkeyInfo[] =
 {
-    { NULL               }, // 00
-    { NULL               }, // 01
-    { NULL               }, // 02
-    { NULL               }, // 03
-    { NULL               }, // 04
-    { NULL               }, // 05
-    { NULL               }, // 06
-    { NULL               }, // 07
+    { nullptr               }, // 00
+    { nullptr               }, // 01
+    { nullptr               }, // 02
+    { nullptr               }, // 03
+    { nullptr               }, // 04
+    { nullptr               }, // 05
+    { nullptr               }, // 06
+    { nullptr               }, // 07
     { "Backspace"        }, // 08
     { "Tab"              }, // 09
-    { NULL               }, // 0a
-    { NULL               }, // 0b
-    { NULL               }, // 0c
+    { nullptr               }, // 0a
+    { nullptr               }, // 0b
+    { nullptr               }, // 0c
     { "Enter"            }, // 0d
-    { NULL               }, // 0e
-    { NULL               }, // 0f
+    { nullptr               }, // 0e
+    { nullptr               }, // 0f
 
-    { NULL               }, // 10
-    { NULL               }, // 11
-    { NULL               }, // 12
+    { nullptr               }, // 10
+    { nullptr               }, // 11
+    { nullptr               }, // 12
     { "Pause"            }, // 13
     { "Caps Lock"        }, // 14
-    { NULL               }, // 15
-    { NULL               }, // 16
-    { NULL               }, // 17
-    { NULL               }, // 18
-    { NULL               }, // 19
-    { NULL               }, // 1a
+    { nullptr               }, // 15
+    { nullptr               }, // 16
+    { nullptr               }, // 17
+    { nullptr               }, // 18
+    { nullptr               }, // 19
+    { nullptr               }, // 1a
     { "Escape"           }, // 1b
-    { NULL               }, // 1c
-    { NULL               }, // 1d
-    { NULL               }, // 1e
-    { NULL               }, // 1f
+    { nullptr               }, // 1c
+    { nullptr               }, // 1d
+    { nullptr               }, // 1e
+    { nullptr               }, // 1f
 
     { "Space"            }, // 20
     { "Page Up"          }, // 21
@@ -1056,13 +1056,13 @@ KeyInfo g_pkeyInfo[] =
     { "Up"               }, // 26
     { "Right"            }, // 27
     { "Down"             }, // 28
-    { NULL               }, // 29
-    { NULL               }, // 2a
-    { NULL               }, // 2b
-    { NULL               }, // 2c
+    { nullptr               }, // 29
+    { nullptr               }, // 2a
+    { nullptr               }, // 2b
+    { nullptr               }, // 2c
     { "Insert"           }, // 2d
     { "Delete"           }, // 2e
-    { NULL               }, // 2f
+    { nullptr               }, // 2f
 
     { "0"                }, // 30
     { "1"                }, // 31
@@ -1074,14 +1074,14 @@ KeyInfo g_pkeyInfo[] =
     { "7"                }, // 37
     { "8"                }, // 38
     { "9"                }, // 39
-    { NULL               }, // 3a
-    { NULL               }, // 3b
-    { NULL               }, // 3c
-    { NULL               }, // 3d
-    { NULL               }, // 3e
-    { NULL               }, // 3f
+    { nullptr               }, // 3a
+    { nullptr               }, // 3b
+    { nullptr               }, // 3c
+    { nullptr               }, // 3d
+    { nullptr               }, // 3e
+    { nullptr               }, // 3f
 
-    { NULL               }, // 40
+    { nullptr               }, // 40
     { "A"                }, // 41
     { "B"                }, // 42
     { "C"                }, // 43
@@ -1109,11 +1109,11 @@ KeyInfo g_pkeyInfo[] =
     { "X"                }, // 58
     { "Y"                }, // 59
     { "Z"                }, // 5a
-    { NULL               }, // 5b
-    { NULL               }, // 5c
-    { NULL               }, // 5d
-    { NULL               }, // 5e
-    { NULL               }, // 5f
+    { nullptr               }, // 5b
+    { nullptr               }, // 5c
+    { nullptr               }, // 5d
+    { nullptr               }, // 5e
+    { nullptr               }, // 5f
 
     { "Num Pad 0"        }, // 60
     { "Num Pad 1"        }, // 61
@@ -1144,72 +1144,72 @@ KeyInfo g_pkeyInfo[] =
     { "F10"              }, // 79
     { "F11"              }, // 7a
     { "F12"              }, // 7b
-    { NULL               }, // 7c
-    { NULL               }, // 7d
-    { NULL               }, // 7e
-    { NULL               }, // 7f
+    { nullptr               }, // 7c
+    { nullptr               }, // 7d
+    { nullptr               }, // 7e
+    { nullptr               }, // 7f
 
-    { NULL               }, // 80
-    { NULL               }, // 81
-    { NULL               }, // 82
-    { NULL               }, // 83
-    { NULL               }, // 84
-    { NULL               }, // 85
-    { NULL               }, // 86
-    { NULL               }, // 87
-    { NULL               }, // 88
-    { NULL               }, // 89
-    { NULL               }, // 8a
-    { NULL               }, // 8b
-    { NULL               }, // 8c
-    { NULL               }, // 8d
-    { NULL               }, // 8e
-    { NULL               }, // 8f
+    { nullptr               }, // 80
+    { nullptr               }, // 81
+    { nullptr               }, // 82
+    { nullptr               }, // 83
+    { nullptr               }, // 84
+    { nullptr               }, // 85
+    { nullptr               }, // 86
+    { nullptr               }, // 87
+    { nullptr               }, // 88
+    { nullptr               }, // 89
+    { nullptr               }, // 8a
+    { nullptr               }, // 8b
+    { nullptr               }, // 8c
+    { nullptr               }, // 8d
+    { nullptr               }, // 8e
+    { nullptr               }, // 8f
 
     { "Num Lock"         }, // 90
     { "Scroll Lock"      }, // 91
-    { NULL               }, // 92
-    { NULL               }, // 93
-    { NULL               }, // 94
-    { NULL               }, // 95
-    { NULL               }, // 96
-    { NULL               }, // 97
-    { NULL               }, // 98
-    { NULL               }, // 99
-    { NULL               }, // 9a
-    { NULL               }, // 9b
-    { NULL               }, // 9c
-    { NULL               }, // 9d
-    { NULL               }, // 9e
-    { NULL               }, // 9f
+    { nullptr               }, // 92
+    { nullptr               }, // 93
+    { nullptr               }, // 94
+    { nullptr               }, // 95
+    { nullptr               }, // 96
+    { nullptr               }, // 97
+    { nullptr               }, // 98
+    { nullptr               }, // 99
+    { nullptr               }, // 9a
+    { nullptr               }, // 9b
+    { nullptr               }, // 9c
+    { nullptr               }, // 9d
+    { nullptr               }, // 9e
+    { nullptr               }, // 9f
 
-    { NULL               }, // a0
-    { NULL               }, // a1
-    { NULL               }, // a2
-    { NULL               }, // a3
-    { NULL               }, // a4
-    { NULL               }, // a5
-    { NULL               }, // a6
-    { NULL               }, // a7
-    { NULL               }, // a8
-    { NULL               }, // a9
-    { NULL               }, // aa
-    { NULL               }, // ab
-    { NULL               }, // ac
-    { NULL               }, // ad
-    { NULL               }, // ae
-    { NULL               }, // af
+    { nullptr               }, // a0
+    { nullptr               }, // a1
+    { nullptr               }, // a2
+    { nullptr               }, // a3
+    { nullptr               }, // a4
+    { nullptr               }, // a5
+    { nullptr               }, // a6
+    { nullptr               }, // a7
+    { nullptr               }, // a8
+    { nullptr               }, // a9
+    { nullptr               }, // aa
+    { nullptr               }, // ab
+    { nullptr               }, // ac
+    { nullptr               }, // ad
+    { nullptr               }, // ae
+    { nullptr               }, // af
 
-    { NULL               }, // b0
-    { NULL               }, // b1
-    { NULL               }, // b2
-    { NULL               }, // b3
-    { NULL               }, // b4
-    { NULL               }, // b5
-    { NULL               }, // b6
-    { NULL               }, // b7
-    { NULL               }, // b8
-    { NULL               }, // b9
+    { nullptr               }, // b0
+    { nullptr               }, // b1
+    { nullptr               }, // b2
+    { nullptr               }, // b3
+    { nullptr               }, // b4
+    { nullptr               }, // b5
+    { nullptr               }, // b6
+    { nullptr               }, // b7
+    { nullptr               }, // b8
+    { nullptr               }, // b9
     { "SemiColon"        }, // ba
     { "Equals"           }, // bb
     { "Comma"            }, // bc
@@ -1218,72 +1218,72 @@ KeyInfo g_pkeyInfo[] =
     { "Forward Slash"    }, // bf
 
     { "Tilde"            }, // c0
-    { NULL               }, // c1
-    { NULL               }, // c2
-    { NULL               }, // c3
-    { NULL               }, // c4
-    { NULL               }, // c5
-    { NULL               }, // c6
-    { NULL               }, // c7
-    { NULL               }, // c8
-    { NULL               }, // c9
-    { NULL               }, // ca
-    { NULL               }, // cb
-    { NULL               }, // cc
-    { NULL               }, // cd
-    { NULL               }, // ce
-    { NULL               }, // cf
+    { nullptr               }, // c1
+    { nullptr               }, // c2
+    { nullptr               }, // c3
+    { nullptr               }, // c4
+    { nullptr               }, // c5
+    { nullptr               }, // c6
+    { nullptr               }, // c7
+    { nullptr               }, // c8
+    { nullptr               }, // c9
+    { nullptr               }, // ca
+    { nullptr               }, // cb
+    { nullptr               }, // cc
+    { nullptr               }, // cd
+    { nullptr               }, // ce
+    { nullptr               }, // cf
 
-    { NULL               }, // d0
-    { NULL               }, // d1
-    { NULL               }, // d2
-    { NULL               }, // d3
-    { NULL               }, // d4
-    { NULL               }, // d5
-    { NULL               }, // d6
-    { NULL               }, // d7
-    { NULL               }, // d8
-    { NULL               }, // d9
-    { NULL               }, // da
+    { nullptr               }, // d0
+    { nullptr               }, // d1
+    { nullptr               }, // d2
+    { nullptr               }, // d3
+    { nullptr               }, // d4
+    { nullptr               }, // d5
+    { nullptr               }, // d6
+    { nullptr               }, // d7
+    { nullptr               }, // d8
+    { nullptr               }, // d9
+    { nullptr               }, // da
     { "Left Square"      }, // db
     { "Back Slash"       }, // dc
     { "Right Square"     }, // dd
     { "Quote"            }, // de
-    { NULL               }, // df
+    { nullptr               }, // df
 
-    { NULL               }, // e0
-    { NULL               }, // e1
-    { NULL               }, // e2
-    { NULL               }, // e3
-    { NULL               }, // e4
-    { NULL               }, // e5
-    { NULL               }, // e6
-    { NULL               }, // e7
-    { NULL               }, // e8
-    { NULL               }, // e9
-    { NULL               }, // ea
-    { NULL               }, // eb
-    { NULL               }, // ec
-    { NULL               }, // ed
-    { NULL               }, // ee
-    { NULL               }, // ef
+    { nullptr               }, // e0
+    { nullptr               }, // e1
+    { nullptr               }, // e2
+    { nullptr               }, // e3
+    { nullptr               }, // e4
+    { nullptr               }, // e5
+    { nullptr               }, // e6
+    { nullptr               }, // e7
+    { nullptr               }, // e8
+    { nullptr               }, // e9
+    { nullptr               }, // ea
+    { nullptr               }, // eb
+    { nullptr               }, // ec
+    { nullptr               }, // ed
+    { nullptr               }, // ee
+    { nullptr               }, // ef
 
-    { NULL               }, // f0
-    { NULL               }, // f1
-    { NULL               }, // f2
-    { NULL               }, // f3
-    { NULL               }, // f4
-    { NULL               }, // f5
-    { NULL               }, // f6
-    { NULL               }, // f7
-    { NULL               }, // f8
-    { NULL               }, // f9
-    { NULL               }, // fa
-    { NULL               }, // fb
-    { NULL               }, // fc
-    { NULL               }, // fd
-    { NULL               }, // fe
-    { NULL               }  // ff
+    { nullptr               }, // f0
+    { nullptr               }, // f1
+    { nullptr               }, // f2
+    { nullptr               }, // f3
+    { nullptr               }, // f4
+    { nullptr               }, // f5
+    { nullptr               }, // f6
+    { nullptr               }, // f7
+    { nullptr               }, // f8
+    { nullptr               }, // f9
+    { nullptr               }, // fa
+    { nullptr               }, // fb
+    { nullptr               }, // fc
+    { nullptr               }, // fd
+    { nullptr               }, // fe
+    { nullptr               }  // ff
 };
 
 class CommandInfo {
@@ -2089,7 +2089,7 @@ public:
 
         TRef<INameSpace> pns = GetModeler()->GetNameSpace(InputMapToLoad(str), false);
 
-        if (pns == NULL) {
+        if (pns == nullptr) {
             return false;
         }
 
@@ -2116,7 +2116,7 @@ public:
             TRef<IObjectList> plist = pns->FindList("keyCommandMap");
 
             plist->GetFirst();
-            while (plist->GetCurrent() != NULL) {
+            while (plist->GetCurrent() != nullptr) {
                 TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
                 int vk        = (int)GetNumber(ppair->GetNth(0)    );
@@ -2138,7 +2138,7 @@ public:
 
             if (plist) {
                 plist->GetFirst();
-                while (plist->GetCurrent() != NULL) {
+                while (plist->GetCurrent() != nullptr) {
                     TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
                     int index = (int)GetNumber(ppair->GetFirst() );
@@ -2159,7 +2159,7 @@ public:
             TRef<IObjectList> plist = pns->FindList("buttonCommandMap");
 
             plist->GetFirst();
-            while (plist->GetCurrent() != NULL) {
+            while (plist->GetCurrent() != nullptr) {
                 TRef<IObjectPair> ppair; CastTo(ppair, plist->GetCurrent());
 
                 int indexJoystick = (int)GetNumber(ppair->GetNth(0)    );
@@ -2179,7 +2179,7 @@ public:
         {
             TRef<IObjectList> plist = pns->FindList("numericValuesNew");
 
-            bool bNew = (plist != NULL);
+            bool bNew = (plist != nullptr);
 
             if (!bNew) {
                 plist = pns->FindList("numericValues");
@@ -2227,7 +2227,7 @@ public:
             ZString strPlayer = PlayerInputMapPath();
 
             if (!strPlayer.empty()) {
-                CreateDirectoryA(PathString(strPlayer).GetDirectory().c_str(), NULL);
+                CreateDirectoryA(PathString(strPlayer).GetDirectory().c_str(), nullptr);
                 strPath = strPlayer;
             }
         }
@@ -2337,8 +2337,8 @@ public:
         if (!m_ptrekInput->LoadMap(INPUTMAP_FILE)) {
             m_ptrekInput->LoadMap(DEFAULTINPUTMAP_FILE);
         }
-        m_plistPane->SetList(NULL);
-        m_plistPane->SetItemPainter(NULL);
+        m_plistPane->SetList(nullptr);
+        m_plistPane->SetItemPainter(nullptr);
         ClosePopup(this);
     }
 
@@ -2732,7 +2732,7 @@ public:
         int index = GetIndex(pitem);
 
         if (index == GetCount() - 1) {
-            return 0;
+            return nullptr;
         } else {
             return GetItem(index + 1);
         }

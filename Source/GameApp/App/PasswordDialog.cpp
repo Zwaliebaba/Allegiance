@@ -25,7 +25,7 @@ public:
     
     PasswordDialogImpl(PasswordDialogSink* pparent, const ZString& strPassword, MissionInfo* pmission)
     {
-        m_pMission = NULL;
+        m_pMission = nullptr;
         m_pparent = pparent;
 
         TRef<INameSpace> pns = GetModeler()->GetNameSpace("passworddialog");
@@ -63,7 +63,7 @@ public:
         if (m_pkeyboardInputOldFocus)
             GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
 
-        m_pkeyboardInputOldFocus = NULL;
+        m_pkeyboardInputOldFocus = nullptr;
 
         IPopup::OnClose();
     }
@@ -98,11 +98,11 @@ public:
     bool OnButtonOK()
     {
         GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-        m_pkeyboardInputOldFocus = NULL;
+        m_pkeyboardInputOldFocus = nullptr;
 
         PasswordDialogSink* pparent = m_pparent;
         ZString strPassword = m_peditPane->GetString();
-        m_pMission = NULL;
+        m_pMission = nullptr;
 
         if (m_ppopupOwner) {
             m_ppopupOwner->ClosePopup(this);
@@ -117,9 +117,9 @@ public:
     bool OnButtonCancel()
     {
         GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-        m_pkeyboardInputOldFocus = NULL;
+        m_pkeyboardInputOldFocus = nullptr;
 
-        m_pMission = NULL;
+        m_pMission = nullptr;
         PasswordDialogSink* pparent = m_pparent;
 
         if (m_ppopupOwner) {
@@ -138,14 +138,14 @@ public:
         {
             // our mission has ended - bail.
             GetWindow()->SetFocus(m_pkeyboardInputOldFocus);
-            m_pkeyboardInputOldFocus = NULL;
+            m_pkeyboardInputOldFocus = nullptr;
 
             if (m_ppopupOwner) {
                 m_ppopupOwner->ClosePopup(this);
             } else {
                 m_pcontainer->ClosePopup(this);
             }
-            m_pMission = NULL;
+            m_pMission = nullptr;
 
             TRef<IMessageBox> pmsgBox = 
                 CreateMessageBox("The mission you were trying to join has ended.");

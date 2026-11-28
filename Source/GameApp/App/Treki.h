@@ -191,7 +191,7 @@ public:
     virtual void AddMuzzleFlare(const Vector& vecDirection, float duration) = 0;
 
     virtual void SetCluster(IclusterIGC* pcluster) = 0;
-    virtual void PositionCommandView(const Vector*  pposition = NULL, float dt = 2.0f) = 0;
+    virtual void PositionCommandView(const Vector*  pposition = nullptr, float dt = 2.0f) = 0;
 
     virtual HRESULT HandleMsg(FEDMESSAGE* pfm,
                               Time        lastUpdate,
@@ -210,8 +210,8 @@ public:
     virtual void PlaySonicChat(int id, int voice) = 0;
 
     virtual void                  SoundEngineUpdate (void) = 0;
-    virtual TRef<ISoundInstance>  StartSound(ISoundTemplate* ptemplate, ISoundPositionSource* psource = NULL) = 0;
-    virtual TRef<ISoundInstance>  StartSound(SoundID soundId, ISoundPositionSource* psource = NULL) = 0;
+    virtual TRef<ISoundInstance>  StartSound(ISoundTemplate* ptemplate, ISoundPositionSource* psource = nullptr) = 0;
+    virtual TRef<ISoundInstance>  StartSound(SoundID soundId, ISoundPositionSource* psource = nullptr) = 0;
 
     virtual void TriggerMusic(SoundID newMusicSound) = 0;
     virtual bool GetMusicIsOn (void) = 0;

@@ -47,7 +47,7 @@ namespace Training
         if (m_iterator == m_messageList.end ())
             m_iterator = m_messageList.begin ();
         if (m_iterator != m_messageList.end ())
-            trekClient.ReceiveChat (g_pMission->GetCommanderShip (), CHAT_INDIVIDUAL, trekClient.GetShipID (), NA, (*m_iterator++).c_str(), c_cidNone, NA, NA, 0, false);
+            trekClient.ReceiveChat (g_pMission->GetCommanderShip (), CHAT_INDIVIDUAL, trekClient.GetShipID (), NA, (*m_iterator++).c_str(), c_cidNone, NA, NA, nullptr, false);
     }
 
     //------------------------------------------------------------------------------

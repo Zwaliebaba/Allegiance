@@ -123,8 +123,8 @@ namespace Training
         ImodelIGC*          pStation = pCore->GetModel (OT_station, 1030);
         IshipIGC*           pCommander = pCore->GetShip (m_commanderID);
         pCommander->SetStation (static_cast<IstationIGC*> (pStation));
-        pCommander->SetCommand (c_cmdAccepted, NULL, c_cidDoNothing);
-        pCommander->SetCommand (c_cmdCurrent, NULL, c_cidDoNothing);
+        pCommander->SetCommand (c_cmdAccepted, nullptr, c_cidDoNothing);
+        pCommander->SetCommand (c_cmdCurrent, nullptr, c_cidDoNothing);
         pCommander->SetAutopilot (false);
 
         // activate all the starting weapons
@@ -559,17 +559,17 @@ namespace Training
             pGoal->AddStartAction (new SetSignatureAction (OT_ship, m_enemyMiner4ID, 1.0e6));
 
             // tell them all to do nothing for a little while
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner1ID, c_cmdAccepted, NULL, c_cidDoNothing));
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner1ID, c_cmdCurrent, NULL, c_cidDoNothing));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner1ID, c_cmdAccepted, nullptr, c_cidDoNothing));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner1ID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner2ID, c_cmdAccepted, NULL, c_cidDoNothing));
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner2ID, c_cmdCurrent, NULL, c_cidDoNothing));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner2ID, c_cmdAccepted, nullptr, c_cidDoNothing));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner2ID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner3ID, c_cmdAccepted, NULL, c_cidDoNothing));
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner3ID, c_cmdCurrent, NULL, c_cidDoNothing));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner3ID, c_cmdAccepted, nullptr, c_cidDoNothing));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner3ID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner4ID, c_cmdAccepted, NULL, c_cidDoNothing));
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner4ID, c_cmdCurrent, NULL, c_cidDoNothing));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner4ID, c_cmdAccepted, nullptr, c_cidDoNothing));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner4ID, c_cmdCurrent, nullptr, c_cidDoNothing));
 
             pGoalList->AddGoal (pGoal);
         }
@@ -648,17 +648,17 @@ namespace Training
             pGoal->AddStartAction (new SetHUDOverlayAction (NoTrainingOverlay));
 
             // tell all the miners to get a new command
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner1ID, c_cmdAccepted, NULL, c_cidNone));
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner1ID, c_cmdCurrent, NULL, c_cidNone));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner1ID, c_cmdAccepted, nullptr, c_cidNone));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner1ID, c_cmdCurrent, nullptr, c_cidNone));
 
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner2ID, c_cmdAccepted, NULL, c_cidNone));
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner2ID, c_cmdCurrent, NULL, c_cidNone));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner2ID, c_cmdAccepted, nullptr, c_cidNone));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner2ID, c_cmdCurrent, nullptr, c_cidNone));
 
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner3ID, c_cmdAccepted, NULL, c_cidNone));
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner3ID, c_cmdCurrent, NULL, c_cidNone));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner3ID, c_cmdAccepted, nullptr, c_cidNone));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner3ID, c_cmdCurrent, nullptr, c_cidNone));
 
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner4ID, c_cmdAccepted, NULL, c_cidNone));
-            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner4ID, c_cmdCurrent, NULL, c_cidNone));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner4ID, c_cmdAccepted, nullptr, c_cidNone));
+            pGoal->AddStartAction (new SetCommandAction (m_enemyMiner4ID, c_cmdCurrent, nullptr, c_cidNone));
 
 
             pGoalList->AddGoal (pGoal);

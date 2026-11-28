@@ -27,7 +27,7 @@ namespace Training
     //------------------------------------------------------------------------------
     /* void */  GetShipHasCargoCondition::~GetShipHasCargoCondition (void)
     {
-        m_ship = 0;
+        m_ship = nullptr;
     }
 
     //------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ namespace Training
     {
         const   PartListIGC*    pPartsList = m_ship->GetParts ();
         PartLinkIGC*            pLink = pPartsList->first ();
-        while (pLink != NULL)
+        while (pLink != nullptr)
         {
             if (pLink->data ()->GetEquipmentType () == m_part)
                 return true;
