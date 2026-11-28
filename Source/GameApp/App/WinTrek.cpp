@@ -1,9 +1,7 @@
 #include "pch.h"
 
 #include <shellapi.h>
-#include "cmdview.h"
 //#include "console.h"
-#include "trekctrls.h"
 
 #include "gamesite.h"
 

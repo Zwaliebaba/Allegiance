@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Server\allegdb.cpp" />
+    <ClCompile Include="Server\allsrvmodule.cpp" />
+    <ClCompile Include="Server\FedSrv.CPP" />
+    <ClCompile Include="Server\fscluster.cpp" />
+    <ClCompile Include="Server\fslobby.cpp" />
+    <ClCompile Include="Server\fsmission.cpp" />
+    <ClCompile Include="Server\fsship.cpp" />
+    <ClCompile Include="Server\fsside.cpp" />
+    <ClCompile Include="Server\serverevents.cpp" />
+    <ClCompile Include="Server\srvqguids.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameLogic.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Server\allegdb.h" />
+    <ClInclude Include="Server\allsrvmodule.h" />
+    <ClInclude Include="Server\counters.h" />
+    <ClInclude Include="Server\dbgutil.h" />
+    <ClInclude Include="Server\eventsite.h" />
+    <ClInclude Include="Server\FedSrv.H" />
+    <ClInclude Include="Server\FedSrvApp.h" />
+    <ClInclude Include="Server\fscluster.h" />
+    <ClInclude Include="Server\fsmission.h" />
+    <ClInclude Include="Server\fsship.h" />
+    <ClInclude Include="Server\fsside.h" />
+    <ClInclude Include="Server\gameparamdata.h" />
+    <ClInclude Include="Server\messagesLS.h" />
+    <ClInclude Include="Server\resource.h" />
+    <ClInclude Include="Server\serverevents.h" />
+    <ClInclude Include="Server\serverevents_defs.h" />
+    <ClInclude Include="Server\serversettings.h" />
+    <ClInclude Include="Server\srvqueries.h" />
+  </ItemGroup>
+</Project>

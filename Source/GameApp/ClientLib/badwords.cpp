@@ -292,7 +292,7 @@ void    LoadBadWords (void)
                             for (int i = 0; i < iSize; i++)
                             {
                                 char   iCharacter = pBuffer[i] ^ 0xcd;
-                                pBuffer[i] = gszConvertToLowerCase[iCharacter];
+                                pBuffer[i] = gszConvertToLowerCase[(unsigned char)iCharacter];
                             }
 
                             // build the filter automata
@@ -330,7 +330,7 @@ void    FilterBadWords (char* szString)
     char*   tmp = szLowerCopy;
     while (*tmp)
     {
-        *tmp = gszConvertToLowerCase[*tmp];
+        *tmp = gszConvertToLowerCase[(unsigned char)*tmp]; // a char above 0x7F is negative
         tmp++;
     }
 
@@ -348,7 +348,7 @@ void    FilterBadWords (char* szString)
             {
                 // we have to make the changes to the original and the copy
                 // so that we don't end up in an infinite loop
-                char    exclamation = random[(*cpy++) % 32];
+                char    exclamation = random[((unsigned char)*cpy++) % 32];
                 *tmp++ = exclamation;
                 *szFound++ = exclamation;
             }

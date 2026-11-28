@@ -11,7 +11,6 @@
 #include "xa2objects.h"
 #include "xa2spatial.h"
 
-#include <memory>
 
 namespace SoundEngine {
 

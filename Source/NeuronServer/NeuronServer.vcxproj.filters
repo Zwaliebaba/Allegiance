@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Base\SWMRG.CPP" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="TCAtl\UserAcct.cpp" />
+    <ClCompile Include="TCLib\DynaLib.cpp" />
+    <ClCompile Include="TCLib\ExcepInfo.cpp" />
+    <ClCompile Include="TCLib\InvokeArgs.cpp" />
+    <ClCompile Include="TCLib\PropertyPageSite.cpp" />
+    <ClCompile Include="TCLib\RelPath.cpp" />
+    <ClCompile Include="TCLib\StrManip.cpp" />
+    <ClCompile Include="TCLib\TCLib.cpp" />
+    <ClCompile Include="TCLib\TCThread.cpp" />
+    <ClCompile Include="TCLib\UtilImpl.cpp" />
+    <ClCompile Include="TCLib\UtilityThread.cpp" />
+    <ClCompile Include="TCLib\WorkerThread.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Base\SWMRG.H" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="TCAtl\TCAtl.h" />
+    <ClInclude Include="TCAtl\UserAcct.h" />
+    <ClInclude Include="TCLib\ActiveObject.h" />
+    <ClInclude Include="TCLib\AdviseHolder.h" />
+    <ClInclude Include="TCLib\AsyncDebugOutput.h" />
+    <ClInclude Include="TCLib\AutoCriticalSection.h" />
+    <ClInclude Include="TCLib\AutoHandle.h" />
+    <ClInclude Include="TCLib\AutoMutex.h" />
+    <ClInclude Include="TCLib\BinString.h" />
+    <ClInclude Include="TCLib\CoInit.h" />
+    <ClInclude Include="TCLib\CommonControls.h" />
+    <ClInclude Include="TCLib\CompositeValue.h" />
+    <ClInclude Include="TCLib\DynaLib.h" />
+    <ClInclude Include="TCLib\ExcepInfo.h" />
+    <ClInclude Include="TCLib\InvokeArgs.h" />
+    <ClInclude Include="TCLib\Lockable.h" />
+    <ClInclude Include="TCLib\LookupTable.h" />
+    <ClInclude Include="TCLib\NetApi.h" />
+    <ClInclude Include="TCLib\ObjectLock.h" />
+    <ClInclude Include="TCLib\PropertyPageSite.h" />
+    <ClInclude Include="TCLib\Range.h" />
+    <ClInclude Include="TCLib\RangeSet.h" />
+    <ClInclude Include="TCLib\RefCountedData.h" />
+    <ClInclude Include="TCLib\RelPath.h" />
+    <ClInclude Include="TCLib\StrManip.h" />
+    <ClInclude Include="TCLib\TCCAUUID.h" />
+    <ClInclude Include="TCLib\TCLib.h" />
+    <ClInclude Include="TCLib\TCThread.h" />
+    <ClInclude Include="TCLib\TraceScope.h" />
+    <ClInclude Include="TCLib\tstring.h" />
+    <ClInclude Include="TCLib\UtilImpl.h" />
+    <ClInclude Include="TCLib\UtilityThread.h" />
+    <ClInclude Include="TCLib\WinApp.h" />
+    <ClInclude Include="TCLib\WindowThreadBase.h" />
+    <ClInclude Include="TCLib\WindowThreadImpl.h" />
+    <ClInclude Include="TCLib\WorkerThread.h" />
+    <ClInclude Include="TCLib\WotLib.h" />
+  </ItemGroup>
+</Project>

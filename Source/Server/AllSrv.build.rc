@@ -4,7 +4,6 @@
 //
 
 #include "FedSrv.RC"
-#include "fedmsg.rc"
 
 #ifdef _DEBUG
 #define FLAVOR "debug"

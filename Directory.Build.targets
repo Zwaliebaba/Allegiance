@@ -1,47 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Imported automatically by every .vcxproj below this directory, after the C++
-  targets. Adds a code-generation step the original nmake build had:
-
-    AllegianceMessage  Message-compiler sources (.msg / .mc) -> .h + .rc + .bin,
-                       written to %(OutputDirectory) (default $(IntDir)).
-
-  It runs before MIDL, the C/C++ compiler and the resource compiler. (The
-  AllegianceXslt step, which generated AGC's event headers, went with AGC.)
-
-  Also a post-build step for the projects that set AllegianceLinkArtwork:
+  targets. A post-build step for the projects that set AllegianceLinkArtwork:
 
     AllegianceLinkArtwork  Makes $(TargetDir)Artwork a directory junction to
                            out\Artwork, where the exes look for their art.
+
+  (The message-compiler step went with the server's event-log message table,
+  and the XSLT step with AGC.)
 -->
 <Project>
-  <ItemDefinitionGroup>
-    <AllegianceMessage>
-      <OutputDirectory>$(IntDir)</OutputDirectory>
-    </AllegianceMessage>
-  </ItemDefinitionGroup>
-
-  <Target Name="AllegianceMessage"
-          BeforeTargets="Midl;ClCompile;ResourceCompile"
-          Condition="'@(AllegianceMessage)' != ''"
-          Inputs="@(AllegianceMessage)"
-          Outputs="@(AllegianceMessage->'%(OutputDirectory)%(Filename).h')">
-    <!-- Call mc.exe by full path from the Windows SDK bin directories. Prepending
-         $(ExecutablePath) to PATH instead (it already contains the whole environment
-         PATH) can push the command past cmd's 8191-character line limit. -->
-    <ItemGroup>
-      <_AllegianceSdkBinDir Include="$(WindowsSDK_ExecutablePath)" />
-    </ItemGroup>
-    <PropertyGroup>
-      <_AllegianceMcExe Condition="'$(_AllegianceMcExe)' == '' and Exists('%(_AllegianceSdkBinDir.FullPath)\mc.exe')">%(_AllegianceSdkBinDir.FullPath)\mc.exe</_AllegianceMcExe>
-    </PropertyGroup>
-    <Error Condition="'$(_AllegianceMcExe)' == ''" Text="mc.exe not found in the Windows SDK executable path: $(WindowsSDK_ExecutablePath)" />
-    <MakeDir Directories="%(AllegianceMessage.OutputDirectory)" />
-    <Exec Command="&quot;$(_AllegianceMcExe)&quot; -r &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; -h &quot;$([System.String]::Copy('%(AllegianceMessage.OutputDirectory)').TrimEnd('\'))&quot; &quot;%(AllegianceMessage.FullPath)&quot;" />
-  </Target>
-
   <!--
-    Allegiance.vcxproj and AllSrv32.vcxproj set AllegianceLinkArtwork: they look for an
+    The Client and Server projects set AllegianceLinkArtwork: they look for an
     "Artwork" directory next to the exe. Artwork\Art.proj makes that a junction to
     out\Artwork, but only in the exe directories that exist when it runs, so an exe
     directory that comes later (the first x64 build, say) would have no art. This makes the

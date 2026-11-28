@@ -1,6 +1,4 @@
 #include "pch.h"
-#include "trekctrls.h"
-#include "screen.h"
 
 TRef<ModifiableNumber>  g_pnumberInTurretNumber;
 

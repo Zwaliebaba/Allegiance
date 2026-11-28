@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Base\base.cpp" />
+    <ClCompile Include="Base\color.cpp" />
+    <ClCompile Include="Base\event.cpp" />
+    <ClCompile Include="Base\FTPSession.cpp" />
+    <ClCompile Include="Base\input.cpp" />
+    <ClCompile Include="Base\matrix.cpp" />
+    <ClCompile Include="Base\matrix2.cpp" />
+    <ClCompile Include="Base\orientation.cpp" />
+    <ClCompile Include="Base\quaternion.cpp" />
+    <ClCompile Include="Base\tlist.cpp" />
+    <ClCompile Include="Base\token.cpp" />
+    <ClCompile Include="Base\vector.cpp" />
+    <ClCompile Include="Base\VersionInfo.cpp" />
+    <ClCompile Include="Base\Win32app.cpp" />
+    <ClCompile Include="Base\window.cpp" />
+    <ClCompile Include="Base\zlib.cpp" />
+    <ClCompile Include="Base\zsettings.cpp" />
+    <ClCompile Include="Base\zstring.cpp" />
+    <ClCompile Include="Base\ztime.cpp" />
+    <ClCompile Include="Guids\guids.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Utility\CollisionEntry.cpp" />
+    <ClCompile Include="Utility\CollisionQueue.cpp" />
+    <ClCompile Include="Utility\CRC.cpp" />
+    <ClCompile Include="Utility\Endpoint.cpp" />
+    <ClCompile Include="Utility\fedtransport.cpp" />
+    <ClCompile Include="Utility\HitTest.cpp" />
+    <ClCompile Include="Utility\KDnode.cpp" />
+    <ClCompile Include="Utility\KDroot.cpp" />
+    <ClCompile Include="Utility\Messages.cpp" />
+    <ClCompile Include="Utility\Utility.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Base\alloc.h" />
+    <ClInclude Include="Base\artfolders.h" />
+    <ClInclude Include="Base\AutoCriticalSection.h" />
+    <ClInclude Include="Base\base.h" />
+    <ClInclude Include="Base\cast.h" />
+    <ClInclude Include="Base\color.h" />
+    <ClInclude Include="Base\comobj.h" />
+    <ClInclude Include="Base\event.h" />
+    <ClInclude Include="Base\FTPSession.h" />
+    <ClInclude Include="Base\genericlist.h" />
+    <ClInclude Include="Base\input.h" />
+    <ClInclude Include="Base\mask.h" />
+    <ClInclude Include="Base\matrix.h" />
+    <ClInclude Include="Base\orientation.h" />
+    <ClInclude Include="Base\point.h" />
+    <ClInclude Include="Base\quaternion.h" />
+    <ClInclude Include="Base\rect.h" />
+    <ClInclude Include="Base\tcompare.h" />
+    <ClInclude Include="Base\tlist.h" />
+    <ClInclude Include="Base\TlsValue.h" />
+    <ClInclude Include="Base\tmap.h" />
+    <ClInclude Include="Base\token.h" />
+    <ClInclude Include="Base\tref.h" />
+    <ClInclude Include="Base\vector.h" />
+    <ClInclude Include="Base\VersionInfo.h" />
+    <ClInclude Include="Base\vertex.h" />
+    <ClInclude Include="Base\Win32app.h" />
+    <ClInclude Include="Base\window.h" />
+    <ClInclude Include="Base\winstyles.h" />
+    <ClInclude Include="Base\zadapt.h" />
+    <ClInclude Include="Base\zassert.h" />
+    <ClInclude Include="Base\zlib.h" />
+    <ClInclude Include="Base\zmath.h" />
+    <ClInclude Include="Base\zsettings.h" />
+    <ClInclude Include="Base\zstring.h" />
+    <ClInclude Include="Base\ztime.h" />
+    <ClInclude Include="Guids\guids.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Utility\CRC.h" />
+    <ClInclude Include="Utility\fedtransport.h" />
+    <ClInclude Include="Utility\listwrappers.h" />
+    <ClInclude Include="Utility\messagecore.h" />
+    <ClInclude Include="Utility\Utility.h" />
+    <ClInclude Include="Utility\Utility.hxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

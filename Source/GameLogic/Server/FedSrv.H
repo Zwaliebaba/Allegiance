@@ -27,6 +27,7 @@ HRESULT pascal FedSrv_Init();
 HRESULT pascal FedSrv_Terminate(void);
 HRESULT pascal FedSrv_Pause();
 HRESULT pascal FedSrv_Continue();
+void LoadSettings(); // the global settings (server.json); main() calls it first
 
 const bool c_fCheatsOff = false;
 const bool c_fCheatsOn  = true;

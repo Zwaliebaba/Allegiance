@@ -31,13 +31,13 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Source\NeuronClient;$(AllegianceRoot)Source\NeuronClient\Engine;$(AllegianceRoot)Source\NeuronClient\Effect;$(AllegianceRoot)Source\NeuronClient\Sound;$(AllegianceRoot)Source\NeuronClient\App;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)effect;$(AllegianceRoot)engine;$(AllegianceRoot)zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(AllegianceRoot)Source\NeuronClient;$(AllegianceRoot)Source\NeuronClient\Engine;$(AllegianceRoot)Source\NeuronClient\Effect;$(AllegianceRoot)Source\NeuronClient\Sound;$(AllegianceRoot)Source\NeuronClient\App;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -50,14 +50,11 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\effect\Effect.vcxproj">
-      <Project>{EF7F71BC-E8E5-4EF8-819D-6AB78F3EEB97}</Project>
+    <ProjectReference Include="..\..\Source\NeuronClient\NeuronClient.vcxproj">
+      <Project>{17EFB152-F918-5928-8AF1-D28BA863A9A3}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\engine\Engine.vcxproj">
-      <Project>{598956D4-4C9C-46F6-A768-151834BCD97F}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\zlib\ZLib.vcxproj">
-      <Project>{34F19E78-C3AD-4EEC-8F42-C823D58200C8}</Project>
+    <ProjectReference Include="..\..\Source\NeuronCore\NeuronCore.vcxproj">
+      <Project>{D6BA1D66-6693-54B0-9BA9-788192EE921E}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

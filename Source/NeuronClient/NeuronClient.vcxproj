@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{17EFB152-F918-5928-8AF1-D28BA863A9A3}</ProjectGuid>
+    <RootNamespace>NeuronClient</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <!-- the engine, client half: Direct3D 11 rendering, effects, sound, the application frame -->
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(AllegianceRoot)msbuild\Allegiance.Cpp.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <!-- Its own folders, then those of the libraries it may use (the layering) -->
+      <AdditionalIncludeDirectories>$(IntDir);$(AllegianceRoot)Source\NeuronClient;$(AllegianceRoot)Source\NeuronClient\Engine;$(AllegianceRoot)Source\NeuronClient\Effect;$(AllegianceRoot)Source\NeuronClient\Sound;$(AllegianceRoot)Source\NeuronClient\App;$(AllegianceRoot)Source\NeuronCore;$(AllegianceRoot)Source\NeuronCore\Base;$(AllegianceRoot)Source\NeuronCore\Utility;$(AllegianceRoot)Source\NeuronCore\Guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <FxCompile>
+      <ShaderModel>4.0</ShaderModel>
+      <EntryPointName>main</EntryPointName>
+      <HeaderFileOutput>$(IntDir)%(Filename).h</HeaderFileOutput>
+      <VariableName>g_%(Filename)</VariableName>
+      <ObjectFileOutput></ObjectFileOutput>
+      <AdditionalIncludeDirectories>$(ProjectDir)Engine\shaders;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsErrors>true</TreatWarningAsErrors>
+    </FxCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Effect\alephgeo.cpp" />
+    <ClCompile Include="Effect\combopane.cpp" />
+    <ClCompile Include="Effect\conegeo.cpp" />
+    <ClCompile Include="Effect\debrisgeo.cpp" />
+    <ClCompile Include="Effect\efapp.cpp" />
+    <ClCompile Include="Effect\efgeo.cpp" />
+    <ClCompile Include="Effect\efimage.cpp" />
+    <ClCompile Include="Effect\efpane.cpp" />
+    <ClCompile Include="Effect\efpopup.cpp" />
+    <ClCompile Include="Effect\efwindow.cpp" />
+    <ClCompile Include="Effect\explosion.cpp" />
+    <ClCompile Include="Effect\framedata.cpp" />
+    <ClCompile Include="Effect\gamestate.cpp" />
+    <ClCompile Include="Effect\help.cpp" />
+    <ClCompile Include="Effect\listpane.cpp" />
+    <ClCompile Include="Effect\mmlpopup.cpp" />
+    <ClCompile Include="Effect\navpane.cpp" />
+    <ClCompile Include="Effect\pagepane.cpp" />
+    <ClCompile Include="Effect\particlegeo.cpp" />
+    <ClCompile Include="Effect\starimage.cpp" />
+    <ClCompile Include="Effect\thinggeo.cpp" />
+    <ClCompile Include="Engine\bounds.cpp" />
+    <ClCompile Include="Engine\bspgeo.cpp" />
+    <ClCompile Include="Engine\button.cpp" />
+    <ClCompile Include="Engine\camera.cpp" />
+    <ClCompile Include="Engine\caption.cpp" />
+    <ClCompile Include="Engine\context.cpp" />
+    <ClCompile Include="Engine\controls.cpp" />
+    <ClCompile Include="Engine\d3d11device.cpp" />
+    <ClCompile Include="Engine\d3d11draw2d.cpp" />
+    <ClCompile Include="Engine\d3d11raster.cpp" />
+    <ClCompile Include="Engine\dderror.cpp" />
+    <ClCompile Include="Engine\dds.cpp" />
+    <ClCompile Include="Engine\device3d.cpp" />
+    <ClCompile Include="Engine\dinput.cpp" />
+    <ClCompile Include="Engine\engine.cpp" />
+    <ClCompile Include="Engine\engineapp.cpp" />
+    <ClCompile Include="Engine\enginewindow.cpp" />
+    <ClCompile Include="Engine\font.cpp" />
+    <ClCompile Include="Engine\frameimage.cpp" />
+    <ClCompile Include="Engine\geometry.cpp" />
+    <ClCompile Include="Engine\image.cpp" />
+    <ClCompile Include="Engine\keyframe.cpp" />
+    <ClCompile Include="Engine\material.cpp" />
+    <ClCompile Include="Engine\mdl.cpp" />
+    <ClCompile Include="Engine\mdlbin.cpp" />
+    <ClCompile Include="Engine\menu.cpp" />
+    <ClCompile Include="Engine\modeler.cpp" />
+    <ClCompile Include="Engine\namespace.cpp" />
+    <ClCompile Include="Engine\pane.cpp" />
+    <ClCompile Include="Engine\paneimage.cpp" />
+    <ClCompile Include="Engine\pixelformat.cpp" />
+    <ClCompile Include="Engine\popup.cpp" />
+    <ClCompile Include="Engine\surface.cpp" />
+    <ClCompile Include="Engine\toppane.cpp" />
+    <ClCompile Include="Engine\transform.cpp" />
+    <ClCompile Include="Engine\transform2.cpp" />
+    <ClCompile Include="Engine\value.cpp" />
+    <ClCompile Include="Engine\videoimage.cpp" />
+    <ClCompile Include="Engine\viewport.cpp" />
+    <ClCompile Include="Engine\xfile.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Sound\dummysound.cpp" />
+    <ClCompile Include="Sound\redbooksound.cpp" />
+    <ClCompile Include="Sound\soundbase.cpp" />
+    <ClCompile Include="Sound\soundtemplates.cpp" />
+    <ClCompile Include="Sound\soundutil.cpp" />
+    <ClCompile Include="Sound\virtualbuffer.cpp" />
+    <ClCompile Include="Sound\x3dpan.cpp">
+      <!-- x3daudio.h's Direct3D types must not meet zlib.h's DirectX 7 ones -->
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Sound\xa2engine.cpp" />
+    <ClCompile Include="Sound\xa2objects.cpp" />
+    <ClCompile Include="Sound\xa2reverb.cpp" />
+    <ClCompile Include="Sound\xa2spatial.cpp" />
+    <ClCompile Include="Sound\xa2voice.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App\main.h" />
+    <ClInclude Include="Effect\combopane.h" />
+    <ClInclude Include="Effect\debrisgeo.h" />
+    <ClInclude Include="Effect\efapp.h" />
+    <ClInclude Include="Effect\efart.h" />
+    <ClInclude Include="Effect\effect.h" />
+    <ClInclude Include="Effect\efgeo.h" />
+    <ClInclude Include="Effect\efimage.h" />
+    <ClInclude Include="Effect\efpane.h" />
+    <ClInclude Include="Effect\efpopup.h" />
+    <ClInclude Include="Effect\efsound.h" />
+    <ClInclude Include="Effect\efwindow.h" />
+    <ClInclude Include="Effect\explosion.h" />
+    <ClInclude Include="Effect\framedata.h" />
+    <ClInclude Include="Effect\gamestate.h" />
+    <ClInclude Include="Effect\help.h" />
+    <ClInclude Include="Effect\listpane.h" />
+    <ClInclude Include="Effect\particlegeo.h" />
+    <ClInclude Include="Effect\starimage.h" />
+    <ClInclude Include="Effect\thinggeo.h" />
+    <ClInclude Include="Engine\bounds.h" />
+    <ClInclude Include="Engine\bspgeo.h" />
+    <ClInclude Include="Engine\button.h" />
+    <ClInclude Include="Engine\camera.h" />
+    <ClInclude Include="Engine\caption.h" />
+    <ClInclude Include="Engine\context.h" />
+    <ClInclude Include="Engine\controls.h" />
+    <ClInclude Include="Engine\d3d11engine.h" />
+    <ClInclude Include="Engine\dds.h" />
+    <ClInclude Include="Engine\engine.h" />
+    <ClInclude Include="Engine\engineapp.h" />
+    <ClInclude Include="Engine\enginep.h" />
+    <ClInclude Include="Engine\enginewindow.h" />
+    <ClInclude Include="Engine\font.h" />
+    <ClInclude Include="Engine\framedata.h" />
+    <ClInclude Include="Engine\frameimage.h" />
+    <ClInclude Include="Engine\geometry.h" />
+    <ClInclude Include="Engine\image.h" />
+    <ClInclude Include="Engine\inputengine.h" />
+    <ClInclude Include="Engine\keyframe.h" />
+    <ClInclude Include="Engine\material.h" />
+    <ClInclude Include="Engine\mdl.h" />
+    <ClInclude Include="Engine\menu.h" />
+    <ClInclude Include="Engine\model.h" />
+    <ClInclude Include="Engine\namespace.h" />
+    <ClInclude Include="Engine\objectstack.h" />
+    <ClInclude Include="Engine\palette.h" />
+    <ClInclude Include="Engine\pane.h" />
+    <ClInclude Include="Engine\paneimage.h" />
+    <ClInclude Include="Engine\panewindow.h" />
+    <ClInclude Include="Engine\pixel.h" />
+    <ClInclude Include="Engine\pixelformat.h" />
+    <ClInclude Include="Engine\popup.h" />
+    <ClInclude Include="Engine\stdafx.h" />
+    <ClInclude Include="Engine\surface.h" />
+    <ClInclude Include="Engine\toppane.h" />
+    <ClInclude Include="Engine\transform.h" />
+    <ClInclude Include="Engine\value.h" />
+    <ClInclude Include="Engine\viewport.h" />
+    <ClInclude Include="Engine\xfile.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Sound\redbooksound.h" />
+    <ClInclude Include="Sound\soundbase.h" />
+    <ClInclude Include="Sound\soundengine.h" />
+    <ClInclude Include="Sound\soundmath.h" />
+    <ClInclude Include="Sound\soundtemplates.h" />
+    <ClInclude Include="Sound\soundutil.h" />
+    <ClInclude Include="Sound\spatializer.h" />
+    <ClInclude Include="Sound\spatialstream.h" />
+    <ClInclude Include="Sound\virtualbuffer.h" />
+    <ClInclude Include="Sound\x3dpan.h" />
+    <ClInclude Include="Sound\xa2engine.h" />
+    <ClInclude Include="Sound\xa2objects.h" />
+    <ClInclude Include="Sound\xa2spatial.h" />
+    <ClInclude Include="Sound\xa2voice.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Engine\shaders\bloom_down_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\bloom_up_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\draw2d_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\draw2d_vs.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\present_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\present_vs.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\raster_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\raster_ps_flat.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\raster_vs.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\raster_vs_flat.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\scene_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\scene_vs.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\tl_ps.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\tl_ps_flat.hlsl">
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\tl_vs.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\tl_vs_flat.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\tl_vs_l.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Engine\shaders\tl_vs_l_flat.hlsl">
+      <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Engine\shaders\bloom.hlsli" />
+    <None Include="Engine\shaders\draw2d.hlsli" />
+    <None Include="Engine\shaders\raster.hlsli" />
+    <None Include="Engine\shaders\tl.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NeuronCore\NeuronCore.vcxproj">
+      <Project>{D6BA1D66-6693-54B0-9BA9-788192EE921E}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

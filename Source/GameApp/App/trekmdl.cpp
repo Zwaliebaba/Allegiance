@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "mdl.h"
 #include "trekmdl.h"
 //#include "console.h"
 #ifndef MARKCU

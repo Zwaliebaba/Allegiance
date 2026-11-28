@@ -1,6 +1,4 @@
 #include "pch.h"
-#include "trekmdl.h"
-#include "trekctrls.h"
 
 constexpr int c_iClusterHasNoRipcord = 0;
 constexpr int c_iClusterHasStationRipcord = 1;

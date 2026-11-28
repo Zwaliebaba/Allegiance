@@ -8,6 +8,8 @@
  * Copyright 1986-1998 Microsoft Corporation, All Rights Reserved
  *-----------------------------------------------------------------------*/
 
+#pragma once
+
 
 #define ARRAY_SIZE(Array) \
    (sizeof(Array) / sizeof((Array)[0]))

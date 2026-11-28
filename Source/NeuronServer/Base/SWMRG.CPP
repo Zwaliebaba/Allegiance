@@ -9,14 +9,8 @@
  *-----------------------------------------------------------------------*/
 
 
-/*
-#include <windows.h>
-#include <string.h>
-#include <tchar.h>
-#include "SWMRG.H"		       // The header file
-*/
-
 #include "pch.h"
+#include "SWMRG.H"
 
 /*-------------------------------------------------------------------------
  * ConstructObjName

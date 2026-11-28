@@ -1,8 +1,5 @@
 #include "pch.h"
 #include "consoledata.h"
-#include "trekctrls.h"
-#include "loadout.h"
-#include "trekmdl.h"
 #include "training.h"
 #include "badwords.h"
 

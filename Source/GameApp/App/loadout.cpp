@@ -1,8 +1,6 @@
 #include "pch.h"
-#include "trekctrls.h"
 #include "loadout.h"
 #include "limits.h"
-#include "trekmdl.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

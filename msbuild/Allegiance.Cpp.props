@@ -8,16 +8,18 @@
     - x64 only (Win32 was dropped once x64 had been played). The
       pointer-truncation warnings are errors (see below).
     - Static CRT, matching the original /MT /MTd builds.
-    - C++17 with /permissive- (ConformanceMode).
+    - C++20 with /permissive- (ConformanceMode).
     - /EHsc instead of the original /GX-: the modern STL and comdef require it.
+
+  There are no shared include directories: each project names its own folders
+  and those of the libraries it may use (Source/<Library>), which is what
+  enforces the layering (see MODERNIZATION.md, "Source layout").
 -->
 <Project>
   <PropertyGroup>
     <OutDir>$(AllegianceRoot)out\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(AllegianceRoot)out\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
-    <!-- Generated sources shared between projects (MIDL, mc and XSLT output). -->
-    <AllegianceGenDir>$(AllegianceRoot)out\gen\$(Platform)\$(Configuration)\</AllegianceGenDir>
-    <!-- MsQuic, restored from NuGet into packages\ (_Utility\packages.config; keep the versions equal) -->
+    <!-- MsQuic, restored from NuGet into packages\ (Source\NeuronCore\packages.config; keep the versions equal) -->
     <MsQuicVersion>2.6.4</MsQuicVersion>
     <MsQuicDir>$(AllegianceRoot)packages\Microsoft.Native.Quic.MsQuic.Schannel.$(MsQuicVersion)\build\native\</MsQuicDir>
   </PropertyGroup>
@@ -33,9 +35,6 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;WINVER=0x0A00;_WIN32_WINNT=0x0A00;DIRECTINPUT_VERSION=0x0800;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- Same order as the original makefile.inc: project-local dirs (added by
-           each project) first, then the shared ones. -->
-      <AdditionalIncludeDirectories>$(AllegianceRoot)Inc;$(AllegianceRoot)zlib;$(AllegianceRoot)guids;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -45,7 +44,6 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;d3d11.lib;dxgi.lib;xaudio2.lib;dxguid.lib;dinput8.lib;winmm.lib;strmiids.lib;comctl32.lib;version.lib;ws2_32.lib;delayimp.lib;wininet.lib;urlmon.lib;lz32.lib;netapi32.lib;comsuppw.lib;oledb.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(AllegianceRoot)Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
     </ResourceCompile>
   </ItemDefinitionGroup>

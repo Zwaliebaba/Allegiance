@@ -19,7 +19,7 @@ rob - don't we need some kind of label in hud as to what mode i'm in?
 */
 static const float c_flBorderSide = 10.0f;
 
-const char* c_szRadarLODs[];
+extern const char* c_szRadarLODs[];
 
 class RadarImage : public Image {
 protected:
