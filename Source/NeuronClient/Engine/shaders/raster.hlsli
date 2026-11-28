@@ -69,7 +69,7 @@ float SoftFade(float4 position)
 
     if (g_flags.x & 256) {
         int2  pixel = int2(position.xy);
-        float depth;
+        float depth = 0.0;
 
         //
         // The nearest of the samples (reversed: the largest), so the fade
@@ -258,20 +258,17 @@ struct OitOut
 OitOut Oit(float4 c, float4 position)
 {
     //
-    // The paper's equation 9, for view distance in world units: about 1 up
-    // to 5 units away, falling to 0.01 by a few hundred
+    // The paper's equation 10, on depth: alpha times 3000 (1 - z)^3, at
+    // least 0.01. The scene's depth is reversed, so 1 - z is its depth
+    // itself (1 at the near plane). (Not equation 9 on view distance: FXC
+    // fails internally on that here.)
     //
 
-    // (Multiplied out: FXC's pow folding fails internally here)
+    float rev    = saturate(position.z);
+    float weight = c.a * max(1e-2, 3e3 * rev * rev * rev);
 
-    float d    = ViewDistance(position.z);
-    float close = d / 5.0;
-    float away  = d / 200.0;
-    float away3 = away * away * away;
-    float w    = c.a * clamp(10.0 / (1e-5 + close * close + away3 * away3), 1e-2, 3e3);
-
-    OitOut output;
-    output.accum  = c * w;
-    output.reveal = c.aaaa;
-    return output;
+    OitOut result;
+    result.accum  = c * weight;
+    result.reveal = c.aaaa;
+    return result;
 }
