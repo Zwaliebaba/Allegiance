@@ -48,7 +48,7 @@ void TechsListToBits(BYTE * szTechs, TechTreeBitMask & ttbm)
   while(token)
   {
     ttbm.SetBit(TechBitFromToken(token));
-    token = strtok(NULL, " ");
+    token = strtok(nullptr, " ");
   }
 }
 
@@ -98,7 +98,7 @@ void SetSessionDetails()
     CFSMission * pfsMission = plinkMission->data();
     AddNamedValue(&pNext, "GAM", pfsMission->GetMissionDef()->misparms.strGameName);
     char szPlayers[5];
-    _itoa(pfsMission->GetCountOfPlayers(NULL, false), szPlayers, 10);
+    _itoa(pfsMission->GetCountOfPlayers(nullptr, false), szPlayers, 10);
     AddNamedValue(&pNext, "PLR", szPlayers);
     char szMaxPlayers[5];
     _itoa(pfsMission->GetMissionDef()->misparms.nTotalMaxPlayersPerGame, szMaxPlayers, 10);
@@ -138,19 +138,19 @@ HRESULT pascal FedSrv_Terminate(void)
     WaitForSingleObject(g.hReceiveThread, INFINITE);
 
     CloseHandle(g.hReceiveThread);
-    g.hReceiveThread = NULL;
+    g.hReceiveThread = nullptr;
   }
 
   if (g.hKillReceiveEvent)
   {
     CloseHandle(g.hKillReceiveEvent);
-    g.hKillReceiveEvent = NULL;
+    g.hKillReceiveEvent = nullptr;
   }
 
   if (g.hPlayerEvent)
   {
     CloseHandle(g.hPlayerEvent);
-    g.hPlayerEvent = NULL;
+    g.hPlayerEvent = nullptr;
   }
 
   SWMRGDelete(&g.swmrg);
@@ -161,7 +161,7 @@ HRESULT pascal FedSrv_Terminate(void)
 
   timeEndPeriod(1);
 
-  g_events.TriggerEvent(NULL, AllsrvEventID_Terminate, "", -1, -1, -1, 0);
+  g_events.TriggerEvent(nullptr, AllsrvEventID_Terminate, "", -1, -1, -1, 0);
 
   return(S_OK);
 }
@@ -241,7 +241,7 @@ void JoinMission(CFSPlayer * pfsPlayer, DWORD dwCookie, const char * szPW)
   {
       //Disallow if the name is already in use
       ShipLinkIGC* psl;
-      for (psl = pMission->GetShips()->first(); (psl != NULL); psl = psl->next())
+      for (psl = pMission->GetShips()->first(); (psl != nullptr); psl = psl->next())
       {
           CFSShip* pfsShip = (CFSShip *)(psl->data()->GetPrivateData());
           if (pfsShip->IsPlayer())
@@ -271,7 +271,7 @@ void JoinMission(CFSPlayer * pfsPlayer, DWORD dwCookie, const char * szPW)
 
   // if this mission has a player limit, check that.
   if (pmp->nTotalMaxPlayersPerGame != 0x7fff 
-      && pfsMission->GetCountOfPlayers(NULL, true) >= pmp->nTotalMaxPlayersPerGame)
+      && pfsMission->GetCountOfPlayers(nullptr, true) >= pmp->nTotalMaxPlayersPerGame)
   {
     BEGIN_PFM_CREATE(g.fm, pfmDelPosReq, CS, DELPOSITIONREQ)
     END_PFM_CREATE
@@ -402,7 +402,7 @@ void JoinMission(CFSPlayer * pfsPlayer, DWORD dwCookie, const char * szPW)
   }
 
   if (psideReq->GetObjectID() != SIDE_TEAMLOBBY)
-    pfsMission->RequestPosition(pfsPlayer, psideReq, popi != NULL);
+    pfsMission->RequestPosition(pfsPlayer, psideReq, popi != nullptr);
 }
 
 
@@ -434,7 +434,7 @@ static void GotLogonDetails(LogonDetails * pqd)
   {
     lstrcpy(pqd->szReason, pqd->szCharacterName);
 
-    if (NULL != g.pServerCounters)
+    if (nullptr != g.pServerCounters)
     {
       g.pServerCounters->cLogins++;
       g.pServerCounters->cPlayersOnline++;
@@ -469,7 +469,7 @@ static void GotLogonDetails(LogonDetails * pqd)
   }
   else
   {
-    if (NULL != g.pServerCounters)
+    if (nullptr != g.pServerCounters)
       g.pServerCounters->cLoginsFailed++;
   }    
 
@@ -635,7 +635,7 @@ CFMGroup * GetGroupSectorFlying(IclusterIGC * pCluster)
  */
 void ExportObj(IbaseIGC * pIGC, ObjectType ot, FMD_S_EXPORT ** ppfmExport)
 {
-  int cbExport = pIGC->Export(NULL);
+  int cbExport = pIGC->Export(nullptr);
 
   if (ppfmExport)
   {
@@ -678,7 +678,7 @@ void SendPlayerInfo(CFSPlayer * pfsPlayer, CFSShip * pfsShip, CFSMission* pfsMis
     PersistPlayerScoreObjectList * pperplrscoList = pfsPlayerSent->GetPersistPlayerScoreObjectList();
     cCivs = pperplrscoList->n();
     assert(cCivsMax >= cCivs);
-    PersistPlayerScoreObjectLink * pl = NULL;
+    PersistPlayerScoreObjectLink * pl = nullptr;
     int i = 0;
     for (pl = pperplrscoList->first(); pl; pl = pl->next())
     {
@@ -838,7 +838,7 @@ CFSDrone * CreateStockDrone(IdroneTypeIGC * pdronetype, IsideIGC* pSide, IbaseIG
     IshipIGC*   pship = CreateDrone(pmission,
                                     -2, 
                                     pt,
-                                    NULL,
+                                    nullptr,
                                     pdronetype->GetHullTypeID(),
                                     pSide,
                                     (pt == c_ptMiner) ? c_aabmMineHe3 : 0,
@@ -880,8 +880,8 @@ CFSDrone * CreateStockDrone(IdroneTypeIGC * pdronetype, IsideIGC* pSide, IbaseIG
     pfsDrone->SetDroneTypeID(pdronetype->GetObjectID());
 
     // Tell everyone about the new player
-    SendPlayerInfo(NULL, pfsDrone, (CFSMission *)(pmission->GetPrivateData()));
-    pfsDrone->ShipStatusStart(NULL);
+    SendPlayerInfo(nullptr, pfsDrone, (CFSMission *)(pmission->GetPrivateData()));
+    pfsDrone->ShipStatusStart(nullptr);
 
     pfsDrone->SetLastDamageReport(pship->GetLastUpdate());
 
@@ -896,7 +896,7 @@ bool    LeaveShip(CFSShip* pfsShip, IshipIGC*  pshipParent)
 
     bool    bLeft = false;
 
-    if (pshipParent->GetCluster() == NULL)
+    if (pshipParent->GetCluster() == nullptr)
     {
         IshipIGC*   pship = pfsShip->GetIGCShip();
 
@@ -907,7 +907,7 @@ bool    LeaveShip(CFSShip* pfsShip, IshipIGC*  pshipParent)
         CFSShip*    pfsShipParent = (CFSShip*)(pshipParent->GetPrivateData());
         assert (pfsShipParent->IsPlayer());
 
-        pship->SetParentShip(NULL);
+        pship->SetParentShip(nullptr);
 
         bLeft = true;
 
@@ -952,10 +952,10 @@ bool    BoardShip(CFSShip* pfsShip, IshipIGC*  pshipBoard)
             IstationIGC*    pstationBoard = pshipBoard->GetStation();
             if (pfsShipBoard->IsPlayer() &&
                 ((pshipBoard == pshipOldParent) ||      //Moving within the same ship
-                 ((pship->GetCluster() == NULL) &&              //Boarding a ship from elsewhere
-                  (pship->GetStation() != NULL) &&
-                  (pshipBoard->GetCluster() == NULL) &&
-                  (pstationBoard != NULL))))
+                 ((pship->GetCluster() == nullptr) &&              //Boarding a ship from elsewhere
+                  (pship->GetStation() != nullptr) &&
+                  (pshipBoard->GetCluster() == nullptr) &&
+                  (pstationBoard != nullptr))))
             {
                 Mount   turret;
                 {
@@ -982,14 +982,14 @@ bool    BoardShip(CFSShip* pfsShip, IshipIGC*  pshipBoard)
                             //Is this position occupied?
                             ShipLinkIGC*   psl;
                             for (psl = pshipBoard->GetChildShips()->first();
-                                 (psl != NULL);
+                                 (psl != nullptr);
                                  psl = psl->next())
                             {
                                 if (psl->data()->GetTurretID() == turret)
                                     break;
                             }
 
-                            if (psl == NULL)
+                            if (psl == nullptr)
                             {
                                 //Not occupied
                                 break;
@@ -1111,10 +1111,10 @@ bool CheatCreateDrones(CFSShip * pfsShip, ZString & strCheat)
   else
   {
     short iBucket = 0;
-    IhullTypeIGC * phull = NULL;
+    IhullTypeIGC * phull = nullptr;
     PilotType ptPilotType{};
-    IdroneTypeIGC * pdronetype = NULL;
-    IsideIGC* psideDrone = NULL;
+    IdroneTypeIGC * pdronetype = nullptr;
+    IsideIGC* psideDrone = nullptr;
     int iNumDrones{};
     
     if (!lstrcmpi(strDroneType.c_str(), "carrier"))
@@ -1125,7 +1125,7 @@ bool CheatCreateDrones(CFSShip * pfsShip, ZString & strCheat)
         ptPilotType = c_ptWingman;
     else 
     {
-        pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
+        pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
                                          NA, "%s is not a valid drone type.  Aborting cheat code.", strDroneType.c_str());
         fIsCheat = false;
     }
@@ -1145,7 +1145,7 @@ bool CheatCreateDrones(CFSShip * pfsShip, ZString & strCheat)
       // If we couldn't find one, they don't get a drone?
       if (!pdronetype)
       {
-        pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
+        pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
                                          NA, "There are not any %s type drones defined. Aborting cheat code.", strDroneType.c_str());
         fIsCheat = false;
       }
@@ -1212,7 +1212,7 @@ void CheatJPD(CFSShip * pfsShip)
   if (!pcluster) // do nothing if you try this while docked.
     return;
   
-  IdroneTypeIGC * pdronetype = NULL;
+  IdroneTypeIGC * pdronetype = nullptr;
   CFSMission * pfsMission = pfsShip->GetMission();
   const DroneTypeListIGC * pdronelist = pfsMission->GetIGCMission()->GetDroneTypes();
   DroneTypeLinkIGC * pdronelink;
@@ -1225,7 +1225,7 @@ void CheatJPD(CFSShip * pfsShip)
   // If we couldn't find one, no cheat?
   if (!pdronetype)
   {
-    pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
+    pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
                                      NA, "There are not any wingman type drones defined. Aborting cheat code.");
     return;
   }
@@ -1248,10 +1248,10 @@ void CheatJPD(CFSShip * pfsShip)
 
   // Now we need to find an enemy side
   const SideListIGC * plistSide = pfsMission->GetIGCMission()->GetSides();
-  IsideIGC * psideEnemy = NULL;
+  IsideIGC * psideEnemy = nullptr;
   IsideIGC * psideMe = pship->GetSide();
   for (SideLinkIGC * plinkSide = plistSide->first(); 
-       plinkSide && NULL == psideEnemy; 
+       plinkSide && nullptr == psideEnemy; 
        plinkSide = plinkSide->next())
   {
     IsideIGC * psideT = plinkSide->data();
@@ -1270,7 +1270,7 @@ void CheatJPD(CFSShip * pfsShip)
   }
   else
   {
-    pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
+    pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
                                      NA, "Cannot create enemy ship because an enemy side does not exist.");
   }
 }
@@ -1280,13 +1280,13 @@ void LogTrapHack(AGCEventID idEvent, CFSPlayer* pfsPlayer,
   CFMConnection* pcnxnFrom, const char* pExpr, UINT nLine)
 {
   // Determine the event parameters
-  LPCSTR      pszContext = NULL;
-  const char* pszSubject = NULL;
+  LPCSTR      pszContext = nullptr;
+  const char* pszSubject = nullptr;
   AGCUniqueID idSource   = -1;
   if (pfsPlayer)
   {
     pszContext = pfsPlayer->GetIGCShip() ?
-      pfsPlayer->GetIGCShip()->GetMission()->GetContextName() : NULL;
+      pfsPlayer->GetIGCShip()->GetMission()->GetContextName() : nullptr;
     pszSubject = pfsPlayer->GetName();
     idSource = 
       static_cast<USHORT>(AGCPlayerID(pfsPlayer))
@@ -1321,7 +1321,7 @@ void LogTrapHack(AGCEventID idEvent, CFSPlayer* pfsPlayer,
   }
 
   // Trigger the event
-  g_events.TriggerContextEvent(NULL, idEvent, pszContext,
+  g_events.TriggerContextEvent(nullptr, idEvent, pszContext,
     pszSubject, idSource, -1, -1, 2,
     "Expr", VT_LPSTR, pExpr,
     "Line", VT_I4   , nLine);
@@ -1361,14 +1361,14 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
   else if (!lstrcmpi(strToken.c_str(), "stations")) 
   {
     // show status on all stations
-    pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
+    pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
                                      NA, "Station ID: Name, Side (yours is %d), HP, Sector", pfsShip->GetSide()->GetObjectID());
     const StationListIGC * pstations = pfsMission->GetIGCMission()->GetStations();
-    StationLinkIGC * pstationLink = NULL;
+    StationLinkIGC * pstationLink = nullptr;
     for (pstationLink = pstations->first(); pstationLink; pstationLink = pstationLink->next())
     {
       IstationIGC * pStation = pstationLink->data();
-      pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
+      pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
                                        NA, "%d: %s%s, %d-%s, %d%%/%d%%HP, in %s", 
           pStation->GetObjectID(), pStation->GetName(), (pStation->GetStationType()->GetCapabilities() & c_sabmFlag) ? " (flag)" : "",
           pStation->GetSide()->GetObjectID(), pStation->GetSide()->GetName(),
@@ -1383,7 +1383,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
     else
     {
       //Find a player with the given name
-      for (ShipLinkIGC* psl = pfsMission->GetIGCMission()->GetShips()->first(); (psl != NULL); psl = psl->next())
+      for (ShipLinkIGC* psl = pfsMission->GetIGCMission()->GetShips()->first(); (psl != nullptr); psl = psl->next())
       {
           CFSShip*  pfsShip = (CFSShip*)(psl->data()->GetPrivateData());
           if (pfsShip->IsPlayer() && (lstrcmpi(strPlayer.c_str(), psl->data()->GetName()) == 0))
@@ -1402,7 +1402,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
     {
         IsideIGC*   pside = pfsShip->GetIGCShip()->GetSide();
 
-        for (ModelLinkIGC*  pml = pcluster->GetModels()->first(); (pml != NULL); pml = pml->next())
+        for (ModelLinkIGC*  pml = pcluster->GetModels()->first(); (pml != nullptr); pml = pml->next())
         {
             ImodelIGC*  pmodel = pml->data();
             if ((pmodel->GetAttributes() & c_mtStatic) != 0)
@@ -1416,7 +1416,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
   {
     ZString strTech;
     if (pfsMission->GetStage() != STAGE_STARTED)
-      pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
+      pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
                                        NA, "Trying to steal a tech before the game even starts??? Sheesh--what a loser!");
     else
     {
@@ -1434,7 +1434,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
         }
         else
         {
-          pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
+          pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
                                            NA, "Sorry, no tech found named %s.", strTech.c_str());
         }
       } 
@@ -1444,7 +1444,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
   {
     ZString strTech;
     if (pfsMission->GetStage() != STAGE_STARTED)
-      pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
+      pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(),
                                        NA, "Trying to steal a tech before the game even starts??? Sheesh--what a loser!");
     else
     {
@@ -1493,7 +1493,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
   else if (!lstrcmpi(strToken.c_str(), "winwinwin"))
     pfsMission->GameOver(pfsShip->GetSide(), "By a cheat");
   else if (!lstrcmpi(strToken.c_str(), "checkbank"))
-    pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
+    pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
                                      NA, "You have %d in your bank account.", pfsShip->GetMoney());
 
 /*
@@ -1513,7 +1513,7 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
       if (pstation)
         pfsShip->CaptureStation(pstation);
       else
-        pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
+        pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
                                          NA, "Cannot capture station %d because it does not exist.", stationID);
     }
   }
@@ -1533,12 +1533,12 @@ bool DoCheatCode(CFSShip * pfsShip, const char * szMessage)
     Time timeStart = Time::Now();
     while (Time::Now() - timeStart < 3.0) // let's send chat for thee seconds
     {
-      pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
+      pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
                                        NA, "firing away: %05d", cChats);
       cChats++;
     }
     printf("%d chats sent in 3 seconds.\n", cChats);
-    pfsMission->GetSite()->SendChatf(NULL, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
+    pfsMission->GetSite()->SendChatf(nullptr, CHAT_INDIVIDUAL_NOFILTER, pfsShip->GetIGCShip()->GetObjectID(), 
                                      NA, "%d chats sent in 3 seconds.", cChats);
                     
   }
@@ -1633,10 +1633,10 @@ void HandleCOMChatEvents(const char *szMessage, const char *szDest, ShipID shipi
   LPCSTR pszType = s_szChatTypes[iType];
 
   LPCSTR pszContext = pfsMission->GetIGCMission() ?
-    pfsMission->GetIGCMission()->GetContextName() : NULL;
+    pfsMission->GetIGCMission()->GetContextName() : nullptr;
 
   // Trigger the event if anyone is listening
-  g_events.TriggerContextEvent(NULL, idEvent, pszContext,
+  g_events.TriggerContextEvent(nullptr, idEvent, pszContext,
     szSource, idSource, idGame, idTeam, 7,
     "Message"      , VT_LPSTR, szMessage,
     "Type"         , VT_LPSTR, pszType,
@@ -1665,7 +1665,7 @@ bool CommandToDrone(CFSMission*         pfsMission,
     if ((pcd->commandID != c_cidNone) &&
         (pfsSender->GetIGCShip()->GetSide() == pside))
     {
-        if (*ppmodelTarget == NULL)
+        if (*ppmodelTarget == nullptr)
         {
             if (pdb)
             {
@@ -1681,7 +1681,7 @@ bool CommandToDrone(CFSMission*         pfsMission,
             }
         }
 
-        if ((pcd->commandID == c_cidDefault) && (*ppmodelTarget != NULL))
+        if ((pcd->commandID == c_cidDefault) && (*ppmodelTarget != nullptr))
         {
             pcd->commandID = pshipTo->GetDefaultOrder(*ppmodelTarget);
         }
@@ -1740,7 +1740,7 @@ void ForwardChatMessageToWing(CFSMission*         pfsMission,
 
     //Send the message to everyone on the specified wing
     for (ShipLinkIGC*   psl = pfsSender->GetIGCShip()->GetSide()->GetShips()->first();
-         (psl != NULL);
+         (psl != nullptr);
          psl = psl->next())
     {
         IshipIGC*   pship = psl->data();
@@ -1763,9 +1763,9 @@ void ForwardChatMessage(CFSMission*         pfsMission,
                         const char*         pszMsg,
                         ObjectType          otTarget = NA,
                         ObjectID            oidTarget = NA,
-                        const DataBuoyIGC*  pdb = NULL)
+                        const DataBuoyIGC*  pdb = nullptr)
 {
-    if (((pcd->commandID == c_cidNone) && (pcd->voiceOver == NA) && ((pszMsg == NULL) || (*pszMsg == '\0'))) ||
+    if (((pcd->commandID == c_cidNone) && (pcd->voiceOver == NA) && ((pszMsg == nullptr) || (*pszMsg == '\0'))) ||
         (pcd->commandID < c_cidNone) ||
         (pcd->commandID >= c_cidMax))
         return;     //Invalid chat message
@@ -1807,7 +1807,7 @@ void ForwardChatMessage(CFSMission*         pfsMission,
                 IsideIGC*   pside = pfsSender->GetIGCShip()->GetSide();
 
                 for (ShipLinkIGC*   psl = pcluster->GetShips()->first();
-                     (psl != NULL);
+                     (psl != nullptr);
                      psl = psl->next())
                 {
                     IshipIGC*   pship = psl->data();
@@ -1879,7 +1879,7 @@ void ForwardChatMessage(CFSMission*         pfsMission,
             }
 
             for (ShipLinkIGC*   psl = pshipSource->GetChildShips()->first();
-                 (psl != NULL);
+                 (psl != nullptr);
                  psl = psl->next())
             {
                 IshipIGC*   pship = psl->data();
@@ -1899,7 +1899,7 @@ void ForwardChatMessage(CFSMission*         pfsMission,
         {
             pszDest = pfsMission->GetMissionDef()->rgszName[pcd->oidRecipient];
             IsideIGC*   pside = pfsMission->GetIGCMission()->GetSide(pcd->oidRecipient);
-            if (pside && ((pcd->commandID == c_cidNone) || (pfsSender == NULL) || (pside == pfsSender->GetSide())))
+            if (pside && ((pcd->commandID == c_cidNone) || (pfsSender == nullptr) || (pside == pfsSender->GetSide())))
             {
                 g.fm.ForwardMessage(CFSSide::FromIGC(pside)->GetGroup(), 
                                     pfm, FM_GUARANTEED);
@@ -1925,7 +1925,7 @@ void ForwardChatMessage(CFSMission*         pfsMission,
 
                 if (pfsShipTo->IsPlayer())
                 {
-                    if ((pcd->commandID == c_cidNone) || (pfsSender == NULL) ||
+                    if ((pcd->commandID == c_cidNone) || (pfsSender == nullptr) ||
                         (pfsShipTo->GetSide() == pfsSender->GetSide()))
                     {
                         CFSPlayer *pfsPlayer = pfsShipTo->GetPlayer();
@@ -1935,7 +1935,7 @@ void ForwardChatMessage(CFSMission*         pfsMission,
                 }
                 else
                 {
-                    ImodelIGC*  pmodel = NULL;
+                    ImodelIGC*  pmodel = nullptr;
 
                     if (CommandToDrone(pfsMission, pcd, otTarget, oidTarget, pdb, pfsSender, pfsShipTo->GetIGCShip(), &pmodel))
                     {
@@ -1964,7 +1964,7 @@ void ForwardChatMessage(CFSMission*         pfsMission,
             strcpy(szDestBfr, "Wing");
             _itoa(pcd->oidRecipient, &szDestBfr[4], 10);
 
-            ForwardChatMessageToWing(pfsMission, pfsSender, pfm, pcd->oidRecipient, NULL);
+            ForwardChatMessageToWing(pfsMission, pfsSender, pfm, pcd->oidRecipient, nullptr);
         }
         break;
     }
@@ -2042,7 +2042,7 @@ void SendShipUpdates(CFSMission * pfsMission)
     {
         ShipLinkIGC*  pshipsFirst = pfsMission->GetIGCMission()->GetShips()->first();
         for (SideLinkIGC*   psidelink = pfsMission->GetIGCMission()->GetSides()->first();
-             (psidelink != NULL);
+             (psidelink != nullptr);
              psidelink = psidelink->next())
         {
             IsideIGC*   pside = psidelink->data();
@@ -2051,7 +2051,7 @@ void SendShipUpdates(CFSMission * pfsMission)
             SideID  sid = pside->GetObjectID();
 
             for (ShipLinkIGC*   pshiplink = pshipsFirst;
-                 (pshiplink != NULL);
+                 (pshiplink != nullptr);
                  pshiplink = pshiplink->next())
             {
                 IshipIGC*   pship = pshiplink->data();
@@ -2079,7 +2079,7 @@ void SendShipUpdates(CFSMission * pfsMission)
     }
 
     const ClusterListIGC* pclstlist = pfsMission->GetIGCMission()->GetClusters();
-    for (ClusterLinkIGC*    pcl = pfsMission->GetIGCMission()->GetClusters()->first(); (pcl != NULL); pcl = pcl->next())
+    for (ClusterLinkIGC*    pcl = pfsMission->GetIGCMission()->GetClusters()->first(); (pcl != nullptr); pcl = pcl->next())
     {
         IclusterIGC*        pcluster = pcl->data();
         const ShipListIGC*  pshiplist     = pcluster->GetShips();
@@ -2106,7 +2106,7 @@ void SendShipUpdates(CFSMission * pfsMission)
             int     cShips = 0;
             int     cTurrets = 0;
 
-            for (ShipLinkIGC * pshiplink = pshiplist->first(); (pshiplink != NULL); pshiplink = pshiplink->next())
+            for (ShipLinkIGC * pshiplink = pshiplist->first(); (pshiplink != nullptr); pshiplink = pshiplink->next())
             {
                 IshipIGC*   pship = pshiplink->data();
                 CFSShip*    pfsShip = (CFSShip *) pship->GetPrivateData();
@@ -2118,7 +2118,7 @@ void SendShipUpdates(CFSMission * pfsMission)
                     CFSPlayer*      pfsPlayer = pfsShip->GetPlayer();
                     unsigned char   ucLastUpdate = pfsPlayer->GetLastUpdate();
 
-                    if (pship->GetParentShip() == NULL) 
+                    if (pship->GetParentShip() == nullptr) 
                     {
                         cShips++;
 
@@ -2339,7 +2339,7 @@ void SendShipUpdates(CFSMission * pfsMission)
 
                 //Number of light updates depends on the recipients ... so do not fill in the following fields immediately
 
-                for (PlayerLink* pplayerLink = pplayerList->first(); (pplayerLink != NULL); pplayerLink = pplayerLink->next())
+                for (PlayerLink* pplayerLink = pplayerList->first(); (pplayerLink != nullptr); pplayerLink = pplayerLink->next())
                 {
                     CFSPlayer*  pfsPlayer = pplayerLink->data();
                     IshipIGC*   pshipPlayer = pfsPlayer->GetIGCShip();
@@ -2377,8 +2377,8 @@ void SendShipUpdates(CFSMission * pfsMission)
                     pfmHeavy->ibrgHeavyShipUpdates = pfmHeavy->ibrgActiveTurretUpdates + pfmHeavy->cbrgActiveTurretUpdates;
 
                     //Find the target of the player so that, if it is a ship, we can send it as a heavy if possible
-                    IshipIGC*   pshipTarget = NULL;
-                    CFSShip*    pfsTarget = NULL;
+                    IshipIGC*   pshipTarget = nullptr;
+                    CFSShip*    pfsTarget = nullptr;
                     {
                         pfmHeavy->bpTargetHull.SetChar(255);
 
@@ -2481,7 +2481,7 @@ void SendShipUpdates(CFSMission * pfsMission)
                     pfmHeavy->cbmsg = sizeof(FMD_S_HEAVY_SHIPS_UPDATE) + pfmHeavy->cbrgActiveTurretUpdates + pfmHeavy->cbrgHeavyShipUpdates;
     
                     //Send the heavy ship update whenever the player is flying since it has hitpoint information
-                    if ((pfmHeavy->cbmsg != sizeof(FMD_S_HEAVY_SHIPS_UPDATE)) || (pshipPlayer->GetCluster() != NULL))
+                    if ((pfmHeavy->cbmsg != sizeof(FMD_S_HEAVY_SHIPS_UPDATE)) || (pshipPlayer->GetCluster() != nullptr))
                     {
                         CB  cbMsg = pfmHeavy->cbmsg;
                         if (pfmLight->cbmsg != sizeof(FMD_S_LIGHT_SHIPS_UPDATE))
@@ -2520,7 +2520,7 @@ void SendShipUpdates(CFSMission * pfsMission)
     //
     // UPDATE LATENCY: Report the counters to perfmon.
     //
-    if (NULL != g.pServerCounters)
+    if (nullptr != g.pServerCounters)
     {
         g.pServerCounters->csecAvgUpdateLatency = CFSPlayer::GetAverageLatency();
         g.pServerCounters->csecMaxUpdateLatency = CFSPlayer::GetMaxLatency();
@@ -2686,7 +2686,7 @@ ItreasureIGC*  CreateTreasure(Time now, IshipIGC* pship, IpartIGC* p, IpartTypeI
         {
             amount = p->GetAmount();
             if (amount == 0)
-                return NULL;
+                return nullptr;
         }
         break;
 
@@ -2714,17 +2714,17 @@ void ExportStaticIGCObjs()
   // Export station types
   {
     const StationTypeListIGC * pstlist = g.trekCore->GetStationTypes();
-    StationTypeLinkIGC * pstlink = NULL;
+    StationTypeLinkIGC * pstlink = nullptr;
     for (pstlink = pstlist->first(); pstlink; pstlink = pstlink->next())
-      ExportObj(pstlink->data(), OT_stationType, NULL);
+      ExportObj(pstlink->data(), OT_stationType, nullptr);
   }
 
   // Export projectiles
   {
     const ProjectileTypeListIGC * pptlist = g.trekCore->GetProjectileTypes();
-    ProjectileTypeLinkIGC * pptlink = NULL;
+    ProjectileTypeLinkIGC * pptlink = nullptr;
     for (pptlink = pptlist->first(); pptlink; pptlink = pptlink->next())
-      ExportObj(pptlink->data(), OT_projectileType, NULL);
+      ExportObj(pptlink->data(), OT_projectileType, nullptr);
   }
 
   // Export missile types
@@ -2732,47 +2732,47 @@ void ExportStaticIGCObjs()
     const ExpendableTypeListIGC* petlist = g.trekCore->GetExpendableTypes();
     ExpendableTypeLinkIGC* petlink;
     for (petlink = petlist->first(); petlink; petlink = petlink->next())
-      ExportObj(petlink->data(), petlink->data()->GetObjectType(), NULL);
+      ExportObj(petlink->data(), petlink->data()->GetObjectType(), nullptr);
   }
 
   // Export parts
   {
     const PartTypeListIGC * pptlist = g.trekCore->GetPartTypes();
-    PartTypeLinkIGC * pptlink = NULL;
+    PartTypeLinkIGC * pptlink = nullptr;
     for (pptlink = pptlist->first(); pptlink; pptlink = pptlink->next())
-      ExportObj(pptlink->data(), OT_partType, NULL);
+      ExportObj(pptlink->data(), OT_partType, nullptr);
   }
 
   // Export hull types
   {
     const HullTypeListIGC * phtlist = g.trekCore->GetHullTypes();
-    HullTypeLinkIGC * phtlink = NULL;
+    HullTypeLinkIGC * phtlink = nullptr;
     for (phtlink = phtlist->first(); phtlink; phtlink = phtlink->next())
-      ExportObj(phtlink->data(), OT_hullType, NULL);
+      ExportObj(phtlink->data(), OT_hullType, nullptr);
   }
 
   // Export developments
   {
     const DevelopmentListIGC * pdtlist = g.trekCore->GetDevelopments();
-    DevelopmentLinkIGC * pdtlink = NULL;
+    DevelopmentLinkIGC * pdtlink = nullptr;
     for (pdtlink = pdtlist->first(); pdtlink; pdtlink = pdtlink->next())
-      ExportObj(pdtlink->data(), OT_development, NULL);
+      ExportObj(pdtlink->data(), OT_development, nullptr);
   }
 
   // Export drones types
   {
     const DroneTypeListIGC * pdtlist = g.trekCore->GetDroneTypes();
-    DroneTypeLinkIGC * pdtlink = NULL;
+    DroneTypeLinkIGC * pdtlink = nullptr;
     for (pdtlink = pdtlist->first(); pdtlink; pdtlink = pdtlink->next())
-      ExportObj(pdtlink->data(), OT_droneType, NULL);
+      ExportObj(pdtlink->data(), OT_droneType, nullptr);
   }
 
   // Export civilizations
   {
     const CivilizationListIGC * pctlist = g.trekCore->GetCivilizations();
-    CivilizationLinkIGC * pctlink = NULL;
+    CivilizationLinkIGC * pctlink = nullptr;
     for (pctlink = pctlist->first(); pctlink; pctlink = pctlink->next())
-      ExportObj(pctlink->data(), OT_civilization, NULL);
+      ExportObj(pctlink->data(), OT_civilization, nullptr);
   }
 }
 
@@ -2786,7 +2786,7 @@ int FedSrvSiteBase::OnMessageBox(FedMessaging * pthis, const char * strText, con
 int FedSrvSiteBase::OnMessageBox(const char * strText, const char * strCaption, UINT nType)
 {
   printf("%s:\n%s\n\n", strCaption, strText);
-  g_events.TriggerEvent(NULL, AllsrvEventID_MessageBox, "", -1, -1, -1, 2,  
+  g_events.TriggerEvent(nullptr, AllsrvEventID_MessageBox, "", -1, -1, -1, 2,  
       "Caption", VT_LPSTR, strCaption,
       "Message", VT_LPSTR, strText);
   return 0; // which is intentionally not actually a valid MessageBox return code, since we're not actually throwing up a message box
@@ -2816,11 +2816,11 @@ HRESULT FedSrvSiteBase::OnDestroyConnection(FedMessaging * pthis, CFMConnection 
   CFSPlayer * pfsPlayer = CFSPlayer::GetPlayerFromConnection(cnxn);
   if (pfsPlayer) // need to clean up after them if they didn't log off
   {
-    PlaySound("AppGPFault", NULL, SND_ALIAS | SND_PURGE | SND_ASYNC);
-    g_events.TriggerEvent(NULL, AllsrvEventID_PlayerDropped, "", -1, -1, -1, 2,  
+    PlaySound("AppGPFault", nullptr, SND_ALIAS | SND_PURGE | SND_ASYNC);
+    g_events.TriggerEvent(nullptr, AllsrvEventID_PlayerDropped, "", -1, -1, -1, 2,  
         "PlayerName", VT_LPSTR, pfsPlayer->GetName(),
         "ConxID", VT_I4, cnxn.GetID());
-    if (NULL != g.pServerCounters)
+    if (nullptr != g.pServerCounters)
     {
         g.pServerCounters->cTimeouts++;
         g.pServerCounters->cTimeoutsPerSecond++;
@@ -2833,7 +2833,7 @@ HRESULT FedSrvSiteBase::OnDestroyConnection(FedMessaging * pthis, CFMConnection 
 
 HRESULT FedSrvSiteBase::OnSessionLost(FedMessaging * pthis) 
 {
-  g_events.TriggerEvent(NULL, AllsrvEventID_SessionLost, "", -1, -1, -1, 1,  
+  g_events.TriggerEvent(nullptr, AllsrvEventID_SessionLost, "", -1, -1, -1, 1,  
       "Time", VT_I4, Time::Now().clock());
   // todo: gracefully shut down
   return S_OK;
@@ -2946,21 +2946,21 @@ static bool DisplaceProbe(ImodelIGC* pmodel, Vector* position, float r)
 static void DisplaceProbe(IclusterIGC* pcluster, Vector* position, float r)
 {
     {
-      for (StationLinkIGC*   psl = pcluster->GetStations()->first(); (psl != NULL); psl = psl->next())
+      for (StationLinkIGC*   psl = pcluster->GetStations()->first(); (psl != nullptr); psl = psl->next())
       {
           if (DisplaceProbe(psl->data(), position, r))
               return;
       }
     }
     {
-      for (WarpLinkIGC*   psl = pcluster->GetWarps()->first(); (psl != NULL); psl = psl->next())
+      for (WarpLinkIGC*   psl = pcluster->GetWarps()->first(); (psl != nullptr); psl = psl->next())
       {
           if (DisplaceProbe(psl->data(), position, r))
               return;
       }
     }
     {
-      for (AsteroidLinkIGC*   psl = pcluster->GetAsteroids()->first(); (psl != NULL); psl = psl->next())
+      for (AsteroidLinkIGC*   psl = pcluster->GetAsteroids()->first(); (psl != nullptr); psl = psl->next())
       {
           if (DisplaceProbe(psl->data(), position, r))
               return;
@@ -2980,9 +2980,9 @@ static void DisplaceProbe(IclusterIGC* pcluster, Vector* position, float r)
  */
 HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnFrom, FEDMESSAGE * pfm)
 {
-  CFSPlayer * pfsPlayer = NULL;
-  CFSMission * pfsMission = NULL;
-  ImissionIGC * pMission = NULL;
+  CFSPlayer * pfsPlayer = nullptr;
+  CFSMission * pfsMission = nullptr;
+  ImissionIGC * pMission = nullptr;
   HRESULT hr = S_OK;
 
   static CTempTimer timerOnAppMessage("in OnAppMessage", .02f);
@@ -2990,7 +2990,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
   ttPreHandler.Start();
   timerOnAppMessage.Start();
   
-  if (NULL != g.pServerCounters)
+  if (nullptr != g.pServerCounters)
   {
     g.pServerCounters->cPacketsIn++;
     g.pServerCounters->cPacketsInPerSecond++;
@@ -3024,7 +3024,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
   if (!pfsPlayer && (pfm->fmid != FM_C_LOGONREQ))
   {
-    g_events.TriggerEvent(NULL, AllsrvEventID_MsgFromUnknownPlayer, "", -1, -1, -1, 2,  
+    g_events.TriggerEvent(nullptr, AllsrvEventID_MsgFromUnknownPlayer, "", -1, -1, -1, 2,  
         "PlayerID", VT_I4, cnxnFrom.GetID(),
         "MsgName", VT_LPSTR, g_rgszMsgNames[pfm->fmid]);
   }
@@ -3039,7 +3039,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         if (pfsPlayer->GetCookie() == pfmShipUpdate->cookie)
         {
             IshipIGC * pship = pfsPlayer->GetIGCShip();
-            if (pship->GetCluster() && (pship->GetParentShip() == NULL))
+            if (pship->GetCluster() && (pship->GetParentShip() == nullptr))
             {
                 assert (pship->GetBaseHullType());
                 pfsPlayer->SetShipUpdate(pfmShipUpdate->shipupdate);
@@ -3054,7 +3054,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
         IshipIGC * pship = pfsPlayer->GetIGCShip();
         if (pship->GetCluster() &&
-            (pship->GetParentShip() != NULL) &&
+            (pship->GetParentShip() != nullptr) &&
             (pship->GetTurretID() != NA))
         {
             pfsPlayer->SetActiveTurretUpdate(pfmATU->atu);
@@ -3068,7 +3068,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
         IshipIGC * pship = pfsPlayer->GetIGCShip();
         if (pship->GetCluster() &&
-            (pship->GetParentShip() != NULL) &&
+            (pship->GetParentShip() != nullptr) &&
             (pship->GetTurretID() != NA))
         {
             //Stop shooting
@@ -3122,7 +3122,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
             if (_strnicmp(FM_VAR_REF(pfmChat, Message), "#ban ", 5) == 0)
             {
               //Find a player with the given name
-              for (ShipLinkIGC* psl = pfsMission->GetIGCMission()->GetShips()->first(); (psl != NULL); psl = psl->next())
+              for (ShipLinkIGC* psl = pfsMission->GetIGCMission()->GetShips()->first(); (psl != nullptr); psl = psl->next())
               {
                 CFSShip*  pfsShip = (CFSShip*)(psl->data()->GetPrivateData());
                 if (pfsShip->IsPlayer() && (_stricmp(FM_VAR_REF(pfmChat, Message) + 5, psl->data()->GetName()) == 0))
@@ -3172,7 +3172,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
                              pszMsg,
                              pfmChat->otTarget,
                              pfmChat->oidTarget,
-                             NULL);
+                             nullptr);
     }
     break;
 
@@ -3263,7 +3263,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
           Money     moneyMax = pfmRequest->amount - 1;
 
           IsideIGC* pside = pfsPlayer->GetSide();
-          for (ShipLinkIGC* psl = pside->GetShips()->first(); (psl != NULL); psl = psl->next())
+          for (ShipLinkIGC* psl = pside->GetShips()->first(); (psl != nullptr); psl = psl->next())
           {
               IshipIGC* pship = psl->data();
               if (pship != pfsPlayer->GetIGCShip())
@@ -3299,7 +3299,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       DataMissileIGC  dm;
       dm.pLauncher = pfsPlayer->GetIGCShip();
 
-      TrapHackBoot(dm.pLauncher->GetParentShip() == NULL);
+      TrapHackBoot(dm.pLauncher->GetParentShip() == nullptr);
 
       ImagazineIGC*   pmagazine = (ImagazineIGC*)(dm.pLauncher->GetMountedPart(ET_Magazine, 0));
       if (pmagazine)
@@ -3338,14 +3338,14 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
           Vector                velocity      = myVelocity - dm.pmissiletype->GetInitialSpeed() * myOrientation.GetBackward();
 
           if (pfmFireMissile->targetType == NA)
-              dm.pTarget = NULL;
+              dm.pTarget = nullptr;
           else
           {
               dm.pTarget = pMission->GetModel(pfmFireMissile->targetType, pfmFireMissile->targetID);
               if (dm.pTarget && 
                   ((dm.pTarget->GetCluster() != pcluster) ||
                    !pfsPlayer->GetIGCShip()->CanSee(dm.pTarget)))
-                  dm.pTarget = NULL;
+                  dm.pTarget = nullptr;
           }
 
           dm.pCluster = pcluster;
@@ -3403,12 +3403,12 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
       CASTPFM(pfmAutoDonate, C, AUTODONATE, pfm);
 
-      TrapHackBoot(pfmAutoDonate != NULL);   // was ">= 0" on a pointer
+      TrapHackBoot(pfmAutoDonate != nullptr);   // was ">= 0" on a pointer
       TrapHackBoot(pfsPlayer->GetMoney() >= pfmAutoDonate->amount);
 
       IsideIGC* pside = pfsPlayer->GetSide();
 
-      CFSPlayer*    pfsDonate = NULL;
+      CFSPlayer*    pfsDonate = nullptr;
       ShipID        shipID = pfsPlayer->GetShipID();
       if ((pfmAutoDonate->sidDonateTo != NA) && (pfmAutoDonate->sidDonateTo != shipID))
       {
@@ -3436,7 +3436,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
               int   cOther = 0;
               int   cLeader = 0;
               {
-                  for (ShipLinkIGC* psl = pships->first(); (psl != NULL); psl = psl->next())
+                  for (ShipLinkIGC* psl = pships->first(); (psl != nullptr); psl = psl->next())
                   {
                       IshipIGC* pshipAD = psl->data()->GetAutoDonate();
                       if (pshipAD)
@@ -3479,7 +3479,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       IshipIGC*             pShip = pfsPlayer->GetIGCShip();
       assert (pShip);
 
-      TrapHackBoot(pShip->GetParentShip() == NULL);
+      TrapHackBoot(pShip->GetParentShip() == nullptr);
 
       IdispenserIGC*        pdispenser = (IdispenserIGC*)(pShip->GetMountedPart(pfmFireExpendable->et, 0));
       if (pdispenser)
@@ -3535,7 +3535,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
                   //Confuse any missiles lauched at the player's ship
                   for (MissileLinkIGC*  pml = pcluster->GetMissiles()->first();
-                       (pml != NULL);
+                       (pml != nullptr);
                        pml = pml->next())
                   {
                       ImissileIGC*    pmissile = pml->data();
@@ -3643,7 +3643,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       
     case FM_CS_LOGOFF:
     {
-      if (NULL != g.pServerCounters)
+      if (nullptr != g.pServerCounters)
         g.pServerCounters->cLogoffs++;
 
       debugf("Logoff: %s(%u), was on side=%d mission=%x.\n", 
@@ -3659,7 +3659,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
     {
       LogonDetails details = {};
       LogonDetails * pqd = &details;
-      if (NULL != g.pServerCounters)
+      if (nullptr != g.pServerCounters)
         g.pServerCounters->cLoginAttempts++;
 
       CASTPFM(pfmLogon, C, LOGONREQ, pfm);
@@ -3667,12 +3667,12 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       bool fRetry = false;
 
       // sanity check the message
-      TrapHackBootNoPlayer(NULL != FM_VAR_REF(pfmLogon, CharacterName) 
-          && NULL != memchr(FM_VAR_REF(pfmLogon, CharacterName), 0, c_cbName));
-      TrapHackBootNoPlayer(NULL == FM_VAR_REF(pfmLogon, MissionPassword) 
-          || NULL != memchr(FM_VAR_REF(pfmLogon, MissionPassword), 0, c_cbGamePassword));
-      TrapHackBootNoPlayer(NULL != FM_VAR_REF(pfmLogon, CDKey) 
-          && NULL != memchr(FM_VAR_REF(pfmLogon, CDKey), 0, c_cbCDKey));
+      TrapHackBootNoPlayer(nullptr != FM_VAR_REF(pfmLogon, CharacterName) 
+          && nullptr != memchr(FM_VAR_REF(pfmLogon, CharacterName), 0, c_cbName));
+      TrapHackBootNoPlayer(nullptr == FM_VAR_REF(pfmLogon, MissionPassword) 
+          || nullptr != memchr(FM_VAR_REF(pfmLogon, MissionPassword), 0, c_cbGamePassword));
+      TrapHackBootNoPlayer(nullptr != FM_VAR_REF(pfmLogon, CDKey) 
+          && nullptr != memchr(FM_VAR_REF(pfmLogon, CDKey), 0, c_cbCDKey));
 
       if (pfmLogon->fedsrvVer == MSGVER)
       { // ok, they have the right version of the client
@@ -3688,7 +3688,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         }
         else
         {
-          g_events.TriggerEvent(NULL, AllsrvEventID_NoTicket, "", -1, -1, -1, 0);
+          g_events.TriggerEvent(nullptr, AllsrvEventID_NoTicket, "", -1, -1, -1, 0);
           szReason = "No player name found.";
           lstrcpy(pqd->szCharacterName, "<invalid>");
         }
@@ -3708,7 +3708,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       } // if correct messaging version
       else
       {
-        if (NULL != g.pServerCounters)
+        if (nullptr != g.pServerCounters)
           g.pServerCounters->cLoginsFailed++;
         char szVerError[350];
 
@@ -3721,7 +3721,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
             "or ask the server's owner to update it.");
         }
         assert(lstrlen(szVerError) < sizeof(szVerError));
-        g_events.TriggerEvent(NULL, AllsrvEventID_BadClientVersion, "", -1, -1, -1, 2,
+        g_events.TriggerEvent(nullptr, AllsrvEventID_BadClientVersion, "", -1, -1, -1, 2,
             "ServerVer", VT_I4, MSGVER,
             "ClientVer", VT_I4, pfmLogon->fedsrvVer);
         BEGIN_PFM_CREATE(g.fm, pfmLogonAck, S, LOGONACK)
@@ -3752,7 +3752,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
           IsideIGC* pside = pfsPlayer->GetSide();
           if (pside->GetObjectID() >= 0)
           {
-              TrapHackBoot(pfsPlayer->GetIGCShip()->GetParentShip() == NULL);
+              TrapHackBoot(pfsPlayer->GetIGCShip()->GetParentShip() == nullptr);
 
               CASTPFM(pfmTA, C, TREASURE_ACK, pfm);
 
@@ -3802,8 +3802,8 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
     case FM_C_BUY_LOADOUT:
     {
       if (!pfsMission 
-          || (pfsPlayer->GetIGCShip()->GetCluster() != NULL)
-          || (pfsPlayer->GetIGCShip()->GetStation() == NULL)
+          || (pfsPlayer->GetIGCShip()->GetCluster() != nullptr)
+          || (pfsPlayer->GetIGCShip()->GetStation() == nullptr)
           || pfsPlayer->GetIGCShip()->IsGhost())
         break;
 
@@ -3811,7 +3811,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       if (pside->GetObjectID() < 0)
           break;
 
-      TrapHackBoot(pfsPlayer->GetIGCShip()->GetParentShip() == NULL);
+      TrapHackBoot(pfsPlayer->GetIGCShip()->GetParentShip() == nullptr);
 
       CASTPFM(pfmBuyLoadout, C, BUY_LOADOUT, pfm);
 
@@ -3857,7 +3857,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       if (phtOld != phtNew)
       {
           ShipLinkIGC*  pslNext;
-          for (ShipLinkIGC* psl = pshipsChildren->first(); (psl != NULL); psl = pslNext)
+          for (ShipLinkIGC* psl = pshipsChildren->first(); (psl != nullptr); psl = pslNext)
           {
               pslNext = psl->next();
 
@@ -3870,7 +3870,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
       // tell the client what happened
       BEGIN_PFM_CREATE(g.fm, pfmBuyLoadoutAck, S, BUY_LOADOUT_ACK)
-        FM_VAR_PARM(NULL, pfsPlayer->GetIGCShip()->ExportShipLoadout(NULL))
+        FM_VAR_PARM(NULL, pfsPlayer->GetIGCShip()->ExportShipLoadout(nullptr))
       END_PFM_CREATE
 
       pfsPlayer->GetIGCShip()->ExportShipLoadout((ShipLoadout*)(FM_VAR_REF(pfmBuyLoadoutAck, loadout)));
@@ -3889,7 +3889,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
           SideID    sid = pfsPlayer->GetSide()->GetObjectID();
           pfsPlayer->GetShipStatus(sid)->SetHullID(pfsPlayer->GetIGCShip()->GetBaseHullType()->GetObjectID());
 
-          for (ShipLinkIGC* psl = pshipsChildren->first(); (psl != NULL); psl = psl->next())
+          for (ShipLinkIGC* psl = pshipsChildren->first(); (psl != nullptr); psl = psl->next())
           {
               CFSShip*  pfsChild = (CFSShip*)(psl->data()->GetPrivateData());
 
@@ -3905,12 +3905,12 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       {
         //Move the children of this ship to space as well
         for (ShipLinkIGC*   psl = pshipsChildren->first();
-             (psl != NULL);
+             (psl != nullptr);
              psl = psl->next())
         {
-          psl->data()->SetStation(NULL);
+          psl->data()->SetStation(nullptr);
         }
-        pfsPlayer->GetIGCShip()->SetStation(NULL);
+        pfsPlayer->GetIGCShip()->SetStation(nullptr);
       }
     }
     break;
@@ -3920,7 +3920,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       if (!pfsMission || (pfsMission->GetStage() != STAGE_STARTED) || (pfsPlayer->GetIGCShip()->GetSide()->GetObjectID() < 0))
           break;
 
-        TrapHackBoot (pfsPlayer->GetIGCShip()->GetParentShip() == NULL);
+        TrapHackBoot (pfsPlayer->GetIGCShip()->GetParentShip() == nullptr);
         IclusterIGC*  pcluster = pfsPlayer->GetIGCShip()->GetCluster();
         if (pcluster)
         {
@@ -3966,7 +3966,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
       //if the client does this multiple times, make sure we don't barf
       if (pfsPlayer->GetIGCShip()->GetCluster()) // NOT the pfsPlayer's cluster
-        pfsMission->GetSite()->KillShipEvent(g.timeNow, pfsPlayer->GetIGCShip(), NULL, 1.0f,
+        pfsMission->GetSite()->KillShipEvent(g.timeNow, pfsPlayer->GetIGCShip(), nullptr, 1.0f,
                                              pfsPlayer->GetIGCShip()->GetSourceShip()->GetPosition(), Vector::GetZero());
 
       break;
@@ -3980,7 +3980,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
         CASTPFM(pfmPromoteC, C, PROMOTE, pfm);
 
-        for (ShipLinkIGC*   psl = pfsPlayer->GetIGCShip()->GetChildShips()->first(); (psl != NULL); psl = psl->next())
+        for (ShipLinkIGC*   psl = pfsPlayer->GetIGCShip()->GetChildShips()->first(); (psl != nullptr); psl = psl->next())
         {
             IshipIGC*   pship = psl->data();
             if (pship->GetTurretID() == pfmPromoteC->mountidPromoted)
@@ -4071,7 +4071,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
                 g.fm.SendMessages(pfsPlayer->GetConnection(), FM_GUARANTEED, FM_FLUSH);
             }
             else
-                pcluster = NULL;
+                pcluster = nullptr;
 
             pfsPlayer->SetCluster(pcluster, true);
         }
@@ -4083,7 +4083,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       if (!pfsMission || (pfsMission->GetStage() != STAGE_STARTED) || (pfsPlayer->GetIGCShip()->GetSide()->GetObjectID() < 0))
         break;
 
-      TrapHackBoot (pfsPlayer->GetIGCShip()->GetParentShip() == NULL);
+      TrapHackBoot (pfsPlayer->GetIGCShip()->GetParentShip() == nullptr);
 
       IclusterIGC*  pcluster = pfsPlayer->GetIGCShip()->GetCluster();
       if (pcluster)
@@ -4128,7 +4128,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       if (!pfsMission || (pfsMission->GetStage() != STAGE_STARTED) || (pfsPlayer->GetIGCShip()->GetSide()->GetObjectID() < 0))
         break;
 
-      TrapHackBoot (pfsPlayer->GetIGCShip()->GetParentShip() == NULL);
+      TrapHackBoot (pfsPlayer->GetIGCShip()->GetParentShip() == nullptr);
 
       CASTPFM(pfmReload, CS, RELOAD, pfm);
 
@@ -4222,7 +4222,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
                   if (prlNext->amountTransfered == NA)
                   {
-                      if ((plauncherMounted != NULL) && (plauncherMounted->GetAmount() != 0))
+                      if ((plauncherMounted != nullptr) && (plauncherMounted->GetAmount() != 0))
                       {
                           bBoot = true;
                           break;
@@ -4340,7 +4340,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       }
       else
       {
-        pfsMission->RemoveJoinRequest(pfspAck, NULL);
+        pfsMission->RemoveJoinRequest(pfspAck, nullptr);
       }
       break;
     }
@@ -4527,7 +4527,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       int  iSide       = pside->GetObjectID();
       bool fReady      = false;
       bool fForceReady = false;
-      FEDMESSAGE * pfmForward = NULL;
+      FEDMESSAGE * pfmForward = nullptr;
 
       if (fIsForce)
       {
@@ -4569,19 +4569,19 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         if (pside->GetObjectID() < 0)
             break;
 
-        if (pfsPlayer->GetIGCShip()->GetStation() != NULL)
+        if (pfsPlayer->GetIGCShip()->GetStation() != nullptr)
         {
             CASTPFM(pfmDocked, C, DOCKED, pfm);
 
             IshipIGC*           pshipParent = pfsPlayer->GetIGCShip()->GetParentShip();
-            if (pshipParent == NULL)
+            if (pshipParent == nullptr)
             {
                 const ShipListIGC*  pshipsChildren = pfsPlayer->GetIGCShip()->GetChildShips();
 
                 IstationIGC*    pstation;
                 if ((pfmDocked->stationID == NA) && !pfsPlayer->GetIGCShip()->IsGhost())
                 {
-                    pstation = NULL;
+                    pstation = nullptr;
                 }
                 else
                 {
@@ -4590,7 +4590,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
                     BEGIN_PFM_CREATE(g.fm, pfmAck, S, TELEPORT_ACK)
                     END_PFM_CREATE
 
-                    if ((pstation == NULL) ||
+                    if ((pstation == nullptr) ||
                         (pstation->GetSide() != pside) ||
                         (!pstation->GetStationType()->HasCapability(c_sabmRestart)))
                     {
@@ -4653,7 +4653,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
 
                 //Move the children of this ship to the station as well
                 for (ShipLinkIGC*   psl = pshipsChildren->first();
-                     (psl != NULL);
+                     (psl != nullptr);
                      psl = psl->next())
                 {
                     psl->data()->SetStation(pstation);
@@ -4700,9 +4700,9 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
           if (pfsPlayer->GetMoney() < 0)
           {
             LPCSTR pszContext = pfsPlayer->GetIGCShip() ?
-              pfsPlayer->GetIGCShip()->GetMission()->GetContextName() : NULL;
+              pfsPlayer->GetIGCShip()->GetMission()->GetContextName() : nullptr;
 
-            g_events.TriggerContextEvent(NULL, AllsrvEventID_MoneyError,
+            g_events.TriggerContextEvent(nullptr, AllsrvEventID_MoneyError,
               pszContext, pfsPlayer->GetName(), -1, -1, -1, 3,
                 "PlayerName", VT_LPSTR, pfsPlayer->GetName(),
                 "MoneyGiven", VT_I4, pfmBucketDonate->moneyGiven,
@@ -4751,7 +4751,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       TrapHackBoot(pfsPlayer->GetMoney() >= pfmPlayerDonate->moneyGiven);
 
       CFSShip * pfssTo = CFSShip::GetShipFromID(pfmPlayerDonate->shipID);
-      CFMRecipient * prcp = NULL;
+      CFMRecipient * prcp = nullptr;
       if (pfmPlayerDonate->moneyGiven > 0)
       {
           BEGIN_PFM_CREATE(g.fm, pfmMoneyChange, S, MONEY_CHANGE)
@@ -4836,7 +4836,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         CASTPFM(pfmSetTeamInfo, CS, SET_TEAM_INFO, pfm);
         TrapHackBoot(pfmSetTeamInfo->sideID >= 0);
         TrapHackBoot(pfmSetTeamInfo->sideID < c_cSidesMax);
-        TrapHackBoot(NULL != memchr(pfmSetTeamInfo->SideName, 0, c_cbName));
+        TrapHackBoot(nullptr != memchr(pfmSetTeamInfo->SideName, 0, c_cbName));
         TrapHackBoot(pfsPlayer->GetIsMemberOfSquad(pfmSetTeamInfo->squadID));
         
         // make sure we haven't run into any strange race conditions with team
@@ -4908,7 +4908,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       if (pfsMission->GetOwner() != pfsPlayer)
         break;
 
-      TrapHackBoot(pfmMissionParams->missionparams.Invalid(true) == NULL);
+      TrapHackBoot(pfmMissionParams->missionparams.Invalid(true) == nullptr);
       pfmMissionParams->missionparams.bObjectModelCreated =
         !!pfsMission->GetMissionDef()->misparms.bObjectModelCreated;
 
@@ -4951,7 +4951,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         LPCSTR pszContext = pfsMission->GetIGCMission()->GetContextName();
 
         // Send an AGC event
-        g_events.TriggerContextEvent(NULL, EventID_GameStateChange, pszContext,
+        g_events.TriggerContextEvent(nullptr, EventID_GameStateChange, pszContext,
           pfsMission->GetMissionDef()->misparms.strGameName,
           pfsMission->GetMissionID(), -1, -1, 0);
       }
@@ -5016,7 +5016,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
     {
       if (!pfsMission || (pfsMission->GetStage() != STAGE_STARTED) || (pfsPlayer->GetIGCShip()->GetSide()->GetObjectID() < 0) ||
           pfsPlayer->GetIGCShip()->GetParentShip() ||
-          (pfsPlayer->GetIGCShip()->GetCluster() == NULL) ||
+          (pfsPlayer->GetIGCShip()->GetCluster() == nullptr) ||
           (pfsPlayer->GetIGCShip()->GetFlag() != NA) ||
           pfsPlayer->GetIGCShip()->GetBaseHullType()->HasCapability(c_habmNoRipcord))
       {
@@ -5061,7 +5061,7 @@ HANDLE CreateUniqueMutex()
   SECURITY_DESCRIPTOR   sd;
   SECURITY_ATTRIBUTES   sa = {sizeof(sa), &sd, false};
   InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
-  SetSecurityDescriptorDacl(&sd, true, NULL, FALSE);
+  SetSecurityDescriptorDacl(&sd, true, nullptr, FALSE);
   SECURITY_ATTRIBUTES* psa = &sa;
 
   // Create the mutex using the global name first
@@ -5094,13 +5094,13 @@ void DisconnectFromLobby()
   // Disconnect from the lobby server
   if (g.fmLobby.IsConnected())
   {
-    g_events.TriggerEvent(NULL, AllsrvEventID_DisconnectingLobby,
+    g_events.TriggerEvent(nullptr, AllsrvEventID_DisconnectingLobby,
       "", -1, -1, -1, 1,
       "LobbyServer", VT_LPSTR, g.strLobbyServer.c_str());
 
     g.fmLobby.Shutdown();
 
-    g_events.TriggerEvent(NULL, AllsrvEventID_DisconnectedLobby,
+    g_events.TriggerEvent(nullptr, AllsrvEventID_DisconnectedLobby,
       "", -1, -1, -1, 1,
       "LobbyServer", VT_LPSTR, g.strLobbyServer.c_str());
   }
@@ -5225,7 +5225,7 @@ void ProcessNetworkMessages()
         }
 
         if (!fAnyRunning)
-            ConnectToLobby(NULL);
+            ConnectToLobby(nullptr);
         
         timeLastTry = g.timeNow;
       }
@@ -5281,8 +5281,8 @@ void UpdateMissions(Time timeStart, Time timePrevious)
                 {
                   pfsMission->SetStage(STAGE_OVER);
                  // Send chat to let everyone know the game is canceled
-                  pfsMission->GetSite()->SendChat(NULL, CHAT_EVERYONE, NA, NA, 
-                      "Game canceled due to lack of players", c_cidNone, NA, NA, NULL, true);
+                  pfsMission->GetSite()->SendChat(nullptr, CHAT_EVERYONE, NA, NA, 
+                      "Game canceled due to lack of players", c_cidNone, NA, NA, nullptr, true);
                 }
               }
             }
@@ -5298,8 +5298,8 @@ void UpdateMissions(Time timeStart, Time timePrevious)
               sprintf(szMessage, 
                 "Warning: Game will be canceled if all teams are not ready in %d seconds.", 
                 int(2 * c_fMissionBriefingCountdown)); 
-              pfsMission->GetSite()->SendChat(NULL, CHAT_EVERYONE, NA, NA, 
-                szMessage, c_cidNone, NA, NA, NULL, true);
+              pfsMission->GetSite()->SendChat(nullptr, CHAT_EVERYONE, NA, NA, 
+                szMessage, c_cidNone, NA, NA, nullptr, true);
             }
           }
         }
@@ -5313,7 +5313,7 @@ void UpdateMissions(Time timeStart, Time timePrevious)
       // if the countdown for a game has expired (and someone is in the game), start the game
       if (pfsMission->GetStage() == STAGE_STARTING 
           && timeStart > pfsMission->GetMissionDef()->misparms.timeStart
-          && (pfsMission->HasPlayers(NULL, true) 
+          && (pfsMission->HasPlayers(nullptr, true) 
             || pfsMission->GetMissionDef()->misparms.bAllowEmptyTeams)
           )
       {
@@ -5329,11 +5329,11 @@ void UpdateMissions(Time timeStart, Time timePrevious)
         if (timeStart - timLastStationUpdate > dtimStationUpdateInterval)
         {
           //Send station states to all of the docked players
-          for (ShipLinkIGC*   psl = pfsMission->GetIGCMission()->GetShips()->first(); (psl != NULL); psl = psl->next())
+          for (ShipLinkIGC*   psl = pfsMission->GetIGCMission()->GetShips()->first(); (psl != nullptr); psl = psl->next())
           {
             IshipIGC*       pship = psl->data();
             IstationIGC*    pstation = pship->GetStation();
-            if (pstation != NULL)
+            if (pstation != nullptr)
             {
               CFSShip*    pfsship = (CFSShip*)(pship->GetPrivateData());
               if (pfsship->IsPlayer())
@@ -5359,7 +5359,7 @@ void UpdateMissions(Time timeStart, Time timePrevious)
       }
 
       {
-        for (ShipLinkIGC*   psl = pfsMission->GetIGCMission()->GetShips()->first(); (psl != NULL); psl = psl->next())
+        for (ShipLinkIGC*   psl = pfsMission->GetIGCMission()->GetShips()->first(); (psl != nullptr); psl = psl->next())
         {
             IshipIGC*       pship = psl->data();
             CFSShip*    pfsship = (CFSShip*)(pship->GetPrivateData());
@@ -5393,7 +5393,7 @@ bool IsCFGFileValid(const char * szFileName)
         memcpy(pData, file.GetPointer(), n);
         pData[n] = 0;
 
-        bool bValid = strstr(pData, c_szValidCfg) != NULL;
+        bool bValid = strstr(pData, c_szValidCfg) != nullptr;
         delete [] pData;
 
         if (!bValid)
@@ -5431,14 +5431,14 @@ IHTTPSession * BeginConfigDownload()
   {
     CopyFile(szConfig, ".\\temp.cfg", FALSE);    // copy to current folder
     debugf("Using local config file because the cfgfile setting has no \"http://\": %s\n", szConfig);
-    return NULL; // true means already done
+    return nullptr; // true means already done
   }
   else
   {
     // Start the download of CFG file on secondary thread
-    IHTTPSession * pHTTPSession = CreateHTTPSession(NULL);
+    IHTTPSession * pHTTPSession = CreateHTTPSession(nullptr);
 
-    const char * szFileList[] = { szConfig, "temp.cfg", NULL };
+    const char * szFileList[] = { szConfig, "temp.cfg", nullptr };
     pHTTPSession->InitiateDownload(szFileList, "."); // . means current path
     return pHTTPSession; 
   }
@@ -5500,7 +5500,7 @@ bool RetrieveCFGFile() // returns true iff cfg was successfully retrieved
         printf("%s\n", szErrorMsg);
         debugf("%s\n", szErrorMsg);
         if (!g.fService)
-          MessageBox(NULL, szErrorMsg, "Allegiance Server", MB_SERVICE_NOTIFICATION);
+          MessageBox(nullptr, szErrorMsg, "Allegiance Server", MB_SERVICE_NOTIFICATION);
         return false;
     }
   }
@@ -5520,7 +5520,7 @@ bool RetrieveCFGFile() // returns true iff cfg was successfully retrieved
     const char * szErrorMsg = "\nError Connecting to Zone.  You will not be able to host a public game. (CFG File is invalid.)\n";
     printf(szErrorMsg);
     if (!g.fService)
-      MessageBox(NULL, szErrorMsg, "Allegiance Server", MB_SERVICE_NOTIFICATION);
+      MessageBox(nullptr, szErrorMsg, "Allegiance Server", MB_SERVICE_NOTIFICATION);
     return false;
   }
 }
@@ -5540,7 +5540,7 @@ void AnnouncePause()
   pfmPause->fPause = g.fPaused;
 
   AGCEventID idEvent = g.fPaused ? AllsrvEventID_Pause : AllsrvEventID_Continue;
-  g_events.TriggerEvent(NULL, idEvent, "", -1, -1, -1, 0);
+  g_events.TriggerEvent(nullptr, idEvent, "", -1, -1, -1, 0);
   const char * szMode = g.fPaused ? "paused." : "continued.";
   printf("Server %s.\n", szMode);
   g.fmLobby.SendMessages(g.fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
@@ -5579,7 +5579,7 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
     g.strLobbyServer = pszLobby_OverrideCFG;
 
   printf("Connecting to lobby: %s ... ", g.strLobbyServer.c_str());
-  g_events.TriggerEvent(NULL, AllsrvEventID_Connecting, "", -1, -1, -1, 1,
+  g_events.TriggerEvent(nullptr, AllsrvEventID_Connecting, "", -1, -1, -1, 1,
     "LobbyServer", VT_LPSTR, g.strLobbyServer.c_str());
   HRESULT hr = g.fmLobby.JoinSession(
         c_appLobbyServers,
@@ -5595,7 +5595,7 @@ HRESULT ConnectToLobby(const char * pszLobby_OverrideCFG /* NULL == do not overr
   // Save the new LobbyServer value
   g.strLobbyServer = g.strLobbyServer.c_str();
 
-  g_events.TriggerEvent(NULL, AllsrvEventID_ConnectedLobby,
+  g_events.TriggerEvent(nullptr, AllsrvEventID_ConnectedLobby,
     "", -1, -1, -1, 1,
     "LobbyServer", VT_LPSTR, g.strLobbyServer.c_str());
 
@@ -5675,7 +5675,7 @@ DWORD ProcessMsgPump(int dwSleep, DWORD nCount, LPHANDLE pHandles)
     if ((WAIT_OBJECT_0 + nCount) == dwWait)
     {
       static MSG msg;
-      while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+      while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
       {
         // dispatch Windows Messages to allow for the admin tool's COM to work
         timerSingleMsg.Start();
@@ -5770,7 +5770,7 @@ void StartDefaultGames()
 
       // Create the new mission 
       FedSrvSite * psiteFedSrv = new FedSrvSite();
-      CFSMission * pfsMissionNew = new CFSMission(mp, NULL, psiteFedSrv, psiteFedSrv, NULL, NULL);
+      CFSMission * pfsMissionNew = new CFSMission(mp, nullptr, psiteFedSrv, psiteFedSrv, nullptr, nullptr);
 
       // tell the lobby about the mission
       if (g.fmLobby.IsConnected())
@@ -5809,7 +5809,7 @@ HRESULT HostSession(bool fPublic)
 
   printf(fPublic ? "Preparing public session for clients ... " : "Preparing LAN session for clients ... ");
 
-  HRESULT hr = g.fm.HostSession(app, false, 0 /*g.hPlayerEvent*/, g.fProtocol);
+  HRESULT hr = g.fm.HostSession(app, false, nullptr /*g.hPlayerEvent*/, g.fProtocol);
   if (FAILED(hr))
   {
     printf("failed.\n");
@@ -5827,7 +5827,7 @@ HRESULT HostSession(bool fPublic)
     {
       // A failure is reported by ConnectToLobby; the session stays up and the
       // connection is retried periodically.
-      if (FAILED(ConnectToLobby(NULL)))
+      if (FAILED(ConnectToLobby(nullptr)))
       {
       }
     }
@@ -5875,7 +5875,7 @@ static void CreateTrainingGame()
 
   printf("Starting game \"%s\"\n", mp.strGameName);
   FedSrvSite * psiteFedSrv = new FedSrvSite();
-  new CFSMission(mp, NULL, psiteFedSrv, psiteFedSrv, &mp, NULL);
+  new CFSMission(mp, nullptr, psiteFedSrv, psiteFedSrv, &mp, nullptr);
 }
 
 static void StartTrainingGameWhenJoined()
@@ -5886,7 +5886,7 @@ static void StartTrainingGameWhenJoined()
     CFSMission * pfsMission = plinkMission->data();
     if (pfsMission->GetStage() == STAGE_NOTSTARTED
         && pfsMission->GetIGCMission() != g.trekCore
-        && pfsMission->GetCountOfPlayers(NULL, false) > 0)
+        && pfsMission->GetCountOfPlayers(nullptr, false) > 0)
     {
       pfsMission->StartGame();
     }
@@ -5919,9 +5919,9 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
   std::unique_ptr<void, decltype(&CloseHandle)> shMutexRunning(CreateUniqueMutex(), &CloseHandle);
 
   // A training server stops when the client that started it says so
-  HANDLE hwaitTrainingStop = NULL;
+  HANDLE hwaitTrainingStop = nullptr;
   if (g.hTrainingStop)
-    RegisterWaitForSingleObject(&hwaitTrainingStop, g.hTrainingStop, OnTrainingStop, NULL, INFINITE, WT_EXECUTEONLYONCE);
+    RegisterWaitForSingleObject(&hwaitTrainingStop, g.hTrainingStop, OnTrainingStop, nullptr, INFINITE, WT_EXECUTEONLYONCE);
 
 
   // Setup the database stuff and connect
@@ -6021,7 +6021,7 @@ DWORD WINAPI ReceiveThread(LPVOID pThreadParameter)
     UnregisterWaitEx(hwaitTrainingStop, INVALID_HANDLE_VALUE);
 
   // Close the uniquely-named mutex to indicate that the server is not running
-  shMutexRunning = NULL;
+  shMutexRunning = nullptr;
 
 
 
@@ -6051,9 +6051,9 @@ void LoadSettings()
     // Set default g.strArtPath to "Artwork" under the EXE directory
     TCHAR szModule[_MAX_PATH];
     TCHAR szDrive[_MAX_DRIVE], szDir[_MAX_DIR];
-    GetModuleFileName(NULL, szModule, sizeofArray(szModule));
-    _tsplitpath(szModule, szDrive, szDir, NULL, NULL);
-    _makepath(szModule, szDrive, szDir, TEXT("Artwork\\"), NULL);
+    GetModuleFileName(nullptr, szModule, sizeofArray(szModule));
+    _tsplitpath(szModule, szDrive, szDir, nullptr, nullptr);
+    _makepath(szModule, szDrive, szDir, TEXT("Artwork\\"), nullptr);
     g.strArtPath = szModule;
 
 
@@ -6158,10 +6158,10 @@ HRESULT pascal FedSrv_Init()
   int iCon = 0;
   HRESULT hr = S_OK;
 
-  g_events.TriggerEvent(NULL, AllsrvEventID_Initialize, "", -1, -1, -1, 0);
+  g_events.TriggerEvent(nullptr, AllsrvEventID_Initialize, "", -1, -1, -1, 0);
 
   // Set cur dir = exe dir
-  HMODULE hmod = GetModuleHandle(NULL);
+  HMODULE hmod = GetModuleHandle(nullptr);
   assert(hmod);
   char path_buffer[_MAX_PATH];
   GetModuleFileName(hmod, path_buffer, sizeof(path_buffer)); 
@@ -6170,8 +6170,8 @@ HRESULT pascal FedSrv_Init()
   char dir[_MAX_DIR];
 
   // just strip off the filename.extension
-  _splitpath(path_buffer, drive, dir, NULL, NULL);
-  _makepath(path_buffer, drive, dir, NULL, NULL);
+  _splitpath(path_buffer, drive, dir, nullptr, nullptr);
+  _makepath(path_buffer, drive, dir, nullptr, nullptr);
   SetCurrentDirectory(path_buffer);
 
   LoadTechBits(); // only for the IfYouBuildIt cheat
@@ -6192,13 +6192,13 @@ HRESULT pascal FedSrv_Init()
   // assert(g.hPlayerEvent);
 
   // create event used to signal that the receive thread should exit
-  g.hKillReceiveEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+  g.hKillReceiveEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
   assert(g.hKillReceiveEvent);
 
   g.idReceiveThread   = 0; // id of receive thread
 
   // create thread to receive player messages and start things cranking
-  g.hReceiveThread = CreateThread(NULL, 0, ReceiveThread, 0, 0, &g.idReceiveThread);
+  g.hReceiveThread = CreateThread(nullptr, 0, ReceiveThread, nullptr, 0, &g.idReceiveThread);
   assert(g.hReceiveThread);
 
   ZVerify (TIMERR_NOERROR == timeBeginPeriod(1));
@@ -6237,7 +6237,7 @@ class ThingSiteImpl : public ThingSite
 
                     assert (psideModel);
                     for (SideLinkIGC*   l = pmodel->GetMission()->GetSides()->first();
-                         (l != NULL);
+                         (l != nullptr);
                          l = l->next())
                     {
                         IsideIGC*   pside = l->data();
@@ -6284,14 +6284,14 @@ class ThingSiteImpl : public ThingSite
                     
                     //Tell everyone on the side about the newly visible static object
                     bSent = true;
-                    ExportObj(pmodel, type, NULL);
+                    ExportObj(pmodel, type, nullptr);
 
                     //perform a hack here: if a aleph becomes visible, make its corresponding aleph visible
                     if (type == OT_warp)
                     {
                         IwarpIGC*   pwarpOther = ((IwarpIGC*)pmodel)->GetDestination();
                         assert (pwarpOther);
-                        ExportObj(pwarpOther, OT_warp, NULL);
+                        ExportObj(pwarpOther, OT_warp, nullptr);
 
                         assert (!pwarpOther->SeenBySide(pside));
                         {
@@ -6304,7 +6304,7 @@ class ThingSiteImpl : public ThingSite
                         }
 
                         {
-                            for (WarpBombLink* p = ((IwarpIGC*)pmodel)->GetBombs()->first(); (p != NULL); p = p->next())
+                            for (WarpBombLink* p = ((IwarpIGC*)pmodel)->GetBombs()->first(); (p != nullptr); p = p->next())
                             {
                                 BEGIN_PFM_CREATE(g.fm, pfmWB, S, WARP_BOMB)
                                 END_PFM_CREATE
@@ -6315,7 +6315,7 @@ class ThingSiteImpl : public ThingSite
                         }
 
                         {
-                            for (WarpBombLink* p = pwarpOther->GetBombs()->first(); (p != NULL); p = p->next())
+                            for (WarpBombLink* p = pwarpOther->GetBombs()->first(); (p != nullptr); p = p->next())
                             {
                                 BEGIN_PFM_CREATE(g.fm, pfmWB, S, WARP_BOMB)
                                 END_PFM_CREATE
@@ -6330,7 +6330,7 @@ class ThingSiteImpl : public ThingSite
                         //if under construction, send the building effect
                         IbuildingEffectIGC* pbe = ((IasteroidIGC*)pmodel)->GetBuildingEffect();
                         if (pbe)
-                            ExportObj(pbe, OT_buildingEffect, NULL);
+                            ExportObj(pbe, OT_buildingEffect, nullptr);
                     }
                     g.fm.SendMessages(CFSSide::FromIGC(pside)->GetGroup(), FM_GUARANTEED, FM_FLUSH);
                 }
@@ -6368,7 +6368,7 @@ class ThingSiteImpl : public ThingSite
                 ClusterSite*    pcs = pcluster->GetClusterSite();
 
                 for (SideLinkIGC*   l = pcluster->GetMission()->GetSides()->first();
-                     (l != NULL);
+                     (l != nullptr);
                      l = l->next())
                 {
                     IsideIGC*   pside = l->data();
@@ -6402,7 +6402,7 @@ class ThingSiteImpl : public ThingSite
                             //Not trivially seen ... loop over everything that could see it
                             sv.fVisible(false);
                             for (ScannerLinkIGC*   l = pcs->GetScanners(sid)->first();
-                                 (l != NULL);
+                                 (l != nullptr);
                                  l = l->next())
                             {
                                 IscannerIGC*   s = l->data();
@@ -6464,7 +6464,7 @@ class ThingSiteImpl : public ThingSite
                             {
                                 // hide it
                                 HideObject(pside, pmodel);
-                                sv.pLastSpotter(NULL);
+                                sv.pLastSpotter(nullptr);
                             }
                         }
                     }
@@ -6566,13 +6566,13 @@ void    FedSrvSiteBase::UpgradeDrones(IsideIGC* pside)
     {
         //Upgrade any drones docked at the station
         for (StationLinkIGC*    pslStation = pside->GetStations()->first();
-             (pslStation != NULL);
+             (pslStation != nullptr);
              pslStation = pslStation->next())
         {
             IstationIGC*    pstation = pslStation->data();
 
             for (ShipLinkIGC*   pslShip = pstation->GetShips()->first();
-                 (pslShip != NULL);
+                 (pslShip != nullptr);
                  pslShip = pslShip->next())
             {
                 IshipIGC*   pship = pslShip->data();
@@ -6625,7 +6625,7 @@ void FedSrvSiteBase::SideDevelopmentTechChange(IsideIGC*    pside)
     }
 
     for (StationLinkIGC*    pslStation = pside->GetStations()->first();
-         (pslStation != NULL);
+         (pslStation != nullptr);
          pslStation = pslStation->next())
     {
         IstationIGC*        pstation = pslStation->data();
@@ -6663,7 +6663,7 @@ void FedSrvSiteBase::HullTypeCompleted(IsideIGC* pside, IhullTypeIGC* pht)
 void FedSrvSiteBase::PartTypeCompleted(IsideIGC* pside, IpartTypeIGC* ppt)
 {
     pside->AddToStockpile(ppt, IlauncherTypeIGC::IsLauncherType(ppt->GetEquipmentType())
-                               ? ppt->GetAmount(NULL)
+                               ? ppt->GetAmount(nullptr)
                                : 1);
 
     //NYI send messages
@@ -6682,7 +6682,7 @@ void FedSrvSiteBase::StationTypeCompleted(IbucketIGC * pbucket, IstationIGC* pst
 
         pfsDrone->GetIGCShip()->SetStation(pstation);   // start them at a station just like everyone else
         pfsDrone->GetIGCShip()->PickDefaultOrder(pstation->GetCluster(), pstation->GetPosition(), true);
-        pfsDrone->GetIGCShip()->SetStation(NULL);       //but quickly undock them
+        pfsDrone->GetIGCShip()->SetStation(nullptr);       //but quickly undock them
 
         // request a rock.
         if (pfsDrone->GetIGCShip()->GetCommandID(c_cmdCurrent) != c_cidBuild)
@@ -6749,13 +6749,13 @@ void FedSrvSiteBase::DroneTypeCompleted(IbucketIGC * pbucket, IstationIGC* pstat
       assert (pdronetype->GetPilotType() != c_ptBuilder);
       CFSDrone * pfsDrone = CreateStockDrone(pdronetype, pside, (pdronetype->GetPilotType() == c_ptLayer)
                                                                 ? pdronetype->GetLaidExpendable()
-                                                                : NULL);
+                                                                : nullptr);
 
       if (pfsDrone)
       {
         pfsDrone->GetIGCShip()->SetStation(pstation);  //start them at a station just like everyone else
         pfsDrone->GetIGCShip()->PickDefaultOrder(pstation->GetCluster(), pstation->GetPosition(), true);
-        pfsDrone->GetIGCShip()->SetStation(NULL);      //but undock them immediately
+        pfsDrone->GetIGCShip()->SetStation(nullptr);      //but undock them immediately
 
         // Tell everyone on your side that you got one of these things
         // Can't send to team until ISideIGC keeps track of ships on a side
@@ -6801,7 +6801,7 @@ void FedSrvSiteBase::UpgradeShip(IshipIGC* pship, const IstationIGC*  pstation)
         //Buy a default loadout
         {
             for (PartTypeLinkIGC*   ptl = phtSuccessor->GetPreferredPartTypes()->first();
-                 (ptl != NULL);
+                 (ptl != nullptr);
                  ptl = ptl->next())
             {
                 IpartTypeIGC*   ppt = ptl->data();
@@ -6817,7 +6817,7 @@ void FedSrvSiteBase::UpgradeShip(IshipIGC* pship, const IstationIGC*  pstation)
 
                     for (Mount i = 0; (i < mountMax); i++)
                     {
-                        if ((pship->GetMountedPart(et, i) == NULL) && phtSuccessor->CanMount(ppt, i))
+                        if ((pship->GetMountedPart(et, i) == nullptr) && phtSuccessor->CanMount(ppt, i))
                             pship->CreateAndAddPart(ppt, i, 0x7fff);
                     }
                 }
@@ -6866,8 +6866,8 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
   IclusterIGC*  pcluster = pship->GetCluster();
   IshipIGC*     pshipParent = pship->GetParentShip();
 
-  DamageBucketLink* pdmglink = NULL;
-  if (pshipParent == NULL)
+  DamageBucketLink* pdmglink = nullptr;
+  if (pshipParent == nullptr)
   {
     //Transfer credit to the deserving individual, if we are tracking that sort of thing
     DamageTrack*  pdt = pship->GetDamageTrack();
@@ -6998,7 +6998,7 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
   {
     pfsShip->GetPlayer()->SetTreasureObjectID(NA);
 
-    bLifepod = (pshipParent == NULL) &&
+    bLifepod = (pshipParent == nullptr) &&
                pship->GetBaseHullType()->HasCapability(c_habmLifepod);
 
     bKilled = (!pmp->bEjectPods) || bLifepod || (amount < 0.0f);
@@ -7012,7 +7012,7 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
   if (bKilled)
         pship->SetExperience(0.0f);
 
-  IshipIGC*   pshipCredit = NULL;
+  IshipIGC*   pshipCredit = nullptr;
   if (amount != 0.0f)
   {
     BEGIN_PFM_CREATE(g.fm, pfmKillShip, S, KILL_SHIP)
@@ -7053,7 +7053,7 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
                         //Award score credit for partial kills to anyone who did damage in the damage track
                         float totalDamage = 0.0f;
                         {
-                            for (DamageBucketLink* l = pdmglink; (l != NULL); l = l->next())
+                            for (DamageBucketLink* l = pdmglink; (l != nullptr); l = l->next())
                             {
                                 if (l->data()->model()->GetSide() != pside)
                                     totalDamage += l->data()->totalDamage();
@@ -7061,7 +7061,7 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
                         }
                         if (totalDamage != 0.0f)
                         {
-                            for (DamageBucketLink* l = pdmglink; (l != NULL); l = l->next())
+                            for (DamageBucketLink* l = pdmglink; (l != nullptr); l = l->next())
                             {
                                 ImodelIGC*    pmodel = l->data()->model();
                                 if ((pmodel->GetObjectType() == OT_ship) &&
@@ -7125,12 +7125,12 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
     assert (pcluster);
 
     for (MissileLinkIGC*  pml = pcluster->GetMissiles()->first();
-         (pml != NULL);
+         (pml != nullptr);
          pml = pml->next())
     {
         ImissileIGC*    pmissile = pml->data();
         if (pmissile->GetTarget() == pship)
-            pmissile->SetTarget(NULL);
+            pmissile->SetTarget(nullptr);
     }
 
     //Eject the player
@@ -7140,7 +7140,7 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
     pfsShip->ShipStatusHullChange(pht);
     //Put us in the eject pod.
     if (pshipParent)
-        pship->SetParentShip(NULL);
+        pship->SetParentShip(nullptr);
     pship->SetBaseHullType(pht);
 
     Vector      f = Vector::RandomDirection();
@@ -7224,7 +7224,7 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
   }
   else
   {
-      pfsShip->AnnounceExit(NULL, (amount != 0.0f) ? SDR_KILLED : SDR_TERMINATE);
+      pfsShip->AnnounceExit(nullptr, (amount != 0.0f) ? SDR_KILLED : SDR_TERMINATE);
       if (pfsShip->IsPlayer())
       {
         assert (amount != 0.0f);
@@ -7234,7 +7234,7 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
         pfsPlayer->AddDeath();
 
         IstationIGC* pstationDest = (IstationIGC*)(FindTarget(pship, c_ttFriendly | c_ttStation | c_ttNearest | c_ttAnyCluster,
-                                                              NULL, NULL, NULL, NULL,
+                                                              nullptr, nullptr, nullptr, nullptr,
                                                               c_sabmRestart));
         if (!pstationDest)
             pstationDest = m_pfsMission->GetBase(pside);
@@ -7244,10 +7244,10 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
         //if the game ends then the clients are all going to be rather firmly reset anyhow
 
         //there also might be more than two 
-        pship->SetCluster(NULL);
+        pship->SetCluster(nullptr);
 
         if (pshipParent)
-            pship->SetParentShip(NULL);
+            pship->SetParentShip(nullptr);
         assert (pfsShip->GetIGCShip()->GetChildShips()->n() == 0);
 
         //Put us in the eject pod.
@@ -7369,14 +7369,14 @@ void FedSrvSiteBase::DamageStationEvent(IstationIGC* station, ImodelIGC* launche
                 {
                     if (station->GetFraction() < 0.30)
                     {
-                        SendChatf(NULL, CHAT_TEAM, station->GetSide()->GetObjectID(),
+                        SendChatf(nullptr, CHAT_TEAM, station->GetSide()->GetObjectID(),
                                   station->GetStationType()->GetCriticalSound(),
                                   "%s in %s critically damaged and under attack by %s", station->GetName(), 
                                   station->GetCluster()->GetName(), GetModelName(launcher));
                     }
                     else
                     {
-                        SendChatf(NULL, CHAT_TEAM, station->GetSide()->GetObjectID(),
+                        SendChatf(nullptr, CHAT_TEAM, station->GetSide()->GetObjectID(),
                                   station->GetStationType()->GetUnderAttackSound(),
                                   "%s in %s under attack by %s", station->GetName(), 
                                   station->GetCluster()->GetName(), GetModelName(launcher));
@@ -7387,7 +7387,7 @@ void FedSrvSiteBase::DamageStationEvent(IstationIGC* station, ImodelIGC* launche
                     CFSShip*    pfsLauncher = (CFSShip*)(((IshipIGC*)(launcher))->GetPrivateData());
                     if (pfsLauncher->IsPlayer())
                     {
-                        SendChat(NULL, CHAT_INDIVIDUAL, launcher->GetObjectID(),
+                        SendChat(nullptr, CHAT_INDIVIDUAL, launcher->GetObjectID(),
                                  droneWatchFireSound, "Watch your fire");
                     }
                 }
@@ -7405,7 +7405,7 @@ void FedSrvSiteBase::KillStationEvent(IstationIGC* pstation, ImodelIGC* plaunche
   m_pfsMission->VacateStation(pstation);
 
   ObjectType    otLauncher = NA;
-  IsideIGC*     psideLauncher = NULL;
+  IsideIGC*     psideLauncher = nullptr;
   if (plauncher)
   {
       otLauncher = plauncher->GetObjectType();
@@ -7415,7 +7415,7 @@ void FedSrvSiteBase::KillStationEvent(IstationIGC* pstation, ImodelIGC* plaunche
           CFSShip*      pfsship = (CFSShip*)(pship->GetPrivateData());
           pfsship->GetPlayerScoreObject()->KillBase(true);
           for (ShipLinkIGC* psl = pship->GetChildShips()->first();
-               (psl != NULL);
+               (psl != nullptr);
                psl = psl->next())
           {
              CFSShip*      ps = (CFSShip*)(psl->data()->GetPrivateData());
@@ -7451,7 +7451,7 @@ void FedSrvSiteBase::KillStationEvent(IstationIGC* pstation, ImodelIGC* plaunche
       m_pfsMission->GameOver(psideWin, szReason);
   }
   else if ((otLauncher == OT_ship) && psideLauncher)
-      SendChatf(NULL, CHAT_EVERYONE, NA,
+      SendChatf(nullptr, CHAT_EVERYONE, NA,
                 NA, "%s has destroyed %s's %s.", 
                 psideLauncher->GetName(), pside->GetName(), pstation->GetName());
 
@@ -7661,7 +7661,7 @@ static void ErasePart(IshipIGC* pship, EquipmentType et, Mount mount, IpartTypeI
         {
             if (ptDesired[i] && MatchPT(ptDesired[i], ppt))
             {
-                ptDesired[i] = NULL;
+                ptDesired[i] = nullptr;
                 break;
             }
         }
@@ -7704,11 +7704,11 @@ bool FedSrvSiteBase::LandOnCarrierEvent(IshipIGC* pshipCarrier, IshipIGC* pship,
     }
 
     {
-        IpartTypeIGC*   ptFuel = (pship->GetMountedPart(ET_Afterburner, 0) != NULL)
+        IpartTypeIGC*   ptFuel = (pship->GetMountedPart(ET_Afterburner, 0) != nullptr)
                                  ? pMission->GetFuelPack()
-                                 : NULL;
+                                 : nullptr;
 
-        IpartTypeIGC*   ptAmmo = NULL;
+        IpartTypeIGC*   ptAmmo = nullptr;
         {
             for (Mount i = pship->GetHullType()->GetMaxWeapons() - 1; (i >= 0); i--)
             {
@@ -7728,7 +7728,7 @@ bool FedSrvSiteBase::LandOnCarrierEvent(IshipIGC* pshipCarrier, IshipIGC* pship,
         for (Mount i = 0; (i < c_maxCargo); i++)
         {
             IpartIGC*   ppart = pship->GetMountedPart(NA, -1 - i);
-            if (ppart == NULL)
+            if (ppart == nullptr)
             {
                 //Shove an instance of the first part left in the
                 //desired part list into the slot
@@ -7753,12 +7753,12 @@ bool FedSrvSiteBase::LandOnCarrierEvent(IshipIGC* pshipCarrier, IshipIGC* pship,
                     }
                 }
 
-                if (ppart == NULL)
+                if (ppart == nullptr)
                 {
                     if (bBuyFuel && ptFuel)
                     {
                         pship->CreateAndAddPart(ptFuel, -1 - i, SHRT_MAX);
-                        bBuyFuel = (ptAmmo == NULL);
+                        bBuyFuel = (ptAmmo == nullptr);
                     }
                     else if (ptAmmo)
                     {
@@ -7824,12 +7824,12 @@ bool FedSrvSiteBase::LandOnCarrierEvent(IshipIGC* pshipCarrier, IshipIGC* pship,
     pship->SetOrientation(*porientation);
 
     IclusterIGC*    pcluster = pship->GetCluster();
-    pcluster->RecalculateCollisions(tCollision, pship, NULL);
+    pcluster->RecalculateCollisions(tCollision, pship, nullptr);
 
     //Send the launch message to everyone in the sector
     {
         BEGIN_PFM_CREATE(g.fm, pfmLaunch, S, RELAUNCH_SHIP)
-            FM_VAR_PARM(NULL, pship->ExportShipLoadout(NULL))
+            FM_VAR_PARM(NULL, pship->ExportShipLoadout(nullptr))
         END_PFM_CREATE
 
         pship->ExportShipLoadout((ShipLoadout*)FM_VAR_REF(pfmLaunch, loadout));
@@ -7868,7 +7868,7 @@ bool FedSrvSiteBase::RescueShipEvent(IshipIGC* pshipRescued, IshipIGC* pshipResc
   //Find the closest space station and put the rescued ship there
   IstationIGC*    pstation = (IstationIGC*)FindTarget(pshipRescued,
                                                       (c_ttStation | c_ttFriendly | c_ttAnyCluster | c_ttNearest),
-                                                      NULL, NULL, NULL, NULL, c_sabmRestart);
+                                                      nullptr, nullptr, nullptr, nullptr, c_sabmRestart);
 
   return pstation ? DockWithStationEvent(pshipRescued, pstation) : false;
 }
@@ -7912,7 +7912,7 @@ bool FedSrvSiteBase::DockWithStationEvent(IshipIGC* pship, IstationIGC* pstation
               pfsShip->GetPlayerScoreObject()->AddArtifact();
               pside->SetArtifacts(pside->GetArtifacts() + 1);
 
-              SendChatf(NULL, CHAT_TEAM, pside->GetObjectID(),
+              SendChatf(nullptr, CHAT_TEAM, pside->GetObjectID(),
                         artifactSecuredSound, "%s has secured an artifact.", 
                         pship->GetName());
           }
@@ -7921,11 +7921,11 @@ bool FedSrvSiteBase::DockWithStationEvent(IshipIGC* pship, IstationIGC* pstation
               pfsShip->GetPlayerScoreObject()->AddFlag();
               pside->SetFlags(pside->GetFlags() + 1);
 
-              SendChatf(NULL, CHAT_TEAM, pside->GetObjectID(),
+              SendChatf(nullptr, CHAT_TEAM, pside->GetObjectID(),
                         enemyFlagSecuredSound, "%s has secured %s's flag.", 
                         pship->GetName(), pfsShip->GetIGCShip()->GetMission()->GetSide(sidFlag)->GetName());
 
-              SendChatf(NULL, CHAT_TEAM, sidFlag,
+              SendChatf(nullptr, CHAT_TEAM, sidFlag,
                         flagSecuredSound, "%s of %s has secured your flag.", 
                         pship->GetName(), pside->GetName ());
           }
@@ -7958,7 +7958,7 @@ bool FedSrvSiteBase::DockWithStationEvent(IshipIGC* pship, IstationIGC* pstation
   {
       //Move the children of this ship to the station as well
       for (ShipLinkIGC*   psl = pship->GetChildShips()->first();
-           (psl != NULL);
+           (psl != nullptr);
            psl = psl->next())
       {
           psl->data()->SetStation(pstation);
@@ -7973,10 +7973,10 @@ void    FedSrvSiteBase::ChangeStation(IshipIGC* pship, IstationIGC* pstationOld,
     assert (pship);
     CFSShip * pfsShip = (CFSShip *) pship->GetPrivateData();
 
-    if (pstationNew == NULL)
+    if (pstationNew == nullptr)
     {
         //Let the parent handle the launch & only allow launched in the game.
-        if ((m_pfsMission->GetStage() == STAGE_STARTED) && (pship->GetParentShip() == NULL))
+        if ((m_pfsMission->GetStage() == STAGE_STARTED) && (pship->GetParentShip() == nullptr))
         {
             pstationOld->RepairAndRefuel(pship);
             pfsShip->Launch(pstationOld);
@@ -7984,13 +7984,13 @@ void    FedSrvSiteBase::ChangeStation(IshipIGC* pship, IstationIGC* pstationOld,
     }
     else
     {
-        if (pstationOld == NULL)
+        if (pstationOld == nullptr)
         {
             //Go over the ship's parts and give the side the tech bits for any equipment onboard
 
             TechTreeBitMask ttbm;
             ttbm.ClearAll();
-            for (PartLinkIGC*   ppl = pship->GetParts()->first(); (ppl != NULL); ppl = ppl->next())
+            for (PartLinkIGC*   ppl = pship->GetParts()->first(); (ppl != nullptr); ppl = ppl->next())
             {
                 IpartIGC*   ppart = ppl->data();
 
@@ -8012,7 +8012,7 @@ void    FedSrvSiteBase::ChangeStation(IshipIGC* pship, IstationIGC* pstationOld,
 void * FedSrvSiteBase::GetDroneFromShip(IshipIGC * pship) // return value is really a Drone*
 {
   CFSShip * pfsShip = (CFSShip *) pship->GetPrivateData();
-  return pfsShip->IsPlayer() ? NULL : (void *) pfsShip->GetDrone()->GetDrone();
+  return pfsShip->IsPlayer() ? nullptr : (void *) pfsShip->GetDrone()->GetDrone();
 }
 
 void FedSrvSiteBase::RequestRipcord(IshipIGC* pship, IclusterIGC* pcluster)
@@ -8023,13 +8023,13 @@ void FedSrvSiteBase::RequestRipcord(IshipIGC* pship, IclusterIGC* pcluster)
     CFSMission* pfsMission = pfsShip->GetMission();
 
     ImodelIGC*    pmodelRipcord = pship->GetRipcordModel();
-    if (pcluster == NULL)
+    if (pcluster == nullptr)
     {
-        if (pmodelRipcord != NULL)
+        if (pmodelRipcord != nullptr)
         {
             assert (pclusterShip);
 
-            pship->SetRipcordModel(NULL);
+            pship->SetRipcordModel(nullptr);
 
             BEGIN_PFM_CREATE(g.fm, pfmRipcordAborted, S, RIPCORD_ABORTED)
             END_PFM_CREATE
@@ -8037,7 +8037,7 @@ void FedSrvSiteBase::RequestRipcord(IshipIGC* pship, IclusterIGC* pcluster)
             g.fm.SendMessages(GetGroupSectorFlying(pclusterShip), FM_GUARANTEED, FM_FLUSH);
         }
     }
-    else if ((pmodelRipcord == NULL) ||
+    else if ((pmodelRipcord == nullptr) ||
              (pmodelRipcord->GetCluster() != pcluster))
     {
         assert (pclusterShip);
@@ -8062,7 +8062,7 @@ void FedSrvSiteBase::RequestRipcord(IshipIGC* pship, IclusterIGC* pcluster)
                 pfmRA->oidRipcord = pmodelNew->GetObjectID();
                 pfmRA->sidRipcord = pcluster->GetObjectID();
 
-                g.fm.SendMessages((pmodelOld == NULL)
+                g.fm.SendMessages((pmodelOld == nullptr)
                                   ? (CFMRecipient*)(GetGroupSectorFlying(pclusterShip))
                                   : (CFMRecipient*)(pfsShip->GetPlayer()->GetConnection()), FM_GUARANTEED, FM_FLUSH);
             }
@@ -8080,7 +8080,7 @@ bool FedSrvSiteBase::ContinueRipcord(IshipIGC* pship, ImodelIGC* pmodel)
     bool    rc;
     if ((pship->GetFlag() != NA) ||
         (pship->GetSide() != pmodel->GetSide()) ||
-        (pmodel->GetCluster() == NULL))
+        (pmodel->GetCluster() == nullptr))
     {
         rc = false;
     }
@@ -8248,7 +8248,7 @@ bool FedSrvSiteBase::HitTreasureEvent(Time now, IshipIGC* ship, ItreasureIGC* tr
         if (pfsShip->IsPlayer())
         {
             IshipIGC*   pshipDonate = ship->GetAutoDonate();
-            if (pshipDonate == NULL)
+            if (pshipDonate == nullptr)
                 pshipDonate = ship;
 
             CFSShip*    pfsDonate = (CFSShip*)(pshipDonate->GetPrivateData());
@@ -8336,13 +8336,13 @@ void FedSrvSiteBase::SendChat(IshipIGC*     pshipSender,
     ForwardChatMessage(m_pfsMission,
                        pshipSender
                        ? (CFSShip*)(pshipSender->GetPrivateData())
-                       : NULL,
+                       : nullptr,
                        pfmChatAlloc,
                        &(pfmChatAlloc->cd),
                        pszText,
                        otTarget,
                        oidTarget,
-                       NULL);
+                       nullptr);
 
     PFM_DEALLOC(pfmChatAlloc);
 }
@@ -8355,7 +8355,7 @@ void FedSrvSiteBase::ClusterUpdateEvent(IclusterIGC* c)
 void FedSrvSiteBase::CommandChangedEvent(Command i, IshipIGC * pship, ImodelIGC* ptarget, CommandID cid)
 {
     // forward the command change to everyone on the side.
-    IclusterIGC*    pcluster = NULL;
+    IclusterIGC*    pcluster = nullptr;
 
     if ((i == c_cmdAccepted) ||
         ((i == c_cmdCurrent) &&
@@ -8398,7 +8398,7 @@ void     FedSrvSiteBase::CreateBuildingEffect(Time           now,
 
     IbuildingEffectIGC*    pbe = pshipBuilder->GetCluster()->CreateBuildingEffect(now,
                                                      pasteroid,
-                                                     NULL,
+                                                     nullptr,
                                                      pshipBuilder,
                                                      pasteroid->GetRadius(),
                                                      ((IstationTypeIGC*)(pshipBuilder->GetBaseData()))->GetRadius(),
@@ -8407,12 +8407,12 @@ void     FedSrvSiteBase::CreateBuildingEffect(Time           now,
 
     //Export the building effect to all sides that could see the asteroid
     for (SideLinkIGC*   psl = m_pfsMission->GetIGCMission()->GetSides()->first();
-         (psl != NULL);
+         (psl != nullptr);
          psl = psl->next())
      {
          if (pasteroid->SeenBySide(psl->data()))
          {
-            ExportObj(pbe, OT_buildingEffect, NULL);
+            ExportObj(pbe, OT_buildingEffect, nullptr);
             g.fm.SendMessages(CFSSide::FromIGC(psl->data())->GetGroup(), FM_GUARANTEED, FM_FLUSH);
          }
      }
@@ -8435,7 +8435,7 @@ void        FedSrvSiteBase::LayExpendable(Time                   now,
     if (type == OT_mineType)
     {
         DataMineIGC  dm;
-        dm.pshipLauncher = NULL;
+        dm.pshipLauncher = nullptr;
         dm.psideLauncher = pside;
         dm.mineID = pMission->GenerateNewMineID();
 
@@ -8459,8 +8459,8 @@ void        FedSrvSiteBase::LayExpendable(Time                   now,
 
         DataProbeIGC dp; 
         dp.pside = pside;
-        dp.pship = NULL;
-        dp.pmodelTarget = NULL;
+        dp.pship = nullptr;
+        dp.pmodelTarget = nullptr;
         dp.probeID = pMission->GenerateNewProbeID();
 
         dp.time0 = now;
@@ -8487,7 +8487,7 @@ void        FedSrvSiteBase::LayExpendable(Time                   now,
     pshipLayer->SetAmmo(0);
     pshipLayer->SetFuel(0.0f);
 
-    KillShipEvent(now, pshipLayer, NULL, 0.0f, position, Vector::GetZero());
+    KillShipEvent(now, pshipLayer, nullptr, 0.0f, position, Vector::GetZero());
 }
 
 void    FedSrvSiteBase::RespawnFlag(SideID  sidFlag)
@@ -8503,7 +8503,7 @@ void    FedSrvSiteBase::RespawnFlag(SideID  sidFlag)
             int             nClusters = 0;
 
             for (ClusterLinkIGC*    pcl = m_pfsMission->GetIGCMission()->GetClusters()->first();
-                 (pcl != NULL);
+                 (pcl != nullptr);
                  pcl = pcl->next())
             {
                 IclusterIGC*   pcluster = pcl->data();
@@ -8528,7 +8528,7 @@ void    FedSrvSiteBase::RespawnFlag(SideID  sidFlag)
             IstationIGC*    pstations[c_maxStations];
             int             nStations = 0;
 
-            for (StationLinkIGC* psl = pside->GetStations()->first(); (psl != NULL); psl = psl->next())
+            for (StationLinkIGC* psl = pside->GetStations()->first(); (psl != nullptr); psl = psl->next())
             {
                 IstationIGC*    pstation = psl->data();
                 if (pstation->GetStationType()->HasCapability(c_sabmPedestal))
@@ -8536,7 +8536,7 @@ void    FedSrvSiteBase::RespawnFlag(SideID  sidFlag)
                     //Is there a flag within spitting distance?
                     const float c_spittingDistance = 300.0f;
                     TreasureLinkIGC*   ptl;
-                    for (ptl = pstation->GetCluster()->GetTreasures()->first(); (ptl != NULL); ptl = ptl->next())
+                    for (ptl = pstation->GetCluster()->GetTreasures()->first(); (ptl != nullptr); ptl = ptl->next())
                     {
                         ItreasureIGC*   pt = ptl->data();
                         if ((pt->GetTreasureCode() == c_tcFlag) && (pt->GetTreasureID() == sidFlag))
@@ -8547,7 +8547,7 @@ void    FedSrvSiteBase::RespawnFlag(SideID  sidFlag)
                         }
                     }
 
-                    if (ptl == NULL)
+                    if (ptl == nullptr)
                     {
                         assert (nStations < c_maxStations);
                         pstations[nStations++] = pstation;
@@ -8629,8 +8629,8 @@ IshipIGC*   PickNewLeader(const ShipListIGC*    pships,
     Contender*    pcontenders = new Contender[pships->n()];
     int           nContenders = 0;
 
-    IshipIGC*     pshipMax = NULL;
-    for (ShipLinkIGC* psl = pships->first(); (psl != NULL); psl = psl->next())
+    IshipIGC*     pshipMax = nullptr;
+    for (ShipLinkIGC* psl = pships->first(); (psl != nullptr); psl = psl->next())
     {
         IshipIGC* pshipAD = psl->data()->GetAutoDonate();
         if (pshipAD && (pshipAD != pshipIgnore))

@@ -35,17 +35,17 @@ namespace
         if (str.empty())
             return str;
 
-        int cwch = MultiByteToWideChar(CP_ACP, 0, str.data(), (int)str.size(), NULL, 0);
+        int cwch = MultiByteToWideChar(CP_ACP, 0, str.data(), (int)str.size(), nullptr, 0);
         if (cwch <= 0)
             return std::string();
 
         std::wstring wstr(cwch, L'\0');
         MultiByteToWideChar(CP_ACP, 0, str.data(), (int)str.size(), &wstr[0], cwch);
 
-        int cch = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), cwch, NULL, 0, NULL, NULL);
+        int cch = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), cwch, nullptr, 0, nullptr, nullptr);
         std::string result(cch > 0 ? cch : 0, '\0');
         if (cch > 0)
-            WideCharToMultiByte(CP_UTF8, 0, wstr.data(), cwch, &result[0], cch, NULL, NULL);
+            WideCharToMultiByte(CP_UTF8, 0, wstr.data(), cwch, &result[0], cch, nullptr, nullptr);
         return result;
     }
 
@@ -121,7 +121,7 @@ const ServerEventDef* CServerEvents::Find(AGCEventID idEvent) const
         if (s_rgDefs[i].m_id == idEvent)
             return &s_rgDefs[i];
     }
-    return NULL;
+    return nullptr;
 }
 
 bool CServerEvents::IsWanted(const ServerEventDef* pdef) const
@@ -132,7 +132,7 @@ bool CServerEvents::IsWanted(const ServerEventDef* pdef) const
 
 HAGCLISTENERS CServerEvents::EventListeners(AGCEventID idEvent, AGCUniqueID, AGCUniqueID, AGCUniqueID)
 {
-    return IsWanted(Find(idEvent)) ? this : NULL;
+    return IsWanted(Find(idEvent)) ? this : nullptr;
 }
 
 
@@ -152,12 +152,12 @@ std::string CServerEvents::ToString(VARTYPE, const wchar_t* wsz)
     if (!wsz || !*wsz)
         return std::string();
 
-    int cch = WideCharToMultiByte(CP_ACP, 0, wsz, -1, NULL, 0, NULL, NULL);
+    int cch = WideCharToMultiByte(CP_ACP, 0, wsz, -1, nullptr, 0, nullptr, nullptr);
     if (cch <= 1)
         return std::string();
 
     std::string result(cch - 1, '\0');
-    WideCharToMultiByte(CP_ACP, 0, wsz, -1, &result[0], cch, NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, wsz, -1, &result[0], cch, nullptr, nullptr);
     return result;
 }
 
@@ -191,7 +191,7 @@ std::string CServerEvents::ToString(VARTYPE vt, long long n, bool fSigned)
 std::string CServerEvents::Expand(AGCEventID idEvent, const ServerEventDef* pdef, const char* szContext,
     const char* szSubject, AGCUniqueID idSubject, const std::vector<Arg>& vargs, const SYSTEMTIME& st) const
 {
-    const char* szFormat = (pdef && pdef->m_szFormat && *pdef->m_szFormat) ? pdef->m_szFormat : NULL;
+    const char* szFormat = (pdef && pdef->m_szFormat && *pdef->m_szFormat) ? pdef->m_szFormat : nullptr;
 
     //
     // No format: list the arguments
@@ -361,15 +361,15 @@ void CServerEvents::WriteLine(const SYSTEMTIME& st, const std::string& strLine)
         std::wstring wstrFolder = ZSettings::Get().GetPath();
         size_t ichSlash = wstrFolder.find_last_of(L"\\/");
         wstrFolder = (ichSlash != std::wstring::npos) ? wstrFolder.substr(0, ichSlash + 1) : std::wstring();
-        CreateDirectoryW(wstrFolder.c_str(), NULL);
+        CreateDirectoryW(wstrFolder.c_str(), nullptr);
         wstrFolder += L"logs";
-        CreateDirectoryW(wstrFolder.c_str(), NULL);
+        CreateDirectoryW(wstrFolder.c_str(), nullptr);
 
         wchar_t wszFile[64];
         swprintf_s(wszFile, L"\\server-%04u-%02u-%02u.log", st.wYear, st.wMonth, st.wDay);
 
         m_hfile = CreateFileW((wstrFolder + wszFile).c_str(), FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE,
-                              NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+                              nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
         m_dwDayOpen = (m_hfile != INVALID_HANDLE_VALUE) ? dwDay : 0;
     }
 
@@ -377,6 +377,6 @@ void CServerEvents::WriteLine(const SYSTEMTIME& st, const std::string& strLine)
     {
         std::string strUtf8 = AnsiToUtf8(strLine) + "\r\n";
         DWORD cbWritten = 0;
-        WriteFile(m_hfile, strUtf8.data(), (DWORD)strUtf8.size(), &cbWritten, NULL);
+        WriteFile(m_hfile, strUtf8.data(), (DWORD)strUtf8.size(), &cbWritten, nullptr);
     }
 }

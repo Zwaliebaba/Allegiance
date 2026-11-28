@@ -17,7 +17,7 @@
 CFSCluster::CFSCluster(TRef<IclusterIGC> pCluster) :
 
   m_pIclusterIGC(pCluster),
-  m_pClusterGroups(NULL)
+  m_pClusterGroups(nullptr)
 {
   pCluster->SetPrivateData((DWORD_PTR) this);  // link to IGC CLuster
 }
