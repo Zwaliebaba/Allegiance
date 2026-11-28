@@ -30,8 +30,8 @@ static void RunQhull(const char* stem)
 
     if (cch == 0 || cch >= sizeof(qhull))
     {
-        cch = GetModuleFileNameA(NULL, qhull, sizeof(qhull));
-        char* slash = (cch > 0 && cch < sizeof(qhull)) ? strrchr(qhull, '\\') : NULL;
+        cch = GetModuleFileNameA(nullptr, qhull, sizeof(qhull));
+        char* slash = (cch > 0 && cch < sizeof(qhull)) ? strrchr(qhull, '\\') : nullptr;
         if (slash)
             strcpy(slash + 1, "qhull.exe");
         else
@@ -139,8 +139,8 @@ bool    x2pl(const char*   fileIn, const char* fileOut)
 {
     bool    success = false;
 
-    FILE*   fIn = NULL;
-    FILE*   fOut = NULL;
+    FILE*   fIn = nullptr;
+    FILE*   fOut = nullptr;
 
     fIn = fopen(fileIn, "r");
 
@@ -156,7 +156,7 @@ bool    x2pl(const char*   fileIn, const char* fileOut)
             char        line[c_cbLine];
 
             int nVertices = -2;
-            while (fgets(line, c_cbLine, fIn) != NULL)
+            while (fgets(line, c_cbLine, fIn) != nullptr)
             {
                 if (nVertices == -2)
                 {
@@ -490,7 +490,7 @@ bool    qh2cvh(const char*   file, FILE*    fOut, int mode)
             strcat(bfr, "_m.x");
 
             fOutMesh = fopen(bfr, "w");
-            if (fOutMesh == NULL)
+            if (fOutMesh == nullptr)
             {
                 printf("cvh: cannot write %s\n", bfr);
                 return false;
@@ -795,7 +795,7 @@ bool    dat2cvh(const char*  file, FILE*    fOut)
         success = true;
 
         char    line[c_cbBfr];
-        while (fgets(line, c_cbBfr, fIn) != NULL)
+        while (fgets(line, c_cbBfr, fIn) != nullptr)
         {
             fputs(line, fOut);
         }

@@ -42,7 +42,7 @@ static bool ParseTrainingArgs(int argc, char *argv[])
     if (!lstrcmpi("-training", argv[i]) && i + 1 < argc)
       g.civTraining = (short)atoi(argv[++i]);
     else if (!lstrcmpi("-stopevent", argv[i]) && i + 1 < argc)
-      g.hTrainingStop = (HANDLE)(INT_PTR)_strtoui64(argv[++i], NULL, 10);
+      g.hTrainingStop = (HANDLE)(INT_PTR)_strtoui64(argv[++i], nullptr, 10);
     else
       return false;
   }
@@ -75,9 +75,9 @@ int __cdecl main(int argc, char *argv[])
     // seed the random number generator with the current time
     // (GetTickCount may be semi-predictable on server startup, so we add the 
     // clock time to shake things up a bit)
-    srand(GetTickCount() + time(NULL));
+    srand(GetTickCount() + time(nullptr));
 
-    g.hInst = GetModuleHandle(NULL);
+    g.hInst = GetModuleHandle(nullptr);
 
     //
     // -install, -remove and -service are NeuronServer's (ServiceHost.h);

@@ -38,7 +38,7 @@ namespace ArtFolderTests
             AreEqualStr("Movies", Folders("mp4"));
             AreEqualStr("Data", Folders(".igc"));
             AreEqualStr("", Folders("txt"));
-            AreEqualStr("", Folders(NULL));
+            AreEqualStr("", Folders(nullptr));
         }
     };
 
