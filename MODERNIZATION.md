@@ -91,7 +91,7 @@ rest of `guids.cpp` instantiated OLE DB's GUIDs for the server's SQL layer (`all
 which no longer reached a database: the logon used one query class as a data holder, now the plain
 `LogonDetails` (`FedSrv.H`), and the rest went with it, with the two database error events.
 
-**ATL removed.** The server reached ATL and the 1999 TCLib and TCAtl libraries built on it (about 4,000
+**ATL removed.** The server reached ATL and the 1999 TCLib and TCAtl libraries built on it (about 10,900
 lines) for two things: `TCUserAccount`, with which `-install user password` gave the account the right
 to log on as a service, and one `TCAutoCriticalSection`. The first is now `Service/accountrights.*` in
 NeuronServer (`LookupAccountName` and LSA), the second NeuronCore's `ZAutoCriticalSection`; TCLib, TCAtl,
