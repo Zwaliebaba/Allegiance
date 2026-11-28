@@ -224,7 +224,3 @@ int FileCRC(const char *szFilename, char * szErrorMsg)
 
    return nCRC;
 }
-
-static int BadName_x = 0;
-void bad_function(int Param, int _good) { (void)Param; (void)_good; }
-void GoodFunction(int _value) { int localValue = _value; (void)localValue; }
