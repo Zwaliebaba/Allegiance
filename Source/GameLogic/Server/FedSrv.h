@@ -76,7 +76,7 @@ class FedSrvSiteBase :
 {
 public:
   FedSrvSiteBase() :
-    m_pfsMission(NULL)
+    m_pfsMission(nullptr)
   {}
 // IIgcSite  
   void ClusterUpdateEvent(IclusterIGC* c) override;
@@ -142,7 +142,7 @@ public:
                 CommandID   cid       = c_cidNone,
                 ObjectType  otTarget  = NA,
                 ObjectType  oidTarget = NA,
-                ImodelIGC*  pmodelTarget = NULL,
+                ImodelIGC*  pmodelTarget = nullptr,
                 bool        bObjectModel = false) override;
 
 // IMissionSite
@@ -219,21 +219,21 @@ struct LogonDetails
 struct Global
 { 
   Global() :
-    hInst(0),
-    trekCore(NULL),
+    hInst(nullptr),
+    trekCore(nullptr),
 
     idReceiveThread(0),
-    hReceiveThread(0),
-    hKillReceiveEvent(0),
-    hPlayerEvent(0),
+    hReceiveThread(nullptr),
+    hKillReceiveEvent(nullptr),
+    hPlayerEvent(nullptr),
     fSecure(false),
     fTimeOut(false),
     pServerCounters(&serverCounters),
     civTraining(NA),
-    hTrainingStop(NULL),
+    hTrainingStop(nullptr),
     fService(false),
     fPublicLobby(false),
-    pargPoster(NULL),
+    pargPoster(nullptr),
     cbPosters(0),
     cMsgsToOthers(0),
     cBytesToOthers(0),
@@ -328,7 +328,7 @@ bool LeaveShip(CFSShip* pfsShip, IshipIGC* pshipParent);
 CFMGroup * GetGroupSectorDocked(IclusterIGC * pCluster);
 CFMGroup * GetGroupSectorFlying(IclusterIGC * pCluster);
 
-CFSDrone * CreateStockDrone(IdroneTypeIGC * pdronetype, IsideIGC* pSide, IbaseIGC* pbase = NULL);
+CFSDrone * CreateStockDrone(IdroneTypeIGC * pdronetype, IsideIGC* pSide, IbaseIGC* pbase = nullptr);
 
 void SetCharStats(int characterID, CFSPlayer* pfsPlayer, IsideIGC * pSide, PlayerScoreObject & pso, CFSMission* pfsMission);
 void RecordSquadGame(const SideListIGC*  psides, IsideIGC* psideWon);

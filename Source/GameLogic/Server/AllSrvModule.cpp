@@ -26,7 +26,7 @@ void PrintSystemErrorMessage(LPCTSTR szText, DWORD dwErrorCode)
   std::string strMessage = ServiceHost::SystemErrorText(dwErrorCode);
   printf("%s%s", szText, strMessage.c_str());
 
-  g_events.TriggerEvent(NULL, AllsrvEventID_SystemError, "", -1, -1, -1, 2,
+  g_events.TriggerEvent(nullptr, AllsrvEventID_SystemError, "", -1, -1, -1, 2,
       "Text", VT_LPSTR, szText,
       "Message", VT_LPSTR, strMessage.c_str());
 }

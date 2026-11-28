@@ -31,9 +31,9 @@ public:
     LPCSTR      pszClusterOld = pclusterOld ? pclusterOld->GetName()     : "";
     LPCSTR      pszClusterNew = pclusterNew ? pclusterNew->GetName()     : "";
 
-    LPCSTR pszContext = pship ? pship->GetMission()->GetContextName() : NULL;
+    LPCSTR pszContext = pship ? pship->GetMission()->GetContextName() : nullptr;
 
-    g_events.TriggerContextEvent(NULL, EventID_ShipChangesSectors, pszContext,
+    g_events.TriggerContextEvent(nullptr, EventID_ShipChangesSectors, pszContext,
       pszShip, shipID, newClusterID, oldClusterID, 4,
       "New Sector"     , VT_I4   , newClusterID,
       "Old Sector"     , VT_I4   , oldClusterID,
@@ -65,7 +65,7 @@ public:
       sprintf_s(szVector1, "%g %g %g", p1.x, p1.y, p1.z);
       sprintf_s(szVector2, "%g %g %g", p2.x, p2.y, p2.z);
 
-      LPCSTR pszContext = ship ? ship->GetMission()->GetContextName() : NULL;
+      LPCSTR pszContext = ship ? ship->GetMission()->GetContextName() : nullptr;
 
       // Trigger the event
       g_events.TriggerContextEvent(hListeners, EventID_ShipKilled, pszContext,
@@ -96,7 +96,7 @@ public:
       EventID_ShipUsesRipcord, shipID, -1, -1);
     if (hListeners)
     {
-      LPCSTR pszContext = pship ? pship->GetMission()->GetContextName() : NULL;
+      LPCSTR pszContext = pship ? pship->GetMission()->GetContextName() : nullptr;
 
       // Trigger the event
       g_events.TriggerContextEvent(hListeners, EventID_ShipUsesRipcord,

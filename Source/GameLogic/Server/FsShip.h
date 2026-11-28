@@ -323,7 +323,7 @@ public:
     IshipIGC*   pship = GetIGCShip()->GetAutoDonate();
 
     return pship ? ((CFSShip*)(pship->GetPrivateData()))->GetPlayer()
-                 : NULL;
+                 : nullptr;
   }
 
   void            SetAutoDonate(CFSPlayer* pplayer, Money amount, bool bSend = true);
@@ -398,7 +398,7 @@ public:
   void  Reset(bool  bFull) override
   {
     m_chatBudget = c_chatBudgetMax;
-    SetDPGroup(NULL, false);
+    SetDPGroup(nullptr, false);
     if (bFull)
         SetBannedSideMask(0);
     GetPlayerScoreObject()->Disconnect(g.timeNow);
@@ -436,15 +436,15 @@ public:
   {
       {
           IpartIGC* ppart = GetIGCShip()->GetMountedPart(ET_Magazine, 0);
-          m_ptDesiredLoadout[0] = (ppart && (ppart->GetPrice() == 0)) ? ppart->GetPartType() : NULL;
+          m_ptDesiredLoadout[0] = (ppart && (ppart->GetPrice() == 0)) ? ppart->GetPartType() : nullptr;
       }
       {
           IpartIGC* ppart = GetIGCShip()->GetMountedPart(ET_Dispenser, 0);
-          m_ptDesiredLoadout[1] = (ppart && (ppart->GetPrice() == 0)) ? ppart->GetPartType() : NULL;
+          m_ptDesiredLoadout[1] = (ppart && (ppart->GetPrice() == 0)) ? ppart->GetPartType() : nullptr;
       }
       {
           IpartIGC* ppart = GetIGCShip()->GetMountedPart(ET_ChaffLauncher, 0);
-          m_ptDesiredLoadout[2] = (ppart && (ppart->GetPrice() == 0)) ? ppart->GetPartType() : NULL;
+          m_ptDesiredLoadout[2] = (ppart && (ppart->GetPrice() == 0)) ? ppart->GetPartType() : nullptr;
       }
       for (Mount i = 0; (i < c_maxCargo); i++)
       {
@@ -453,7 +453,7 @@ public:
                                        (ppart->GetPrice() == 0) &&
                                        (IlauncherIGC::IsLauncher(ppart->GetObjectType())))
                                       ? ppart->GetPartType()
-                                      : NULL;
+                                      : nullptr;
       }
   }
 

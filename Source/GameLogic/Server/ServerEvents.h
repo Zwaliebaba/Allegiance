@@ -76,7 +76,7 @@ public:
     void TriggerEvent(HAGCLISTENERS, AGCEventID idEvent, const char* szSubject,
         AGCUniqueID idSubject, AGCUniqueID, AGCUniqueID, long, const Args&... args)
     {
-        Trigger(idEvent, NULL, szSubject, idSubject, args...);
+        Trigger(idEvent, nullptr, szSubject, idSubject, args...);
     }
 
     template <class... Args>

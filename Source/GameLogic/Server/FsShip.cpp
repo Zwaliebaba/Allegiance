@@ -24,7 +24,7 @@ USHORT AGCPlayerID(CFSPlayer * pPlayer)
 }
 
 // Statics
-CFSShip * CFSShip::m_rgpfsShip[c_cShipsMax] = {0};
+CFSShip * CFSShip::m_rgpfsShip[c_cShipsMax] = {nullptr};
 short     CFSShip::m_shipidNext = 0;
 int       CFSShip::m_cShips = 0;
 int       CFSPlayer::m_latencyMax = 0;
@@ -73,9 +73,9 @@ CFSShip::~CFSShip()
 
   debugf("Destroying %s, id=%d\n", GetName(), GetShipID());
 
-  AnnounceExit(NULL, SDR_LOGGEDOFF);
+  AnnounceExit(nullptr, SDR_LOGGEDOFF);
   m_cShips--;
-  m_rgpfsShip[GetShipID()] = NULL;
+  m_rgpfsShip[GetShipID()] = nullptr;
   m_pShip->Terminate();
 }
 
@@ -195,14 +195,14 @@ void CFSShip::Launch(IstationIGC* pstation)
  */
 void CFSShip::AnnounceExit(IclusterIGC* pclusterOld, ShipDeleteReason sdr)
 {
-  if ((SDR_DOCKED == sdr || SDR_LEFTSECTOR == sdr) && (m_pShip->GetParentShip() != NULL))
+  if ((SDR_DOCKED == sdr || SDR_LEFTSECTOR == sdr) && (m_pShip->GetParentShip() != nullptr))
     return;
 
   BEGIN_PFM_CREATE(g.fm, pfmShipDelete, S, SHIP_DELETE)
   END_PFM_CREATE
   pfmShipDelete->shipID = GetShipID();
   pfmShipDelete->sdr = sdr;
-  CFMRecipient * prcp = NULL;
+  CFMRecipient * prcp = nullptr;
   if (SDR_DOCKED == sdr || SDR_LEFTSECTOR == sdr)
   {
     assert (pclusterOld);
@@ -241,7 +241,7 @@ void CFSShip::ShipStatusSpotted(IsideIGC* pside)
     SectorID    sectorID;
     {
         IclusterIGC*    pcluster = GetIGCShip()->GetCluster();
-        if (pcluster == NULL)
+        if (pcluster == nullptr)
         {
             IstationIGC*    pstation = GetIGCShip()->GetStation();
             assert (pstation);
@@ -266,7 +266,7 @@ void CFSShip::ShipStatusSpotted(IsideIGC* pside)
     //Adjust the ship status for all of the children as well
     {
         for (ShipLinkIGC*   psl = GetIGCShip()->GetChildShips()->first();
-             (psl != NULL);
+             (psl != nullptr);
              psl = psl->next())
         {
             IshipIGC*   pship = psl->data();
@@ -298,7 +298,7 @@ void          CFSShip::ShipStatusHidden(IsideIGC* pside)
         if (pmission)  
         {
             for (SideLinkIGC*   psl = pmission->GetIGCMission()->GetSides()->first();
-                 (psl != NULL);
+                 (psl != nullptr);
                  psl = psl->next())
             {
                 if (psl->data() != mySide)
@@ -319,7 +319,7 @@ void          CFSShip::ShipStatusHidden(IsideIGC* pside)
     //Adjust the ship status for all of the children as well
     {
         for (ShipLinkIGC*   psl = GetIGCShip()->GetChildShips()->first();
-             (psl != NULL);
+             (psl != nullptr);
              psl = psl->next())
         {
             IshipIGC*   pship = psl->data();
@@ -338,7 +338,7 @@ void          CFSShip::ShipStatusHullChange(IhullTypeIGC*    pht)
     HullID  hid = pht->GetObjectID();
 
     for (SideLinkIGC*   psl = GetMission()->GetIGCMission()->GetSides()->first();
-         (psl != NULL);
+         (psl != nullptr);
          psl = psl->next())
     {
         IsideIGC*   pside = psl->data();
@@ -361,7 +361,7 @@ void          CFSShip::ShipStatusDocked(IstationIGC*   pstation)
     IsideIGC*   psideMe = GetIGCShip()->GetSide();
 
     for (SideLinkIGC*   psl = GetMission()->GetIGCMission()->GetSides()->first();
-         (psl != NULL);
+         (psl != nullptr);
          psl = psl->next())
     {
         IsideIGC*   pside = psl->data();
@@ -379,7 +379,7 @@ void          CFSShip::ShipStatusDocked(IstationIGC*   pstation)
             //Adjust the ship status for all of the children as well
             {
                 for (ShipLinkIGC*   psl = GetIGCShip()->GetChildShips()->first();
-                     (psl != NULL);
+                     (psl != nullptr);
                      psl = psl->next())
                 {
                     IshipIGC*   pship = psl->data();
@@ -407,7 +407,7 @@ void          CFSShip::ShipStatusRecalculate(void)
     if (pcluster)
     {
         for (SideLinkIGC*   psl = GetMission()->GetIGCMission()->GetSides()->first();
-             (psl != NULL);
+             (psl != nullptr);
              psl = psl->next())
         {
             IsideIGC*   pside = psl->data();
@@ -459,7 +459,7 @@ void          CFSShip::ShipStatusRestart(IstationIGC*   pstation)
     IsideIGC*   psideShip = GetIGCShip()->GetSide();
 
     for (SideLinkIGC*   psl = GetMission()->GetIGCMission()->GetSides()->first();
-         (psl != NULL);
+         (psl != nullptr);
          psl = psl->next())
     {
         IsideIGC*   pside = psl->data();
@@ -478,7 +478,7 @@ void          CFSShip::ShipStatusWarped(IwarpIGC*   pwarp)
 {
     SectorID   sectorID = pwarp->GetDestination()->GetCluster()->GetObjectID();
     for (SideLinkIGC*   psl = GetMission()->GetIGCMission()->GetSides()->first();
-         (psl != NULL);
+         (psl != nullptr);
          psl = psl->next())
     {
         IsideIGC*   pside = psl->data();
@@ -490,7 +490,7 @@ void          CFSShip::ShipStatusWarped(IwarpIGC*   pwarp)
             //Adjust the ship status for all of the children as well
             {
                 for (ShipLinkIGC*   psl = GetIGCShip()->GetChildShips()->first();
-                     (psl != NULL);
+                     (psl != nullptr);
                      psl = psl->next())
                 {
                     IshipIGC*   pship = psl->data();
@@ -510,7 +510,7 @@ void CFSShip::SetCluster(IclusterIGC * pcluster, bool   bViewOnly)
     {
         IshipIGC* pshipParent = m_pShip->GetParentShip();
 
-        if ((pshipParent == NULL) && !bViewOnly)
+        if ((pshipParent == nullptr) && !bViewOnly)
         {
             //Everyone already in the sector now knows about the player's ship
             //(assuming the player is not in a turret)
@@ -556,7 +556,7 @@ void CFSShip::SetCluster(IclusterIGC * pcluster, bool   bViewOnly)
                     && ((IbuoyIGC*)ptarget)->GetCluster() == pcluster)
                 {
                     // clear the command
-                    m_pShip->SetCommand(i, NULL, c_cidNone);
+                    m_pShip->SetCommand(i, nullptr, c_cidNone);
                 }
             }
         }
@@ -584,7 +584,7 @@ void CFSShip::CaptureStation(IstationIGC * pstation)
   {
       GetPlayerScoreObject()->CaptureBase(true);
       for (ShipLinkIGC* psl = GetIGCShip()->GetChildShips()->first();
-           (psl != NULL);
+           (psl != nullptr);
            psl = psl->next())
       {
          CFSShip*      ps = (CFSShip*)(psl->data()->GetPrivateData());
@@ -627,7 +627,7 @@ void CFSShip::QueueLoadoutChange(bool bForce)
   const ShipListIGC*  pslist = GetIGCShip()->GetChildShips();
 
   BEGIN_PFM_CREATE(g.fm, pfmLoadoutChange, S, LOADOUT_CHANGE)
-      FM_VAR_PARM(NULL, GetIGCShip()->ExportShipLoadout(NULL))
+      FM_VAR_PARM(NULL, GetIGCShip()->ExportShipLoadout(nullptr))
       FM_VAR_PARM(NULL, pslist->n() * sizeof(PassengerData))
   END_PFM_CREATE
 
@@ -639,7 +639,7 @@ void CFSShip::QueueLoadoutChange(bool bForce)
   {
       PassengerData*   pd = (PassengerData*)(FM_VAR_REF(pfmLoadoutChange, rgPassengers));
       for (ShipLinkIGC*   psl = pslist->first();
-           (psl != NULL);
+           (psl != nullptr);
            psl = psl->next())
       {
           pd->shipID = psl->data()->GetObjectID();
@@ -664,7 +664,7 @@ void CFSPlayer::SetCluster(IclusterIGC* pcluster, bool bViewOnly)
     SetDPGroup((CFSCluster*)(pcluster->GetPrivateData()), true);
 
     IshipIGC*   pshipParent = GetIGCShip()->GetParentShip();
-    if ((pshipParent == NULL) || bViewOnly)
+    if ((pshipParent == nullptr) || bViewOnly)
     {
         ShipID      shipID = GetIGCShip()->GetObjectID();
         assert(0 == g.fm.CbUsedSpaceInOutbox());
@@ -692,7 +692,7 @@ void CFSPlayer::SetCluster(IclusterIGC* pcluster, bool bViewOnly)
                   //Tell the new player where the existing ship is/was
                   //provided the existing ship is not the child of some other ship
                   //and is not the parent of the new ship
-                  if (pshipExistParent == NULL) 
+                  if (pshipExistParent == nullptr) 
                   {
                     CFSShip * pfsShipExist = (CFSShip *) pshipExist->GetPrivateData();
 
@@ -831,7 +831,7 @@ void CFSPlayer::SetCluster(IclusterIGC* pcluster, bool bViewOnly)
     
         //Also send the identical message to all of the ship's children
         {
-            for (ShipLinkIGC*   psl = GetIGCShip()->GetChildShips()->first(); (psl != NULL); psl = psl->next())
+            for (ShipLinkIGC*   psl = GetIGCShip()->GetChildShips()->first(); (psl != nullptr); psl = psl->next())
             {
                 CFSShip*    pfsShip = (CFSShip*)(psl->data()->GetPrivateData());
                 assert (pfsShip->IsPlayer());
@@ -851,7 +851,7 @@ void CFSPlayer::SetCluster(IclusterIGC* pcluster, bool bViewOnly)
     SetDPGroup(pfsCluster, false);
   }
   else
-    SetDPGroup(NULL, false);
+    SetDPGroup(nullptr, false);
 }
 
 CFSPlayer::CFSPlayer(CFMConnection * pcnxn, int characterID, const char * szCDKey,
@@ -861,10 +861,10 @@ CFSPlayer::CFSPlayer(CFMConnection * pcnxn, int characterID, const char * szCDKe
   m_characterId(characterID),
   m_fCanCheat(fCanCheat),
   m_pcnxn(pcnxn),
-  m_pgrp(NULL),
+  m_pgrp(nullptr),
   m_ucLastUpdate(c_ucNone),
-  m_pfsClusterFlying(NULL),
-  m_pclusterLifepod(NULL),
+  m_pfsClusterFlying(nullptr),
+  m_pclusterLifepod(nullptr),
   m_bannedSideMask(0),
   m_chatBudget(c_chatBudgetMax),
   m_strCDKey(szCDKey)
@@ -876,7 +876,7 @@ CFSPlayer::CFSPlayer(CFMConnection * pcnxn, int characterID, const char * szCDKe
 
   LPCSTR pszContext = pShip->GetMission()->GetContextName();
 
-  g_events.TriggerContextEvent(NULL, EventID_LoginServer, pszContext,
+  g_events.TriggerContextEvent(nullptr, EventID_LoginServer, pszContext,
     pShip->GetName(), GetConnection()->GetID(), -1, -1, 1,
     "User", VT_I4, GetConnection()->GetID());
 }
@@ -887,21 +887,21 @@ CFSPlayer::~CFSPlayer()
   // People leave their groups when their connection is deleted (FedMessaging::DeleteConnection)
   m_pcnxn->SetPrivateData(0); // disconnect two-way link between connection and this
 
-  LPCSTR pszContext = GetIGCShip() ? GetIGCShip()->GetMission()->GetContextName() : NULL;
+  LPCSTR pszContext = GetIGCShip() ? GetIGCShip()->GetMission()->GetContextName() : nullptr;
 
-  g_events.TriggerContextEvent(NULL, EventID_LogoutServer, pszContext,
+  g_events.TriggerContextEvent(nullptr, EventID_LogoutServer, pszContext,
     GetName(), GetConnection()->GetID(), -1, -1, 1,
     "User", VT_I4, GetConnection()->GetID());
 
   ShipID shipID = GetShipID();
-  if (NULL != g.pServerCounters)
+  if (nullptr != g.pServerCounters)
     g.pServerCounters->cPlayersOnline--;
 
   if (GetMission())
     GetMission()->RemovePlayerFromMission(this, QSR_LinkDead);
 
   // Get rid of all the PersistPlayerScoreObjects
-  PersistPlayerScoreObjectLink * pperplrscoLink = NULL;
+  PersistPlayerScoreObjectLink * pperplrscoLink = nullptr;
   while (pperplrscoLink = m_perplrscoreList.first())
   {
     delete pperplrscoLink->data();
@@ -981,7 +981,7 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
   if (!pside && m_pgrp)
   {
     g.fm.DeleteConnectionFromGroup(m_pgrp, GetConnection());
-    m_pgrp = NULL;
+    m_pgrp = nullptr;
   }
 
 
@@ -997,9 +997,9 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
         int id = pfsmOld->GetIGCMission() ? pfsmOld->GetIGCMission()->GetMissionID() : -1;
         long idShip = (AGC_AdminUser << 16) | AGCPlayerID(this->GetPlayer());
 
-        LPCSTR pszContext = pfsmOld->GetIGCMission() ? pfsmOld->GetIGCMission()->GetContextName() : NULL;
+        LPCSTR pszContext = pfsmOld->GetIGCMission() ? pfsmOld->GetIGCMission()->GetContextName() : nullptr;
 
-      g_events.TriggerContextEvent(NULL, EventID_LogoutGame, pszContext,
+      g_events.TriggerContextEvent(nullptr, EventID_LogoutGame, pszContext,
         GetName(), idShip, -1, -1, 2,
         "GameID",   VT_I4,    id,
         "GameName", VT_LPSTR, szName);
@@ -1011,9 +1011,9 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
         int id = pfsMission->GetIGCMission() ? pfsMission->GetIGCMission()->GetMissionID() : -1;
         long idShip = (AGC_AdminUser << 16) | AGCPlayerID(this->GetPlayer());
 
-        LPCSTR pszContext = pfsMission->GetIGCMission() ? pfsMission->GetIGCMission()->GetContextName() : NULL;
+        LPCSTR pszContext = pfsMission->GetIGCMission() ? pfsMission->GetIGCMission()->GetContextName() : nullptr;
 
-      g_events.TriggerContextEvent(NULL, EventID_LoginGame, pszContext,
+      g_events.TriggerContextEvent(nullptr, EventID_LoginGame, pszContext,
         GetName(), idShip, -1, -1, 2,
         "GameID",   VT_I4,    id,
         "GameName", VT_LPSTR, szName);
@@ -1029,9 +1029,9 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
 
     if (psideOld ) // if leaving a side
     {
-      LPCSTR pszContext = GetIGCShip()->GetMission() ? GetIGCShip()->GetMission()->GetContextName() : NULL;
+      LPCSTR pszContext = GetIGCShip()->GetMission() ? GetIGCShip()->GetMission()->GetContextName() : nullptr;
 
-      g_events.TriggerContextEvent(NULL, EventID_LeaveTeam, pszContext,
+      g_events.TriggerContextEvent(nullptr, EventID_LeaveTeam, pszContext,
         GetName(), idShip, psideOld->GetUniqueID(), -1, 2,
         "Team"    , VT_I4   , psideOld->GetUniqueID(),
         "TeamName", VT_LPSTR, psideOld->GetName());
@@ -1039,7 +1039,7 @@ void CFSPlayer::SetSide(CFSMission * pfsMission, IsideIGC * pside)
 
     if (pside) // if joining a side
     {
-      g_events.TriggerEvent(NULL, EventID_JoinTeam, GetName(), idShip,
+      g_events.TriggerEvent(nullptr, EventID_JoinTeam, GetName(), idShip,
         pside->GetUniqueID(), -1, 2,
         "Team"    , VT_I4   , pside->GetUniqueID(),
         "TeamName", VT_LPSTR, pside->GetName());
@@ -1131,13 +1131,13 @@ void CFSPlayer::SetDPGroup(CFSCluster*  pfsCluster, bool bFlying)
       else
       {
           pgrp = pfsCluster->GetClusterGroups()->pgrpClusterDocked;
-          m_pfsClusterFlying = NULL;
+          m_pfsClusterFlying = nullptr;
       }
   }
   else
   {
-      pgrp = NULL;
-      m_pfsClusterFlying = NULL;
+      pgrp = nullptr;
+      m_pfsClusterFlying = nullptr;
   }
 
   if (m_pgrp)
@@ -1175,7 +1175,7 @@ void CFSPlayer::SetAutoDonate(CFSPlayer* pplayer, Money amount, bool bSend)
   if (pplayer)
   {
       pship = pplayer->GetIGCShip()->GetAutoDonate();
-      if (pship == NULL)
+      if (pship == nullptr)
           pship = pplayer->GetIGCShip();
       else
       {
@@ -1187,7 +1187,7 @@ void CFSPlayer::SetAutoDonate(CFSPlayer* pplayer, Money amount, bool bSend)
           {
               //We are trying to autodonate to someone who is already autodonating to us
               //Tell them to stop first (but don't send any messages)
-              pplayer->SetAutoDonate(NULL, 0, false);
+              pplayer->SetAutoDonate(nullptr, 0, false);
 
               //and then set our autodonate to go to them anyhow
               pship = pplayer->GetIGCShip();
@@ -1214,7 +1214,7 @@ void CFSPlayer::SetAutoDonate(CFSPlayer* pplayer, Money amount, bool bSend)
   }
   else
   {
-      pship = NULL;
+      pship = nullptr;
       sidDonateTo = NA;
   }
 
@@ -1236,7 +1236,7 @@ bool CFSPlayer::GetIsMemberOfSquad(SquadID squadID)
       return true;
 
   for (SquadMembershipLink* pSquadLink = GetSquadMembershipList()->first();
-    pSquadLink != NULL; pSquadLink = pSquadLink->next())
+    pSquadLink != nullptr; pSquadLink = pSquadLink->next())
   {
     if (pSquadLink->data()->GetID() == squadID)
       return true;
@@ -1251,7 +1251,7 @@ bool CFSPlayer::GetCanLeadSquad(SquadID squadID)
       return true;
 
   for (SquadMembershipLink* pSquadLink = GetSquadMembershipList()->first();
-    pSquadLink != NULL; pSquadLink = pSquadLink->next())
+    pSquadLink != nullptr; pSquadLink = pSquadLink->next())
   {
     SquadMembership* psquad = pSquadLink->data();
     if (psquad->GetID() == squadID)
@@ -1267,7 +1267,7 @@ SquadID CFSPlayer::GetPreferredSquadToLead()
 
   // look for a squad which this player leads...
   for (pSquadLink = GetSquadMembershipList()->first();
-    pSquadLink != NULL; pSquadLink = pSquadLink->next())
+    pSquadLink != nullptr; pSquadLink = pSquadLink->next())
   {
     SquadMembership* psquad = pSquadLink->data();
     if (psquad->GetIsLeader())
@@ -1276,7 +1276,7 @@ SquadID CFSPlayer::GetPreferredSquadToLead()
 
   // failing that, look for a squad in which this player is an assistant leader...
   for (pSquadLink = GetSquadMembershipList()->first();
-    pSquadLink != NULL; pSquadLink = pSquadLink->next())
+    pSquadLink != nullptr; pSquadLink = pSquadLink->next())
   {
     SquadMembership* psquad = pSquadLink->data();
     if (psquad->GetIsAssistantLeader())
