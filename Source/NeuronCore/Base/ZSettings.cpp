@@ -875,7 +875,6 @@ ZSettingsFile::ZSettingsFile(const wchar_t* wszPath) :
 
 ZSettingsFile::~ZSettingsFile()
 {
-    delete m_pimpl;
 }
 
 const std::wstring& ZSettingsFile::GetPath() const

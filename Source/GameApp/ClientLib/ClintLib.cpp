@@ -572,8 +572,8 @@ void    ChatInfo::ClearTarget(void)
 MissionInfo::MissionInfo(DWORD dwCookie) :
     m_sideLobby(SIDE_TEAMLOBBY)
 {
-    m_pfmMissionDef = new FMD_S_MISSIONDEF;
-    memset(m_pfmMissionDef, 0, sizeof(FMD_S_MISSIONDEF));
+    m_pfmMissionDef.reset(new FMD_S_MISSIONDEF);
+    memset(m_pfmMissionDef.get(), 0, sizeof(FMD_S_MISSIONDEF));
     m_pfmMissionDef->dwCookie = dwCookie;
     m_fGuaranteedSlotsAvailable = false;
     m_fAnySlotsAvailable = false;
@@ -583,9 +583,6 @@ MissionInfo::MissionInfo(DWORD dwCookie) :
 
 MissionInfo::~MissionInfo()
 {
-    if (m_pfmMissionDef)
-        delete m_pfmMissionDef;
-
     TMapListWrapper<SideID, SideInfo*>::Iterator iterSideInfo(m_mapSideInfo);
 
     while (!iterSideInfo.End())
@@ -598,7 +595,7 @@ MissionInfo::~MissionInfo()
 void MissionInfo::Update(FMD_S_MISSIONDEF* pfmMissionDef)
 {
     int numSidesOld = NumSides();
-    memcpy(m_pfmMissionDef, pfmMissionDef, sizeof(FMD_S_MISSIONDEF));
+    memcpy(m_pfmMissionDef.get(), pfmMissionDef, sizeof(FMD_S_MISSIONDEF));
 
     // create or destroy sides, as needed.
     if (NumSides() > numSidesOld)
@@ -919,17 +916,11 @@ PlayerInfo::PlayerInfo(void) :
 
 PlayerInfo::~PlayerInfo()
 {
-    if (m_vPersistPlayerScores)
-        delete m_vPersistPlayerScores;
-
     ResetShipStatus();
 }
 
 void PlayerInfo::Set(FMD_S_PLAYERINFO* pfmPlayerInfo)
 {
-    if (m_vPersistPlayerScores)
-        delete m_vPersistPlayerScores;
-
     memcpy(&m_fmPlayerInfo, pfmPlayerInfo, sizeof(m_fmPlayerInfo));
 
     m_cPersistPlayerScores = pfmPlayerInfo->cbrgPersistPlayerScores / sizeof(PersistPlayerScoreObject);
@@ -938,14 +929,14 @@ void PlayerInfo::Set(FMD_S_PLAYERINFO* pfmPlayerInfo)
     {
         PersistPlayerScoreObject* vSrcScores 
             = (PersistPlayerScoreObject*)FM_VAR_REF(pfmPlayerInfo, rgPersistPlayerScores);
-        m_vPersistPlayerScores = new PersistPlayerScoreObject[m_cPersistPlayerScores];
+        m_vPersistPlayerScores.reset(new PersistPlayerScoreObject[m_cPersistPlayerScores]);
 
         for (int i = 0; i < m_cPersistPlayerScores; i++)
             m_vPersistPlayerScores[i] = vSrcScores[i];
     }
     else
     {
-        m_vPersistPlayerScores = nullptr;
+        m_vPersistPlayerScores.reset();
     }
 }
 
@@ -984,10 +975,7 @@ void        PlayerInfo::UpdateScore(PersistPlayerScoreObject& ppso)
             for (int i = 0; i < m_cPersistPlayerScores; ++i)
                 vppsoNew[i] = m_vPersistPlayerScores[i];
 
-            if (m_vPersistPlayerScores)
-                delete m_vPersistPlayerScores;
-
-            m_vPersistPlayerScores = vppsoNew;
+            m_vPersistPlayerScores.reset(vppsoNew);
 
             ++m_cPersistPlayerScores;
         }
@@ -1065,8 +1053,7 @@ BaseClient::~BaseClient(void)
         iterMissions.Next();
     }
 
-    if (m_pMissionInfo)
-        delete m_pMissionInfo;
+    m_pMissionInfo.reset();   // before the messaging shuts down, as the delete was
 
     m_fm.Shutdown();
 
@@ -1108,9 +1095,7 @@ void    BaseClient::Reinitialize(Time timeNow)
     m_cookie = NA;
     m_plinkSelectedChat = nullptr;
     m_pPlayerInfo = nullptr;
-    if (m_pMissionInfo)
-        delete m_pMissionInfo;
-    m_pMissionInfo = nullptr;
+    m_pMissionInfo.reset();
     m_fLoggedOn = false;
 
     m_pchaffLastCreated = nullptr;
@@ -3390,7 +3375,7 @@ void BaseClient::OnJoinSide()
 
     // if this is the lobby side, we need to manually send the OnAddPlayer message
     if (m_pPlayerInfo->SideID() == SIDE_TEAMLOBBY)
-        m_pClientEventSource->OnAddPlayer(m_pMissionInfo, m_pPlayerInfo->SideID(), m_pPlayerInfo);
+        m_pClientEventSource->OnAddPlayer(m_pMissionInfo.get(), m_pPlayerInfo->SideID(), m_pPlayerInfo);
 };
 
 void BaseClient::OnQuitMission(QuitSideReason reason, const char* szMessageParam)
@@ -3431,8 +3416,7 @@ void BaseClient::OnQuitMission(QuitSideReason reason, const char* szMessageParam
         m_pPlayerInfo = nullptr;
     }
 
-    delete m_pMissionInfo;
-    m_pMissionInfo = nullptr;
+    m_pMissionInfo.reset();
 };
 
 void BaseClient::OnEnterGame()
@@ -3496,7 +3480,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
 
     m_pClientEventSource->OnMoneyChange(pPlayerInfo);
     m_pMissionInfo->RemovePlayer(pPlayerInfo);
-    m_pClientEventSource->OnDelPlayer(m_pMissionInfo, pPlayerInfo->SideID(), pPlayerInfo, reason);
+    m_pClientEventSource->OnDelPlayer(m_pMissionInfo.get(), pPlayerInfo->SideID(), pPlayerInfo, reason);
 
     IshipIGC* pship = m_pCoreIGC->GetShip(pPlayerInfo->ShipID());
     pship->SetSide(nullptr);
@@ -3614,7 +3598,7 @@ void BaseClient::RemovePlayerFromSide(PlayerInfo* pPlayerInfo, QuitSideReason re
 
     // if this is the lobby side, we need to manually send the OnAddPlayer message
     if (m_pPlayerInfo->SideID() == SIDE_TEAMLOBBY)
-        m_pClientEventSource->OnAddPlayer(m_pMissionInfo, pPlayerInfo->SideID(), pPlayerInfo);
+        m_pClientEventSource->OnAddPlayer(m_pMissionInfo.get(), pPlayerInfo->SideID(), pPlayerInfo);
 }
 
 
@@ -3636,7 +3620,7 @@ void BaseClient::RemovePlayerFromMission(PlayerInfo* pPlayerInfo, QuitSideReason
     if (pPlayerInfo == m_pPlayerInfo)
     {
         // we need to manually send the DelPlayerMessage
-        m_pClientEventSource->OnDelPlayer(m_pMissionInfo, pPlayerInfo->SideID(), pPlayerInfo, reason);
+        m_pClientEventSource->OnDelPlayer(m_pMissionInfo.get(), pPlayerInfo->SideID(), pPlayerInfo, reason);
     }    
 
     pPlayerInfo->SetSideID(NA);
@@ -3721,7 +3705,7 @@ void BaseClient::AddPlayerToSide(PlayerInfo* pPlayerInfo, SideID sideID)
     // update the last seen info
     pPlayerInfo->ResetShipStatus();
 
-    m_pClientEventSource->OnAddPlayer(m_pMissionInfo, pPlayerInfo->SideID(), pPlayerInfo);
+    m_pClientEventSource->OnAddPlayer(m_pMissionInfo.get(), pPlayerInfo->SideID(), pPlayerInfo);
 
     if (pPlayerInfo->IsHuman() && m_pMissionInfo->GetStage() == STAGE_STARTED && m_fm.IsConnected())
     {

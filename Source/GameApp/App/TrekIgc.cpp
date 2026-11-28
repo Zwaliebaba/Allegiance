@@ -2384,7 +2384,7 @@ ImissionIGC*    WinTrekClient::ResetStaticData (void)
     FlushGameState();
     m_pCoreIGC = CreateMission();
     Initialize(now);
-    m_pMissionInfo = new MissionInfo(static_cast<DWORD> (m_pCoreIGC->GetMissionID ()));
+    m_pMissionInfo.reset(new MissionInfo(static_cast<DWORD> (m_pCoreIGC->GetMissionID ())));
     return m_pCoreIGC;
 }
 

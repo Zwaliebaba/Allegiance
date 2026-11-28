@@ -33,6 +33,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <windows.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -63,7 +64,7 @@ private:
     ZSettingsFile& operator=(const ZSettingsFile&);
 
     struct Impl;
-    Impl* m_pimpl;
+    std::unique_ptr<Impl> m_pimpl;
 };
 
 //////////////////////////////////////////////////////////////////////////////

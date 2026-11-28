@@ -244,7 +244,7 @@ class PlayerInfo : public IObject
     ImissionIGC*                m_pmission;
 
     ShipStatus                  m_shipStatus;
-    PersistPlayerScoreObject*   m_vPersistPlayerScores;
+    std::unique_ptr<PersistPlayerScoreObject[]> m_vPersistPlayerScores;
     int                         m_cPersistPlayerScores;
     PersistPlayerScoreObject    m_persist; // default new score
 
@@ -432,7 +432,7 @@ class MissionInfo
 {
 protected: 
  
-    FMD_S_MISSIONDEF* m_pfmMissionDef;
+    std::unique_ptr<FMD_S_MISSIONDEF> m_pfmMissionDef;
     TMapListWrapper<SideID, SideInfo*> m_mapSideInfo;
     SideInfo m_sideLobby;
     int m_nNumPlayers;
@@ -677,7 +677,7 @@ public: //todo: make protected
     ImissionIGC*        m_pCoreIGC;
 
     // client state information
-    MissionInfo*        m_pMissionInfo;
+    std::unique_ptr<MissionInfo> m_pMissionInfo;
     DWORD               m_dwCookieToJoin;
     char                m_strPasswordToJoin[c_cbGamePassword];
     Mount               m_selectedWeapon;
@@ -800,7 +800,7 @@ public:
     // game state
     inline ImissionIGC* GetCore()               { return m_pCoreIGC; }
     PlayerInfo*         MyPlayerInfo()          { return m_pPlayerInfo; }
-    MissionInfo*        MyMission()             { return m_pMissionInfo; }
+    MissionInfo*        MyMission()             { return m_pMissionInfo.get(); }
     bool                MyMissionInProgress();
 
     inline bool         IsInGame(void) const    { return m_bInGame; };
