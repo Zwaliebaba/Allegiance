@@ -1244,7 +1244,6 @@ class UTL
 
         static bool AppendFile(const char * szFileName, const void * data, unsigned bytes);
 
-        static int SearchAndReplace(char * szDest, const char * szSource, const char * szNewWord, const char * szOldWord);
 
         static void SetUrlRoot(const char * szUrlRoot);
 
@@ -1324,20 +1323,6 @@ extern const Rotation      c_rotationZero;
 #include    "Utility.hxx"
 #undef  _exposed
 
-// safe strcpy
-static char * Strcpy(char * szDst, const char * szSrc)
-{
-  assert(szDst);
-  return lstrcpyA(szDst, szSrc ? szSrc : "");
-}
-        
-// safe strncpy
-static char * Strncpy(char * szDst, const char * szSrc, size_t cb)
-{
-  assert(szDst);
-  return strncpy(szDst, szSrc ? szSrc : "", cb);
-}
-        
 // safe strcmp
 static int Strcmp(const char * szDst, const char * szSrc)
 {
@@ -1428,7 +1413,7 @@ public:
       char         bfr[size];
       va_list vl;
       va_start(vl, format);
-      _vsnprintf(bfr, size, format, vl);
+      Bounded::FormatList(bfr, size, format, vl);
       va_end(vl);
       debugf("^--%s\n", bfr);
     }

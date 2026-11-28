@@ -66,14 +66,11 @@ void LoadTechBits()
   Side Effects:
       modifies position pointer
  */
-void AddNamedValue(char ** ppNext, const char * szName, const char * szValue)
+void AddNamedValue(char ** _next, char * _end, const char * _name, const char * _value)
 {
-  lstrcpy(*ppNext, szName);
-  (*ppNext) += lstrlen(szName);
-  *((*ppNext)++) = '\t';
-  lstrcpy(*ppNext, szValue);
-  (*ppNext) += lstrlen(szValue);
-  *((*ppNext)++) = '\n';
+  // Cut off at the end of the buffer, and always terminated, so that fewer
+  // games than last time leave nothing of the longer list behind them
+  *_next += Bounded::Format(*_next, _end - *_next, "%s\t%s\n", _name, _value);
 }
 
 
@@ -90,19 +87,21 @@ void SetSessionDetails()
 {
   static char rgchBuf[10<<10]; // big buffer
   char * pNext = rgchBuf;
+  char * pEnd = rgchBuf + sizeof(rgchBuf);
+  rgchBuf[0] = '\0';
   static CTimer tt("setting session details", .01f);
   tt.Start();
   const ListFSMission * plistMission = CFSMission::GetMissions();
   for (LinkFSMission * plinkMission = plistMission->first(); plinkMission; plinkMission = plinkMission->next())
   {
     CFSMission * pfsMission = plinkMission->data();
-    AddNamedValue(&pNext, "GAM", pfsMission->GetMissionDef()->misparms.strGameName);
+    AddNamedValue(&pNext, pEnd, "GAM", pfsMission->GetMissionDef()->misparms.strGameName);
     char szPlayers[5];
     _itoa(pfsMission->GetCountOfPlayers(nullptr, false), szPlayers, 10);
-    AddNamedValue(&pNext, "PLR", szPlayers);
+    AddNamedValue(&pNext, pEnd, "PLR", szPlayers);
     char szMaxPlayers[5];
     _itoa(pfsMission->GetMissionDef()->misparms.nTotalMaxPlayersPerGame, szMaxPlayers, 10);
-    AddNamedValue(&pNext, "LIM", szMaxPlayers);
+    AddNamedValue(&pNext, pEnd, "LIM", szMaxPlayers);
   }
   g.fm.SetSessionDetails(rgchBuf);
   tt.Stop();
@@ -432,7 +431,7 @@ static void GotLogonDetails(LogonDetails * pqd)
 
   if (fValid)  // doesn't matter whether we created a new ship, or continued an existing one
   {
-    lstrcpy(pqd->szReason, pqd->szCharacterName);
+    Bounded::Copy(pqd->szReason, pqd->szCharacterName);
 
     if (nullptr != g.pServerCounters)
     {
@@ -459,7 +458,7 @@ static void GotLogonDetails(LogonDetails * pqd)
     dataship.pilotType = pqd->fCanCheat ? c_ptCheatPlayer : c_ptPlayer;
     dataship.abmOrders = 0;
     dataship.baseObjectID = NA;
-    lstrcpy(dataship.name, pqd->szReason);
+    Bounded::Copy(dataship.name, pqd->szReason);
     TRef<IshipIGC> pship = (IshipIGC *) g.trekCore->CreateObject(g.timeNow, 
                           OT_ship, &dataship, sizeof(dataship));
 
@@ -694,7 +693,7 @@ void SendPlayerInfo(CFSPlayer * pfsPlayer, CFSShip * pfsShip, CFSMission* pfsMis
   BEGIN_PFM_CREATE(g.fm, pfmPlayerInfo, S, PLAYERINFO)
     FM_VAR_PARM(rgperplrScore, cCivs * sizeof(rgperplrScore[0]))
   END_PFM_CREATE
-  lstrcpy(pfmPlayerInfo->CharacterName, pfsShip->GetName());
+  Bounded::Copy(pfmPlayerInfo->CharacterName, pfsShip->GetName());
   pfmPlayerInfo->fExperience      = pfsShip->GetIGCShip()->GetExperience();
   pfmPlayerInfo->nKills           = pfsShip->GetIGCShip()->GetKills();
   pfmPlayerInfo->nDeaths          = pfsShip->GetIGCShip()->GetDeaths();
@@ -871,7 +870,7 @@ CFSDrone * CreateStockDrone(IdroneTypeIGC * pdronetype, IsideIGC* pSide, IbaseIG
             pszName = pdronetype->GetName();
         }
         assert (strlen(pszName) < c_cbName - 4);
-        strcpy(bfr, pszName);
+        Bounded::Copy(bfr, pszName);
 
         _itoa(pship->GetObjectID(), bfr + strlen(bfr), 10);
         pship->SetName(bfr);
@@ -1961,7 +1960,7 @@ void ForwardChatMessage(CFSMission*         pfsMission,
         case CHAT_WING:
         {
             pszDest = szDestBfr;
-            strcpy(szDestBfr, "Wing");
+            Bounded::Copy(szDestBfr, "Wing");
             _itoa(pcd->oidRecipient, &szDestBfr[4], 10);
 
             ForwardChatMessageToWing(pfsMission, pfsSender, pfm, pcd->oidRecipient, nullptr);
@@ -2857,7 +2856,7 @@ void FedSrvSiteBase::OnBadCRC(FedMessaging * pthis, CFMConnection & cnxn, BYTE *
 {
   char buf[256];
   FEDMESSAGE * pfm = (FEDMESSAGE *) pMsg;
-  wsprintf(buf, "HEY! We got a corrupt message!\nPlayer=%s(%d), "
+  Bounded::Format(buf, "HEY! We got a corrupt message!\nPlayer=%s(%d), "
          "cbmsg=%d, fmid=%d, total packet size=%d.\n"
          "Copy the above line to crashplayers.txt on \\\\zoneagga01. Going to drop player now.\n", 
          cnxn.GetName(), cnxn.GetID(),
@@ -3682,7 +3681,7 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         if (0 < pfmLogon->cbCharacterName && pfmLogon->cbCharacterName <= c_cbName)
         {
           fValid = true;
-          lstrcpy(pqd->szCharacterName, FM_VAR_REF(pfmLogon, CharacterName));
+          Bounded::Copy(pqd->szCharacterName, FM_VAR_REF(pfmLogon, CharacterName));
           pqd->characterID = GetNextCharacterID();
           pqd->fCanCheat = false;
         }
@@ -3690,17 +3689,17 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         {
           g_events.TriggerEvent(nullptr, AllsrvEventID_NoTicket, "", -1, -1, -1, 0);
           szReason = "No player name found.";
-          lstrcpy(pqd->szCharacterName, "<invalid>");
+          Bounded::Copy(pqd->szCharacterName, "<invalid>");
         }
 
-        lstrcpy(pqd->szReason, szReason);
+        Bounded::Copy(pqd->szReason, szReason);
         pqd->fRetry = fRetry;
         pqd->dwCookie    = pfmLogon->dwCookie;
         if(FM_VAR_REF(pfmLogon, MissionPassword))
-          lstrcpy(pqd->szPassword, FM_VAR_REF(pfmLogon, MissionPassword));
+          Bounded::Copy(pqd->szPassword, FM_VAR_REF(pfmLogon, MissionPassword));
         else
           pqd->szPassword[0] = 0;
-        lstrcpy(pqd->szCDKey, FM_VAR_REF(pfmLogon, CDKey));
+        Bounded::Copy(pqd->szCDKey, FM_VAR_REF(pfmLogon, CDKey));
         pqd->fValid = fValid;
         pqd->dwConnectionID = cnxnFrom.GetID();
         GotLogonDetails(pqd);
@@ -3713,11 +3712,11 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
         char szVerError[350];
 
         if (pfmLogon->fedsrvVer < MSGVER)
-          wsprintf(szVerError, "The server you are trying to play on has a newer version than you.  "
+          Bounded::Format(szVerError, "The server you are trying to play on has a newer version than you.  "
             "Update your game to play on it.");
         else /* if (pfmLogon->fedsrvVer > MSGVER) */
         {
-          wsprintf(szVerError, "The server you are trying to play on is out-of-date.  Find another server "
+          Bounded::Format(szVerError, "The server you are trying to play on is out-of-date.  Find another server "
             "or ask the server's owner to update it.");
         }
         assert(lstrlen(szVerError) < sizeof(szVerError));
@@ -4933,9 +4932,9 @@ HRESULT FedSrvSiteBase::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnF
       {
           // for a stand alone server, don't let the client try to change the password
           // (we can't assert this due to a race condition)
-          strcpy(pfmMissionParams->missionparams.strGamePassword, 
+          Bounded::Copy(pfmMissionParams->missionparams.strGamePassword, 
               pfsMission->GetMissionDef()->misparms.strGamePassword);
-          strcpy(pfmMissionParams->missionparams.strGameName, 
+          Bounded::Copy(pfmMissionParams->missionparams.strGameName, 
               pfsMission->GetMissionDef()->misparms.strGameName);
 
         // change the settings
@@ -5145,11 +5144,11 @@ void ProcessNetworkMessages()
           (cMsgs > cMaxQ)) // dead--nuke 'em
       {
         char szBuff[128];
-        int cb = wsprintf(szBuff, "Nuking %s(%u) because ", cnxn.GetName(), cnxn.GetID());
+        int cb = Bounded::Format(szBuff, "Nuking %s(%u) because ", cnxn.GetName(), cnxn.GetID());
         
         if (FAILED(hr))
         {
-          wsprintf(szBuff + cb, "GetConnectionSendQueue returned 0x%08x.\n", hr); 
+          Bounded::Format(szBuff + cb, sizeof(szBuff) - cb, "GetConnectionSendQueue returned 0x%08x.\n", hr); 
           debugf(szBuff);
         }
         else 
@@ -5160,9 +5159,9 @@ void ProcessNetworkMessages()
           float kbpsU = (float) dwHundredbpsU / 10.0f;
 
           if (cMsgs > cMaxQ)
-            wsprintf(szBuff + cb, "they had too many messages (%u) queued up to them.\n", cMsgs);
+            Bounded::Format(szBuff + cb, sizeof(szBuff) - cb, "they had too many messages (%u) queued up to them.\n", cMsgs);
           else 
-            wsprintf(szBuff + cb, "they missed roll call, with messages (%u) queued up to them.\n", cMsgs);
+            Bounded::Format(szBuff + cb, sizeof(szBuff) - cb, "they missed roll call, with messages (%u) queued up to them.\n", cMsgs);
 
           debugf(szBuff);
           debugf("DPlay's view of the link was: %.1fkbps, %ums.\n", kbpsG, dwmsLatencyG);
@@ -5295,7 +5294,7 @@ void UpdateMissions(Time timeStart, Time timePrevious)
                 && !pfsMission->FAllReady())
             {
               char szMessage[100];
-              sprintf(szMessage, 
+              Bounded::Format(szMessage, 
                 "Warning: Game will be canceled if all teams are not ready in %d seconds.", 
                 int(2 * c_fMissionBriefingCountdown)); 
               pfsMission->GetSite()->SendChat(nullptr, CHAT_EVERYONE, NA, NA, 
@@ -5419,12 +5418,12 @@ IHTTPSession * BeginConfigDownload()
   ZString strBuild = StrFromInt(vi.GetFileBuildNumber());
 
   char szConfig[MAX_PATH];
-  lstrcpy(szConfig, "http://Allegiance.zone.com/Allegiance.cfg");
+  Bounded::Copy(szConfig, "http://Allegiance.zone.com/Allegiance.cfg");
 
   // cfgfile: a config file URL, or a local file, instead of the default
   std::string strConfig = ZSettings::GetString("cfgfile", "");
   if (!strConfig.empty() && strConfig.size() < sizeof(szConfig))
-    strcpy(szConfig, strConfig.c_str());
+    Bounded::Copy(szConfig, strConfig.c_str());
 
 
   if (StrFind(ZString(szConfig), "http://") == -1) 
@@ -5489,7 +5488,7 @@ bool RetrieveCFGFile() // returns true iff cfg was successfully retrieved
     bool bErrorOccurred = pHTTPSession->GetLastErrorMessage() ? true : false;
     char szErrorMsg[512];
     if (bErrorOccurred)
-      _snprintf(szErrorMsg, sizeof(szErrorMsg), "\nError Connecting to Zone.  You will not be able to host a public game. \r\n%s", pHTTPSession->GetLastErrorMessage());
+      Bounded::Format(szErrorMsg, sizeof(szErrorMsg), "\nError Connecting to Zone.  You will not be able to host a public game. \r\n%s", pHTTPSession->GetLastErrorMessage());
 
     delete pHTTPSession;
 
@@ -5755,14 +5754,14 @@ void StartDefaultGames()
       char cbValueName[24];
 
       // look for a setting Game#
-      wsprintf(cbValueName, "Game%d", iGame);
+      Bounded::Format(cbValueName, "Game%d", iGame);
       std::string strGameName = ZSettings::GetString(cbValueName, "");
     
       if (strGameName.empty())
         break;
 
       // copy the new name into the mission parameters
-      strncpy(mp.strGameName, strGameName.c_str(), c_cbGameName);
+      Bounded::Copy(mp.strGameName, strGameName.c_str());
       mp.strGameName[c_cbGameName - 1] = '\0';
       assert(!mp.Invalid());
 
@@ -6603,7 +6602,7 @@ void FedSrvSiteBase::DevelopmentCompleted(IbucketIGC * pbucket, IdevelopmentIGC 
   if (pdev->GetObjectID() == c_didTeamMoney)
   {
       static char szReason[100];
-      sprintf(szReason, "%s has proven the economic value of their outpost.", pside->GetName());
+      Bounded::Format(szReason, "%s has proven the economic value of their outpost.", pside->GetName());
       m_pfsMission->GameOver(pside, szReason);
   }
 }
@@ -6705,7 +6704,7 @@ void FedSrvSiteBase::BuildStation(IasteroidIGC* pasteroid,
     IclusterIGC*    pcluster = pasteroid->GetCluster();
 
     DataStationIGC  ds;
-    strcpy(ds.name, pstationtype->GetName());
+    Bounded::Copy(ds.name, pstationtype->GetName());
     ds.clusterID  = pcluster->GetObjectID();
     ds.position   = pasteroid->GetPosition();
     ds.forward.x  = ds.forward.y = 0.0f;
@@ -6736,7 +6735,7 @@ void FedSrvSiteBase::BuildStation(IasteroidIGC* pasteroid,
     if (psideWin)
     {
         static char szReason[100];     //Make this static so we only need to keep a pointer to it around
-        sprintf(szReason, "%s won by out-building their opponents", psideWin->GetName());
+        Bounded::Format(szReason, "%s won by out-building their opponents", psideWin->GetName());
         m_pfsMission->GameOver(psideWin, szReason);
     }
 }
@@ -7099,9 +7098,9 @@ void FedSrvSiteBase::KillShipEvent(Time timeCollision, IshipIGC* pship, ImodelIG
                 {
                     static char szReason[100];     //Make this static so we only need to keep a pointer to it around
                     if (pshipCredit)
-                        sprintf(szReason, "%s pushes %s over the top with a kill", pshipCredit->GetName(), psideWin->GetName());
+                        Bounded::Format(szReason, "%s pushes %s over the top with a kill", pshipCredit->GetName(), psideWin->GetName());
                     else
-                        sprintf(szReason, "%s won by killing enough of their opponents", psideWin->GetName());
+                        Bounded::Format(szReason, "%s won by killing enough of their opponents", psideWin->GetName());
                     m_pfsMission->GameOver(psideWin, szReason);
                 }
             }
@@ -7444,10 +7443,10 @@ void FedSrvSiteBase::KillStationEvent(IstationIGC* pstation, ImodelIGC* plaunche
       if ((otLauncher == OT_ship) && (psideLauncher == psideWin))
       {
 		//joeld - added 4th %s and pstation->GetCluster()->GetName() in next line.
-          sprintf(szReason, "%s has destroyed %s's %s in %s.", psideLauncher->GetName(), pside->GetName(), pstation->GetName(), pstation->GetCluster()->GetName());
+          Bounded::Format(szReason, "%s has destroyed %s's %s in %s.", psideLauncher->GetName(), pside->GetName(), pstation->GetName(), pstation->GetCluster()->GetName());
       }
       else
-          sprintf(szReason, "%s won by dominating their opponents", psideWin->GetName());
+          Bounded::Format(szReason, "%s won by dominating their opponents", psideWin->GetName());
       m_pfsMission->GameOver(psideWin, szReason);
   }
   else if ((otLauncher == OT_ship) && psideLauncher)
@@ -7942,7 +7941,7 @@ bool FedSrvSiteBase::DockWithStationEvent(IshipIGC* pship, IstationIGC* pstation
           if (psideWin)
           {
               static char szReason[100];     //Make this static so we only need to keep a pointer to it around
-              sprintf(szReason, 
+              Bounded::Format(szReason, 
                       (sidFlag != NA)
                       ? "%s wins with the flag recovered by %s"
                       : "%s wins with the artifact recovered by %s",
@@ -8694,7 +8693,7 @@ IshipIGC*   PickNewLeader(const ShipListIGC*    pships,
       OVERLAPPED* pov = (OVERLAPPED*)(new char [ sizeof(OVERLAPPED) + cbLine ]);
       *pov = m_overlapped;
       GetLocalTime(&systime);
-      wsprintf((char*)(pov + 1), "%02d/%02d %02d:%02d:%02d.%03d ", systime.wMonth, systime.wDay, 
+      Bounded::Format((char*)(pov + 1), "%02d/%02d %02d:%02d:%02d.%03d ", systime.wMonth, systime.wDay, 
           systime.wHour, systime.wMinute, systime.wSecond, systime.wMilliseconds);
       //_strtime((char*)(pov + 1));
       //((char*)(pov + 1))[8] = ' ';
@@ -8721,7 +8720,7 @@ IshipIGC*   PickNewLeader(const ShipListIGC*    pships,
           if (dt > 20)
           {
               static char    bfr[200];
-              sprintf(bfr, "DebugOutput delay of %f: %d %d\n", float(dt) / 1000.0f, tStart.clock(), tStop.clock());
+              Bounded::Format(bfr, "DebugOutput delay of %f: %d %d\n", float(dt) / 1000.0f, tStart.clock(), tStop.clock());
               if (m_dwDebug & FED_DEBUG_FILE)
                   AsyncFileOut(bfr);
 

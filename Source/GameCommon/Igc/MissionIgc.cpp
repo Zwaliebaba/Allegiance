@@ -214,7 +214,7 @@ int     LoadIGCStaticCore (const char* name, ImissionIGC* pMission, bool fGetVer
             CachedLink* pcl = new CachedLink;
 
             pcl->data().pstatic = pMission->GetStaticCore();
-            strcpy(pcl->data().name, name);
+            Bounded::Copy(pcl->data().name, name);
             pcl->data().version = iStaticCoreVersion;
             pcl->data().consumers = 1;
 
@@ -1142,7 +1142,7 @@ void                        CmissionIGC::AddSide(IsideIGC*  s)
     {
         //create the lobby side
         DataSideIGC sidedata;
-        strcpy(sidedata.name, "Team Lobby");
+        Bounded::Copy(sidedata.name, "Team Lobby");
         sidedata.civilizationID = GetCivilizations()->first()->data()->GetObjectID();
         sidedata.sideID = SIDE_TEAMLOBBY;
         sidedata.gasAttributes.Initialize();
@@ -1256,7 +1256,7 @@ void                        CmissionIGC::UpdateSides(Time now,
                          sideColors[sid][1],
                          sideColors[sid][2]);
         memset(ds.name, 0x00, sizeof(ds.name));
-        strcpy(ds.name, sideNames[sid]);
+        Bounded::Copy(ds.name, sideNames[sid]);
         ds.ttbmDevelopmentTechs.ClearAll();
         ds.ttbmInitialTechs.ClearAll();
         ds.conquest = 0;
@@ -1628,7 +1628,7 @@ const char*             CmissionIGC::GetContextName(void)
 
   // Format the context string
   char szContext[24];
-  sprintf(szContext, "%c%02d%02d%02d%02d%02d%04d%02d",
+  Bounded::Format(szContext, "%c%02d%02d%02d%02d%02d%04d%02d",
       'U', // 'Z' marked admin-created games on the Zone club servers
       st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, GetMissionID() % 10000, GetReplayCount() % 100);
 

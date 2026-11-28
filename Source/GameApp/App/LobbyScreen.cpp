@@ -141,12 +141,12 @@ public:
             return;
         }
 
-        lstrcpy(m_szConfig, "http://Allegiance.zone.com/Allegiance.cfg");
+        Bounded::Copy(m_szConfig, "http://Allegiance.zone.com/Allegiance.cfg");
 
         // CfgFile: a config file URL, or a local file, instead of the default
         std::string strCfgFile = ZSettings::GetString("CfgFile", "");
         if (!strCfgFile.empty() && strCfgFile.size() < sizeof(m_szConfig))
-            lstrcpy(m_szConfig, strCfgFile.c_str());
+            Bounded::Copy(m_szConfig, strCfgFile.c_str());
 
         if (StrFind(ZString(m_szConfig), "http://") == -1)
         {
@@ -277,8 +277,8 @@ public:
         debugf("Downloaded file: %s\n", szFileName);
 
         char szPath[MAX_PATH+20];
-        strcpy(szPath, m_pSession->GetDownloadPath());
-        strcat(szPath, szFileName);
+        Bounded::Copy(szPath, m_pSession->GetDownloadPath());
+        Bounded::Append(szPath, szFileName);
 
         if (!IsFileValid(szPath))
         {

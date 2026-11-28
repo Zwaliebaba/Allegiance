@@ -121,11 +121,11 @@ public:
             m_pszFileList = m_pszFileListData;
         }
 
-        strcpy(m_szDestFolder, szDestFolder);
+        Bounded::Copy(m_szDestFolder, szDestFolder);
         if (m_szDestFolder[0] == '\0' ||  // prevent access of not our memory        
            m_szDestFolder[strlen(m_szDestFolder)-1] != '\\')
         {
-           strcat(m_szDestFolder, "\\");
+           Bounded::Append(m_szDestFolder, "\\");
         }
 
         m_bAutoDisconnect = bDisconnectWhenDone;
@@ -468,8 +468,8 @@ protected:
        // Make Path
        //
        char szFilename[MAX_PATH+20];
-       strcpy(szFilename, m_szDestFolder);
-       strcat(szFilename, *m_pszFileList);
+       Bounded::Copy(szFilename, m_szDestFolder);
+       Bounded::Append(szFilename, *m_pszFileList);
 
        m_hFile = CreateFile(szFilename, 
                                  GENERIC_WRITE, 
@@ -557,23 +557,25 @@ protected:
      *    dwErrorCode: take a dwErrorCode and print what it means as text    
      * 
      */
-    void FormatErrorMessage(char *szBuffer, DWORD dwErrorCode)
+    void FormatErrorMessage(char* _buffer, size_t _size, DWORD _errorCode)
     {
-
-      sprintf(szBuffer,"(%d) ", dwErrorCode);
+      // _buffer is the end of m_szLastError and _size what is left of it. (The
+      // server's response text used to be given the whole buffer's size from
+      // the end of it.)
+      size_t length = Bounded::Format(_buffer, _size, "(%d) ", _errorCode);
 
       FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | 
                     FORMAT_MESSAGE_IGNORE_INSERTS, 
                     nullptr, 
-                    dwErrorCode, 
+                    _errorCode, 
                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
-                    szBuffer + strlen(szBuffer),
-                    128,
+                    _buffer + length,
+                    (DWORD)(_size - length),
                     nullptr 
                     );
-      strcat(m_szLastError, "   ");
-      unsigned long dummy, size = sizeof(m_szLastError) - strlen(szBuffer) - 2;
-      InternetGetLastResponseInfo(&dummy, szBuffer + strlen(szBuffer), &size);
+      length = Bounded::Append(_buffer, _size, "   ");
+      unsigned long dummy, size = (unsigned long)(_size - length);
+      InternetGetLastResponseInfo(&dummy, _buffer + length, &size);
     }
 
 
@@ -594,8 +596,9 @@ protected:
         _vsnprintf_s(szMsg, sizeof(szMsg), _TRUNCATE, szFormat, pArg);
         va_end(pArg);
 
-        strcpy(m_szLastError, szMsg);
-        FormatErrorMessage(m_szLastError + strlen(m_szLastError), m_nLastErrorCode);
+        Bounded::Copy(m_szLastError, szMsg);
+        size_t length = strlen(m_szLastError);
+        FormatErrorMessage(m_szLastError + length, sizeof(m_szLastError) - length, m_nLastErrorCode);
 
         CloseDownloadFile(false);
 
@@ -620,7 +623,7 @@ protected:
         _vsnprintf_s(szMsg, sizeof(szMsg), _TRUNCATE, szFormat, pArg);
         va_end(pArg);
 
-        strcpy(m_szErrorInThread, szMsg);
+        Bounded::Copy(m_szErrorInThread, szMsg);
     }
 
     void KillDownload()

@@ -1925,7 +1925,7 @@ public:
     void Evaluate() override
     {
         char cbTemp[80];
-        sprintf(cbTemp, "%.2g", (double)GetNumber()->GetValue());
+        Bounded::Format(cbTemp, "%.2g", (double)GetNumber()->GetValue());
 
         GetValueInternal() = cbTemp;
     }

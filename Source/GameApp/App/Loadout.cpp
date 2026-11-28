@@ -165,7 +165,7 @@ public:
         Color colorShadow(0, 0, 33.0f / 256.0f);
 
         char szPrice[20];
-        sprintf(szPrice, "$ %d", m_moneyCost);
+        Bounded::Format(szPrice, "$ %d", m_moneyCost);
 
         pSurface->DrawStringWithShadow(
             TrekResources::SmallFont(),

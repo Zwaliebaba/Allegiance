@@ -646,7 +646,7 @@ public:
 
         if (QUIC_FAILED(status)) {
             char sz[200];
-            wsprintfA(sz, "Loading the TLS credential failed (0x%08x). QUIC needs TLS 1.3 from Windows: Windows 11 or Windows Server 2022 or later.", status);
+            Bounded::Format(sz, "Loading the TLS credential failed (0x%08x). QUIC needs TLS 1.3 from Windows: Windows 11 or Windows Server 2022 or later.", status);
             strError = sz;
             g_pquic->ConfigurationClose(hconfig);
             return NULL;
@@ -1042,7 +1042,7 @@ public:
                         ppeer->m_strReason = "the connection was refused";
                     } else {
                         char sz[64];
-                        wsprintfA(sz, "network error 0x%08x", status);
+                        Bounded::Format(sz, "network error 0x%08x", status);
                         ppeer->m_strReason = sz;
                     }
                 }

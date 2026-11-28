@@ -39,7 +39,7 @@ void CFSMission::InitSide(SideID sideID)
 */
   assert(sideID >= 0 && sideID < c_cSidesMax);
 
-  strcpy(m_misdef.rgszName[sideID], sideNames[sideID]);
+  Bounded::Copy(m_misdef.rgszName[sideID], sideNames[sideID]);
 
   /*
   if (m_misdef.misparms.rgCivID[sideID] == NA)
@@ -111,7 +111,7 @@ CFSMission::CFSMission(
 
   // keep track of whether this is a lobbied and/or club game
   m_misdef.misparms.bLobbiedGame = g.fmLobby.IsConnected();
-  strcpy(m_misdef.misparms.szIGCStaticFile, IGC_STATIC_CORE_FILENAME);
+  Bounded::Copy(m_misdef.misparms.szIGCStaticFile, IGC_STATIC_CORE_FILENAME);
   // hardcode this cap in one more place to make it harder to work around.
   m_misdef.misparms.nTotalMaxPlayersPerGame = min(c_cMaxPlayersPerGame, misparms.nTotalMaxPlayersPerGame);
 
@@ -128,12 +128,12 @@ CFSMission::CFSMission(
   if (szDesc)
   {
     assert(lstrlen(szDesc) < sizeof(m_misdef.szDescription));
-    lstrcpy(m_misdef.szDescription, szDesc);
+    Bounded::Copy(m_misdef.szDescription, szDesc);
   }
   else 
   {
     // use the description in the mission params
-    strncpy(m_misdef.szDescription, m_misdef.misparms.strGameName, sizeof(m_misdef.szDescription));
+    Bounded::Copy(m_misdef.szDescription, m_misdef.misparms.strGameName);
     m_misdef.szDescription[sizeof(m_misdef.szDescription)-1] = '\0';
   }
   m_misdef.iSideMissionOwner = NA; // will turn into the person who created this when they do a SideChange
@@ -180,7 +180,7 @@ CFSMission::CFSMission(
   m_pMission->SetMissionID(s_iMissionID++);
   char szRealTeams[] = ": All real teams";
   char szBuff[sizeof(m_misdef.misparms.strGameName) + sizeof(szRealTeams)];
-  wsprintf(szBuff, "%s%s", m_misdef.misparms.strGameName, szRealTeams);
+  Bounded::Format(szBuff, "%s%s", m_misdef.misparms.strGameName, szRealTeams);
   m_pgrpSidesReal = g.fm.CreateGroup(szBuff);
 
   GetSystemTime(&m_stStartTime);
@@ -1342,7 +1342,7 @@ void CFSMission::SetSideName(SideID sid, const char* szName)
   ZString strNameOld(m_misdef.rgszName[sid]);
   if (szName != m_misdef.rgszName[sid])
   {
-    strncpy(m_misdef.rgszName[sid], szName, c_cbName - 1);
+    Bounded::Copy(m_misdef.rgszName[sid], szName);
     m_misdef.rgszName[sid][c_cbName-1] = '\0';
     m_pMission->GetSide(sid)->SetName(m_misdef.rgszName[sid]);
   }
@@ -1352,7 +1352,7 @@ void CFSMission::SetSideName(SideID sid, const char* szName)
   END_PFM_CREATE
   pfmSetTeamInfo->sideID = sid;
   pfmSetTeamInfo->squadID = pside->GetSquadID();
-  strcpy(pfmSetTeamInfo->SideName, m_misdef.rgszName[sid]);
+  Bounded::Copy(pfmSetTeamInfo->SideName, m_misdef.rgszName[sid]);
   g.fm.SendMessages(GetGroupMission(), FM_GUARANTEED, FM_FLUSH);
 
   // Fire an AGCEvent to indicate the Team info change
@@ -1571,7 +1571,7 @@ void CFSMission::SetMissionParams(const MissionParams & misparmsNew)
 
   // don't even think about changing the IGC static stuff.
   misparms.verIGCcore = m_misdef.misparms.verIGCcore;
-  strncpy(misparms.szIGCStaticFile, m_misdef.misparms.szIGCStaticFile, c_cbFileName);
+  Bounded::Copy(misparms.szIGCStaticFile, m_misdef.misparms.szIGCStaticFile);
 
   int numTeamsOld = m_misdef.misparms.nTeams;
 
@@ -2223,7 +2223,7 @@ void CFSMission::DoTick(Time timeNow)
                 if (psideWin)
                 {
                     static char szReason[100];
-                    sprintf(szReason, "The clock has stopped. The winner: %s by %s", psideWin->GetName(), pszClue);
+                    Bounded::Format(szReason, "The clock has stopped. The winner: %s by %s", psideWin->GetName(), pszClue);
                     GameOver(psideWin, szReason);
                 }
                 else
@@ -2362,7 +2362,7 @@ void CFSMission::SaveAsOldPlayer(CFSPlayer* pfsplayer, bool bBooted)
 
   OldPlayerInfo&  opi = popl->data();
 
-  strcpy(opi.name, pfsplayer->GetName());
+  Bounded::Copy(opi.name, pfsplayer->GetName());
 
   PlayerScoreObject*  ppso = pfsplayer->GetPlayerScoreObject();
   opi.pso = *ppso;
@@ -2505,7 +2505,7 @@ void CFSMission::QueueGameoverMessage()
   {
     IsideIGC* pside = m_pMission->GetSide(sideID);
 
-    strcpy(pfmGameOver->rgSides[sideID].sideName, pside ? pside->GetName() : "<bug>");
+    Bounded::Copy(pfmGameOver->rgSides[sideID].sideName, pside ? pside->GetName() : "<bug>");
     pfmGameOver->rgSides[sideID].civID = pside ? pside->GetCivilization()->GetObjectID() : -1;
     pfmGameOver->rgSides[sideID].color = pside ? pside->GetColor() : Color(0.5, 0.5, 0.5);
     pfmGameOver->rgSides[sideID].cKills = pside ? pside->GetKills() : 0;
@@ -2539,7 +2539,7 @@ void CFSMission::QueueGameoverMessage()
       PlayerScoreObject*    ppso = pfsPlayer->GetPlayerScoreObject();
       if (ppso->GetTimePlayed() > 0.0f && pfsPlayer->GetSide()->GetObjectID() != SIDE_TEAMLOBBY)
       {
-          strcpy(playerlist[nPlayerIndex].characterName, pfsPlayer->GetName());
+          Bounded::Copy(playerlist[nPlayerIndex].characterName, pfsPlayer->GetName());
           playerlist[nPlayerIndex].scoring.Set(pfsPlayer->GetPlayerScoreObject());
           playerlist[nPlayerIndex].stats = ppso->GetPersist();
           playerlist[nPlayerIndex].sideId = pfsPlayer->GetSide()->GetObjectID();
@@ -2555,7 +2555,7 @@ void CFSMission::QueueGameoverMessage()
 
       if (opi.pso.GetTimePlayed() != 0.0f && opi.sideID != SIDE_TEAMLOBBY)
       {
-          strcpy(playerlist[nPlayerIndex].characterName, opi.name);
+          Bounded::Copy(playerlist[nPlayerIndex].characterName, opi.name);
           playerlist[nPlayerIndex].scoring.Set(&(opi.pso));
           playerlist[nPlayerIndex].stats = opi.pso.GetPersist();
           playerlist[nPlayerIndex].sideId = opi.sideID;
@@ -3171,9 +3171,9 @@ void CFSMission::CreateDPGroups(IclusterIGC * pcluster)
   char szDocked[] = "Everyone docked in sector ";
   char szFlying[] = "Everyone flying in sector ";
   char szBuff[max(sizeof(szDocked), sizeof(szFlying)) + c_cbName + 1];
-  wsprintf(szBuff, "%s%s", szDocked, pcluster->GetName());
+  Bounded::Format(szBuff, "%s%s", szDocked, pcluster->GetName());
   pcg->pgrpClusterDocked = g.fm.CreateGroup(szBuff);
-  wsprintf(szBuff, "%s%s", szDocked, pcluster->GetName());
+  Bounded::Format(szBuff, "%s%s", szDocked, pcluster->GetName());
   pcg->pgrpClusterFlying = g.fm.CreateGroup(szBuff);
 
   ((CFSCluster*)pcluster->GetPrivateData())->SetClusterGroups(pcg);
@@ -4286,7 +4286,7 @@ void CFSMission::DeactivateSide(IsideIGC * pside)
             StartGame();
 
           static char szReason[100];     //Make this static so we only need to keep a pointer to it around
-          sprintf(szReason, "%s won by outlasting all other sides.", psideWin->GetName());
+          Bounded::Format(szReason, "%s won by outlasting all other sides.", psideWin->GetName());
           GameOver(psideWin, szReason);
       }
       else if ((m_psideWon == nullptr) && pships->n())

@@ -474,8 +474,8 @@ public:
         }
         pchName[1] = '\0';
         char    szFolder[MAX_PATH + 16];
-        strcpy (szFolder, szServer);
-        strcpy (pchName + 1, "AllSrv32.exe");
+        Bounded::Copy(szFolder, szServer);
+        Bounded::Copy(pchName + 1, sizeof(szServer) - (pchName + 1 - szServer), "AllSrv32.exe");
 
         // the stop event, inherited by the server
         SECURITY_ATTRIBUTES sa = { sizeof (sa), nullptr, TRUE };
@@ -500,7 +500,7 @@ public:
             && UpdateProcThreadAttribute (pattributes, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, &m_hServerStop, sizeof (HANDLE), nullptr, nullptr);
 
         char    szCommandLine[MAX_PATH + 96];
-        sprintf (szCommandLine, "\"%s\" -training %d -stopevent %llu", szServer, m_civID, (unsigned long long) (UINT_PTR) m_hServerStop);
+        Bounded::Format(szCommandLine, "\"%s\" -training %d -stopevent %llu", szServer, m_civID, (unsigned long long) (UINT_PTR) m_hServerStop);
 
         STARTUPINFOEX           si;
         PROCESS_INFORMATION     pi;
@@ -522,7 +522,7 @@ public:
             KillStandaloneGame ();
 
             char    szError[MAX_PATH + 128];
-            sprintf (szError, "Unable to create a game: the training server (%s) could not be started (error %lu).", szServer, dwError);
+            Bounded::Format(szError, "Unable to create a game: the training server (%s) could not be started (error %lu).", szServer, dwError);
             ShowError (szError);
             return HRESULT_FROM_WIN32 (dwError);
         }
@@ -617,7 +617,7 @@ public:
                 // set up the connection info
                 BaseClient::ConnectInfo     ci;
                 ci.guidSession = iterNew.Value ()->guidSession;
-                strcpy (ci.szName, "Cadet");
+                Bounded::Copy(ci.szName, "Cadet");
 
                 // we try five times
                 iTryCount = 5;
@@ -654,7 +654,7 @@ public:
             // report the number of servers found as a diagnostic
             #ifdef _DEBUG
             char    szBuffer[256];
-            sprintf (szBuffer, "Found %d servers.\n", listResults.GetCount ());
+            Bounded::Format(szBuffer, "Found %d servers.\n", listResults.GetCount ());
             debugf (szBuffer);
             #endif
         }

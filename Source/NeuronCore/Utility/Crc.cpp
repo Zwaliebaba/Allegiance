@@ -157,7 +157,7 @@ int FileCRC(HANDLE hFile, char * szErrorMsg)
    if (buffer == nullptr)
    {
       if(szErrorMsg)
-        sprintf(szErrorMsg, "Memory error before reading file; Error Code: %d; ", GetLastError());
+        Bounded::Format(szErrorMsg, FILE_ERROR_SIZE, "Memory error before reading file; Error Code: %d; ", GetLastError());
 
       return 0;
    }
@@ -167,7 +167,7 @@ int FileCRC(HANDLE hFile, char * szErrorMsg)
    if (!ReadFile(hFile, buffer, size, &cBytesRead, nullptr))
    {
       if(szErrorMsg)
-        sprintf(szErrorMsg, "Failed read file; Error Code: %d; ", GetLastError());
+        Bounded::Format(szErrorMsg, FILE_ERROR_SIZE, "Failed read file; Error Code: %d; ", GetLastError());
       return 0;
    }
 
@@ -201,7 +201,7 @@ int FileCRC(const char *szFilename, char * szErrorMsg)
    if (hFile == INVALID_HANDLE_VALUE)
    {
       if(szErrorMsg)
-        sprintf(szErrorMsg, "Failed open file (%s); Error Code: %d ", szFilename, GetLastError());
+        Bounded::Format(szErrorMsg, FILE_ERROR_SIZE, "Failed open file (%s); Error Code: %d ", szFilename, GetLastError());
       return 0;
    }
 
@@ -210,14 +210,14 @@ int FileCRC(const char *szFilename, char * szErrorMsg)
    if (nCRC == 0)
    {
       if(szErrorMsg)
-          strcat(szErrorMsg, szFilename);
+          Bounded::Append(szErrorMsg, FILE_ERROR_SIZE, szFilename);
    }
    else
    {
        if (!::CloseHandle(hFile))
        {
           if(szErrorMsg)
-              sprintf(szErrorMsg, "Couldn't close file (%s); Error Code: %d ", szFilename, GetLastError());
+              Bounded::Format(szErrorMsg, FILE_ERROR_SIZE, "Couldn't close file (%s); Error Code: %d ", szFilename, GetLastError());
           return 0;
        }
    }

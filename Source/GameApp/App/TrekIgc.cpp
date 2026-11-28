@@ -2755,7 +2755,7 @@ void WinTrekClient::PostNotificationText(ImodelIGC* pmodel, bool bCritical, cons
 
         va_list vl;
         va_start(vl, pszText);
-        _vsnprintf(bfr, size, pszText, vl);
+        Bounded::FormatList(bfr, size, pszText, vl);
         va_end(vl);
 
         if (bCritical) 
@@ -2828,7 +2828,7 @@ void WinTrekClient::PostText(bool bCritical, const char* pszText, ...)
 
         va_list vl;
         va_start(vl, pszText);
-        _vsnprintf(bfr, size, pszText, vl);
+        Bounded::FormatList(bfr, size, pszText, vl);
         va_end(vl);
 
         if (bCritical) 
@@ -3155,7 +3155,7 @@ void WinTrekClient::StationTypeCompleted(IbucketIGC * pbucket, IstationIGC* psta
 void WinTrekClient::BuildStation(IasteroidIGC* pasteroid, IsideIGC* pside, IstationTypeIGC* pstationtype, Time now)
 {
     DataStationIGC  ds;
-    strcpy(ds.name, pstationtype->GetName());
+    Bounded::Copy(ds.name, pstationtype->GetName());
     ds.clusterID    = pasteroid->GetCluster()->GetObjectID();
     ds.position     = pasteroid->GetPosition();
     ds.forward      = pasteroid->GetOrientation ().GetForward ();
@@ -3985,8 +3985,8 @@ void            WinTrekClient::Preload(const char*  pszModelName,
     if (pszTextureName)
     {
         char    bfr[c_cbFileName + 4];
-        strcpy(bfr, pszTextureName);
-        strcat(bfr, "bmp");
+        Bounded::Copy(bfr, pszTextureName);
+        Bounded::Append(bfr, "bmp");
 
         GetModeler()->GetNameSpace(bfr);
     }

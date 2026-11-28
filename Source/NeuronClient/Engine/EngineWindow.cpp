@@ -1131,7 +1131,7 @@ void EngineWindow::DoIdle()
 void EngineWindow::SetShowFPS(bool bFPS, const char* pszLabel)
 {
     if (pszLabel)
-        strncpy(m_pszLabel, pszLabel, sizeof(m_pszLabel) - 1);
+        Bounded::Copy(m_pszLabel, pszLabel);
     else
         m_pszLabel[0] = '\0';
 

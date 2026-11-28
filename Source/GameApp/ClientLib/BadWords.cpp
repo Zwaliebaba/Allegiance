@@ -325,8 +325,9 @@ void    FilterBadWords (char* szString)
     const char*    random = "*&^%$#@!!@#$%^&*@$^*!#%&&%#!*^$@";
 
     // copy the string and make it totally lowercase
-    char*   szLowerCopy = new char[strlen (szString) + 1];
-    strcpy (szLowerCopy, szString);
+    size_t  cbLowerCopy = strlen (szString) + 1;
+    char*   szLowerCopy = new char[cbLowerCopy];
+    Bounded::Copy(szLowerCopy, cbLowerCopy, szString);
     char*   tmp = szLowerCopy;
     while (*tmp)
     {
@@ -369,8 +370,8 @@ ZString CensorBadWords (const ZString& string)
 {
     if (g_bCensor)
     {
-        char*       szBuffer = new char[(int)string.size() + 1];
-        strcpy (szBuffer, string.c_str());
+        char*       szBuffer = new char[string.size() + 1];
+        Bounded::Copy(szBuffer, string.size() + 1, string.c_str());
         FilterBadWords (szBuffer);
         ZString     result (szBuffer);
         delete[] szBuffer;

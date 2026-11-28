@@ -200,7 +200,7 @@ public:
             if (pplayer->IsHuman() && pplayer->SideID() == trekClient.GetSideID())
             {
                 char cbTemp[256];
-                wsprintf(cbTemp, "%d", pplayer->GetMoney());
+                Bounded::Format(cbTemp, "%d", pplayer->GetMoney());
                 psurface->DrawString(
                     TrekResources::SmallFont(),
                     color,
@@ -1668,7 +1668,7 @@ class ExpandedTeamPane : public TeamPane
             if (pplayer->IsHuman() && pplayer->SideID() == trekClient.GetSideID())
             {
                 char cbTemp[256];
-                wsprintf(cbTemp, "%d", pplayer->GetMoney());
+                Bounded::Format(cbTemp, "%d", pplayer->GetMoney());
                 psurface->DrawString(
                     pfont,
                     color,

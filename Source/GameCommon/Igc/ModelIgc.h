@@ -264,7 +264,7 @@ class   CmodelIGC
             assert (strlen(newVal) < c_cbName-1);
             m_name[0] = '\0';
 
-            strcpy(m_name+1, newVal);
+            Bounded::Copy(m_name + 1, sizeof(m_name) - 1, newVal);
         }
 
         void                SetSignature(float    newVal)

@@ -19,14 +19,14 @@ ZString StrFromInt(int value)
 ZString StrFromFloat(float value)
 {
     char buf[32];
-    sprintf(buf, "%g", value);
+    Bounded::Format(buf, "%g", value);
     return buf;
 }
 
 ZString StrFromFloat(float value, int total, int precision)
 {
     char buf[64];
-    sprintf(buf, "%*.*f", total, precision, value);
+    Bounded::Format(buf, "%*.*f", total, precision, value);
     return buf;
 }
 

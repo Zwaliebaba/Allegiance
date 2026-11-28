@@ -118,7 +118,7 @@ public:
                 p = szArtPath;
             else
                 p++;
-            strcpy(p, "artwork");
+            Bounded::Copy(p, sizeof(szArtPath) - (p - szArtPath), "artwork");
             pathStr = szArtPath;
         }
 

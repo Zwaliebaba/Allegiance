@@ -201,7 +201,7 @@ class CmapMakerIGC : public ImapMakerIGC
         char const* GetName() const override
             { return(mszName); }
         VOID        SetName(const char * newVal) override
-            { strcpy(mszName, newVal); }
+            { Bounded::Copy(mszName, newVal); }
 
         VOID        GenerateMission(Time now,
                                             const MissionParams * pmp,

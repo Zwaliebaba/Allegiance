@@ -182,7 +182,7 @@ public:
     {
         INT_PTR data = (INT_PTR)this;
         char buf[30];
-        sprintf(buf,"%Id", data);
+        Bounded::Format(buf,"%Id", data);
         pSurface->DrawString(TrekResources::SmallFont(), Color::White(), rect.Min(), buf);
     }
 };

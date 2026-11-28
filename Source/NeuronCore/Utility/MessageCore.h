@@ -93,8 +93,9 @@ protected:
   CFMRecipient(const char * szName, DWORD id) :
     m_id(id)
   {
-    m_szName = new char[lstrlen(szName) + 1];
-    lstrcpy(m_szName, szName);
+    size_t size = strlen(szName) + 1;
+    m_szName = new char[size];
+    Bounded::Copy(m_szName, size, szName);
   }
   virtual ~CFMRecipient()
   {

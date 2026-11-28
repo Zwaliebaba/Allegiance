@@ -685,7 +685,7 @@ HRESULT FedMessaging::HostSession(const FedApplication & app, bool fKeepAlive, H
     delete ptransport;
 
     char szMsg[256];
-    wsprintf(szMsg, "The server could not listen on UDP port %u. Another server may be using it, "
+    Bounded::Format(szMsg, "The server could not listen on UDP port %u. Another server may be using it, "
                     "or QUIC is unavailable (it needs Windows 11 or Windows Server 2022 or later).", port);
     m_pfmSite->OnMessageBox(this, szMsg, "Allegiance", MB_OK);
     return hr;
@@ -886,7 +886,7 @@ HRESULT FedMessaging::JoinServer(const FedApplication & app, const char * szHost
     delete ptransport;
 
     char szMsg[512];
-    _snprintf(szMsg, sizeof(szMsg) - 1, "Could not join the session on %s: %s.", szHost, strReason.c_str());
+    Bounded::Format(szMsg, sizeof(szMsg) - 1, "Could not join the session on %s: %s.", szHost, strReason.c_str());
     szMsg[sizeof(szMsg) - 1] = '\0';
     m_pfmSite->OnMessageBox(this, szMsg, "Allegiance", MB_OK);
 
