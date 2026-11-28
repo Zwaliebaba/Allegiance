@@ -8690,10 +8690,10 @@ IshipIGC*   PickNewLeader(const ShipListIGC*    pships,
       DWORD l = strlen(psz);
       const int c_cbPrefix = 19; // time format: 12/31 23:59:59.999 
       DWORD cbLine = l + c_cbPrefix;
-      OVERLAPPED* pov = (OVERLAPPED*)(new char [ sizeof(OVERLAPPED) + cbLine ]);
+      OVERLAPPED* pov = (OVERLAPPED*)(new char [ sizeof(OVERLAPPED) + cbLine + 1 ]);   // + 1: the prefix is formatted with its terminator
       *pov = m_overlapped;
       GetLocalTime(&systime);
-      Bounded::Format((char*)(pov + 1), "%02d/%02d %02d:%02d:%02d.%03d ", systime.wMonth, systime.wDay, 
+      Bounded::Format((char*)(pov + 1), cbLine + 1, "%02d/%02d %02d:%02d:%02d.%03d ", systime.wMonth, systime.wDay, 
           systime.wHour, systime.wMinute, systime.wSecond, systime.wMilliseconds);
       //_strtime((char*)(pov + 1));
       //((char*)(pov + 1))[8] = ' ';
